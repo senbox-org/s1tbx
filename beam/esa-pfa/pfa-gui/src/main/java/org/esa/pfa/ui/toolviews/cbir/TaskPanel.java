@@ -124,6 +124,15 @@ public abstract class TaskPanel extends JPanel {
     public abstract boolean hasNextPanel();
 
     /**
+     * Returns true if its possible to move on to the next panel.
+     *
+     * @return boolean.
+     */
+    public boolean canProceedToNextPanel() {
+        return true;
+    }
+
+    /**
      * Returns true if it is possible to finish from this panel.
      *
      * @return boolean.

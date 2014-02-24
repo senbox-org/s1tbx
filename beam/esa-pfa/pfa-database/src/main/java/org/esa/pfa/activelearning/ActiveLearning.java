@@ -145,7 +145,7 @@ public class ActiveLearning {
             final double[] decValues = new double[numClasses*(numClasses-1)/2];
             for (Patch patch:patchArray) {
                 double p = svmClassifier.classify(patch, decValues);
-                final int label = p<1?0:1;
+                final int label = p<1?Patch.LABEL_IRRELEVANT:Patch.LABEL_RELEVANT;
                 patch.setLabel(label);
                 patch.setDistance(decValues[0]);
                 System.out.println("Classified patch: x" + patch.getPatchX() + "y" + patch.getPatchY() + ", label: " + label);
@@ -215,7 +215,7 @@ public class ActiveLearning {
     private void checkLabels(Patch[] patchArray) throws Exception {
 
         for (Patch patch:patchArray) {
-            if (patch.getLabel() == -1) {
+            if (patch.getLabel() == Patch.LABEL_NONE) {
                 throw new Exception("Found unlabeled patch(s)");
             }
         }

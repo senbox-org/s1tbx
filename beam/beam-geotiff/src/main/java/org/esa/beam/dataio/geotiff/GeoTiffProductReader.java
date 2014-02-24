@@ -170,7 +170,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     int Offset = 0;
                     for(int i=0; i<h; i++) {
                         for (int j=0; j<w; j++) {
-                            destBuffer.setElemIntAt(Offset++, sampleModel.getSample(j, i, bandIdx, dataBuffer));
+                            destBuffer.setElemDoubleAt(Offset++, sampleModel.getSample(j, i, bandIdx, dataBuffer));
                         }
                     }
                 }

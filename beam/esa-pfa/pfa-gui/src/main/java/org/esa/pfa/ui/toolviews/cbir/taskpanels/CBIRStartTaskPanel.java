@@ -15,7 +15,9 @@
  */
 package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
+import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.PFAApplicationRegistry;
 import org.esa.pfa.search.CBIRSession;
@@ -23,8 +25,10 @@ import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
 
 /**
     Start Panel
@@ -32,6 +36,7 @@ import java.awt.event.ItemListener;
 public class CBIRStartTaskPanel extends TaskPanel {
 
     private final static String instructionsStr = "Select a feature extraction application";
+    private final static String PROPERTY_KEY_DB_PATH = "app.file.cbir.dbPath";
 
     private JComboBox<String> applicationCombo = new JComboBox<>();
 
@@ -39,6 +44,9 @@ public class CBIRStartTaskPanel extends TaskPanel {
     private JTextField numTrainingImages = new JTextField("12");
     private JTextField numRetrievedImages = new JTextField("50");
     private JLabel iterationsLabel = new JLabel();
+
+    private File dbFolder;
+    private final JTextField dbFolderTextField = new JTextField();
 
     private CBIRSession session = null;
 
@@ -56,6 +64,11 @@ public class CBIRStartTaskPanel extends TaskPanel {
 
             }
         });
+
+        dbFolder = new File(VisatApp.getApp().getPreferences().getPropertyString(PROPERTY_KEY_DB_PATH, ""));
+        if(dbFolder.exists()) {
+            dbFolderTextField.setText(dbFolder.getAbsolutePath());
+        }
 
         createPanel();
     }
@@ -87,7 +100,15 @@ public class CBIRStartTaskPanel extends TaskPanel {
             final String application = (String)applicationCombo.getSelectedItem();
             final PFAApplicationDescriptor applicationDescriptor = PFAApplicationRegistry.getInstance().getDescriptor(application);
 
-            session = new CBIRSession(applicationDescriptor, numTrainingImg, numRetrievedImg);
+            String dbPath = dbFolderTextField.getText();
+            dbFolder = new File(dbPath);
+            if(dbPath.isEmpty() || !dbFolder.exists()) {
+                throw new Exception("Database path is invalid");
+            }
+
+            session = new CBIRSession(applicationDescriptor, dbPath, numTrainingImg, numRetrievedImg);
+            VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_DB_PATH, dbFolder.getAbsolutePath());
+
             return true;
         } catch (Exception e) {
             showErrorMsg(e.getMessage());
@@ -144,6 +165,112 @@ public class CBIRStartTaskPanel extends TaskPanel {
         gbc.gridx = 1;
         contentPane.add(optionsPane, gbc);
 
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy++;
+        contentPane.add(createClassifierButtonPanel(), gbc);
+        gbc.gridy++;
+        contentPane.add(new JLabel("Local database:"), gbc);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        contentPane.add(dbFolderTextField, gbc);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.NONE;
+
+        final JButton fileChooserButton = new JButton(new FolderChooserAction("..."));
+        contentPane.add(fileChooserButton, gbc);
+
         this.add(contentPane, BorderLayout.CENTER);
+        this.add(createSideButtonPanel(), BorderLayout.EAST);
+    }
+
+    private JPanel createClassifierButtonPanel() {
+        final JPanel panel = new JPanel();
+
+        final JButton newBtn = new JButton(new AbstractAction("New") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        final JButton loadBtn = new JButton(new AbstractAction("Load") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        final JButton saveBtn = new JButton(new AbstractAction("Save") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        final JButton editBtn = new JButton(new AbstractAction("Edit") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        panel.add(newBtn);
+        panel.add(loadBtn);
+        panel.add(saveBtn);
+        panel.add(editBtn);
+
+        return panel;
+    }
+
+    private JPanel createSideButtonPanel() {
+        final JPanel panel = new JPanel();
+        final BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(layout);
+
+        final JButton btn1 = new JButton(new AbstractAction("1") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        final JButton btn2 = new JButton(new AbstractAction("2") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        final JButton btn3 = new JButton(new AbstractAction("3") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        final JButton btn4 = new JButton(new AbstractAction("4") {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        panel.add(btn1);
+        panel.add(btn2);
+        panel.add(btn3);
+        panel.add(btn4);
+
+        return panel;
+    }
+
+    private class FolderChooserAction extends AbstractAction {
+
+        private String APPROVE_BUTTON_TEXT = "Select";
+        private JFileChooser chooser;
+
+        private FolderChooserAction(final String text) {
+            super(text);
+            chooser = new FolderChooser();
+            chooser.setDialogTitle("Find database folder");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            final Window window = SwingUtilities.getWindowAncestor((JComponent) event.getSource());
+            if(dbFolder.exists()) {
+                chooser.setCurrentDirectory(dbFolder.getParentFile());
+            }
+            if (chooser.showDialog(window, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
+                final File file = chooser.getSelectedFile();
+                dbFolderTextField.setText(file.getAbsolutePath());
+            }
+        }
     }
 }

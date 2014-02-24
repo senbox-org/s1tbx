@@ -55,17 +55,6 @@
     </extension>
 
     <extension point="beam-ui:actions">
-        <action>
-            <id>PatchSelectionInteractor</id>
-            <class>org.esa.beam.visat.actions.ToolAction</class>
-            <interactor>org.esa.pfa.ui.toolviews.cbir.PatchSelectionInteractor</interactor>
-            <!--interactorListener>array.rstb.dat.actions.AnnotationInterceptor</interactorListener-->
-            <parent>labelsToolBar</parent>
-            <text>Select a CBIR patch</text>
-            <shortDescr>Select a CBIR patch</shortDescr>
-            <largeIcon>icons/DrawRectangleTool24.gif</largeIcon>
-            <context>image</context>
-            <selected>false</selected>
-        </action>
+
     </extension>
 </module>

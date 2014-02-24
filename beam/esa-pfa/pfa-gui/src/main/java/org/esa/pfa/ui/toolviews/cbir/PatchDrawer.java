@@ -28,11 +28,11 @@ import java.awt.image.BufferedImage;
  */
 public class PatchDrawer extends JPanel implements MouseListener {
 
-    private final static int width = 100;
-    private final static int height = 100;
+    private final static int width = 150;
+    private final static int height = 150;
     private final static int margin = 4;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final Font font = new Font("Ariel", Font.BOLD, 18);
 
     private static final ImageIcon iconTrue = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/check_ball.png"));
@@ -45,7 +45,7 @@ public class PatchDrawer extends JPanel implements MouseListener {
     private PatchDrawing selection = null;
 
     public PatchDrawer(final Patch[] imageList) {
-        super();
+        super(new FlowLayout(FlowLayout.LEADING));
 
         addMouseListener(this);
         update(imageList);
@@ -78,13 +78,13 @@ public class PatchDrawer extends JPanel implements MouseListener {
         int y = p.y / (height +  margin+1);
         if(numColumns > this.getComponentCount())
             x -= 1;
-        selection = (PatchDrawing)this.getComponent((y*numColumns) + x);
+        selection = (PatchDrawing)this.getComponent(Math.max(0, (y*numColumns) + x));
 
         Patch patch = selection.getPatch();
         if(e.getButton() == 1) {
-            patch.setLabel(1);
+            patch.setLabel(Patch.LABEL_RELEVANT);
         } else if(e.getButton() == 3) {
-            patch.setLabel(0);
+            patch.setLabel(Patch.LABEL_IRRELEVANT);
         }
 
         repaint();
@@ -100,7 +100,6 @@ public class PatchDrawer extends JPanel implements MouseListener {
      * Invoked when a mouse button has been released on a component.
      */
     public void mouseReleased(MouseEvent e){
-        System.out.println(e.getX()+", "+e.getY());
     }
 
     /**
@@ -145,10 +144,11 @@ public class PatchDrawer extends JPanel implements MouseListener {
                 g.drawString(Integer.toString(patch.getID()), 35, 50);
             }
 
-            if(patch.getLabel() > -1) {
-                if(patch.getLabel() == 1) {
+            final int label = patch.getLabel();
+            if(label > Patch.LABEL_NONE) {
+                if(label == Patch.LABEL_RELEVANT) {
                     g.drawImage(iconTrue.getImage(), 0, 0, null);
-                } else if(patch.getLabel() == 0) {
+                } else if(label == Patch.LABEL_IRRELEVANT) {
                     g.drawImage(iconFalse.getImage(), 0, 0, null);
                 }
             }

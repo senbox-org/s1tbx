@@ -38,17 +38,17 @@ public class CBIRSession {
     private int numTrainingImages;
     private int numRetrievedImages;
 
-    //todo configure properly
-    private static final String ARCHIVE_FOLDER = "P:\\pfa\\pfa\\data\\urban_archive";
-
-    private SearchToolStub searchTool = new SearchToolStub(ARCHIVE_FOLDER);
+    private final SearchToolStub searchTool;
 
     public CBIRSession(final PFAApplicationDescriptor applicationDescriptor,
-                       final int numTrainingImages, final int numRetrievedImages) {
+                       final String archivePath,
+                       final int numTrainingImages, final int numRetrievedImages) throws Exception {
         this.applicationDescriptor = applicationDescriptor;
 
         this.numTrainingImages = numTrainingImages;
         this.numRetrievedImages = numRetrievedImages;
+
+        this.searchTool = new SearchToolStub(archivePath);
     }
 
     public PFAApplicationDescriptor getApplicationDescriptor() {
@@ -76,6 +76,22 @@ public class CBIRSession {
         getImagesToLabel();
     }
 
+    public void reassignTrainingImage(final Patch patch) {
+        if(patch.getLabel() == Patch.LABEL_RELEVANT) {
+            int index = irrelevantImageList.indexOf(patch);
+            if(index != -1) {
+                irrelevantImageList.remove(index);
+                relevantImageList.add(patch);
+            }
+        } else if(patch.getLabel() == Patch.LABEL_IRRELEVANT) {
+            int index = relevantImageList.indexOf(patch);
+            if(index != -1) {
+                relevantImageList.remove(index);
+                irrelevantImageList.add(patch);
+            }
+        }
+    }
+
     public Patch[] getRelevantTrainingImages() {
         return relevantImageList.toArray(new Patch[relevantImageList.size()]);
     }
@@ -91,9 +107,11 @@ public class CBIRSession {
 
         final Patch[] imagesToLabel = searchTool.getImagesToLabel(numTrainingImages);
         for(Patch patch : imagesToLabel) {
-            if(patch.getLabel() == 1) {
+            if(patch.getLabel() == Patch.LABEL_RELEVANT) {
                 relevantImageList.add(patch);
             } else {
+                // default to irrelevant so user only needs to select the relevant
+                patch.setLabel(Patch.LABEL_IRRELEVANT);
                 irrelevantImageList.add(patch);
             }
         }

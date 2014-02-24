@@ -15,43 +15,46 @@
  */
 package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
+import com.bc.ceres.swing.figure.AbstractInteractorListener;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.actions.InsertFigureInteractorInterceptor;
 import org.esa.pfa.fe.op.FeatureWriter;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.ui.toolviews.cbir.DragScrollListener;
 import org.esa.pfa.ui.toolviews.cbir.PatchDrawer;
+import org.esa.pfa.ui.toolviews.cbir.PatchSelectionInteractor;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
     Labeling Panel
  */
 public class QueryTaskPanel extends TaskPanel implements ActionListener {
 
-    private final static String instructionsStr = "Select query images by selecting patch areas in an image view";
+    private final static String instructionsStr = "Add query images by selecting patch areas in an image view";
     private final CBIRSession session;
     private PatchDrawer drawer;
-
-    //temp
-    private final SourceProductSelector sourceProductSelector;
+    private PatchSelectionInteractor interactor;
 
     public QueryTaskPanel(final CBIRSession session) {
         super("Query Images");
         this.session = session;
-
-        this.sourceProductSelector = new SourceProductSelector(VisatApp.getApp(), "Source Product:");
-        sourceProductSelector.initProducts();
 
         createPanel();
 
@@ -69,11 +72,17 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         return true;
     }
 
+    public boolean canProceedToNextPanel() {
+        return session.getQueryPatches().length > 0;
+    }
+
     public boolean canFinish() {
         return false;
     }
 
     public TaskPanel getNextPanel() {
+        VisatApp.getApp().setActiveInteractor(NullInteractor.INSTANCE);
+
         return new FeatureExtractionTaskPanel(session);
     }
 
@@ -89,7 +98,7 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
         drawer = new PatchDrawer(session.getQueryPatches());
-        drawer.setMinimumSize(new Dimension(500, 110));
+        drawer.setMinimumSize(new Dimension(500, 210));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -105,21 +114,16 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         listsPanel.setLayout(layout);
         listsPanel.add(imageScrollPanel);
 
-        final JButton addButton = new JButton("Add");
-        addButton.setActionCommand("addButton");
-        addButton.addActionListener(this);
-        listsPanel.add(addButton);
+        this.add(listsPanel, BorderLayout.CENTER);
 
-        //temp
-        this.add(createSourceProductPanel(), BorderLayout.CENTER);
+        final JPanel btnPanel = new JPanel();
+        final JButton addPatchButton = new JButton("Add");
+        addPatchButton.setActionCommand("addPatchButton");
+        addPatchButton.addActionListener(this);
+        btnPanel.add(addPatchButton);
 
-        this.add(listsPanel, BorderLayout.SOUTH);
+        this.add(btnPanel, BorderLayout.EAST);
     }
-
-
-    //temp
-    private static int subX = 0;
-    private static int subY = 0;
 
     /**
      * Handles events.
@@ -129,43 +133,61 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
     public void actionPerformed(final ActionEvent event) {
         try {
             final String command = event.getActionCommand();
-            if (command.equals("addButton")) {
-                final Product product = sourceProductSelector.getSelectedProduct();
-                if(product == null)
-                    return;
+            if (command.equals("addPatchButton")) {
+                if(VisatApp.getApp().getSelectedProductSceneView() == null) {
+                    throw new Exception("First open a product and an image view to be able to add new query images.");
+                }
 
                 final Dimension dim = session.getApplicationDescriptor().getPatchDimension();
-                final Product subset = FeatureWriter.createSubset(product, new Rectangle(subX, subY, dim.width, dim.height));
-                final int patchX = subX/dim.width;
-                final int patchY = subY/dim.height;
-                subX += dim.width;
-                subY += dim.height;
+                interactor = new PatchSelectionInteractor(dim.width, dim.height);
+                interactor.addListener(new PatchInteractorListener());
+                interactor.addListener(new InsertFigureInteractorInterceptor());
+                interactor.activate();
 
-                BufferedImage image = ProductUtils.createColorIndexedImage(subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
-                                                                           com.bc.ceres.core.ProgressMonitor.NULL);
-                Patch patch = new Patch(patchX, patchY, null, subset);
-                patch.setImage(image);
-                session.addQueryPatch(patch);
-                drawer.update(session.getQueryPatches());
+                VisatApp.getApp().setActiveInteractor(interactor);
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());
         }
     }
 
-    private JPanel createSourceProductPanel() {
-        final JPanel panel = sourceProductSelector.createDefaultPanel();
-        sourceProductSelector.getProductNameLabel().setText("Name:");
-        sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
-                "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
-        sourceProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
-            @Override
-            public void selectionChanged(SelectionChangeEvent event) {
-                final Product sourceProduct = sourceProductSelector.getSelectedProduct();
+    private void addQueryImage(final Product product, final int x, final int y, final int w, final int h) throws IOException {
 
+        final Product subset = FeatureWriter.createSubset(product, new Rectangle(x, y, w, h));
+        final int patchX = x/w;
+        final int patchY = y/h;
 
+        final BufferedImage image = ProductUtils.createColorIndexedImage(
+                subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
+                com.bc.ceres.core.ProgressMonitor.NULL);
+        final Patch patch = new Patch(patchX, patchY, null, subset);
+        patch.setImage(image);
+        patch.setLabel(Patch.LABEL_RELEVANT);
+        session.addQueryPatch(patch);
+        drawer.update(session.getQueryPatches());
+    }
+
+    private class PatchInteractorListener extends AbstractInteractorListener {
+
+        @Override
+        public void interactionStarted(Interactor interactor, InputEvent inputEvent) {
+        }
+
+        @Override
+        public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
+            final PatchSelectionInteractor patchInteractor = (PatchSelectionInteractor) interactor;
+            if(patchInteractor != null) {
+                try {
+                    Rectangle2D rect = patchInteractor.getPatchShape();
+
+                    final Product product = VisatApp.getApp().getSelectedProduct();
+                    addQueryImage(product, (int)rect.getX(), (int)rect.getY(), (int)rect.getWidth(), (int)rect.getHeight());
+
+                    getOwner().updateState();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        });
-        return panel;
+        }
     }
 }

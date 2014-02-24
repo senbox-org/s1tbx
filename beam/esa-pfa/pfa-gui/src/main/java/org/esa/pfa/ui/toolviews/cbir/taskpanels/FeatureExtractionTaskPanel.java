@@ -57,7 +57,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
     private final static String instructionsStr = "Extract features from the query images";
     private final CBIRSession session;
 
-    private Map<Patch, LabelBarProgressMonitor> progressMap = new HashMap<>(5);
+    private Map<Patch, FeaturePanel> progressMap = new HashMap<>(5);
 
     public FeatureExtractionTaskPanel(final CBIRSession session) {
         super("Feature Extraction");
@@ -136,23 +136,12 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         imgLabel.setIcon(new ImageIcon(patch.getImage().getScaledInstance(100, 100, BufferedImage.SCALE_FAST)));
         panel.add(imgLabel);
 
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setStringPainted(true);
-        panel.add(progressBar);
+        final FeaturePanel featurePanel = new FeaturePanel(patch);
+        panel.add(featurePanel);
 
-        LabelBarProgressMonitor progMon = new LabelBarProgressMonitor(progressBar);
-        progMon.addListener(new MyProgressBarListener());
-        progressMap.put(patch, progMon);
+        progressMap.put(patch, featurePanel);
 
         return panel;
-    }
-
-    private class MyProgressBarListener implements LabelBarProgressMonitor.ProgressBarListener {
-        public void notifyStart() {
-        }
-
-        public void notifyDone() {
-        }
     }
 
     /**
@@ -167,10 +156,9 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
                 final Set<Patch> keys = progressMap.keySet();
                 for(Patch patch : keys) {
-                    ProcessThread thread = new ProcessThread(patch, progressMap.get(patch));
+                    final ProcessThread thread = new ProcessThread(progressMap.get(patch));
                     thread.execute();
                 }
-
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());
@@ -179,22 +167,22 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
     public final class ProcessThread extends SwingWorker {
 
-        private final Patch patch;
-        private final ProgressMonitor pm;
+        private final FeaturePanel patchData;
+        private File tmpOutFolder;
 
-        public ProcessThread(final Patch patch, final ProgressMonitor pm) {
-            this.patch = patch;
-            this.pm = pm;
+        public ProcessThread(final FeaturePanel patchData) {
+            this.patchData = patchData;
         }
 
         @Override
         protected Boolean doInBackground() throws Exception {
 
-            pm.beginTask("Processing...", 100);
+            patchData.pm.beginTask("Processing...", 100);
             try {
+                final Patch patch = patchData.patch;
                 final File tmpInFolder = new File(SystemUtils.getApplicationDataDir(),
                         "tmp"+File.separator+"in"+File.separator+patch.getID());
-                final File tmpOutFolder = new File(SystemUtils.getApplicationDataDir(),
+                tmpOutFolder = new File(SystemUtils.getApplicationDataDir(),
                         "tmp"+File.separator+"out"+File.separator+patch.getID());
                 final File subsetFile = new File(tmpInFolder, patch.getPatchName()+".dim");
                 final WriteOp writeOp = new WriteOp(patch.getPatchProduct(), subsetFile, "BEAM-DIMAP");
@@ -207,62 +195,71 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 setIO(graph, subsetFile, tmpOutFolder);
 
                 final GraphProcessor processor = new GraphProcessor();
-                processor.executeGraph(graph, pm);
+                processor.executeGraph(graph, patchData.pm);
 
-                loadFeatures(patch, tmpOutFolder);
-
-                //clean up
-                writeOp.dispose();
-                //FileUtils.deleteDirectory(tmpInFolder);
-                //FileUtils.deleteDirectory(tmpOutFolder);
+                loadFeatures(patchData.patch, tmpOutFolder);
 
             } catch(Throwable e) {
-                System.out.println("processing Exception\n"+e.getMessage());
+                final String msg = "processing Exception\n"+e.getMessage();
+                System.out.println(msg);
+                VisatApp.getApp().showErrorDialog(e.toString());
             } finally {
-                pm.done();
+                patchData.pm.done();
             }
             return true;
         }
 
-        private void loadFeatures(final Patch patch, final File datasetDir) throws Exception {
-            final File[] fexDirs = datasetDir.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory() && file.getName().endsWith(".fex");
-                }
-            });
-            final File[] patchDirs = fexDirs[0].listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory() && file.getName().startsWith("x");
-                }
-            });
+        private void loadFeatures(final Patch patch, final File datasetDir) {
+            try {
+                final File[] fexDirs = datasetDir.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        return file.isDirectory() && file.getName().endsWith(".fex");
+                    }
+                });
+                if(fexDirs.length == 0)
+                    return;
 
-            final File featureFile = new File(patchDirs[0], "features.txt");
-            if(featureFile.exists()) {
-                final Properties featureValues = new Properties();
-                try (FileReader reader = new FileReader(featureFile)) {
-                    featureValues.load(reader);
-                }
+                final File[] patchDirs = fexDirs[0].listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        return file.isDirectory() && file.getName().startsWith("x");
+                    }
+                });
+                if(patchDirs.length == 0)
+                    return;
 
-                final DatasetDescriptor dsDescriptor = session.getDsDescriptor();
-                for(FeatureType feaType : dsDescriptor.getFeatureTypes()) {
-                    if(feaType.hasAttributes()) {
-                        for(AttributeType attrib : feaType.getAttributeTypes()) {
-                            final String name = feaType.getName()+'.'+attrib.getName();
-                            final String value = featureValues.getProperty(name);
-                            if(value != null) {
-                                FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
-                                patch.addFeature(createFeature(newFeaType, value));
+                final File featureFile = new File(patchDirs[0], "features.txt");
+                if(featureFile.exists()) {
+                    final Properties featureValues = new Properties();
+                    try (FileReader reader = new FileReader(featureFile)) {
+                        featureValues.load(reader);
+                    }
+
+                    patch.clearFeatures();
+
+                    final DatasetDescriptor dsDescriptor = session.getDsDescriptor();
+                    for(FeatureType feaType : dsDescriptor.getFeatureTypes()) {
+                        if(feaType.hasAttributes()) {
+                            for(AttributeType attrib : feaType.getAttributeTypes()) {
+                                final String name = feaType.getName()+'.'+attrib.getName();
+                                final String value = featureValues.getProperty(name);
+                                if(value != null) {
+                                    FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
+                                    patch.addFeature(createFeature(newFeaType, value));
+                                }
                             }
-                        }
-                    } else {
-                        final String value = featureValues.getProperty(feaType.getName());
-                        if(value != null) {
-                            patch.addFeature(createFeature(feaType, value));
+                        } else {
+                            final String value = featureValues.getProperty(feaType.getName());
+                            if(value != null) {
+                                patch.addFeature(createFeature(feaType, value));
+                            }
                         }
                     }
                 }
+            } catch(Exception e) {
+                final String msg = "Error reading features "+patch.getPatchName()+"\n"+e.getMessage();
+                VisatApp.getApp().showErrorDialog(msg);
             }
         }
 
@@ -313,6 +310,60 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         @Override
         public void done() {
 
+            //clean up
+            //FileUtils.deleteDirectory(tmpInFolder);
+            //FileUtils.deleteDirectory(tmpOutFolder);
+        }
+    }
+
+    private static String writeFeatures(final Patch patch) {
+        final StringBuilder str = new StringBuilder(100);
+
+        final Feature[] features = patch.getFeatures();
+        for(Feature feature : features) {
+            str.append(feature.getName());
+            str.append(": ");
+            str.append(feature.getValue().toString());
+            str.append('\n');
+        }
+        if(str.length() == 0) {
+            str.append("No features found");
+        }
+        return str.toString();
+    }
+
+    private static class FeaturePanel extends JPanel implements LabelBarProgressMonitor.ProgressBarListener {
+        private final Patch patch;
+        private final JProgressBar progressBar;
+        private final LabelBarProgressMonitor pm;
+        private final JTextArea textPane;
+        private final JScrollPane textScroll;
+
+        FeaturePanel(final Patch patch) {
+            this.patch = patch;
+
+            progressBar = new JProgressBar();
+            progressBar.setStringPainted(true);
+            add(progressBar);
+
+            textPane = new JTextArea();
+            textScroll = new JScrollPane(textPane);
+            textScroll.setVisible(false);
+            add(textScroll);
+
+            pm = new LabelBarProgressMonitor(progressBar);
+            pm.addListener(this);
+        }
+
+        public void notifyStart() {
+            progressBar.setVisible(true);
+            textScroll.setVisible(false);
+        }
+
+        public void notifyDone() {
+            progressBar.setVisible(false);
+            textScroll.setVisible(true);
+            textPane.setText(writeFeatures(patch));
         }
     }
 }

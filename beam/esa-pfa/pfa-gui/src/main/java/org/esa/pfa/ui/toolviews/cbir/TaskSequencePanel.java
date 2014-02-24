@@ -153,7 +153,7 @@ public class TaskSequencePanel extends JPanel implements ActionListener {
      * @return boolean.
      */
     public boolean canDoNextPanel() {
-        return this.currentPanel.hasNextPanel();
+        return this.currentPanel.hasNextPanel() && this.currentPanel.canProceedToNextPanel();
     }
 
     /**

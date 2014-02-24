@@ -254,7 +254,7 @@ public class ImageIOFile {
             int Offset = 0;
             for(int i=0; i<destHeight; i++) {
                 for (int j=0; j<destWidth; j++) {
-                    destBuffer.setElemIntAt(Offset++, sampleModel.getSample(j, i, sampleOffset, dataBuffer));
+                    destBuffer.setElemDoubleAt(Offset++, sampleModel.getSample(j, i, sampleOffset, dataBuffer));
                 }
             }
         }

@@ -22,11 +22,17 @@ public final class Patch {
     private final int uid;
     private static int uidCnt = 0;
 
-    private int label = -1;
+    public static final int LABEL_NONE = -1;
+    public static final int LABEL_RELEVANT = 1;
+    public static final int LABEL_IRRELEVANT = 0;
+
+    private int label = LABEL_NONE;
     private double distance;   // functional distance of a patch to the hyperplane in SVM
 
     private String pathOnServer;
     private BufferedImage image = null;
+
+    private final List<PatchListener> listenerList = new ArrayList<PatchListener>(1);
 
     public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
         uid = createUniqueID();
@@ -81,6 +87,10 @@ public final class Patch {
         return image;
     }
 
+    public void clearFeatures() {
+        featureList.clear();
+    }
+
     public void addFeature(final Feature fea) {
         featureList.add(fea);
     }
@@ -91,6 +101,7 @@ public final class Patch {
 
     public void setLabel(final int label) {
         this.label = label;
+        updateState();
     }
 
     public int getLabel() {
@@ -103,5 +114,27 @@ public final class Patch {
 
     public double getDistance() {
         return distance;
+    }
+
+
+    private void updateState() {
+        for(PatchListener listener : listenerList) {
+            listener.notifyStateChanged(this);
+        }
+    }
+
+    public void addListener(final PatchListener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
+        }
+    }
+
+    public void removeListener(final PatchListener listener) {
+        listenerList.remove(listener);
+    }
+
+    public interface PatchListener {
+
+        public void notifyStateChanged(final Patch patch);
     }
 }
