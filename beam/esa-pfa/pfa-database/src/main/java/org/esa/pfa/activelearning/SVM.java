@@ -118,6 +118,26 @@ public class SVM {
     }
 
     /**
+     * Save SVM model to file.
+     * @param fileName The file name string.
+     * @throws Exception The exception.
+     */
+    public void saveSVMModel(String fileName) throws Exception {
+
+        svm.svm_save_model(fileName, model);
+    }
+
+    /**
+     * Load the SVM model saved in file.
+     * @param fileName The file name string.
+     * @throws Exception The exception.
+     */
+    public void loadSVMModel(String fileName) throws Exception {
+
+        model = svm.svm_load_model(fileName);
+    }
+
+    /**
      * Define SVM problem.
      * @param dataSet The training data set.
      */
