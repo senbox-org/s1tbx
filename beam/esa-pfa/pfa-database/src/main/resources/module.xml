@@ -5,4 +5,8 @@
     <version>0.1-SNAPSHOT</version>
     <name>pfa-database</name>
 
+	<dependency>
+        <module>pfa-core</module>
+    </dependency>
+	
 </module>
