@@ -54,7 +54,7 @@ public class DefaultViewport implements Viewport {
         this.modelYAxisDown = modelYAxisDown;
         this.modelToViewTransform = AffineTransform.getScaleInstance(1.0, modelYAxisDown ? 1.0 : -1.0);
         this.viewToModelTransform = AffineTransform.getScaleInstance(1.0, modelYAxisDown ? 1.0 : -1.0);
-        this.changeListeners = new ArrayList<ViewportListener>(3);
+        this.changeListeners = new ArrayList<>(3);
     }
 
     @Override
@@ -283,7 +283,7 @@ public class DefaultViewport implements Viewport {
         try {
             DefaultViewport vp = (DefaultViewport) super.clone();
             vp.viewBounds = new Rectangle(viewBounds);
-            vp.changeListeners = new ArrayList<ViewportListener>(3);
+            vp.changeListeners = new ArrayList<>(3);
             return vp;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
