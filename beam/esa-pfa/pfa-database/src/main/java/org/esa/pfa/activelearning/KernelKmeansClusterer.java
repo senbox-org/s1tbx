@@ -175,7 +175,7 @@ public class KernelKmeansClusterer {
     }
 
     /**
-     * Compute kelnel space distance between two given samples.
+     * Compute kernel space distance between two given samples.
      * @param sampleIdx1 Index of the first sample.
      * @param sampleIdx2 Index of the second sample.
      * @return The kernel space distance.
