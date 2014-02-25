@@ -49,7 +49,7 @@ class ModuleClassLoader extends URLClassLoader {
         super(dependencyUrls, parent);
         this.nativeUrls = nativeUrls;
         this.delegates = delegates;
-        resolvedResources = new HashMap<ClassLoader, Map<String, List<URL>>>();
+        resolvedResources = new HashMap<>();
     }
 
     @Override
@@ -105,7 +105,7 @@ class ModuleClassLoader extends URLClassLoader {
             return resources;
         }
 
-        final Set<URL> urls = new HashSet<URL>(Collections.list(resources));
+        final Set<URL> urls = new HashSet<>(Collections.list(resources));
         for (ClassLoader delegate : delegates) {
             final Map<String, List<URL>> resourceMap = getResourceMap(delegate);
             if(resourceMap.containsKey(name)) {
@@ -124,7 +124,7 @@ class ModuleClassLoader extends URLClassLoader {
         if(resolvedResources.containsKey(delegate)) {
             resourceMap = resolvedResources.get(delegate);
         }else {
-            resourceMap = new HashMap<String, List<URL>>();
+            resourceMap = new HashMap<>();
             resolvedResources.put(delegate, resourceMap);
         }
         return resourceMap;
