@@ -36,8 +36,9 @@ public class CBIRToolView extends AbstractToolView {
 
     public JComponent createControl() {
 
-        return new TaskSequencePanel(this, new CBIRStartTaskPanel());
-
+        TaskSequencePanel panel = new TaskSequencePanel(this, new CBIRStartTaskPanel());
+        panel.updateState();
+        return panel;
     }
 
 }

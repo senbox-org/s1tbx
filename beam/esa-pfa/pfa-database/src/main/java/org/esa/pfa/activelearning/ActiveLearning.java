@@ -15,6 +15,7 @@
  */
 package org.esa.pfa.activelearning;
 
+import libsvm.svm_model;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 
@@ -181,6 +182,14 @@ public class ActiveLearning {
      */
     public void loadTrainingData(String fileName) {
 
+    }
+
+    public void setModel(final svm_model model) {
+        svmClassifier.setModel(model);
+    }
+
+    public svm_model getModel() {
+        return svmClassifier.getModel();
     }
 
     /**

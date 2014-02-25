@@ -53,7 +53,15 @@ public class SVM {
         this.upper = upper;
 	}
 
-	/**
+    public void setModel(final svm_model model) {
+        this.model = model;
+    }
+
+    public svm_model getModel() {
+        return model;
+    }
+
+    /**
 	 * Train SVM model with given training data.
      * @param trainingSet The training data set.
      * @throws Exception The exception.

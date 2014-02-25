@@ -270,7 +270,9 @@ public class TaskSequencePanel extends JPanel implements ActionListener {
         repaint();
 
         final Window win = view.getPaneWindow();
-        win.setSize(new Dimension(win.getWidth() + 1, win.getHeight()));
-        win.setSize(new Dimension(win.getWidth() - 1, win.getHeight()));
+        if(win != null) {
+            win.setSize(new Dimension(win.getWidth() + 1, win.getHeight()));
+            win.setSize(new Dimension(win.getWidth() - 1, win.getHeight()));
+        }
     }
 }

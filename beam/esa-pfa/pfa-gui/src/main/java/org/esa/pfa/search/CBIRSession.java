@@ -15,11 +15,12 @@
  */
 package org.esa.pfa.search;
 
-
 import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.Patch;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,20 +36,15 @@ public class CBIRSession {
     private List<Patch> retrievedImageList = new ArrayList<Patch>(500);
 
     private final PFAApplicationDescriptor applicationDescriptor;
-    private int numTrainingImages;
-    private int numRetrievedImages;
 
     private final SearchToolStub searchTool;
 
-    public CBIRSession(final PFAApplicationDescriptor applicationDescriptor,
-                       final String archivePath,
-                       final int numTrainingImages, final int numRetrievedImages) throws Exception {
+    public CBIRSession(final String classifierName,
+                       final PFAApplicationDescriptor applicationDescriptor,
+                       final String archivePath) throws Exception {
         this.applicationDescriptor = applicationDescriptor;
 
-        this.numTrainingImages = numTrainingImages;
-        this.numRetrievedImages = numRetrievedImages;
-
-        this.searchTool = new SearchToolStub(archivePath);
+        this.searchTool = new SearchToolStub(archivePath, classifierName);
     }
 
     public PFAApplicationDescriptor getApplicationDescriptor() {
@@ -57,6 +53,30 @@ public class CBIRSession {
 
     public DatasetDescriptor getDsDescriptor() {
         return searchTool.getDsDescriptor();
+    }
+
+    public void setNumTrainingImages(final int numTrainingImages) {
+        searchTool.setNumTrainingImages(numTrainingImages);
+    }
+
+    public int getNumTrainingImages() {
+        return searchTool.getNumTrainingImages();
+    }
+
+    public void setNumRetrievedImages(final int numRetrievedImages) {
+        searchTool.setNumRetrievedImages(numRetrievedImages);
+    }
+
+    public int getNumRetrievedImages() {
+        return searchTool.getNumRetrievedImages();
+    }
+
+    public int getNumIterations() {
+        return searchTool.getNumIterations();
+    }
+
+    public static String[] getSavedClassifierNames(final String archiveFolder) {
+        return SearchToolStub.getSavedClassifierNames(archiveFolder);
     }
 
     public void clearQueryPatches() {
@@ -105,7 +125,7 @@ public class CBIRSession {
         relevantImageList.clear();
         irrelevantImageList.clear();
 
-        final Patch[] imagesToLabel = searchTool.getImagesToLabel(numTrainingImages);
+        final Patch[] imagesToLabel = searchTool.getImagesToLabel();
         for(Patch patch : imagesToLabel) {
             if(patch.getLabel() == Patch.LABEL_RELEVANT) {
                 relevantImageList.add(patch);
@@ -127,7 +147,7 @@ public class CBIRSession {
 
     public void retrieveImages() throws Exception {
         retrievedImageList.clear();
-        retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages(numRetrievedImages)));
+        retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages()));
     }
 
     public Patch[] getRetrievedImages() {

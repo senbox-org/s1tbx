@@ -15,18 +15,19 @@
  */
 package org.esa.pfa.search;
 
+import org.esa.beam.util.io.FileUtils;
 import org.esa.pfa.activelearning.ActiveLearning;
+import org.esa.pfa.activelearning.ClassifierWriter;
 import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.db.PatchQuery;
 import org.esa.pfa.fe.op.Patch;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Stub for PFA Search Tool on the server
@@ -36,17 +37,49 @@ public class SearchToolStub {
     private PatchQuery db = null;
     private ActiveLearning al = null;
 
-    public SearchToolStub(final String archiveFolder) throws Exception {
-        db = new PatchQuery(new File(archiveFolder));
+    private final File classifierFile;
+    private int numTrainingImages = 12;
+    private int numRetrievedImages = 50;
+    private int numIterations = 0;
+
+    public SearchToolStub(final String archiveFolder, final String classifierName) throws Exception {
+        final File dbFolder = new File(archiveFolder);
+        final File classifierFolder = new File(dbFolder, "Classifiers");
+        if(!classifierFolder.exists()) {
+            classifierFolder.mkdirs();
+        }
+        this.classifierFile = new File(classifierFolder, classifierName+".xml");
+
+        db = new PatchQuery(dbFolder);
         al = new ActiveLearning();
+
+        if(classifierFile.exists()) {
+            loadClassifier(classifierFile);
+        }
     }
 
     public DatasetDescriptor getDsDescriptor() {
         return db.getDsDescriptor();
     }
 
-    public Dimension getPatchSize(final String featureExtractor) {
-        return new Dimension(200, 200);
+    public void setNumTrainingImages(final int numTrainingImages) {
+        this.numTrainingImages = numTrainingImages;
+    }
+
+    public int getNumTrainingImages() {
+        return numTrainingImages;
+    }
+
+    public void setNumRetrievedImages(final int numRetrievedImages) {
+        this.numRetrievedImages = numRetrievedImages;
+    }
+
+    public int getNumRetrievedImages() {
+        return numRetrievedImages;
+    }
+
+    public int getNumIterations() {
+        return numIterations;
     }
 
     public void setQueryImages(final Patch[] queryImages) throws Exception {
@@ -54,10 +87,12 @@ public class SearchToolStub {
 
         final Patch[] archivePatches = db.query("product:ENVI*", 500);
         al.setRandomPatches(archivePatches);
+
+        saveClassifer();
     }
 
-    public Patch[] getImagesToLabel(final int numImages) throws Exception {
-        final Patch[] patchesToLabel = al.getMostAmbiguousPatches(numImages);
+    public Patch[] getImagesToLabel() throws Exception {
+        final Patch[] patchesToLabel = al.getMostAmbiguousPatches(numTrainingImages);
         getPatchQuicklooks(patchesToLabel);
 
         return patchesToLabel;
@@ -80,11 +115,13 @@ public class SearchToolStub {
 
     public void trainModel(Patch[] labeledImages) throws Exception {
         al.train(labeledImages);
+
+        saveClassifer();
     }
 
-    public Patch[] getRetrievedImages(final int numImages) throws Exception {
+    public Patch[] getRetrievedImages() throws Exception {
 
-       final Patch[] archivePatches = db.query("product:ENVI*", numImages);
+       final Patch[] archivePatches = db.query("product:ENVI*", numRetrievedImages);
        al.classify(archivePatches);
        getPatchQuicklooks(archivePatches);
 
@@ -106,5 +143,39 @@ public class SearchToolStub {
             }
         }
         return bufferedImage;
+    }
+
+    public static String[] getSavedClassifierNames(final String archiveFolder) {
+        final List<String> nameList = new ArrayList<>(10);
+        final File dbFolder = new File(archiveFolder);
+        final File classifierFolder = new File(dbFolder, "Classifiers");
+        if(!classifierFolder.exists()) {
+            classifierFolder.mkdirs();
+        }
+        final File[] files = classifierFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".xml");
+            }
+        });
+        for(File file : files) {
+            nameList.add(FileUtils.getFilenameWithoutExtension(file));
+        }
+
+        return nameList.toArray(new String[nameList.size()]);
+    }
+
+    private void loadClassifier(final File classifierFile) throws Exception {
+        ClassifierWriter classifier = ClassifierWriter.read(classifierFile);
+        numTrainingImages = classifier.getNumTrainingImages();
+        numRetrievedImages = classifier.getNumRetrievedImages();
+        numIterations = classifier.getNumIterations();
+
+        al.setModel(classifier.getModel());
+    }
+
+    private void saveClassifer() throws IOException {
+        final ClassifierWriter writer = new ClassifierWriter(numTrainingImages, numRetrievedImages, numIterations, al);
+        writer.write(classifierFile);
     }
 }
