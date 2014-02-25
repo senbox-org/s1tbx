@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -65,6 +65,12 @@ public class SeaDASLevel3BinWriterTest {
         if (tempFile != null) {
             if (!tempFile.delete()) {
                 tempFile.deleteOnExit();
+            }
+        }
+        if (binWriter != null) {
+            File binTempFile = new File(binWriter.getTargetFilePath());
+            if (!binTempFile.delete()) {
+                binTempFile.deleteOnExit();
             }
         }
     }
