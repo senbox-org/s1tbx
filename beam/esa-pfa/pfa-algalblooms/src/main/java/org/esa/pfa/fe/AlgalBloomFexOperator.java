@@ -32,6 +32,8 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.meris.radiometry.equalization.ReprocessingVersion;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.ResourceInstaller;
+import org.esa.beam.util.SystemUtils;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.FexOperator;
@@ -44,6 +46,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,12 +58,13 @@ import java.util.List;
  * @author Norman Fomferra
  * @author Ralf Quast
  */
-@OperatorMetadata(alias = "AlgalBloomFex", version = "1.1")
+@OperatorMetadata(alias = "AlgalBloomFex", version = "1.1", suppressWrite = true)
 public class AlgalBloomFexOperator extends FexOperator {
 
     public static final String R_EXPR = "log(0.05 + 0.35 * reflec_2 + 0.60 * reflec_5 + reflec_6 + 0.13 * reflec_7)";
     public static final String G_EXPR = "log(0.05 + 0.21 * reflec_3 + 0.50 * reflec_4 + reflec_5 + 0.38 * reflec_6)";
     public static final String B_EXPR = "log(0.05 + 0.21 * reflec_1 + 1.75 * reflec_2 + 0.47 * reflec_3 + 0.16 * reflec_4)";
+    public static final File AUXDATA_DIR = new File(SystemUtils.getApplicationDataDir(), "pfa-algalblooms/auxdata");
 
     String OC4_R = "log10(max(max(reflec_2, reflec_3), reflec_4) / reflec_5)";
     String OC4_CHL = "exp10(0.366 - 3.067*R + 1.930*pow(R,2) + 0.649 *pow(R,3)  - 1.532 *pow(R,4))";
@@ -120,7 +124,7 @@ public class AlgalBloomFexOperator extends FexOperator {
 
     public static final String FEX_ROI_MASK_NAME = "fex_roi";
 
-    public static final String FEX_COAST_DIST_PRODUCT_PATH = "auxdata/coast_dist_2880.dim";
+    public static final String FEX_COAST_DIST_PRODUCT_FILE = "coast_dist_2880.dim";
 
     @Parameter(defaultValue = "0.2")
     private double minValidPixelRatio;
@@ -171,6 +175,8 @@ public class AlgalBloomFexOperator extends FexOperator {
     public void initialize() throws OperatorException {
 //        removeAllSourceMetadata();
 
+        installAuxiliaryData(AUXDATA_DIR);
+
         minSampleFlh = 0.0;
         maxSampleFlh = 0.0025;
 
@@ -182,7 +188,7 @@ public class AlgalBloomFexOperator extends FexOperator {
 
         Product coastDistProduct;
         try {
-            coastDistProduct = ProductIO.readProduct(FEX_COAST_DIST_PRODUCT_PATH);
+            coastDistProduct = ProductIO.readProduct(new File(AUXDATA_DIR, FEX_COAST_DIST_PRODUCT_FILE));
         } catch (IOException e) {
             throw new OperatorException(e);
         }
@@ -308,6 +314,18 @@ public class AlgalBloomFexOperator extends FexOperator {
             product.dispose();
         }
     }
+
+    private void installAuxiliaryData(File targetDir) {
+        final URL url = ResourceInstaller.getSourceUrl(getClass());
+        final ResourceInstaller installer = new ResourceInstaller(url, "auxdata", targetDir);
+        try {
+            installer.install(".*", ProgressMonitor.NULL);
+        } catch (IOException e) {
+            throw new OperatorException(e);
+        }
+    }
+
+
 
     private Product addMasks(Product product) {
         final Product cloudProduct;

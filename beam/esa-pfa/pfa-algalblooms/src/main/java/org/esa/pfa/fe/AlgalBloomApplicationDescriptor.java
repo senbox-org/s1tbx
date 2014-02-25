@@ -15,7 +15,7 @@
  */
 package org.esa.pfa.fe;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.net.URL;
 
@@ -24,7 +24,7 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
     private static final String NAME = "Algal Bloom Detection";
     private static Dimension patchDimension = new Dimension(200, 200);
 
-    private static final URL graphURL = AlgalBloomApplicationDescriptor.class.getClassLoader().getResource("graphs/AlgalBloomFeatureWriter.xml");
+    private static final URL graphURL = AlgalBloomApplicationDescriptor.class.getResource("AlgalBloomFeatureWriter.xml");
 
     public AlgalBloomApplicationDescriptor() {
         super(NAME);
@@ -35,11 +35,18 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
      *
      * @return the  dimension
      */
+    @Override
     public Dimension getPatchDimension() {
         return patchDimension;
     }
 
+    @Override
     public File getGraphFile() {
         return new File(graphURL.getPath());
+    }
+
+    @Override
+    public String getAllQueryExpr() {
+        return "product:MER*";
     }
 }

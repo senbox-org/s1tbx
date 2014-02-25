@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dimap_Document name="coast_dist_2880.dim">
+    <Metadata_Id>
+        <METADATA_FORMAT version="2.11.0">DIMAP</METADATA_FORMAT>
+        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
+    </Metadata_Id>
+    <Dataset_Id>
+        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
+        <DATASET_NAME>coast_dist_2880</DATASET_NAME>
+    </Dataset_Id>
+    <Dataset_Use>
+        <DATASET_COMMENTS>Provides distance of water pixels to closest coast line.</DATASET_COMMENTS>
+    </Dataset_Use>
+    <Production>
+        <DATASET_PRODUCER_NAME />
+        <PRODUCT_TYPE>ns_bs_coast_distance</PRODUCT_TYPE>
+    </Production>
+    <Coordinate_Reference_System>
+        <WKT>
+             GEOGCS["WGS84(DD)", 
+               DATUM["WGS84", 
+                 SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+               PRIMEM["Greenwich", 0.0], 
+               UNIT["degree", 0.017453292519943295], 
+               AXIS["Geodetic longitude", EAST], 
+               AXIS["Geodetic latitude", NORTH]]
+        </WKT>
+    </Coordinate_Reference_System>
+    <Geoposition>
+        <IMAGE_TO_MODEL_TRANSFORM>0.125,0.0,0.0,-0.125,-180.0,90.0</IMAGE_TO_MODEL_TRANSFORM>
+    </Geoposition>
+    <Raster_Dimensions>
+        <NCOLS>2880</NCOLS>
+        <NROWS>1440</NROWS>
+        <NBANDS>5</NBANDS>
+    </Raster_Dimensions>
+    <Data_Access>
+        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>
+        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
+        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
+        <Data_File>
+            <DATA_FILE_PATH href="coast_dist_2880.data/land_mask.hdr" />
+            <BAND_INDEX>0</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="coast_dist_2880.data/coast_dist.hdr" />
+            <BAND_INDEX>1</BAND_INDEX>
+        </Data_File>
+    </Data_Access>
+    <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>0</BAND_INDEX>
+            <STX_MIN>-1.0</STX_MIN>
+            <STX_MAX>0.0</STX_MAX>
+            <STX_MEAN>-0.3384104938271601</STX_MEAN>
+            <STX_STD_DEV>0.4731725759410597</STX_STD_DEV>
+            <STX_RES_LEVEL>3</STX_RES_LEVEL>
+            <HISTOGRAM>21929,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,42871,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-0.5</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>-0.498046875</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>-0.49609375</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+    </Image_Display>
+    <Masks>
+        <Mask type="Maths">
+            <NAME value="unreached" />
+            <DESCRIPTION value="Pixels unreached by the maximum coast distance of 556 km" />
+            <COLOR red="255" green="200" blue="0" alpha="255" />
+            <TRANSPARENCY value="0.0" />
+            <EXPRESSION value="coast_dist &gt;= 853.0" />
+        </Mask>
+    </Masks>
+    <Image_Interpretation>
+        <Spectral_Band_Info>
+            <BAND_INDEX>0</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>land_mask</BAND_NAME>
+            <DATA_TYPE>int8</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>1</BAND_INDEX>
+            <BAND_DESCRIPTION>Distance to next coast pixel (where land_mask != 0)</BAND_DESCRIPTION>
+            <BAND_NAME>coast_dist</BAND_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <PHYSICAL_UNIT>km</PHYSICAL_UNIT>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>2</BAND_INDEX>
+            <BAND_DESCRIPTION>Distance to next coast pixel (where land_mask != 0)</BAND_DESCRIPTION>
+            <BAND_NAME>coast_dist_nm</BAND_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <PHYSICAL_UNIT>NM</PHYSICAL_UNIT>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VIRTUAL_BAND>true</VIRTUAL_BAND>
+            <EXPRESSION>coast_dist / 1.852</EXPRESSION>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>3</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>coast_dist_nm_gt_50</BAND_NAME>
+            <DATA_TYPE>int8</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VIRTUAL_BAND>true</VIRTUAL_BAND>
+            <EXPRESSION>coast_dist_nm &gt;= 50</EXPRESSION>
+            <VALID_MASK_TERM>coast_dist &gt; 0</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>4</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>coast_dist_nm_gt_200</BAND_NAME>
+            <DATA_TYPE>int8</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VIRTUAL_BAND>true</VIRTUAL_BAND>
+            <EXPRESSION>coast_dist_nm &gt;= 200</EXPRESSION>
+            <VALID_MASK_TERM>coast_dist &gt; 0</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+    </Image_Interpretation>
+    <Dataset_Sources>
+        <MDElem name="metadata">
+            <MDElem name="History">
+                <MDATTR name="Processor_Name" type="ascii" mode="rw">org.esa.beam.ballastwater.CoastDistGen</MDATTR>
+                <MDATTR name="Processor_Version" type="ascii" mode="rw">1.4</MDATTR>
+                <MDATTR name="Processing_Date" type="ascii" mode="rw">13.08.13 17:24</MDATTR>
+                <MDATTR name="Processing_Time" desc="Total time spend for processing." unit="s" type="float64" mode="rw">1752.064</MDATTR>
+                <MDElem name="Processing_Parameters">
+                    <MDATTR name="shapefilesPath" type="ascii" mode="rw">src/test/resources/shapefiles/continents</MDATTR>
+                    <MDATTR name="productPath" type="ascii" mode="rw">./coast_dist_2880.dim</MDATTR>
+                    <MDATTR name="width" type="int32" mode="rw">2880</MDATTR>
+                    <MDATTR name="height" type="int32" mode="rw">1440</MDATTR>
+                    <MDATTR name="lonMin" type="float64" mode="rw">-180.0</MDATTR>
+                    <MDATTR name="lonMax" type="float64" mode="rw">180.0</MDATTR>
+                    <MDATTR name="latMin" type="float64" mode="rw">-90.0</MDATTR>
+                    <MDATTR name="latMax" type="float64" mode="rw">90.0</MDATTR>
+                    <MDATTR name="meridionalDist" type="float64" mode="rw">5.0</MDATTR>
+                </MDElem>
+                <MDElem name="Input_Files">
+                    <MDATTR name="shapefiles.0" type="ascii" mode="rw">continents.shp</MDATTR>
+                </MDElem>
+            </MDElem>
+        </MDElem>
+    </Dataset_Sources>
+</Dimap_Document>

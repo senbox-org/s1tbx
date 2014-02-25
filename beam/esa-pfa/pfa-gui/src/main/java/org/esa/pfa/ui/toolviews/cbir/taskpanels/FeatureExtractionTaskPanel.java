@@ -291,12 +291,21 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 readerNode.setConfiguration(param);
             }
 
+            Node[] nodes = graph.getNodes();
+            if (nodes.length > 0) {
+                Node lastNode = nodes[nodes.length - 1];
+                DomElement configuration = lastNode.getConfiguration();
+                configuration.getChild("targetPath").setValue(targetFolder.getAbsolutePath());
+            }
+
+            /*
             final Node writerNode = findNode(graph, "UrbanAreaFeatureWriter");
             if(writerNode != null) {
                 final DomElement param = new DefaultDomElement("parameters");
                 param.createChild("targetPath").setValue(targetFolder.getAbsolutePath());
                 writerNode.setConfiguration(param);
             }
+            */
         }
 
         private Node findNode(final Graph graph, final String alias) {

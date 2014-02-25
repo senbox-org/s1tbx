@@ -46,8 +46,8 @@ import java.util.Map;
 @OperatorMetadata(alias = "FeatureWriter",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Writes features into patches.",
-        category = "Classification\\Feature Extraction")
+        description = "Writes features into patches."/*,
+        category = "Classification\\Feature Extraction"*/)
 public abstract class FeatureWriter extends Operator implements Output {
 
     @SourceProduct(alias = "source", description = "The source product to be written.")

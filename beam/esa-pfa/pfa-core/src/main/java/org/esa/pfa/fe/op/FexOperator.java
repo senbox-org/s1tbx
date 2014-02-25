@@ -44,7 +44,7 @@ import java.util.HashMap;
  *
  * @author Norman Fomferra
  */
-@OperatorMetadata(alias = "FexOp", version = "1.0")
+@OperatorMetadata(alias = "FexOp", version = "1.0")//, suppressWrite = true)
 public abstract class FexOperator extends Operator implements Output {
 
     public static final AttributeType[] STX_ATTRIBUTE_TYPES = new AttributeType[]{

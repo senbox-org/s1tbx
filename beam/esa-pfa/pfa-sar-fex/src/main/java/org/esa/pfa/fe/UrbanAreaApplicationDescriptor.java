@@ -35,11 +35,18 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
      *
      * @return the  dimension
      */
+    @Override
     public Dimension getPatchDimension() {
         return patchDimension;
     }
 
+    @Override
     public File getGraphFile() {
         return new File(graphURL.getPath());
+    }
+
+    @Override
+    public String getAllQueryExpr() {
+        return "product:ENVI*";
     }
 }

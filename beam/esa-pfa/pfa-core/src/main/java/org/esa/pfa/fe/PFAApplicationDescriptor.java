@@ -28,19 +28,24 @@ public interface PFAApplicationDescriptor {
      *
      * @return a name
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets the width and height of the patch segmentation.
      *
      * @return the  dimension
      */
-    public Dimension getPatchDimension();
+    Dimension getPatchDimension();
 
     /**
      * Gets the graph file with which to apply the feature extraction
      *
      * @return the graph file
      */
-    public File getGraphFile();
+    File getGraphFile();
+
+    /**
+     * @return A Lucene query expression that matches all entries.
+     */
+    String getAllQueryExpr();
 }

@@ -19,8 +19,6 @@ import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.Patch;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,10 +28,10 @@ import java.util.List;
  */
 public class CBIRSession {
 
-    private List<Patch> queryImageList = new ArrayList<Patch>(4);
-    private List<Patch> relevantImageList = new ArrayList<Patch>(50);
-    private List<Patch> irrelevantImageList = new ArrayList<Patch>(50);
-    private List<Patch> retrievedImageList = new ArrayList<Patch>(500);
+    private List<Patch> queryImageList = new ArrayList<>(4);
+    private List<Patch> relevantImageList = new ArrayList<>(50);
+    private List<Patch> irrelevantImageList = new ArrayList<>(50);
+    private List<Patch> retrievedImageList = new ArrayList<>(500);
 
     private final PFAApplicationDescriptor applicationDescriptor;
 
@@ -44,7 +42,7 @@ public class CBIRSession {
                        final String archivePath) throws Exception {
         this.applicationDescriptor = applicationDescriptor;
 
-        this.searchTool = new SearchToolStub(archivePath, classifierName);
+        this.searchTool = new SearchToolStub(archivePath, classifierName, applicationDescriptor.getAllQueryExpr());
     }
 
     public PFAApplicationDescriptor getApplicationDescriptor() {

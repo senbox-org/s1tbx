@@ -34,6 +34,7 @@ import java.util.List;
  */
 public class SearchToolStub {
 
+    private final String allQueryExpr;
     private PatchQuery db = null;
     private ActiveLearning al = null;
 
@@ -42,7 +43,8 @@ public class SearchToolStub {
     private int numRetrievedImages = 50;
     private int numIterations = 0;
 
-    public SearchToolStub(final String archiveFolder, final String classifierName) throws Exception {
+    public SearchToolStub(final String archiveFolder, final String classifierName, final String allQueryExpr) throws Exception {
+        this.allQueryExpr = allQueryExpr;
         final File dbFolder = new File(archiveFolder);
         final File classifierFolder = new File(dbFolder, "Classifiers");
         if(!classifierFolder.exists()) {
@@ -85,7 +87,7 @@ public class SearchToolStub {
     public void setQueryImages(final Patch[] queryImages) throws Exception {
         al.setQueryPatches(queryImages);
 
-        final Patch[] archivePatches = db.query("product:ENVI*", 500);
+        final Patch[] archivePatches = db.query(allQueryExpr, 500);
         al.setRandomPatches(archivePatches);
 
         saveClassifer();
@@ -121,7 +123,7 @@ public class SearchToolStub {
 
     public Patch[] getRetrievedImages() throws Exception {
 
-       final Patch[] archivePatches = db.query("product:ENVI*", numRetrievedImages);
+       final Patch[] archivePatches = db.query(allQueryExpr, numRetrievedImages);
        al.classify(archivePatches);
        getPatchQuicklooks(archivePatches);
 
@@ -132,11 +134,8 @@ public class SearchToolStub {
         BufferedImage bufferedImage = null;
         if (file.canRead()) {
             try {
-                final BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file));
-                try {
+                try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file))) {
                     bufferedImage = ImageIO.read(fis);
-                } finally {
-                    fis.close();
                 }
             } catch(Exception e) {
                 //

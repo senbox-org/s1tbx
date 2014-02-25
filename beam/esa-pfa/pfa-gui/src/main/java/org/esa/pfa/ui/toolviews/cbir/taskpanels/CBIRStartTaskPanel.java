@@ -75,6 +75,13 @@ public class CBIRStartTaskPanel extends TaskPanel {
         }
 
         createPanel();
+
+        if (apps.length == 0) {
+            Component[] components = getComponents();
+            for (Component component : components) {
+                component.setEnabled(false);
+            }
+        }
     }
 
     public void returnFromLaterStep() {

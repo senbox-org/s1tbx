@@ -10,6 +10,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
+    <name>ESA PFA Algal Bloom Feature Extractor</name>
     <artifactId>pfa-algalblooms</artifactId>
     <version>0.2-SNAPSHOT</version>
 
