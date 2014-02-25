@@ -26,7 +26,7 @@ public class ClassifierWriter {
     }
 
     public int getNumTrainingImages() {
-        return numRetrievedImages;
+        return numTrainingImages;
     }
 
     public int getNumRetrievedImages() {
