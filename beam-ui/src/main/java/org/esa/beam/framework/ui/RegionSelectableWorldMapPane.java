@@ -118,7 +118,9 @@ public class RegionSelectableWorldMapPane {
     }
 
     static void ensureValidBindingContext(BindingContext bindingContext) {
-        Assert.argument(bindingContext != null, "bindingContext must be not null");
+        if (bindingContext == null) {
+            throw new IllegalArgumentException("bindingContext must be not null");
+        }
         ensureExistingProperty(bindingContext, NORTH_BOUND);
         ensureExistingProperty(bindingContext, SOUTH_BOUND);
         ensureExistingProperty(bindingContext, WEST_BOUND);
@@ -303,8 +305,7 @@ public class RegionSelectableWorldMapPane {
             Rectangle2D.Double rectangleForDragCursor = new Rectangle2D.Double(movableRectangle.getX() + OFFSET,
                                                                                movableRectangle.getY() + OFFSET,
                                                                                movableRectangle.getWidth() - 2 * OFFSET,
-                                                                               movableRectangle.getHeight() -
-                                                                               2 * OFFSET);
+                                                                               movableRectangle.getHeight() - 2 * OFFSET);
             rectangleMap.get(MOVE).setRect(rectangleForDragCursor);
 
             final double x = rectangleForDragCursor.getX();
@@ -454,10 +455,11 @@ public class RegionSelectableWorldMapPane {
             upperLeftGeoPos = geoCoding.getGeoPos(upperLeftPixel, null);
             lowerRightGeoPos = geoCoding.getGeoPos(lowerRightPixel, null);
         } else {
-            final Double northBound = bindingContext.getPropertySet().getValue(NORTH_BOUND);
-            final Double eastBound = bindingContext.getPropertySet().getValue(EAST_BOUND);
-            final Double southBound = bindingContext.getPropertySet().getValue(SOUTH_BOUND);
-            final Double westBound = bindingContext.getPropertySet().getValue(WEST_BOUND);
+            PropertySet propertySet = bindingContext.getPropertySet();
+            final Double northBound = propertySet.getValue(NORTH_BOUND);
+            final Double eastBound = propertySet.getValue(EAST_BOUND);
+            final Double southBound = propertySet.getValue(SOUTH_BOUND);
+            final Double westBound = propertySet.getValue(WEST_BOUND);
 
             upperLeftGeoPos = new GeoPos(northBound.floatValue(), westBound.floatValue());
             lowerRightGeoPos = new GeoPos(southBound.floatValue(), eastBound.floatValue());
@@ -504,10 +506,11 @@ public class RegionSelectableWorldMapPane {
         private boolean rectangleIsCurrentlyDrawn;
 
         private RegionSelectionInteractor() {
-            bindingContext.getPropertySet().getProperty(NORTH_BOUND).addPropertyChangeListener(new BoundsChangeListener(NORTH_BOUND));
-            bindingContext.getPropertySet().getProperty(SOUTH_BOUND).addPropertyChangeListener(new BoundsChangeListener(SOUTH_BOUND));
-            bindingContext.getPropertySet().getProperty(WEST_BOUND).addPropertyChangeListener(new BoundsChangeListener(WEST_BOUND));
-            bindingContext.getPropertySet().getProperty(EAST_BOUND).addPropertyChangeListener(new BoundsChangeListener(EAST_BOUND));
+            PropertySet propertySet = bindingContext.getPropertySet();
+            propertySet.getProperty(NORTH_BOUND).addPropertyChangeListener(new BoundsChangeListener(NORTH_BOUND));
+            propertySet.getProperty(SOUTH_BOUND).addPropertyChangeListener(new BoundsChangeListener(SOUTH_BOUND));
+            propertySet.getProperty(WEST_BOUND).addPropertyChangeListener(new BoundsChangeListener(WEST_BOUND));
+            propertySet.getProperty(EAST_BOUND).addPropertyChangeListener(new BoundsChangeListener(EAST_BOUND));
             rectangleIsCurrentlyDrawn = false;
         }
 
@@ -522,8 +525,8 @@ public class RegionSelectableWorldMapPane {
             double y = e.getY();
             double x1 = selectionRectangle.getX();
             double y1 = selectionRectangle.getY();
-            double x2 = selectionRectangle.getX() + selectionRectangle.getWidth();
-            double y2 = selectionRectangle.getY() + selectionRectangle.getHeight();
+            double x2 = x1 + selectionRectangle.getWidth();
+            double y2 = y1 + selectionRectangle.getHeight();
             double dx1 = Math.abs(x1 - x);
             double dy1 = Math.abs(y1 - y);
             double dx2 = Math.abs(x2 - x);
@@ -606,10 +609,11 @@ public class RegionSelectableWorldMapPane {
 
         private void updateProperties(Rectangle2D modelRectangle) {
             try {
-                bindingContext.getPropertySet().getProperty(NORTH_BOUND).setValue(modelRectangle.getMaxY());
-                bindingContext.getPropertySet().getProperty(SOUTH_BOUND).setValue(modelRectangle.getMinY());
-                bindingContext.getPropertySet().getProperty(WEST_BOUND).setValue(modelRectangle.getMinX());
-                bindingContext.getPropertySet().getProperty(EAST_BOUND).setValue(modelRectangle.getMaxX());
+                PropertySet propertySet = bindingContext.getPropertySet();
+                propertySet.getProperty(NORTH_BOUND).setValue(modelRectangle.getMaxY());
+                propertySet.getProperty(SOUTH_BOUND).setValue(modelRectangle.getMinY());
+                propertySet.getProperty(WEST_BOUND).setValue(modelRectangle.getMinX());
+                propertySet.getProperty(EAST_BOUND).setValue(modelRectangle.getMaxX());
             } catch (ValidationException e) {
                 // should never come here
                 throw new IllegalStateException(e);
