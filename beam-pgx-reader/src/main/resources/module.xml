@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-pgx-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <name>PGX Product Reader</name>
 
     <description>Enables BEAM to read ENVISAT data products.</description>
@@ -28,7 +28,12 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
 
-    <changelog><![CDATA[ ]]></changelog>
+    <changelog>
+        <![CDATA[
+            <b>Changes from 1.0 to 1.0.1</b><br/>
+            BEAM-1612 - PGX reader plugin may take very long to determine decode qualification<br>
+        ]]>
+    </changelog>
 
 
     <dependency>
