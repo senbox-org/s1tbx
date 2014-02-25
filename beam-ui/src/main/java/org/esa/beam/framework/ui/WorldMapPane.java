@@ -72,7 +72,7 @@ public class WorldMapPane extends JPanel {
         this.dataModel = dataModel;
         layerCanvas = new LayerCanvas();
         this.panSupport = new DefaultPanSupport(layerCanvas);
-        this.zoomListeners = new HashSet<ZoomListener>();
+        this.zoomListeners = new HashSet<>();
         getLayerCanvas().getModel().getViewport().setModelYAxisDown(false);
         if (overlay == null) {
             getLayerCanvas().addOverlay(new BoundaryOverlayImpl(dataModel));
@@ -103,10 +103,11 @@ public class WorldMapPane extends JPanel {
             public void componentResized(ComponentEvent e) {
                 AffineTransform transform = getLayerCanvas().getViewport().getModelToViewTransform();
 
-                double minX = getLayerCanvas().getMaxVisibleModelBounds().getMinX();
-                double minY = getLayerCanvas().getMaxVisibleModelBounds().getMinY();
-                double maxX = getLayerCanvas().getMaxVisibleModelBounds().getMaxX();
-                double maxY = getLayerCanvas().getMaxVisibleModelBounds().getMaxY();
+                Rectangle2D maxVisibleModelBounds = getLayerCanvas().getMaxVisibleModelBounds();
+                double minX = maxVisibleModelBounds.getMinX();
+                double minY = maxVisibleModelBounds.getMinY();
+                double maxX = maxVisibleModelBounds.getMaxX();
+                double maxY = maxVisibleModelBounds.getMaxY();
 
                 final Point2D upperLeft = transform.transform(new Point2D.Double(minX, minY), null);
                 final Point2D lowerRight = transform.transform(new Point2D.Double(maxX, maxY), null);
@@ -123,10 +124,11 @@ public class WorldMapPane extends JPanel {
                 Rectangle2D eastBorder = new Rectangle2D.Double(lowerRight.getX(), lowerRight.getY(), 1,
                                                                 upperLeft.getY() - lowerRight.getY());
 
-                boolean isWorldMapFullyVisible = getLayerCanvas().getBounds().intersects(northBorder) ||
-                        getLayerCanvas().getBounds().intersects(southBorder) ||
-                        getLayerCanvas().getBounds().intersects(westBorder) ||
-                        getLayerCanvas().getBounds().intersects(eastBorder);
+                Rectangle layerCanvasBounds = getLayerCanvas().getBounds();
+                boolean isWorldMapFullyVisible = layerCanvasBounds.intersects(northBorder) ||
+                                                 layerCanvasBounds.intersects(southBorder) ||
+                                                 layerCanvasBounds.intersects(westBorder) ||
+                                                 layerCanvasBounds.intersects(eastBorder);
                 if (isWorldMapFullyVisible) {
                     zoomAll();
                 }
