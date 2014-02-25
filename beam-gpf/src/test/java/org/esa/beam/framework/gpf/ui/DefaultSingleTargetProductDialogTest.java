@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -34,31 +33,26 @@ import org.esa.beam.framework.ui.ExpressionConverter;
 import javax.swing.UIManager;
 
 
-public class DefaultSingleTargetProductDialogTest extends TestCase {
+public class DefaultSingleTargetProductDialogTest {
+
     private static final TestOp.Spi SPI = new TestOp.Spi();
-
-    @Override
-    protected void setUp() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(SPI);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(SPI);
-    }
 
     public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(SPI);
 
-        DefaultAppContext app = new DefaultAppContext("Killer App");
-        app.getApplicationWindow().setSize(200, 200);
+        try {
+            DefaultAppContext app = new DefaultAppContext("Killer App");
+            app.getApplicationWindow().setSize(200, 200);
 
-        final DefaultSingleTargetProductDialog dialog = (DefaultSingleTargetProductDialog) DefaultSingleTargetProductDialog.createDefaultDialog(
-                TestOp.Spi.class.getName(), app);
-        dialog.setTargetProductNameSuffix("_test");
-        dialog.getJDialog().setTitle("TestOp GUI");
-        dialog.show();
+            final DefaultSingleTargetProductDialog dialog = (DefaultSingleTargetProductDialog) DefaultSingleTargetProductDialog.createDefaultDialog(
+                    TestOp.Spi.class.getName(), app);
+            dialog.setTargetProductNameSuffix("_test");
+            dialog.getJDialog().setTitle("TestOp GUI");
+            dialog.show();
+        } finally {
+            GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(SPI);
+        }
     }
 
     public static class TestOp extends Operator {
