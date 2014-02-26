@@ -15,16 +15,37 @@
  */
 package org.esa.pfa.fe;
 
+import org.esa.beam.util.SystemUtils;
+
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 
 public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescriptor {
 
     private static final String NAME = "Algal Bloom Detection";
+    public static final String DEFAULT_FEATURE_SET = "flh.mean,mci.mean,flh_hg_pixels";
+    public static final String DEFAULT_QL_NAME = "rgb1_ql.png";
+    public static final String DEFAULT_ALL_QUERY = "product:MER*";
+
     private static Dimension patchDimension = new Dimension(200, 200);
 
     private static final URL graphURL = AlgalBloomApplicationDescriptor.class.getResource("AlgalBloomFeatureWriter.xml");
+    private static Properties properties = new Properties(System.getProperties());
+
+    static {
+        File file = new File(SystemUtils.getApplicationDataDir(), "pfa.algalblooms.properties");
+        try {
+            try (FileReader reader = new FileReader(file)) {
+                properties.load(reader);
+            }
+        } catch (IOException e) {
+            // ok
+        }
+    }
 
     public AlgalBloomApplicationDescriptor() {
         super(NAME);
@@ -47,6 +68,21 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
 
     @Override
     public String getAllQueryExpr() {
-        return "product:MER*";
+        return properties.getProperty("pfa.algalblooms.allQuery", DEFAULT_ALL_QUERY);
+    }
+
+    @Override
+    public String getDefaultQuicklookFileName() {
+        return properties.getProperty("pfa.algalblooms.qlName", DEFAULT_QL_NAME);
+    }
+
+    @Override
+    public String[] getDefaultFeatureSet() {
+        String property = properties.getProperty("pfa.algalblooms.featureSet", DEFAULT_FEATURE_SET);
+        String[] split = property.split(",");
+        for (int i = 0; i < split.length; i++) {
+            split[i] = split[i].trim();
+        }
+        return split;
     }
 }

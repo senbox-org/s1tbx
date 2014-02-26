@@ -235,8 +235,8 @@ public class AlgalBloomFexOperator extends FexOperator {
             return false;
         }
 
-        final Product featureProduct = createCorrectedProduct(patchProduct);
-        final Product cloudProduct = addMasks(featureProduct);
+        final Product featureProduct = createRadiometricallyCorrectedProduct(patchProduct);
+        final Product wasteProduct = addMasks(featureProduct);
         final Mask roiMask = featureProduct.getMaskGroup().get(FEX_ROI_MASK_NAME);
         final ConnectivityMetrics connectivityMetrics = ConnectivityMetrics.compute(roiMask);
 
@@ -244,7 +244,7 @@ public class AlgalBloomFexOperator extends FexOperator {
         if (validPixelRatio <= minValidPixelRatio) {
             getLogger().warning(String.format("Rejected patch x%dy%d, validPixelRatio = %f%%", patchX, patchY,
                                               validPixelRatio * 100));
-            disposeProducts(featureProduct, cloudProduct);
+            disposeProducts(featureProduct, wasteProduct);
             return false;
         }
 
@@ -252,7 +252,7 @@ public class AlgalBloomFexOperator extends FexOperator {
         final double clumpiness = aggregationMetrics.clumpiness;
         if (validPixelRatio < 0.5 && clumpiness < minClumpiness) {
             getLogger().warning(String.format("Rejected patch x%dy%d, clumpiness = %f", patchX, patchY, clumpiness));
-            disposeProducts(featureProduct, cloudProduct);
+            disposeProducts(featureProduct, wasteProduct);
             return false;
         }
 
@@ -285,7 +285,7 @@ public class AlgalBloomFexOperator extends FexOperator {
 
         patchOutput.writePatch(patch, features);
 
-        disposeProducts(featureProduct, cloudProduct);
+        disposeProducts(featureProduct, wasteProduct);
 
         return true;
     }
@@ -325,8 +325,9 @@ public class AlgalBloomFexOperator extends FexOperator {
         }
     }
 
-
-
+    /*
+     * @return intermediate waste product for later disposal.
+     */
     private Product addMasks(Product product) {
         final Product cloudProduct;
         if (useFrontsCloudMask) {
@@ -458,7 +459,7 @@ public class AlgalBloomFexOperator extends FexOperator {
         coastDistBand.setValidPixelExpression(FEX_ROI_MASK_NAME);
     }
 
-    private Product createCorrectedProduct(Product product) {
+    private Product createRadiometricallyCorrectedProduct(Product product) {
         final HashMap<String, Object> radiometryParameters = new HashMap<>();
         radiometryParameters.put("doCalibration", false);
         radiometryParameters.put("doSmile", true);
