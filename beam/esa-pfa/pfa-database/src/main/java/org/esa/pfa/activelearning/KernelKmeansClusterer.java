@@ -208,25 +208,38 @@ public class KernelKmeansClusterer {
 
         for (int clusterIdx = 0; clusterIdx < numClusters; clusterIdx++) {
 
-            final double sum2 = computeSum2(clusters[clusterIdx].memberSampleIndices);
-
-            double minDistance = Double.MAX_VALUE;
-            int sampleIdx = 0;
-            for (int i = 0; i < clusters[clusterIdx].memberSampleIndices.size(); i++) {
-
-                final double distance = computeDistance(clusters[clusterIdx].memberSampleIndices.get(i),
-                                                        clusters[clusterIdx].memberSampleIndices, sum2);
-
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    sampleIdx = clusters[clusterIdx].memberSampleIndices.get(i);
-                }
-            }
+            final int sampleIdx = findSampleNearestToClusterCenter(clusterIdx);
 
             clusters[clusterIdx].centerSampleIdx = sampleIdx;
             clusters[clusterIdx].memberSampleIndices.clear();
             clusters[clusterIdx].memberSampleIndices.add(sampleIdx);
         }
+    }
+
+    /**
+     * Find the sample that is nearest to the center of a given cluster.
+     * @param clusterIdx The cluster index.
+     * @return The sample index.
+     * @throws Exception The exception.
+     */
+    private int findSampleNearestToClusterCenter(final int clusterIdx) throws Exception {
+
+        final double sum2 = computeSum2(clusters[clusterIdx].memberSampleIndices);
+
+        int sampleIdx = 0;
+        double minDistance = Double.MAX_VALUE;
+        for (int i = 0; i < clusters[clusterIdx].memberSampleIndices.size(); i++) {
+
+            final double distance = computeDistanceToClusterCenter(clusters[clusterIdx].memberSampleIndices.get(i),
+                                                                   clusters[clusterIdx].memberSampleIndices, sum2);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                sampleIdx = clusters[clusterIdx].memberSampleIndices.get(i);
+            }
+        }
+
+        return sampleIdx;
     }
 
     /**
@@ -238,7 +251,6 @@ public class KernelKmeansClusterer {
      */
     private double computeSum2(final List<Integer> memberSampleIndices) throws Exception {
 
-        final int numMembers = memberSampleIndices.size();
         double sum2 = 0.0;
         for (Integer memberSampleIndice : memberSampleIndices) {
             final double[] xi = getFeatures(samples.get(memberSampleIndice));
@@ -258,8 +270,8 @@ public class KernelKmeansClusterer {
      * @return The distance.
      * @throws Exception The exception.
      */
-    private double computeDistance(final int sampleIdx, final List<Integer> memberSampleIndices, final double sum2)
-            throws Exception {
+    private double computeDistanceToClusterCenter(
+            final int sampleIdx, final List<Integer> memberSampleIndices, final double sum2) throws Exception {
 
         final int numSamples = memberSampleIndices.size();
         final double[] x = getFeatures(samples.get(sampleIdx));
