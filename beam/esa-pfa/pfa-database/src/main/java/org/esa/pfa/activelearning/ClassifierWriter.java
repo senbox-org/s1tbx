@@ -17,7 +17,7 @@ public class ClassifierWriter {
     int numRetrievedImages;
     int numIterations;
     svm_model model;
-    String[] patchPaths;
+    PatchInfo[] patchInfo;
 
     ClassifierWriter() {}
 
@@ -28,20 +28,24 @@ public class ClassifierWriter {
         this.numIterations = numIterations;
         model = al.getModel();
 
-        savePatchPaths(al);
+        savePatchInfo(al);
     }
 
-    private void savePatchPaths(final ActiveLearning al) {
+    private void savePatchInfo(final ActiveLearning al) {
         final Patch[] trainingPatches = al.getTrainingData();
-        final List<String> patchPathList = new ArrayList<>(trainingPatches.length);
+        final List<PatchInfo> patchInfoList = new ArrayList<>(trainingPatches.length);
         for(Patch patch : trainingPatches) {
-            patchPathList.add(patch.getPathOnServer());
+            patchInfoList.add(new PatchInfo(patch));
         }
-        patchPaths = patchPathList.toArray(new String[patchPathList.size()]);
+        patchInfo = patchInfoList.toArray(new PatchInfo[patchInfoList.size()]);
     }
 
-    public String[] getPatchPaths() {
-        return patchPaths;
+    /**
+     * basic information to recreate a patch
+     * @return list of PatchInfo
+     */
+    public PatchInfo[] getPatchInfo() {
+        return patchInfo;
     }
 
     public int getNumTrainingImages() {
@@ -80,5 +84,30 @@ public class ClassifierWriter {
         XStream xStream = new XStream();
         xStream.alias("model", svm_model.class);
         return xStream;
+    }
+
+    /**
+    * basic information to recreate a patch
+    */
+    public static class PatchInfo {
+        public String path;
+        public int patchX;
+        public int patchY;
+        public int label;
+
+        public PatchInfo(final Patch patch) {
+            this.path = patch.getPathOnServer();
+            this.patchX = patch.getPatchX();
+            this.patchY = patch.getPatchY();
+            this.label = patch.getLabel();
+        }
+
+        public Patch recreatePatch() {
+            final Patch patch = new Patch(patchX, patchY, null, null);
+            patch.setPathOnServer(path);
+            patch.setLabel(label);
+
+            return patch;
+        }
     }
 }

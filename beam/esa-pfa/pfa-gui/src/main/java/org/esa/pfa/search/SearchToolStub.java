@@ -196,13 +196,15 @@ public class SearchToolStub {
 
         al.setModel(storedClassifier.getModel());
 
-        final String[] patchPaths = storedClassifier.getPatchPaths();
-        final Patch[] patches = new Patch[patchPaths.length];
-        int i = 0;
-        for(String path : patchPaths) {
-            //patches[1] = new Patch();
+        final ClassifierWriter.PatchInfo[] patchInfo = storedClassifier.getPatchInfo();
+        if(patchInfo != null) {
+            final Patch[] patches = new Patch[patchInfo.length];
+            int i = 0;
+            for(ClassifierWriter.PatchInfo info : patchInfo) {
+                patches[i++] = info.recreatePatch();
+            }
+            al.setTrainingData(patches, numIterations);
         }
-        //al.setTrainingData(patches, numIterations);
     }
 
     private void saveClassifier() throws IOException {

@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -44,76 +45,20 @@ public class CBIRControlCentreToolView extends AbstractToolView {
     private final static String instructionsStr = "Select a feature extraction application";
     private final static String PROPERTY_KEY_DB_PATH = "app.file.cbir.dbPath";
 
-    private JComboBox<String> applicationCombo = new JComboBox<>();
-
+    private JComboBox<String> applicationCombo;
     private JList<String> classifierList;
     private JButton newBtn, deleteBtn;
-    private JButton queryBtn;
-    private JTextField numTrainingImages = new JTextField();
-    private JTextField numRetrievedImages = new JTextField();
+    private JButton queryBtn, trainBtn;
+    private JTextField numTrainingImages;
+    private JTextField numRetrievedImages;
     private JLabel iterationsLabel = new JLabel();
 
     private File dbFolder;
-    private final JTextField dbFolderTextField = new JTextField();
+    private JTextField dbFolderTextField;
 
     private CBIRSession session = null;
 
     public CBIRControlCentreToolView() {
-
-        final PFAApplicationDescriptor[] apps = PFAApplicationRegistry.getInstance().getAllDescriptors();
-        for(PFAApplicationDescriptor app : apps) {
-            applicationCombo.addItem(app.getName());
-        }
-
-        applicationCombo.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent event) {
-                final String fea = (String) applicationCombo.getSelectedItem();
-
-            }
-        });
-
-        dbFolder = new File(VisatApp.getApp().getPreferences().getPropertyString(PROPERTY_KEY_DB_PATH, ""));
-        if(dbFolder.exists()) {
-            dbFolderTextField.setText(dbFolder.getAbsolutePath());
-        }
-
-        if (apps.length == 0) {
-         /*   Component[] components = getComponents();
-            for (Component component : components) {
-                component.setEnabled(false);
-            }  */
-        }
-    }
-
-
-    public TaskPanel getNextPanel() {
-        return new QueryTaskPanel(session);
-    }
-
-    public boolean validateInput() {
-        try {
-            if(session == null) {
-                throw new Exception("Select or create a new classifier");
-            }
-
-            String dbPath = dbFolderTextField.getText();
-            dbFolder = new File(dbPath);
-            if(dbPath.isEmpty() || !dbFolder.exists()) {
-                throw new Exception("Database path is invalid");
-            }
-
-            final int numTrainingImg = Integer.parseInt(numTrainingImages.getText());
-            final int numRetrievedImg = Integer.parseInt(numRetrievedImages.getText());
-            session.setNumTrainingImages(numTrainingImg);
-            session.setNumRetrievedImages(numRetrievedImg);
-
-            VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_DB_PATH, dbFolder.getAbsolutePath());
-
-            return true;
-        } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog("Oops!", e.getMessage());
-        }
-        return false;
     }
 
     public JComponent createControl() {
@@ -125,6 +70,25 @@ public class CBIRControlCentreToolView extends AbstractToolView {
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.gridx = 0;
         gbc.gridy = 0;
+
+        final PFAApplicationDescriptor[] apps = PFAApplicationRegistry.getInstance().getAllDescriptors();
+        applicationCombo = new JComboBox<>();
+        for(PFAApplicationDescriptor app : apps) {
+            applicationCombo.addItem(app.getName());
+        }
+        applicationCombo.setEditable(false);
+        applicationCombo.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent event) {
+                session = null;
+                updateControls();
+            }
+        });
+
+        dbFolder = new File(VisatApp.getApp().getPreferences().getPropertyString(PROPERTY_KEY_DB_PATH, ""));
+        dbFolderTextField = new JTextField();
+        if(dbFolder.exists()) {
+            dbFolderTextField.setText(dbFolder.getAbsolutePath());
+        }
 
         contentPane.add(new Label("Application:"), gbc);
         gbc.gridy++;
@@ -182,14 +146,30 @@ public class CBIRControlCentreToolView extends AbstractToolView {
 
         optionsPane.add(new JLabel("# of training images:"), gbcOpt);
         gbcOpt.gridx = 1;
+        numTrainingImages = new JTextField();
         numTrainingImages.setColumns(3);
+        numTrainingImages.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                session = null;
+                updateControls();
+            }
+        });
         optionsPane.add(numTrainingImages, gbcOpt);
 
         gbcOpt.gridy++;
         gbcOpt.gridx = 0;
         optionsPane.add(new JLabel("# of retrieved images:"), gbcOpt);
         gbcOpt.gridx = 1;
+        numRetrievedImages = new JTextField();
         numRetrievedImages.setColumns(3);
+        numRetrievedImages.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                session = null;
+                updateControls();
+            }
+        });
         optionsPane.add(numRetrievedImages, gbcOpt);
         gbcOpt.gridy++;
         gbcOpt.gridx = 0;
@@ -239,7 +219,7 @@ public class CBIRControlCentreToolView extends AbstractToolView {
     }
 
     private JPanel createClassifierButtonPanel() {
-        final JPanel panel = new JPanel();
+        final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         newBtn = new JButton(new AbstractAction("New") {
             public void actionPerformed(ActionEvent e) {
@@ -262,22 +242,10 @@ public class CBIRControlCentreToolView extends AbstractToolView {
                     listModel.remove(classifierList.getSelectedIndex());
                 }
              }
-         });    /*
-     final JButton saveBtn = new JButton(new AbstractAction("Save") {
-         public void actionPerformed(ActionEvent e) {
-
-         }
-     });
-     final JButton editBtn = new JButton(new AbstractAction("Edit") {
-         public void actionPerformed(ActionEvent e) {
-
-         }
-     });   */
+         });
 
         panel.add(newBtn);
         panel.add(deleteBtn);
-        //panel.add(saveBtn);
-        //panel.add(editBtn);
 
         return panel;
     }
@@ -289,17 +257,15 @@ public class CBIRControlCentreToolView extends AbstractToolView {
 
         queryBtn = new JButton(new AbstractAction("Query") {
             public void actionPerformed(ActionEvent e) {
-                final ToolView QueryView = getContext().getPage().getToolView(CBIRQueryToolView.ID);
-
                 getContext().getPage().showToolView(CBIRQueryToolView.ID);
             }
         });
-        final JButton btn2 = new JButton(new AbstractAction("2") {
+        trainBtn = new JButton(new AbstractAction("Training") {
             public void actionPerformed(ActionEvent e) {
 
             }
         });
-        final JButton btn3 = new JButton(new AbstractAction("3") {
+      /*  final JButton btn3 = new JButton(new AbstractAction("3") {
             public void actionPerformed(ActionEvent e) {
 
             }
@@ -308,19 +274,18 @@ public class CBIRControlCentreToolView extends AbstractToolView {
             public void actionPerformed(ActionEvent e) {
 
             }
-        });
+        });    */
 
         panel.add(queryBtn);
-        panel.add(btn2);
-        panel.add(btn3);
-        panel.add(btn4);
+        panel.add(trainBtn);
+        //panel.add(btn3);
+        //panel.add(btn4);
 
         return panel;
     }
 
     private void updateControls() {
         newBtn.setEnabled(dbFolder.exists());
-        deleteBtn.setEnabled(classifierList.getSelectedIndex() != -1);
 
         final String name = classifierList.getSelectedValue();
         if(name != null) {
@@ -330,10 +295,14 @@ public class CBIRControlCentreToolView extends AbstractToolView {
         }
 
         final boolean activeSession = name != null && session != null;
+        deleteBtn.setEnabled(activeSession);
+
+        applicationCombo.setEnabled(activeSession);
         numTrainingImages.setEnabled(activeSession);
         numRetrievedImages.setEnabled(activeSession);
 
         queryBtn.setEnabled(activeSession);
+        trainBtn.setEnabled(activeSession);
 
         if(session != null) {
             numTrainingImages.setText(String.valueOf(session.getNumTrainingImages()));
@@ -350,7 +319,9 @@ public class CBIRControlCentreToolView extends AbstractToolView {
             final PFAApplicationDescriptor applicationDescriptor = PFAApplicationRegistry.getInstance().getDescriptor(application);
 
             final String dbPath = dbFolderTextField.getText();
-            session = new CBIRSession(classifierName, applicationDescriptor, dbPath);
+            session = CBIRSession.Instance();
+
+            session.initSession(classifierName, applicationDescriptor, dbPath);
 
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
@@ -377,6 +348,7 @@ public class CBIRControlCentreToolView extends AbstractToolView {
             if (chooser.showDialog(window, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
                 dbFolder = chooser.getSelectedFile();
                 dbFolderTextField.setText(dbFolder.getAbsolutePath());
+                VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_DB_PATH, dbFolder.getAbsolutePath());
                 updateControls();
             }
         }

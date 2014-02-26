@@ -20,6 +20,7 @@ import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.InsertFigureInteractorInterceptor;
@@ -28,6 +29,8 @@ import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.ui.toolviews.cbir.taskpanels.FeatureExtractionTaskPanel;
 
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.CropDescriptor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -35,43 +38,28 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 /**
-    Labeling Panel
+    Query Toolview
  */
-public class CBIRQueryToolView extends AbstractToolView implements ActionListener {
+public class CBIRQueryToolView extends AbstractToolView implements ActionListener, CBIRSession.CBIRSessionListener {
 
     public final static String ID = "org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView";
 
-    private final static String instructionsStr = "Add query images by selecting patch areas in an image view";
     private CBIRSession session;
     private PatchDrawer drawer;
     private PatchSelectionInteractor interactor;
+    private JButton addPatchBtn, editBtn, startTrainingBtn;
 
     public CBIRQueryToolView() {
-        System.out.print("");
-    }
-
-    public CBIRQueryToolView(final CBIRSession session) {
-        this.session = session;
-    }
-
-    public TaskPanel getNextPanel() {
-        VisatApp.getApp().setActiveInteractor(NullInteractor.INSTANCE);
-
-        return new FeatureExtractionTaskPanel(session);
-    }
-
-    public boolean validateInput() {
-        return true;
+        CBIRSession.Instance().addListener(this);
     }
 
     public JComponent createControl() {
 
         final JPanel mainPane = new JPanel(new BorderLayout(5,5));
-        //mainPane.add(createInstructionsPanel(null, instructionsStr), BorderLayout.NORTH);
-
         final JPanel imageScrollPanel = new JPanel(new BorderLayout(2, 2));
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
@@ -95,13 +83,59 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         mainPane.add(listsPanel, BorderLayout.CENTER);
 
         final JPanel btnPanel = new JPanel();
-        final JButton addPatchButton = new JButton("Add");
-        addPatchButton.setActionCommand("addPatchButton");
-        addPatchButton.addActionListener(this);
-        btnPanel.add(addPatchButton);
+        addPatchBtn = new JButton("Add");
+        addPatchBtn.setActionCommand("addPatchBtn");
+        addPatchBtn.addActionListener(this);
+        addPatchBtn.setEnabled(false);
+        btnPanel.add(addPatchBtn);
 
         mainPane.add(btnPanel, BorderLayout.EAST);
+
+        final JPanel bottomPanel = new JPanel();
+        editBtn = new JButton("Edit Constraints");
+        editBtn.setActionCommand("editBtn");
+        editBtn.addActionListener(this);
+        editBtn.setEnabled(false);
+        bottomPanel.add(editBtn);
+
+        startTrainingBtn = new JButton("Start Training");
+        startTrainingBtn.setActionCommand("startTrainingBtn");
+        startTrainingBtn.addActionListener(this);
+        startTrainingBtn.setEnabled(false);
+        bottomPanel.add(startTrainingBtn);
+
+        mainPane.add(bottomPanel, BorderLayout.SOUTH);
+
+        updateControls();
+
         return mainPane;
+    }
+
+    public void notifyNewSession() {
+        session = CBIRSession.Instance();
+
+        if(isControlCreated()) {
+            updateControls();
+        }
+    }
+
+    public void notifyNewQueryImages() {
+    }
+
+    public void notifyModelTrained() {
+    }
+
+    private void updateControls() {
+        boolean sessionActive = false;
+        boolean hasQueryImages = false;
+        if(session != null) {
+            sessionActive = true;
+            hasQueryImages = session.getQueryPatches().length > 0;
+        }
+
+        addPatchBtn.setEnabled(sessionActive);
+        startTrainingBtn.setEnabled(hasQueryImages);
+        editBtn.setEnabled(false); //todo //hasQueryImages);
     }
 
     /**
@@ -112,7 +146,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
     public void actionPerformed(final ActionEvent event) {
         try {
             final String command = event.getActionCommand();
-            if (command.equals("addPatchButton")) {
+            if (command.equals("addPatchBtn")) {
                 if(VisatApp.getApp().getSelectedProductSceneView() == null) {
                     throw new Exception("First open a product and an image view to be able to add new query images.");
                 }
@@ -124,26 +158,27 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 interactor.activate();
 
                 VisatApp.getApp().setActiveInteractor(interactor);
+            } else if(command.equals("startTrainingBtn")) {
+                final Patch[] processedPatches = session.getQueryPatches();
+
+                //only add patches with features
+                session.clearQueryPatches();
+                for (Patch patch : processedPatches) {
+                    if (patch.getFeatures().length > 0) {
+                        session.addQueryPatch(patch);
+                    }
+                }
+                if (session.getQueryPatches().length == 0) {
+                    throw new Exception("No features found in the query images");
+                }
+
+                session.setQueryImages();
+
+                getContext().getPage().showToolView(CBIRLabelingToolView.ID);
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());
         }
-    }
-
-    private void addQueryImage(final Product product, final int x, final int y, final int w, final int h) throws IOException {
-
-        final Product subset = FeatureWriter.createSubset(product, new Rectangle(x, y, w, h));
-        final int patchX = x/w;
-        final int patchY = y/h;
-
-        final BufferedImage image = ProductUtils.createColorIndexedImage(
-                subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
-                com.bc.ceres.core.ProgressMonitor.NULL);
-        final Patch patch = new Patch(patchX, patchY, null, subset);
-        patch.setImage(image);
-        patch.setLabel(Patch.LABEL_RELEVANT);
-        session.addQueryPatch(patch);
-        drawer.update(session.getQueryPatches());
     }
 
     private class PatchInteractorListener extends AbstractInteractorListener {
@@ -155,17 +190,70 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         @Override
         public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
             final PatchSelectionInteractor patchInteractor = (PatchSelectionInteractor) interactor;
-            if(patchInteractor != null) {
+            if (patchInteractor != null) {
                 try {
                     Rectangle2D rect = patchInteractor.getPatchShape();
 
+                    ProductSceneView productSceneView = getProductSceneView(inputEvent);
+                    RenderedImage parentImage = productSceneView != null ? productSceneView.getBaseImageLayer().getImage() : null;
+
                     final Product product = VisatApp.getApp().getSelectedProduct();
-                    addQueryImage(product, (int)rect.getX(), (int)rect.getY(), (int)rect.getWidth(), (int)rect.getHeight());
+                    addQueryImage(product, (int) rect.getX(), (int) rect.getY(), (int) rect.getWidth(), (int) rect.getHeight(), parentImage);
+
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+        }
+
+        private void addQueryImage(final Product product, final int x, final int y, final int w, final int h,
+                                   final RenderedImage parentImage) throws IOException {
+
+            final Rectangle region = new Rectangle(parentImage.getWidth(), parentImage.getHeight()).
+                    intersection(new Rectangle(x, y, w, h));
+
+            final Product subset = FeatureWriter.createSubset(product, region);
+            final int patchX = x / w;
+            final int patchY = y / h;
+
+            final BufferedImage patchImage;
+            if (parentImage != null) {
+                RenderedOp renderedOp = CropDescriptor.create(parentImage,
+                        (float) region.getX(),
+                        (float) region.getY(),
+                        (float) region.getWidth(),
+                        (float) region.getHeight(), null);
+                patchImage = renderedOp.getAsBufferedImage();
+            } else {
+                patchImage = ProductUtils.createColorIndexedImage(
+                        subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
+                        com.bc.ceres.core.ProgressMonitor.NULL);
+            }
+
+            final Patch patch = new Patch(patchX, patchY, null, subset);
+            patch.setImage(patchImage);
+            patch.setLabel(Patch.LABEL_RELEVANT);
+            session.addQueryPatch(patch);
+            drawer.update(session.getQueryPatches());
+
+            final PatchProcessor proc = new PatchProcessor(session);
+            proc.process(patch);
+
+            updateControls();
+        }
+
+        private ProductSceneView getProductSceneView(InputEvent event) {
+            ProductSceneView productSceneView = null;
+            Component component = event.getComponent();
+            while (component != null) {
+                if (component instanceof ProductSceneView) {
+                    productSceneView = (ProductSceneView) component;
+                    break;
+                }
+                component = component.getParent();
+            }
+            return productSceneView;
         }
     }
 }

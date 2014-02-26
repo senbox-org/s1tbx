@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.pfa.ui.toolviews.cbir.taskpanels;
+package org.esa.pfa.ui.toolviews.cbir;
 
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
@@ -31,19 +31,10 @@ import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.ui.toolviews.cbir.LabelBarProgressMonitor;
-import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
+import org.esa.pfa.ui.toolviews.cbir.taskpanels.LabelingTaskPanel;
 
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -56,46 +47,19 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Feature extraction Panel
+ * Feature extraction
  */
-public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListener {
+public class PatchProcessor {
 
-    private final static String instructionsStr = "Extract features from the query images";
     private final CBIRSession session;
 
-    private Map<Patch, FeaturePanel> progressMap = new HashMap<>(5);
-
-    public FeatureExtractionTaskPanel(final CBIRSession session) {
-        super("Feature Extraction");
+    public PatchProcessor(final CBIRSession session) {
         this.session = session;
-
-        createPanel();
-
-        repaint();
-    }
-
-    public void returnFromLaterStep() {
-    }
-
-    public boolean canRedisplayNextPanel() {
-        return false;
-    }
-
-    public boolean hasNextPanel() {
-        return true;
-    }
-
-    public boolean canFinish() {
-        return false;
-    }
-
-    public TaskPanel getNextPanel() {
-        return new LabelingTaskPanel(session);
     }
 
     public boolean validateInput() {
         try {
-            final Patch[] processedPatches = session.getQueryPatches();
+      /*      final Patch[] processedPatches = session.getQueryPatches();
 
             session.clearQueryPatches();
             for (Patch patch : processedPatches) {
@@ -108,7 +72,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             }
 
             session.setQueryImages();
-
+                                     */
             return true;
         } catch (Exception e) {
             VisatApp.getApp().handleUnknownException(e);
@@ -116,62 +80,17 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         return false;
     }
 
-    private void createPanel() {
-
-        this.add(createInstructionsPanel(null, instructionsStr), BorderLayout.NORTH);
-
-        final JPanel listsPanel = new JPanel();
-        final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
-        listsPanel.setLayout(layout);
-
-        for (Patch patch : session.getQueryPatches()) {
-            listsPanel.add(createProcessingPanel(patch));
-        }
-        this.add(new JScrollPane(listsPanel), BorderLayout.CENTER);
-
-        final JButton addButton = new JButton("Process Query Images");
-        addButton.setActionCommand("processButton");
-        addButton.addActionListener(this);
-        this.add(addButton, BorderLayout.SOUTH);
-    }
-
-    private JPanel createProcessingPanel(final Patch patch) {
-        final JPanel panel = new JPanel();
-
-        final JLabel imgLabel = new JLabel();
-        imgLabel.setIcon(new ImageIcon(patch.getImage().getScaledInstance(100, 100, BufferedImage.SCALE_FAST)));
-        panel.add(imgLabel);
-
-        final FeaturePanel featurePanel = new FeaturePanel(patch);
-        panel.add(featurePanel);
-
-        progressMap.put(patch, featurePanel);
-
-        return panel;
-    }
-
-    /**
-     * Handles events.
-     *
-     * @param event the event.
-     */
-    public void actionPerformed(final ActionEvent event) {
+    public void process(final Patch patch) {
         try {
-            final String command = event.getActionCommand();
-            if (command.equals("processButton")) {
-
-                final Set<Patch> keys = progressMap.keySet();
-                for (Patch patch : keys) {
-                    final ProcessThread thread = new ProcessThread(progressMap.get(patch));
-                    thread.execute();
-                }
-            }
+            FeaturePanel panel = new FeaturePanel(patch);
+            final ProcessThread thread = new ProcessThread(panel);
+            thread.execute();
         } catch (Exception e) {
             VisatApp.getApp().handleUnknownException(e);
         }
     }
 
-    public final class ProcessThread extends SwingWorker {
+    private final class ProcessThread extends SwingWorker {
 
         private final FeaturePanel patchData;
         private File tmpOutFolder;

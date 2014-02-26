@@ -69,8 +69,34 @@
         <toolView>
             <id>org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView</id>
             <class>org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView</class>
-            <title>CBIR Query</title>
+            <title>CBIR Query Images</title>
             <tabTitle>CBIR Query</tabTitle>
+            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <description>Content Based Image Retrieval</description>
+            <initState>ICONIFIED</initState>
+            <!--initSide>EAST</initSide-->
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.pfa.ui.toolviews.cbir.CBIRLabelingToolView</id>
+            <class>org.esa.pfa.ui.toolviews.cbir.CBIRLabelingToolView</class>
+            <title>CBIR Training Images</title>
+            <tabTitle>CBIR Training</tabTitle>
+            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <description>Content Based Image Retrieval</description>
+            <initState>ICONIFIED</initState>
+            <!--initSide>EAST</initSide-->
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.pfa.ui.toolviews.cbir.CBIRRetrievedImagesToolView</id>
+            <class>org.esa.pfa.ui.toolviews.cbir.CBIRRetrievedImagesToolView</class>
+            <title>CBIR Retrieved Images</title>
+            <tabTitle>CBIR Retrieved Images</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
             <description>Content Based Image Retrieval</description>

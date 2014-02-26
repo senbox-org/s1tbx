@@ -306,7 +306,8 @@ public class CBIRStartTaskPanel extends TaskPanel {
             final PFAApplicationDescriptor applicationDescriptor = PFAApplicationRegistry.getInstance().getDescriptor(application);
 
             final String dbPath = dbFolderTextField.getText();
-            session = new CBIRSession(classifierName, applicationDescriptor, dbPath);
+            session = CBIRSession.Instance();
+            session.initSession(classifierName, applicationDescriptor, dbPath);
         } catch (Exception e) {
             VisatApp.getApp().handleUnknownException(e);
         }
