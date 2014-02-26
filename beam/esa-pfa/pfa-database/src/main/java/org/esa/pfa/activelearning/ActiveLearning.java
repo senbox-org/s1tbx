@@ -95,10 +95,11 @@ public class ActiveLearning {
      * @param patchArray The patch array.
      * @param iterationIndex The iteration index.
      */
-    public void setTrainingData(final Patch[] patchArray, final int iterationIndex) {
+    public void setTrainingData(final Patch[] patchArray, final int iterationIndex) throws Exception {
 
         trainingData.clear();
         trainingData.addAll(Arrays.asList(patchArray));
+        svmClassifier.train(trainingData);
         iteration = iterationIndex;
     }
 
