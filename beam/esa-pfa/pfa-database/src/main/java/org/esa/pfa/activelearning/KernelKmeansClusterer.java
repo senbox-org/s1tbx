@@ -240,11 +240,11 @@ public class KernelKmeansClusterer {
 
         final int numMembers = memberSampleIndices.size();
         double sum2 = 0.0;
-        for (int i = 0; i < numMembers; i++) {
-            final double[] xi = getFeatures(samples.get(memberSampleIndices.get(i)));
-            for (int j = 0; j < numMembers; j++) {
-                final double[] xj = getFeatures(samples.get(memberSampleIndices.get(j)));
-                sum2 += svmClassifier.kernel(xi,xj);
+        for (Integer memberSampleIndice : memberSampleIndices) {
+            final double[] xi = getFeatures(samples.get(memberSampleIndice));
+            for (Integer memberSampleIndice1 : memberSampleIndices) {
+                final double[] xj = getFeatures(samples.get(memberSampleIndice1));
+                sum2 += svmClassifier.kernel(xi, xj);
             }
         }
         return sum2;

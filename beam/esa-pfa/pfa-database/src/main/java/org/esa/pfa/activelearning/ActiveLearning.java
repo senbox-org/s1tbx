@@ -56,7 +56,7 @@ public class ActiveLearning {
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
-    public void setQueryPatches(Patch[] patchArray) throws Exception {
+    public void setQueryPatches(final Patch[] patchArray) throws Exception {
 
         iteration = 0;
         trainingData.clear();
@@ -73,7 +73,7 @@ public class ActiveLearning {
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
-    public void setRandomPatches(Patch[] patchArray) throws Exception {
+    public void setRandomPatches(final Patch[] patchArray) throws Exception {
 
         setTestDataSetWithValidPatches(patchArray);
 
@@ -94,7 +94,7 @@ public class ActiveLearning {
      * @return The patch array.
      * @throws Exception The exceptions.
      */
-    public Patch[] getMostAmbiguousPatches(int numImages) throws Exception {
+    public Patch[] getMostAmbiguousPatches(final int numImages) throws Exception {
 
         this.h = numImages;
         this.q = 4 * h;
@@ -141,7 +141,7 @@ public class ActiveLearning {
      * @param patchArray The Given patch array.
      * @throws Exception The exception.
      */
-    public void classify(Patch[] patchArray) throws Exception {
+    public void classify(final Patch[] patchArray) throws Exception {
 
         final double[] decValues = new double[1];
         for (Patch patch : patchArray) {
@@ -215,7 +215,7 @@ public class ActiveLearning {
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
-    private void checkQueryPatchesValidation(final Patch[] patchArray) throws Exception {
+    private static void checkQueryPatchesValidation(final Patch[] patchArray) throws Exception {
 
         ArrayList<Integer> classLabels = new ArrayList<Integer>();
         for (Patch patch:patchArray) {
@@ -353,7 +353,7 @@ public class ActiveLearning {
      * @param patchArray Patch array.
      * @throws Exception The exception.
      */
-    private void checkLabels(Patch[] patchArray) throws Exception {
+    private static void checkLabels(final Patch[] patchArray) throws Exception {
 
         for (Patch patch:patchArray) {
             if (patch.getLabel() == Patch.LABEL_NONE) {
@@ -408,7 +408,7 @@ public class ActiveLearning {
      * @return The functional distance.
      * @throws Exception The exception.
      */
-    private double computeFunctionalDistance(Patch x) throws Exception {
+    private double computeFunctionalDistance(final Patch x) throws Exception {
 
         final double[] decValues = new double[1];
         svmClassifier.classify(x, decValues);
