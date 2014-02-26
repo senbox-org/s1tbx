@@ -185,12 +185,20 @@ public class SearchToolStub {
     }
 
     private void loadClassifier(final File classifierFile) throws Exception {
-        ClassifierWriter classifier = ClassifierWriter.read(classifierFile);
-        numTrainingImages = classifier.getNumTrainingImages();
-        numRetrievedImages = classifier.getNumRetrievedImages();
-        numIterations = classifier.getNumIterations();
+        final ClassifierWriter storedClassifier = ClassifierWriter.read(classifierFile);
+        numTrainingImages = storedClassifier.getNumTrainingImages();
+        numRetrievedImages = storedClassifier.getNumRetrievedImages();
+        numIterations = storedClassifier.getNumIterations();
 
-        al.setModel(classifier.getModel());
+        al.setModel(storedClassifier.getModel());
+
+        final String[] patchPaths = storedClassifier.getPatchPaths();
+        final Patch[] patches = new Patch[patchPaths.length];
+        int i = 0;
+        for(String path : patchPaths) {
+            //patches[1] = new Patch();
+        }
+        //al.setTrainingData(patches, numIterations);
     }
 
     private void saveClassifier() throws IOException {

@@ -19,6 +19,7 @@ import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.InsertFigureInteractorInterceptor;
@@ -30,17 +31,27 @@ import org.esa.pfa.ui.toolviews.cbir.PatchDrawer;
 import org.esa.pfa.ui.toolviews.cbir.PatchSelectionInteractor;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.CropDescriptor;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 /**
-    Labeling Panel
+ * Labeling Panel
  */
 public class QueryTaskPanel extends TaskPanel implements ActionListener {
 
@@ -97,7 +108,7 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         drawer = new PatchDrawer(session.getQueryPatches());
         drawer.setMinimumSize(new Dimension(500, 210));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                                                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                                                       JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
         dl.setDraggableElements(DragScrollListener.DRAGABLE_HORIZONTAL_SCROLL_BAR);
@@ -131,7 +142,8 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         try {
             final String command = event.getActionCommand();
             if (command.equals("addPatchButton")) {
-                if(VisatApp.getApp().getSelectedProductSceneView() == null) {
+                ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
+                if (productSceneView == null) {
                     throw new Exception("First open a product and an image view to be able to add new query images.");
                 }
 
@@ -148,22 +160,6 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         }
     }
 
-    private void addQueryImage(final Product product, final int x, final int y, final int w, final int h) throws IOException {
-
-        final Product subset = FeatureWriter.createSubset(product, new Rectangle(x, y, w, h));
-        final int patchX = x/w;
-        final int patchY = y/h;
-
-        final BufferedImage image = ProductUtils.createColorIndexedImage(
-                subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
-                com.bc.ceres.core.ProgressMonitor.NULL);
-        final Patch patch = new Patch(patchX, patchY, null, subset);
-        patch.setImage(image);
-        patch.setLabel(Patch.LABEL_RELEVANT);
-        session.addQueryPatch(patch);
-        drawer.update(session.getQueryPatches());
-    }
-
     private class PatchInteractorListener extends AbstractInteractorListener {
 
         @Override
@@ -173,18 +169,63 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         @Override
         public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
             final PatchSelectionInteractor patchInteractor = (PatchSelectionInteractor) interactor;
-            if(patchInteractor != null) {
+            if (patchInteractor != null) {
                 try {
                     Rectangle2D rect = patchInteractor.getPatchShape();
 
+                    ProductSceneView productSceneView = getProductSceneView(inputEvent);
+                    RenderedImage parentImage = productSceneView != null ? productSceneView.getBaseImageLayer().getImage() : null;
+
                     final Product product = VisatApp.getApp().getSelectedProduct();
-                    addQueryImage(product, (int)rect.getX(), (int)rect.getY(), (int)rect.getWidth(), (int)rect.getHeight());
+                    addQueryImage(product, (int) rect.getX(), (int) rect.getY(), (int) rect.getWidth(), (int) rect.getHeight(), parentImage);
 
                     getOwner().updateState();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+        }
+
+        private void addQueryImage(final Product product, final int x, final int y, final int w, final int h, RenderedImage parentImage) throws IOException {
+
+            Rectangle region = new Rectangle(parentImage.getWidth(), parentImage.getHeight()).intersection(new Rectangle(x, y, w, h));
+
+            final Product subset = FeatureWriter.createSubset(product, region);
+            final int patchX = x / w;
+            final int patchY = y / h;
+
+            final BufferedImage patchImage;
+            if (parentImage != null) {
+                RenderedOp renderedOp = CropDescriptor.create(parentImage,
+                                                              (float) region.getX(),
+                                                              (float) region.getY(),
+                                                              (float) region.getWidth(),
+                                                              (float) region.getHeight(), null);
+                patchImage = renderedOp.getAsBufferedImage();
+            } else {
+                patchImage = ProductUtils.createColorIndexedImage(
+                        subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
+                        com.bc.ceres.core.ProgressMonitor.NULL);
+            }
+
+            final Patch patch = new Patch(patchX, patchY, null, subset);
+            patch.setImage(patchImage);
+            patch.setLabel(Patch.LABEL_RELEVANT);
+            session.addQueryPatch(patch);
+            drawer.update(session.getQueryPatches());
+        }
+
+        private ProductSceneView getProductSceneView(InputEvent event) {
+            ProductSceneView productSceneView = null;
+            Component component = event.getComponent();
+            while (component != null) {
+                if (component instanceof ProductSceneView) {
+                    productSceneView = (ProductSceneView) component;
+                    break;
+                }
+                component = component.getParent();
+            }
+            return productSceneView;
         }
     }
 }

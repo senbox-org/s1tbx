@@ -181,9 +181,9 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             try {
                 final Patch patch = patchData.patch;
                 final File tmpInFolder = new File(SystemUtils.getApplicationDataDir(),
-                        "tmp"+File.separator+"in"+File.separator+patch.getID());
+                        "tmp"+File.separator+"in"+File.separator+patch.getPatchProduct().getName()+".fex");
                 tmpOutFolder = new File(SystemUtils.getApplicationDataDir(),
-                        "tmp"+File.separator+"out"+File.separator+patch.getID());
+                        "tmp"+File.separator+"out"+File.separator+patch.getPatchProduct().getName()+".fex");
                 final File subsetFile = new File(tmpInFolder, patch.getPatchName()+".dim");
                 final WriteOp writeOp = new WriteOp(patch.getPatchProduct(), subsetFile, "BEAM-DIMAP");
                 writeOp.setDeleteOutputOnFailure(true);
@@ -214,7 +214,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 final File[] fexDirs = datasetDir.listFiles(new FileFilter() {
                     @Override
                     public boolean accept(File file) {
-                        return file.isDirectory() && file.getName().endsWith(".fex");
+                        return file.isDirectory() && file.getName().equals(patch.getPatchName()+".fex");
                     }
                 });
                 if(fexDirs.length == 0)
@@ -228,6 +228,8 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 });
                 if(patchDirs.length == 0)
                     return;
+
+                patch.setPathOnServer(patchDirs[0].getAbsolutePath());
 
                 final File featureFile = new File(patchDirs[0], "features.txt");
                 if(featureFile.exists()) {
@@ -263,8 +265,10 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             }
         }
 
-        private Feature createFeature(FeatureType feaType, final String value) {
+        private Feature createFeature(FeatureType feaType, String value) {
             final Class<?> valueType = feaType.getValueType();
+            if(value.equals("NaN"))
+                value = "0";
 
             if(Double.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, Double.parseDouble(value));
@@ -291,21 +295,12 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 readerNode.setConfiguration(param);
             }
 
-            Node[] nodes = graph.getNodes();
+            final Node[] nodes = graph.getNodes();
             if (nodes.length > 0) {
                 Node lastNode = nodes[nodes.length - 1];
                 DomElement configuration = lastNode.getConfiguration();
                 configuration.getChild("targetPath").setValue(targetFolder.getAbsolutePath());
             }
-
-            /*
-            final Node writerNode = findNode(graph, "UrbanAreaFeatureWriter");
-            if(writerNode != null) {
-                final DomElement param = new DefaultDomElement("parameters");
-                param.createChild("targetPath").setValue(targetFolder.getAbsolutePath());
-                writerNode.setConfiguration(param);
-            }
-            */
         }
 
         private Node findNode(final Graph graph, final String alias) {
@@ -323,22 +318,6 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             //FileUtils.deleteDirectory(tmpInFolder);
             //FileUtils.deleteDirectory(tmpOutFolder);
         }
-    }
-
-    private static String writeFeatures(final Patch patch) {
-        final StringBuilder str = new StringBuilder(100);
-
-        final Feature[] features = patch.getFeatures();
-        for(Feature feature : features) {
-            str.append(feature.getName());
-            str.append(": ");
-            str.append(feature.getValue().toString());
-            str.append('\n');
-        }
-        if(str.length() == 0) {
-            str.append("No features found");
-        }
-        return str.toString();
     }
 
     private static class FeaturePanel extends JPanel implements LabelBarProgressMonitor.ProgressBarListener {
@@ -372,7 +351,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         public void notifyDone() {
             progressBar.setVisible(false);
             textScroll.setVisible(true);
-            textPane.setText(writeFeatures(patch));
+            textPane.setText(patch.writeFeatures());
         }
     }
 }

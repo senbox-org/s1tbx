@@ -15,10 +15,15 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
+import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -39,7 +44,8 @@ public class PatchDrawer extends JPanel {
     private static final ImageIcon iconFalse = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/x_ball.png"));
     private static final ImageIcon iconPatch = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/patch.png"));
 
-    private static enum SelectionMode { CHECK, RECT }
+    private static enum SelectionMode {CHECK, RECT}
+
     private SelectionMode mode = SelectionMode.CHECK;
 
     private PatchDrawing selection = null;
@@ -71,7 +77,7 @@ public class PatchDrawer extends JPanel {
         public PatchDrawing(final Patch patch) {
             this.patch = patch;
 
-            if(patch.getImage() != null) {
+            if (patch.getImage() != null) {
                 setIcon(new ImageIcon(patch.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
             }
             addMouseListener(this);
@@ -82,7 +88,7 @@ public class PatchDrawer extends JPanel {
             super.paintComponent(graphics);
             final Graphics2D g = (Graphics2D) graphics;
 
-            if(DEBUG) {
+            if (DEBUG) {
                 g.setColor(Color.WHITE);
                 g.fillRect(30, 30, 40, 30);
                 g.setColor(Color.RED);
@@ -91,18 +97,18 @@ public class PatchDrawer extends JPanel {
             }
 
             final int label = patch.getLabel();
-            if(label > Patch.LABEL_NONE) {
-                if(label == Patch.LABEL_RELEVANT) {
+            if (label > Patch.LABEL_NONE) {
+                if (label == Patch.LABEL_RELEVANT) {
                     g.drawImage(iconTrue.getImage(), 0, 0, null);
-                } else if(label == Patch.LABEL_IRRELEVANT) {
+                } else if (label == Patch.LABEL_IRRELEVANT) {
                     g.drawImage(iconFalse.getImage(), 0, 0, null);
                 }
             }
 
-            if(this.equals(selection) && mode == SelectionMode.RECT) {
+            if (this.equals(selection) && mode == SelectionMode.RECT) {
                 g.setColor(Color.CYAN);
                 g.setStroke(new BasicStroke(5));
-                g.drawRoundRect(0, 0, width, height-5, 25, 25);
+                g.drawRoundRect(0, 0, width, height - 5, 25, 25);
             }
         }
 
@@ -111,8 +117,8 @@ public class PatchDrawer extends JPanel {
          * and released) on a component.
          */
         @Override
-        public void mouseClicked(MouseEvent e){
-            if(e.getButton() == MouseEvent.BUTTON1) {
+        public void mouseClicked(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
                 int currentLabel = patch.getLabel();
                 if (currentLabel != Patch.LABEL_IRRELEVANT) {
                     patch.setLabel(Patch.LABEL_IRRELEVANT);
@@ -128,22 +134,41 @@ public class PatchDrawer extends JPanel {
          * Invoked when a mouse button has been pressed on a component.
          */
         @Override
-        public void mousePressed(MouseEvent e){
+        public void mousePressed(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                JPopupMenu popupMenu = new JPopupMenu();
+                JMenuItem menuItem = new JMenuItem("Info");
+                menuItem.addActionListener(new ActionListener() {
 
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        showPatchInfo();
+                    }
+                });
+                popupMenu.add(menuItem);
+                UIUtils.showPopup(popupMenu, e);
+
+            }
+        }
+
+        private void showPatchInfo() {
+            PatchInfoDialog patchInfoDialog = new PatchInfoDialog(VisatApp.getApp().getApplicationWindow(), patch);
+            patchInfoDialog.getJDialog().pack();
+            patchInfoDialog.show();
         }
 
         /**
          * Invoked when a mouse button has been released on a component.
          */
         @Override
-        public void mouseReleased(MouseEvent e){
+        public void mouseReleased(MouseEvent e) {
         }
 
         /**
          * Invoked when the mouse enters a component.
          */
         @Override
-        public void mouseEntered(MouseEvent e){
+        public void mouseEntered(MouseEvent e) {
         }
 
         /**
@@ -153,5 +178,17 @@ public class PatchDrawer extends JPanel {
         public void mouseExited(MouseEvent e) {
         }
 
+    }
+
+    private class PatchInfoDialog extends ModelessDialog {
+        public PatchInfoDialog(Window parent, Patch patch) {
+            super(parent, "Patch Info " + patch.getPatchName(), ID_CLOSE, null);
+            JTextArea textPane = new JTextArea();
+            JScrollPane textScroll = new JScrollPane(textPane);
+            textPane.setText(patch.writeFeatures());
+            textScroll.setMaximumSize(new Dimension(300, 400));
+            textScroll.setPreferredSize(new Dimension(300, 400));
+            setContent(textScroll);
+        }
     }
 }
