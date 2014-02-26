@@ -40,6 +40,7 @@ public class ActiveLearning {
     private SVM svmClassifier = null;
 
     private static int numInitialIterations = 3; // AL parameter
+    private static int numInitialIrrelevantPatches = 10; // AL parameter
     private static int maxIterationsKmeans = 10; // KKC parameter
     private static int numFolds = 5;    // SVM parameter: number of folds for cross validation
     private static double lower = 0.0;  // SVM parameter: training data scaling lower limit
@@ -52,7 +53,7 @@ public class ActiveLearning {
     }
 
     /**
-     * Set patches obtained from user's query image. These patch forms the initial training data set.
+     * Set training data with relevant patches from query image.
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
@@ -69,7 +70,8 @@ public class ActiveLearning {
     }
 
     /**
-     * Set random patches obtained from archive. These patches will be used in active learning.
+     * Set random patches obtained from archive. Some patches are added to training set as irrelevant patches.
+     * The rest will be used in active learning.
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
@@ -86,6 +88,18 @@ public class ActiveLearning {
             System.out.println("Number of patches in test data pool: " + testData.size());
             System.out.println("Number of patches in training data set: " + trainingData.size());
         }
+    }
+
+    /**
+     * Set training data set with training patches saved.
+     * @param patchArray The patch array.
+     * @param iterationIndex The iteration index.
+     */
+    public void setTrainingData(final Patch[] patchArray, final int iterationIndex) {
+
+        trainingData.clear();
+        trainingData.addAll(Arrays.asList(patchArray));
+        iteration = iterationIndex;
     }
 
     /**
@@ -108,7 +122,7 @@ public class ActiveLearning {
         selectMostDiverseSamples();
 
         if (debug) {
-            for (Patch patch:diverseSamples) {
+            for (Patch patch : diverseSamples) {
                 System.out.println("Ambiguous patch: x" + patch.getPatchX() + "y" + patch.getPatchY());
             }
         }
@@ -218,18 +232,15 @@ public class ActiveLearning {
     private static void checkQueryPatchesValidation(final Patch[] patchArray) throws Exception {
 
         ArrayList<Integer> classLabels = new ArrayList<Integer>();
-        for (Patch patch:patchArray) {
+        for (Patch patch : patchArray) {
 
             final int label = patch.getLabel();
             if (!classLabels.contains(label)) {
                 classLabels.add(label);
             }
 
-            Feature[] features = patch.getFeatures();
-            for (Feature f:features) {
-                if (Double.isNaN(Double.parseDouble(f.getValue().toString()))) {
-                    throw new Exception("Found invalid feature in query patch.");
-                }
+            if (!checkFeatureValidation(getValues(patch.getFeatures()))) {
+                throw new Exception("Found invalid feature value in query patch.");
             }
         }
 
@@ -239,41 +250,64 @@ public class ActiveLearning {
     }
 
     /**
+     * Convert feature values to double.
+     * @param features The feature array.
+     * @return The feature value array.
+     */
+    private static double[] getValues(final Feature[] features) {
+
+        double[] values = new double[features.length];
+        for (int i = 0; i < features.length; i++) {
+            values[i] = Double.parseDouble(features[i].getValue().toString());
+        }
+
+        return values;
+    }
+
+    /**
+     * Check validation of given features.
+     * @param featureValues The feature value array.
+     * @return True if all features are valid, false otherwise.
+     */
+    private static boolean checkFeatureValidation(final double[] featureValues) {
+
+        for (double v : featureValues) {
+            if (Double.isNaN(v)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Set test data set with valid random patches.
      * @param patchArray The patch array.
      */
     private void setTestDataSetWithValidPatches(final Patch[] patchArray) {
 
-        int count = 0;
-        for (Patch patch:patchArray) {
-            Feature[] features = patch.getFeatures();
-            boolean isValid = true;
-            for (Feature f:features) {
-                if (Double.isNaN(Double.parseDouble(f.getValue().toString()))) {
-                    isValid = false;
-                    count++;
-                    break;
-                }
-            }
-
-            if (isValid) {
+        int counter = 0;
+        for (Patch patch : patchArray) {
+            if (checkFeatureValidation(getValues(patch.getFeatures()))) {
                 testData.add(patch);
+                counter++;
             }
         }
 
         if (debug) {
-            System.out.println("Number of invalid random patches: " + count);
+            System.out.println("Number of invalid random patches: " + (patchArray.length - counter));
         }
     }
 
     /**
      * Set initial training data set with relevant patches from query image and irrelevant patches from random patches.
-     * Patches in random patch set that are not close to the query patches are considered as irrelevant patches.
-     * Euclidean space distance is used in measuring the distance between patches.
+     * Random patches that are not close to the query patches are considered irrelevant. Euclidean space distance
+     * is used in measuring the distance between patches.
      */
     private void setInitialTrainingSet() {
 
         final double[] relevantPatchClusterCenter = computeClusterCenter(trainingData);
+
         final double[][] distance = computeDistanceToClusterCenter(relevantPatchClusterCenter);
 
         java.util.Arrays.sort(distance, new java.util.Comparator<double[]>() {
@@ -282,7 +316,7 @@ public class ActiveLearning {
             }
         });
 
-        final int numIrrelevantSample = Math.min(10, distance.length);
+        final int numIrrelevantSample = Math.min(numInitialIrrelevantPatches, distance.length);
         int[] patchIDs = new int[numIrrelevantSample];
         for (int i = 0; i < numIrrelevantSample; i++) {
             final Patch patch = testData.get((int)distance[i][0]);
@@ -293,7 +327,7 @@ public class ActiveLearning {
 
         for (Iterator<Patch> itr = testData.iterator(); itr.hasNext(); ) {
             Patch patch = itr.next();
-            for (int patchID:patchIDs) {
+            for (int patchID : patchIDs) {
                 if (patch.getID() == patchID) {
                     itr.remove();
                     break;
@@ -303,17 +337,17 @@ public class ActiveLearning {
     }
 
     /**
-     * Compute center of the given list of patches.
+     * Compute cluster center of the given list of patches.
      * @param patchList The patch list.
-     * @return The center.
+     * @return The cluster center.
      */
     private static double[] computeClusterCenter(final List<Patch> patchList) {
 
         double[] center = new double[patchList.get(0).getFeatures().length];
-        for (Patch patch:patchList) {
-            Feature[] features = patch.getFeatures();
-            for (int i = 0; i < features.length; i++) {
-                center[i] += Double.parseDouble(features[i].getValue().toString());
+        for (Patch patch : patchList) {
+            double[] featureValues = getValues(patch.getFeatures());
+            for (int i = 0; i < featureValues.length; i++) {
+                center[i] += featureValues[i];
             }
         }
 
@@ -333,16 +367,19 @@ public class ActiveLearning {
 
         final double[][] distance = new double[testData.size()][2];
         int k = 0;
-        for (int i = 0; i < testData.size(); i++) {
-            distance[k][0] = i; // sample index in testData
-            final Feature[] features = testData.get(i).getFeatures();
+        for (Patch patch : testData) {
+
+            distance[k][0] = k; // sample index in testData
+
+            double[] featureValues = getValues(patch.getFeatures());
+
             double sum = 0.0;
-            for (int j = 0; j < features.length; j++) {
-                final double x = Double.parseDouble(features[j].getValue().toString());
-                sum += (x - clusterCenter[j])*(x - clusterCenter[j]);
+            for (int j = 0; j < featureValues.length; j++) {
+                final double x = featureValues[j] - clusterCenter[j];
+                sum += x*x;
             }
-            distance[k][1] = sum;
-            k++;
+
+            distance[k++][1] = sum;
         }
 
         return distance;
@@ -355,7 +392,7 @@ public class ActiveLearning {
      */
     private static void checkLabels(final Patch[] patchArray) throws Exception {
 
-        for (Patch patch:patchArray) {
+        for (Patch patch : patchArray) {
             if (patch.getLabel() == Patch.LABEL_NONE) {
                 throw new Exception("Found unlabeled patch(s)");
             }
