@@ -347,7 +347,7 @@ public class ActiveLearning {
 
         double[] center = new double[patchList.get(0).getFeatures().length];
         for (Patch patch : patchList) {
-            double[] featureValues = getValues(patch.getFeatures());
+            final double[] featureValues = getValues(patch.getFeatures());
             for (int i = 0; i < featureValues.length; i++) {
                 center[i] += featureValues[i];
             }
@@ -370,18 +370,25 @@ public class ActiveLearning {
         final double[][] distance = new double[testData.size()][2];
         int k = 0;
         for (Patch patch : testData) {
-
             distance[k][0] = k; // sample index in testData
+            distance[k][1] = computeEuclideanDistance(getValues(patch.getFeatures()), clusterCenter);
+            k++;
+        }
 
-            double[] featureValues = getValues(patch.getFeatures());
+        return distance;
+    }
 
-            double sum = 0.0;
-            for (int j = 0; j < featureValues.length; j++) {
-                final double x = featureValues[j] - clusterCenter[j];
-                sum += x*x;
-            }
+    /**
+     * Compute Euclidean space distance between two given points.
+     * @param x1 The first point.
+     * @param x2 The second point.
+     * @return The distance.
+     */
+    private double computeEuclideanDistance(final double[] x1, final double[] x2) {
 
-            distance[k++][1] = sum;
+        double distance = 0.0;
+        for (int i = 0; i < x1.length; i++) {
+            distance += (x1[i] - x2[i])*(x1[i] - x2[i]);
         }
 
         return distance;
@@ -410,11 +417,15 @@ public class ActiveLearning {
         final double[][] distance = computeFunctionalDistanceForAllSamples();
 
         if (iteration < numInitialIterations) {
+
             getAllUncertainSamples(distance);
+
             if (uncertainSamples.size() < q) {
                 getMostUncertainSamples(distance);
             }
+
         } else {
+
             getMostUncertainSamples(distance);
         }
 
@@ -461,7 +472,7 @@ public class ActiveLearning {
     private void getAllUncertainSamples(final double[][] distance) {
 
         uncertainSamples.clear();
-        for (int i = 0; i < testData.size(); i++) {
+        for (int i = 0; i < distance.length; i++) {
             if (distance[i][1] < 1.0) {
                 uncertainSamples.add(testData.get((int)distance[i][0]));
             }
