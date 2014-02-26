@@ -1,8 +1,10 @@
 package org.esa.pfa.fe.op;
 
 /**
-* @author Norman Fomferra
-*/
+ * Describes the type of a {@link Feature}.
+ *
+ * @author Norman Fomferra
+ */
 public class FeatureType extends AttributeType {
     private final AttributeType[] attributeTypes;
 

@@ -4,8 +4,11 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 
 /**
-* @author Norman Fomferra
-*/
+ * A feature represents an arbitrary name/value pair or name/attribute set pair.
+ * It is an instantiation of a {@link FeatureType}.
+ *
+ * @author Norman Fomferra
+ */
 public class Feature extends ExtensibleObject {
     private final FeatureType featureType;
     private final Object value;

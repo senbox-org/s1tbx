@@ -3,8 +3,10 @@ package org.esa.pfa.fe.op;
 import com.bc.ceres.core.Assert;
 
 /**
-* @author Norman Fomferra
-*/
+ * Describes an attribute as part of a {@link FeatureType}.
+ *
+ * @author Norman Fomferra
+ */
 public class AttributeType {
     private final String name;
     private final String description;

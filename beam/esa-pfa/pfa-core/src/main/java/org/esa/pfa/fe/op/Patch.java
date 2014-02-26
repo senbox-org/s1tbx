@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Identifies a "patch" of a data product from which features are extracted.
+ * The feature extraction subdivides data products into a regular raster of rectangular patches.
+ *
  * @author Norman Fomferra
  */
 public final class Patch {
