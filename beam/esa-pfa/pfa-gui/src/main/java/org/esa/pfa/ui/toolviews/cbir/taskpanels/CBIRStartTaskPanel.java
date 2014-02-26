@@ -128,7 +128,7 @@ public class CBIRStartTaskPanel extends TaskPanel {
 
             return true;
         } catch (Exception e) {
-            showErrorMsg(e.getMessage());
+            VisatApp.getApp().handleUnknownException(e);
         }
         return false;
     }
@@ -331,7 +331,7 @@ public class CBIRStartTaskPanel extends TaskPanel {
             final String dbPath = dbFolderTextField.getText();
             session = new CBIRSession(classifierName, applicationDescriptor, dbPath);
         } catch (Exception e) {
-            showErrorMsg(e.getMessage());
+            VisatApp.getApp().handleUnknownException(e);
         }
     }
 

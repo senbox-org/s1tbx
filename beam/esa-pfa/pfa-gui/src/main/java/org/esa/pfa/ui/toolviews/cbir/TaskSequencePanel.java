@@ -196,7 +196,7 @@ public class TaskSequencePanel extends JPanel implements ActionListener {
                 finish();
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.toString());
+            VisatApp.getApp().handleUnknownException(e);
         }
     }
 

@@ -15,6 +15,7 @@
  */
 package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
+import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.ui.toolviews.cbir.DragScrollListener;
@@ -71,7 +72,7 @@ public class LabelingTaskPanel extends TaskPanel implements Patch.PatchListener 
 
             return true;
         } catch(Exception e)  {
-            showErrorMsg(e.getMessage());
+            VisatApp.getApp().handleUnknownException(e);
         }
         return false;
     }

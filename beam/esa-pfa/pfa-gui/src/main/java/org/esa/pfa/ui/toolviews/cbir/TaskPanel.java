@@ -71,10 +71,6 @@ public abstract class TaskPanel extends JPanel {
     public void finish() {
     }
 
-    protected static void showErrorMsg(String msg) {
-        VisatApp.getApp().showErrorDialog("Oops!", msg);
-    }
-
     protected JLabel createTitleLabel() {
         final JLabel titleLabel = new JLabel(getPanelTitle());
         titleLabel.setFont(titleFont);

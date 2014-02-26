@@ -18,10 +18,7 @@ package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
-import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
-import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.InsertFigureInteractorInterceptor;
@@ -147,7 +144,7 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
                 VisatApp.getApp().setActiveInteractor(interactor);
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.toString());
+            VisatApp.getApp().handleUnknownException(e);
         }
     }
 

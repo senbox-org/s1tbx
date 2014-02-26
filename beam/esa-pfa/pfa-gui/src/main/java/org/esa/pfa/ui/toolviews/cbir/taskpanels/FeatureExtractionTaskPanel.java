@@ -105,8 +105,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
             return true;
         } catch(Exception e)  {
-            e.printStackTrace();
-            showErrorMsg(e.getMessage());
+            VisatApp.getApp().handleUnknownException(e);
         }
         return false;
     }
@@ -162,7 +161,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 }
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.toString());
+            VisatApp.getApp().handleUnknownException(e);
         }
     }
 
