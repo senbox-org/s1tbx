@@ -353,8 +353,9 @@ public class CBIRStartTaskPanel extends TaskPanel {
                 chooser.setCurrentDirectory(dbFolder.getParentFile());
             }
             if (chooser.showDialog(window, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
-                final File file = chooser.getSelectedFile();
-                dbFolderTextField.setText(file.getAbsolutePath());
+                dbFolder = chooser.getSelectedFile();
+                dbFolderTextField.setText(dbFolder.getAbsolutePath());
+                updateControls();
             }
         }
     }

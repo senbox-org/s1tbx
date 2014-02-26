@@ -105,6 +105,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
             return true;
         } catch(Exception e)  {
+            e.printStackTrace();
             showErrorMsg(e.getMessage());
         }
         return false;
