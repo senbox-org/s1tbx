@@ -12,8 +12,15 @@ import java.util.List;
  * The feature extraction subdivides data products into a regular raster of rectangular patches.
  *
  * @author Norman Fomferra
+ * @author Luis Veci
  */
 public final class Patch {
+    public static final int LABEL_NONE = -1;
+    public static final int LABEL_RELEVANT = 1;
+    public static final int LABEL_IRRELEVANT = 0;
+
+    private static int uidCnt = 0;
+    private final int uid;
 
     private final int patchX;
     private final int patchY;
@@ -22,28 +29,22 @@ public final class Patch {
     private final String patchName;
     private final List<Feature> featureList = new ArrayList<Feature>(10);
 
-    private final int uid;
-    private static int uidCnt = 0;
-
-    public static final int LABEL_NONE = -1;
-    public static final int LABEL_RELEVANT = 1;
-    public static final int LABEL_IRRELEVANT = 0;
-
-    private int label = LABEL_NONE;
+    private int label;
     private double distance;   // functional distance of a patch to the hyperplane in SVM
 
     private String pathOnServer;
-    private BufferedImage image = null;
+    private BufferedImage image;
 
     private final List<PatchListener> listenerList = new ArrayList<PatchListener>(1);
 
     public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
-        uid = createUniqueID();
+        this.uid = createUniqueID();
         this.patchX = patchX;
         this.patchY = patchY;
         this.patchName = String.format("x%02dy%02d", patchX, patchY);
         this.patchRegion = patchRegion;
         this.patchProduct = patchProduct;
+        this.label = LABEL_NONE;
     }
 
     private synchronized int createUniqueID() {

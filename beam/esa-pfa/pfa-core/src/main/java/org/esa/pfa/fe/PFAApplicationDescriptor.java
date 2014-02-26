@@ -19,7 +19,10 @@ import java.awt.*;
 import java.io.File;
 
 /**
- * Describe the feature extraction application
+ * Describe the feature extraction application .
+ *
+ * @author Luis Veci
+ * @author Norman Fomferra
  */
 public interface PFAApplicationDescriptor {
 
@@ -48,4 +51,14 @@ public interface PFAApplicationDescriptor {
      * @return A Lucene query expression that matches all entries.
      */
     String getAllQueryExpr();
+
+    /**
+     * @return The name of the default quicklook file to be used. May be {@code null}, and if so, an arbitrary quicklook file will be used.
+     */
+    String getDefaultQuicklookFileName();
+
+    /**
+     * @return The name of the numeric features to be used by the classifier. May be {@code null} or an empty array, and if so, all numeric features will be used.
+     */
+    String[] getDefaultFeatureSet();
 }
