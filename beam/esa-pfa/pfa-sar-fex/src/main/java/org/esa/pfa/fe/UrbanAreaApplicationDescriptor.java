@@ -30,11 +30,6 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
         super(NAME);
     }
 
-    /**
-     * Gets the width and height of the patch segmentation.
-     *
-     * @return the  dimension
-     */
     @Override
     public Dimension getPatchDimension() {
         return patchDimension;
@@ -48,5 +43,15 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
     @Override
     public String getAllQueryExpr() {
         return "product:ENVI*";
+    }
+
+    @Override
+    public String getDefaultQuicklookFileName() {
+        return null;
+    }
+
+    @Override
+    public String[] getDefaultFeatureSet() {
+        return null;
     }
 }
