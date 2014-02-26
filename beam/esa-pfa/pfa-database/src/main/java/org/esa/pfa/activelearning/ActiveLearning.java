@@ -15,7 +15,7 @@
  */
 package org.esa.pfa.activelearning;
 
-import libsvm.*;
+import libsvm.svm_model;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 
@@ -143,21 +143,17 @@ public class ActiveLearning {
      */
     public void classify(Patch[] patchArray) throws Exception {
 
-        try {
-            final double[] decValues = new double[1];
-            for (Patch patch:patchArray) {
-                double p = svmClassifier.classify(patch, decValues);
-                final int label = p<1?Patch.LABEL_IRRELEVANT:Patch.LABEL_RELEVANT;
-                patch.setLabel(label);
-                patch.setDistance(decValues[0]);
-                //System.out.println("Classified patch: x" + patch.getPatchX() + "y" + patch.getPatchY() + ", label: " + label);
-            }
+        final double[] decValues = new double[1];
+        for (Patch patch : patchArray) {
+            double p = svmClassifier.classify(patch, decValues);
+            final int label = p < 1 ? Patch.LABEL_IRRELEVANT : Patch.LABEL_RELEVANT;
+            patch.setLabel(label);
+            patch.setDistance(decValues[0]);
+            //System.out.println("Classified patch: x" + patch.getPatchX() + "y" + patch.getPatchY() + ", label: " + label);
+        }
 
-            if (debug) {
-                System.out.println("Number of patches to classify: " + patchArray.length);
-            }
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
+        if (debug) {
+            System.out.println("Number of patches to classify: " + patchArray.length);
         }
     }
 
@@ -295,7 +291,7 @@ public class ActiveLearning {
             trainingData.add(patch);
         }
 
-        for (Iterator<Patch> itr = testData.iterator(); itr.hasNext();) {
+        for (Iterator<Patch> itr = testData.iterator(); itr.hasNext(); ) {
             Patch patch = itr.next();
             for (int patchID:patchIDs) {
                 if (patch.getID() == patchID) {
@@ -399,11 +395,7 @@ public class ActiveLearning {
         int k = 0;
         for (int i = 0; i < testData.size(); i++) {
             distance[k][0] = i; // sample index in testData
-            try {
-                distance[k][1] = computeFunctionalDistance(testData.get(i));
-            } catch(Exception e) {
-                throw new Exception(e.getMessage());
-            }
+            distance[k][1] = computeFunctionalDistance(testData.get(i));
             k++;
         }
 
@@ -462,35 +454,30 @@ public class ActiveLearning {
      */
     private void selectMostDiverseSamples() throws Exception {
 
-        try {
-            KernelKmeansClusterer kkc = new KernelKmeansClusterer(maxIterationsKmeans, h, svmClassifier);
-            kkc.setData(uncertainSamples);
-            kkc.clustering();
-            final int[] diverseSampleIDs = kkc.getRepresentatives();
+        KernelKmeansClusterer kkc = new KernelKmeansClusterer(maxIterationsKmeans, h, svmClassifier);
+        kkc.setData(uncertainSamples);
+        kkc.clustering();
+        final int[] diverseSampleIDs = kkc.getRepresentatives();
 
-            diverseSamples.clear();
-            for (int patchID : diverseSampleIDs) {
-                for (Iterator<Patch> itr = testData.iterator(); itr.hasNext();) {
-                    Patch patch = itr.next();
-                    if (patch.getID() == patchID) {
-                        diverseSamples.add(patch);
-                        itr.remove();
-                        break;
-                    }
+        diverseSamples.clear();
+        for (int patchID : diverseSampleIDs) {
+            for (Iterator<Patch> itr = testData.iterator(); itr.hasNext(); ) {
+                Patch patch = itr.next();
+                if (patch.getID() == patchID) {
+                    diverseSamples.add(patch);
+                    itr.remove();
+                    break;
                 }
             }
+        }
 
-            if (debug) {
-                System.out.println("Number of diverse patches IDs: " + diverseSampleIDs.length);
-                System.out.println("Number of diverse patches selected: " + diverseSamples.size());
-            }
+        if (debug) {
+            System.out.println("Number of diverse patches IDs: " + diverseSampleIDs.length);
+            System.out.println("Number of diverse patches selected: " + diverseSamples.size());
+        }
 
-            if (diverseSamples.size() != diverseSampleIDs.length) {
-                throw new Exception("Invalid diverse patch array.");
-            }
-
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
+        if (diverseSamples.size() != diverseSampleIDs.length) {
+            throw new Exception("Invalid diverse patch array.");
         }
     }
 
