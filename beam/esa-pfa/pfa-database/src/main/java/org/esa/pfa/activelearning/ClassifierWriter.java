@@ -53,7 +53,7 @@ public class ClassifierWriter {
         try (FileWriter fileWriter = new FileWriter(classifierFile)) {
             getXStream().toXML(this, fileWriter);
         } catch (IOException e) {
-            throw new IOException("Unable to write "+classifierFile.getAbsolutePath()+": "+e.getMessage());
+            throw new IOException("Unable to write "+classifierFile.getAbsolutePath()+": "+e.getMessage(), e);
         }
     }
 

@@ -105,24 +105,19 @@ public class SVM {
      * @param testData A sample to classify.
      * @param decValues Decision values.
      * @return The predicted class label.
-     * @throws Exception The exception.
      */
-    public double classify(Patch testData, double[] decValues) throws Exception {
+    public double classify(Patch testData, double[] decValues) {
 
-        try {
-			svm_node[] x = new svm_node[numFeatures];
-            final Feature[] features = testData.getFeatures();
-            for (int i = 0; i < numFeatures; i++) {
-                x[i] = new svm_node();
-				x[i].index = i + 1;
-				x[i].value = scale(i, Double.valueOf(features[i].getValue().toString()));
-            }
-
-            //return svm.svm_predict(model, x);
-            return svm.svm_predict_values(model, x, decValues);
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
+        svm_node[] x = new svm_node[numFeatures];
+        final Feature[] features = testData.getFeatures();
+        for (int i = 0; i < numFeatures; i++) {
+            x[i] = new svm_node();
+            x[i].index = i + 1;
+            x[i].value = scale(i, Double.valueOf(features[i].getValue().toString()));
         }
+
+        //return svm.svm_predict(model, x);
+        return svm.svm_predict_values(model, x, decValues);
     }
 
     /**
@@ -189,18 +184,12 @@ public class SVM {
 
     /**
      * Scale training data to user specified range [lower, upper].
-     * @throws Exception The exception.
      */
     private void scaleData() throws Exception {
-
-        try {
-            for (int i = 0; i < numSamples; i++) {
-                for (int j = 0; j < numFeatures; j++) {
-                    problem.x[i][j].value = scale(j, problem.x[i][j].value);
-                }
+        for (int i = 0; i < numSamples; i++) {
+            for (int j = 0; j < numFeatures; j++) {
+                problem.x[i][j].value = scale(j, problem.x[i][j].value);
             }
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
         }
     }
 
@@ -234,42 +223,37 @@ public class SVM {
 
     /**
      * Find optimal RBF model parameters (C, gamma) using grid search.
-     * @throws Exception The exception.
      */
-    private void findOptimalModelParameters() throws Exception {
+    private void findOptimalModelParameters() {
 
-        try {
-            final double[] c = {0.03125, 0.125, 0.5, 2.0, 8.0, 32.0, 128.0, 512.0, 2048.0, 8192.0, 32768.0};
-            final double[] gamma = {0.000030517578125, 0.0001220703125, 0.00048828125, 0.001953125, 0.0078125,
-                                    0.03125, 0.125, 0.5, 2.0, 8.0};
-            double[][] accuracyArray = new double[c.length][gamma.length];
+        final double[] c = {0.03125, 0.125, 0.5, 2.0, 8.0, 32.0, 128.0, 512.0, 2048.0, 8192.0, 32768.0};
+        final double[] gamma = {0.000030517578125, 0.0001220703125, 0.00048828125, 0.001953125, 0.0078125,
+                0.03125, 0.125, 0.5, 2.0, 8.0};
+        double[][] accuracyArray = new double[c.length][gamma.length];
 
-            double accuracyMax = 0.0;
-            int cIdx = 0, gammaIdx = 0;
-            for (int i = 0; i < c.length; i++) {
-                for (int j = 0; j < gamma.length; j++) {
-                    final double accuracy = performCrossValidation(c[i], gamma[j]);
-                    accuracyArray[i][j] = accuracy;
-                    if (accuracy > accuracyMax) {
-                        accuracyMax = accuracy;
-                        cIdx = i;
-                        gammaIdx = j;
-                    }
+        double accuracyMax = 0.0;
+        int cIdx = 0, gammaIdx = 0;
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < gamma.length; j++) {
+                final double accuracy = performCrossValidation(c[i], gamma[j]);
+                accuracyArray[i][j] = accuracy;
+                if (accuracy > accuracyMax) {
+                    accuracyMax = accuracy;
+                    cIdx = i;
+                    gammaIdx = j;
                 }
             }
-
-            modelParameters.C = c[cIdx];
-            modelParameters.gamma = gamma[gammaIdx];
-
-            for (int i = 0; i < c.length; i++) {
-                for (int j = 0; j < gamma.length; j++) {
-                    System.out.println("C = " + c[i] + ", gamma = " + gamma[j] + ", accuracy = " + accuracyArray[i][j]);
-                }
-            }
-            System.out.println("Optimal: C = " + c[cIdx] + ", gamma = " + gamma[gammaIdx] + ", accuracy = " + accuracyMax);
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
         }
+
+        modelParameters.C = c[cIdx];
+        modelParameters.gamma = gamma[gammaIdx];
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < gamma.length; j++) {
+                System.out.println("C = " + c[i] + ", gamma = " + gamma[j] + ", accuracy = " + accuracyArray[i][j]);
+            }
+        }
+        System.out.println("Optimal: C = " + c[cIdx] + ", gamma = " + gamma[gammaIdx] + ", accuracy = " + accuracyMax);
     }
 
     /**
@@ -280,18 +264,18 @@ public class SVM {
      */
     private double performCrossValidation(final double C, final double gamma) {
 
-            modelParameters.C = C;
-            modelParameters.gamma = gamma;
-            double[] target = new double[problem.l];
-            svm.svm_cross_validation(problem, modelParameters, numFolds, target);
+        modelParameters.C = C;
+        modelParameters.gamma = gamma;
+        double[] target = new double[problem.l];
+        svm.svm_cross_validation(problem, modelParameters, numFolds, target);
 
-            int countErr = 0;
-            for(int i = 0; i < problem.l; i++) {
-                if (problem.y[i] != target[i]) {
-                    countErr++;
-                }
+        int countErr = 0;
+        for (int i = 0; i < problem.l; i++) {
+            if (problem.y[i] != target[i]) {
+                countErr++;
             }
-            return (1.0 - (double)countErr / (double)problem.l) * 100.0;
+        }
+        return (1.0 - (double) countErr / (double) problem.l) * 100.0;
     }
 
     /**
