@@ -84,10 +84,18 @@ public class SearchToolStub {
         return numIterations;
     }
 
-    public void setQueryImages(final Patch[] queryImages) throws Exception {
-        al.setQueryPatches(queryImages);
-
+    public void setQueryImages(final Patch[] queryPatches) throws Exception {
         final Patch[] archivePatches = db.query(allQueryExpr, 500);
+
+        int numFeaturesQuery = queryPatches[0].getFeatures().length;
+        int numFeaturesDB = archivePatches[0].getFeatures().length;
+        if (numFeaturesDB != numFeaturesQuery) {
+            String msg = String.format("Incompatible Database.\n" +
+                                       "The patches in the database have %d features.\n" +
+                                       "The query patches have %d features.", numFeaturesDB, numFeaturesQuery);
+            throw new IllegalArgumentException(msg);
+        }
+        al.setQueryPatches(queryPatches);
         al.setRandomPatches(archivePatches);
 
         saveClassifer();
