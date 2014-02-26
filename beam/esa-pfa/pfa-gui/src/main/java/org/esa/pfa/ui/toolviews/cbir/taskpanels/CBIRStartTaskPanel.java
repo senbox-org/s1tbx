@@ -18,10 +18,12 @@ package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.PFAApplicationRegistry;
 import org.esa.pfa.search.CBIRSession;
+import org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
@@ -44,7 +46,7 @@ public class CBIRStartTaskPanel extends TaskPanel {
     private JComboBox<String> applicationCombo = new JComboBox<>();
 
     private JList<String> classifierList;
-    private JButton newBtn;
+    private JButton newBtn, deleteBtn;
     private JTextField numTrainingImages = new JTextField();
     private JTextField numRetrievedImages = new JTextField();
     private JLabel iterationsLabel = new JLabel();
@@ -224,7 +226,6 @@ public class CBIRStartTaskPanel extends TaskPanel {
         contentPane.add(createClassifierButtonPanel(), gbc);
 
         this.add(contentPane, BorderLayout.CENTER);
-        this.add(createSideButtonPanel(), BorderLayout.EAST);
 
         updateControls();
     }
@@ -237,16 +238,23 @@ public class CBIRStartTaskPanel extends TaskPanel {
                 final PromptDialog dlg = new PromptDialog("New Classifier", "Name", "");
                 dlg.show();
 
-                final DefaultListModel listModel = (DefaultListModel)classifierList.getModel();
-                listModel.addElement(dlg.getValue());
-                classifierList.setSelectedIndex(listModel.indexOf(dlg.getValue()));
+                final String value = dlg.getValue();
+                if(!value.isEmpty()) {
+                    final DefaultListModel listModel = (DefaultListModel)classifierList.getModel();
+                    listModel.addElement(value);
+                    classifierList.setSelectedIndex(listModel.indexOf(value));
+                }
             }
         });
-     /*   final JButton loadBtn = new JButton(new AbstractAction("Load") {
+        deleteBtn = new JButton(new AbstractAction("Delete") {
             public void actionPerformed(ActionEvent e) {
-
+                final boolean ret = session.deleteClassifier();
+                if(ret) {
+                    final DefaultListModel listModel = (DefaultListModel)classifierList.getModel();
+                    listModel.remove(classifierList.getSelectedIndex());
+                }
             }
-        });
+        });    /*
         final JButton saveBtn = new JButton(new AbstractAction("Save") {
             public void actionPerformed(ActionEvent e) {
 
@@ -259,53 +267,22 @@ public class CBIRStartTaskPanel extends TaskPanel {
         });   */
 
         panel.add(newBtn);
-        //panel.add(loadBtn);
+        panel.add(deleteBtn);
         //panel.add(saveBtn);
         //panel.add(editBtn);
 
         return panel;
     }
 
-    private JPanel createSideButtonPanel() {
-        final JPanel panel = new JPanel();
-        final BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
-        panel.setLayout(layout);
-
-        final JButton btn1 = new JButton(new AbstractAction("1") {
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        final JButton btn2 = new JButton(new AbstractAction("2") {
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        final JButton btn3 = new JButton(new AbstractAction("3") {
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        final JButton btn4 = new JButton(new AbstractAction("4") {
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        panel.add(btn1);
-        panel.add(btn2);
-        panel.add(btn3);
-        panel.add(btn4);
-
-        return panel;
-    }
-
     private void updateControls() {
         newBtn.setEnabled(dbFolder.exists());
+        deleteBtn.setEnabled(classifierList.getSelectedIndex() != -1);
 
         final String name = classifierList.getSelectedValue();
         if(name != null) {
-            createNewSession(name);
+            if(session == null || !session.getName().equals(name)) {
+                createNewSession(name);
+            }
         }
 
         final boolean activeSession = name != null && session != null;
