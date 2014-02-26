@@ -44,7 +44,7 @@ public class CBIRSession {
         this.classifierName = classifierName;
         this.applicationDescriptor = applicationDescriptor;
 
-        this.searchTool = new SearchToolStub(archivePath, classifierName, applicationDescriptor.getAllQueryExpr());
+        this.searchTool = new SearchToolStub(applicationDescriptor, archivePath, classifierName);
     }
 
     public String getName() {

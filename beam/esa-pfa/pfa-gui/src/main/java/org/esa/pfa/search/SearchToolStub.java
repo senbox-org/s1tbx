@@ -20,11 +20,16 @@ import org.esa.pfa.activelearning.ActiveLearning;
 import org.esa.pfa.activelearning.ClassifierWriter;
 import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.db.PatchQuery;
+import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.Patch;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,28 +39,30 @@ import java.util.List;
  */
 public class SearchToolStub {
 
-    private final String allQueryExpr;
-    private PatchQuery db = null;
-    private ActiveLearning al = null;
-
+    private final PFAApplicationDescriptor applicationDescriptor;
+    private final PatchQuery db;
+    private final ActiveLearning al;
     private final File classifierFile;
+
     private int numTrainingImages = 12;
     private int numRetrievedImages = 50;
     private int numIterations = 0;
+    private int numHitsMax = 500;
 
-    public SearchToolStub(final String archiveFolder, final String classifierName, final String allQueryExpr) throws Exception {
-        this.allQueryExpr = allQueryExpr;
+    public SearchToolStub(PFAApplicationDescriptor applicationDescriptor, String archiveFolder, String classifierName) throws Exception {
+        this.applicationDescriptor = applicationDescriptor;
+
         final File dbFolder = new File(archiveFolder);
         final File classifierFolder = new File(dbFolder, "Classifiers");
-        if(!classifierFolder.exists()) {
+        if (!classifierFolder.exists()) {
             classifierFolder.mkdirs();
         }
-        this.classifierFile = new File(classifierFolder, classifierName+".xml");
+        this.classifierFile = new File(classifierFolder, classifierName + ".xml");
 
         db = new PatchQuery(dbFolder);
         al = new ActiveLearning();
 
-        if(classifierFile.exists()) {
+        if (classifierFile.exists()) {
             loadClassifier(classifierFile);
         }
     }
@@ -90,7 +97,7 @@ public class SearchToolStub {
     }
 
     public void setQueryImages(final Patch[] queryPatches) throws Exception {
-        final Patch[] archivePatches = db.query(allQueryExpr, 500);
+        final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numHitsMax);
 
         int numFeaturesQuery = queryPatches[0].getFeatures().length;
         int numFeaturesDB = archivePatches[0].getFeatures().length;
@@ -103,7 +110,7 @@ public class SearchToolStub {
         al.setQueryPatches(queryPatches);
         al.setRandomPatches(archivePatches);
 
-        saveClassifer();
+        saveClassifier();
     }
 
     public Patch[] getImagesToLabel() throws Exception {
@@ -114,10 +121,10 @@ public class SearchToolStub {
     }
 
     private void getPatchQuicklooks(final Patch[] patches) {
-        for(Patch patch : patches) {
-            if(patch.getImage()== null) {
+        for (Patch patch : patches) {
+            if (patch.getImage() == null) {
                 try {
-                    URL imageURL = db.retrievePatchImage(patch);
+                    URL imageURL = db.retrievePatchImage(patch, applicationDescriptor.getDefaultQuicklookFileName());
                     //todo download image
                     File imageFile = new File(imageURL.getPath());
                     patch.setImage(loadImageFile(imageFile));
@@ -131,16 +138,16 @@ public class SearchToolStub {
     public void trainModel(Patch[] labeledImages) throws Exception {
         al.train(labeledImages);
 
-        saveClassifer();
+        saveClassifier();
     }
 
     public Patch[] getRetrievedImages() throws Exception {
 
-       final Patch[] archivePatches = db.query(allQueryExpr, numRetrievedImages);
-       al.classify(archivePatches);
-       getPatchQuicklooks(archivePatches);
+        final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numRetrievedImages);
+        al.classify(archivePatches);
+        getPatchQuicklooks(archivePatches);
 
-       return archivePatches;
+        return archivePatches;
     }
 
     private static BufferedImage loadImageFile(final File file) {
@@ -150,7 +157,7 @@ public class SearchToolStub {
                 try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file))) {
                     bufferedImage = ImageIO.read(fis);
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //
             }
         }
@@ -161,7 +168,7 @@ public class SearchToolStub {
         final List<String> nameList = new ArrayList<>(10);
         final File dbFolder = new File(archiveFolder);
         final File classifierFolder = new File(dbFolder, "Classifiers");
-        if(!classifierFolder.exists()) {
+        if (!classifierFolder.exists()) {
             classifierFolder.mkdirs();
         }
         final File[] files = classifierFolder.listFiles(new FilenameFilter() {
@@ -170,7 +177,7 @@ public class SearchToolStub {
                 return name.endsWith(".xml");
             }
         });
-        for(File file : files) {
+        for (File file : files) {
             nameList.add(FileUtils.getFilenameWithoutExtension(file));
         }
 
@@ -186,7 +193,7 @@ public class SearchToolStub {
         al.setModel(classifier.getModel());
     }
 
-    private void saveClassifer() throws IOException {
+    private void saveClassifier() throws IOException {
         final ClassifierWriter writer = new ClassifierWriter(numTrainingImages, numRetrievedImages, numIterations, al);
         writer.write(classifierFile);
     }
