@@ -212,6 +212,8 @@ public abstract class FexOperator extends Operator implements Output {
 
     private void run(int patchCountX, int patchCountY) throws IOException {
         final FeatureType[] featureTypes = getFeatureTypes();
+        // TODO mz 2014-02-26 - Write ds-descriptor.xml to enable later reading of these features
+        // TODO write the descriptor only ONCE ass all features are of the same structure
         final long t0 = System.currentTimeMillis();
         try (PatchWriter patchWriter = patchWriterFactory.createFeatureOutput(sourceProduct)) {
             patchWriter.initialize(patchWriterFactory.getConfiguration(), getSourceProduct(), featureTypes);
