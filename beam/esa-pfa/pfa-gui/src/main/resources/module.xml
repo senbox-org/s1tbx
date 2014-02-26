@@ -41,10 +41,36 @@
     <extension point="beam-ui:toolViews">
 
         <toolView>
-            <id>org.esa.pfa.ui.toolviews.cbir.CBIRToolView</id>
-            <class>org.esa.pfa.ui.toolviews.cbir.CBIRToolView</class>
-            <title>CBIR</title>
-            <tabTitle>CBIR</tabTitle>
+            <id>org.esa.pfa.ui.toolviews.cbir.CBIRWizard</id>
+            <class>org.esa.pfa.ui.toolviews.cbir.CBIRWizard</class>
+            <title>CBIR Wizard</title>
+            <tabTitle>CBIR Wizard</tabTitle>
+            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <description>Content Based Image Retrieval</description>
+            <initState>ICONIFIED</initState>
+            <!--initSide>EAST</initSide-->
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.pfa.ui.toolviews.cbir.CBIRControlCentreToolView</id>
+            <class>org.esa.pfa.ui.toolviews.cbir.CBIRControlCentreToolView</class>
+            <title>CBIR Control Centre</title>
+            <tabTitle>CBIR Control Centre</tabTitle>
+            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <description>Content Based Image Retrieval</description>
+            <initState>ICONIFIED</initState>
+            <!--initSide>EAST</initSide-->
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView</id>
+            <class>org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView</class>
+            <title>CBIR Query</title>
+            <tabTitle>CBIR Query</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
             <description>Content Based Image Retrieval</description>

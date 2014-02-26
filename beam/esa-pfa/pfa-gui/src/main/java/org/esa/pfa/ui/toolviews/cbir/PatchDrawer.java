@@ -26,7 +26,7 @@ import java.awt.image.BufferedImage;
 /**
 
  */
-public class PatchDrawer extends JPanel implements MouseListener {
+public class PatchDrawer extends JPanel {
 
     private final static int width = 150;
     private final static int height = 150;
@@ -46,89 +46,35 @@ public class PatchDrawer extends JPanel implements MouseListener {
 
     public PatchDrawer(final Patch[] imageList) {
         super(new FlowLayout(FlowLayout.LEADING));
-
-        addMouseListener(this);
         update(imageList);
     }
 
     public void update(final Patch[] imageList) {
         this.removeAll();
 
-        for(Patch patch : imageList) {
-            final PatchDrawing label = new PatchDrawing(patch);
-            this.add(label);
-        }
-        if(imageList.length == 0) {
+        if (imageList.length == 0) {
             JLabel label = new JLabel();
             label.setIcon(iconPatch);
             this.add(label);
+        } else {
+            for (Patch patch : imageList) {
+                final PatchDrawing label = new PatchDrawing(patch);
+                this.add(label);
+            }
         }
-
         updateUI();
     }
 
-    /**
-     * Invoked when the mouse button has been clicked (pressed
-     * and released) on a component.
-     */
-    public void mouseClicked(MouseEvent e){
-        final Point p = e.getPoint();
-        int numColumns = this.getWidth() / (width + margin);
-        int x = p.x / (width + margin+1);
-        int y = p.y / (height +  margin+1);
-        if(numColumns > this.getComponentCount())
-            x -= 1;
-        selection = (PatchDrawing)this.getComponent(Math.max(0, (y*numColumns) + x));
-
-        Patch patch = selection.getPatch();
-        if(e.getButton() == 1) {
-            patch.setLabel(Patch.LABEL_RELEVANT);
-        } else if(e.getButton() == 3) {
-            patch.setLabel(Patch.LABEL_IRRELEVANT);
-        }
-
-        repaint();
-    }
-
-    /**
-     * Invoked when a mouse button has been pressed on a component.
-     */
-    public void mousePressed(MouseEvent e){
-    }
-
-    /**
-     * Invoked when a mouse button has been released on a component.
-     */
-    public void mouseReleased(MouseEvent e){
-    }
-
-    /**
-     * Invoked when the mouse enters a component.
-     */
-    public void mouseEntered(MouseEvent e){
-    }
-
-    /**
-     * Invoked when the mouse exits a component.
-     */
-    public void mouseExited(MouseEvent e) {
-    }
-
-
-    private class PatchDrawing extends JLabel {
+    private class PatchDrawing extends JLabel implements MouseListener {
         private final Patch patch;
 
         public PatchDrawing(final Patch patch) {
-            super();
             this.patch = patch;
 
             if(patch.getImage() != null) {
                 setIcon(new ImageIcon(patch.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
             }
-        }
-
-        public Patch getPatch() {
-            return patch;
+            addMouseListener(this);
         }
 
         @Override
@@ -159,5 +105,53 @@ public class PatchDrawer extends JPanel implements MouseListener {
                 g.drawRoundRect(0, 0, width, height-5, 25, 25);
             }
         }
+
+        /**
+         * Invoked when the mouse button has been clicked (pressed
+         * and released) on a component.
+         */
+        @Override
+        public void mouseClicked(MouseEvent e){
+            if(e.getButton() == MouseEvent.BUTTON1) {
+                int currentLabel = patch.getLabel();
+                if (currentLabel != Patch.LABEL_IRRELEVANT) {
+                    patch.setLabel(Patch.LABEL_IRRELEVANT);
+                }
+                if (currentLabel != Patch.LABEL_RELEVANT) {
+                    patch.setLabel(Patch.LABEL_RELEVANT);
+                }
+                repaint();
+            }
+        }
+
+        /**
+         * Invoked when a mouse button has been pressed on a component.
+         */
+        @Override
+        public void mousePressed(MouseEvent e){
+
+        }
+
+        /**
+         * Invoked when a mouse button has been released on a component.
+         */
+        @Override
+        public void mouseReleased(MouseEvent e){
+        }
+
+        /**
+         * Invoked when the mouse enters a component.
+         */
+        @Override
+        public void mouseEntered(MouseEvent e){
+        }
+
+        /**
+         * Invoked when the mouse exits a component.
+         */
+        @Override
+        public void mouseExited(MouseEvent e) {
+        }
+
     }
 }

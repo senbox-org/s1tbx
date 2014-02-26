@@ -64,6 +64,11 @@ public class SearchToolStub {
         return db.getDsDescriptor();
     }
 
+    public boolean deleteClassifier() {
+        //todo other clean up
+        return classifierFile.delete();
+    }
+
     public void setNumTrainingImages(final int numTrainingImages) {
         this.numTrainingImages = numTrainingImages;
     }

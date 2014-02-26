@@ -22,16 +22,9 @@ import org.esa.pfa.ui.toolviews.cbir.taskpanels.CBIRStartTaskPanel;
 import javax.swing.*;
 
 
-public class CBIRToolView extends AbstractToolView {
+public class CBIRWizard extends AbstractToolView {
 
- /*   private static final ImageIcon updateIcon = UIUtils.loadImageIcon("icons/Update24.gif");
-    private static final ImageIcon updateRolloverIcon = ToolButtonFactory.createRolloverIcon(updateIcon);
-    private static final ImageIcon stopIcon = UIUtils.loadImageIcon("icons/Stop24.gif");
-    private static final ImageIcon stopRolloverIcon = ToolButtonFactory.createRolloverIcon(stopIcon);
-
- */
-
-    public CBIRToolView() {
+    public CBIRWizard() {
     }
 
     public JComponent createControl() {

@@ -33,6 +33,7 @@ public class CBIRSession {
     private List<Patch> irrelevantImageList = new ArrayList<>(50);
     private List<Patch> retrievedImageList = new ArrayList<>(500);
 
+    private final String classifierName;
     private final PFAApplicationDescriptor applicationDescriptor;
 
     private final SearchToolStub searchTool;
@@ -40,9 +41,14 @@ public class CBIRSession {
     public CBIRSession(final String classifierName,
                        final PFAApplicationDescriptor applicationDescriptor,
                        final String archivePath) throws Exception {
+        this.classifierName = classifierName;
         this.applicationDescriptor = applicationDescriptor;
 
         this.searchTool = new SearchToolStub(archivePath, classifierName, applicationDescriptor.getAllQueryExpr());
+    }
+
+    public String getName() {
+        return classifierName;
     }
 
     public PFAApplicationDescriptor getApplicationDescriptor() {
@@ -51,6 +57,10 @@ public class CBIRSession {
 
     public DatasetDescriptor getDsDescriptor() {
         return searchTool.getDsDescriptor();
+    }
+
+    public boolean deleteClassifier() {
+        return searchTool.deleteClassifier();
     }
 
     public void setNumTrainingImages(final int numTrainingImages) {
