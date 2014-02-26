@@ -79,9 +79,10 @@ public class ActiveLearning {
 
         setTestDataSetWithValidPatches(patchArray);
 
-        setInitialTrainingSet();
-
-        svmClassifier.train(trainingData);
+        if (iteration == 0) {
+            setInitialTrainingSet();
+            svmClassifier.train(trainingData);
+        }
 
         if (debug) {
             System.out.println("Number of random patches: " + patchArray.length);
