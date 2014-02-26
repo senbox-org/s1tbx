@@ -59,12 +59,16 @@ public class SearchToolStub {
         }
         this.classifierFile = new File(classifierFolder, classifierName + ".xml");
 
-        db = new PatchQuery(dbFolder);
+        db = new PatchQuery(dbFolder, applicationDescriptor.getDefaultFeatureSet());
         al = new ActiveLearning();
 
         if (classifierFile.exists()) {
             loadClassifier(classifierFile);
         }
+    }
+
+    public PatchQuery getPatchQuery() {
+        return db;
     }
 
     public DatasetDescriptor getDsDescriptor() {

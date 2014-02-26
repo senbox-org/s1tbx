@@ -15,8 +15,14 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 
@@ -27,6 +33,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
 
@@ -137,19 +146,85 @@ public class PatchDrawer extends JPanel {
         public void mousePressed(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON3) {
                 JPopupMenu popupMenu = new JPopupMenu();
-                JMenuItem menuItem = new JMenuItem("Info");
-                menuItem.addActionListener(new ActionListener() {
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        showPatchInfo();
-                    }
-                });
-                popupMenu.add(menuItem);
+                if (patch.getFeatures().length > 0) {
+                    JMenuItem menuItem = new JMenuItem("Info");
+                    menuItem.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            showPatchInfo();
+                        }
+                    });
+                    popupMenu.add(menuItem);
+                }
+                if (patch.getPathOnServer() != null) {
+                    JMenuItem menuItem = new JMenuItem("Show patch product");
+                    menuItem.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                showPatchProduct();
+                            } catch (IOException ioe) {
+                                VisatApp.getApp().handleError("Failed to open product.", ioe);
+                            }
+                        }
+                    });
+                    popupMenu.add(menuItem);
+
+                    menuItem = new JMenuItem("Show parent product");
+//                    menuItem.addActionListener(new ActionListener() {
+//
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            try {
+//                                showPatchProduct();
+//                            } catch (IOException ioe) {
+//                                VisatApp.getApp().handleError("Failed to open product.", ioe);
+//                            }
+//                        }
+//                    });
+                    menuItem.setEnabled(false);
+                    popupMenu.add(menuItem);
+
+                }
+
                 UIUtils.showPopup(popupMenu, e);
 
             }
         }
+
+        private void showPatchProduct() throws IOException {
+            final VisatApp visat = VisatApp.getApp();
+            ProgressMonitorSwingWorker<Band, Void> worker = new ProgressMonitorSwingWorker<Band, Void>(getParent(), "Navigate to patch") {
+                @Override
+                protected Band doInBackground(ProgressMonitor progressMonitor) throws Exception {
+                    File productFile = new File(patch.getPathOnServer(), "patch.dim");
+                    Product openProduct = visat.getOpenProduct(productFile);
+                    if (openProduct == null) {
+                        openProduct = ProductIO.readProduct(productFile);
+                        visat.addProduct(openProduct);
+                    }
+                    if (openProduct == null) {
+                        throw new IOException("Failed to open patch product");
+                    }
+                    String bandName = ProductUtils.findSuitableQuicklookBandName(openProduct);
+                    return openProduct.getBand(bandName);
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        visat.openProductSceneView(get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        VisatApp.getApp().handleError("Failed to open product.", e);
+                    }
+                }
+            };
+            worker.execute();
+        }
+
 
         private void showPatchInfo() {
             PatchInfoDialog patchInfoDialog = new PatchInfoDialog(VisatApp.getApp().getApplicationWindow(), patch);

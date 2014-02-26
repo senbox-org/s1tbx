@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 /**
@@ -38,13 +39,16 @@ public class PatchQuery implements QueryInterface {
     String indexName;
 
     private final File datasetDir;
+    private final Set<String> defaultFeatureSet;
 
     private StandardQueryParser parser;
     private IndexReader indexReader;
     private IndexSearcher indexSearcher;
+    private FeatureType[] effectiveFeatureTypes;
 
-    public PatchQuery(final File datasetDir) throws IOException {
+    public PatchQuery(final File datasetDir, Set<String> defaultFeatureSet) throws IOException {
         this.datasetDir = datasetDir;
+        this.defaultFeatureSet = defaultFeatureSet;
 
         indexName = DsIndexer.DEFAULT_INDEX_NAME;
         precisionStep = NumericUtils.PRECISION_STEP_DEFAULT;
@@ -58,6 +62,9 @@ public class PatchQuery implements QueryInterface {
     private void init() throws IOException {
 
         dsDescriptor = DatasetDescriptor.read(new File(datasetDir, "ds-descriptor.xml"));
+
+        effectiveFeatureTypes = getEffectiveFeatureTypes(getDsDescriptor().getFeatureTypes(),
+                                                         defaultFeatureSet);
 
         parser = new StandardQueryParser(DsIndexer.LUCENE_ANALYZER);
         NumericConfiguration numConf = new NumericConfiguration(precisionStep);
@@ -74,6 +81,10 @@ public class PatchQuery implements QueryInterface {
     //todo must be specific to the application
     public DatasetDescriptor getDsDescriptor() {
         return dsDescriptor;
+    }
+
+    public FeatureType[] getEffectiveFeatureTypes() {
+        return effectiveFeatureTypes;
     }
 
     public Patch[] query(String queryExpr, int hitCount) {
@@ -146,21 +157,10 @@ public class PatchQuery implements QueryInterface {
     }
 
     private void getFeatures(final Document doc, final Patch patch) {
-        for (FeatureType feaType : dsDescriptor.featureTypes) {
-            if (feaType.hasAttributes()) {
-                for (AttributeType attrib : feaType.getAttributeTypes()) {
-                    final String name = feaType.getName() + '.' + attrib.getName();
-                    final String[] values = doc.getValues(name);
-                    if (values != null && values.length > 0) {
-                        FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
-                        patch.addFeature(createFeature(newFeaType, values[0]));
-                    }
-                }
-            } else {
-                final String[] values = doc.getValues(feaType.getName());
-                if (values != null && values.length > 0) {
-                    patch.addFeature(createFeature(feaType, values[0]));
-                }
+        for (FeatureType feaType : effectiveFeatureTypes) {
+            final String[] values = doc.getValues(feaType.getName());
+            if (values != null && values.length > 0) {
+                patch.addFeature(createFeature(feaType, values[0]));
             }
         }
     }
@@ -187,5 +187,30 @@ public class PatchQuery implements QueryInterface {
     public Patch[] getRandomPatches(final int numPatches) {
         // todo: remove hard coded query expr.
         return query("product: ENVI*", numPatches);
+    }
+
+
+    public static FeatureType[] getEffectiveFeatureTypes(FeatureType[] featureTypes, Set<String> featureNames) {
+        ArrayList<FeatureType> effectiveFeatureTypes = new ArrayList<>();
+        for (FeatureType featureType : featureTypes) {
+            if (featureType.hasAttributes()) {
+                for (AttributeType attrib : featureType.getAttributeTypes()) {
+                    final String effectiveName = featureType.getName() + '.' + attrib.getName();
+                    if (acceptFeatureTypeName(featureNames, effectiveName)) {
+                        FeatureType newFeaType = new FeatureType(effectiveName, attrib.getDescription(), attrib.getValueType());
+                        effectiveFeatureTypes.add(newFeaType);
+                    }
+                }
+            } else {
+                if (acceptFeatureTypeName(featureNames, featureType.getName())) {
+                    effectiveFeatureTypes.add(featureType);
+                }
+            }
+        }
+        return effectiveFeatureTypes.toArray(new FeatureType[effectiveFeatureTypes.size()]);
+    }
+
+    private static boolean acceptFeatureTypeName(Set<String> allowedNames, String name) {
+        return allowedNames == null || allowedNames.contains(name);
     }
 }

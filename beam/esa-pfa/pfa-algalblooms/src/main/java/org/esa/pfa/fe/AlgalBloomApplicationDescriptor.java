@@ -22,7 +22,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescriptor {
 
@@ -31,10 +34,12 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
     public static final String DEFAULT_QL_NAME = "rgb1_ql.png";
     public static final String DEFAULT_ALL_QUERY = "product:MER*";
 
-    private static Dimension patchDimension = new Dimension(200, 200);
-
     private static final URL graphURL = AlgalBloomApplicationDescriptor.class.getResource("AlgalBloomFeatureWriter.xml");
     private static Properties properties = new Properties(System.getProperties());
+
+    private static Dimension patchDimension = new Dimension(200, 200);
+    private static Set<String> defaultFeatureSet;
+
 
     static {
         File file = new File(SystemUtils.getApplicationDataDir(), "pfa.algalblooms.properties");
@@ -77,12 +82,19 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
     }
 
     @Override
-    public String[] getDefaultFeatureSet() {
-        String property = properties.getProperty("pfa.algalblooms.featureSet", DEFAULT_FEATURE_SET);
-        String[] split = property.split(",");
-        for (int i = 0; i < split.length; i++) {
-            split[i] = split[i].trim();
+    public Set<String> getDefaultFeatureSet() {
+        if (defaultFeatureSet == null) {
+            String property = properties.getProperty("pfa.algalblooms.featureSet", DEFAULT_FEATURE_SET);
+            defaultFeatureSet = getStringSet(property);
         }
-        return split;
+        return defaultFeatureSet;
+    }
+
+    private static Set<String> getStringSet(String csv) {
+        String[] values = csv.split(",");
+        for (int i = 0; i < values.length; i++) {
+            values[i] = values[i].trim();
+        }
+        return new HashSet<>(Arrays.asList(values));
     }
 }

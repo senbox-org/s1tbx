@@ -15,8 +15,9 @@
  */
 package org.esa.pfa.fe;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
+import java.util.Set;
 
 /**
  * Describe the feature extraction application .
@@ -58,7 +59,7 @@ public interface PFAApplicationDescriptor {
     String getDefaultQuicklookFileName();
 
     /**
-     * @return The name of the numeric features to be used by the classifier. May be {@code null} or an empty array, and if so, all numeric features will be used.
+     * @return The name of the numeric features to be used by the classifier. May be {@code null}, and if so, all numeric features will be used.
      */
-    String[] getDefaultFeatureSet();
+    Set<String> getDefaultFeatureSet();
 }

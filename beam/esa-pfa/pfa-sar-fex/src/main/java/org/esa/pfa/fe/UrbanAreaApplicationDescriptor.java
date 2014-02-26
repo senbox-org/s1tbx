@@ -15,9 +15,10 @@
  */
 package org.esa.pfa.fe;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.net.URL;
+import java.util.Set;
 
 public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescriptor {
 
@@ -51,7 +52,7 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
     }
 
     @Override
-    public String[] getDefaultFeatureSet() {
+    public Set<String> getDefaultFeatureSet() {
         return null;
     }
 }

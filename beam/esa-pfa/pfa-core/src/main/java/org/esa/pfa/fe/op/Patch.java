@@ -27,7 +27,7 @@ public final class Patch {
     private final Rectangle patchRegion;
     private final Product patchProduct;
     private final String patchName;
-    private final List<Feature> featureList = new ArrayList<Feature>(10);
+    private final List<Feature> featureList = new ArrayList<>(10);
 
     private int label;
     private double distance;   // functional distance of a patch to the hyperplane in SVM
@@ -35,7 +35,7 @@ public final class Patch {
     private String pathOnServer;
     private BufferedImage image;
 
-    private final List<PatchListener> listenerList = new ArrayList<PatchListener>(1);
+    private final List<PatchListener> listenerList = new ArrayList<>(1);
 
     public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
         this.uid = createUniqueID();
@@ -140,5 +140,20 @@ public final class Patch {
     public interface PatchListener {
 
         public void notifyStateChanged(final Patch patch);
+    }
+
+    public String writeFeatures() {
+        final StringBuilder str = new StringBuilder(100);
+
+        for (Feature feature : featureList) {
+            str.append(feature.getName());
+            str.append(": ");
+            str.append(feature.getValue().toString());
+            str.append('\n');
+        }
+        if (str.length() == 0) {
+            str.append("No features found");
+        }
+        return str.toString();
     }
 }

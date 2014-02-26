@@ -11,7 +11,7 @@ public class PatchQueryTest {
 
     @Test
     public void testQueryAll() throws Exception {
-        PatchQuery db = new PatchQuery(new File("c:\\temp"));
+        PatchQuery db = new PatchQuery(new File("c:\\temp"), null);
 
         db.query("product: ENVI*", 30);
     }

@@ -27,8 +27,6 @@ import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.pfa.db.DatasetDescriptor;
-import org.esa.pfa.fe.op.AttributeType;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
@@ -36,8 +34,16 @@ import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.ui.toolviews.cbir.LabelBarProgressMonitor;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -50,7 +56,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
-    Feature extraction Panel
+ * Feature extraction Panel
  */
 public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListener {
 
@@ -92,19 +98,19 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             final Patch[] processedPatches = session.getQueryPatches();
 
             session.clearQueryPatches();
-            for(Patch patch : processedPatches) {
-                if(patch.getFeatures().length > 0) {
+            for (Patch patch : processedPatches) {
+                if (patch.getFeatures().length > 0) {
                     session.addQueryPatch(patch);
                 }
             }
-            if(session.getQueryPatches().length == 0) {
+            if (session.getQueryPatches().length == 0) {
                 throw new Exception("No features found in the query images");
             }
 
             session.setQueryImages();
 
             return true;
-        } catch(Exception e)  {
+        } catch (Exception e) {
             VisatApp.getApp().handleUnknownException(e);
         }
         return false;
@@ -118,7 +124,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
         listsPanel.setLayout(layout);
 
-        for(Patch patch : session.getQueryPatches()) {
+        for (Patch patch : session.getQueryPatches()) {
             listsPanel.add(createProcessingPanel(patch));
         }
         this.add(new JScrollPane(listsPanel), BorderLayout.CENTER);
@@ -155,7 +161,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             if (command.equals("processButton")) {
 
                 final Set<Patch> keys = progressMap.keySet();
-                for(Patch patch : keys) {
+                for (Patch patch : keys) {
                     final ProcessThread thread = new ProcessThread(progressMap.get(patch));
                     thread.execute();
                 }
@@ -184,7 +190,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                         "tmp"+File.separator+"in"+File.separator+patch.getPatchProduct().getName()+".fex");
                 tmpOutFolder = new File(SystemUtils.getApplicationDataDir(),
                         "tmp"+File.separator+"out"+File.separator+patch.getPatchProduct().getName()+".fex");
-                final File subsetFile = new File(tmpInFolder, patch.getPatchName()+".dim");
+                final File subsetFile = new File(tmpInFolder, patch.getPatchName() + ".dim");
                 final WriteOp writeOp = new WriteOp(patch.getPatchProduct(), subsetFile, "BEAM-DIMAP");
                 writeOp.setDeleteOutputOnFailure(true);
                 writeOp.setWriteEntireTileRows(true);
@@ -199,8 +205,8 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
                 loadFeatures(patchData.patch, tmpOutFolder);
 
-            } catch(Throwable e) {
-                final String msg = "processing Exception\n"+e.getMessage();
+            } catch (Throwable e) {
+                final String msg = "processing Exception\n" + e.getMessage();
                 System.out.println(msg);
                 VisatApp.getApp().showErrorDialog(e.toString());
             } finally {
@@ -214,10 +220,10 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 final File[] fexDirs = datasetDir.listFiles(new FileFilter() {
                     @Override
                     public boolean accept(File file) {
-                        return file.isDirectory() && file.getName().equals(patch.getPatchName()+".fex");
+                        return file.isDirectory() && file.getName().endsWith(".fex");
                     }
                 });
-                if(fexDirs.length == 0)
+                if (fexDirs.length == 0)
                     return;
 
                 final File[] patchDirs = fexDirs[0].listFiles(new FileFilter() {
@@ -226,13 +232,11 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                         return file.isDirectory() && file.getName().startsWith("x");
                     }
                 });
-                if(patchDirs.length == 0)
+                if (patchDirs.length == 0)
                     return;
 
-                patch.setPathOnServer(patchDirs[0].getAbsolutePath());
-
                 final File featureFile = new File(patchDirs[0], "features.txt");
-                if(featureFile.exists()) {
+                if (featureFile.exists()) {
                     final Properties featureValues = new Properties();
                     try (FileReader reader = new FileReader(featureFile)) {
                         featureValues.load(reader);
@@ -240,47 +244,33 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
                     patch.clearFeatures();
 
-                    final DatasetDescriptor dsDescriptor = session.getDsDescriptor();
-                    for(FeatureType feaType : dsDescriptor.getFeatureTypes()) {
-                        if(feaType.hasAttributes()) {
-                            for(AttributeType attrib : feaType.getAttributeTypes()) {
-                                final String name = feaType.getName()+'.'+attrib.getName();
-                                final String value = featureValues.getProperty(name);
-                                if(value != null) {
-                                    FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
-                                    patch.addFeature(createFeature(newFeaType, value));
-                                }
-                            }
-                        } else {
-                            final String value = featureValues.getProperty(feaType.getName());
-                            if(value != null) {
-                                patch.addFeature(createFeature(feaType, value));
-                            }
+                    for (FeatureType featureType : session.getEffectiveFeatureTypes()) {
+                        final String featureValue = featureValues.getProperty(featureType.getName());
+                        if (featureValue != null) {
+                            patch.addFeature(createFeature(featureType, featureValue));
                         }
                     }
                 }
-            } catch(Exception e) {
-                final String msg = "Error reading features "+patch.getPatchName()+"\n"+e.getMessage();
+            } catch (Exception e) {
+                final String msg = "Error reading features " + patch.getPatchName() + "\n" + e.getMessage();
                 VisatApp.getApp().showErrorDialog(msg);
             }
         }
 
-        private Feature createFeature(FeatureType feaType, String value) {
+        private Feature createFeature(FeatureType feaType, final String value) {
             final Class<?> valueType = feaType.getValueType();
-            if(value.equals("NaN"))
-                value = "0";
 
-            if(Double.class.isAssignableFrom(valueType)) {
+            if (Double.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, Double.parseDouble(value));
-            } else if(Float.class.isAssignableFrom(valueType)) {
+            } else if (Float.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, Float.parseFloat(value));
-            } else if(Integer.class.isAssignableFrom(valueType)) {
+            } else if (Integer.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, Integer.parseInt(value));
-            } else if(Boolean.class.isAssignableFrom(valueType)) {
+            } else if (Boolean.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, Boolean.parseBoolean(value));
-            } else if(Character.class.isAssignableFrom(valueType)) {
+            } else if (Character.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, value);
-            } else if(String.class.isAssignableFrom(valueType)) {
+            } else if (String.class.isAssignableFrom(valueType)) {
                 return new Feature(feaType, value);
             }
             return null;
@@ -289,23 +279,24 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         private void setIO(final Graph graph, final File srcFile, final File targetFolder) {
             final String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
             final Node readerNode = findNode(graph, readOperatorAlias);
-            if(readerNode != null) {
+            if (readerNode != null) {
                 final DomElement param = new DefaultDomElement("parameters");
                 param.createChild("file").setValue(srcFile.getAbsolutePath());
                 readerNode.setConfiguration(param);
             }
 
-            final Node[] nodes = graph.getNodes();
+            Node[] nodes = graph.getNodes();
             if (nodes.length > 0) {
                 Node lastNode = nodes[nodes.length - 1];
                 DomElement configuration = lastNode.getConfiguration();
                 configuration.getChild("targetPath").setValue(targetFolder.getAbsolutePath());
             }
+
         }
 
         private Node findNode(final Graph graph, final String alias) {
-            for(Node n : graph.getNodes()) {
-                if(n.getOperatorName().equals(alias))
+            for (Node n : graph.getNodes()) {
+                if (n.getOperatorName().equals(alias))
                     return n;
             }
             return null;
@@ -354,4 +345,5 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             textPane.setText(patch.writeFeatures());
         }
     }
+
 }
