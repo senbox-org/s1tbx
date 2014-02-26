@@ -2,8 +2,11 @@ package org.esa.pfa.activelearning;
 
 import com.thoughtworks.xstream.XStream;
 import libsvm.svm_model;
+import org.esa.pfa.fe.op.Patch;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Save a session
@@ -14,6 +17,7 @@ public class ClassifierWriter {
     int numRetrievedImages;
     int numIterations;
     svm_model model;
+    String[] patchPaths;
 
     ClassifierWriter() {}
 
@@ -23,6 +27,21 @@ public class ClassifierWriter {
         this.numRetrievedImages = numRetrievedImages;
         this.numIterations = numIterations;
         model = al.getModel();
+
+        savePatchPaths(al);
+    }
+
+    private void savePatchPaths(final ActiveLearning al) {
+        final Patch[] trainingPatches = al.getTrainingData();
+        final List<String> patchPathList = new ArrayList<>(trainingPatches.length);
+        for(Patch patch : trainingPatches) {
+            patchPathList.add(patch.getPathOnServer());
+        }
+        patchPaths = patchPathList.toArray(new String[patchPathList.size()]);
+    }
+
+    public String[] getPatchPaths() {
+        return patchPaths;
     }
 
     public int getNumTrainingImages() {
