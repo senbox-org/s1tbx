@@ -26,7 +26,6 @@ import java.util.concurrent.Executors;
 
 /**
  * The PFA Dataset Query Tool.
- *
  */
 public class PatchQuery implements QueryInterface {
 
@@ -93,7 +92,7 @@ public class PatchQuery implements QueryInterface {
                 System.out.println("no documents found within " + (t2 - t1) + " ms");
             } else {
                 System.out.println("found " + topDocs.totalHits + " documents(s) within " + (t2 - t1) + " ms:");
-                int i=0;
+                int i = 0;
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
                     String productName = doc.getValues("product")[0];
@@ -120,36 +119,46 @@ public class PatchQuery implements QueryInterface {
     }
 
     private void setPathToPatch(Patch patch, String productName) {
-        patch.setPathOnServer(datasetDir.getAbsolutePath()+ File.separator+
-                              productName+".fex"+ File.separator+patch.getPatchName());
+        patch.setPathOnServer(datasetDir.getAbsolutePath() + File.separator +
+                              productName + ".fex" + File.separator + patch.getPatchName());
     }
 
-    public URL retrievePatchImage(final Patch patch) throws Exception {
-        final File path = new File(patch.getPathOnServer());
-        final File[] imageFiles = path.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.isFile() && file.getName().toLowerCase().endsWith(".png");
-            }
-        });
+    public URL retrievePatchImage(final Patch patch, String patchImageFileName) throws IOException {
+        File path = new File(patch.getPathOnServer());
 
-        return new URL("file:"+imageFiles[0].getAbsolutePath());
+        File imageFile;
+        if (patchImageFileName != null && !patchImageFileName.isEmpty()) {
+            imageFile = new File(path, patchImageFileName);
+        } else {
+            File[] imageFiles = path.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isFile() && file.getName().toLowerCase().endsWith(".png");
+                }
+            });
+            if (imageFiles == null) {
+                throw new IOException("No patch image found in " + path);
+            }
+            imageFile = imageFiles[0];
+        }
+
+        return new URL("file:" + imageFile.getAbsolutePath());
     }
 
     private void getFeatures(final Document doc, final Patch patch) {
-        for(FeatureType feaType : dsDescriptor.featureTypes) {
-            if(feaType.hasAttributes()) {
-                for(AttributeType attrib : feaType.getAttributeTypes()) {
-                    final String name = feaType.getName()+'.'+attrib.getName();
+        for (FeatureType feaType : dsDescriptor.featureTypes) {
+            if (feaType.hasAttributes()) {
+                for (AttributeType attrib : feaType.getAttributeTypes()) {
+                    final String name = feaType.getName() + '.' + attrib.getName();
                     final String[] values = doc.getValues(name);
-                    if(values != null && values.length > 0) {
+                    if (values != null && values.length > 0) {
                         FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
                         patch.addFeature(createFeature(newFeaType, values[0]));
                     }
                 }
             } else {
                 final String[] values = doc.getValues(feaType.getName());
-                if(values != null && values.length > 0) {
+                if (values != null && values.length > 0) {
                     patch.addFeature(createFeature(feaType, values[0]));
                 }
             }
@@ -159,23 +168,24 @@ public class PatchQuery implements QueryInterface {
     private static Feature createFeature(FeatureType feaType, final String value) {
         final Class<?> valueType = feaType.getValueType();
 
-        if(Double.class.isAssignableFrom(valueType)) {
+        if (Double.class.isAssignableFrom(valueType)) {
             return new Feature(feaType, Double.parseDouble(value));
-        } else if(Float.class.isAssignableFrom(valueType)) {
+        } else if (Float.class.isAssignableFrom(valueType)) {
             return new Feature(feaType, Float.parseFloat(value));
-        } else if(Integer.class.isAssignableFrom(valueType)) {
+        } else if (Integer.class.isAssignableFrom(valueType)) {
             return new Feature(feaType, Integer.parseInt(value));
-        } else if(Boolean.class.isAssignableFrom(valueType)) {
+        } else if (Boolean.class.isAssignableFrom(valueType)) {
             return new Feature(feaType, Boolean.parseBoolean(value));
-        } else if(Character.class.isAssignableFrom(valueType)) {
+        } else if (Character.class.isAssignableFrom(valueType)) {
             return new Feature(feaType, value);
-        } else if(String.class.isAssignableFrom(valueType)) {
+        } else if (String.class.isAssignableFrom(valueType)) {
             return new Feature(feaType, value);
         }
         return null;
     }
 
     public Patch[] getRandomPatches(final int numPatches) {
+        // todo: remove hard coded query expr.
         return query("product: ENVI*", numPatches);
     }
 }
