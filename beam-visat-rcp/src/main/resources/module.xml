@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-1615] Sort entries in View->ToolViews sub-menu<br/>
           [BEAM-1593] Harmonise transect + mask pixels outputs<br/>
           [BEAM-1588] Show close button on internal frames' tabs<br/>
           [BEAM-1587] Allow closing internal frames by click with middle mouse button<br/>
@@ -1231,6 +1232,7 @@
             <placeAfter>computeMaskArea</placeAfter>
             <placeBefore>toolBars</placeBefore>
             <text>Tool Windows</text>
+            <sortChildren>true</sortChildren>
         </action>
 
         <action>
