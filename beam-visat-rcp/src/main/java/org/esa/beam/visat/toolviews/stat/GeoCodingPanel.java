@@ -37,19 +37,29 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.FXYSum;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * A pane within the statistcs window which displays geo-coding information.
  */
-class GeoCodingPanel extends TextPagePanel {
+class GeoCodingPanel extends PagePanel {
 
     private static final String DEFAULT_GEOCODING_TEXT = "No geo-coding information available."; /*I18N*/
     private static final String TITLE_PREFIX = "Geo-Coding";   /*I18N*/
+    private final String defaultText;
     private GeoCoding _geoCoding;
+    private JTextArea textArea;
 
     GeoCodingPanel(final ToolView parentDialog, String helpID) {
-        super(parentDialog, DEFAULT_GEOCODING_TEXT, helpID, TITLE_PREFIX);
+        super(parentDialog, helpID, TITLE_PREFIX);
+        this.defaultText = DEFAULT_GEOCODING_TEXT;
     }
 
     @Override
@@ -70,8 +80,7 @@ class GeoCodingPanel extends TextPagePanel {
         }
     }
 
-    @Override
-    protected String createText() {
+    private String createText() {
         final RasterDataNode raster = getRaster();
         final Product product = getProduct();
 
@@ -503,4 +512,42 @@ class GeoCodingPanel extends TextPagePanel {
         }
     }
 
+    @Override
+    protected void initComponents() {
+        textArea = new JTextArea();
+        textArea.setText(defaultText);
+        textArea.setEditable(false);
+        textArea.addMouseListener(new PopupHandler());
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+    }
+
+    @Override
+    protected void updateComponents() {
+        if (isVisible()) {
+            ensureValidData();
+            textArea.setText(createText());
+            textArea.setCaretPosition(0);
+        }
+    }
+
+    protected void ensureValidData() {
+    }
+
+    @Override
+    protected String getDataAsText() {
+        return textArea.getText();
+    }
+
+    @Override
+    protected void handlePopupCreated(final JPopupMenu popupMenu) {
+        final JMenuItem menuItem = new JMenuItem("Select All");     /*I18N*/
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                textArea.selectAll();
+                textArea.requestFocus();
+            }
+        });
+        popupMenu.add(menuItem);
+    }
 }

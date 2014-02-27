@@ -27,6 +27,7 @@ public class GeoCodingToolView extends AbstractStatisticsToolView {
 
     @Override
     protected PagePanel createPagePanel() {
+//        return new GeoCodingTablePanel(this, getDescriptor().getHelpId());
         return new GeoCodingPanel(this, getDescriptor().getHelpId());
     }
 }
