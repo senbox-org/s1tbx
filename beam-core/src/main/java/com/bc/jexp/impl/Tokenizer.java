@@ -118,7 +118,7 @@ public final class Tokenizer {
     /**
      * The current token.
      */
-    private final StringBuffer token;
+    private final StringBuilder token;
 
     /**
      * Determines whether the last token has been pushed back.
@@ -163,7 +163,7 @@ public final class Tokenizer {
         pos = 0;
         type = TT_UNKNOWN;
         pushedBack = false;
-        token = new StringBuffer();
+        token = new StringBuilder();
         this.caseSensitive = caseSensitive;
     }
 
