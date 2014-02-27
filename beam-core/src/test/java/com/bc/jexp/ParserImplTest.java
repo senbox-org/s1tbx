@@ -24,7 +24,10 @@ import com.bc.jexp.impl.SymbolFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ParserImplTest {
 
@@ -74,12 +77,20 @@ public class ParserImplTest {
     public void testIntegerMinValueConst() throws ParseException {
         final int minValue = Integer.MIN_VALUE;
         final String minValueString = Integer.toString(minValue);
-        Term term = parser.parse(minValueString);
+        try {
+            parser.parse(minValueString);
+            fail("ParseException expected");
+        } catch (ParseException e) {
+            assertEquals("Integer constant '2147483648' is out of range.", e.getMessage());
+        }
+
+        /*
         assertEquals(true, term.evalB(env));
         assertEquals(minValue, term.evalI(env));
         assertEquals(minValue, term.evalD(env), 0.0);
         assertEquals(minValueString, term.evalS(env));
         assertEquals(minValueString, term.toString());
+        */
     }
 
     @Test
@@ -168,7 +179,19 @@ public class ParserImplTest {
 
     @Test
     public void testSubstractionNegative() throws ParseException {
-        final Term term = parser.parse("24 - -4");
+        Term term = parser.parse("24 - -4");
+        assertEquals(28, term.evalI(env));
+
+        term = parser.parse("24--4");
+        assertEquals(28, term.evalI(env));
+
+        term = parser.parse("24-(-4)");
+        assertEquals(28, term.evalI(env));
+
+        term = parser.parse("(24--4)");
+        assertEquals(28, term.evalI(env));
+
+        term = parser.parse("24.0--------------------++++++++++++++++++++++(4)");
         assertEquals(28, term.evalI(env));
     }
 

@@ -199,14 +199,6 @@ public final class Tokenizer {
     }
 
     /**
-     * Pushes back the token read by the last <code>next()</code> call, so
-     * that it is returned again by a following <code>next()</code> call.
-     */
-    public void pushBack() {
-        pushedBack = true;
-    }
-
-    /**
      * Gets the current token wich was read in due to the last
      * <code>next()</code> call.
      *
@@ -214,6 +206,14 @@ public final class Tokenizer {
      */
     public String getToken() {
         return token.toString();
+    }
+
+    /**
+     * Pushes back the token read by the last <code>next()</code> call, so
+     * that it is returned again by a following <code>next()</code> call.
+     */
+    public void pushBack() {
+        pushedBack = true;
     }
 
     /**
@@ -241,7 +241,7 @@ public final class Tokenizer {
         } else if (isNameStart()) {
             eatName();
         } else if (isEscapedNameStart()) {
-            eatEsacpedName();
+            eatEscapedName();
         } else if (isStringStart()) {
             eatString();
         } else if (isHexNumberStart()) {
@@ -378,7 +378,7 @@ public final class Tokenizer {
      * Appends all subsequential characters belonging to a string constant
      * to the current token and increments the current source position.
      */
-    private void eatEsacpedName() {
+    private void eatEscapedName() {
         type = TT_ESCAPED_NAME;
         incPos(); // skip leading (')
         while (!isEscapedNameEnd()) {
@@ -393,14 +393,11 @@ public final class Tokenizer {
     }
 
     /**
-     * Appends all subsequential characters belonging to a number constant
+     * Appends all subsequent characters belonging to a number constant
      * to the current token and increments the current source position.
      */
     private void eatNumber() {
 
-        if (isMinus(pos)) {
-            eat(); // '-'
-        }
         while (isDigit()) {
             eat(); // digit
         }
@@ -505,7 +502,7 @@ public final class Tokenizer {
      * marks the beginning of a number (a digit or a '.').
      */
     private boolean isNumberStart() {
-        return isDigit() || isDotAndDigit() || isMinusAndDigit(pos) || isMinusAndDotAndDigit(pos);
+        return isDigit() || isDotAndDigit();
     }
 
     private boolean isHexNumberStart() {
@@ -526,14 +523,6 @@ public final class Tokenizer {
 
     private boolean isSignAndDigit(final int i) {
         return isSign(i) && isDigit(i + 1);
-    }
-
-    private boolean isMinusAndDigit(final int i) {
-        return isMinus(i) && isDigit(i + 1);
-    }
-
-    private boolean isMinusAndDotAndDigit(int i) {
-        return isMinus(i) && isDotAndDigit(i + 1);
     }
 
     private boolean isExpPartStart() {
