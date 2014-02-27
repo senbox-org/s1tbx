@@ -19,14 +19,11 @@ package org.esa.pfa.ui.toolviews.cbir;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.PFAApplicationRegistry;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.ui.toolviews.cbir.taskpanels.CBIRStartTaskPanel;
-import org.esa.pfa.ui.toolviews.cbir.taskpanels.QueryTaskPanel;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

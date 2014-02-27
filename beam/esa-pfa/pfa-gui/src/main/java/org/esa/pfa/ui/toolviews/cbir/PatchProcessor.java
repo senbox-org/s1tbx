@@ -31,20 +31,12 @@ import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.ui.toolviews.cbir.taskpanels.LabelingTaskPanel;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Feature extraction

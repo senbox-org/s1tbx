@@ -19,7 +19,6 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.ui.toolviews.cbir.taskpanels.LabelingTaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,12 +28,16 @@ import java.awt.event.ActionListener;
 /**
     Labeling Panel
  */
-public class CBIRRetrievedImagesToolView extends AbstractToolView implements ActionListener, CBIRSession.CBIRSessionListener {
+public class CBIRRetrievedImagesToolView extends AbstractToolView implements ActionListener,
+        Patch.PatchListener, CBIRSession.CBIRSessionListener {
 
     public final static String ID = "org.esa.pfa.ui.toolviews.cbir.CBIRRetrievedImagesToolView";
 
     private CBIRSession session;
     private PatchDrawer drawer;
+    private int accuracy = 0;
+    private Patch[] retrievedPatches;
+    private final JLabel accuracyLabel = new JLabel();
 
     public CBIRRetrievedImagesToolView() {
         CBIRSession.Instance().addListener(this);
@@ -58,6 +61,10 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         mainPane.add(retPanel, BorderLayout.CENTER);
 
         final JPanel bottomPanel = new JPanel();
+
+        bottomPanel.add(new JLabel("Accuracy:"));
+        bottomPanel.add(accuracyLabel);
+
         final JButton improveBtn = new JButton("Improve Classifier");
         improveBtn.setActionCommand("improveBtn");
         improveBtn.addActionListener(this);
@@ -66,6 +73,11 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         mainPane.add(bottomPanel, BorderLayout.SOUTH);
 
         return mainPane;
+    }
+
+    private void updateControls() {
+        float pct = accuracy/(float)retrievedPatches.length * 100;
+        accuracyLabel.setText(accuracy+"/"+retrievedPatches.length+" ("+(int)pct+"%)");
     }
 
     /**
@@ -87,20 +99,39 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         }
     }
 
+    private void listenToPatches() {
+        for(Patch patch : retrievedPatches) {
+            patch.addListener(this);
+        }
+    }
+
     public void notifyNewSession() {
         session = CBIRSession.Instance();
     }
 
-    public void notifyNewQueryImages() {
+    public void notifyNewTrainingImages() {
     }
 
     public void notifyModelTrained() {
         try {
             session.retrieveImages();
 
-            drawer.update(session.getRetrievedImages());
+            retrievedPatches = session.getRetrievedImages();
+            listenToPatches();
+
+            accuracy = retrievedPatches.length;
+            drawer.update(retrievedPatches);
+
+            updateControls();
         } catch (Exception e) {
             VisatApp.getApp().handleUnknownException(e);
+        }
+    }
+
+    public void notifyStateChanged(final Patch patch) {
+        if(patch.getLabel() == Patch.LABEL_IRRELEVANT) {
+            accuracy--;
+            updateControls();
         }
     }
 }

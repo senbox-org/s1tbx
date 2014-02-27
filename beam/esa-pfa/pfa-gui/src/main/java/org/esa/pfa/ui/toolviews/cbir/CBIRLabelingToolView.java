@@ -17,10 +17,8 @@ package org.esa.pfa.ui.toolviews.cbir;
 
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.actions.InsertFigureInteractorInterceptor;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.ui.toolviews.cbir.taskpanels.RetrievedImagesTaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -135,7 +133,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         session = CBIRSession.Instance();
     }
 
-    public void notifyNewQueryImages() {
+    public void notifyNewTrainingImages() {
         listenToPatches();
 
         if(isControlCreated()) {
@@ -151,6 +149,5 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
 
         relavantDrawer.update(session.getRelevantTrainingImages());
         irrelavantDrawer.update(session.getIrrelevantTrainingImages());
-
     }
 }

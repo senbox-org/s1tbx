@@ -17,7 +17,6 @@ package org.esa.pfa.ui.toolviews.cbir;
 
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -27,7 +26,6 @@ import org.esa.beam.visat.actions.InsertFigureInteractorInterceptor;
 import org.esa.pfa.fe.op.FeatureWriter;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.ui.toolviews.cbir.taskpanels.FeatureExtractionTaskPanel;
 
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
@@ -119,7 +117,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         }
     }
 
-    public void notifyNewQueryImages() {
+    public void notifyNewTrainingImages() {
     }
 
     public void notifyModelTrained() {

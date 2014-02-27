@@ -117,7 +117,7 @@ public class PatchQuery implements QueryInterface {
                     patchList.add(patch);
 
                     ++i;
-                    System.out.printf("[%5d]: product:\"%s\", px:%d, py:%d\n", i + 1, productName, patchX, patchY);
+                    //System.out.printf("[%5d]: product:\"%s\", px:%d, py:%d\n", i + 1, productName, patchX, patchY);
                 }
             }
         } catch (RuntimeException | Error e) {

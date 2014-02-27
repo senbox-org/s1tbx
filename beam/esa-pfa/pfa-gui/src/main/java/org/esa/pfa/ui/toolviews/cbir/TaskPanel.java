@@ -15,8 +15,6 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
-import org.esa.beam.visat.VisatApp;
-
 import javax.swing.*;
 import java.awt.*;
 

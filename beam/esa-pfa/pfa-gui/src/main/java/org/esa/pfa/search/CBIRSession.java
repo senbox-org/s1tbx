@@ -40,7 +40,7 @@ public class CBIRSession {
     private SearchToolStub searchTool;
 
     private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
-    enum Notification { NewSession, NewQueryImages, ModelTrained };
+    enum Notification { NewSession, NewTrainingImages, ModelTrained };
 
     private static CBIRSession instance = null;
 
@@ -124,8 +124,6 @@ public class CBIRSession {
     public void setQueryImages() throws Exception {
         searchTool.setQueryImages(getQueryPatches());
         getImagesToLabel();
-
-        fireNotification(Notification.NewQueryImages);
     }
 
     public void reassignTrainingImage(final Patch patch) {
@@ -167,6 +165,8 @@ public class CBIRSession {
                 irrelevantImageList.add(patch);
             }
         }
+
+        fireNotification(Notification.NewTrainingImages);
     }
 
     public void trainModel() throws Exception {
@@ -194,8 +194,8 @@ public class CBIRSession {
                 case NewSession:
                     listener.notifyNewSession();
                     break;
-                case NewQueryImages:
-                    listener.notifyNewQueryImages();
+                case NewTrainingImages:
+                    listener.notifyNewTrainingImages();
                     break;
                 case ModelTrained:
                     listener.notifyModelTrained();
@@ -220,7 +220,7 @@ public class CBIRSession {
 
         public void notifyNewSession();
 
-        public void notifyNewQueryImages();
+        public void notifyNewTrainingImages();
 
         public void notifyModelTrained();
     }

@@ -33,15 +33,8 @@ import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
