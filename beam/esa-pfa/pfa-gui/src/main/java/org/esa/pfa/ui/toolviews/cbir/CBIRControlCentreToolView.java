@@ -346,6 +346,13 @@ public class CBIRControlCentreToolView extends AbstractToolView {
                 dbFolder = chooser.getSelectedFile();
                 dbFolderTextField.setText(dbFolder.getAbsolutePath());
                 VisatApp.getApp().getPreferences().setPropertyString(PROPERTY_KEY_DB_PATH, dbFolder.getAbsolutePath());
+                final String[] savedClassifierNames = CBIRSession.getSavedClassifierNames(dbFolder.getAbsolutePath());
+
+                DefaultListModel<String> modelList = (DefaultListModel<String>) classifierList.getModel();
+                modelList.clear();
+                for (String name : savedClassifierNames) {
+                    modelList.addElement(name);
+                }
                 updateControls();
             }
         }

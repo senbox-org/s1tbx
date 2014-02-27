@@ -146,9 +146,9 @@ public class PatchDrawer extends JPanel {
         public void mousePressed(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON3) {
                 JPopupMenu popupMenu = new JPopupMenu();
-
+                JMenuItem menuItem;
                 if (patch.getFeatures().length > 0) {
-                    JMenuItem menuItem = new JMenuItem("Info");
+                    menuItem = new JMenuItem("Info");
                     menuItem.addActionListener(new ActionListener() {
 
                         @Override
@@ -159,70 +159,86 @@ public class PatchDrawer extends JPanel {
                     popupMenu.add(menuItem);
                 }
                 if (patch.getPathOnServer() != null) {
-                    JMenuItem menuItem = new JMenuItem("Show patch product");
-                    menuItem.addActionListener(new ActionListener() {
+                    final File patchProductFile = new File(patch.getPathOnServer(), "patch.dim");
+                    if (patchProductFile.exists()) {
+                        menuItem = new JMenuItem("Show patch product");
+                        menuItem.addActionListener(new ActionListener() {
 
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                showPatchProduct();
-                            } catch (IOException ioe) {
-                                VisatApp.getApp().handleError("Failed to open product.", ioe);
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    showProduct(patchProductFile);
+                                } catch (Exception ioe) {
+                                    VisatApp.getApp().handleError("Failed to open patch product.", ioe);
+                                }
                             }
-                        }
-                    });
-                    popupMenu.add(menuItem);
+                        });
+                        popupMenu.add(menuItem);
+                    }
+                    String pathOnServer = patch.getPathOnServer();
+                    File serverPathToPatch = new File(pathOnServer);
+                    String parentProductName = serverPathToPatch.getParentFile().getName();
+                    parentProductName = parentProductName.substring(0, parentProductName.length() - 4);
+                    System.out.println("parentProductName = " + parentProductName);
 
-                    menuItem = new JMenuItem("Show parent product");
-//                    menuItem.addActionListener(new ActionListener() {
-//
-//                        @Override
-//                        public void actionPerformed(ActionEvent e) {
-//                            try {
-//                                showPatchProduct();
-//                            } catch (IOException ioe) {
-//                                VisatApp.getApp().handleError("Failed to open product.", ioe);
-//                            }
-//                        }
-//                    });
-                    menuItem.setEnabled(false);
-                    popupMenu.add(menuItem);
+                    File productInputDir = new File("/home/marcoz/Scratch/pfa/input/");
+                    final File parentProductFile = new File(productInputDir, parentProductName);
+                    if (parentProductFile.exists()) {
+                        menuItem = new JMenuItem("Show parent product");
+                        menuItem.addActionListener(new ActionListener() {
 
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    showProduct(parentProductFile);
+                                } catch (Exception ioe) {
+                                    VisatApp.getApp().handleError("Failed to open parent product.", ioe);
+                                }
+                            }
+                        });
+                        popupMenu.add(menuItem);
+                    }
                 }
-
                 UIUtils.showPopup(popupMenu, e);
-
             }
         }
 
-        private void showPatchProduct() throws IOException {
+        private void showProduct(File patchProductFile) throws Exception {
+            Product product = getOpenProductForFile(patchProductFile);
+            String bandName = ProductUtils.findSuitableQuicklookBandName(product);
+            Band band = product.getBand(bandName);
+            VisatApp visatApp = VisatApp.getApp();
+            JInternalFrame internalFrame = visatApp.findInternalFrame(band);
+            if (internalFrame == null) {
+                visatApp.openProductSceneView(band);
+            } else {
+                internalFrame.setSelected(true);
+            }
+        }
+
+        private Product getOpenProductForFile(final File productFile) throws Exception {
             final VisatApp visat = VisatApp.getApp();
-            ProgressMonitorSwingWorker<Band, Void> worker = new ProgressMonitorSwingWorker<Band, Void>(getParent(), "Navigate to patch") {
+            Product openProduct = visat.getOpenProduct(productFile);
+            if (openProduct != null) {
+                return openProduct;
+            }
+            ProgressMonitorSwingWorker<Product, Void> worker = new ProgressMonitorSwingWorker<Product, Void>(getParent(), "Navigate to patch") {
                 @Override
-                protected Band doInBackground(ProgressMonitor progressMonitor) throws Exception {
-                    File productFile = new File(patch.getPathOnServer(), "patch.dim");
-                    Product openProduct = visat.getOpenProduct(productFile);
-                    if (openProduct == null) {
-                        openProduct = ProductIO.readProduct(productFile);
-                        visat.addProduct(openProduct);
-                    }
-                    if (openProduct == null) {
-                        throw new IOException("Failed to open patch product");
-                    }
-                    String bandName = ProductUtils.findSuitableQuicklookBandName(openProduct);
-                    return openProduct.getBand(bandName);
+                protected Product doInBackground(ProgressMonitor progressMonitor) throws Exception {
+                    return ProductIO.readProduct(productFile);
                 }
 
                 @Override
                 protected void done() {
                     try {
-                        visat.openProductSceneView(get());
+                        visat.getProductManager().addProduct(get());
                     } catch (InterruptedException | ExecutionException e) {
                         VisatApp.getApp().handleError("Failed to open product.", e);
                     }
                 }
             };
-            worker.execute();
+            worker.executeWithBlocking();
+            return worker.get();
         }
 
 
