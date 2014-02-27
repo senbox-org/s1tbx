@@ -48,7 +48,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         final JPanel relPanel = new JPanel(new BorderLayout(2, 2));
         relPanel.setBorder(BorderFactory.createTitledBorder("Relevant Images"));
 
-        relavantDrawer = new PatchDrawer(new Patch[] {});
+        relavantDrawer = new PatchDrawer();
         final JScrollPane scrollPane1 = new JScrollPane(relavantDrawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                         JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -62,7 +62,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         final JPanel irrelPanel = new JPanel(new BorderLayout(2, 2));
         irrelPanel.setBorder(BorderFactory.createTitledBorder("Irrelevant Images"));
 
-        irrelavantDrawer = new PatchDrawer(new Patch[] {});
+        irrelavantDrawer = new PatchDrawer();
         final JScrollPane scrollPane2 = new JScrollPane(irrelavantDrawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                           JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 

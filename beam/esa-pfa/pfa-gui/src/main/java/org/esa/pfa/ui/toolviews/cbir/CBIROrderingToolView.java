@@ -19,8 +19,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 /**
  * Product Ordering Toolview

@@ -27,8 +27,6 @@ import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.pfa.fe.op.Feature;
-import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 
@@ -36,7 +34,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
-import java.util.Properties;
 
 /**
  * Feature extraction

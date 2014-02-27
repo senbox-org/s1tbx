@@ -39,10 +39,11 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
 
     private static Dimension patchDimension = new Dimension(200, 200);
     private static Set<String> defaultFeatureSet;
+    private static File localProductDir;
 
 
     static {
-        File file = new File(SystemUtils.getApplicationDataDir(), "pfa.algalblooms.properties");
+        File file = new File(SystemUtils.getApplicationDataDir(), "pfa-algalblooms.properties");
         try {
             try (FileReader reader = new FileReader(file)) {
                 properties.load(reader);
@@ -88,6 +89,17 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
             defaultFeatureSet = getStringSet(property);
         }
         return defaultFeatureSet;
+    }
+
+    @Override
+    public File getLocalProductDir() {
+        if (localProductDir == null) {
+            String property = properties.getProperty("pfa.algalblooms.localProductDir");
+            if (property != null) {
+                localProductDir = new File(property);
+            }
+        }
+        return localProductDir;
     }
 
     private static Set<String> getStringSet(String csv) {

@@ -42,7 +42,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Feature extraction Panel
@@ -336,7 +339,7 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         public void notifyDone() {
             progressBar.setVisible(false);
             textScroll.setVisible(true);
-            textPane.setText(patch.writeFeatures());
+            textPane.setText(patch.getFeaturesAsText());
         }
     }
 

@@ -145,7 +145,7 @@ public final class Patch {
         public void notifyStateChanged(final Patch patch);
     }
 
-    public String writeFeatures() {
+    public String getFeaturesAsText() {
         final StringBuilder str = new StringBuilder(100);
 
         for (Feature feature : featureList) {

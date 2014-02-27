@@ -55,4 +55,9 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
     public Set<String> getDefaultFeatureSet() {
         return null;
     }
+
+    @Override
+    public File getLocalProductDir() {
+        return null;
+    }
 }

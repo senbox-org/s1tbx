@@ -4,7 +4,10 @@ import com.thoughtworks.xstream.XStream;
 import libsvm.svm_model;
 import org.esa.pfa.fe.op.Patch;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

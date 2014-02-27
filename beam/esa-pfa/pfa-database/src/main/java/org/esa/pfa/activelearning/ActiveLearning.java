@@ -19,7 +19,10 @@ import libsvm.svm_model;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Active learning class.

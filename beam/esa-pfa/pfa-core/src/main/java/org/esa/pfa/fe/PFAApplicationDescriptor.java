@@ -62,4 +62,10 @@ public interface PFAApplicationDescriptor {
      * @return The name of the numeric features to be used by the classifier. May be {@code null}, and if so, all numeric features will be used.
      */
     Set<String> getDefaultFeatureSet();
+
+    // todo - remove it once we are done with this demo hacking...
+    /**
+     * @return The file path of the local (cache) products directory. May be {@code null}, if unknown.
+     */
+    File getLocalProductDir();
 }
