@@ -29,7 +29,6 @@ import java.util.List;
  */
 public class CBIRSession {
 
-    private List<Patch> queryImageList = new ArrayList<>(4);
     private List<Patch> relevantImageList = new ArrayList<>(50);
     private List<Patch> irrelevantImageList = new ArrayList<>(50);
     private List<Patch> retrievedImageList = new ArrayList<>(500);
@@ -85,7 +84,7 @@ public class CBIRSession {
         return searchTool.getPatchQuery().getEffectiveFeatureTypes();
     }
 
-    public void setNumTrainingImages(final int numTrainingImages) {
+    public void setNumTrainingImages(final int numTrainingImages) throws Exception {
         searchTool.setNumTrainingImages(numTrainingImages);
     }
 
@@ -93,7 +92,7 @@ public class CBIRSession {
         return searchTool.getNumTrainingImages();
     }
 
-    public void setNumRetrievedImages(final int numRetrievedImages) {
+    public void setNumRetrievedImages(final int numRetrievedImages) throws Exception {
         searchTool.setNumRetrievedImages(numRetrievedImages);
     }
 
@@ -109,21 +108,21 @@ public class CBIRSession {
         return SearchToolStub.getSavedClassifierNames(archiveFolder);
     }
 
-    public void clearQueryPatches() {
-        queryImageList.clear();
-    }
-
-    public void addQueryPatch(final Patch queryImage) {
-        queryImageList.add(queryImage);
+    public void addQueryPatch(final Patch patch) {
+        searchTool.addQueryImage(patch);
     }
 
     public Patch[] getQueryPatches() {
-        return queryImageList.toArray(new Patch[queryImageList.size()]);
+        return searchTool.getQueryImages();
     }
 
-    public void setQueryImages() throws Exception {
-        searchTool.setQueryImages(getQueryPatches());
+    public void setQueryImages(final Patch[] queryImages) throws Exception {
+        searchTool.setQueryImages(queryImages);
         getImagesToLabel();
+    }
+
+    public void populateArchivePatches() throws Exception {
+        searchTool.populateArchivePatches();
     }
 
     public void reassignTrainingImage(final Patch patch) {

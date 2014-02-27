@@ -49,29 +49,6 @@ public class PatchProcessor {
         this.session = session;
     }
 
-    public boolean validateInput() {
-        try {
-      /*      final Patch[] processedPatches = session.getQueryPatches();
-
-            session.clearQueryPatches();
-            for (Patch patch : processedPatches) {
-                if (patch.getFeatures().length > 0) {
-                    session.addQueryPatch(patch);
-                }
-            }
-            if (session.getQueryPatches().length == 0) {
-                throw new Exception("No features found in the query images");
-            }
-
-            session.setQueryImages();
-                                     */
-            return true;
-        } catch (Exception e) {
-            VisatApp.getApp().handleUnknownException(e);
-        }
-        return false;
-    }
-
     public void process(final Patch patch) {
         try {
             FeaturePanel panel = new FeaturePanel(patch);
@@ -131,7 +108,7 @@ public class PatchProcessor {
                 final File[] fexDirs = datasetDir.listFiles(new FileFilter() {
                     @Override
                     public boolean accept(File file) {
-                        return file.isDirectory() && file.getName().endsWith(".fex");
+                        return file.isDirectory() && file.getName().startsWith(patch.getPatchName());
                     }
                 });
                 if (fexDirs.length == 0)
@@ -149,47 +126,12 @@ public class PatchProcessor {
                 patch.setPathOnServer(patchDirs[0].getAbsolutePath());
 
                 final File featureFile = new File(patchDirs[0], "features.txt");
-                if (featureFile.exists()) {
-                    final Properties featureValues = new Properties();
-                    try (FileReader reader = new FileReader(featureFile)) {
-                        featureValues.load(reader);
-                    }
+                patch.readFeatureFile(featureFile, session.getEffectiveFeatureTypes());
 
-                    patch.clearFeatures();
-
-                    for (FeatureType featureType : session.getEffectiveFeatureTypes()) {
-                        final String featureValue = featureValues.getProperty(featureType.getName());
-                        if (featureValue != null) {
-                            patch.addFeature(createFeature(featureType, featureValue));
-                        }
-                    }
-                }
             } catch (Exception e) {
                 final String msg = "Error reading features " + patch.getPatchName() + "\n" + e.getMessage();
                 VisatApp.getApp().showErrorDialog(msg);
             }
-        }
-
-        private Feature createFeature(FeatureType feaType, String value) {
-            final Class<?> valueType = feaType.getValueType();
-            if(value.equals("NaN")) {
-                value = "0";
-            }
-
-            if (Double.class.isAssignableFrom(valueType)) {
-                return new Feature(feaType, Double.parseDouble(value));
-            } else if (Float.class.isAssignableFrom(valueType)) {
-                return new Feature(feaType, Float.parseFloat(value));
-            } else if (Integer.class.isAssignableFrom(valueType)) {
-                return new Feature(feaType, Integer.parseInt(value));
-            } else if (Boolean.class.isAssignableFrom(valueType)) {
-                return new Feature(feaType, Boolean.parseBoolean(value));
-            } else if (Character.class.isAssignableFrom(valueType)) {
-                return new Feature(feaType, value);
-            } else if (String.class.isAssignableFrom(valueType)) {
-                return new Feature(feaType, value);
-            }
-            return null;
         }
 
         private void setIO(final Graph graph, final File srcFile, final File targetFolder) {

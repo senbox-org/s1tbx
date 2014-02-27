@@ -34,6 +34,7 @@ public class ActiveLearning {
     private int q = 0; // number of uncertainty samples selected with uncertainty criterion
     private int iteration = 0;  // Iteration index in active learning
     private List<Patch> testData = new ArrayList<Patch>();
+    private List<Patch> queryData = new ArrayList<Patch>();
     private List<Patch> trainingData = new ArrayList<Patch>();
     private List<Patch> uncertainSamples = new ArrayList<Patch>();
     private List<Patch> diverseSamples = new ArrayList<Patch>();
@@ -52,6 +53,18 @@ public class ActiveLearning {
         svmClassifier = new SVM(numFolds, lower, upper);
     }
 
+    public void addQueryImage(final Patch patch) {
+        queryData.add(patch);
+    }
+
+    public Patch[] getQueryPatches() {
+        return queryData.toArray(new Patch[queryData.size()]);
+    }
+
+    public void resetQuery() {
+        iteration = 0;
+    }
+
     /**
      * Set training data with relevant patches from query image.
      * @param patchArray The patch array.
@@ -59,10 +72,12 @@ public class ActiveLearning {
      */
     public void setQueryPatches(final Patch[] patchArray) throws Exception {
 
-        iteration = 0;
         trainingData.clear();
         checkQueryPatchesValidation(patchArray);
         trainingData.addAll(Arrays.asList(patchArray));
+
+        queryData.clear();
+        queryData.addAll(Arrays.asList(patchArray));
 
         if (debug) {
             System.out.println("Number of patches from query image: " + patchArray.length);
@@ -89,6 +104,10 @@ public class ActiveLearning {
             System.out.println("Number of patches in test data pool: " + testData.size());
             System.out.println("Number of patches in training data set: " + trainingData.size());
         }
+    }
+
+    public int getNumIterations() {
+        return iteration;
     }
 
     /**

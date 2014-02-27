@@ -38,6 +38,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
     Query Toolview
@@ -58,11 +60,13 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
     public JComponent createControl() {
 
         final JPanel mainPane = new JPanel(new BorderLayout(5,5));
-        final JPanel imageScrollPanel = new JPanel(new BorderLayout(2, 2));
+
+        final JPanel imageScrollPanel = new JPanel();
+        imageScrollPanel.setLayout(new BoxLayout(imageScrollPanel, BoxLayout.X_AXIS));
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
         drawer = new PatchDrawer(new Patch[] {});
-        drawer.setMinimumSize(new Dimension(500, 210));
+        drawer.setMinimumSize(new Dimension(500, 310));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -71,7 +75,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         drawer.addMouseListener(dl);
         drawer.addMouseMotionListener(dl);
 
-        imageScrollPanel.add(scrollPane, BorderLayout.NORTH);
+        imageScrollPanel.add(scrollPane);
 
         final JPanel listsPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
@@ -107,20 +111,6 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         updateControls();
 
         return mainPane;
-    }
-
-    public void notifyNewSession() {
-        session = CBIRSession.Instance();
-
-        if(isControlCreated()) {
-            updateControls();
-        }
-    }
-
-    public void notifyNewTrainingImages() {
-    }
-
-    public void notifyModelTrained() {
     }
 
     private void updateControls() {
@@ -160,17 +150,17 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 final Patch[] processedPatches = session.getQueryPatches();
 
                 //only add patches with features
-                session.clearQueryPatches();
+                List<Patch> queryPatches = new ArrayList<>(processedPatches.length);
                 for (Patch patch : processedPatches) {
                     if (patch.getFeatures().length > 0) {
-                        session.addQueryPatch(patch);
+                        queryPatches.add(patch);
                     }
                 }
-                if (session.getQueryPatches().length == 0) {
+                if (queryPatches.isEmpty()) {
                     throw new Exception("No features found in the query images");
                 }
 
-                session.setQueryImages();
+                session.setQueryImages(queryPatches.toArray(new Patch[queryPatches.size()]));
 
                 getContext().getPage().showToolView(CBIRLabelingToolView.ID);
             }
@@ -253,5 +243,25 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
             }
             return productSceneView;
         }
+    }
+
+    public void notifyNewSession() {
+        session = CBIRSession.Instance();
+
+        if(isControlCreated()) {
+            updateControls();
+
+            drawer.update(session.getQueryPatches());
+
+            getPaneWindow().setPreferredSize(new Dimension(600, 250));
+            getPaneWindow().setMaximumSize(new Dimension(600, 250));
+            getPaneWindow().setSize(new Dimension(600, 250));
+        }
+    }
+
+    public void notifyNewTrainingImages() {
+    }
+
+    public void notifyModelTrained() {
     }
 }

@@ -36,6 +36,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
     private CBIRSession session;
     private PatchDrawer relavantDrawer;
     private PatchDrawer irrelavantDrawer;
+    private JButton applyBtn;
 
     public CBIRLabelingToolView() {
         CBIRSession.Instance().addListener(this);
@@ -81,7 +82,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         mainPane.add(listsPanel, BorderLayout.CENTER);
 
         final JPanel bottomPanel = new JPanel();
-        final JButton applyBtn = new JButton("Train and Apply Classifier");
+        applyBtn = new JButton("Train and Apply Classifier");
         applyBtn.setActionCommand("applyBtn");
         applyBtn.addActionListener(this);
         bottomPanel.add(applyBtn);
@@ -94,6 +95,8 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
     }
 
     private void updateControls() {
+        applyBtn.setEnabled(session != null);
+
         if(session != null) {
             relavantDrawer.update(session.getRelevantTrainingImages());
             irrelavantDrawer.update(session.getIrrelevantTrainingImages());

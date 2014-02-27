@@ -37,6 +37,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
     private PatchDrawer drawer;
     private int accuracy = 0;
     private Patch[] retrievedPatches;
+    private JButton improveBtn;
     private final JLabel accuracyLabel = new JLabel();
 
     public CBIRRetrievedImagesToolView() {
@@ -61,23 +62,28 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         mainPane.add(retPanel, BorderLayout.CENTER);
 
         final JPanel bottomPanel = new JPanel();
-
-        bottomPanel.add(new JLabel("Accuracy:"));
         bottomPanel.add(accuracyLabel);
 
-        final JButton improveBtn = new JButton("Improve Classifier");
+        improveBtn = new JButton("Improve Classifier");
         improveBtn.setActionCommand("improveBtn");
         improveBtn.addActionListener(this);
         bottomPanel.add(improveBtn);
 
         mainPane.add(bottomPanel, BorderLayout.SOUTH);
 
+        updateControls();
+
         return mainPane;
     }
 
     private void updateControls() {
-        float pct = accuracy/(float)retrievedPatches.length * 100;
-        accuracyLabel.setText(accuracy+"/"+retrievedPatches.length+" ("+(int)pct+"%)");
+        final boolean haveRetrievedImages = retrievedPatches != null && retrievedPatches.length > 0;
+        improveBtn.setEnabled(haveRetrievedImages);
+
+        if(haveRetrievedImages) {
+            float pct = accuracy/(float)retrievedPatches.length * 100;
+            accuracyLabel.setText("Accuracy: "+accuracy+"/"+retrievedPatches.length+" ("+(int)pct+"%)");
+        }
     }
 
     /**

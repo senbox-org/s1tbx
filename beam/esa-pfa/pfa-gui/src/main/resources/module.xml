@@ -104,6 +104,19 @@
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
         </toolView>
+
+        <toolView>
+            <id>org.esa.pfa.ui.toolviews.cbir.CBIROrderingToolView</id>
+            <class>org.esa.pfa.ui.toolviews.cbir.CBIROrderingToolView</class>
+            <title>CBIR Image Comparison</title>
+            <tabTitle>CBIR Comparison</tabTitle>
+            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <description>Content Based Image Retrieval</description>
+            <initState>ICONIFIED</initState>
+            <!--initSide>EAST</initSide-->
+            <initIndex>0</initIndex>
+        </toolView>
     </extension>
 
     <extension point="beam-ui:actions">

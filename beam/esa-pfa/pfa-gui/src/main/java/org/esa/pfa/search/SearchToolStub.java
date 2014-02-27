@@ -42,7 +42,6 @@ public class SearchToolStub {
 
     private int numTrainingImages = 12;
     private int numRetrievedImages = 50;
-    private int numIterations = 0;
     private int numHitsMax = 500;
 
     public SearchToolStub(PFAApplicationDescriptor applicationDescriptor, String archiveFolder, String classifierName) throws Exception {
@@ -76,16 +75,18 @@ public class SearchToolStub {
         return classifierFile.delete();
     }
 
-    public void setNumTrainingImages(final int numTrainingImages) {
+    public void setNumTrainingImages(final int numTrainingImages) throws Exception {
         this.numTrainingImages = numTrainingImages;
+        saveClassifier();
     }
 
     public int getNumTrainingImages() {
         return numTrainingImages;
     }
 
-    public void setNumRetrievedImages(final int numRetrievedImages) {
+    public void setNumRetrievedImages(final int numRetrievedImages) throws Exception {
         this.numRetrievedImages = numRetrievedImages;
+        saveClassifier();
     }
 
     public int getNumRetrievedImages() {
@@ -93,22 +94,40 @@ public class SearchToolStub {
     }
 
     public int getNumIterations() {
-        return numIterations;
+        return al.getNumIterations();
     }
 
-    public void setQueryImages(final Patch[] queryPatches) throws Exception {
+    public void addQueryImage(final Patch patch) {
+        al.addQueryImage(patch);
+    }
+
+    public Patch[] getQueryImages() {
+        final Patch[] queryPatches = al.getQueryPatches();
+        getPatchQuicklooks(queryPatches);
+
+        return queryPatches;
+    }
+
+    public void populateArchivePatches() throws Exception {
         final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numHitsMax);
 
-        int numFeaturesQuery = queryPatches[0].getFeatures().length;
+        int numFeaturesQuery = al.getQueryPatches()[0].getFeatures().length;
         int numFeaturesDB = archivePatches[0].getFeatures().length;
         if (numFeaturesDB != numFeaturesQuery) {
             String msg = String.format("Incompatible Database.\n" +
-                                       "The patches in the database have %d features.\n" +
-                                       "The query patches have %d features.", numFeaturesDB, numFeaturesQuery);
+                    "The patches in the database have %d features.\n" +
+                    "The query patches have %d features.", numFeaturesDB, numFeaturesQuery);
             throw new IllegalArgumentException(msg);
         }
-        al.setQueryPatches(queryPatches);
+
         al.setRandomPatches(archivePatches);
+    }
+
+    public void setQueryImages(final Patch[] queryPatches) throws Exception {
+
+        al.resetQuery();
+        al.setQueryPatches(queryPatches);
+        populateArchivePatches();
 
         saveClassifier();
     }
@@ -120,6 +139,10 @@ public class SearchToolStub {
         return patchesToLabel;
     }
 
+    /**
+     * Not all patches need quicklooks. This function adds quicklooks to the patches requested
+     * @param patches the patches to get quicklooks for
+     */
     private void getPatchQuicklooks(final Patch[] patches) {
         for (Patch patch : patches) {
             if (patch.getImage() == null) {
@@ -207,23 +230,39 @@ public class SearchToolStub {
         final ClassifierWriter storedClassifier = ClassifierWriter.read(classifierFile);
         numTrainingImages = storedClassifier.getNumTrainingImages();
         numRetrievedImages = storedClassifier.getNumRetrievedImages();
-        numIterations = storedClassifier.getNumIterations();
+        int numIterations = storedClassifier.getNumIterations();
 
         al.setModel(storedClassifier.getModel());
 
-        final ClassifierWriter.PatchInfo[] patchInfo = storedClassifier.getPatchInfo();
-        if(patchInfo != null) {
-            final Patch[] patches = new Patch[patchInfo.length];
-            int i = 0;
-            for(ClassifierWriter.PatchInfo info : patchInfo) {
-                patches[i++] = info.recreatePatch();
-            }
+        final Patch[] queryPatches = loadPatches(storedClassifier.getQueryPatchInfo());
+        if(queryPatches != null && queryPatches.length > 0) {
+            al.setQueryPatches(queryPatches);
+        }
+
+        final Patch[] patches = loadPatches(storedClassifier.getPatchInfo());
+        if(patches != null && patches.length > 0) {
             al.setTrainingData(patches, numIterations);
         }
     }
 
+    private Patch[] loadPatches(final ClassifierWriter.PatchInfo[] patchInfo) throws Exception {
+        if(patchInfo != null && patchInfo.length > 0) {
+            final Patch[] patches = new Patch[patchInfo.length];
+            int i = 0;
+            for(ClassifierWriter.PatchInfo info : patchInfo) {
+                final Patch patch = info.recreatePatch();
+                final File featureFile = new File(patch.getPathOnServer(), "features.txt");
+                patch.readFeatureFile(featureFile, getPatchQuery().getEffectiveFeatureTypes());
+
+                patches[i++] = patch;
+            }
+            return patches;
+        }
+        return null;
+    }
+
     private void saveClassifier() throws IOException {
-        final ClassifierWriter writer = new ClassifierWriter(numTrainingImages, numRetrievedImages, numIterations, al);
+        final ClassifierWriter writer = new ClassifierWriter(numTrainingImages, numRetrievedImages, al);
         writer.write(classifierFile);
     }
 }
