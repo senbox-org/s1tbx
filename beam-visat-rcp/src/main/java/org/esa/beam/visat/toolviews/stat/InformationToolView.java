@@ -27,6 +27,6 @@ public class InformationToolView extends AbstractStatisticsToolView {
 
     @Override
     protected PagePanel createPagePanel() {
-        return new InformationPanel(this, getDescriptor().getHelpId());
+        return new TablePagePanel(this, getDescriptor().getHelpId());
     }
 }
