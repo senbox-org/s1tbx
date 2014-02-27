@@ -111,16 +111,16 @@ public class SmacOperator extends Operator {
     private TiePointGrid vaaFwdBand;
 
     @Parameter(description = "Aerosol optical depth", label = "Aerosol optical depth", defaultValue = "0.2")
-    private Float tau_aero_550 = 0.2F;
+    private Float tauAero550 = 0.2F;
 
     @Parameter(description = "Relative humidity", label = "Relative humidity", defaultValue = "3.0")
-    private Float u_h2o = 3.0F;
+    private Float uH2o = 3.0F;
 
     @Parameter(description = "Ozone content", label = "Ozone content", defaultValue = "0.15")
-    private Float u_o3 = 0.15F;
+    private Float uO3 = 0.15F;
 
     @Parameter(description = "Surface pressure", label = "Surface pressure", defaultValue = "1013.0")
-    private Float surf_press = 1013.0F;
+    private Float surfPress = 1013.0F;
 
     @Parameter(description = "Use MERIS ADS", label = "Use MERIS ADS", defaultValue = "false")
     private Boolean useMerisADS = true;
@@ -190,10 +190,10 @@ public class SmacOperator extends Operator {
         sourceData.toa = new float[width * height];
 
         for (int i = 0; i < width * height; i++) {
-            sourceData.taup550[i] = tau_aero_550;
-            sourceData.uh2o[i] = u_h2o;
-            sourceData.uo3[i] = u_o3;
-            sourceData.press[i] = surf_press;
+            sourceData.taup550[i] = tauAero550;
+            sourceData.uh2o[i] = uH2o;
+            sourceData.uo3[i] = uO3;
+            sourceData.press[i] = surfPress;
             sourceData.process[i] = true;
         }
 
