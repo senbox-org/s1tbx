@@ -47,6 +47,19 @@ public class SVM {
     private svm_parameter modelParameters = new svm_parameter();
     private svm_model model = new svm_model();
 
+    private static final boolean debug = false;
+
+    public static svm_print_interface svm_print_null = new svm_print_interface() {
+        public void print(String s) {
+        }
+    };
+
+    static {
+        if(!debug) {     //disable console printing
+            svm.svm_set_print_string_function(svm_print_null);
+        }
+    }
+
 	public SVM(final int numFolds, final double lower, final double upper) {
         this.numFolds = numFolds;
         this.lower = lower;
@@ -248,12 +261,14 @@ public class SVM {
         modelParameters.C = c[cIdx];
         modelParameters.gamma = gamma[gammaIdx];
 
-        for (int i = 0; i < c.length; i++) {
-            for (int j = 0; j < gamma.length; j++) {
-                System.out.println("C = " + c[i] + ", gamma = " + gamma[j] + ", accuracy = " + accuracyArray[i][j]);
+        if(debug) {
+            for (int i = 0; i < c.length; i++) {
+                for (int j = 0; j < gamma.length; j++) {
+                    System.out.println("C = " + c[i] + ", gamma = " + gamma[j] + ", accuracy = " + accuracyArray[i][j]);
+                }
             }
+            System.out.println("Optimal: C = " + c[cIdx] + ", gamma = " + gamma[gammaIdx] + ", accuracy = " + accuracyMax);
         }
-        System.out.println("Optimal: C = " + c[cIdx] + ", gamma = " + gamma[gammaIdx] + ", accuracy = " + accuracyMax);
     }
 
     /**
