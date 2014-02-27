@@ -65,7 +65,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         imageScrollPanel.setLayout(new BoxLayout(imageScrollPanel, BoxLayout.X_AXIS));
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
-        drawer = new PatchDrawer();
+        drawer = new PatchDrawer(new Patch[] {});
         drawer.setMinimumSize(new Dimension(500, 310));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -253,9 +253,12 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
 
             drawer.update(session.getQueryPatches());
 
-            getPaneWindow().setPreferredSize(new Dimension(600, 250));
-            getPaneWindow().setMaximumSize(new Dimension(600, 250));
-            getPaneWindow().setSize(new Dimension(600, 250));
+            final Window win = getPaneWindow();
+            if(win != null) {
+                win.setPreferredSize(new Dimension(600, 250));
+                win.setMaximumSize(new Dimension(600, 250));
+                win.setSize(new Dimension(600, 250));
+            }
         }
     }
 
