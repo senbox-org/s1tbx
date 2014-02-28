@@ -47,7 +47,7 @@
             <tabTitle>CBIR Control Centre</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval</description>
+            <description>Content Based Image Retrieval - Control Centre</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
@@ -60,7 +60,7 @@
             <tabTitle>CBIR Query</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval</description>
+            <description>Content Based Image Retrieval - Query Images</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
@@ -73,7 +73,7 @@
             <tabTitle>CBIR Training</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval</description>
+            <description>Content Based Image Retrieval - Training Images</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
@@ -86,7 +86,7 @@
             <tabTitle>CBIR Retrieved Images</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval</description>
+            <description>Content Based Image Retrieval - Retrieved Images</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
@@ -99,7 +99,7 @@
             <tabTitle>CBIR Comparison</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval</description>
+            <description>Content Based Image Retrieval - Image Comparison</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>

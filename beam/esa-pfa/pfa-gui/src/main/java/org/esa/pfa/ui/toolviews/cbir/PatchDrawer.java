@@ -133,16 +133,7 @@ public class PatchDrawer extends JPanel {
          */
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON1) {
-                int currentLabel = patch.getLabel();
-                if (currentLabel != Patch.LABEL_IRRELEVANT) {
-                    patch.setLabel(Patch.LABEL_IRRELEVANT);
-                }
-                if (currentLabel != Patch.LABEL_RELEVANT) {
-                    patch.setLabel(Patch.LABEL_RELEVANT);
-                }
-                repaint();
-            }
+
         }
 
         /**
@@ -150,7 +141,16 @@ public class PatchDrawer extends JPanel {
          */
         @Override
         public void mousePressed(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON3) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
+                int currentLabel = patch.getLabel();
+                if (currentLabel == Patch.LABEL_RELEVANT) {
+                    patch.setLabel(Patch.LABEL_IRRELEVANT);
+                }
+                if (currentLabel == Patch.LABEL_IRRELEVANT) {
+                    patch.setLabel(Patch.LABEL_RELEVANT);
+                }
+                repaint();
+            } else if (e.getButton() == MouseEvent.BUTTON3) {
                 JPopupMenu popupMenu = patchContextMenuFactory.createContextMenu(patch);
                 if (popupMenu != null) {
                     UIUtils.showPopup(popupMenu, e);

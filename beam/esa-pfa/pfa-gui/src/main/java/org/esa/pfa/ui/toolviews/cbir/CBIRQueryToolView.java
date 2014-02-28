@@ -15,8 +15,11 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
+import com.bc.ceres.core.*;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -40,9 +43,10 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
-    Query Toolview
+ * Query Toolview
  */
 public class CBIRQueryToolView extends AbstractToolView implements ActionListener, CBIRSession.CBIRSessionListener {
 
@@ -59,16 +63,16 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
 
     public JComponent createControl() {
 
-        final JPanel mainPane = new JPanel(new BorderLayout(5,5));
+        final JPanel mainPane = new JPanel(new BorderLayout(5, 5));
 
         final JPanel imageScrollPanel = new JPanel();
         imageScrollPanel.setLayout(new BoxLayout(imageScrollPanel, BoxLayout.X_AXIS));
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
-        drawer = new PatchDrawer(new Patch[] {});
+        drawer = new PatchDrawer(new Patch[]{});
         drawer.setMinimumSize(new Dimension(500, 310));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                                                               JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                                                       JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
         dl.setDraggableElements(DragScrollListener.DRAGABLE_HORIZONTAL_SCROLL_BAR);
@@ -116,7 +120,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
     private void updateControls() {
         boolean sessionActive = false;
         boolean hasQueryImages = false;
-        if(session != null) {
+        if (session != null) {
             sessionActive = true;
             hasQueryImages = session.getQueryPatches().length > 0;
         }
@@ -135,7 +139,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         try {
             final String command = event.getActionCommand();
             if (command.equals("addPatchBtn")) {
-                if(VisatApp.getApp().getSelectedProductSceneView() == null) {
+                if (VisatApp.getApp().getSelectedProductSceneView() == null) {
                     throw new Exception("First open a product and an image view to be able to add new query images.");
                 }
 
@@ -146,18 +150,18 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 interactor.activate();
 
                 VisatApp.getApp().setActiveInteractor(interactor);
-            } else if(command.equals("startTrainingBtn")) {
+            } else if (command.equals("startTrainingBtn")) {
                 final Patch[] processedPatches = session.getQueryPatches();
 
                 //only add patches with features
                 List<Patch> queryPatches = new ArrayList<>(processedPatches.length);
                 for (Patch patch : processedPatches) {
-                    if (patch.getFeatures().length > 0) {
+                    if (patch.getFeatures().length > 0 && patch.getLabel() == Patch.LABEL_RELEVANT) {
                         queryPatches.add(patch);
                     }
                 }
                 if (queryPatches.isEmpty()) {
-                    throw new Exception("No features found in the query images");
+                    throw new Exception("No features found in the relevant query images");
                 }
 
                 session.setQueryImages(queryPatches.toArray(new Patch[queryPatches.size()]));
@@ -198,37 +202,23 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         private void addQueryImage(final Product product, final int x, final int y, final int w, final int h,
                                    final RenderedImage parentImage) throws IOException {
 
-            final Rectangle region = new Rectangle(parentImage.getWidth(), parentImage.getHeight()).
-                    intersection(new Rectangle(x, y, w, h));
-
-            final Product subset = FeatureWriter.createSubset(product, region);
-            final int patchX = x / w;
-            final int patchY = y / h;
-
-            final BufferedImage patchImage;
-            if (parentImage != null) {
-                RenderedOp renderedOp = CropDescriptor.create(parentImage,
-                        (float) region.getX(),
-                        (float) region.getY(),
-                        (float) region.getWidth(),
-                        (float) region.getHeight(), null);
-                patchImage = renderedOp.getAsBufferedImage();
-            } else {
-                patchImage = ProductUtils.createColorIndexedImage(
-                        subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
-                        com.bc.ceres.core.ProgressMonitor.NULL);
+            Rectangle region = new Rectangle(x, y, w, h);
+            PatchProcessor patchProcessor = new PatchProcessor(VisatApp.getApp().getApplicationWindow(),
+                                                               product, parentImage, region, session);
+            patchProcessor.executeWithBlocking();
+            Patch patch = null;
+            try {
+                patch = patchProcessor.get();
+            } catch (InterruptedException | ExecutionException e) {
+                VisatApp.getApp().handleError("Failed to extract patch", e);
             }
-
-            final Patch patch = new Patch(patchX, patchY, null, subset);
-            patch.setImage(patchImage);
-            patch.setLabel(Patch.LABEL_RELEVANT);
-            session.addQueryPatch(patch);
-            drawer.update(session.getQueryPatches());
-
-            final PatchProcessor proc = new PatchProcessor(session);
-            proc.process(patch);
-
-            updateControls();
+            if (patch != null && patch.getFeatures().length > 0) {
+                session.addQueryPatch(patch);
+                drawer.update(session.getQueryPatches());
+                updateControls();
+            } else {
+                VisatApp.getApp().showWarningDialog("Failed to extract features for this patch");
+            }
         }
 
         private ProductSceneView getProductSceneView(InputEvent event) {
@@ -248,13 +238,13 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
     public void notifyNewSession() {
         session = CBIRSession.Instance();
 
-        if(isControlCreated()) {
+        if (isControlCreated()) {
             updateControls();
 
             drawer.update(session.getQueryPatches());
 
             final Window win = getPaneWindow();
-            if(win != null) {
+            if (win != null) {
                 win.setPreferredSize(new Dimension(600, 250));
                 win.setMaximumSize(new Dimension(600, 250));
                 win.setSize(new Dimension(600, 250));

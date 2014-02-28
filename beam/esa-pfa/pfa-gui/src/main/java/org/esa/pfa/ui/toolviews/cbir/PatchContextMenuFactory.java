@@ -6,6 +6,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
@@ -13,11 +14,30 @@ import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.Timer;
 import javax.swing.border.LineBorder;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,11 +159,11 @@ public class PatchContextMenuFactory {
         }
 
         File serverPathToPatch = new File(pathOnServer);
-        System.out.println("serverPathToPatch = " + serverPathToPatch);
+//        System.out.println("serverPathToPatch = " + serverPathToPatch);
         String parentProductFexName = serverPathToPatch.getParentFile().getName();
-        System.out.println("parentProductFexName = " + parentProductFexName);
+//        System.out.println("parentProductFexName = " + parentProductFexName);
         String parentProductName = parentProductFexName.substring(0, parentProductFexName.length() - 4); // prune ".fex" extension
-        System.out.println("parentProductName = " + parentProductName);
+//        System.out.println("parentProductName = " + parentProductName);
         return parentProductName;
     }
 
@@ -198,18 +218,84 @@ public class PatchContextMenuFactory {
     }
 
 
-    private static void showProduct(Patch patch, File patchProductFile) throws Exception {
-        Product product = openProduct(patchProductFile);
+    private static void showProduct(final Patch patch, File patchProductFile) throws Exception {
+        final Product product = openProduct(patchProductFile);
+        if (product == null) {
+            return;
+        }
         String bandName = ProductUtils.findSuitableQuicklookBandName(product);
+        if (bandName == null) {
+            return;
+        }
+
         Band band = product.getBand(bandName);
+        if (band == null) {
+            return;
+        }
+
+        final Dimension patchDimension;
+        PFAApplicationDescriptor applicationDescriptor = CBIRSession.Instance().getApplicationDescriptor();
+        if (applicationDescriptor != null) {
+            patchDimension = applicationDescriptor.getPatchDimension();
+        } else {
+            patchDimension = null;
+        }
+
         VisatApp visatApp = VisatApp.getApp();
         JInternalFrame internalFrame = visatApp.findInternalFrame(band);
-        if (internalFrame == null) {
-            visatApp.openProductSceneView(band);
-        } else {
+        if (internalFrame != null) {
             internalFrame.setSelected(true);
+            ProductSceneView sceneView = getProductSceneView(internalFrame);
+            if (sceneView != null && patchDimension != null) {
+                zoomToPatch(sceneView, product, patch, patchDimension);
+            }
+        } else {
+            if (patchDimension != null) {
+                zoomToPatchOnViewSelected(product, patch, patchDimension);
+            }
+            visatApp.openProductSceneView(band);
         }
-        // todo - navigate to patch location
+    }
+
+    private static void zoomToPatchOnViewSelected(final Product product, final Patch patch, final Dimension patchDimension) {
+        VisatApp visatApp = VisatApp.getApp();
+        final InternalFrameAdapter sceneViewTracker = new InternalFrameAdapter() {
+
+            @Override
+            public void internalFrameActivated(InternalFrameEvent e) {
+                JInternalFrame internalFrame = e.getInternalFrame();
+                ProductSceneView sceneView = getProductSceneView(internalFrame);
+                if (sceneView != null) {
+                    zoomToPatch(sceneView, product, patch, patchDimension);
+                    VisatApp.getApp().removeInternalFrameListener(this);
+                }
+            }
+
+        };
+        visatApp.addInternalFrameListener(sceneViewTracker);
+        Timer timer = new Timer(5000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                 VisatApp.getApp().removeInternalFrameListener(sceneViewTracker);
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    private static void zoomToPatch(ProductSceneView sceneView, Product product, Patch patch, Dimension patchDimension) {
+        if (sceneView != null && sceneView.getProduct() == product) {
+            Rectangle modelRect = new Rectangle(patch.getPatchX() * patchDimension.width,
+                                                patch.getPatchY() * patchDimension.height,
+                                                patchDimension.width, patchDimension.height);
+            modelRect.grow(patchDimension.width / 2, patchDimension.height / 2);
+            System.out.println("modelRect = " + modelRect);
+            sceneView.zoom(modelRect);
+        }
+    }
+
+    private static ProductSceneView getProductSceneView(JInternalFrame internalFrame) {
+        return internalFrame != null && internalFrame.getContentPane() instanceof ProductSceneView ? (ProductSceneView) internalFrame.getContentPane() : null;
     }
 
     private static Product openProduct(final File productFile) throws Exception {
