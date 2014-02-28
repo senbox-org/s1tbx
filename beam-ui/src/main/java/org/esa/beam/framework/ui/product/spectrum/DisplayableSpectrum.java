@@ -11,8 +11,8 @@ public class DisplayableSpectrum implements Spectrum {
 
     public final static String NO_UNIT = "";
     public final static String MIXED_UNITS = "mixed units";
-    public final static String DEFAULT_SPECTRUM_NAME = "Available spectral bands";
-    public final static String ALTERNATIVE_DEFAULT_SPECTRUM_NAME = "Further spectral bands";
+    public final static String DEFAULT_SPECTRUM_NAME = "Bands";
+    public final static String ALTERNATIVE_DEFAULT_SPECTRUM_NAME = "Other";
 
     private List<SpectrumBand> bands;
     private String name;
