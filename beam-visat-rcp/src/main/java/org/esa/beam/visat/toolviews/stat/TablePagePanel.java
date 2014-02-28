@@ -16,11 +16,15 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.jidesoft.grid.CellSpan;
+import com.jidesoft.grid.CellSpanTable;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.util.StringUtils;
 
-import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -44,7 +48,7 @@ abstract class TablePagePanel extends PagePanel {
         super(parentDialog, helpId, titlePrefix);
         emptyTableModel = new DefaultTableModel(1, 1);
         emptyTableModel.setValueAt(defaultInformationText, 0, 0);
-        table = new JTable(emptyTableModel);
+        table = new CellSpanTable(emptyTableModel);
     }
 
     /**
@@ -59,6 +63,13 @@ abstract class TablePagePanel extends PagePanel {
         }
     }
 
+    protected void addEmptyRow() {
+        TableModel model = table.getModel();
+        if (model instanceof TablePagePanelModel) {
+            ((TablePagePanelModel) model).addRow(new EmptyTableRow());
+        }
+    }
+
     protected JTable getTable() {
         return table;
     }
@@ -67,11 +78,60 @@ abstract class TablePagePanel extends PagePanel {
         table.setModel(emptyTableModel);
     }
 
-    protected void setCellRenderer(int column, TableCellRenderer renderer) {
+    protected void setColumnRenderer(int column, TableCellRenderer renderer) {
         getTable().getColumnModel().getColumn(column).setCellRenderer(renderer);
     }
 
-    static class AlternatingRowsRenderer extends DefaultTableCellRenderer {
+    static class RendererFactory {
+
+        final static int ALTERNATING_ROWS = 1;
+        final static int TOOLTIP_AWARE = 2;
+        final static int WRAP_TEXT = 4;
+
+        static TableCellRenderer createRenderer(int spec) {
+            return createRenderer(spec, null);
+        }
+
+        static TableCellRenderer createRenderer(int spec, Object configurator) {
+            final List<RendererStrategy> strategies = new ArrayList<>();
+            if ((spec & WRAP_TEXT) == WRAP_TEXT) {
+                strategies.add(new WrapTextRenderer((ArrayList<Integer>) configurator));
+            }
+            if ((spec & ALTERNATING_ROWS) == ALTERNATING_ROWS) {
+                strategies.add(new AlternatingRowsRenderer());
+            }
+            if ((spec & TOOLTIP_AWARE) == TOOLTIP_AWARE) {
+                strategies.add(new TooltipAwareRenderer());
+            }
+
+            return new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    JTextArea textArea = new JTextArea(value.toString());
+                    for (RendererStrategy strategy : strategies) {
+                        strategy.customise(table, textArea, value.toString(), row);
+                    }
+                    careForEmptyLines(value, textArea);
+                    return textArea;
+                }
+
+                public void careForEmptyLines(Object value, JTextArea textArea) {
+                    if (StringUtils.isNullOrEmpty(value.toString())) {
+                        // imbecile code, but necessary in order to show empty lines
+                        textArea.setText("____");
+                        textArea.setForeground(textArea.getBackground());
+                    }
+                }
+            };
+        }
+    }
+
+    private static interface RendererStrategy {
+
+        void customise(JTable table, JTextArea component, String value, int rowIndex);
+    }
+
+    private static class AlternatingRowsRenderer implements RendererStrategy {
 
         private Color brightBackground;
         private Color mediumBackground;
@@ -83,34 +143,50 @@ abstract class TablePagePanel extends PagePanel {
                                          (14 * brightBackground.getBlue()) / 15);
         }
 
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            final JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            label.setBackground(getBackground(row));
-            return label;
-        }
-
-        private Color getBackground(int row) {
+        protected Color getBackground(int row) {
             if (row % 2 == 0) {
                 return mediumBackground;
             } else {
                 return brightBackground;
             }
         }
-    }
-
-    static class TooltipAwareRenderer extends AlternatingRowsRenderer {
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            label.setToolTipText(label.getText());
-            return label;
+        public void customise(JTable table, JTextArea component, String value, int rowIndex) {
+            component.setBorder(new EmptyBorder(0, 0, 0, 0));
+            component.setBackground(getBackground(rowIndex));
+        }
+    }
+
+    private static class TooltipAwareRenderer implements RendererStrategy {
+
+        @Override
+        public void customise(JTable table, JTextArea component, String value, int rowIndex) {
+            component.setToolTipText(value);
+        }
+    }
+
+    private static class WrapTextRenderer implements RendererStrategy {
+
+        List<Integer> wrappingRows;
+
+        private WrapTextRenderer(ArrayList<Integer> wrappingRows) {
+            this.wrappingRows = wrappingRows;
+        }
+
+        @Override
+        public void customise(JTable table, JTextArea component, String value, int rowIndex) {
+            if (!wrappingRows.contains(rowIndex)) {
+                return;
+            }
+            component.setLineWrap(true);
+            component.setWrapStyleWord(true);
+            table.setRowHeight(rowIndex, table.getRowHeight() * (value.split("\n").length + 1));
         }
     }
 
     static interface TableRow {
-        int getColspan(int columnIndex, TableModel model);
+        CellSpan getCellspan(int rowIndex, int columnIndex, TableModel model);
     }
 
     protected static class EmptyTableRow implements TableRow {
@@ -121,8 +197,8 @@ abstract class TablePagePanel extends PagePanel {
         }
 
         @Override
-        public int getColspan(int columnIndex, TableModel model) {
-            return model.getColumnCount();
+        public CellSpan getCellspan(int rowIndex, int columnIndex, TableModel model) {
+            return new CellSpan(rowIndex, columnIndex, 1, model.getColumnCount());
         }
     }
 
@@ -135,8 +211,8 @@ abstract class TablePagePanel extends PagePanel {
         }
 
         @Override
-        public int getColspan(int columnIndex, TableModel model) {
-            return model.getColumnCount();
+        public CellSpan getCellspan(int rowIndex, int columnIndex, TableModel model) {
+            return new CellSpan(rowIndex, columnIndex, 1, model.getColumnCount());
         }
 
         @Override
@@ -150,15 +226,21 @@ abstract class TablePagePanel extends PagePanel {
         private List<TableModelListener> listeners = new ArrayList<>();
         protected List<TableRow> rows = new ArrayList<>();
 
+        public List<TableRow> getRows() {
+            return rows;
+        }
+
         public void addRow(TableRow row) {
             rows.add(row);
-            for (TableModelListener listener : listeners) {
-                listener.tableChanged(new TableModelEvent(this, rows.size() - 1));
-            }
+            notifyListeners();
         }
 
         public void clear() {
             rows.clear();
+            notifyListeners();
+        }
+
+        public void notifyListeners() {
             for (TableModelListener listener : listeners) {
                 listener.tableChanged(new TableModelEvent(this));
             }

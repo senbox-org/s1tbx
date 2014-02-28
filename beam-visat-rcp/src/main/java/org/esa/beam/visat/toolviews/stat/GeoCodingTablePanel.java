@@ -16,6 +16,8 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.jidesoft.grid.CellSpan;
+import com.jidesoft.grid.SpanTableModel;
 import org.esa.beam.framework.datamodel.BasicPixelGeoCoding;
 import org.esa.beam.framework.datamodel.CombinedFXYGeoCoding;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -39,7 +41,9 @@ import org.esa.beam.util.math.FXYSum;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,11 +58,21 @@ class GeoCodingTablePanel extends TablePagePanel {
 
     private GeoCoding geoCoding;
     private GeoCodingTableModel tableModel;
-    private final List<TableRow> rows;
+    List<Integer> wrappingRows = new ArrayList<>();
+    private final TableCellRenderer alternatingRows;
+    private final TableCellRenderer alternatingWrap;
+    private final TableCellRenderer wrapTooltipAlternating;
 
     public GeoCodingTablePanel(ToolView toolView, String helpId) {
         super(toolView, helpId, TITLE_PREFIX, DEFAULT_INFORMATION_TEXT);
-        rows = new ArrayList<>();
+        alternatingRows = RendererFactory.createRenderer(RendererFactory.ALTERNATING_ROWS);
+        alternatingWrap = RendererFactory.createRenderer(
+                RendererFactory.ALTERNATING_ROWS |
+                RendererFactory.WRAP_TEXT, wrappingRows);
+        wrapTooltipAlternating = RendererFactory.createRenderer(
+                RendererFactory.ALTERNATING_ROWS |
+                RendererFactory.TOOLTIP_AWARE |
+                RendererFactory.WRAP_TEXT, wrappingRows);
     }
 
     @Override
@@ -87,7 +101,7 @@ class GeoCodingTablePanel extends TablePagePanel {
         getTable().setShowGrid(false);
         getTable().setRowSelectionAllowed(false);
         getTable().setColumnSelectionAllowed(false);
-        add(new JScrollPane(getTable()));
+        add(new JScrollPane(getTable()), BorderLayout.CENTER);
     }
 
     @Override
@@ -95,33 +109,31 @@ class GeoCodingTablePanel extends TablePagePanel {
         if (isVisible()) {
             tableModel.clear();
             createRows();
-            if (rows.isEmpty()) {
+            if (tableModel.getRowCount() == 0) {
                 showNoInformationAvailableMessage();
             } else {
                 ensureTableModel();
-                for (TableRow row : rows) {
-                    tableModel.rows.add(row);
-                }
             }
         }
     }
 
     private void ensureTableModel() {
         getTable().setModel(tableModel);
-        getTable().setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-        getTable().getColumnModel().getColumn(0).setPreferredWidth(150);
-        getTable().getColumnModel().getColumn(0).setMinWidth(150);
-        getTable().getColumnModel().getColumn(0).setMaxWidth(150);
-        setCellRenderer(0, new AlternatingRowsRenderer());
-        setCellRenderer(1, new TooltipAwareRenderer());
+        getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        setColumnRenderer(0, alternatingWrap);
+        setColumnRenderer(1, alternatingRows);
+        setColumnRenderer(2, alternatingRows);
+        setColumnRenderer(3, wrapTooltipAlternating);
+        setColumnRenderer(4, alternatingRows);
+        setColumnRenderer(5, alternatingRows);
     }
 
     @Override
     protected String getDataAsText() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < rows.size(); i++) {
-            builder.append(rows.get(i));
-            if (i < rows.size() - 1) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            builder.append(tableModel.getRows().get(i));
+            if (i < tableModel.getRowCount() - 1) {
                 builder.append("\n");
             }
         }
@@ -129,7 +141,7 @@ class GeoCodingTablePanel extends TablePagePanel {
     }
 
     private void createRows() {
-        rows.clear();
+        tableModel.clear();
         final RasterDataNode raster = getRaster();
         final Product product = getProduct();
 
@@ -251,16 +263,34 @@ class GeoCodingTablePanel extends TablePagePanel {
         }
     }
 
+    private void addHeaderRow(String content) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < content.length(); i++) {
+            b.append('=');
+        }
+        tableModel.addRow(new SingleInformationRow(b.toString()));
+        tableModel.addRow(new SingleInformationRow(content));
+        tableModel.addRow(new SingleInformationRow(b.toString()));
+    }
+
     private void addRow(String content) {
-        rows.add(new SingleInformationRow(content));
+        if (content.contains("\n")) {
+            int currentRowIndex = tableModel.getRowCount();
+            wrappingRows.add(currentRowIndex);
+        }
+        tableModel.addRow(new SingleInformationRow(content));
+    }
+
+    private void addRow(String name, String value) {
+        if (value.contains("\n")) {
+            int currentRowIndex = tableModel.getRowCount();
+            wrappingRows.add(currentRowIndex);
+        }
+        tableModel.addRow(new GeoCodingTableRow(name, value));
     }
 
     private void addRow(String... values) {
-        rows.add(new GeoCodingTableRow(values));
-    }
-
-    private void addEmptyRow() {
-        rows.add(new EmptyTableRow());
+        tableModel.addRow(new GeoCodingTableRow(values));
     }
 
     private void writeGcpGeoCoding(GcpGeoCoding gcpGeoCoding, String nodeType) {
@@ -287,6 +317,10 @@ class GeoCodingTablePanel extends TablePagePanel {
                    String.valueOf(pixelPos.getX()), String.valueOf(pixelPos.getY()),
                    geoPos.getLatString(), geoPos.getLonString());
         }
+
+        getTable().getColumnModel().getColumn(0).setMaxWidth(40);
+        getTable().getColumnModel().getColumn(0).setMinWidth(40);
+        getTable().getColumnModel().getColumn(0).setPreferredWidth(40);
     }
 
     private void writeCrsGeoCoding(CrsGeoCoding geoCoding, String nodeType) {
@@ -317,20 +351,20 @@ class GeoCodingTablePanel extends TablePagePanel {
         for (int i = 0; i < codingWrappers.length; i++) {
             final CombinedFXYGeoCoding.CodingWrapper codingWrapper = codingWrappers[i];
             final Rectangle region = codingWrapper.getRegion();
-            addRow("==== Geo-coding[" + (i + 1) + "] ====");
+            addHeaderRow("Geo-coding[" + (i + 1) + "]");
             addRow("The region in the scene which is covered by this geo-coding is defined by:");
             addRow("Location: X = " + region.x + ", Y = " + region.y + "\n");
             addRow("Dimension: W = " + region.width + ", H = " + region.height);
             addEmptyRow();
 
             final FXYGeoCoding fxyGeoCoding = codingWrapper.getGeoGoding();
-            addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y) " +
+            addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
                    "by using following polynomial equations");
             addRow(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y"));
             addRow(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y"));
             addEmptyRow();
 
-            addRow("Pixels (x,y) are computed from geographic coordinates (lat,lon) " +
+            addRow("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
                    "by using the following polynomial equations");
             addRow(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon"));
             addRow(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon"));
@@ -342,7 +376,7 @@ class GeoCodingTablePanel extends TablePagePanel {
         addRow("The" + nodeType + " uses a polynomial based geo-coding.");
         addEmptyRow();
 
-        addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y) " +
+        addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
                "by using following polynomial equations");
         addRow(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y"));
         addRow(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y"));
@@ -403,28 +437,29 @@ class GeoCodingTablePanel extends TablePagePanel {
         addRow("Crossing 180 degree meridian", String.valueOf(gc.isCrossingMeridianAt180()));
 
         addEmptyRow();
-        addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y) " +
+        addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
                "by linear interpolation between pixels.");
 
         addEmptyRow();
-        addRow("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon) " +
+        addRow("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
                "by a search algorithm.");
         addEmptyRow();
     }
 
     private void writeTiePointGeoCoding(TiePointGeoCoding tgc, String nodeType) {
         addRow("The " + nodeType + " uses a tie-point based geo-coding.");
+        addEmptyRow();
         addRow("Name of latitude tie-point grid", tgc.getLatGrid().getName());
         addRow("Name of longitude tie-point grid", tgc.getLonGrid().getName());
         addRow("Crossing 180 degree meridian", String.valueOf(tgc.isCrossingMeridianAt180()));
         addEmptyRow();
-        addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y) " +
+        addRow("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
                "by linear interpolation between tie points.");
 
         final int numApproximations = tgc.getNumApproximations();
         if (numApproximations > 0) {
-            addRow("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)" +
-                   " by polynomial approximations for " + numApproximations + " tile(s).");
+            addRow("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
+                   "by polynomial approximations for " + numApproximations + " tile(s).");
             addEmptyRow();
 
             for (int i = 0; i < numApproximations; i++) {
@@ -433,9 +468,7 @@ class GeoCodingTablePanel extends TablePagePanel {
                 final FXYSum fX = approximation.getFX();
                 final FXYSum fY = approximation.getFY();
 
-                addRow("=======================================================================================");
-                addRow("Approximation for tile " + (i + 1));
-                addRow("=======================================================================================");
+                addHeaderRow("Approximation for tile " + (i + 1));
                 addRow("Center latitude", String.valueOf(approximation.getCenterLat()) + " degree");
                 addRow("Center longitude", String.valueOf(approximation.getCenterLon()) + " degree");
                 addRow("RMSE for X", String.valueOf(fX.getRootMeanSquareError()) + " pixels");
@@ -446,7 +479,7 @@ class GeoCodingTablePanel extends TablePagePanel {
         } else {
             addEmptyRow();
             addRow(
-                    "WARNING: Pixel coordinates (x,y) cannot be computed from geographic coordinates (lat,lon) " +
+                    "WARNING: Pixel coordinates (x,y) cannot be computed from geographic coordinates (lat,lon)\n" +
                     "because appropriate polynomial approximations could not be found.");
         }
     }
@@ -472,13 +505,21 @@ class GeoCodingTablePanel extends TablePagePanel {
         }
 
         @Override
-        public int getColspan(int columnIndex, TableModel model) {
+        public CellSpan getCellspan(int rowIndex, int columnIndex, TableModel model) {
+            return new CellSpan(rowIndex, columnIndex, 1, getColSpan(model));
+        }
+
+        public Object getValue(int columnIndex, TableModel model) {
+            return values[columnIndex / getColSpan(model)];
+        }
+
+        private int getColSpan(TableModel model) {
             return model.getColumnCount() / values.length;
         }
     }
 
 
-    private static class GeoCodingTableModel extends TablePagePanelModel {
+    private static class GeoCodingTableModel extends TablePagePanelModel implements SpanTableModel {
 
         @Override
         public int getColumnCount() {
@@ -500,7 +541,17 @@ class GeoCodingTablePanel extends TablePagePanel {
             }
 
             GeoCodingTableRow tableRow = (GeoCodingTableRow) row;
-            return tableRow.values[columnIndex];
+            return tableRow.getValue(columnIndex, this);
+        }
+
+        @Override
+        public CellSpan getCellSpanAt(int rowIndex, int columnIndex) {
+            return rows.get(rowIndex).getCellspan(rowIndex, columnIndex, this);
+        }
+
+        @Override
+        public boolean isCellSpanOn() {
+            return true;
         }
     }
 }
