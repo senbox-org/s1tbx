@@ -96,7 +96,7 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
         if (localProductDir == null) {
             String property = properties.getProperty("pfa.algalblooms.localProductDir");
             if (property != null) {
-                localProductDir = new File(property);
+                localProductDir = new File(property.trim());
             }
         }
         return localProductDir;
