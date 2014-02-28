@@ -2075,6 +2075,7 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     private void addCommandsToToolBar(final CommandBar toolBar, final String[] commandIDs) {
+        Arrays.sort(commandIDs);
         for (final String commandID : commandIDs) {
             if (commandID == null) {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
