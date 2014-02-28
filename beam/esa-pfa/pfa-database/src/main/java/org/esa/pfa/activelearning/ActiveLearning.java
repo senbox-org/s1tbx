@@ -36,15 +36,17 @@ public class ActiveLearning {
     private int h = 0; // number of batch samples selected with diversity and density criteria
     private int q = 0; // number of uncertainty samples selected with uncertainty criterion
     private int iteration = 0;  // Iteration index in active learning
+    private int numFeatures = 0;
     private List<Patch> testData = new ArrayList<Patch>();
     private List<Patch> queryData = new ArrayList<Patch>();
     private List<Patch> trainingData = new ArrayList<Patch>();
     private List<Patch> uncertainSamples = new ArrayList<Patch>();
     private List<Patch> diverseSamples = new ArrayList<Patch>();
     private SVM svmClassifier = null;
+    private double[] featureMin = null;
+    private double[] featureMax = null;
 
     private static int numInitialIterations = 3; // AL parameter
-    private static int numInitialIrrelevantPatches = 10; // AL parameter
     private static int maxIterationsKmeans = 10; // KKC parameter
     private static int numFolds = 5;    // SVM parameter: number of folds for cross validation
     private static double lower = 0.0;  // SVM parameter: training data scaling lower limit
@@ -78,6 +80,7 @@ public class ActiveLearning {
         trainingData.clear();
         checkQueryPatchesValidation(patchArray);
         trainingData.addAll(Arrays.asList(patchArray));
+        numFeatures = patchArray[0].getFeatures().length;
 
         queryData.clear();
         queryData.addAll(Arrays.asList(patchArray));
@@ -117,6 +120,7 @@ public class ActiveLearning {
      * Set training data set with training patches saved.
      * @param patchArray The patch array.
      * @param iterationIndex The iteration index.
+     * @exception Exception The exception.
      */
     public void setTrainingData(final Patch[] patchArray, final int iterationIndex) throws Exception {
 
@@ -186,7 +190,7 @@ public class ActiveLearning {
             double p = svmClassifier.classify(patch, decValues);
             final int label = p < 1 ? Patch.LABEL_IRRELEVANT : Patch.LABEL_RELEVANT;
             patch.setLabel(label);
-            patch.setDistance(decValues[0]);
+            patch.setDistance(Math.abs(decValues[0]));
             //System.out.println("Classified patch: x" + patch.getPatchX() + "y" + patch.getPatchY() + ", label: " + label);
         }
 
@@ -204,22 +208,6 @@ public class ActiveLearning {
         return trainingData.toArray(new Patch[trainingData.size()]);
     }
 
-    /**
-     * Save training patches in a file.
-     * @param fileName The file name string.
-     */
-    public void saveTrainingData(String fileName) {
-
-    }
-
-    /**
-     * Load training patches saved in file and use them to initialize trainingData.
-     * @param fileName The file name string.
-     */
-    public void loadTrainingData(String fileName) {
-
-    }
-	
     public void setModel(final svm_model model) {
         svmClassifier.setModel(model);
     }
@@ -330,6 +318,8 @@ public class ActiveLearning {
      */
     private void setInitialTrainingSet() {
 
+        getFeatureMinMax();
+
         final double[] relevantPatchClusterCenter = computeClusterCenter(trainingData);
 
         final double[][] distance = computeDistanceToClusterCenter(relevantPatchClusterCenter);
@@ -340,7 +330,7 @@ public class ActiveLearning {
             }
         });
 
-        final int numIrrelevantSample = Math.min(numInitialIrrelevantPatches, distance.length);
+        final int numIrrelevantSample = Math.min(queryData.size(), distance.length);
         int[] patchIDs = new int[numIrrelevantSample];
         for (int i = 0; i < numIrrelevantSample; i++) {
             final Patch patch = testData.get((int)distance[i][0]);
@@ -360,12 +350,58 @@ public class ActiveLearning {
         }
     }
 
+    private void getFeatureMinMax() {
+
+        featureMin = new double[numFeatures];
+        featureMax = new double[numFeatures];
+        for (int i = 0; i < numFeatures; i++) {
+            featureMin[i] = Double.MAX_VALUE;
+            featureMax[i] = -Double.MAX_VALUE;
+        }
+
+        List<Patch> tempList = new ArrayList<Patch>();
+        tempList.addAll(testData);
+        tempList.addAll(queryData);
+
+        for (Patch patch:tempList) {
+            final double[] featureValues = getValues(patch.getFeatures());
+            for (int i = 0; i < numFeatures; i++) {
+                if (featureValues[i] < featureMin[i]) {
+                    featureMin[i] = featureValues[i];
+                }
+
+                if (featureValues[i] > featureMax[i]) {
+                    featureMax[i] = featureValues[i];
+                }
+            }
+        }
+    }
+
+    private double[] scale(final double[] features) {
+
+        double[] scaledFeatures = new double[numFeatures];
+        for (int i = 0; i < numFeatures; i++) {
+            scaledFeatures[i] = scale(i, features[i]);
+        }
+        return scaledFeatures;
+    }
+
+    private double scale(final int featureIdx, final double featureValue) {
+
+        if (featureMin[featureIdx] < featureMax[featureIdx]) {
+            double lambda = (featureValue - featureMin[featureIdx]) / (featureMax[featureIdx] - featureMin[featureIdx]);
+            return lower + lambda*(upper - lower);
+        } else {
+            return lower;
+        }
+    }
+
     /**
      * Compute cluster center of the given list of patches.
      * @param patchList The patch list.
      * @return The cluster center.
      */
-    private static double[] computeClusterCenter(final List<Patch> patchList) {
+    private double[] computeClusterCenter(final List<Patch> patchList) {
 
         double[] center = new double[patchList.get(0).getFeatures().length];
         for (Patch patch : patchList) {
@@ -393,7 +429,7 @@ public class ActiveLearning {
         int k = 0;
         for (Patch patch : testData) {
             distance[k][0] = k; // sample index in testData
-            distance[k][1] = computeEuclideanDistance(getValues(patch.getFeatures()), clusterCenter);
+            distance[k][1] = computeEuclideanDistance(scale(getValues(patch.getFeatures())), scale(clusterCenter));
             k++;
         }
 
