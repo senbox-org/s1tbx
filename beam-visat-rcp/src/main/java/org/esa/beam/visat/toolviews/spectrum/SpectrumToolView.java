@@ -341,7 +341,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
         });
         showSpectraForSelectedPinsButton.setName("showSpectraForSelectedPinsButton");
-        showSpectraForSelectedPinsButton.setToolTipText("Show allSpectra for selected pins.");
+        showSpectraForSelectedPinsButton.setToolTipText("Show spectra for selected pins.");
 
         showSpectraForAllPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/PinSpectra24.gif"),
                 true);
@@ -355,7 +355,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
         });
         showSpectraForAllPinsButton.setName("showSpectraForAllPinsButton");
-        showSpectraForAllPinsButton.setToolTipText("Show allSpectra for all pins.");
+        showSpectraForAllPinsButton.setToolTipText("Show spectra for all pins.");
 
 // todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
 //        showAveragePinSpectrumButton = ToolButtonFactory.createButton(
@@ -1115,6 +1115,8 @@ public class SpectrumToolView extends AbstractToolView {
             } else if (event.getSourceNode() instanceof Placemark) {
                 if (isShowingPinSpectra()) {
                     recreateChart();
+                } else {
+                    updateUIState();
                 }
             }
         }
