@@ -15,6 +15,7 @@
  */
 package org.esa.pfa.search;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.pfa.activelearning.ActiveLearning;
 import org.esa.pfa.activelearning.ClassifierWriter;
@@ -132,8 +133,8 @@ public class SearchToolStub {
         saveClassifier();
     }
 
-    public Patch[] getImagesToLabel() throws Exception {
-        final Patch[] patchesToLabel = al.getMostAmbiguousPatches(numTrainingImages);
+    public Patch[] getImagesToLabel(ProgressMonitor pm) throws Exception {
+        final Patch[] patchesToLabel = al.getMostAmbiguousPatches(numTrainingImages, pm);
         getPatchQuicklooks(patchesToLabel);
 
         return patchesToLabel;

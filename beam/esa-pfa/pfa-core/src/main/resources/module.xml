@@ -5,6 +5,13 @@
     <version>0.1-SNAPSHOT</version>
     <name>pfa-core</name>
 
+    <vendor>ESA/ESRIN</vendor>
+    <contactAddress>Via Galileo Galilei Casella Postale 64 00044 Frascati (Roma) Italy</contactAddress>
+    <url>http://wiki.services.eoportal.org/tiki-index.php?page=PFA</url>
+    <copyright>(C) 2014 by Array Systems Computing Inc, Brockmann Consult GmbH</copyright>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
     <dependency>
         <module>beam-core</module>
     </dependency>

@@ -12,6 +12,8 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
+import org.esa.pfa.ordering.ProductOrder;
+import org.esa.pfa.ordering.ProductOrderBasket;
 import org.esa.pfa.search.CBIRSession;
 
 import javax.swing.AbstractAction;
@@ -42,6 +44,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Norman Fomferra
@@ -93,21 +97,69 @@ public class PatchContextMenuFactory {
         }
 
         return new AbstractAction("Order Parent Product") {
+
+            private ExecutorService executorService  = Executors.newFixedThreadPool(3);;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 orderParentProduct(patch);
             }
 
             private void orderParentProduct(Patch patch) {
+                final ProductOrderBasket productOrderBasket = CBIRSession.Instance().getProductOrderBasket();
+                ProductOrder productOrder = productOrderBasket.getProductOrder(parentProductName);
+                if (productOrder != null) {
+                    if (productOrder.getState() == ProductOrder.State.DOWNLOADED) {
+                        int resp = JOptionPane.showConfirmDialog(VisatApp.getApp().getApplicationWindow(),
+                                                                 String.format("Data product\n%s\nhas already been downloaded.\nOpen it?",
+                                                                               parentProductName),
+                                                                 "Order Product", JOptionPane.OK_CANCEL_OPTION,
+                                                                 JOptionPane.QUESTION_MESSAGE);
+                        if (resp == JOptionPane.OK_OPTION) {
+                            createOpenParentProductAction(patch);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
+                                                      String.format("Data product\n%s\nis already in the basket.",
+                                                                    parentProductName));
+                    }
+                    return;
+                }
+
                 int resp = JOptionPane.showConfirmDialog(VisatApp.getApp().getApplicationWindow(),
-                                                         String.format("Data product\n%s\nwill ordered.\nProceed?",
+                                                         String.format("Data product\n%s\nwill be ordered.\nProceed?",
                                                                        parentProductName),
                                                          "Order Product",
                                                          JOptionPane.OK_CANCEL_OPTION,
                                                          JOptionPane.QUESTION_MESSAGE);
                 if (resp == JOptionPane.OK_OPTION) {
-                    JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
-                                                  "Not implemented yet.");
+                    final ProductOrder productOrder1 = new ProductOrder(parentProductName);
+                    productOrderBasket.addProductOrder(productOrder1);
+
+                    Runnable fakeDownload = new Runnable() {
+
+                        int DURATION = 20;
+
+                        @Override
+                        public void run() {
+                            int N  = 100;
+                            int delay = DURATION * 1000 / N;
+                            for (int i = 0; i < 100; i++) {
+                                try {
+                                    Thread.sleep(delay);
+                                    productOrder1.setState(ProductOrder.State.DOWNLOADING);
+                                    productOrder1.setProgress(i + 1);
+                                    productOrderBasket.fireOrderStateChanged(productOrder1);
+                                } catch (InterruptedException e) {
+                                    // ok
+                                }
+                            }
+                            productOrder1.setState(ProductOrder.State.DOWNLOADED);
+                            productOrder1.setProgress(N);
+                            productOrderBasket.fireOrderStateChanged(productOrder1);
+                        }
+                    };
+                    executorService.submit(fakeDownload);
                 }
             }
         };
@@ -276,7 +328,7 @@ public class PatchContextMenuFactory {
         Timer timer = new Timer(5000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                 VisatApp.getApp().removeInternalFrameListener(sceneViewTracker);
+                VisatApp.getApp().removeInternalFrameListener(sceneViewTracker);
             }
         });
         timer.setRepeats(false);
@@ -289,7 +341,8 @@ public class PatchContextMenuFactory {
                                                 patch.getPatchY() * patchDimension.height,
                                                 patchDimension.width, patchDimension.height);
             modelRect.grow(patchDimension.width / 2, patchDimension.height / 2);
-            System.out.println("modelRect = " + modelRect);
+//            System.out.println("modelRect = " + modelRect);
+            sceneView.getLayerCanvas().setInitiallyZoomingAll(false);
             sceneView.zoom(modelRect);
         }
     }
@@ -298,7 +351,7 @@ public class PatchContextMenuFactory {
         return internalFrame != null && internalFrame.getContentPane() instanceof ProductSceneView ? (ProductSceneView) internalFrame.getContentPane() : null;
     }
 
-    private static Product openProduct(final File productFile) throws Exception {
+    public static Product openProduct(final File productFile) throws Exception {
         final VisatApp visat = VisatApp.getApp();
         Product product = visat.getOpenProduct(productFile);
         if (product != null) {

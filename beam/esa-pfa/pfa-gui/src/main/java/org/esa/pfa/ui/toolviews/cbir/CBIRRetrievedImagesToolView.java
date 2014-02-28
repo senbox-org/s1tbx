@@ -15,6 +15,8 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
@@ -28,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -101,10 +104,26 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         try {
             final String command = event.getActionCommand();
             if (command.equals("improveBtn")) {
-
-                session.getImagesToLabel();
-
-                getContext().getPage().showToolView(CBIRLabelingToolView.ID);
+                Window window = VisatApp.getApp().getApplicationWindow();
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Training") {
+                    @Override
+                    protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
+                        pm.beginTask("Training...", 100);
+                        try {
+                            session.getImagesToLabel(pm);
+                            if (!pm.isCanceled()) {
+                                return Boolean.TRUE;
+                            }
+                        } finally {
+                            pm.done();
+                        }
+                        return Boolean.FALSE;
+                    }
+                };
+                worker.executeWithBlocking();
+                if (worker.get()) {
+                    getContext().getPage().showToolView(CBIRLabelingToolView.ID);
+                }
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());

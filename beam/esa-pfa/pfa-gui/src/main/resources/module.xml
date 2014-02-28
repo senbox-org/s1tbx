@@ -7,11 +7,12 @@
 
     <description>PFA User Interfaces</description>
 
-    <vendor>Array Systems Computing Inc</vendor>
-    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
-    <url>http://www.array.ca/nest</url>
+    <vendor>ESA/ESRIN</vendor>
+    <contactAddress>Via Galileo Galilei Casella Postale 64 00044 Frascati (Roma) Italy</contactAddress>
+    <url>http://wiki.services.eoportal.org/tiki-index.php?page=PFA</url>
+    <copyright>(C) 2014 by Array Systems Computing Inc, Brockmann Consult GmbH</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
 
 	<dependency>
         <module>pfa-core</module>
@@ -43,10 +44,9 @@
         <toolView>
             <id>org.esa.pfa.ui.toolviews.cbir.CBIRControlCentreToolView</id>
             <class>org.esa.pfa.ui.toolviews.cbir.CBIRControlCentreToolView</class>
-            <title>CBIR Control Centre</title>
+            <title>PFA CBIR Control Centre</title>
             <tabTitle>CBIR Control Centre</tabTitle>
-            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <largeIcon>/images/icons/pfa-manage-24.png</largeIcon>
             <description>Content Based Image Retrieval - Control Centre</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
@@ -56,10 +56,9 @@
         <toolView>
             <id>org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView</id>
             <class>org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView</class>
-            <title>CBIR Query Images</title>
+            <title>PFA CBIR Query Images</title>
             <tabTitle>CBIR Query</tabTitle>
-            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <largeIcon>/images/icons/pfa-query-24.png</largeIcon>
             <description>Content Based Image Retrieval - Query Images</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
@@ -69,11 +68,10 @@
         <toolView>
             <id>org.esa.pfa.ui.toolviews.cbir.CBIRLabelingToolView</id>
             <class>org.esa.pfa.ui.toolviews.cbir.CBIRLabelingToolView</class>
-            <title>CBIR Training Images</title>
-            <tabTitle>CBIR Training</tabTitle>
-            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval - Training Images</description>
+            <title>PFA CBIR Labeling</title>
+            <tabTitle>CBIR Labeling</tabTitle>
+            <largeIcon>/images/icons/pfa-label-24.png</largeIcon>
+            <description>Content Based Image Retrieval - Labeling</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
@@ -82,10 +80,9 @@
         <toolView>
             <id>org.esa.pfa.ui.toolviews.cbir.CBIRRetrievedImagesToolView</id>
             <class>org.esa.pfa.ui.toolviews.cbir.CBIRRetrievedImagesToolView</class>
-            <title>CBIR Retrieved Images</title>
-            <tabTitle>CBIR Retrieved Images</tabTitle>
-            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
+            <title>PFA CBIR Assess Retrieved Images</title>
+            <tabTitle>CBIR Assess</tabTitle>
+            <largeIcon>/images/icons/pfa-retrieve-24.png</largeIcon>
             <description>Content Based Image Retrieval - Retrieved Images</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
@@ -95,11 +92,10 @@
         <toolView>
             <id>org.esa.pfa.ui.toolviews.cbir.CBIROrderingToolView</id>
             <class>org.esa.pfa.ui.toolviews.cbir.CBIROrderingToolView</class>
-            <title>CBIR Image Comparison</title>
-            <tabTitle>CBIR Comparison</tabTitle>
-            <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <description>Content Based Image Retrieval - Image Comparison</description>
+            <title>PFA CBIR Product Ordering</title>
+            <tabTitle>CBIR Ordering</tabTitle>
+            <largeIcon>/images/icons/pfa-order-24.png</largeIcon>
+            <description>Content Based Image Retrieval - Product Ordering</description>
             <initState>ICONIFIED</initState>
             <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>

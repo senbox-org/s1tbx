@@ -15,6 +15,7 @@
  */
 package org.esa.pfa.activelearning;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 
@@ -61,10 +62,16 @@ public class KernelKmeansClusterer {
     /**
      * Perform clustering using Kernel K-means clustering algorithm.
      * @throws Exception The exception.
+     * @param pm
      */
-    public void clustering() throws Exception {
+    public void clustering(ProgressMonitor pm) throws Exception {
 
+        pm.beginTask("Clustering", maxIterations + 1);
         setInitialClusterCenters();
+        if (pm.isCanceled()) {
+            return;
+        }
+        pm.worked(1);
 
         for (int i = 0; i < maxIterations; i++) {
 
@@ -91,6 +98,10 @@ public class KernelKmeansClusterer {
                     }
                 }
             }
+            if (pm.isCanceled()) {
+                return;
+            }
+            pm.worked(1);
         }
     }
 

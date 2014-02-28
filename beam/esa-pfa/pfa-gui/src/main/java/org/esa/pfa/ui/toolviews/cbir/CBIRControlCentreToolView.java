@@ -16,6 +16,8 @@
 package org.esa.pfa.ui.toolviews.cbir;
 
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -151,6 +153,7 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
 
         optionsPane.add(new JLabel("# of training images:"), gbcOpt);
         gbcOpt.gridx = 1;
+        gbcOpt.weightx = 0.8;
         numTrainingImages = new JTextField();
         numTrainingImages.setColumns(3);
         numTrainingImages.addActionListener(new ActionListener() {
@@ -169,8 +172,10 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
 
         gbcOpt.gridy++;
         gbcOpt.gridx = 0;
+        gbcOpt.weightx = 1;
         optionsPane.add(new JLabel("# of retrieved images:"), gbcOpt);
         gbcOpt.gridx = 1;
+        gbcOpt.weightx = 1;
         numRetrievedImages = new JTextField();
         numRetrievedImages.setColumns(3);
         numRetrievedImages.addActionListener(new ActionListener() {
@@ -188,8 +193,10 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         optionsPane.add(numRetrievedImages, gbcOpt);
         gbcOpt.gridy++;
         gbcOpt.gridx = 0;
+        gbcOpt.weightx = 1;
         optionsPane.add(new JLabel("# of iterations:"), gbcOpt);
         gbcOpt.gridx = 1;
+        gbcOpt.weightx = 1;
         optionsPane.add(iterationsLabel, gbcOpt);
 
         updateBtn = new JButton(new AbstractAction("Update") {
@@ -291,7 +298,8 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
 
     private JPanel createSideButtonPanel() {
         final JPanel panel = new JPanel();
-        final BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        //final BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        final GridLayout layout = new GridLayout(-1, 1, 2, 2);
         panel.setLayout(layout);
 
         queryBtn = new JButton(new AbstractAction("Query") {
@@ -306,10 +314,27 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         trainBtn = new JButton(new AbstractAction("Train") {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    getContext().getPage().showToolView(CBIRLabelingToolView.ID);
-
-                    session.populateArchivePatches();
-                    session.getImagesToLabel();
+                    Window window = VisatApp.getApp().getApplicationWindow();
+                    ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Training") {
+                        @Override
+                        protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
+                            pm.beginTask("Training...", 100);
+                            try {
+                                session.populateArchivePatches();
+                                session.getImagesToLabel(pm);
+                                if (!pm.isCanceled()) {
+                                    return Boolean.TRUE;
+                                }
+                            } finally {
+                                pm.done();
+                            }
+                            return Boolean.FALSE;
+                        }
+                    };
+                    worker.executeWithBlocking();
+                    if (worker.get()) {
+                        getContext().getPage().showToolView(CBIRLabelingToolView.ID);
+                    }
                 } catch (Throwable t) {
                     VisatApp.getApp().handleUnknownException(t);
                 }
@@ -332,7 +357,11 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         panel.add(trainBtn);
         panel.add(applyBtn);
 
-        return panel;
+
+        final JPanel panel2 = new JPanel(new BorderLayout(2,2));
+        panel2.add(panel, BorderLayout.NORTH);
+        panel2.add(new JLabel(new ImageIcon(getClass().getResource("/images/pfa-logo-small.png"))), BorderLayout.SOUTH);
+        return panel2;
     }
 
     private void createNewSession() throws Exception {

@@ -163,10 +163,28 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 if (queryPatches.isEmpty()) {
                     throw new Exception("No features found in the relevant query images");
                 }
+                final Patch[] queryImages = queryPatches.toArray(new Patch[queryPatches.size()]);
 
-                session.setQueryImages(queryPatches.toArray(new Patch[queryPatches.size()]));
-
-                getContext().getPage().showToolView(CBIRLabelingToolView.ID);
+                Window window = VisatApp.getApp().getApplicationWindow();
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Training") {
+                    @Override
+                    protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
+                        pm.beginTask("Training...", 100);
+                        try {
+                            session.setQueryImages(queryImages, pm);
+                            if (!pm.isCanceled()) {
+                                return Boolean.TRUE;
+                            }
+                        } finally {
+                            pm.done();
+                        }
+                        return Boolean.FALSE;
+                    }
+                };
+                worker.executeWithBlocking();
+                if (worker.get()) {
+                    getContext().getPage().showToolView(CBIRLabelingToolView.ID);
+                }
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());

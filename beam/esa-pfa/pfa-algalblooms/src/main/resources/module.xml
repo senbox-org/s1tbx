@@ -7,9 +7,9 @@
     <description>Product Feature Extraction (PFA) Tools</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Brockmann Consult GmbH</copyright>
-    <url>http://www.brockmann-consult.de/beam</url>
+    <contactAddress>Max-Planck-Str 2, 21502 Geesthacht, Germany</contactAddress>
+    <url>http://www.brockmann-consult.de/beam/</url>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <funding>European Space Agency</funding>
 

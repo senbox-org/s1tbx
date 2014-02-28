@@ -15,10 +15,12 @@
  */
 package org.esa.pfa.search;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
+import org.esa.pfa.ordering.ProductOrderBasket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,8 @@ public class CBIRSession {
     private PFAApplicationDescriptor applicationDescriptor;
 
     private SearchToolStub searchTool;
+
+    ProductOrderBasket productOrderBasket;
 
     private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
     enum Notification { NewSession, NewTrainingImages, ModelTrained };
@@ -60,6 +64,7 @@ public class CBIRSession {
         this.applicationDescriptor = applicationDescriptor;
 
         searchTool = new SearchToolStub(applicationDescriptor, archivePath, classifierName);
+        productOrderBasket = new ProductOrderBasket();
 
         fireNotification(Notification.NewSession);
     }
@@ -70,6 +75,10 @@ public class CBIRSession {
 
     public PFAApplicationDescriptor getApplicationDescriptor() {
         return applicationDescriptor;
+    }
+
+    public ProductOrderBasket getProductOrderBasket() {
+        return productOrderBasket;
     }
 
     public DatasetDescriptor getDsDescriptor() {
@@ -116,9 +125,9 @@ public class CBIRSession {
         return searchTool.getQueryImages();
     }
 
-    public void setQueryImages(final Patch[] queryImages) throws Exception {
+    public void setQueryImages(final Patch[] queryImages, ProgressMonitor pm) throws Exception {
         searchTool.setQueryImages(queryImages);
-        getImagesToLabel();
+        getImagesToLabel(pm);
     }
 
     public void populateArchivePatches() throws Exception {
@@ -149,12 +158,12 @@ public class CBIRSession {
         return irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
     }
 
-    public void getImagesToLabel() throws Exception {
+    public void getImagesToLabel(ProgressMonitor pm) throws Exception {
 
         relevantImageList.clear();
         irrelevantImageList.clear();
 
-        final Patch[] imagesToLabel = searchTool.getImagesToLabel();
+        final Patch[] imagesToLabel = searchTool.getImagesToLabel(pm);
         for(Patch patch : imagesToLabel) {
             if(patch.getLabel() == Patch.LABEL_RELEVANT) {
                 relevantImageList.add(patch);
@@ -164,8 +173,9 @@ public class CBIRSession {
                 irrelevantImageList.add(patch);
             }
         }
-
-        fireNotification(Notification.NewTrainingImages);
+        if (!pm.isCanceled()) {
+            fireNotification(Notification.NewTrainingImages);
+        }
     }
 
     public void trainModel() throws Exception {
