@@ -15,6 +15,8 @@
  */
 package org.esa.pfa.activelearning;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import libsvm.svm_model;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
@@ -26,9 +28,9 @@ import java.util.List;
 
 /**
  * Active learning class.
- *
+ * <p/>
  * [1] Begum Demir and Lorenzo Bruzzone, "An effective active learning method for interactive content-based retrieval
- *     in remote sensing images", Geoscience and Remote Sensing Symposium (IGARSS), 2013 IEEE International.
+ * in remote sensing images", Geoscience and Remote Sensing Symposium (IGARSS), 2013 IEEE International.
  */
 
 public class ActiveLearning {
@@ -72,6 +74,7 @@ public class ActiveLearning {
 
     /**
      * Set training data with relevant patches from query image.
+     *
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
@@ -93,6 +96,7 @@ public class ActiveLearning {
     /**
      * Set random patches obtained from archive. Some patches are added to training set as irrelevant patches.
      * The rest will be used in active learning.
+     *
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
@@ -118,7 +122,8 @@ public class ActiveLearning {
 
     /**
      * Set training data set with training patches saved.
-     * @param patchArray The patch array.
+     *
+     * @param patchArray     The patch array.
      * @param iterationIndex The iteration index.
      * @exception Exception The exception.
      */
@@ -132,11 +137,13 @@ public class ActiveLearning {
 
     /**
      * Get the most ambiguous patches selected by the active learning algorithm.
+     *
      * @param numImages The number of ambiguous patches.
+     * @param pm
      * @return The patch array.
      * @throws Exception The exceptions.
      */
-    public Patch[] getMostAmbiguousPatches(final int numImages) throws Exception {
+    public Patch[] getMostAmbiguousPatches(final int numImages, ProgressMonitor pm) throws Exception {
 
         this.h = numImages;
         this.q = 4 * h;
@@ -145,9 +152,21 @@ public class ActiveLearning {
             System.out.println("Number of diverse patches to select: " + h);
         }
 
-        selectMostUncertainSamples();
+        pm.beginTask("Get Most Ambiguous Patches", 100);
+        try {
 
-        selectMostDiverseSamples();
+            selectMostUncertainSamples();
+            pm.worked(10);
+            if (pm.isCanceled()) {
+                return new Patch[0];
+            }
+            selectMostDiverseSamples(SubProgressMonitor.create(pm, 90));
+            if (pm.isCanceled()) {
+                return new Patch[0];
+            }
+        } finally {
+            pm.done();
+        }
 
         if (debug) {
             for (Patch patch : diverseSamples) {
@@ -160,6 +179,7 @@ public class ActiveLearning {
 
     /**
      * Update training set with user labeled patches and train the classifier.
+     *
      * @param userLabelledPatches The user labeled patch array.
      * @throws Exception The exception.
      */
@@ -180,6 +200,7 @@ public class ActiveLearning {
 
     /**
      * Classify an array of patches. UI needs to sort the patches according to their distances to hyperplane.
+     *
      * @param patchArray The Given patch array.
      * @throws Exception The exception.
      */
@@ -201,6 +222,7 @@ public class ActiveLearning {
 
     /**
      * Get patches in the training set.
+     *
      * @return The patch array.
      */
     public Patch[] getTrainingData() {
@@ -215,9 +237,10 @@ public class ActiveLearning {
     public svm_model getModel() {
         return svmClassifier.getModel();
     }
-	
+
     /**
      * Save SVM model to file.
+     *
      * @param fileName The file name string.
      * @throws Exception The exception.
      */
@@ -228,6 +251,7 @@ public class ActiveLearning {
 
     /**
      * Load the SVM model saved in file.
+     *
      * @param fileName The file name string.
      * @throws Exception The exception.
      */
@@ -238,6 +262,7 @@ public class ActiveLearning {
 
     /**
      * Check validity of the query patches.
+     *
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
@@ -263,6 +288,7 @@ public class ActiveLearning {
 
     /**
      * Convert feature values to double.
+     *
      * @param features The feature array.
      * @return The feature value array.
      */
@@ -278,6 +304,7 @@ public class ActiveLearning {
 
     /**
      * Check validation of given features.
+     *
      * @param featureValues The feature value array.
      * @return True if all features are valid, false otherwise.
      */
@@ -294,6 +321,7 @@ public class ActiveLearning {
 
     /**
      * Set test data set with valid random patches.
+     *
      * @param patchArray The patch array.
      */
     private void setTestDataSetWithValidPatches(final Patch[] patchArray) {
@@ -350,6 +378,9 @@ public class ActiveLearning {
         }
     }
 
+    /**
+     * Get lower and upper bounds for all features.
+     */
     private void getFeatureMinMax() {
 
         featureMin = new double[numFeatures];
@@ -377,6 +408,12 @@ public class ActiveLearning {
         }
     }
 
+    /**
+     * Normalize all features to range [0,1].
+     *
+     * @param features The feature array.
+     * @return Normalized features.
+     */
     private double[] scale(final double[] features) {
 
         double[] scaledFeatures = new double[numFeatures];
@@ -386,6 +423,13 @@ public class ActiveLearning {
         return scaledFeatures;
     }
 
+    /**
+     * Normalize a given feature to range [0,1].
+     *
+     * @param featureIdx The feature index.
+     * @param featureValue The feature value.
+     * @return The normalized feature.
+     */
     private double scale(final int featureIdx, final double featureValue) {
 
         if (featureMin[featureIdx] < featureMax[featureIdx]) {
@@ -398,6 +442,7 @@ public class ActiveLearning {
 
     /**
      * Compute cluster center of the given list of patches.
+     *
      * @param patchList The patch list.
      * @return The cluster center.
      */
@@ -420,6 +465,7 @@ public class ActiveLearning {
 
     /**
      * Compute for all samples the Euclidean distance to the center of the cluster.
+     *
      * @param clusterCenter The cluster center.
      * @return The distance array.
      */
@@ -438,6 +484,7 @@ public class ActiveLearning {
 
     /**
      * Compute Euclidean space distance between two given points.
+     *
      * @param x1 The first point.
      * @param x2 The second point.
      * @return The distance.
@@ -446,7 +493,7 @@ public class ActiveLearning {
 
         double distance = 0.0;
         for (int i = 0; i < x1.length; i++) {
-            distance += (x1[i] - x2[i])*(x1[i] - x2[i]);
+            distance += (x1[i] - x2[i]) * (x1[i] - x2[i]);
         }
 
         return distance;
@@ -454,6 +501,7 @@ public class ActiveLearning {
 
     /**
      * Check if there is any unlabeled patch.
+     *
      * @param patchArray Patch array.
      * @throws Exception The exception.
      */
@@ -468,6 +516,7 @@ public class ActiveLearning {
 
     /**
      * Select uncertain samples from test data.
+     *
      * @throws Exception The exception.
      */
     private void selectMostUncertainSamples() throws Exception {
@@ -494,6 +543,7 @@ public class ActiveLearning {
 
     /**
      * Compute functional distance for all samples in test data set.
+     *
      * @return The distance array.
      * @throws Exception The exception.
      */
@@ -512,6 +562,7 @@ public class ActiveLearning {
 
     /**
      * Compute functional distance of a given sample to the SVM hyperplane.
+     *
      * @param x The given sample.
      * @return The functional distance.
      * @throws Exception The exception.
@@ -525,6 +576,7 @@ public class ActiveLearning {
 
     /**
      * Get all uncertain samples from test data set if their functional distances are less than 1.
+     *
      * @param distance The functional distance array.
      */
     private void getAllUncertainSamples(final double[][] distance) {
@@ -539,6 +591,7 @@ public class ActiveLearning {
 
     /**
      * Get q most uncertain samples from test data set based on their functional distances.
+     *
      * @param distance The functional distance array.
      */
     private void getMostUncertainSamples(final double[][] distance) {
@@ -558,13 +611,18 @@ public class ActiveLearning {
 
     /**
      * Select h most diverse samples from the q most uncertain samples.
+     *
+     * @param pm
      * @throws Exception The exception.
      */
-    private void selectMostDiverseSamples() throws Exception {
+    private void selectMostDiverseSamples(ProgressMonitor pm) throws Exception {
 
         KernelKmeansClusterer kkc = new KernelKmeansClusterer(maxIterationsKmeans, h, svmClassifier);
         kkc.setData(uncertainSamples);
-        kkc.clustering();
+        kkc.clustering(pm);
+        if (pm.isCanceled()) {
+            return;
+        }
         final int[] diverseSampleIDs = kkc.getRepresentatives();
 
         diverseSamples.clear();
