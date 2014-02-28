@@ -3,7 +3,5 @@
 *.ipr
 *.iws
 target
-*.dim
-*.data
 auxdata/continents
 output
