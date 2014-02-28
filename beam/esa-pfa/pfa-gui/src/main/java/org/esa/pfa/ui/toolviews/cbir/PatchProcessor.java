@@ -197,7 +197,7 @@ public class PatchProcessor {
         public void notifyDone() {
             progressBar.setVisible(false);
             textScroll.setVisible(true);
-            textPane.setText(patch.writeFeatures());
+            textPane.setText(patch.getFeaturesAsText());
         }
     }
 

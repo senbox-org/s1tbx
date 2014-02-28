@@ -15,26 +15,22 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.concurrent.ExecutionException;
 
 /**
 
@@ -51,6 +47,8 @@ public class PatchDrawer extends JPanel {
     private static final ImageIcon iconTrue = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/check_ball.png"));
     private static final ImageIcon iconFalse = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/x_ball.png"));
     private static final ImageIcon iconPatch = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/patch.png"));
+    private static final Patch[] NO_PATCHES = new Patch[0];
+    private PatchContextMenuFactory patchContextMenuFactory;
 
     private static enum SelectionMode {CHECK, RECT}
 
@@ -58,9 +56,18 @@ public class PatchDrawer extends JPanel {
 
     private PatchDrawing selection = null;
 
-    public PatchDrawer(final Patch[] imageList) {
+    public PatchDrawer() {
+        this(NO_PATCHES);
+    }
+
+    public PatchDrawer(Patch[] imageList) {
         super(new FlowLayout(FlowLayout.LEADING));
+        this.patchContextMenuFactory = new PatchContextMenuFactory();
         update(imageList);
+    }
+
+    public void setPatchContextMenuFactory(PatchContextMenuFactory patchContextMenuFactory) {
+        this.patchContextMenuFactory = patchContextMenuFactory;
     }
 
     public void update(final Patch[] imageList) {
@@ -144,107 +151,11 @@ public class PatchDrawer extends JPanel {
         @Override
         public void mousePressed(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON3) {
-                JPopupMenu popupMenu = new JPopupMenu();
-                JMenuItem menuItem;
-                if (patch.getFeatures().length > 0) {
-                    menuItem = new JMenuItem("Info");
-                    menuItem.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            showPatchInfo();
-                        }
-                    });
-                    popupMenu.add(menuItem);
+                JPopupMenu popupMenu = patchContextMenuFactory.createContextMenu(patch);
+                if (popupMenu != null) {
+                    UIUtils.showPopup(popupMenu, e);
                 }
-                if (patch.getPathOnServer() != null) {
-                    final File patchProductFile = new File(patch.getPathOnServer(), "patch.dim");
-                    if (patchProductFile.exists()) {
-                        menuItem = new JMenuItem("Show patch product");
-                        menuItem.addActionListener(new ActionListener() {
-
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                try {
-                                    showProduct(patchProductFile);
-                                } catch (Exception ioe) {
-                                    VisatApp.getApp().handleError("Failed to open patch product.", ioe);
-                                }
-                            }
-                        });
-                        popupMenu.add(menuItem);
-                    }
-                    String pathOnServer = patch.getPathOnServer();
-                    File serverPathToPatch = new File(pathOnServer);
-                    String parentProductName = serverPathToPatch.getParentFile().getName();
-                    parentProductName = parentProductName.substring(0, parentProductName.length() - 4);
-                    System.out.println("parentProductName = " + parentProductName);
-
-                    File productInputDir = new File("/home/marcoz/Scratch/pfa/input/");
-                    final File parentProductFile = new File(productInputDir, parentProductName);
-                    if (parentProductFile.exists()) {
-                        menuItem = new JMenuItem("Show parent product");
-                        menuItem.addActionListener(new ActionListener() {
-
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                try {
-                                    showProduct(parentProductFile);
-                                } catch (Exception ioe) {
-                                    VisatApp.getApp().handleError("Failed to open parent product.", ioe);
-                                }
-                            }
-                        });
-                        popupMenu.add(menuItem);
-                    }
-                }
-                UIUtils.showPopup(popupMenu, e);
             }
-        }
-
-        private void showProduct(File patchProductFile) throws Exception {
-            Product product = getOpenProductForFile(patchProductFile);
-            String bandName = ProductUtils.findSuitableQuicklookBandName(product);
-            Band band = product.getBand(bandName);
-            VisatApp visatApp = VisatApp.getApp();
-            JInternalFrame internalFrame = visatApp.findInternalFrame(band);
-            if (internalFrame == null) {
-                visatApp.openProductSceneView(band);
-            } else {
-                internalFrame.setSelected(true);
-            }
-        }
-
-        private Product getOpenProductForFile(final File productFile) throws Exception {
-            final VisatApp visat = VisatApp.getApp();
-            Product openProduct = visat.getOpenProduct(productFile);
-            if (openProduct != null) {
-                return openProduct;
-            }
-            ProgressMonitorSwingWorker<Product, Void> worker = new ProgressMonitorSwingWorker<Product, Void>(getParent(), "Navigate to patch") {
-                @Override
-                protected Product doInBackground(ProgressMonitor progressMonitor) throws Exception {
-                    return ProductIO.readProduct(productFile);
-                }
-
-                @Override
-                protected void done() {
-                    try {
-                        visat.getProductManager().addProduct(get());
-                    } catch (InterruptedException | ExecutionException e) {
-                        VisatApp.getApp().handleError("Failed to open product.", e);
-                    }
-                }
-            };
-            worker.executeWithBlocking();
-            return worker.get();
-        }
-
-
-        private void showPatchInfo() {
-            PatchInfoDialog patchInfoDialog = new PatchInfoDialog(VisatApp.getApp().getApplicationWindow(), patch);
-            patchInfoDialog.getJDialog().pack();
-            patchInfoDialog.show();
         }
 
         /**
@@ -268,17 +179,5 @@ public class PatchDrawer extends JPanel {
         public void mouseExited(MouseEvent e) {
         }
 
-    }
-
-    private class PatchInfoDialog extends ModelessDialog {
-        public PatchInfoDialog(Window parent, Patch patch) {
-            super(parent, "Patch Info " + patch.getPatchName(), ID_CLOSE, null);
-            JTextArea textPane = new JTextArea();
-            JScrollPane textScroll = new JScrollPane(textPane);
-            textPane.setText(patch.writeFeatures());
-            textScroll.setMaximumSize(new Dimension(300, 400));
-            textScroll.setPreferredSize(new Dimension(300, 400));
-            setContent(textScroll);
-        }
     }
 }
