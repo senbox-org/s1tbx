@@ -37,6 +37,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
     private PatchDrawer relavantDrawer;
     private PatchDrawer irrelavantDrawer;
     private JButton applyBtn;
+    private JLabel iterationsLabel;
 
     public CBIRLabelingToolView() {
         CBIRSession.Instance().addListener(this);
@@ -44,7 +45,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
 
     public JComponent createControl() {
 
-        final JPanel mainPane = new JPanel(new BorderLayout(5,5));
+        final JPanel mainPane = new JPanel(new BorderLayout(5, 5));
         final JPanel relPanel = new JPanel(new BorderLayout(2, 2));
         relPanel.setBorder(BorderFactory.createTitledBorder("Relevant Images"));
 
@@ -57,7 +58,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         relavantDrawer.addMouseListener(dl);
         relavantDrawer.addMouseMotionListener(dl);
 
-        relPanel.add(scrollPane1, BorderLayout.NORTH);
+        relPanel.add(scrollPane1, BorderLayout.CENTER);
 
         final JPanel irrelPanel = new JPanel(new BorderLayout(2, 2));
         irrelPanel.setBorder(BorderFactory.createTitledBorder("Irrelevant Images"));
@@ -71,7 +72,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         irrelavantDrawer.addMouseListener(dl2);
         irrelavantDrawer.addMouseMotionListener(dl2);
 
-        irrelPanel.add(scrollPane2, BorderLayout.NORTH);
+        irrelPanel.add(scrollPane2, BorderLayout.CENTER);
 
         final JPanel listsPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
@@ -82,6 +83,9 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         mainPane.add(listsPanel, BorderLayout.CENTER);
 
         final JPanel bottomPanel = new JPanel();
+        iterationsLabel = new JLabel();
+        bottomPanel.add(iterationsLabel);
+
         applyBtn = new JButton("Train and Apply Classifier");
         applyBtn.setActionCommand("applyBtn");
         applyBtn.addActionListener(this);
@@ -100,6 +104,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         if(session != null) {
             relavantDrawer.update(session.getRelevantTrainingImages());
             irrelavantDrawer.update(session.getIrrelevantTrainingImages());
+            iterationsLabel.setText("Training iterations: "+session.getNumIterations());
         }
     }
 

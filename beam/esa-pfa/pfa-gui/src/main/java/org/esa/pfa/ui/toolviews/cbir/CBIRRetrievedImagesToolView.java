@@ -57,7 +57,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         retPanel.setBorder(BorderFactory.createTitledBorder("Retrieved Images"));
 
         drawer = new PatchDrawer();
-        drawer.setPreferredSize(new Dimension(2000, 2000));
+        drawer.setPreferredSize(new Dimension(500, 500));
         final JScrollPane scrollPane1 = new JScrollPane(drawer);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
