@@ -2068,14 +2068,15 @@ public class VisatApp extends BasicApp implements AppContext {
                 toolBarsMenu.add(action.createMenuItem());
             }
             List<String> commandIds = toolBar2commandIds.get(toolBarId);
-            addCommandsToToolBar(toolBar, commandIds.toArray(new String[commandIds.size()]));
+            String[] commandIDs = commandIds.toArray(new String[commandIds.size()]);
+            Arrays.sort(commandIDs);
+            addCommandsToToolBar(toolBar, commandIDs);
         }
 
         return viewToolBars.toArray(new CommandBar[viewToolBars.size()]);
     }
 
     private void addCommandsToToolBar(final CommandBar toolBar, final String[] commandIDs) {
-        Arrays.sort(commandIDs);
         for (final String commandID : commandIDs) {
             if (commandID == null) {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
