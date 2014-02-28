@@ -53,8 +53,6 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -275,7 +273,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private SpectrumBand[] getAvailableSpectralBands() {
         Debug.assertNotNull(currentProduct);
-        if(!productToBandsMap.containsKey(currentProduct)) {
+        if (!productToBandsMap.containsKey(currentProduct)) {
             productToBandsMap.put(currentProduct, new ArrayList<SpectrumBand>());
         }
         List<SpectrumBand> spectrumBands = productToBandsMap.get(currentProduct);
@@ -290,7 +288,7 @@ public class SpectrumToolView extends AbstractToolView {
                             break;
                         }
                     }
-                    if(!isAlreadyIncluded) {
+                    if (!isAlreadyIncluded) {
                         spectrumBands.add(new SpectrumBand(band, true));
                     }
                 }
@@ -367,7 +365,7 @@ public class SpectrumToolView extends AbstractToolView {
 //            }
 //        });
 //        showAveragePinSpectrumButton.setName("showAveragePinSpectrumButton");
-//        showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin allSpectra.");
+//        showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
 
         showGridButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SpectrumGrid24.gif"), true);
         showGridButton.addActionListener(new ActionListener() {
@@ -632,7 +630,7 @@ public class SpectrumToolView extends AbstractToolView {
                 Band spectralBand = spectralBands[j];
                 if (spectralBand == band) {
                     displayableSpectrum.remove(j);
-                    if(displayableSpectrum.getSelectedBands().length == 0) {
+                    if (displayableSpectrum.getSelectedBands().length == 0) {
                         displayableSpectrum.setSelected(false);
                     }
                     return;
@@ -861,11 +859,15 @@ public class SpectrumToolView extends AbstractToolView {
                 isCodeInducedAxisChange = false;
             }
             plot.setDataset(dataset);
+            setPlotUnit(spectra, plot);
+        }
+
+        private void setPlotUnit(List<DisplayableSpectrum> spectra, XYPlot plot) {
             String unitToBeDisplayed = spectra.get(0).getUnit();
             int i = 1;
             while (i < spectra.size() && !unitToBeDisplayed.equals(DisplayableSpectrum.MIXED_UNITS)) {
                 DisplayableSpectrum displayableSpectrum = spectra.get(i++);
-                if (!unitToBeDisplayed.equals(displayableSpectrum.getUnit())) {
+                if (displayableSpectrum.hasSelectedBands() && !unitToBeDisplayed.equals(displayableSpectrum.getUnit())) {
                     unitToBeDisplayed = DisplayableSpectrum.MIXED_UNITS;
                 }
             }
@@ -1013,16 +1015,20 @@ public class SpectrumToolView extends AbstractToolView {
             for (Placemark pin : displayedPins) {
                 Paint pinPaint = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
                 for (DisplayableSpectrum spectrum : spectra) {
-                    String legendLabel = pin.getLabel() + "_" + spectrum.getName();
-                    LegendItem item = createLegendItem(spectrum, pinPaint, legendLabel);
-                    itemCollection.add(item);
+                    if (spectrum.hasSelectedBands()) {
+                        String legendLabel = pin.getLabel() + "_" + spectrum.getName();
+                        LegendItem item = createLegendItem(spectrum, pinPaint, legendLabel);
+                        itemCollection.add(item);
+                    }
                 }
             }
             if (isShowingCursorSpectrum() && hasValidCursorPosition()) {
                 for (DisplayableSpectrum spectrum : spectra) {
-                    Paint defaultPaint = Color.BLACK;
-                    LegendItem item = createLegendItem(spectrum, defaultPaint, spectrum.getName());
-                    itemCollection.add(item);
+                    if (spectrum.hasSelectedBands()) {
+                        Paint defaultPaint = Color.BLACK;
+                        LegendItem item = createLegendItem(spectrum, defaultPaint, spectrum.getName());
+                        itemCollection.add(item);
+                    }
                 }
             }
             return itemCollection;
@@ -1107,9 +1113,9 @@ public class SpectrumToolView extends AbstractToolView {
                 return;
             }
             if (event.getSourceNode() instanceof Band) {
-                Band newBand = (Band)event.getSourceNode();
-                if(isSpectralBand(newBand)) {
-                    addBandToSpectra((Band)event.getSourceNode());
+                Band newBand = (Band) event.getSourceNode();
+                if (isSpectralBand(newBand)) {
+                    addBandToSpectra((Band) event.getSourceNode());
                     recreateChart();
                 }
             } else if (event.getSourceNode() instanceof Placemark) {

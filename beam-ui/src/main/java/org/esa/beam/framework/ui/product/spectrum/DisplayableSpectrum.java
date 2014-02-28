@@ -70,6 +70,15 @@ public class DisplayableSpectrum implements Spectrum {
         return !bands.isEmpty();
     }
 
+    public boolean hasSelectedBands() {
+        for (SpectrumBand band : bands) {
+            if (band.isSelected()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }
