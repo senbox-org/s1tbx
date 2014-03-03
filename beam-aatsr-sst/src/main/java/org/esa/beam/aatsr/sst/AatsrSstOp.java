@@ -170,6 +170,8 @@ public class AatsrSstOp extends PixelOperator {
     private transient OpImage nadirMaskOpImage;
     private transient OpImage dualMaskOpImage;
 
+    private transient int currentPixel = 0;
+
     @Override
     public void dispose() {
         super.dispose();
@@ -184,6 +186,7 @@ public class AatsrSstOp extends PixelOperator {
 
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample[] targetSamples) {
+        checkCancellation();
         if (nadir) {
             if (isMasked(nadirMaskOpImage, x, y)) {
                 final float ir37 = sourceSamples[0].getFloat();
@@ -219,6 +222,14 @@ public class AatsrSstOp extends PixelOperator {
                 targetSamples[1].set(invalidSstValue);
             }
         }
+    }
+
+    private void checkCancellation() {
+        if (currentPixel % 1000 == 0) {
+            checkForCancellation();
+            currentPixel = 0;
+        }
+        currentPixel++;
     }
 
     private float computeNadirSst(int i, float ir37, float ir11, float ir12, float sea) {

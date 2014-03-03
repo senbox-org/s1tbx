@@ -76,8 +76,12 @@ public class FlhMciOp extends PixelOperator {
     private transient BaselineAlgorithm algorithm;
     private transient OpImage maskOpImage;
 
+    private transient int currentPixel = 0;
+
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample[] targetSamples) {
+        checkCancellation();
+
         final float signal = sourceSamples[0].getFloat();
         final float lower = sourceSamples[1].getFloat();
         final float upper = sourceSamples[2].getFloat();
@@ -93,6 +97,14 @@ public class FlhMciOp extends PixelOperator {
                 targetSamples[1].set(invalidFlhMciValue);
             }
         }
+    }
+
+    private void checkCancellation() {
+        if (currentPixel % 1000 == 0) {
+            checkForCancellation();
+            currentPixel = 0;
+        }
+        currentPixel++;
     }
 
     @Override

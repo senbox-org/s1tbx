@@ -546,6 +546,7 @@ public class SmacOperator extends Operator {
         Mask mask = sourceProduct.getMaskGroup().get(SMAC_MASK);
         int i = 0;
         for (int absY = targetRectangle.y; absY < targetRectangle.y + targetRectangle.height; absY++) {
+            checkForCancellation();
             for (int absX = targetRectangle.x; absX < targetRectangle.x + targetRectangle.width; absX++) {
                 sourceData.process[i] = mask.getSampleInt(absX, absY) != 0;
                 i++;
@@ -573,6 +574,7 @@ public class SmacOperator extends Operator {
         Mask mask = sourceProduct.getMaskGroup().get(SMAC_MASK);
         int i = 0;
         for (int absY = targetRectangle.y; absY < targetRectangle.y + targetRectangle.height; absY++) {
+            checkForCancellation();
             for (int absX = targetRectangle.x; absX < targetRectangle.x + targetRectangle.width; absX++) {
                 sourceData.process[i] = mask.getSampleInt(absX, absY) != 0;
                 i++;
@@ -614,6 +616,7 @@ public class SmacOperator extends Operator {
 
         int i = 0;
         for (int absY = targetRectangle.y; absY < targetRectangle.y + targetRectangle.height; absY++) {
+            checkForCancellation();
             for (int absX = targetRectangle.x; absX < targetRectangle.x + targetRectangle.width; absX++) {
                 sourceData.process[i] = mask.getSampleInt(absX, absY) != 0;
                 i++;

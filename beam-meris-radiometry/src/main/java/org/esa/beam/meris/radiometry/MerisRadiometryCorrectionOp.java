@@ -145,6 +145,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int detectorIndexSampleIndex;
     private transient int sunZenithAngleSampleIndex;
     private transient int flagBandIndex;
+    private transient int currentPixel = 0;
 
     @Override
     protected void prepareInputs() throws OperatorException {
@@ -254,6 +255,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Override
     protected void computeSample(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
+        checkCancellation();
         final int bandIndex = targetSample.getIndex();
         final Sample sourceRadiance = sourceSamples[bandIndex];
         int detectorIndex = -1;
@@ -378,6 +380,14 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                 throw new OperatorException(String.format(msgPatternMissingBand, MERIS_SUN_ZENITH_DS_NAME));
             }
         }
+    }
+
+    private void checkCancellation() {
+        if (currentPixel % 1000 == 0) {
+            checkForCancellation();
+            currentPixel = 0;
+        }
+        currentPixel++;
     }
 
     public static class Spi extends OperatorSpi {
