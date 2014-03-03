@@ -215,6 +215,10 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
             session.retrieveImages();
 
             retrievedPatches = session.getRetrievedImages();
+            //initially remove label from all
+            for(Patch patch : retrievedPatches) {
+                patch.setLabel(Patch.LABEL_NONE);
+            }
             listenToPatches();
 
             accuracy = retrievedPatches.length;

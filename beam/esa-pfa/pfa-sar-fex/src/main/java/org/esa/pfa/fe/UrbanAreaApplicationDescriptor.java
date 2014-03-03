@@ -30,7 +30,12 @@ import java.util.Set;
 public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescriptor {
 
     private static final String NAME = "Urban Area Detection";
-    private static final String DEFAULT_FEATURE_SET = "speckle_divergence.percentOverPnt4,speckle_divergence.largestConnectedBlob";
+    private static final String DEFAULT_FEATURE_SET =   "speckle_divergence.mean," +
+                                                        "speckle_divergence.stdev," +
+                                                        "speckle_divergence.cvar," +
+                                                        "speckle_divergence.min," +
+                                                        "speckle_divergence.maxspeckle_divergence.percentOverPnt4" +
+                                                        "speckle_divergence.largestConnectedBlob";
     private static final String DEFAULT_QL_NAME = "sigma0_ql.png";
     private static final String DEFAULT_ALL_QUERY = "product:ENVI*";
     private static Dimension patchDimension = new Dimension(200, 200);

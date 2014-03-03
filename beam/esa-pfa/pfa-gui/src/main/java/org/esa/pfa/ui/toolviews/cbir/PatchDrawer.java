@@ -162,8 +162,7 @@ public class PatchDrawer extends JPanel {
                 int currentLabel = patch.getLabel();
                 if (currentLabel == Patch.LABEL_RELEVANT) {
                     patch.setLabel(Patch.LABEL_IRRELEVANT);
-                }
-                if (currentLabel == Patch.LABEL_IRRELEVANT) {
+                } else if (currentLabel == Patch.LABEL_IRRELEVANT || currentLabel == Patch.LABEL_NONE) {
                     patch.setLabel(Patch.LABEL_RELEVANT);
                 }
                 repaint();
