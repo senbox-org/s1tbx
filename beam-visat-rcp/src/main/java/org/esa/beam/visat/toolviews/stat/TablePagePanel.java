@@ -33,6 +33,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +110,7 @@ abstract class TablePagePanel extends PagePanel {
                 public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                     JTextArea textArea = new JTextArea(value.toString());
                     for (RendererStrategy strategy : strategies) {
-                        strategy.customise(table, textArea, value.toString(), row);
+                        strategy.customise(table, textArea, value.toString(), row, column);
                     }
                     careForEmptyLines(value, textArea);
                     return textArea;
@@ -128,7 +129,7 @@ abstract class TablePagePanel extends PagePanel {
 
     private static interface RendererStrategy {
 
-        void customise(JTable table, JTextArea component, String value, int rowIndex);
+        void customise(JTable table, JTextArea component, String value, int rowIndex, int colIndex);
     }
 
     private static class AlternatingRowsRenderer implements RendererStrategy {
@@ -152,7 +153,7 @@ abstract class TablePagePanel extends PagePanel {
         }
 
         @Override
-        public void customise(JTable table, JTextArea component, String value, int rowIndex) {
+        public void customise(JTable table, JTextArea component, String value, int rowIndex, int colIndex) {
             component.setBorder(new EmptyBorder(0, 0, 0, 0));
             component.setBackground(getBackground(rowIndex));
         }
@@ -161,7 +162,7 @@ abstract class TablePagePanel extends PagePanel {
     private static class TooltipAwareRenderer implements RendererStrategy {
 
         @Override
-        public void customise(JTable table, JTextArea component, String value, int rowIndex) {
+        public void customise(JTable table, JTextArea component, String value, int rowIndex, int colIndex) {
             component.setToolTipText(value);
         }
     }
@@ -175,13 +176,32 @@ abstract class TablePagePanel extends PagePanel {
         }
 
         @Override
-        public void customise(JTable table, JTextArea component, String value, int rowIndex) {
+        public void customise(JTable table, JTextArea component, String value, int rowIndex, int colIndex) {
             if (!wrappingRows.contains(rowIndex)) {
                 return;
             }
             component.setLineWrap(true);
             component.setWrapStyleWord(true);
-            table.setRowHeight(rowIndex, table.getRowHeight() * (value.split("\n").length + 1));
+
+            int max = 230;
+            if (((CellSpanTable)table).getCellSpanAt(rowIndex, colIndex).getColumnSpan() == table.getColumnCount()) {
+                max *= 2;
+            }
+
+            int numRows = countLines(component, value, max);
+            if (numRows > 1) {
+                int rowHeight = table.getRowHeight() * numRows;
+                table.setRowHeight(rowIndex, Math.max(table.getRowHeight(rowIndex), rowHeight));
+            }
+        }
+
+        private static int countLines(JTextArea component, String value, int max) {
+            int lineCount = 0;
+            FontMetrics fontMetrics = component.getFontMetrics(component.getFont());
+            for (String s : value.split("\n")) {
+                lineCount += 1 + fontMetrics.stringWidth(s) / max;
+            }
+            return lineCount;
         }
     }
 
@@ -193,7 +213,7 @@ abstract class TablePagePanel extends PagePanel {
 
         @Override
         public String toString() {
-            return "\n";
+            return "";
         }
 
         @Override
@@ -240,7 +260,7 @@ abstract class TablePagePanel extends PagePanel {
             notifyListeners();
         }
 
-        public void notifyListeners() {
+        private void notifyListeners() {
             for (TableModelListener listener : listeners) {
                 listener.tableChanged(new TableModelEvent(this));
             }

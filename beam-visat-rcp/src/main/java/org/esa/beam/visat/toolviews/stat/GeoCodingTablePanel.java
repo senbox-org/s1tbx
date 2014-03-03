@@ -107,25 +107,32 @@ class GeoCodingTablePanel extends TablePagePanel {
     @Override
     protected void updateComponents() {
         if (isVisible()) {
-            tableModel.clear();
+            ensureTableModel();
             createRows();
             if (tableModel.getRowCount() == 0) {
                 showNoInformationAvailableMessage();
-            } else {
-                ensureTableModel();
             }
         }
     }
 
     private void ensureTableModel() {
-        getTable().setModel(tableModel);
-        getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        setColumnRenderer(0, alternatingWrap);
-        setColumnRenderer(1, alternatingRows);
-        setColumnRenderer(2, alternatingRows);
-        setColumnRenderer(3, wrapTooltipAlternating);
-        setColumnRenderer(4, alternatingRows);
-        setColumnRenderer(5, alternatingRows);
+        if (getTable().getModel() != tableModel) {
+            getTable().setModel(tableModel);
+            getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            setColumnRenderer(0, alternatingWrap);
+            setColumnRenderer(1, alternatingRows);
+            setColumnRenderer(2, alternatingRows);
+            setColumnRenderer(3, wrapTooltipAlternating);
+            setColumnRenderer(4, alternatingRows);
+            setColumnRenderer(5, alternatingRows);
+            setFirstColumnWidth(120);
+        }
+    }
+
+    private void setFirstColumnWidth(int width) {
+        getTable().getColumnModel().getColumn(0).setMaxWidth(width);
+        getTable().getColumnModel().getColumn(0).setMinWidth(width);
+        getTable().getColumnModel().getColumn(0).setPreferredWidth(width);
     }
 
     @Override
@@ -286,7 +293,7 @@ class GeoCodingTablePanel extends TablePagePanel {
             int currentRowIndex = tableModel.getRowCount();
             wrappingRows.add(currentRowIndex);
         }
-        tableModel.addRow(new GeoCodingTableRow(name, value));
+        tableModel.addRow(new GeoCodingTableRow(name, value.replaceAll("\r\n", "\n")));
     }
 
     private void addRow(String... values) {
@@ -318,19 +325,15 @@ class GeoCodingTablePanel extends TablePagePanel {
                    geoPos.getLatString(), geoPos.getLonString());
         }
 
-        getTable().getColumnModel().getColumn(0).setMaxWidth(40);
-        getTable().getColumnModel().getColumn(0).setMinWidth(40);
-        getTable().getColumnModel().getColumn(0).setPreferredWidth(40);
+        setFirstColumnWidth(40);
     }
 
     private void writeCrsGeoCoding(CrsGeoCoding geoCoding, String nodeType) {
         addRow("The " + nodeType + " uses a geo-coding based on a cartographic map CRS.");
         addEmptyRow();
-        addRow("WKT of the map CRS");
-        addRow(geoCoding.getMapCRS().toString());
+        addRow("WKT of the map CRS", geoCoding.getMapCRS().toString());
         addEmptyRow();
-        addRow("Image-to-map transformation");
-        addRow(geoCoding.getImageToMapTransform().toString());
+        addRow("Image-to-map transformation", geoCoding.getImageToMapTransform().toString());
     }
 
     private void writeUnknownGeoCoding(GeoCoding geoCoding, String nodeType) {
@@ -401,7 +404,8 @@ class GeoCodingTablePanel extends TablePagePanel {
         final Parameter[] parameters = mi.getMapProjection().getMapTransform().getDescriptor().getParameters();
         final double[] parameterValues = mi.getMapProjection().getMapTransform().getParameterValues();
         for (int i = 0; i < parameters.length; i++) {
-            addRow(parameters[i].getName(), String.valueOf(parameterValues[i]) + " " + parameters[i].getProperties().getPhysicalUnit());
+            addRow(parameters[i].getName(),
+                   String.valueOf(parameterValues[i]) + " " + parameters[i].getProperties().getPhysicalUnit());
 
         }
         addEmptyRow();
@@ -534,14 +538,11 @@ class GeoCodingTablePanel extends TablePagePanel {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             TableRow row = rows.get(rowIndex);
-            if (row instanceof EmptyTableRow) {
-                return "";
-            } else if (row instanceof SingleInformationRow) {
-                return row.toString();
+            if (row instanceof GeoCodingTableRow) {
+                GeoCodingTableRow tableRow = (GeoCodingTableRow) row;
+                return tableRow.getValue(columnIndex, this);
             }
-
-            GeoCodingTableRow tableRow = (GeoCodingTableRow) row;
-            return tableRow.getValue(columnIndex, this);
+            return row.toString();
         }
 
         @Override
