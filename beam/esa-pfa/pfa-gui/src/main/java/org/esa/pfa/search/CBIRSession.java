@@ -16,12 +16,14 @@
 package org.esa.pfa.search;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.ordering.ProductOrderBasket;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +42,7 @@ public class CBIRSession {
 
     private SearchToolStub searchTool;
 
-    ProductOrderBasket productOrderBasket;
+    private ProductOrderBasket productOrderBasket;
 
     private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
     enum Notification { NewSession, NewTrainingImages, ModelTrained };
@@ -59,11 +61,11 @@ public class CBIRSession {
 
     public void initSession(final String classifierName,
                        final PFAApplicationDescriptor applicationDescriptor,
-                       final String archivePath) throws Exception {
+                       final String archivePath, final ProgressMonitor pm) throws Exception {
         this.classifierName = classifierName;
         this.applicationDescriptor = applicationDescriptor;
 
-        searchTool = new SearchToolStub(applicationDescriptor, archivePath, classifierName);
+        searchTool = new SearchToolStub(applicationDescriptor, archivePath, classifierName, pm);
         productOrderBasket = new ProductOrderBasket();
 
         fireNotification(Notification.NewSession);
@@ -117,6 +119,18 @@ public class CBIRSession {
         return SearchToolStub.getSavedClassifierNames(archiveFolder);
     }
 
+    public void setQuicklookBandName(final Patch[] patches, final String quicklookBandName) {
+        searchTool.setQuicklookBandName(quicklookBandName);
+        //reset patch images
+        for(Patch patch : patches) {
+            patch.setImage(null);
+        }
+    }
+
+    public String[] getAvailableQuickLooks(final Patch patch) throws IOException {
+        return searchTool.getAvailableQuickLooks(patch);
+    }
+
     public void addQueryPatch(final Patch patch) {
         searchTool.addQueryImage(patch);
     }
@@ -125,13 +139,18 @@ public class CBIRSession {
         return searchTool.getQueryImages();
     }
 
-    public void setQueryImages(final Patch[] queryImages, ProgressMonitor pm) throws Exception {
-        searchTool.setQueryImages(queryImages);
-        getImagesToLabel(pm);
+    public void setQueryImages(final Patch[] queryImages, final ProgressMonitor pm) throws Exception {
+        pm.beginTask("Getting Images to Label", 100);
+        try {
+            searchTool.setQueryImages(queryImages, SubProgressMonitor.create(pm, 50));
+            getImagesToLabel(SubProgressMonitor.create(pm, 50));
+        } finally {
+            pm.done();
+        }
     }
 
-    public void populateArchivePatches() throws Exception {
-        searchTool.populateArchivePatches();
+    public void populateArchivePatches(final ProgressMonitor pm) throws Exception {
+        searchTool.populateArchivePatches(pm);
     }
 
     public void reassignTrainingImage(final Patch patch) {
@@ -151,14 +170,18 @@ public class CBIRSession {
     }
 
     public Patch[] getRelevantTrainingImages() {
-        return relevantImageList.toArray(new Patch[relevantImageList.size()]);
+        final Patch[] patches = relevantImageList.toArray(new Patch[relevantImageList.size()]);
+        searchTool.getPatchQuicklooks(patches);
+        return patches;
     }
 
     public Patch[] getIrrelevantTrainingImages() {
-        return irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
+        final Patch[] patches = irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
+        searchTool.getPatchQuicklooks(patches);
+        return patches;
     }
 
-    public void getImagesToLabel(ProgressMonitor pm) throws Exception {
+    public void getImagesToLabel(final ProgressMonitor pm) throws Exception {
 
         relevantImageList.clear();
         irrelevantImageList.clear();
@@ -178,12 +201,12 @@ public class CBIRSession {
         }
     }
 
-    public void trainModel() throws Exception {
+    public void trainModel(final ProgressMonitor pm) throws Exception {
         final List<Patch> labeledList = new ArrayList<Patch>(30);
         labeledList.addAll(relevantImageList);
         labeledList.addAll(irrelevantImageList);
 
-        searchTool.trainModel(labeledList.toArray(new Patch[labeledList.size()]));
+        searchTool.trainModel(labeledList.toArray(new Patch[labeledList.size()]), pm);
 
         fireNotification(Notification.ModelTrained);
     }
@@ -194,7 +217,9 @@ public class CBIRSession {
     }
 
     public Patch[] getRetrievedImages() {
-        return retrievedImageList.toArray(new Patch[retrievedImageList.size()]);
+        final Patch[] patches = retrievedImageList.toArray(new Patch[retrievedImageList.size()]);
+        searchTool.getPatchQuicklooks(patches);
+        return patches;
     }
 
     private void fireNotification(final Notification msg) throws Exception {

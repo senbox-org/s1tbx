@@ -22,12 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -40,6 +35,7 @@ public class PatchDrawer extends JPanel {
     private final static int width = 150;
     private final static int height = 150;
     private final static int margin = 4;
+    private final boolean multiRow;
 
     private static final boolean DEBUG = false;
     private static final Font font = new Font("Ariel", Font.BOLD, 18);
@@ -57,12 +53,13 @@ public class PatchDrawer extends JPanel {
     private PatchDrawing selection = null;
 
     public PatchDrawer() {
-        this(NO_PATCHES);
+        this(false, NO_PATCHES);
     }
 
-    public PatchDrawer(Patch[] imageList) {
+    public PatchDrawer(final boolean multiRow, final Patch[] imageList) {
         super(new FlowLayout(FlowLayout.LEADING));
         this.patchContextMenuFactory = new PatchContextMenuFactory();
+        this.multiRow = multiRow;
         update(imageList);
     }
 
@@ -78,6 +75,12 @@ public class PatchDrawer extends JPanel {
             label.setIcon(iconPatch);
             this.add(label);
         } else {
+            if(multiRow) {
+                int numCol = 10;
+                int numRow = imageList.length / numCol;
+                setPreferredSize(new Dimension((width+margin)*numCol, (height+margin)*numRow));
+            }
+
             for (Patch patch : imageList) {
                 final PatchDrawing label = new PatchDrawing(patch);
                 this.add(label);

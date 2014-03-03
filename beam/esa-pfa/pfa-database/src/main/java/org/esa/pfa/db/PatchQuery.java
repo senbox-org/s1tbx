@@ -129,28 +129,40 @@ public class PatchQuery implements QueryInterface {
         return patchList.toArray(new Patch[patchList.size()]);
     }
 
-    private void setPathToPatch(Patch patch, String productName) {
+    private void setPathToPatch(final Patch patch, final String productName) {
         patch.setPathOnServer(datasetDir.getAbsolutePath() + File.separator +
                               productName + ".fex" + File.separator + patch.getPatchName());
     }
 
-    public URL retrievePatchImage(final Patch patch, String patchImageFileName) throws IOException {
-        File path = new File(patch.getPathOnServer());
+    public static String[] getAvailableQuickLooks(final Patch patch) throws IOException {
+        final File path = new File(patch.getPathOnServer());
+
+        final File[] imageFiles = path.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isFile() && file.getName().toLowerCase().endsWith(".png");
+            }
+        });
+        if (imageFiles == null) {
+            throw new IOException("No patch image found in " + path);
+        }
+        final String[] quicklookFilenames = new String[imageFiles.length];
+        int i=0;
+        for(File imageFile : imageFiles) {
+            quicklookFilenames[i++] = imageFile.getName();
+        }
+        return quicklookFilenames;
+    }
+
+    public static URL retrievePatchImage(final Patch patch, final String patchImageFileName) throws IOException {
+        final File path = new File(patch.getPathOnServer());
 
         File imageFile;
         if (patchImageFileName != null && !patchImageFileName.isEmpty()) {
             imageFile = new File(path, patchImageFileName);
         } else {
-            File[] imageFiles = path.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isFile() && file.getName().toLowerCase().endsWith(".png");
-                }
-            });
-            if (imageFiles == null) {
-                throw new IOException("No patch image found in " + path);
-            }
-            imageFile = imageFiles[0];
+            final String[] quicklookFilenames = getAvailableQuickLooks(patch);
+            imageFile = new File(path, quicklookFilenames[0]);
         }
 
         return new URL("file:" + imageFile.getAbsolutePath());

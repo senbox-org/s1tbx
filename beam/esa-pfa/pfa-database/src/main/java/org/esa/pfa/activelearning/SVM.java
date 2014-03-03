@@ -15,6 +15,7 @@
  */
 package org.esa.pfa.activelearning;
 
+import com.bc.ceres.core.ProgressMonitor;
 import libsvm.*;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
@@ -79,7 +80,7 @@ public class SVM {
      * @param trainingSet The training data set.
      * @throws Exception The exception.
 	 */
-	public void train(List<Patch> trainingSet) throws Exception {
+	public void train(final List<Patch> trainingSet, final ProgressMonitor pm) throws Exception {
 
         setProblem(trainingSet);
 
@@ -87,10 +88,10 @@ public class SVM {
 
         setSVMModelParameters();
 
-        findOptimalModelParameters();
+        findOptimalModelParameters(pm);
 
         trainSVMModel();
-	}
+    }
 
     /**
      * Compute kernel function value for a given pair of samples.
@@ -237,7 +238,7 @@ public class SVM {
     /**
      * Find optimal RBF model parameters (C, gamma) using grid search.
      */
-    private void findOptimalModelParameters() {
+    private void findOptimalModelParameters(final ProgressMonitor pm) {
 
         final double[] c = {0.03125, 0.125, 0.5, 2.0, 8.0, 32.0, 128.0, 512.0, 2048.0, 8192.0, 32768.0};
         final double[] gamma = {0.000030517578125, 0.0001220703125, 0.00048828125, 0.001953125, 0.0078125,
@@ -246,16 +247,22 @@ public class SVM {
 
         double accuracyMax = 0.0;
         int cIdx = 0, gammaIdx = 0;
-        for (int i = 0; i < c.length; i++) {
-            for (int j = 0; j < gamma.length; j++) {
-                final double accuracy = performCrossValidation(c[i], gamma[j]);
-                accuracyArray[i][j] = accuracy;
-                if (accuracy > accuracyMax) {
-                    accuracyMax = accuracy;
-                    cIdx = i;
-                    gammaIdx = j;
+        pm.beginTask("Finding Optimal Model Parameters...", c.length*gamma.length);
+        try {
+            for (int i = 0; i < c.length; i++) {
+                for (int j = 0; j < gamma.length; j++) {
+                    final double accuracy = performCrossValidation(c[i], gamma[j]);
+                    accuracyArray[i][j] = accuracy;
+                    if (accuracy > accuracyMax) {
+                        accuracyMax = accuracy;
+                        cIdx = i;
+                        gammaIdx = j;
+                    }
+                    pm.worked(1);
                 }
             }
+        } finally {
+            pm.done();
         }
 
         modelParameters.C = c[cIdx];

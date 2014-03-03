@@ -100,13 +100,13 @@ public class ActiveLearning {
      * @param patchArray The patch array.
      * @throws Exception The exception.
      */
-    public void setRandomPatches(final Patch[] patchArray) throws Exception {
+    public void setRandomPatches(final Patch[] patchArray, final ProgressMonitor pm) throws Exception {
 
         setTestDataSetWithValidPatches(patchArray);
 
         if (iteration == 0) {
             setInitialTrainingSet();
-            svmClassifier.train(trainingData);
+            svmClassifier.train(trainingData, pm);
         }
 
         if (debug) {
@@ -127,11 +127,12 @@ public class ActiveLearning {
      * @param iterationIndex The iteration index.
      * @exception Exception The exception.
      */
-    public void setTrainingData(final Patch[] patchArray, final int iterationIndex) throws Exception {
+    public void setTrainingData(final Patch[] patchArray, final int iterationIndex,
+                                final ProgressMonitor pm) throws Exception {
 
         trainingData.clear();
         trainingData.addAll(Arrays.asList(patchArray));
-        svmClassifier.train(trainingData);
+        svmClassifier.train(trainingData, pm);
         iteration = iterationIndex;
     }
 
@@ -143,7 +144,7 @@ public class ActiveLearning {
      * @return The patch array.
      * @throws Exception The exceptions.
      */
-    public Patch[] getMostAmbiguousPatches(final int numImages, ProgressMonitor pm) throws Exception {
+    public Patch[] getMostAmbiguousPatches(final int numImages, final ProgressMonitor pm) throws Exception {
 
         this.h = numImages;
         this.q = 4 * h;
@@ -183,13 +184,13 @@ public class ActiveLearning {
      * @param userLabelledPatches The user labeled patch array.
      * @throws Exception The exception.
      */
-    public void train(Patch[] userLabelledPatches) throws Exception {
+    public void train(final Patch[] userLabelledPatches, final ProgressMonitor pm) throws Exception {
 
         checkLabels(userLabelledPatches);
 
         trainingData.addAll(Arrays.asList(userLabelledPatches));
 
-        svmClassifier.train(trainingData);
+        svmClassifier.train(trainingData, pm);
 
         iteration++;
 

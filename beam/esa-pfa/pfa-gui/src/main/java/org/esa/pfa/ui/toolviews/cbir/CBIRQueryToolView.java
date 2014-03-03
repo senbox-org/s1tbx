@@ -34,9 +34,7 @@ import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
@@ -51,11 +49,13 @@ import java.util.concurrent.ExecutionException;
 public class CBIRQueryToolView extends AbstractToolView implements ActionListener, CBIRSession.CBIRSessionListener {
 
     public final static String ID = "org.esa.pfa.ui.toolviews.cbir.CBIRQueryToolView";
+    private final static Dimension preferredDimension = new Dimension(550, 300);
 
     private CBIRSession session;
     private PatchDrawer drawer;
     private PatchSelectionInteractor interactor;
     private JButton addPatchBtn, editBtn, startTrainingBtn;
+    private JComboBox<String> quickLookCombo;
 
     public CBIRQueryToolView() {
         CBIRSession.Instance().addListener(this);
@@ -65,11 +65,26 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
 
         final JPanel mainPane = new JPanel(new BorderLayout(5, 5));
 
+        final JPanel topOptionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        quickLookCombo = new JComboBox();
+        quickLookCombo.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    session.setQuicklookBandName(session.getQueryPatches(), (String)quickLookCombo.getSelectedItem());
+                    drawer.update(session.getQueryPatches());
+                }
+            }
+        });
+        topOptionsPanel.add(new JLabel("Band shown:"));
+        topOptionsPanel.add(quickLookCombo);
+        mainPane.add(topOptionsPanel, BorderLayout.NORTH);
+
         final JPanel imageScrollPanel = new JPanel();
         imageScrollPanel.setLayout(new BoxLayout(imageScrollPanel, BoxLayout.X_AXIS));
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
-        drawer = new PatchDrawer(new Patch[]{});
+        drawer = new PatchDrawer();
         drawer.setMinimumSize(new Dimension(500, 310));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -118,16 +133,30 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
     }
 
     private void updateControls() {
-        boolean sessionActive = false;
-        boolean hasQueryImages = false;
-        if (session != null) {
-            sessionActive = true;
-            hasQueryImages = session.getQueryPatches().length > 0;
-        }
+        try {
+            boolean sessionActive = false;
+            boolean hasQueryImages = false;
+            if (session != null) {
+                sessionActive = true;
+                final Patch[] queryPatches = session.getQueryPatches();
+                hasQueryImages = queryPatches.length > 0;
 
-        addPatchBtn.setEnabled(sessionActive);
-        startTrainingBtn.setEnabled(hasQueryImages);
-        editBtn.setEnabled(false); //todo //hasQueryImages);
+                if(hasQueryImages && quickLookCombo.getItemCount() == 0) {
+                    final String[] bandNames = session.getAvailableQuickLooks(queryPatches[0]);
+                    for(String bandName : bandNames) {
+                        quickLookCombo.addItem(bandName);
+                    }
+                    final String defaultBandName = session.getApplicationDescriptor().getDefaultQuicklookFileName();
+                    quickLookCombo.setSelectedItem(defaultBandName);
+                }
+            }
+
+            addPatchBtn.setEnabled(sessionActive);
+            startTrainingBtn.setEnabled(hasQueryImages);
+            editBtn.setEnabled(false); //todo //hasQueryImages);
+        } catch (Exception e) {
+            VisatApp.getApp().handleUnknownException(e);
+        }
     }
 
     /**
@@ -154,7 +183,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 final Patch[] processedPatches = session.getQueryPatches();
 
                 //only add patches with features
-                List<Patch> queryPatches = new ArrayList<>(processedPatches.length);
+                final List<Patch> queryPatches = new ArrayList<>(processedPatches.length);
                 for (Patch patch : processedPatches) {
                     if (patch.getFeatures().length > 0 && patch.getLabel() == Patch.LABEL_RELEVANT) {
                         queryPatches.add(patch);
@@ -165,11 +194,11 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 }
                 final Patch[] queryImages = queryPatches.toArray(new Patch[queryPatches.size()]);
 
-                Window window = VisatApp.getApp().getApplicationWindow();
-                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Training") {
+                final Window window = VisatApp.getApp().getApplicationWindow();
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Getting images to label") {
                     @Override
-                    protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
-                        pm.beginTask("Training...", 100);
+                    protected Boolean doInBackground(final ProgressMonitor pm) throws Exception {
+                        pm.beginTask("Getting images...", 100);
                         try {
                             session.setQueryImages(queryImages, pm);
                             if (!pm.isCanceled()) {
@@ -187,7 +216,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 }
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.toString());
+            VisatApp.getApp().handleUnknownException(e);
         }
     }
 
@@ -220,8 +249,8 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         private void addQueryImage(final Product product, final int x, final int y, final int w, final int h,
                                    final RenderedImage parentImage) throws IOException {
 
-            Rectangle region = new Rectangle(x, y, w, h);
-            PatchProcessor patchProcessor = new PatchProcessor(VisatApp.getApp().getApplicationWindow(),
+            final Rectangle region = new Rectangle(x, y, w, h);
+            final PatchProcessor patchProcessor = new PatchProcessor(VisatApp.getApp().getApplicationWindow(),
                                                                product, parentImage, region, session);
             patchProcessor.executeWithBlocking();
             Patch patch = null;
@@ -253,20 +282,25 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
         }
     }
 
+    @Override
+    public void componentShown() {
+
+        final Window win = getPaneWindow();
+        if (win != null) {
+            win.setPreferredSize(preferredDimension);
+            win.setMaximumSize(preferredDimension);
+            win.setSize(preferredDimension);
+        }
+    }
+
     public void notifyNewSession() {
         session = CBIRSession.Instance();
 
         if (isControlCreated()) {
+            quickLookCombo.removeAllItems();
             updateControls();
 
             drawer.update(session.getQueryPatches());
-
-            final Window win = getPaneWindow();
-            if (win != null) {
-                win.setPreferredSize(new Dimension(600, 250));
-                win.setMaximumSize(new Dimension(600, 250));
-                win.setSize(new Dimension(600, 250));
-            }
         }
     }
 

@@ -44,8 +44,10 @@ public class SearchToolStub {
     private int numTrainingImages = 12;
     private int numRetrievedImages = 50;
     private int numHitsMax = 500;
+    private String quicklookBandName;
 
-    public SearchToolStub(PFAApplicationDescriptor applicationDescriptor, String archiveFolder, String classifierName) throws Exception {
+    public SearchToolStub(final PFAApplicationDescriptor applicationDescriptor, final String archiveFolder,
+                          final String classifierName, final ProgressMonitor pm) throws Exception {
         this.applicationDescriptor = applicationDescriptor;
 
         final File dbFolder = new File(archiveFolder);
@@ -54,12 +56,13 @@ public class SearchToolStub {
             classifierFolder.mkdirs();
         }
         this.classifierFile = new File(classifierFolder, classifierName + ".xml");
+        this.quicklookBandName = applicationDescriptor.getDefaultQuicklookFileName();
 
         db = new PatchQuery(dbFolder, applicationDescriptor.getDefaultFeatureSet());
         al = new ActiveLearning();
 
         if (classifierFile.exists()) {
-            loadClassifier(classifierFile);
+            loadClassifier(classifierFile, pm);
         }
     }
 
@@ -98,6 +101,10 @@ public class SearchToolStub {
         return al.getNumIterations();
     }
 
+    public void setQuicklookBandName(final String quicklookBandName) {
+        this.quicklookBandName = quicklookBandName;
+    }
+
     public void addQueryImage(final Patch patch) {
         al.addQueryImage(patch);
     }
@@ -109,7 +116,7 @@ public class SearchToolStub {
         return queryPatches;
     }
 
-    public void populateArchivePatches() throws Exception {
+    public void populateArchivePatches(final ProgressMonitor pm) throws Exception {
         final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numHitsMax);
 
         int numFeaturesQuery = al.getQueryPatches()[0].getFeatures().length;
@@ -121,34 +128,38 @@ public class SearchToolStub {
             throw new IllegalArgumentException(msg);
         }
 
-        al.setRandomPatches(archivePatches);
+        al.setRandomPatches(archivePatches, pm);
     }
 
-    public void setQueryImages(final Patch[] queryPatches) throws Exception {
+    public void setQueryImages(final Patch[] queryPatches, final ProgressMonitor pm) throws Exception {
 
         al.resetQuery();
         al.setQueryPatches(queryPatches);
-        populateArchivePatches();
+        populateArchivePatches(pm);
 
         saveClassifier();
     }
 
-    public Patch[] getImagesToLabel(ProgressMonitor pm) throws Exception {
+    public Patch[] getImagesToLabel(final ProgressMonitor pm) throws Exception {
         final Patch[] patchesToLabel = al.getMostAmbiguousPatches(numTrainingImages, pm);
         getPatchQuicklooks(patchesToLabel);
 
         return patchesToLabel;
     }
 
+    public static String[] getAvailableQuickLooks(final Patch patch) throws IOException {
+        return PatchQuery.getAvailableQuickLooks(patch);
+    }
+
     /**
      * Not all patches need quicklooks. This function adds quicklooks to the patches requested
      * @param patches the patches to get quicklooks for
      */
-    private void getPatchQuicklooks(final Patch[] patches) {
+    public void getPatchQuicklooks(final Patch[] patches) {
         for (Patch patch : patches) {
             if (patch.getImage() == null) {
                 try {
-                    URL imageURL = db.retrievePatchImage(patch, applicationDescriptor.getDefaultQuicklookFileName());
+                    URL imageURL = db.retrievePatchImage(patch, quicklookBandName);
                     //todo download image
                     File imageFile = new File(imageURL.getPath());
                     patch.setImage(loadImageFile(imageFile));
@@ -159,8 +170,8 @@ public class SearchToolStub {
         }
     }
 
-    public void trainModel(Patch[] labeledImages) throws Exception {
-        al.train(labeledImages);
+    public void trainModel(final Patch[] labeledImages, final ProgressMonitor pm) throws Exception {
+        al.train(labeledImages, pm);
 
         saveClassifier();
     }
@@ -168,7 +179,7 @@ public class SearchToolStub {
     public Patch[] getRetrievedImages() throws Exception {
 
         final List<Patch> relavantImages = new ArrayList<>(numRetrievedImages);
-        final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numRetrievedImages*100);
+        final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numRetrievedImages*10);
         al.classify(archivePatches);
         int i=0;
         for(Patch patch : archivePatches) {
@@ -227,7 +238,7 @@ public class SearchToolStub {
         return nameList.toArray(new String[nameList.size()]);
     }
 
-    private void loadClassifier(final File classifierFile) throws Exception {
+    private void loadClassifier(final File classifierFile, final ProgressMonitor pm) throws Exception {
         final ClassifierWriter storedClassifier = ClassifierWriter.read(classifierFile);
         numTrainingImages = storedClassifier.getNumTrainingImages();
         numRetrievedImages = storedClassifier.getNumRetrievedImages();
@@ -242,7 +253,7 @@ public class SearchToolStub {
 
         final Patch[] patches = loadPatches(storedClassifier.getPatchInfo());
         if(patches != null && patches.length > 0) {
-            al.setTrainingData(patches, numIterations);
+            al.setTrainingData(patches, numIterations, pm);
         }
     }
 

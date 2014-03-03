@@ -22,17 +22,12 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 /**
  * Retrieved Images Panel
@@ -47,7 +42,9 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
     private int accuracy = 0;
     private Patch[] retrievedPatches;
     private JButton improveBtn;
+    private JButton allRelevantBtn, allIrrelevantBtn;
     private final JLabel accuracyLabel = new JLabel();
+    private JComboBox<String> quickLookCombo;
 
     public CBIRRetrievedImagesToolView() {
         CBIRSession.Instance().addListener(this);
@@ -55,12 +52,48 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     public JComponent createControl() {
 
-        final JPanel mainPane = new JPanel(new BorderLayout(5, 5));
+        final JPanel topOptionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        allRelevantBtn = new JButton("Set all relevant");
+        allRelevantBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(Patch patch : retrievedPatches) {
+                    patch.setLabel(Patch.LABEL_RELEVANT);
+                }
+                drawer.repaint();
+            }
+        });
+        topOptionsPanel.add(allRelevantBtn);
+        allIrrelevantBtn = new JButton("Set all irrelevant");
+        allIrrelevantBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(Patch patch : retrievedPatches) {
+                    patch.setLabel(Patch.LABEL_IRRELEVANT);
+                }
+                drawer.repaint();
+            }
+        });
+        topOptionsPanel.add(allIrrelevantBtn);
+
+        quickLookCombo = new JComboBox();
+        quickLookCombo.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    session.setQuicklookBandName(retrievedPatches, (String)quickLookCombo.getSelectedItem());
+                    retrievedPatches = session.getRetrievedImages();
+                    drawer.update(retrievedPatches);
+                }
+            }
+        });
+        topOptionsPanel.add(new JLabel("Band shown:"));
+        topOptionsPanel.add(quickLookCombo);
+
         final JPanel retPanel = new JPanel(new BorderLayout(2, 2));
         retPanel.setBorder(BorderFactory.createTitledBorder("Retrieved Images"));
 
-        drawer = new PatchDrawer();
-        drawer.setPreferredSize(new Dimension(500, 500));
+        drawer = new PatchDrawer(true, new Patch[] {});
         final JScrollPane scrollPane1 = new JScrollPane(drawer);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
@@ -68,9 +101,8 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         drawer.addMouseMotionListener(dl);
 
         retPanel.add(scrollPane1, BorderLayout.CENTER);
-        mainPane.add(retPanel, BorderLayout.CENTER);
 
-        final JPanel bottomPanel = new JPanel();
+        final JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.add(accuracyLabel);
 
         improveBtn = new JButton("Improve Classifier");
@@ -78,6 +110,10 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         improveBtn.addActionListener(this);
         bottomPanel.add(improveBtn);
 
+
+        final JPanel mainPane = new JPanel(new BorderLayout(5, 5));
+        mainPane.add(topOptionsPanel, BorderLayout.NORTH);
+        mainPane.add(retPanel, BorderLayout.CENTER);
         mainPane.add(bottomPanel, BorderLayout.SOUTH);
 
         updateControls();
@@ -86,12 +122,27 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
     }
 
     private void updateControls() {
-        final boolean haveRetrievedImages = retrievedPatches != null && retrievedPatches.length > 0;
-        improveBtn.setEnabled(haveRetrievedImages);
+        try {
+            final boolean haveRetrievedImages = retrievedPatches != null && retrievedPatches.length > 0;
+            improveBtn.setEnabled(haveRetrievedImages);
+            allRelevantBtn.setEnabled(haveRetrievedImages);
+            allIrrelevantBtn.setEnabled(haveRetrievedImages);
 
-        if(haveRetrievedImages) {
-            float pct = accuracy/(float)retrievedPatches.length * 100;
-            accuracyLabel.setText("Accuracy: "+accuracy+"/"+retrievedPatches.length+" ("+(int)pct+"%)");
+            if(haveRetrievedImages) {
+                float pct = accuracy/(float)retrievedPatches.length * 100;
+                accuracyLabel.setText("Accuracy: "+accuracy+'/'+retrievedPatches.length+" ("+(int)pct+"%)");
+
+                if(quickLookCombo.getItemCount() == 0) {
+                    final String[] bandNames = session.getAvailableQuickLooks(retrievedPatches[0]);
+                    for(String bandName : bandNames) {
+                        quickLookCombo.addItem(bandName);
+                    }
+                    final String defaultBandName = session.getApplicationDescriptor().getDefaultQuicklookFileName();
+                    quickLookCombo.setSelectedItem(defaultBandName);
+                }
+            }
+        } catch (Exception e) {
+            VisatApp.getApp().handleUnknownException(e);
         }
     }
 
@@ -104,11 +155,11 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         try {
             final String command = event.getActionCommand();
             if (command.equals("improveBtn")) {
-                Window window = VisatApp.getApp().getApplicationWindow();
-                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Training") {
+                final Window window = VisatApp.getApp().getApplicationWindow();
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Getting images to label") {
                     @Override
                     protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
-                        pm.beginTask("Training...", 100);
+                        pm.beginTask("Getting images...", 100);
                         try {
                             session.getImagesToLabel(pm);
                             if (!pm.isCanceled()) {
@@ -159,10 +210,14 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         }
     }
 
-    public void notifyStateChanged(final Patch patch) {
-        if (patch.getLabel() == Patch.LABEL_IRRELEVANT) {
-            accuracy--;
-            updateControls();
+    public void notifyStateChanged(final Patch notifyingPatch) {
+        int cnt = 0;
+        for(Patch patch : retrievedPatches) {
+            if (patch.getLabel() == Patch.LABEL_RELEVANT) {
+                cnt++;
+            }
         }
+        accuracy = cnt;
+        updateControls();
     }
 }
