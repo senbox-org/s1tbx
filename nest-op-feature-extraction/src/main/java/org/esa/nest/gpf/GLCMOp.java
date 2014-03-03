@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf;
 
-import ch.qos.logback.core.joran.spi.ElementSelector;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -31,7 +30,6 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
-import org.junit.Ignore;
 
 import javax.media.jai.Histogram;
 import java.awt.*;
