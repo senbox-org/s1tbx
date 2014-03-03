@@ -303,49 +303,64 @@ public class SmacOperator extends Operator {
         logger.info("Loading MERIS ADS");
 
         // sun zenith angle
-        szaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSzaIndex]);
-        Assert.notNull(szaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSzaIndex]);
+        String gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSzaIndex];
+        szaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, szaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // sun azimuth angle
-        saaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSaaIndex]);
-        Assert.notNull(saaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSaaIndex]);
+        gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSaaIndex];
+        saaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, saaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // view zenith angle
-        vzaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVzaIndex]);
-        Assert.notNull(vzaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVzaIndex]);
+        gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVzaIndex];
+        vzaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, vzaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // view azimuth angle
-        vaaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVaaIndex]);
-        Assert.notNull(vaaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVaaIndex]);
+        gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVaaIndex];
+        vaaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, vaaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
+
 
         // if requested load the optional MERIS ADS
         // ----------------------------------------
         if (useMerisADS) {
             // waterVapour
-            wvBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisWvIndex]);
-            Assert.notNull(wvBand);
-            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisWvIndex]);
+            gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisWvIndex];
+            wvBand = product.getTiePointGrid(gridName);
+            checkForNull(gridName, wvBand);
+            logger.fine(LOG_MSG_LOADED + gridName);
 
             // ozone
-            o3Band = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisO3Index]);
-            Assert.notNull(o3Band);
-            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisO3Index]);
+            gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisO3Index];
+            o3Band = product.getTiePointGrid(gridName);
+            checkForNull(gridName, o3Band);
+            logger.fine(LOG_MSG_LOADED + gridName);
 
             // atmospheric pressure
-            pressBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisPressIndex]);
-            Assert.notNull(pressBand);
-            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisPressIndex]);
+            gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisPressIndex];
+            pressBand = product.getTiePointGrid(gridName);
+            checkForNull(gridName, pressBand);
+            logger.fine(LOG_MSG_LOADED + gridName);
 
             // digital elevation
-            elevBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisElevIndex]);
-            Assert.notNull(elevBand);
-            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisElevIndex]);
+            gridName = EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisElevIndex];
+            elevBand = product.getTiePointGrid(gridName);
+            checkForNull(gridName, elevBand);
+            logger.fine(LOG_MSG_LOADED + gridName);
         }
         logger.info("... success");
+    }
+
+    private static void checkForNull(String gridName, TiePointGrid tiePointGrid) {
+        if (tiePointGrid == null) {
+            throw new OperatorException("Tie-point grid '" + gridName + "' must be present in product.");
+        }
     }
 
     private void loadAATSR_ADS(Product product) {
@@ -353,44 +368,52 @@ public class SmacOperator extends Operator {
         logger.info("Loading AATSR ADS");
 
         // sun elevation angle nadir
-        szaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaIndex]);
-        Assert.notNull(szaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaIndex]);
+        String gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaIndex];
+        szaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, szaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // sun elevation angle forward
-        szaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaFwdIndex]);
-        Assert.notNull(szaFwdBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaFwdIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaFwdIndex];
+        szaFwdBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, szaFwdBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // sun azimuth angle nadir
-        saaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaIndex]);
-        Assert.notNull(saaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaIndex];
+        saaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, saaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // sun azimuth angle forward
-        saaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaFwdIndex]);
-        Assert.notNull(saaFwdBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaFwdIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaFwdIndex];
+        saaFwdBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, saaFwdBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // view elevation angle nadir
-        vzaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaIndex]);
-        Assert.notNull(vzaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaIndex];
+        vzaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, vzaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // view elevation angle forward
-        vzaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaFwdIndex]);
-        Assert.notNull(vzaFwdBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaFwdIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaFwdIndex];
+        vzaFwdBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, vzaFwdBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // view azimuth angle nadir
-        vaaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaIndex]);
-        Assert.notNull(vaaBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaIndex];
+        vaaBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, vaaBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         // view azimuth angle forward
-        vaaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaFwdIndex]);
-        Assert.notNull(vaaFwdBand);
-        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaFwdIndex]);
+        gridName = EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaFwdIndex];
+        vaaFwdBand = product.getTiePointGrid(gridName);
+        checkForNull(gridName, vaaFwdBand);
+        logger.fine(LOG_MSG_LOADED + gridName);
 
         logger.info("... success");
     }
