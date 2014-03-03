@@ -1,10 +1,8 @@
 package org.esa.pfa.db;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.pfa.fe.op.AttributeType;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.FexOperator;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.awt.image.RenderedImage;
@@ -227,6 +225,6 @@ public class DatasetDescriptorTest {
         length = new FileReader(file).read(cbuf);
         String expectedXml = new String(cbuf, 0, length);
 
-        assertEquals(expectedXml, actualXml);
+        assertEquals(expectedXml.replace("\r", "").trim(), actualXml.replace("\r", "").trim());
     }
 }
