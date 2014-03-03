@@ -23,15 +23,22 @@ import org.esa.pfa.ordering.ProductOrder;
 import org.esa.pfa.ordering.ProductOrderBasket;
 import org.esa.pfa.search.CBIRSession;
 
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.StrokeBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -73,7 +80,6 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
             }
         });
 
-        table.setIntercellSpacing(new Dimension(4, 0));
         table.setRowHeight(table.getRowHeight() + 6);
         table.setGridColor(Color.GRAY);
 
@@ -121,7 +127,6 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
         }
     }
 
-
     @Override
     public void notifyNewSession() {
         CBIRSession session = CBIRSession.Instance();
@@ -129,7 +134,6 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
 
         PFAApplicationDescriptor applicationDescriptor = session.getApplicationDescriptor();
         setLocalProductDir(applicationDescriptor.getLocalProductDir());
-
     }
 
     @Override

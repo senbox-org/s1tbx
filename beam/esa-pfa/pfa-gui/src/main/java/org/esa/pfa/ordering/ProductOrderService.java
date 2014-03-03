@@ -15,6 +15,10 @@ public class ProductOrderService {
         this.productOrderBasket = productOrderBasket;
     }
 
+    public ProductOrderBasket getProductOrderBasket() {
+        return productOrderBasket;
+    }
+
     public void submit(final ProductOrder productOrder) {
         productOrderBasket.addProductOrder(productOrder);
         executorService.submit(new Runnable() {

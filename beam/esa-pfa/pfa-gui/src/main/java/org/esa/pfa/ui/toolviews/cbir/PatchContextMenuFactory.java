@@ -35,6 +35,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
@@ -76,7 +77,7 @@ public class PatchContextMenuFactory {
             actionList.add(openPatchProductAction);
         }
 
-        Action openParentProductAction = createOpenParentProductAction(patch);
+        Action openParentProductAction = createShowPatchInParentProductAction(patch);
         if (openParentProductAction != null) {
             actionList.add(openParentProductAction);
         }
@@ -90,7 +91,7 @@ public class PatchContextMenuFactory {
     }
 
     public Action createOrderParentProductAction(final Patch patch) {
-        final String parentProductName = getParentProductName(patch);
+        final String parentProductName = patch.getParentProductName();
         if (parentProductName == null) {
             return null;
         }
@@ -107,29 +108,26 @@ public class PatchContextMenuFactory {
                 ProductOrder productOrder = productOrderBasket.getProductOrder(parentProductName);
                 if (productOrder != null) {
                     if (productOrder.getState() == ProductOrder.State.DOWNLOADED) {
-                        int resp = JOptionPane.showConfirmDialog(VisatApp.getApp().getApplicationWindow(),
-                                                                 String.format("Data product\n%s\nhas already been downloaded.\nOpen it?",
-                                                                               parentProductName),
-                                                                 "Order Product", JOptionPane.OK_CANCEL_OPTION,
-                                                                 JOptionPane.QUESTION_MESSAGE);
+                        int resp = VisatApp.getApp().showQuestionDialog((String) getValue(NAME),
+                                                                        String.format("Data product\n%s\nhas already been downloaded.\nOpen it?",
+                                                                                      parentProductName), null);
                         if (resp == JOptionPane.OK_OPTION) {
-                            createOpenParentProductAction(patch);
+                            createShowPatchInParentProductAction(patch);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
-                                                      String.format("Data product\n%s\nis already in the basket.",
-                                                                    parentProductName));
+                        VisatApp.getApp().showMessageDialog((String) getValue(NAME),
+                                                            String.format("Data product\n%s\nis already in the basket.",
+                                                                          parentProductName),
+                                                            JOptionPane.INFORMATION_MESSAGE,
+                                                            null);
                     }
                     return;
                 }
 
-                int resp = JOptionPane.showConfirmDialog(VisatApp.getApp().getApplicationWindow(),
-                                                         String.format("Data product\n%s\nwill be ordered.\nProceed?",
-                                                                       parentProductName),
-                                                         "Order Product",
-                                                         JOptionPane.OK_CANCEL_OPTION,
-                                                         JOptionPane.QUESTION_MESSAGE);
-                if (resp == JOptionPane.OK_OPTION) {
+                int resp = VisatApp.getApp().showQuestionDialog((String) getValue(NAME),
+                                                                String.format("Data product\n%s\nwill be ordered.\nProceed?",
+                                                                              parentProductName), null);
+                if (resp == JOptionPane.YES_OPTION) {
                     ProductOrderService productOrderService = CBIRSession.Instance().getProductOrderService();
                     productOrderService.submit(new ProductOrder(parentProductName));
                 }
@@ -138,9 +136,9 @@ public class PatchContextMenuFactory {
     }
 
 
-    public Action createOpenParentProductAction(final Patch patch) {
+    public Action createShowPatchInParentProductAction(final Patch patch) {
 
-        String parentProductName = getParentProductName(patch);
+        String parentProductName = patch.getParentProductName();
         if (parentProductName == null) {
             return null;
         }
@@ -164,31 +162,16 @@ public class PatchContextMenuFactory {
             return null;
         }
 
-        return new AbstractAction("Open Parent Product") {
+        return new AbstractAction("Show Patch in Parent Product") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    showProduct(patch, parentProductFile);
+                    showPatchInParentProduct(patch, parentProductFile);
                 } catch (Exception ioe) {
                     VisatApp.getApp().handleError("Failed to open parent product.", ioe);
                 }
             }
         };
-    }
-
-    public static String getParentProductName(final Patch patch) {
-        String pathOnServer = patch.getPathOnServer();
-        if (pathOnServer == null) {
-            return null;
-        }
-
-        File serverPathToPatch = new File(pathOnServer);
-//        System.out.println("serverPathToPatch = " + serverPathToPatch);
-        String parentProductFexName = serverPathToPatch.getParentFile().getName();
-//        System.out.println("parentProductFexName = " + parentProductFexName);
-        String parentProductName = parentProductFexName.substring(0, parentProductFexName.length() - 4); // prune ".fex" extension
-//        System.out.println("parentProductName = " + parentProductName);
-        return parentProductName;
     }
 
     public Action createOpenPatchProductAction(final Patch patch) {
@@ -205,7 +188,7 @@ public class PatchContextMenuFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    showProduct(patch, patchProductFile);
+                    showPatchInParentProduct(patch, patchProductFile);
                 } catch (Exception ioe) {
                     VisatApp.getApp().handleError("Failed to open patch product.", ioe);
                 }
@@ -230,7 +213,7 @@ public class PatchContextMenuFactory {
             }
 
             private JButton[] createOtherButtons(Patch patch) {
-                Action openParentProductAction = createOpenParentProductAction(patch);
+                Action openParentProductAction = createShowPatchInParentProductAction(patch);
                 if (openParentProductAction != null) {
                     JButton button = new JButton(openParentProductAction);
                     return new JButton[]{button};
@@ -242,21 +225,38 @@ public class PatchContextMenuFactory {
     }
 
 
-    private static void showProduct(final Patch patch, File patchProductFile) throws Exception {
+    private static void showPatchInParentProduct(final Patch patch, File patchProductFile) throws Exception {
         final Product product = openProduct(patchProductFile);
         if (product == null) {
             return;
         }
-        String bandName = ProductUtils.findSuitableQuicklookBandName(product);
-        if (bandName == null) {
-            return;
+        JInternalFrame frame = findFrameForProductSceneView(product);
+        // First check if we can reuse the currently selected view
+        if (frame != null) {
+            frame.setSelected(true);
+            ProductSceneView sceneView = (ProductSceneView) frame.getContentPane();
+            Dimension patchDimension = getPatchDimension();
+            if (sceneView != null && patchDimension != null) {
+                zoomToPatch(sceneView, product, patch, patchDimension);
+            }
+        } else {
+            String bandName = ProductUtils.findSuitableQuicklookBandName(product);
+            if (bandName == null) {
+                return;
+            }
+            Band band = product.getBand(bandName);
+            if (band == null) {
+                return;
+            }
+            final Dimension patchDimension = getPatchDimension();
+            if (patchDimension != null) {
+                zoomToPatchOnViewSelected(product, patch, patchDimension);
+            }
+            VisatApp.getApp().openProductSceneView(band);
         }
+    }
 
-        Band band = product.getBand(bandName);
-        if (band == null) {
-            return;
-        }
-
+    private static Dimension getPatchDimension() {
         final Dimension patchDimension;
         PFAApplicationDescriptor applicationDescriptor = CBIRSession.Instance().getApplicationDescriptor();
         if (applicationDescriptor != null) {
@@ -264,21 +264,7 @@ public class PatchContextMenuFactory {
         } else {
             patchDimension = null;
         }
-
-        VisatApp visatApp = VisatApp.getApp();
-        JInternalFrame internalFrame = visatApp.findInternalFrame(band);
-        if (internalFrame != null) {
-            internalFrame.setSelected(true);
-            ProductSceneView sceneView = getProductSceneView(internalFrame);
-            if (sceneView != null && patchDimension != null) {
-                zoomToPatch(sceneView, product, patch, patchDimension);
-            }
-        } else {
-            if (patchDimension != null) {
-                zoomToPatchOnViewSelected(product, patch, patchDimension);
-            }
-            visatApp.openProductSceneView(band);
-        }
+        return patchDimension;
     }
 
     private static void zoomToPatchOnViewSelected(final Product product, final Patch patch, final Dimension patchDimension) {
@@ -383,4 +369,30 @@ public class PatchContextMenuFactory {
             return data.toArray(new Object[0][]);
         }
     }
+
+
+    public static JInternalFrame findFrameForProductSceneView(Product product) {
+        final JInternalFrame[] frames = VisatApp.getApp().getAllInternalFrames();
+        JInternalFrame selectedView = null;
+        JInternalFrame multiBandView = null;
+        JInternalFrame anyView = null;
+        for (final JInternalFrame frame : frames) {
+            final Container contentPane = frame.getContentPane();
+            if (contentPane instanceof ProductSceneView) {
+                final ProductSceneView view = (ProductSceneView) contentPane;
+                if (view.getProduct() == product) {
+                    if (frame.isSelected()) {
+                        selectedView = frame;
+                    }
+                    if (view.getNumRasters() > 1) {
+                        multiBandView = frame;
+                    }
+                    anyView = frame;
+                }
+            }
+        }
+        return selectedView != null ? selectedView : multiBandView != null ? multiBandView : anyView;
+    }
+
+
 }

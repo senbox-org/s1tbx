@@ -20,14 +20,30 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
+import org.esa.pfa.ordering.ProductOrder;
+import org.esa.pfa.ordering.ProductOrderBasket;
+import org.esa.pfa.ordering.ProductOrderService;
 import org.esa.pfa.search.CBIRSession;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Retrieved Images Panel
@@ -57,7 +73,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         allRelevantBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for(Patch patch : retrievedPatches) {
+                for (Patch patch : retrievedPatches) {
                     patch.setLabel(Patch.LABEL_RELEVANT);
                 }
                 drawer.repaint();
@@ -68,7 +84,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         allIrrelevantBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for(Patch patch : retrievedPatches) {
+                for (Patch patch : retrievedPatches) {
                     patch.setLabel(Patch.LABEL_IRRELEVANT);
                 }
                 drawer.repaint();
@@ -76,12 +92,12 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         });
         topOptionsPanel.add(allIrrelevantBtn);
 
-        quickLookCombo = new JComboBox();
+        quickLookCombo = new JComboBox<>();
         quickLookCombo.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED) {
-                    session.setQuicklookBandName(retrievedPatches, (String)quickLookCombo.getSelectedItem());
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    session.setQuicklookBandName(retrievedPatches, (String) quickLookCombo.getSelectedItem());
                     retrievedPatches = session.getRetrievedImages();
                     drawer.update(retrievedPatches);
                 }
@@ -93,7 +109,8 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         final JPanel retPanel = new JPanel(new BorderLayout(2, 2));
         retPanel.setBorder(BorderFactory.createTitledBorder("Retrieved Images"));
 
-        drawer = new PatchDrawer(true, new Patch[] {});
+        drawer = new PatchDrawer(true, new Patch[]{});
+        drawer.setPatchContextMenuFactory(new RetrievedPatchContextMenuFactory());
         final JScrollPane scrollPane1 = new JScrollPane(drawer);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
@@ -128,13 +145,13 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
             allRelevantBtn.setEnabled(haveRetrievedImages);
             allIrrelevantBtn.setEnabled(haveRetrievedImages);
 
-            if(haveRetrievedImages) {
-                float pct = accuracy/(float)retrievedPatches.length * 100;
-                accuracyLabel.setText("Accuracy: "+accuracy+'/'+retrievedPatches.length+" ("+(int)pct+"%)");
+            if (haveRetrievedImages) {
+                float pct = accuracy / (float) retrievedPatches.length * 100;
+                accuracyLabel.setText("Accuracy: " + accuracy + '/' + retrievedPatches.length + " (" + (int) pct + "%)");
 
-                if(quickLookCombo.getItemCount() == 0) {
+                if (quickLookCombo.getItemCount() == 0) {
                     final String[] bandNames = session.getAvailableQuickLooks(retrievedPatches[0]);
-                    for(String bandName : bandNames) {
+                    for (String bandName : bandNames) {
                         quickLookCombo.addItem(bandName);
                     }
                     final String defaultBandName = session.getApplicationDescriptor().getDefaultQuicklookFileName();
@@ -211,12 +228,56 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     public void notifyStateChanged(final Patch notifyingPatch) {
         int cnt = 0;
-        for(Patch patch : retrievedPatches) {
+        for (Patch patch : retrievedPatches) {
             if (patch.getLabel() == Patch.LABEL_RELEVANT) {
                 cnt++;
             }
         }
         accuracy = cnt;
         updateControls();
+    }
+
+    private class RetrievedPatchContextMenuFactory extends PatchContextMenuFactory {
+        @Override
+        public List<Action> getContextActions(Patch patch) {
+            List<Action> contextActions = super.getContextActions(patch);
+
+            final List<Patch> patchList = drawer.getPatches();
+            if (!patchList.isEmpty()) {
+                contextActions.add(new AbstractAction("Order All Parent Products") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ProductOrderService productOrderService = CBIRSession.Instance().getProductOrderService();
+                        ProductOrderBasket productOrderBasket = productOrderService.getProductOrderBasket();
+
+                        Set<String> productNameSet = new HashSet<>();
+                        for (Patch patch : patchList) {
+                            String parentProductName = patch.getParentProductName();
+                            if (productOrderBasket.getProductOrder(parentProductName) == null) {
+                                productNameSet.add(parentProductName);
+                            }
+                        }
+
+                        if (productNameSet.isEmpty()) {
+                            VisatApp.getApp().showMessageDialog((String) getValue(NAME),
+                                                                "All parent data products have already been ordered.",
+                                                                JOptionPane.INFORMATION_MESSAGE, null);
+                            return;
+                        }
+
+                        int resp = VisatApp.getApp().showQuestionDialog((String) getValue(NAME),
+                                                                        String.format("%d data product(s) will be ordered.\nProceed?",
+                                                                                      productNameSet.size()),
+                                                                        null);
+                        if (resp == JOptionPane.YES_OPTION) {
+                            for (String productName : productNameSet) {
+                                productOrderService.submit(new ProductOrder(productName));
+                            }
+                        }
+                    }
+                });
+            }
+            return contextActions;
+        }
     }
 }

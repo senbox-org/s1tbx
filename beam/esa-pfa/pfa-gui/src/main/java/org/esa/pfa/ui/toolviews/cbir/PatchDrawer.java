@@ -22,10 +22,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.List;
 
 /**
 
@@ -45,6 +53,7 @@ public class PatchDrawer extends JPanel {
     private static final ImageIcon iconPatch = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/patch.png"));
     private static final Patch[] NO_PATCHES = new Patch[0];
     private PatchContextMenuFactory patchContextMenuFactory;
+    private Patch[] patches;
 
     private static enum SelectionMode {CHECK, RECT}
 
@@ -67,21 +76,26 @@ public class PatchDrawer extends JPanel {
         this.patchContextMenuFactory = patchContextMenuFactory;
     }
 
-    public void update(final Patch[] imageList) {
+    public List<Patch> getPatches() {
+        return Arrays.asList(patches);
+    }
+
+    public void update(final Patch[] patches) {
+        this.patches = patches;
         this.removeAll();
 
-        if (imageList.length == 0) {
+        if (patches.length == 0) {
             JLabel label = new JLabel();
             label.setIcon(iconPatch);
             this.add(label);
         } else {
             if(multiRow) {
                 int numCol = 10;
-                int numRow = imageList.length / numCol;
+                int numRow = patches.length / numCol;
                 setPreferredSize(new Dimension((width+margin)*numCol, (height+margin)*numRow));
             }
 
-            for (Patch patch : imageList) {
+            for (Patch patch : patches) {
                 final PatchDrawing label = new PatchDrawing(patch);
                 this.add(label);
             }
