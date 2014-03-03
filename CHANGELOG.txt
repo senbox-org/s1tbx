@@ -43,6 +43,7 @@ New BEAM Features
 
 Improvements
 
+[BEAM-1616] Geocoding toolview shall display data as table
 [BEAM-1603] Info tool window shall display data as table
 [BEAM-1612] PGX reader plugin may take very long to determine decode qualification
 [BEAM-1610] Move ENVI-Reader from Glob-Box to BEAM
