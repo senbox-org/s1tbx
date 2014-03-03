@@ -14,6 +14,7 @@ import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.ordering.ProductOrder;
 import org.esa.pfa.ordering.ProductOrderBasket;
+import org.esa.pfa.ordering.ProductOrderService;
 import org.esa.pfa.search.CBIRSession;
 
 import javax.swing.AbstractAction;
@@ -44,8 +45,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author Norman Fomferra
@@ -98,15 +97,13 @@ public class PatchContextMenuFactory {
 
         return new AbstractAction("Order Parent Product") {
 
-            private ExecutorService executorService  = Executors.newFixedThreadPool(3);;
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 orderParentProduct(patch);
             }
 
             private void orderParentProduct(Patch patch) {
-                final ProductOrderBasket productOrderBasket = CBIRSession.Instance().getProductOrderBasket();
+                ProductOrderBasket productOrderBasket = CBIRSession.Instance().getProductOrderBasket();
                 ProductOrder productOrder = productOrderBasket.getProductOrder(parentProductName);
                 if (productOrder != null) {
                     if (productOrder.getState() == ProductOrder.State.DOWNLOADED) {
@@ -133,33 +130,8 @@ public class PatchContextMenuFactory {
                                                          JOptionPane.OK_CANCEL_OPTION,
                                                          JOptionPane.QUESTION_MESSAGE);
                 if (resp == JOptionPane.OK_OPTION) {
-                    final ProductOrder productOrder1 = new ProductOrder(parentProductName);
-                    productOrderBasket.addProductOrder(productOrder1);
-
-                    Runnable fakeDownload = new Runnable() {
-
-                        int DURATION = 20;
-
-                        @Override
-                        public void run() {
-                            int N  = 100;
-                            int delay = DURATION * 1000 / N;
-                            for (int i = 0; i < 100; i++) {
-                                try {
-                                    Thread.sleep(delay);
-                                    productOrder1.setState(ProductOrder.State.DOWNLOADING);
-                                    productOrder1.setProgress(i + 1);
-                                    productOrderBasket.fireOrderStateChanged(productOrder1);
-                                } catch (InterruptedException e) {
-                                    // ok
-                                }
-                            }
-                            productOrder1.setState(ProductOrder.State.DOWNLOADED);
-                            productOrder1.setProgress(N);
-                            productOrderBasket.fireOrderStateChanged(productOrder1);
-                        }
-                    };
-                    executorService.submit(fakeDownload);
+                    ProductOrderService productOrderService = CBIRSession.Instance().getProductOrderService();
+                    productOrderService.submit(new ProductOrder(parentProductName));
                 }
             }
         };

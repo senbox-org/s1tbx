@@ -20,9 +20,7 @@ public class ProductOrderBasket {
         listenerList = new ArrayList<>();
     }
 
-
-
-    public void  addProductOrder(ProductOrder productOrder) {
+    public void addProductOrder(ProductOrder productOrder) {
         String productName = productOrder.getProductName();
         ProductOrder oldProductOrder = getProductOrder(productName);
         if (oldProductOrder == null) {
@@ -32,7 +30,7 @@ public class ProductOrderBasket {
         }
     }
 
-    public void  removeProductOrder(ProductOrder productOrder) {
+    public void removeProductOrder(ProductOrder productOrder) {
         productOrderMap.remove(productOrder.getProductName());
         productOrderList.remove(productOrder);
         fireBasketChanged();
@@ -54,10 +52,6 @@ public class ProductOrderBasket {
         listenerList.add(listener);
     }
 
-    public List<ProductOrder> getProductOrderMap() {
-        return new ArrayList<>(productOrderMap.values());
-    }
-
     public int getProductOrderCount() {
         return productOrderMap.size();
     }
@@ -73,6 +67,8 @@ public class ProductOrderBasket {
     public int getProductOrderIndex(ProductOrder order) {
         return productOrderList.indexOf(order);
     }
+
+
     public interface Listener {
         void basketChanged(ProductOrderBasket basket);
         void orderStateChanged(ProductOrderBasket basket, ProductOrder order);

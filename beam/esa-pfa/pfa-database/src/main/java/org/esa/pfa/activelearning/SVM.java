@@ -89,8 +89,9 @@ public class SVM {
         setSVMModelParameters();
 
         findOptimalModelParameters(pm);
-
-        trainSVMModel();
+        if (!pm.isCanceled()) {
+            trainSVMModel();
+        }
     }
 
     /**
@@ -247,7 +248,7 @@ public class SVM {
 
         double accuracyMax = 0.0;
         int cIdx = 0, gammaIdx = 0;
-        pm.beginTask("Finding Optimal Model Parameters...", c.length*gamma.length);
+        pm.beginTask("Finding Optimal Model Parameters...", c.length * gamma.length);
         try {
             for (int i = 0; i < c.length; i++) {
                 for (int j = 0; j < gamma.length; j++) {
@@ -257,6 +258,9 @@ public class SVM {
                         accuracyMax = accuracy;
                         cIdx = i;
                         gammaIdx = j;
+                    }
+                    if (pm.isCanceled()) {
+                        return;
                     }
                     pm.worked(1);
                 }

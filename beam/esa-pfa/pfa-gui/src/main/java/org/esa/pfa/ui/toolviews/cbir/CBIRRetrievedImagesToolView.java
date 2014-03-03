@@ -155,8 +155,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         try {
             final String command = event.getActionCommand();
             if (command.equals("improveBtn")) {
-                final Window window = VisatApp.getApp().getApplicationWindow();
-                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Getting images to label") {
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(getControl(), "Getting images to label") {
                     @Override
                     protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
                         pm.beginTask("Getting images...", 100);

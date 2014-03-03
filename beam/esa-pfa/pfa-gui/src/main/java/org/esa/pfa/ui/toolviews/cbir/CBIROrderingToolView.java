@@ -23,20 +23,15 @@ import org.esa.pfa.ordering.ProductOrder;
 import org.esa.pfa.ordering.ProductOrderBasket;
 import org.esa.pfa.search.CBIRSession;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.StrokeBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -48,10 +43,9 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
 
     public final static String ID = "org.esa.pfa.ui.toolviews.cbir.CBIROrderingToolView";
 
-    private CBIRSession session;
-
     ProductOrderTableModel productListModel;
     private JTable table;
+    private File localProductDir;
 
     public CBIROrderingToolView() {
         CBIRSession.Instance().addListener(this);
@@ -67,7 +61,7 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
         columnModel.addColumn(new TableColumn(0, 128));
         columnModel.addColumn(new TableColumn(1, 128, new StatusCellRenderer(), null));
         columnModel.getColumn(0).setHeaderValue("Product");
-        columnModel.getColumn(0).setHeaderValue("Status");
+        columnModel.getColumn(1).setHeaderValue("Order Status");
 
         table = new JTable(productListModel, columnModel);
         table.addMouseListener(new MouseAdapter() {
@@ -79,8 +73,12 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
             }
         });
 
+        table.setIntercellSpacing(new Dimension(4, 0));
+        table.setRowHeight(table.getRowHeight() + 6);
+        table.setGridColor(Color.GRAY);
+
         JPanel control = new JPanel(new BorderLayout(4, 4));
-        control.setBorder(new EmptyBorder(4,4,4,4));
+        control.setBorder(new EmptyBorder(4, 4, 4, 4));
         control.add(new JLabel("Data products ordered:"), BorderLayout.NORTH);
         control.add(new JScrollPane(table), BorderLayout.CENTER);
         control.add(actionPanel, BorderLayout.SOUTH);
@@ -88,12 +86,22 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
         return control;
     }
 
+    void setProductOrderBasket(ProductOrderBasket productOrderBasket) {
+        productListModel = new ProductOrderTableModel(productOrderBasket);
+        productOrderBasket.addListener(productListModel);
+        if (table != null) {
+            table.setModel(productListModel);
+        }
+    }
+
+    void setLocalProductDir(File localProductDir) {
+        this.localProductDir = localProductDir;
+    }
+
     private void openSelectedProduct() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
             ProductOrder productOrder = productListModel.getProductOrderBasket().getProductOrder(selectedRow);
-            PFAApplicationDescriptor applicationDescriptor = session.getApplicationDescriptor();
-            File localProductDir = applicationDescriptor.getLocalProductDir();
             if (localProductDir == null) {
                 // config property not set?
                 return;
@@ -116,12 +124,12 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
 
     @Override
     public void notifyNewSession() {
-        session = CBIRSession.Instance();
-        productListModel = new ProductOrderTableModel(session.getProductOrderBasket());
-        session.getProductOrderBasket().addListener(productListModel);
-        if (table != null) {
-            table.setModel(productListModel);
-        }
+        CBIRSession session = CBIRSession.Instance();
+        setProductOrderBasket(session.getProductOrderBasket());
+
+        PFAApplicationDescriptor applicationDescriptor = session.getApplicationDescriptor();
+        setLocalProductDir(applicationDescriptor.getLocalProductDir());
+
     }
 
     @Override
@@ -136,6 +144,7 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
     public void notifyStateChanged(final Patch patch) {
     }
 
+
     private static class StatusCellRenderer extends DefaultTableCellRenderer {
         JProgressBar progressBar;
 
@@ -144,11 +153,11 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
             progressBar.setMinimum(0);
             progressBar.setMaximum(100);
             progressBar.setStringPainted(true);
-            setBorder(new EmptyBorder(2, 2, 2, 2));
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
             ProductOrder productOrder = (ProductOrder) value;
             if (productOrder != null) {
                 int progress = productOrder.getProgress();
@@ -158,11 +167,26 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
                     return progressBar;
                 } else if (productOrder.getState() != null) {
                     super.getTableCellRendererComponent(table, productOrder.getState().toString(), isSelected, hasFocus, row, column);
+                    Font font = getFont();
+                    setFont(new Font(font.getName(), Font.BOLD, font.getSize()));
+                    setForeground(getStateColor(productOrder.getState()));
                     return this;
                 }
             }
             super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
             return this;
+        }
+
+        Color getStateColor(ProductOrder.State state) {
+            if (state == ProductOrder.State.DOWNLOADED) {
+                return Color.GREEN.darker();
+            } else if (state == ProductOrder.State.WAITING) {
+                return Color.BLUE.darker();
+            } else if (state == ProductOrder.State.REQUEST_SUBMITTED) {
+                return Color.RED.darker();
+            } else {
+                return Color.DARK_GRAY;
+            }
         }
     }
 

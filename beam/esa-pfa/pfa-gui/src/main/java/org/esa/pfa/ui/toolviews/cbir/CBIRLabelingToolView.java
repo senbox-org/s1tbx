@@ -15,7 +15,7 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
-import com.bc.ceres.core.*;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
@@ -166,12 +166,9 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         try {
             final String command = event.getActionCommand();
             if(command.equals("applyBtn")) {
-                getContext().getPage().showToolView(CBIRRetrievedImagesToolView.ID);
-
-                final Window window = VisatApp.getApp().getApplicationWindow();
-                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Retrieving") {
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(getControl(), "Retrieving") {
                     @Override
-                    protected Boolean doInBackground(final com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+                    protected Boolean doInBackground(final ProgressMonitor pm) throws Exception {
                         pm.beginTask("Retrieving images...", 100);
                         try {
                             session.trainModel(pm);
@@ -185,6 +182,9 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
                     }
                 };
                 worker.executeWithBlocking();
+                if (worker.get()) {
+                    getContext().getPage().showToolView(CBIRRetrievedImagesToolView.ID);
+                }
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());

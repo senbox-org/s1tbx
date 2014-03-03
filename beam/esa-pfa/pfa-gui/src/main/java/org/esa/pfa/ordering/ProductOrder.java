@@ -5,7 +5,8 @@ package org.esa.pfa.ordering;
 */
 public class ProductOrder {
     public enum State {
-        SUBMITTED,
+        WAITING,
+        REQUEST_SUBMITTED,
         DOWNLOADING,
         DOWNLOADED,
     }
@@ -15,9 +16,13 @@ public class ProductOrder {
     int progress;
 
     public ProductOrder(String productName) {
+        this(productName, State.WAITING, 0);
+    }
+
+    public ProductOrder(String productName, State state, int progress) {
         this.productName = productName;
-        state = State.SUBMITTED;
-        progress = 0;
+        this.state = state;
+        this.progress = progress;
     }
 
     public String getProductName() {

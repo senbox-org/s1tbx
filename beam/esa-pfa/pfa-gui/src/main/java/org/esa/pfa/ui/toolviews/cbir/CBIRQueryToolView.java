@@ -194,8 +194,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                 }
                 final Patch[] queryImages = queryPatches.toArray(new Patch[queryPatches.size()]);
 
-                final Window window = VisatApp.getApp().getApplicationWindow();
-                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(window, "Getting images to label") {
+                ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(getControl(), "Getting images to label") {
                     @Override
                     protected Boolean doInBackground(final ProgressMonitor pm) throws Exception {
                         pm.beginTask("Getting images...", 100);
@@ -250,8 +249,7 @@ public class CBIRQueryToolView extends AbstractToolView implements ActionListene
                                    final RenderedImage parentImage) throws IOException {
 
             final Rectangle region = new Rectangle(x, y, w, h);
-            final PatchProcessor patchProcessor = new PatchProcessor(VisatApp.getApp().getApplicationWindow(),
-                                                               product, parentImage, region, session);
+            final PatchProcessor patchProcessor = new PatchProcessor(getControl(), product, parentImage, region, session);
             patchProcessor.executeWithBlocking();
             Patch patch = null;
             try {

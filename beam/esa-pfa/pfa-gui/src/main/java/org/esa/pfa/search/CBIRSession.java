@@ -22,6 +22,7 @@ import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.ordering.ProductOrderBasket;
+import org.esa.pfa.ordering.ProductOrderService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +45,10 @@ public class CBIRSession {
 
     private ProductOrderBasket productOrderBasket;
 
+    private ProductOrderService productOrderService;
+
     private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
+
     enum Notification { NewSession, NewTrainingImages, ModelTrained };
 
     private static CBIRSession instance = null;
@@ -67,6 +71,7 @@ public class CBIRSession {
 
         searchTool = new SearchToolStub(applicationDescriptor, archivePath, classifierName, pm);
         productOrderBasket = new ProductOrderBasket();
+        productOrderService = new ProductOrderService(productOrderBasket);
 
         fireNotification(Notification.NewSession);
     }
@@ -81,6 +86,10 @@ public class CBIRSession {
 
     public ProductOrderBasket getProductOrderBasket() {
         return productOrderBasket;
+    }
+
+    public ProductOrderService getProductOrderService() {
+        return productOrderService;
     }
 
     public DatasetDescriptor getDsDescriptor() {
