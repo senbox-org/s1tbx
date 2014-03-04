@@ -241,15 +241,13 @@ public class OperatorExecutor {
             OperatorContext operatorContext = (OperatorContext) field.get(operator);
             field.setAccessible(false);
             return operatorContext;
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
     }
 
     private static PlanarImage[] createImages(Band[] targetBands, OperatorContext operatorContext) {
-        final ArrayList<PlanarImage> images = new ArrayList<PlanarImage>(targetBands.length);
+        final ArrayList<PlanarImage> images = new ArrayList<>(targetBands.length);
         for (final Band band : targetBands) {
             OperatorImage operatorImage = operatorContext.getTargetImage(band);
             if (operatorImage != null) {
