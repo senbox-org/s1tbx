@@ -71,6 +71,7 @@ public class DatasetDescriptor {
         xStream.alias("DatasetDescriptor", DatasetDescriptor.class);
         xStream.alias("FeatureType", FeatureType.class);
         xStream.alias("AttributeType", AttributeType.class);
+        xStream.setClassLoader(DatasetDescriptor.class.getClassLoader());
         return xStream;
     }
 

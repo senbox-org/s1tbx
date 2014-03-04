@@ -90,6 +90,7 @@ public class ClassifierWriter {
     private static XStream getXStream() {
         XStream xStream = new XStream();
         xStream.alias("model", svm_model.class);
+        xStream.setClassLoader(ClassifierWriter.class.getClassLoader());
         return xStream;
     }
 

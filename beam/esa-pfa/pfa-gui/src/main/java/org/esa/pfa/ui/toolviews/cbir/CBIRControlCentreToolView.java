@@ -431,7 +431,7 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         trainBtn.setEnabled(activeSession);
         applyBtn.setEnabled(activeSession);
 
-        if (session != null) {
+        if (session != null && session.isInit()) {
             final int numIterations = session.getNumIterations();
             numTrainingImages.setText(String.valueOf(session.getNumTrainingImages()));
             numRetrievedImages.setText(String.valueOf(session.getNumRetrievedImages()));

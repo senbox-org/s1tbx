@@ -52,6 +52,7 @@ public class CBIRSession {
     enum Notification { NewSession, NewTrainingImages, ModelTrained };
 
     private static CBIRSession instance = null;
+    private boolean initialized = false;
 
     private CBIRSession() {
     }
@@ -63,9 +64,14 @@ public class CBIRSession {
         return instance;
     }
 
+    public boolean isInit() {
+        return initialized;
+    }
+
     public void initSession(final String classifierName,
                        final PFAApplicationDescriptor applicationDescriptor,
                        final String archivePath, final ProgressMonitor pm) throws Exception {
+        try {
         this.classifierName = classifierName;
         this.applicationDescriptor = applicationDescriptor;
 
@@ -73,7 +79,12 @@ public class CBIRSession {
         productOrderBasket = new ProductOrderBasket();
         productOrderService = new ProductOrderService(productOrderBasket);
 
+        initialized = true;
         fireNotification(Notification.NewSession);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public String getName() {
