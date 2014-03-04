@@ -29,7 +29,7 @@ import javax.media.jai.Histogram;
  * leaving behind this class as a pure data container. Statistics are now furthermore derived upon
  * geo-physically interpreted image data (before it operated on the raw, unscaled data). Thus, it is
  * not required to scale the returned statistical properties, e.g. we used to write
- * {@code band.scale(stx.getMean())}. This is not required anymore.</i>
+ * {@code band.scale(stx.getMean)}. This is not required anymore.</i>
  *
  * @author Norman Fomferra
  * @author Marco Peters
@@ -69,12 +69,13 @@ public class Stx {
     public Stx(double minimum, double maximum, double mean, double standardDeviation,
                boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
 
-        Assert.argument(!Double.isNaN(minimum) && !Double.isInfinite(minimum), "minimum");
-        Assert.argument(!Double.isNaN(maximum) && !Double.isInfinite(maximum), "maximum");
+        Assert.argument(!Double.isNaN(minimum), "minimum must not be NaN");
+        Assert.argument(!Double.isInfinite(minimum), "minimum must not be infinity");
+        Assert.argument(!Double.isNaN(maximum), "maximum must not be NaN");
+        Assert.argument(!Double.isInfinite(maximum), "minimum must not be infinity");
         Assert.argument(resolutionLevel >= 0, "resolutionLevel");
 
         // todo - this is still a lot of behaviour, move all computations to StxFactory (nf)
-        // todo - minimum and maximum must always be valid (nf)
         this.sampleCount = StxFactory.computeSum(histogram.getBins(0));
         this.minimum = minimum;
         this.maximum = maximum;
