@@ -211,7 +211,10 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
 
     @Override
     public void notifyDeleteClassifier(SearchToolStub classifier) {
-        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
+        session = null;
+        if (isControlCreated()) {
+            updateControls();
+        }
     }
 
     @Override

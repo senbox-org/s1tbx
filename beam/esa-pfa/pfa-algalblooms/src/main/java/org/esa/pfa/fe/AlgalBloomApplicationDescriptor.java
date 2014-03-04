@@ -34,7 +34,6 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
     public static final String DEFAULT_QL_NAME = "rgb1_ql.png";
     public static final String DEFAULT_ALL_QUERY = "product:MER*";
 
-    private static final URL graphURL = AlgalBloomApplicationDescriptor.class.getResource("AlgalBloomFeatureWriter.xml");
     private static Properties properties = new Properties(System.getProperties());
 
     private static Dimension patchDimension = new Dimension(200, 200);
@@ -68,8 +67,8 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
     }
 
     @Override
-    public File getGraphFile() {
-        return new File(graphURL.getPath());
+    public InputStream getGraphFileAsStream() {
+        return UrbanAreaApplicationDescriptor.class.getClassLoader().getResourceAsStream("AlgalBloomFeatureWriter.xml");
     }
 
     @Override

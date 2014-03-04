@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,7 +42,6 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
     private static Dimension patchDimension = new Dimension(200, 200);
     private static Set<String> defaultFeatureSet;
 
-    private static final URL graphURL = UrbanAreaApplicationDescriptor.class.getClassLoader().getResource("graphs/UrbanDetectionFeatureWriter.xml");
     private static Properties properties = new Properties(System.getProperties());
 
     static {
@@ -70,8 +70,8 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
     }
 
     @Override
-    public File getGraphFile() {
-        return new File(graphURL.getPath());
+    public InputStream getGraphFileAsStream() {
+        return UrbanAreaApplicationDescriptor.class.getClassLoader().getResourceAsStream("graphs/UrbanDetectionFeatureWriter.xml");
     }
 
     @Override

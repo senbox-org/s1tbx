@@ -17,6 +17,7 @@ package org.esa.pfa.fe;
 
 import java.awt.Dimension;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Set;
 
 /**
@@ -44,9 +45,9 @@ public interface PFAApplicationDescriptor {
     /**
      * Gets the graph file with which to apply the feature extraction
      *
-     * @return the graph file
+     * @return the graph file as a stream
      */
-    File getGraphFile();
+    public InputStream getGraphFileAsStream();
 
     /**
      * @return A Lucene query expression that matches all entries.

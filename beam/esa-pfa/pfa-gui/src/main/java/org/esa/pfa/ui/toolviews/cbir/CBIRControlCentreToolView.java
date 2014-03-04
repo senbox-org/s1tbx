@@ -418,7 +418,9 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
     private void createNewSession() throws Exception {
         final String name = classifierList.getSelectedValue();
         System.out.println("name = " + name);
-        if (name != null && session == null || (session.getClassifierName() == null || !session.getClassifierName().equals(name))) {
+        if(name == null)
+            return;
+        if (session == null || (session.getClassifierName() == null || !session.getClassifierName().equals(name))) {
 
             ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(getControl(), "Loading") {
                 @Override

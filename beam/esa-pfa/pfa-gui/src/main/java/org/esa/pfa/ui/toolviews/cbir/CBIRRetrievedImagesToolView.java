@@ -142,7 +142,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     private void updateControls() {
         try {
-            final boolean haveRetrievedImages = retrievedPatches != null && retrievedPatches.length > 0;
+            final boolean haveRetrievedImages = session != null && retrievedPatches != null && retrievedPatches.length > 0;
             improveBtn.setEnabled(haveRetrievedImages);
             allRelevantBtn.setEnabled(haveRetrievedImages);
             allIrrelevantBtn.setEnabled(haveRetrievedImages);
@@ -212,7 +212,10 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     @Override
     public void notifyDeleteClassifier(SearchToolStub classifier) {
-        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
+        session = null;
+        if (isControlCreated()) {
+            updateControls();
+        }
     }
 
     @Override
