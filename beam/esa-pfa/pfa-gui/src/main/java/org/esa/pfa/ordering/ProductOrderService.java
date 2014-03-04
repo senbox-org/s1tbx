@@ -1,5 +1,6 @@
 package org.esa.pfa.ordering;
 
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -7,9 +8,12 @@ import java.util.concurrent.Executors;
  * Fake service for time being.
  */
 public class ProductOrderService {
+    final static int MEAN_SUBMIT_DURATION = 2;
+    final static int MEAN_DOWNLOAD_DURATION = 20;
 
     final ExecutorService executorService = Executors.newFixedThreadPool(3);
-    ProductOrderBasket productOrderBasket;
+    final ProductOrderBasket productOrderBasket;
+    final Random random = new Random();
 
     public ProductOrderService(ProductOrderBasket productOrderBasket) {
         this.productOrderBasket = productOrderBasket;
@@ -30,30 +34,31 @@ public class ProductOrderService {
     }
 
     private void orderImpl(final ProductOrder productOrder) {
-        int SUBMIT_DURATION = 2;
-        int DOWNLOAD_DURATION = 20;
-        try {
-            productOrder.setState(ProductOrder.State.REQUEST_SUBMITTED);
+        productOrder.setState(ProductOrder.State.SUBMITTED);
+        productOrderBasket.fireOrderStateChanged(productOrder);
+        sleep(MEAN_SUBMIT_DURATION * 1000);
+
+        final int numDownloadSteps = 100;
+        for (int i = 0; i < 100; i++) {
+            sleep(MEAN_DOWNLOAD_DURATION * 1000 / numDownloadSteps);
+            productOrder.setState(ProductOrder.State.DOWNLOADING);
+            productOrder.setProgress(i + 1);
             productOrderBasket.fireOrderStateChanged(productOrder);
-            Thread.sleep(SUBMIT_DURATION * 1000);
+        }
+        productOrder.setState(ProductOrder.State.COMPLETED);
+        productOrder.setProgress(numDownloadSteps);
+        productOrderBasket.fireOrderStateChanged(productOrder);
+    }
+
+
+    void sleep(int meanMillis) {
+        try {
+            int millis = meanMillis + (int) (0.5 * random.nextGaussian() * meanMillis);
+            if (millis > 0) {
+                Thread.sleep(millis);
+            }
         } catch (InterruptedException e) {
             // ok
         }
-
-        int N = 100;
-        int delay = DOWNLOAD_DURATION * 1000 / N;
-        for (int i = 0; i < 100; i++) {
-            try {
-                Thread.sleep(delay);
-                productOrder.setState(ProductOrder.State.DOWNLOADING);
-                productOrder.setProgress(i + 1);
-                productOrderBasket.fireOrderStateChanged(productOrder);
-            } catch (InterruptedException e) {
-                // ok
-            }
-        }
-        productOrder.setState(ProductOrder.State.DOWNLOADED);
-        productOrder.setProgress(N);
-        productOrderBasket.fireOrderStateChanged(productOrder);
     }
 }

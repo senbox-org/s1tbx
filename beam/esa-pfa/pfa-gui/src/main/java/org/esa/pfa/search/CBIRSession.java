@@ -17,7 +17,6 @@ package org.esa.pfa.search;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
@@ -30,69 +29,80 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * State of the CBIR
+ * Encapsulates the state of a user's CBIR session.
  */
 public class CBIRSession {
 
-    private List<Patch> relevantImageList = new ArrayList<>(50);
-    private List<Patch> irrelevantImageList = new ArrayList<>(50);
-    private List<Patch> retrievedImageList = new ArrayList<>(500);
-
-    private String classifierName;
-    private PFAApplicationDescriptor applicationDescriptor;
-
-    private SearchToolStub searchTool;
-
-    private ProductOrderBasket productOrderBasket;
-
-    private ProductOrderService productOrderService;
-
-    private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
-
-    enum Notification { NewSession, NewTrainingImages, ModelTrained };
-
-    private static CBIRSession instance = null;
-    private boolean initialized = false;
-
-    private CBIRSession() {
+    private enum Notification {
+        NewClassifier,
+        DeleteClassifier,
+        NewTrainingImages,
+        ModelTrained
     }
 
-    public static CBIRSession Instance() {
-        if(instance == null) {
+    private static CBIRSession instance = null;
+
+    private final ProductOrderBasket productOrderBasket;
+    private final ProductOrderService productOrderService;
+
+    private final List<Patch> relevantImageList = new ArrayList<>(50);
+    private final List<Patch> irrelevantImageList = new ArrayList<>(50);
+    private final List<Patch> retrievedImageList = new ArrayList<>(500);
+    private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
+    private SearchToolStub classifier;
+
+    private CBIRSession() {
+        productOrderBasket = new ProductOrderBasket();
+        productOrderService = new ProductOrderService(productOrderBasket);
+    }
+
+    public static CBIRSession getInstance() {
+        if (instance == null) {
             instance = new CBIRSession();
         }
         return instance;
     }
 
-    public boolean isInit() {
-        return initialized;
+    public boolean hasClassifier() {
+        return classifier != null;
     }
 
-    public void initSession(final String classifierName,
-                       final PFAApplicationDescriptor applicationDescriptor,
-                       final String archivePath, final ProgressMonitor pm) throws Exception {
+    public SearchToolStub getClassifier() {
+        return classifier;
+    }
+
+    public void createClassifier(final String classifierName,
+                                 final PFAApplicationDescriptor applicationDescriptor,
+                                 final String archivePath,
+                                 final ProgressMonitor pm) throws Exception {
         try {
-        this.classifierName = classifierName;
-        this.applicationDescriptor = applicationDescriptor;
-
-        searchTool = new SearchToolStub(applicationDescriptor, archivePath, classifierName, pm);
-        productOrderBasket = new ProductOrderBasket();
-        productOrderService = new ProductOrderService(productOrderBasket);
-
-        initialized = true;
-        fireNotification(Notification.NewSession);
+            classifier = new SearchToolStub(applicationDescriptor, archivePath, classifierName, pm);
+            fireNotification(Notification.NewClassifier, classifier);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    public String getName() {
-        return classifierName;
+    public void deleteClassifier() throws Exception {
+        try {
+            SearchToolStub deletedClassifier = classifier;
+            classifier.deleteClassifier();
+            classifier = null;
+            fireNotification(Notification.DeleteClassifier, deletedClassifier);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    public String getClassifierName() {
+        return classifier.getClassifierName();
     }
 
     public PFAApplicationDescriptor getApplicationDescriptor() {
-        return applicationDescriptor;
+        return classifier.getApplicationDescriptor();
     }
 
     public ProductOrderBasket getProductOrderBasket() {
@@ -103,36 +113,28 @@ public class CBIRSession {
         return productOrderService;
     }
 
-    public DatasetDescriptor getDsDescriptor() {
-        return searchTool.getDsDescriptor();
-    }
-
-    public boolean deleteClassifier() {
-        return searchTool.deleteClassifier();
-    }
-
-    public FeatureType[] getEffectiveFeatureTypes()  {
-        return searchTool.getPatchQuery().getEffectiveFeatureTypes();
+    public FeatureType[] getEffectiveFeatureTypes() {
+        return classifier.getPatchQuery().getEffectiveFeatureTypes();
     }
 
     public void setNumTrainingImages(final int numTrainingImages) throws Exception {
-        searchTool.setNumTrainingImages(numTrainingImages);
+        classifier.setNumTrainingImages(numTrainingImages);
     }
 
     public int getNumTrainingImages() {
-        return searchTool.getNumTrainingImages();
+        return classifier.getNumTrainingImages();
     }
 
     public void setNumRetrievedImages(final int numRetrievedImages) throws Exception {
-        searchTool.setNumRetrievedImages(numRetrievedImages);
+        classifier.setNumRetrievedImages(numRetrievedImages);
     }
 
     public int getNumRetrievedImages() {
-        return searchTool.getNumRetrievedImages();
+        return classifier.getNumRetrievedImages();
     }
 
     public int getNumIterations() {
-        return searchTool.getNumIterations();
+        return classifier.getNumIterations();
     }
 
     public static String[] getSavedClassifierNames(final String archiveFolder) {
@@ -140,29 +142,29 @@ public class CBIRSession {
     }
 
     public void setQuicklookBandName(final Patch[] patches, final String quicklookBandName) {
-        searchTool.setQuicklookBandName(quicklookBandName);
+        classifier.setQuicklookBandName(quicklookBandName);
         //reset patch images
-        for(Patch patch : patches) {
+        for (Patch patch : patches) {
             patch.setImage(null);
         }
     }
 
     public String[] getAvailableQuickLooks(final Patch patch) throws IOException {
-        return searchTool.getAvailableQuickLooks(patch);
+        return classifier.getAvailableQuickLooks(patch);
     }
 
     public void addQueryPatch(final Patch patch) {
-        searchTool.addQueryImage(patch);
+        classifier.addQueryImage(patch);
     }
 
     public Patch[] getQueryPatches() {
-        return searchTool.getQueryImages();
+        return classifier.getQueryImages();
     }
 
     public void setQueryImages(final Patch[] queryImages, final ProgressMonitor pm) throws Exception {
         pm.beginTask("Getting Images to Label", 100);
         try {
-            searchTool.setQueryImages(queryImages, SubProgressMonitor.create(pm, 50));
+            classifier.setQueryImages(queryImages, SubProgressMonitor.create(pm, 50));
             getImagesToLabel(SubProgressMonitor.create(pm, 50));
         } finally {
             pm.done();
@@ -170,19 +172,19 @@ public class CBIRSession {
     }
 
     public void populateArchivePatches(final ProgressMonitor pm) throws Exception {
-        searchTool.populateArchivePatches(pm);
+        classifier.populateArchivePatches(pm);
     }
 
     public void reassignTrainingImage(final Patch patch) {
-        if(patch.getLabel() == Patch.LABEL_RELEVANT) {
+        if (patch.getLabel() == Patch.LABEL_RELEVANT) {
             int index = irrelevantImageList.indexOf(patch);
-            if(index != -1) {
+            if (index != -1) {
                 irrelevantImageList.remove(index);
                 relevantImageList.add(patch);
             }
-        } else if(patch.getLabel() == Patch.LABEL_IRRELEVANT) {
+        } else if (patch.getLabel() == Patch.LABEL_IRRELEVANT) {
             int index = relevantImageList.indexOf(patch);
-            if(index != -1) {
+            if (index != -1) {
                 relevantImageList.remove(index);
                 irrelevantImageList.add(patch);
             }
@@ -191,13 +193,13 @@ public class CBIRSession {
 
     public Patch[] getRelevantTrainingImages() {
         final Patch[] patches = relevantImageList.toArray(new Patch[relevantImageList.size()]);
-        searchTool.getPatchQuicklooks(patches);
+        classifier.getPatchQuicklooks(patches);
         return patches;
     }
 
     public Patch[] getIrrelevantTrainingImages() {
         final Patch[] patches = irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
-        searchTool.getPatchQuicklooks(patches);
+        classifier.getPatchQuicklooks(patches);
         return patches;
     }
 
@@ -206,9 +208,9 @@ public class CBIRSession {
         relevantImageList.clear();
         irrelevantImageList.clear();
 
-        final Patch[] imagesToLabel = searchTool.getImagesToLabel(pm);
-        for(Patch patch : imagesToLabel) {
-            if(patch.getLabel() == Patch.LABEL_RELEVANT) {
+        final Patch[] imagesToLabel = classifier.getImagesToLabel(pm);
+        for (Patch patch : imagesToLabel) {
+            if (patch.getLabel() == Patch.LABEL_RELEVANT) {
                 relevantImageList.add(patch);
             } else {
                 // default to irrelevant so user only needs to select the relevant
@@ -217,7 +219,7 @@ public class CBIRSession {
             }
         }
         if (!pm.isCanceled()) {
-            fireNotification(Notification.NewTrainingImages);
+            fireNotification(Notification.NewTrainingImages, classifier);
         }
     }
 
@@ -226,36 +228,39 @@ public class CBIRSession {
         labeledList.addAll(relevantImageList);
         labeledList.addAll(irrelevantImageList);
 
-        searchTool.trainModel(labeledList.toArray(new Patch[labeledList.size()]), pm);
+        classifier.trainModel(labeledList.toArray(new Patch[labeledList.size()]), pm);
 
-        fireNotification(Notification.ModelTrained);
+        fireNotification(Notification.ModelTrained, classifier);
     }
 
     public void retrieveImages() throws Exception {
         retrievedImageList.clear();
-        retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages()));
+        retrievedImageList.addAll(Arrays.asList(classifier.getRetrievedImages()));
     }
 
     public Patch[] getRetrievedImages() {
         final Patch[] patches = retrievedImageList.toArray(new Patch[retrievedImageList.size()]);
-        searchTool.getPatchQuicklooks(patches);
+        classifier.getPatchQuicklooks(patches);
         return patches;
     }
 
-    private void fireNotification(final Notification msg) throws Exception {
-        for(CBIRSessionListener listener : listenerList) {
+    private void fireNotification(final Notification msg, SearchToolStub classifier) throws Exception {
+        for (CBIRSessionListener listener : listenerList) {
             switch (msg) {
-                case NewSession:
-                    listener.notifyNewSession();
+                case NewClassifier:
+                    listener.notifyNewClassifier(classifier);
+                    break;
+                case DeleteClassifier:
+                    listener.notifyDeleteClassifier(classifier);
                     break;
                 case NewTrainingImages:
-                    listener.notifyNewTrainingImages();
+                    listener.notifyNewTrainingImages(classifier);
                     break;
                 case ModelTrained:
-                    listener.notifyModelTrained();
+                    listener.notifyModelTrained(classifier);
                     break;
                 default:
-                    throw new Exception("Unknown notification message: "+msg);
+                    throw new Exception("Unknown notification message: " + msg);
             }
         }
     }
@@ -272,10 +277,12 @@ public class CBIRSession {
 
     public interface CBIRSessionListener {
 
-        public void notifyNewSession();
+        void notifyNewClassifier(SearchToolStub classifier);
 
-        public void notifyNewTrainingImages();
+        void notifyNewTrainingImages(SearchToolStub classifier);
 
-        public void notifyModelTrained();
+        void notifyModelTrained(SearchToolStub classifier);
+
+        void notifyDeleteClassifier(SearchToolStub classifier);
     }
 }

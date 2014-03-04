@@ -24,6 +24,7 @@ import org.esa.pfa.ordering.ProductOrder;
 import org.esa.pfa.ordering.ProductOrderBasket;
 import org.esa.pfa.ordering.ProductOrderService;
 import org.esa.pfa.search.CBIRSession;
+import org.esa.pfa.search.SearchToolStub;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -63,9 +64,10 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
     private JComboBox<String> quickLookCombo;
 
     public CBIRRetrievedImagesToolView() {
-        CBIRSession.Instance().addListener(this);
+        CBIRSession.getInstance().addListener(this);
     }
 
+    @Override
     public JComponent createControl() {
 
         final JPanel topOptionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -203,14 +205,22 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         }
     }
 
-    public void notifyNewSession() {
-        session = CBIRSession.Instance();
+    @Override
+    public void notifyNewClassifier(SearchToolStub classifier) {
+        session = CBIRSession.getInstance();
     }
 
-    public void notifyNewTrainingImages() {
+    @Override
+    public void notifyDeleteClassifier(SearchToolStub classifier) {
+        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
     }
 
-    public void notifyModelTrained() {
+    @Override
+    public void notifyNewTrainingImages(SearchToolStub classifier) {
+    }
+
+    @Override
+    public void notifyModelTrained(SearchToolStub classifier) {
         try {
             session.retrieveImages();
 
@@ -230,6 +240,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
         }
     }
 
+    @Override
     public void notifyStateChanged(final Patch notifyingPatch) {
         int cnt = 0;
         for (Patch patch : retrievedPatches) {
@@ -251,7 +262,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
                 contextActions.add(new AbstractAction("Order All Parent Products") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        ProductOrderService productOrderService = CBIRSession.Instance().getProductOrderService();
+                        ProductOrderService productOrderService = CBIRSession.getInstance().getProductOrderService();
                         ProductOrderBasket productOrderBasket = productOrderService.getProductOrderBasket();
 
                         Set<String> productNameSet = new HashSet<>();

@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>pfa-core</artifactId>
+    <name>ESA PFA Core Interfaces and Components</name>
 
     <dependencies>
         <dependency>

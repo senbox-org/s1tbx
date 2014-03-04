@@ -22,6 +22,7 @@ import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.ordering.ProductOrder;
 import org.esa.pfa.ordering.ProductOrderBasket;
 import org.esa.pfa.search.CBIRSession;
+import org.esa.pfa.search.SearchToolStub;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -55,7 +56,7 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
     private File localProductDir;
 
     public CBIROrderingToolView() {
-        CBIRSession.Instance().addListener(this);
+        CBIRSession.getInstance().addListener(this);
     }
 
     public JComponent createControl() {
@@ -128,8 +129,8 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
     }
 
     @Override
-    public void notifyNewSession() {
-        CBIRSession session = CBIRSession.Instance();
+    public void notifyNewClassifier(SearchToolStub classifier) {
+        CBIRSession session = CBIRSession.getInstance();
         setProductOrderBasket(session.getProductOrderBasket());
 
         PFAApplicationDescriptor applicationDescriptor = session.getApplicationDescriptor();
@@ -137,11 +138,16 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
     }
 
     @Override
-    public void notifyNewTrainingImages() {
+    public void notifyDeleteClassifier(SearchToolStub classifier) {
+        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
     }
 
     @Override
-    public void notifyModelTrained() {
+    public void notifyNewTrainingImages(SearchToolStub classifier) {
+    }
+
+    @Override
+    public void notifyModelTrained(SearchToolStub classifier) {
     }
 
     @Override
@@ -170,7 +176,8 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
                     progressBar.setString(progress + "% downloaded");
                     return progressBar;
                 } else if (productOrder.getState() != null) {
-                    super.getTableCellRendererComponent(table, productOrder.getState().toString(), isSelected, hasFocus, row, column);
+                    String text = productOrder.getMessage() != null ? productOrder.getMessage() : productOrder.getState().toString();
+                    super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
                     Font font = getFont();
                     setFont(new Font(font.getName(), Font.BOLD, font.getSize()));
                     setForeground(getStateColor(productOrder.getState()));
@@ -182,11 +189,13 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
         }
 
         Color getStateColor(ProductOrder.State state) {
-            if (state == ProductOrder.State.DOWNLOADED) {
+            if (state == ProductOrder.State.COMPLETED) {
                 return Color.GREEN.darker();
             } else if (state == ProductOrder.State.WAITING) {
                 return Color.BLUE.darker();
-            } else if (state == ProductOrder.State.REQUEST_SUBMITTED) {
+            } else if (state == ProductOrder.State.SUBMITTED) {
+                return Color.BLUE.darker();
+            } else if (state == ProductOrder.State.ERROR) {
                 return Color.RED.darker();
             } else {
                 return Color.DARK_GRAY;

@@ -27,11 +27,36 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.PFAApplicationRegistry;
 import org.esa.pfa.search.CBIRSession;
+import org.esa.pfa.search.SearchToolStub;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -62,7 +87,7 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
     private CBIRSession session = null;
 
     public CBIRControlCentreToolView() {
-        CBIRSession.Instance().addListener(this);
+        CBIRSession.getInstance().addListener(this);
     }
 
     public JComponent createControl() {
@@ -294,11 +319,9 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         deleteBtn = new JButton(new AbstractAction("Delete") {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    final boolean ret = session.deleteClassifier();
-                    if (ret) {
-                        final DefaultListModel listModel = (DefaultListModel) classifierList.getModel();
-                        listModel.remove(classifierList.getSelectedIndex());
-                    }
+                    session.deleteClassifier();
+                    final DefaultListModel listModel = (DefaultListModel) classifierList.getModel();
+                    listModel.remove(classifierList.getSelectedIndex());
                 } catch (Throwable t) {
                     VisatApp.getApp().handleUnknownException(t);
                 }
@@ -394,7 +417,8 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
 
     private void createNewSession() throws Exception {
         final String name = classifierList.getSelectedValue();
-        if (name != null && session == null || (session.getName() == null || !session.getName().equals(name))) {
+        System.out.println("name = " + name);
+        if (name != null && session == null || (session.getClassifierName() == null || !session.getClassifierName().equals(name))) {
 
             ProgressMonitorSwingWorker<Boolean, Void> worker = new ProgressMonitorSwingWorker<Boolean, Void>(getControl(), "Loading") {
                 @Override
@@ -431,7 +455,7 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         trainBtn.setEnabled(activeSession);
         applyBtn.setEnabled(activeSession);
 
-        if (session != null && session.isInit()) {
+        if (session != null && session.hasClassifier()) {
             final int numIterations = session.getNumIterations();
             numTrainingImages.setText(String.valueOf(session.getNumTrainingImages()));
             numRetrievedImages.setText(String.valueOf(session.getNumRetrievedImages()));
@@ -447,9 +471,9 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         final PFAApplicationDescriptor applicationDescriptor = PFAApplicationRegistry.getInstance().getDescriptor(application);
 
         final String dbPath = dbFolderTextField.getText();
-        session = CBIRSession.Instance();
+        session = CBIRSession.getInstance();
 
-        session.initSession(classifierName, applicationDescriptor, dbPath, pm);
+        session.createClassifier(classifierName, applicationDescriptor, dbPath, pm);
     }
 
     private class FolderChooserAction extends AbstractAction {
@@ -512,13 +536,21 @@ public class CBIRControlCentreToolView extends AbstractToolView implements CBIRS
         }
     }
 
-    public void notifyNewSession() {
+    @Override
+    public void notifyNewClassifier(SearchToolStub classifier) {
     }
 
-    public void notifyNewTrainingImages() {
+    @Override
+    public void notifyDeleteClassifier(SearchToolStub classifier) {
+        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
     }
 
-    public void notifyModelTrained() {
+    @Override
+    public void notifyNewTrainingImages(SearchToolStub classifier) {
+    }
+
+    @Override
+    public void notifyModelTrained(SearchToolStub classifier) {
         updateControls();
     }
 

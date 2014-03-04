@@ -6,14 +6,16 @@ package org.esa.pfa.ordering;
 public class ProductOrder {
     public enum State {
         WAITING,
-        REQUEST_SUBMITTED,
+        SUBMITTED,
         DOWNLOADING,
-        DOWNLOADED,
+        COMPLETED,
+        ERROR,
     }
 
     final String productName;
     State state;
     int progress;
+    String message;
 
     public ProductOrder(String productName) {
         this(productName, State.WAITING, 0);
@@ -43,5 +45,13 @@ public class ProductOrder {
 
     public void setProgress(int progress) {
         this.progress = progress;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -104,10 +104,10 @@ public class PatchContextMenuFactory {
             }
 
             private void orderParentProduct(Patch patch) {
-                ProductOrderBasket productOrderBasket = CBIRSession.Instance().getProductOrderBasket();
+                ProductOrderBasket productOrderBasket = CBIRSession.getInstance().getProductOrderBasket();
                 ProductOrder productOrder = productOrderBasket.getProductOrder(parentProductName);
                 if (productOrder != null) {
-                    if (productOrder.getState() == ProductOrder.State.DOWNLOADED) {
+                    if (productOrder.getState() == ProductOrder.State.COMPLETED) {
                         int resp = VisatApp.getApp().showQuestionDialog((String) getValue(NAME),
                                                                         String.format("Data product\n%s\nhas already been downloaded.\nOpen it?",
                                                                                       parentProductName), null);
@@ -128,7 +128,7 @@ public class PatchContextMenuFactory {
                                                                 String.format("Data product\n%s\nwill be ordered.\nProceed?",
                                                                               parentProductName), null);
                 if (resp == JOptionPane.YES_OPTION) {
-                    ProductOrderService productOrderService = CBIRSession.Instance().getProductOrderService();
+                    ProductOrderService productOrderService = CBIRSession.getInstance().getProductOrderService();
                     productOrderService.submit(new ProductOrder(parentProductName));
                 }
             }
@@ -144,7 +144,7 @@ public class PatchContextMenuFactory {
         }
 
         // O-oh, no good design here...
-        CBIRSession session = CBIRSession.Instance();
+        CBIRSession session = CBIRSession.getInstance();
         PFAApplicationDescriptor applicationDescriptor = session.getApplicationDescriptor();
         if (applicationDescriptor == null) {
             // session not init?
@@ -258,7 +258,7 @@ public class PatchContextMenuFactory {
 
     private static Dimension getPatchDimension() {
         final Dimension patchDimension;
-        PFAApplicationDescriptor applicationDescriptor = CBIRSession.Instance().getApplicationDescriptor();
+        PFAApplicationDescriptor applicationDescriptor = CBIRSession.getInstance().getApplicationDescriptor();
         if (applicationDescriptor != null) {
             patchDimension = applicationDescriptor.getPatchDimension();
         } else {

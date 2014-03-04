@@ -21,6 +21,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
+import org.esa.pfa.search.SearchToolStub;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +47,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
     private JComboBox<String> quickLookCombo;
 
     public CBIRLabelingToolView() {
-        CBIRSession.Instance().addListener(this);
+        CBIRSession.getInstance().addListener(this);
     }
 
     public JComponent createControl() {
@@ -162,6 +163,7 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
      *
      * @param event the event.
      */
+    @Override
     public void actionPerformed(final ActionEvent event) {
         try {
             final String command = event.getActionCommand();
@@ -202,11 +204,18 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         }
     }
 
-    public void notifyNewSession() {
-        session = CBIRSession.Instance();
+    @Override
+    public void notifyNewClassifier(SearchToolStub classifier) {
+        session = CBIRSession.getInstance();
     }
 
-    public void notifyNewTrainingImages() {
+    @Override
+    public void notifyDeleteClassifier(SearchToolStub classifier) {
+        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
+    }
+
+    @Override
+    public void notifyNewTrainingImages(SearchToolStub classifier) {
         listenToPatches();
 
         if(isControlCreated()) {
@@ -214,9 +223,11 @@ public class CBIRLabelingToolView extends AbstractToolView implements Patch.Patc
         }
     }
 
-    public void notifyModelTrained() {
+    @Override
+    public void notifyModelTrained(SearchToolStub classifier) {
     }
 
+    @Override
     public void notifyStateChanged(final Patch patch) {
         session.reassignTrainingImage(patch);
 

@@ -19,24 +19,31 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.pfa.activelearning.ActiveLearning;
 import org.esa.pfa.activelearning.ClassifierWriter;
-import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.db.PatchQuery;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.Patch;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stub for PFA Search Tool on the server
+ * Stub for PFA Search Tool on the server.
+ * TODO major refactorings required (after demo):
+ * (1) rename this to Classifier, because it is *the* classifier.
+ * (2) introduce ClassifierService interface, which is used by CBIRSession. ClassifierService manages Classifiers (local or remote ones)
  */
 public class SearchToolStub {
 
     private final PFAApplicationDescriptor applicationDescriptor;
+    private final String classifierName;
     private final PatchQuery db;
     private final ActiveLearning al;
     private final File classifierFile;
@@ -49,6 +56,7 @@ public class SearchToolStub {
     public SearchToolStub(final PFAApplicationDescriptor applicationDescriptor, final String archiveFolder,
                           final String classifierName, final ProgressMonitor pm) throws Exception {
         this.applicationDescriptor = applicationDescriptor;
+        this.classifierName = classifierName;
 
         final File dbFolder = new File(archiveFolder);
         final File classifierFolder = new File(dbFolder, "Classifiers");
@@ -66,17 +74,26 @@ public class SearchToolStub {
         }
     }
 
+    public String getClassifierName() {
+        return classifierName;
+    }
+
+    public PFAApplicationDescriptor getApplicationDescriptor() {
+        return applicationDescriptor;
+    }
+
     public PatchQuery getPatchQuery() {
         return db;
     }
 
-    public DatasetDescriptor getDsDescriptor() {
-        return db.getDsDescriptor();
-    }
-
-    public boolean deleteClassifier() {
+    public void deleteClassifier() throws IOException {
         //todo other clean up
-        return classifierFile.delete();
+        if (classifierFile.exists()) {
+            boolean delete = classifierFile.delete();
+            if (!delete) {
+                throw new IOException("Failed to delete " + classifierFile);
+            }
+        }
     }
 
     public void setNumTrainingImages(final int numTrainingImages) throws Exception {
@@ -123,8 +140,8 @@ public class SearchToolStub {
         int numFeaturesDB = archivePatches[0].getFeatures().length;
         if (numFeaturesDB != numFeaturesQuery) {
             String msg = String.format("Incompatible Database.\n" +
-                    "The patches in the database have %d features.\n" +
-                    "The query patches have %d features.", numFeaturesDB, numFeaturesQuery);
+                                       "The patches in the database have %d features.\n" +
+                                       "The query patches have %d features.", numFeaturesDB, numFeaturesQuery);
             throw new IllegalArgumentException(msg);
         }
 
@@ -153,6 +170,7 @@ public class SearchToolStub {
 
     /**
      * Not all patches need quicklooks. This function adds quicklooks to the patches requested
+     *
      * @param patches the patches to get quicklooks for
      */
     public void getPatchQuicklooks(final Patch[] patches) {
@@ -179,16 +197,16 @@ public class SearchToolStub {
     public Patch[] getRetrievedImages() throws Exception {
 
         final List<Patch> relavantImages = new ArrayList<>(numRetrievedImages);
-        final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numRetrievedImages*10);
+        final Patch[] archivePatches = db.query(applicationDescriptor.getAllQueryExpr(), numRetrievedImages * 10);
         al.classify(archivePatches);
-        int i=0;
-        for(Patch patch : archivePatches) {
-            if(patch.getLabel() == Patch.LABEL_RELEVANT) {
-                if(!contains(relavantImages, patch)) {
+        int i = 0;
+        for (Patch patch : archivePatches) {
+            if (patch.getLabel() == Patch.LABEL_RELEVANT) {
+                if (!contains(relavantImages, patch)) {
                     relavantImages.add(patch);
                     ++i;
                 }
-                if(i >= numRetrievedImages) {
+                if (i >= numRetrievedImages) {
                     break;
                 }
             }
@@ -247,21 +265,21 @@ public class SearchToolStub {
         al.setModel(storedClassifier.getModel());
 
         final Patch[] queryPatches = loadPatches(storedClassifier.getQueryPatchInfo());
-        if(queryPatches != null && queryPatches.length > 0) {
+        if (queryPatches != null && queryPatches.length > 0) {
             al.setQueryPatches(queryPatches);
         }
 
         final Patch[] patches = loadPatches(storedClassifier.getPatchInfo());
-        if(patches != null && patches.length > 0) {
+        if (patches != null && patches.length > 0) {
             al.setTrainingData(patches, numIterations, pm);
         }
     }
 
     private Patch[] loadPatches(final ClassifierWriter.PatchInfo[] patchInfo) throws Exception {
-        if(patchInfo != null && patchInfo.length > 0) {
+        if (patchInfo != null && patchInfo.length > 0) {
             final Patch[] patches = new Patch[patchInfo.length];
             int i = 0;
-            for(ClassifierWriter.PatchInfo info : patchInfo) {
+            for (ClassifierWriter.PatchInfo info : patchInfo) {
                 final Patch patch = info.recreatePatch();
                 final File featureFile = new File(patch.getPathOnServer(), "features.txt");
                 patch.readFeatureFile(featureFile, getPatchQuery().getEffectiveFeatureTypes());
