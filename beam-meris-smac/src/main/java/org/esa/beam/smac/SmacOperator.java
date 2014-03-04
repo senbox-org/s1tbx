@@ -30,7 +30,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.ui.ExpressionConverter;
+import org.esa.beam.framework.ui.BooleanExpressionConverter;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.ResourceInstaller;
@@ -136,15 +136,15 @@ public class SmacOperator extends Operator {
 
     @Parameter(description = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)",
                label = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)",
-               converter = ExpressionConverter.class)
+               converter = BooleanExpressionConverter.class)
     private String maskExpression = "";
 
     @Parameter(description = "Mask expression for the forward view (AATSR only)",
                label = "Mask expression for the forward view (AATSR only)",
-               converter = ExpressionConverter.class)
+               converter = BooleanExpressionConverter.class)
     private String maskExpressionForward = "";
 
-    @Parameter(description = "Bands to process", label = "Bands to process", notNull = true)
+    @Parameter(description = "Bands to process", label = "Bands to process", notNull = true, rasterDataNodeType = Band.class)
     private String[] bandNames;
 
     @SourceProduct(alias = "source", label = "Source product")

@@ -23,7 +23,8 @@ import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.PropertyEditor;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.ExpressionConverter;
+import org.esa.beam.framework.ui.BooleanExpressionConverter;
+import org.esa.beam.framework.ui.GeneralExpressionConverter;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 
@@ -45,7 +46,7 @@ import java.beans.PropertyChangeListener;
  * @author Marco Zuehlke
  * @since BEAM 4.6
  */
-public class ExpressionEditor extends PropertyEditor {
+public abstract class ExpressionEditor extends PropertyEditor {
     
     private Product currentProduct;
 
@@ -61,8 +62,7 @@ public class ExpressionEditor extends PropertyEditor {
         etcButton.setEnabled(false);
         etcButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ProductExpressionPane expressionPane = ProductExpressionPane.createGeneralExpressionPane(
-                        new Product[]{currentProduct}, currentProduct, null);
+                ProductExpressionPane expressionPane = getProductExpressionPane(currentProduct);
                 expressionPane.setCode((String) binding.getPropertyValue());
                 if (expressionPane.showModalDialog(null, "Expression Editor") == ModalDialog.ID_OK) {
                     binding.setPropertyValue(expressionPane.getCode());
@@ -85,8 +85,33 @@ public class ExpressionEditor extends PropertyEditor {
         return subPanel;
     }
 
-    @Override
-    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
-        return propertyDescriptor.getConverter() instanceof ExpressionConverter;
+    abstract ProductExpressionPane getProductExpressionPane(Product currentProduct);
+
+    public static class GeneralExpressionEditor extends ExpressionEditor {
+
+        @Override
+        public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+            return propertyDescriptor.getConverter() instanceof GeneralExpressionConverter;
+        }
+
+        @Override
+        ProductExpressionPane getProductExpressionPane(Product currentProduct) {
+            return ProductExpressionPane.createGeneralExpressionPane(
+                    new Product[]{currentProduct}, currentProduct, null);
+        }
+    }
+
+    public static class BooleanExpressionEditor extends ExpressionEditor {
+
+        @Override
+        public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+            return propertyDescriptor.getConverter() instanceof BooleanExpressionConverter;
+        }
+
+        @Override
+        ProductExpressionPane getProductExpressionPane(Product currentProduct) {
+            return ProductExpressionPane.createBooleanExpressionPane(
+                    new Product[]{currentProduct}, currentProduct, null);
+        }
     }
 }
