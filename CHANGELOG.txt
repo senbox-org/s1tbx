@@ -57,6 +57,7 @@ Improvements
 
 Bugs
 
+[BEAM-1602] Histogram toolview shall remember last computed histograms
 [BEAM-1604] Wavelength values for Landsat need to be updated
 [BEAM-1593] Harmonise transect + mask pixels outputs
 [BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus
