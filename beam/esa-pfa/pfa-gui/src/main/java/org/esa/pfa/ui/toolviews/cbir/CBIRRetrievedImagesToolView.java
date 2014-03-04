@@ -231,7 +231,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
             }
             listenToPatches();
 
-            accuracy = retrievedPatches.length;
+            accuracy = 0;
             drawer.update(retrievedPatches);
 
             updateControls();
