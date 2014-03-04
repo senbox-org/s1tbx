@@ -17,7 +17,6 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
 
 import javax.media.jai.Histogram;
 
@@ -278,121 +277,5 @@ public class Stx {
         public double scaleInverse(double value) {
             return Math.pow(10.0, value);
         }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getHistogramBinMinimum(int)}
-     */
-    @Deprecated
-    public double getHistogramBinMin(int binIndex) {
-        return getHistogramBinMinimum(binIndex);
-    }
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getHistogramBinMaximum(int)}
-     */
-    @Deprecated
-    public double getHistogramBinMax(int binIndex) {
-        return getHistogramBinMaximum(binIndex);
-    }
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getMinimum()}
-     */
-    @Deprecated
-    public double getMin() {
-        return getMinimum();
-    }
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getMaximum()} ()}
-     */
-    @Deprecated
-    public double getMax() {
-        return getMaximum();
-    }
-
-    // todo - check if the following createXXX need to be maintained, otherwise remove (nf)
-
-    /**
-     * Creates statistics for the given raster data node at the given resolution level.
-     *
-     * @param raster The raster data node.
-     * @param level  The image resolution level.
-     * @param pm     A progress monitor.
-     * @return The statistics at the given resolution level.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, int level, ProgressMonitor pm) {
-        return new StxFactory().withResolutionLevel(level).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster  The raster data node.
-     * @param roiMask The mask that determines the region of interest.
-     * @param pm      A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, Mask roiMask, ProgressMonitor pm) {
-        return new StxFactory().withRoiMask(roiMask).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster   The raster data node.
-     * @param roiMask  The mask that determines the region of interest.
-     * @param binCount The number of bin cells used for the histogram.
-     * @param pm       A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, ProgressMonitor pm) {
-        return new StxFactory().withRoiMask(roiMask).withHistogramBinCount(binCount).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster   The raster data node.
-     * @param level    The image resolution level.
-     * @param binCount The number of bin cells used for the histogram.
-     * @param min      The minimum value.
-     * @param max      The maximum value.
-     * @param pm       A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, int level, int binCount, double min, double max,
-                             ProgressMonitor pm) {
-        return new StxFactory().withResolutionLevel(level).withHistogramBinCount(binCount).withMinimum(min).withMaximum(max).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster   The raster data node.
-     * @param roiMask  The mask that determines the region of interest.
-     * @param binCount The number of bin cells used for the histogram.
-     * @param min      The minimum value.
-     * @param max      The maximum value.
-     * @param pm       A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, double min, double max,
-                             ProgressMonitor pm) {
-        return new StxFactory().withRoiMask(roiMask).withHistogramBinCount(binCount).withMinimum(min).withMaximum(max).create(raster, pm);
     }
 }
