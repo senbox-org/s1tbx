@@ -21,6 +21,7 @@ import org.esa.pfa.activelearning.ActiveLearning;
 import org.esa.pfa.activelearning.ClassifierWriter;
 import org.esa.pfa.db.PatchQuery;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
+import org.esa.pfa.fe.PFAApplicationRegistry;
 import org.esa.pfa.fe.op.Patch;
 
 import javax.imageio.ImageIO;
@@ -43,35 +44,27 @@ import java.util.List;
 public class SearchToolStub {
 
     private final PFAApplicationDescriptor applicationDescriptor;
+    private final String auxDbPath;
     private final String classifierName;
     private final PatchQuery db;
     private final ActiveLearning al;
-    private final File classifierFile;
 
     private int numTrainingImages = 12;
     private int numRetrievedImages = 50;
     private int numHitsMax = 500;
     private String quicklookBandName;
 
-    public SearchToolStub(final PFAApplicationDescriptor applicationDescriptor, final String archiveFolder,
-                          final String classifierName, final ProgressMonitor pm) throws Exception {
+    public SearchToolStub(final PFAApplicationDescriptor applicationDescriptor,
+                          final String auxDbPath,
+                          final String classifierName) throws Exception {
         this.applicationDescriptor = applicationDescriptor;
+        this.auxDbPath = auxDbPath;
         this.classifierName = classifierName;
 
-        final File dbFolder = new File(archiveFolder);
-        final File classifierFolder = new File(dbFolder, "Classifiers");
-        if (!classifierFolder.exists()) {
-            classifierFolder.mkdirs();
-        }
-        this.classifierFile = new File(classifierFolder, classifierName + ".xml");
         this.quicklookBandName = applicationDescriptor.getDefaultQuicklookFileName();
 
-        db = new PatchQuery(dbFolder, applicationDescriptor.getDefaultFeatureSet());
+        db = new PatchQuery(new File(auxDbPath), applicationDescriptor.getDefaultFeatureSet());
         al = new ActiveLearning();
-
-        if (classifierFile.exists()) {
-            loadClassifier(classifierFile, pm);
-        }
     }
 
     public String getClassifierName() {
@@ -88,6 +81,7 @@ public class SearchToolStub {
 
     public void deleteClassifier() throws IOException {
         //todo other clean up
+        File classifierFile = getClassifierFile(auxDbPath, classifierName);
         if (classifierFile.exists()) {
             boolean delete = classifierFile.delete();
             if (!delete) {
@@ -236,10 +230,9 @@ public class SearchToolStub {
         return bufferedImage;
     }
 
-    public static String[] getSavedClassifierNames(final String archiveFolder) {
+    public static String[] getSavedClassifierNames(final String auxDbPath) {
         final List<String> nameList = new ArrayList<>(10);
-        final File dbFolder = new File(archiveFolder);
-        final File classifierFolder = new File(dbFolder, "Classifiers");
+        final File classifierFolder = getClassifierDir(auxDbPath);
         if (!classifierFolder.exists()) {
             classifierFolder.mkdirs();
         }
@@ -256,12 +249,32 @@ public class SearchToolStub {
         return nameList.toArray(new String[nameList.size()]);
     }
 
-    private void loadClassifier(final File classifierFile, final ProgressMonitor pm) throws Exception {
-        final ClassifierWriter storedClassifier = ClassifierWriter.read(classifierFile);
-        numTrainingImages = storedClassifier.getNumTrainingImages();
-        numRetrievedImages = storedClassifier.getNumRetrievedImages();
-        int numIterations = storedClassifier.getNumIterations();
+    static SearchToolStub loadClassifier(String auxDbPath, String classifierName, ProgressMonitor pm) throws Exception {
 
+        File classifierFile = getClassifierFile(auxDbPath, classifierName);
+
+        final ClassifierWriter storedClassifier = ClassifierWriter.read(classifierFile);
+        String applicationName = storedClassifier.getApplicationName();
+        PFAApplicationDescriptor applicationDescriptor = PFAApplicationRegistry.getInstance().getDescriptor(applicationName);
+
+        SearchToolStub classifier = new SearchToolStub(applicationDescriptor, auxDbPath, classifierName);
+        classifier.numTrainingImages = storedClassifier.getNumTrainingImages();
+        classifier.numRetrievedImages = storedClassifier.getNumRetrievedImages();
+        classifier.initActiveLearning(storedClassifier, pm);
+        return classifier;
+    }
+
+    private static File getClassifierFile(String auxDbPath, String classifierName) {
+        File classifierDir = getClassifierDir(auxDbPath);
+        return new File(classifierDir, classifierName + ".xml");
+    }
+
+    private static File getClassifierDir(String auxDbPath) {
+        File auxDbDir = new File(auxDbPath);
+        return new File(auxDbDir, "Classifiers");
+    }
+
+    private void initActiveLearning(ClassifierWriter storedClassifier, ProgressMonitor pm) throws Exception {
         al.setModel(storedClassifier.getModel());
 
         final Patch[] queryPatches = loadPatches(storedClassifier.getQueryPatchInfo());
@@ -271,7 +284,7 @@ public class SearchToolStub {
 
         final Patch[] patches = loadPatches(storedClassifier.getPatchInfo());
         if (patches != null && patches.length > 0) {
-            al.setTrainingData(patches, numIterations, pm);
+            al.setTrainingData(patches, storedClassifier.getNumIterations(), pm);
         }
     }
 
@@ -291,8 +304,13 @@ public class SearchToolStub {
         return null;
     }
 
-    private void saveClassifier() throws IOException {
-        final ClassifierWriter writer = new ClassifierWriter(numTrainingImages, numRetrievedImages, al);
+    void saveClassifier() throws IOException {
+        File classifierDir = getClassifierDir(auxDbPath);
+        if (classifierDir != null && !classifierDir.exists()) {
+            classifierDir.mkdirs();
+        }
+        final ClassifierWriter writer = new ClassifierWriter(applicationDescriptor.getName(), numTrainingImages, numRetrievedImages, al);
+        File classifierFile = getClassifierFile(auxDbPath, classifierName);
         writer.write(classifierFile);
     }
 }

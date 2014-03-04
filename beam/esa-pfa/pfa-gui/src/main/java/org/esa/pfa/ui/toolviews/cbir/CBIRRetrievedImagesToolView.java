@@ -54,7 +54,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     public final static String ID = "org.esa.pfa.ui.toolviews.cbir.CBIRRetrievedImagesToolView";
 
-    private CBIRSession session;
+    private final CBIRSession session;
     private PatchDrawer drawer;
     private int accuracy = 0;
     private Patch[] retrievedPatches;
@@ -64,7 +64,8 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
     private JComboBox<String> quickLookCombo;
 
     public CBIRRetrievedImagesToolView() {
-        CBIRSession.getInstance().addListener(this);
+        session = CBIRSession.getInstance();
+        session.addListener(this);
     }
 
     @Override
@@ -99,9 +100,11 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    session.setQuicklookBandName(retrievedPatches, (String) quickLookCombo.getSelectedItem());
-                    retrievedPatches = session.getRetrievedImages();
-                    drawer.update(retrievedPatches);
+                    if (session.hasClassifier()) {
+                        session.setQuicklookBandName(retrievedPatches, (String) quickLookCombo.getSelectedItem());
+                        retrievedPatches = session.getRetrievedImages();
+                        drawer.update(retrievedPatches);
+                    }
                 }
             }
         });
@@ -142,7 +145,10 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     private void updateControls() {
         try {
-            final boolean haveRetrievedImages = session != null && retrievedPatches != null && retrievedPatches.length > 0;
+            boolean hasClassifier = session.hasClassifier();
+            quickLookCombo.setEnabled(hasClassifier);
+
+            final boolean haveRetrievedImages = hasClassifier && retrievedPatches != null && retrievedPatches.length > 0;
             improveBtn.setEnabled(haveRetrievedImages);
             allRelevantBtn.setEnabled(haveRetrievedImages);
             allIrrelevantBtn.setEnabled(haveRetrievedImages);
@@ -207,13 +213,18 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     @Override
     public void notifyNewClassifier(SearchToolStub classifier) {
-        session = CBIRSession.getInstance();
+        if (isControlCreated()) {
+            retrievedPatches = new Patch[0];
+            drawer.update(retrievedPatches);
+            updateControls();
+        }
     }
 
     @Override
     public void notifyDeleteClassifier(SearchToolStub classifier) {
-        session = null;
         if (isControlCreated()) {
+            retrievedPatches = new Patch[0];
+            drawer.update(retrievedPatches);
             updateControls();
         }
     }
@@ -229,7 +240,7 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
             retrievedPatches = session.getRetrievedImages();
             //initially remove label from all
-            for(Patch patch : retrievedPatches) {
+            for (Patch patch : retrievedPatches) {
                 patch.setLabel(Patch.LABEL_NONE);
             }
             listenToPatches();

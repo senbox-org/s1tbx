@@ -51,12 +51,15 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
 
     public final static String ID = "org.esa.pfa.ui.toolviews.cbir.CBIROrderingToolView";
 
-    ProductOrderTableModel productListModel;
+    private final CBIRSession session;
+
+    private ProductOrderTableModel productListModel;
     private JTable table;
     private File localProductDir;
 
     public CBIROrderingToolView() {
-        CBIRSession.getInstance().addListener(this);
+        session = CBIRSession.getInstance();
+        session.addListener(this);
     }
 
     public JComponent createControl() {
@@ -89,6 +92,8 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
         control.add(new JLabel("Data products ordered:"), BorderLayout.NORTH);
         control.add(new JScrollPane(table), BorderLayout.CENTER);
         control.add(actionPanel, BorderLayout.SOUTH);
+
+        setProductOrderBasket(session.getProductOrderBasket());
 
         return control;
     }
@@ -130,16 +135,13 @@ public class CBIROrderingToolView extends AbstractToolView implements Patch.Patc
 
     @Override
     public void notifyNewClassifier(SearchToolStub classifier) {
-        CBIRSession session = CBIRSession.getInstance();
-        setProductOrderBasket(session.getProductOrderBasket());
-
         PFAApplicationDescriptor applicationDescriptor = session.getApplicationDescriptor();
         setLocalProductDir(applicationDescriptor.getLocalProductDir());
     }
 
     @Override
     public void notifyDeleteClassifier(SearchToolStub classifier) {
-        // todo - implement notifyDeleteClassifier (Norman, 04.03.14)
+        setLocalProductDir(null);
     }
 
     @Override

@@ -33,21 +33,24 @@ import java.util.List;
  */
 public class CBIRSession {
 
+
     private enum Notification {
         NewClassifier,
         DeleteClassifier,
         NewTrainingImages,
-        ModelTrained
+        ModelTrained;
     }
 
     private static CBIRSession instance = null;
 
     private final ProductOrderBasket productOrderBasket;
+
     private final ProductOrderService productOrderService;
 
     private final List<Patch> relevantImageList = new ArrayList<>(50);
     private final List<Patch> irrelevantImageList = new ArrayList<>(50);
     private final List<Patch> retrievedImageList = new ArrayList<>(500);
+
     private final List<CBIRSessionListener> listenerList = new ArrayList<>(1);
     private SearchToolStub classifier;
 
@@ -73,15 +76,34 @@ public class CBIRSession {
 
     public void createClassifier(final String classifierName,
                                  final PFAApplicationDescriptor applicationDescriptor,
-                                 final String archivePath,
+                                 final String dbFolder,
                                  final ProgressMonitor pm) throws Exception {
         try {
-            classifier = new SearchToolStub(applicationDescriptor, archivePath, classifierName, pm);
+            classifier = new SearchToolStub(applicationDescriptor, dbFolder, classifierName);
+            classifier.saveClassifier();
+            clearPatchLists();
             fireNotification(Notification.NewClassifier, classifier);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    public void loadClassifier(String dbFolder, String classifierName) throws Exception {
+        try {
+            classifier = SearchToolStub.loadClassifier(dbFolder, classifierName, ProgressMonitor.NULL);
+            clearPatchLists();
+            fireNotification(Notification.NewClassifier, classifier);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private void clearPatchLists() {
+        relevantImageList.clear();
+        irrelevantImageList.clear();
+        retrievedImageList.clear();
     }
 
     public void deleteClassifier() throws Exception {

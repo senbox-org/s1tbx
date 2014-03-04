@@ -114,7 +114,6 @@ public class PatchProcessor extends ProgressMonitorSwingWorker<Patch, Void> {
             processor.executeGraph(graph, pm);
 
             loadFeatures(patch, tmpOutFolder);
-
             return patch;
         } finally {
             pm.done();

@@ -21,7 +21,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -68,7 +68,7 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
 
     @Override
     public InputStream getGraphFileAsStream() {
-        return UrbanAreaApplicationDescriptor.class.getClassLoader().getResourceAsStream("AlgalBloomFeatureWriter.xml");
+        return getClass().getResourceAsStream("AlgalBloomFeatureWriter.xml");
     }
 
     @Override

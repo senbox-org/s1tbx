@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class ClassifierWriter {
 
+    String applicationName;
     int numTrainingImages;
     int numRetrievedImages;
     int numIterations;
@@ -25,7 +26,8 @@ public class ClassifierWriter {
 
     ClassifierWriter() {}
 
-    public ClassifierWriter(final int numTrainingImages, final int numRetrievedImages, final ActiveLearning al) {
+    public ClassifierWriter(final String applicationName, final int numTrainingImages, final int numRetrievedImages, final ActiveLearning al) {
+        this.applicationName = applicationName;
         this.numTrainingImages = numTrainingImages;
         this.numRetrievedImages = numRetrievedImages;
         this.numIterations = al.getNumIterations();
@@ -41,6 +43,10 @@ public class ClassifierWriter {
             patchInfoList.add(new PatchInfo(patch));
         }
         return patchInfoList.toArray(new PatchInfo[patchInfoList.size()]);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 
     /**
@@ -90,6 +96,7 @@ public class ClassifierWriter {
     private static XStream getXStream() {
         XStream xStream = new XStream();
         xStream.alias("model", svm_model.class);
+        xStream.alias("classifier", ClassifierWriter.class);
         xStream.setClassLoader(ClassifierWriter.class.getClassLoader());
         return xStream;
     }
