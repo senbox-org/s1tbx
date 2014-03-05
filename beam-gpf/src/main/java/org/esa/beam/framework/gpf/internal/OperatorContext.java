@@ -441,7 +441,6 @@ public class OperatorContext {
 
     private void initializeOperator() throws OperatorException {
         Assert.state(targetProduct == null, "targetProduct == null");
-        Assert.state(operator != null, "operator != null");
         Assert.state(!initialising, "!initialising, attempt to call getTargetProduct() from within initialise()?");
 
         try {
@@ -726,7 +725,7 @@ public class OperatorContext {
         if (targetProduct.getProductReader() == null) {
             targetProduct.setProductReader(new OperatorProductReader(this));
         }
-        if (renderingHints != null && GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
+        if (GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
             targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
         }
     }
