@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -801,7 +802,12 @@ public class SpectrumToolView extends AbstractToolView {
             chartUpdater.removePinInformation(pin);
         }
 
-        private void setPlotMessage(String messageText) {
+        private void removeBandinformation(Band band) {
+            chartUpdater.removeBandinformation(band);
+        }
+
+
+            private void setPlotMessage(String messageText) {
             chart.getXYPlot().clearAnnotations();
             TextTitle tt = new TextTitle(messageText);
             tt.setTextAlignment(HorizontalAlignment.RIGHT);
@@ -1051,6 +1057,15 @@ public class SpectrumToolView extends AbstractToolView {
             pinToEnergies.remove(pin);
         }
 
+        private void removeBandinformation(Band band) {
+            for (Placemark pin : pinToEnergies.keySet()) {
+                Map<Band, Double> bandToEnergiesMap = pinToEnergies.get(pin);
+                if(bandToEnergiesMap.containsKey(band)) {
+                    bandToEnergiesMap.remove(band);
+                }
+            }
+        }
+
         public boolean hasValidCursorPosition() {
             return pixelX > Integer.MIN_VALUE && pixelY > Integer.MIN_VALUE;
         }
@@ -1189,7 +1204,9 @@ public class SpectrumToolView extends AbstractToolView {
                 return;
             }
             if (event.getSourceNode() instanceof Band) {
-                removeBandFromSpectra((Band) event.getSourceNode());
+                Band band = (Band) event.getSourceNode();
+                removeBandFromSpectra(band);
+                chartHandler.removeBandinformation(band);
                 recreateChart();
             } else if (event.getSourceNode() instanceof Placemark) {
                 if (isShowingPinSpectra()) {
