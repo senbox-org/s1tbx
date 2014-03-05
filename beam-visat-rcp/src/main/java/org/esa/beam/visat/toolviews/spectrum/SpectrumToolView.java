@@ -125,8 +125,6 @@ public class SpectrumToolView extends AbstractToolView {
 //    private AbstractButton showAveragePinSpectrumButton;
     //    private AbstractButton showGraphPointsButton;
 
-//    private static AxisRangeControl axisRangeControl;
-
     private String titleBase;
     private boolean tipShown;
     private ProductSceneView currentView;
@@ -361,7 +359,6 @@ public class SpectrumToolView extends AbstractToolView {
 //        showAveragePinSpectrumButton.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
 //                // todo - implement
-//                JOptionPane.showMessageDialog(null, "Not implemented");
 //            }
 //        });
 //        showAveragePinSpectrumButton.setName("showAveragePinSpectrumButton");
@@ -532,9 +529,9 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     Placemark[] getDisplayedPins() {
-        if (isShowingSpectraForSelectedPins()) {
+        if (isShowingSpectraForSelectedPins() && getCurrentView() != null) {
             return getCurrentView().getSelectedPins();
-        } else if (isShowingSpectraForAllPins()) {
+        } else if (isShowingSpectraForAllPins() && getCurrentProduct() != null) {
             ProductNodeGroup<Placemark> pinGroup = getCurrentProduct().getPinGroup();
             return pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
         } else {
@@ -592,10 +589,15 @@ public class SpectrumToolView extends AbstractToolView {
         return showSpectraForSelectedPinsButton.isSelected();
     }
 
+    // todo - not yet implemented for 4.1 but planned for 5.0 (tf - 5.3.2014)
+//    private boolean isShowingAveragePinSpectrum() {
+//        return showAveragePinSpectrumButton.isSelected();
+//    }
+
     List<DisplayableSpectrum> getSelectedSpectra() {
         List<DisplayableSpectrum> selectedSpectra = new ArrayList<DisplayableSpectrum>();
-        DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(currentProduct);
-        if (allSpectra != null) {
+        if (currentProduct != null && productToAllSpectraMap.containsKey(currentProduct)) {
+            DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(currentProduct);
             for (DisplayableSpectrum displayableSpectrum : allSpectra) {
                 if (displayableSpectrum.isSelected()) {
                     selectedSpectra.add(displayableSpectrum);
@@ -843,6 +845,8 @@ public class SpectrumToolView extends AbstractToolView {
             final XYSeriesCollection dataset = new XYSeriesCollection();
             if (level >= 0) {
                 fillDatasetWithPinSeries(spectra, dataset, chart);
+                // todo - not yet implemented for 4.1 but planned for 5.0 (tf - 5.3.2014)
+//                fillDatasetWithAveragePinSpectrum(spectra, dataset, chart);
                 if (hasValidCursorPosition()) {
                     fillDatasetWithCursorSeries(spectra, dataset, chart);
                 }
@@ -966,6 +970,44 @@ public class SpectrumToolView extends AbstractToolView {
             }
             return pinSeries;
         }
+
+        // todo - not yet implemented for 4.1 but planned for 5.0 (tf - 5.3.2014)
+//        private void fillDatasetWithAveragePinSpectrum(List<DisplayableSpectrum> spectra, XYSeriesCollection dataset, JFreeChart chart) {
+//            if(!isShowingAveragePinSpectrum()) {
+//                return;
+//            }
+//            ProductNodeGroup<Placemark> pinGroup = getCurrentProduct().getPinGroup();
+//            for(int i = 0; i < pinGroup.getNodeCount(); i++) {
+//                Placemark pin = pinGroup.get(i);
+//                for (DisplayableSpectrum spectrum : spectra) {
+////                    XYSeries series = new XYSeries(spectrum.getName() + "_" + pin.getLabel());
+//                    final Band[] spectralBands = spectrum.getSelectedBands();
+//                    Map<Band, Double> bandToEnergy;
+//                    if (pinToEnergies.containsKey(pin)) {
+//                        bandToEnergy = pinToEnergies.get(pin);
+//                    } else {
+//                        bandToEnergy = new HashMap<Band, Double>();
+//                        pinToEnergies.put(pin, bandToEnergy);
+//                    }
+//                    for (Band spectralBand : spectralBands) {
+//                        double energy;
+//                        if (bandToEnergy.containsKey(spectralBand)) {
+//                            energy = bandToEnergy.get(spectralBand);
+//                        } else {
+//                            energy = readEnergy(pin, spectralBand);
+//                            bandToEnergy.put(spectralBand, energy);
+//                        }
+//                        final float wavelength = spectralBand.getSpectralWavelength();
+//                        if (energy != spectralBand.getGeophysicalNoDataValue()) {
+//                            series.add(wavelength, energy);
+//                        }
+//                    }
+////                    updateRenderer(seriesIndex++, pinColor, spectrum, chart);
+////                    pinSeries.add(series);
+//                }
+//            }
+//
+//        }
 
         private void updateRenderer(int seriesIndex, Color seriesColor, DisplayableSpectrum spectrum, JFreeChart chart) {
             final XYItemRenderer renderer = chart.getXYPlot().getRenderer();
