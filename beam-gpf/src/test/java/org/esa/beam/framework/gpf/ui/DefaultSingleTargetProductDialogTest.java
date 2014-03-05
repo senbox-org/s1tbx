@@ -28,7 +28,7 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.ui.ExpressionConverter;
+import org.esa.beam.framework.ui.GeneralExpressionConverter;
 
 import javax.swing.UIManager;
 
@@ -70,7 +70,7 @@ public class DefaultSingleTargetProductDialogTest {
         double threshold;
         @Parameter(valueSet = {"ME-203", "ME-208", "ME-002"}, defaultValue = "ME-208")
         String method;
-        @Parameter(description = "Mask expression", label = "Mask expression", converter = ExpressionConverter.class)
+        @Parameter(description = "Mask expression", label = "Mask expression", converter = GeneralExpressionConverter.class)
         String validExpression;
 
         @Override

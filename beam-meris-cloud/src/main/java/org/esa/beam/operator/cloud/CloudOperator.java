@@ -78,6 +78,7 @@ public class CloudOperator extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
         for (Map.Entry<Band, Tile> entry : targetTiles.entrySet()) {
+            checkForCancellation();
             Band targetBand = entry.getKey();
             Tile targetTile = entry.getValue();
             Band sourceBand = tempCloudProduct.getBand(targetBand.getName());

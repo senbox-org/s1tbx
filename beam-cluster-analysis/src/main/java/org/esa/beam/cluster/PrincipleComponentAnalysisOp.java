@@ -35,6 +35,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.ui.GeneralExpressionConverter;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
@@ -82,7 +83,8 @@ public class PrincipleComponentAnalysisOp extends Operator {
     @Parameter(label = "ROI mask expression",
                description = "The expression of the ROI mask that should be used. If not given, a mask given by 'roiMaskName' must already exist.",
                defaultValue = "",
-               validator = RoiMaskExprValidator.class)
+               validator = RoiMaskExprValidator.class,
+               converter = GeneralExpressionConverter.class)
     private String roiMaskExpr;
 
     @Parameter(label = "Remove non-ROI pixels",

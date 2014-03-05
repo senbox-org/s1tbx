@@ -28,6 +28,8 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-1602] Histogram toolview shall remember last computed histograms<br/>
+          [BEAM-1616] Geocoding toolview shall display data as table<br/>
           [BEAM-1603] Info tool window shall display data as table<br/>
           [BEAM-1615] Sort entries in View->ToolViews sub-menu<br/>
           [BEAM-1593] Harmonise transect + mask pixels outputs<br/>

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
- *
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,24 +9,25 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.visat.toolviews.stat;
+package org.esa.beam.framework.ui;
+
+import com.bc.ceres.binding.converters.StringConverter;
 
 /**
- * The tool view containing geo-coding information
  *
- * @author Marco Zuehlke
+ * Empty marker subclass for StringConverter.
+ *
+ * Purpose: use as converter for band maths expressions in the
+ * {@link org.esa.beam.framework.gpf.annotations.Parameter}-annotation in order to allow for generating a decent
+ * UI-component.
+ *
+ * @author Thomas Storm
  */
-public class GeoCodingToolView extends AbstractStatisticsToolView {
+public class GeneralExpressionConverter extends StringConverter {
 
-    public static final String ID = GeoCodingToolView.class.getName();
-
-    @Override
-    protected PagePanel createPagePanel() {
-        return new GeoCodingTablePanel(this, getDescriptor().getHelpId());
-    }
 }

@@ -43,6 +43,8 @@ New BEAM Features
 
 Improvements
 
+[BEAM-1605] 'InvalidArgumentException: maxima' error message when trying to open a band
+[BEAM-1616] Geocoding toolview shall display data as table
 [BEAM-1603] Info tool window shall display data as table
 [BEAM-1612] PGX reader plugin may take very long to determine decode qualification
 [BEAM-1610] Move ENVI-Reader from Glob-Box to BEAM
@@ -55,6 +57,8 @@ Improvements
 
 Bugs
 
+[BEAM-1602] Histogram toolview shall remember last computed histograms
+[BEAM-1604] Wavelength values for Landsat need to be updated
 [BEAM-1593] Harmonise transect + mask pixels outputs
 [BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus
 [BEAM-1452] Log-scaling is not correctly applied in scatter plot

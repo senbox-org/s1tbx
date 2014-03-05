@@ -42,7 +42,7 @@ public class DefaultNetCdfWriter extends AbstractProductWriter {
 
     public DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
-        variableMap = new HashMap<String, NVariable>();
+        variableMap = new HashMap<>();
     }
 
     @Override

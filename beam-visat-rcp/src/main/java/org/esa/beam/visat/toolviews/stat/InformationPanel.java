@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.internal.ModuleReader;
+import com.jidesoft.grid.CellSpan;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.AbstractBand;
@@ -46,6 +47,7 @@ class InformationPanel extends TablePagePanel {
     private static final String NO_PRODUCT_READER_MESSAGE = "No product reader set";
 
     private InformationTableModel tableModel;
+    private int minWidthOfNameColumn = -1;
 
     InformationPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, TITLE_PREFIX, DEFAULT_INFORMATION_TEXT);
@@ -81,43 +83,42 @@ class InformationPanel extends TablePagePanel {
 
     @Override
     protected void updateComponents() {
-        ensureTableModel();
         tableModel.clear();
         if (getRaster() instanceof AbstractBand) {
             final Band band = (Band) getRaster();
 
-            appendEntry("Name:", band.getName(), "");
-            appendEntry("Type:", "Band", "");
-            appendEntry("Description:", band.getDescription(), "");
-            appendEntry("Geophysical unit:", band.getUnit(), "");
-            appendEntry("Geophysical data type:", ProductData.getTypeString(band.getGeophysicalDataType()), "");
-            appendEntry("Raw data type:", ProductData.getTypeString(band.getDataType()), "");
-            appendEntry("Raster width:", String.valueOf(band.getRasterWidth()), "pixels");
-            appendEntry("Raster height:", String.valueOf(band.getRasterHeight()), "pixels");
-            appendEntry("Scaling factor:", String.valueOf(band.getScalingFactor()), "");
-            appendEntry("Scaling offset:", String.valueOf(band.getScalingOffset()), "");
-            appendEntry("Is log 10 scaled:", String.valueOf(band.isLog10Scaled()), "");
-            appendEntry("Is no-data value used:", String.valueOf(band.isNoDataValueUsed()), "");
-            appendEntry("No-data value:", String.valueOf(band.getNoDataValue()), "");
-            appendEntry("Geophysical no-data value:", String.valueOf(band.getGeophysicalNoDataValue()), "");
-            appendEntry("Valid pixel expression:", String.valueOf(band.getValidPixelExpression()), "");
-            appendEntry("Spectral band index:", String.valueOf(band.getSpectralBandIndex() + 1), "");
-            appendEntry("Wavelength:", String.valueOf(band.getSpectralWavelength()), "nm");
-            appendEntry("Bandwidth:", String.valueOf(band.getSpectralBandwidth()), "nm");
-            appendEntry("Solar flux:", String.valueOf(band.getSolarFlux()), "mW/(m^2*nm)");
+            addEntry("Name:", band.getName(), "");
+            addEntry("Type:", "Band", "");
+            addEntry("Description:", band.getDescription(), "");
+            addEntry("Geophysical unit:", band.getUnit(), "");
+            addEntry("Geophysical data type:", ProductData.getTypeString(band.getGeophysicalDataType()), "");
+            addEntry("Raw data type:", ProductData.getTypeString(band.getDataType()), "");
+            addEntry("Raster width:", String.valueOf(band.getRasterWidth()), "pixels");
+            addEntry("Raster height:", String.valueOf(band.getRasterHeight()), "pixels");
+            addEntry("Scaling factor:", String.valueOf(band.getScalingFactor()), "");
+            addEntry("Scaling offset:", String.valueOf(band.getScalingOffset()), "");
+            addEntry("Is log 10 scaled:", String.valueOf(band.isLog10Scaled()), "");
+            addEntry("Is no-data value used:", String.valueOf(band.isNoDataValueUsed()), "");
+            addEntry("No-data value:", String.valueOf(band.getNoDataValue()), "");
+            addEntry("Geophysical no-data value:", String.valueOf(band.getGeophysicalNoDataValue()), "");
+            addEntry("Valid pixel expression:", String.valueOf(band.getValidPixelExpression()), "");
+            addEntry("Spectral band index:", String.valueOf(band.getSpectralBandIndex() + 1), "");
+            addEntry("Wavelength:", String.valueOf(band.getSpectralWavelength()), "nm");
+            addEntry("Bandwidth:", String.valueOf(band.getSpectralBandwidth()), "nm");
+            addEntry("Solar flux:", String.valueOf(band.getSolarFlux()), "mW/(m^2*nm)");
         } else if (getRaster() instanceof TiePointGrid) {
             final TiePointGrid grid = (TiePointGrid) getRaster();
-            appendEntry("Name:", grid.getName(), "");
-            appendEntry("Type:", "Tie Point Grid", "");
-            appendEntry("Description:", grid.getDescription(), "");
-            appendEntry("Geophysical unit:", grid.getUnit(), "");
-            appendEntry("Geophysical data type:", ProductData.getTypeString(grid.getGeophysicalDataType()), null);
-            appendEntry("Offset X:", String.valueOf(grid.getOffsetX()), "pixels");
-            appendEntry("Offset Y:", String.valueOf(grid.getOffsetY()), "pixels");
-            appendEntry("Sub-sampling X:", String.valueOf(grid.getSubSamplingX()), "pixels");
-            appendEntry("Sub-sampling Y:", String.valueOf(grid.getSubSamplingY()), "pixels");
-            appendEntry("Raster width:", String.valueOf(grid.getRasterWidth()), "tie points");
-            appendEntry("Raster height:", String.valueOf(grid.getRasterHeight()), "tie points");
+            addEntry("Name:", grid.getName(), "");
+            addEntry("Type:", "Tie Point Grid", "");
+            addEntry("Description:", grid.getDescription(), "");
+            addEntry("Geophysical unit:", grid.getUnit(), "");
+            addEntry("Geophysical data type:", ProductData.getTypeString(grid.getGeophysicalDataType()), null);
+            addEntry("Offset X:", String.valueOf(grid.getOffsetX()), "pixels");
+            addEntry("Offset Y:", String.valueOf(grid.getOffsetY()), "pixels");
+            addEntry("Sub-sampling X:", String.valueOf(grid.getSubSamplingX()), "pixels");
+            addEntry("Sub-sampling Y:", String.valueOf(grid.getSubSamplingY()), "pixels");
+            addEntry("Raster width:", String.valueOf(grid.getRasterWidth()), "tie points");
+            addEntry("Raster height:", String.valueOf(grid.getRasterHeight()), "tie points");
         }
 
         final Product product = getProduct();
@@ -127,48 +128,53 @@ class InformationPanel extends TablePagePanel {
             return;
         }
 
-        appendEntry("Product name:", product.getName(), null);
-        appendEntry("Product type:", product.getProductType(), null);
-        appendEntry("Product description:", product.getDescription(), null);
+        addEmptyRow();
+
+        addEntry("Product name:", product.getName(), null);
+        addEntry("Product type:", product.getProductType(), null);
+        addEntry("Product description:", product.getDescription(), null);
 
         final String productFormatName = getProductFormatName(product);
         final String productFormatNameString = productFormatName != null ? productFormatName : "unknown";
-        appendEntry("Product format:", productFormatNameString, null);
+        addEntry("Product format:", productFormatNameString, null);
 
-        appendEntry("Product reader:", getProductReaderName(product), null);
-        appendEntry("Product reader class:", getProductReaderClass(product), null);
-        appendEntry("Product reader module:", getProductReaderModule(product), null);
+        addEntry("Product reader:", getProductReaderName(product), null);
+        addEntry("Product reader class:", getProductReaderClass(product), null);
+        addEntry("Product reader module:", getProductReaderModule(product), null);
 
-        appendEntry("Product file location:",
-                    product.getFileLocation() != null ? product.getFileLocation().getPath() : "Not yet saved", null);
-        appendEntry("Product scene width:", String.valueOf(product.getSceneRasterWidth()), "pixels");
-        appendEntry("Product scene height:", String.valueOf(product.getSceneRasterHeight()), "pixels");
+        addEntry("Product file location:",
+                 product.getFileLocation() != null ? product.getFileLocation().getPath() : "Not yet saved", null);
+        addEntry("Product scene width:", String.valueOf(product.getSceneRasterWidth()), "pixels");
+        addEntry("Product scene height:", String.valueOf(product.getSceneRasterHeight()), "pixels");
 
         final String startTimeString = product.getStartTime() != null ?
                                        product.getStartTime().getElemString() : "Not available";
-        appendEntry("Product start time (UTC):", startTimeString, null);
+        addEntry("Product start time (UTC):", startTimeString, null);
 
         final String stopTimeString = product.getEndTime() != null ?
                                       product.getEndTime().getElemString() : "Not available";
-        appendEntry("Product end time (UTC):", stopTimeString, null);
+        addEntry("Product end time (UTC):", stopTimeString, null);
+
+        ensureTableModel();
     }
 
     private void ensureTableModel() {
         if (getTable().getModel() != tableModel) {
             getTable().setModel(tableModel);
             getTable().setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-            getTable().getColumnModel().getColumn(0).setPreferredWidth(150);
-            getTable().getColumnModel().getColumn(0).setMinWidth(150);
-            getTable().getColumnModel().getColumn(0).setMaxWidth(150);
-            setCellRenderer(0, new AlternatingRowsRenderer());
-            setCellRenderer(1, new TooltipAwareRenderer());
+            getTable().getColumnModel().getColumn(0).setPreferredWidth(minWidthOfNameColumn);
+            getTable().getColumnModel().getColumn(0).setMinWidth(minWidthOfNameColumn);
+            getTable().getColumnModel().getColumn(0).setMaxWidth(minWidthOfNameColumn);
+            setColumnRenderer(0, RendererFactory.createRenderer(RendererFactory.ALTERNATING_ROWS));
+            setColumnRenderer(1, RendererFactory.createRenderer(RendererFactory.ALTERNATING_ROWS
+                                                                | RendererFactory.TOOLTIP_AWARE));
         }
     }
 
-    private void appendEntry(final String label, final String value,
-                             final String unit) {
-
+    private void addEntry(final String label, final String value, final String unit) {
         String formattedLabel = String.format("%1$-30s \t", label);
+        minWidthOfNameColumn =
+                getFontMetrics(getFont()).stringWidth(formattedLabel) + 10; // needs a bit of cushion, obviously...
         TableRow row = new InformationTableRow(formattedLabel, value, unit);
         tableModel.addRow(row);
     }
@@ -249,8 +255,8 @@ class InformationPanel extends TablePagePanel {
         }
 
         @Override
-        public int getColspan(int columnIndex, TableModel model) {
-            return 1;
+        public CellSpan getCellspan(int rowIndex, int columnIndex, TableModel model) {
+            return new CellSpan(rowIndex, columnIndex, 1, 1);
         }
     }
 
@@ -274,7 +280,11 @@ class InformationPanel extends TablePagePanel {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            InformationTableRow tableRow = (InformationTableRow) rows.get(rowIndex);
+            TableRow row = rows.get(rowIndex);
+            if (!(row instanceof InformationTableRow)) {
+                return row.toString();
+            }
+            InformationTableRow tableRow = (InformationTableRow) row;
             switch (columnIndex) {
                 case 0:
                     return tableRow.label;
