@@ -48,6 +48,7 @@ import javax.swing.event.InternalFrameEvent;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -60,6 +61,7 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.ui.product.spectrum.DisplayableSpectrum;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumBand;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumChooser;
@@ -472,6 +474,8 @@ public class SpectrumToolView extends AbstractToolView {
         //
         VisatApp.getApp().addInternalFrameListener(new SpectrumIFL());
 
+
+
         VisatApp.getApp().getProductManager().addListener(new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
@@ -485,6 +489,16 @@ public class SpectrumToolView extends AbstractToolView {
                     chartPanel.getChart().getXYPlot().setDataset(null);
                     setCurrentView(null);
                     setCurrentProduct(null);
+                }
+                if(productToAllSpectraMap.containsKey(product)) {
+                    productToAllSpectraMap.remove(product);
+                }
+                if(productToBandsMap.containsKey(product)) {
+                    productToBandsMap.remove(product);
+                }
+                PlacemarkGroup pinGroup = product.getPinGroup();
+                for(int i = 0; i < pinGroup.getNodeCount(); i++) {
+                    chartHandler.removePinInformation(pinGroup.get(i));
                 }
             }
         });
