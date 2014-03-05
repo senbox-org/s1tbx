@@ -53,18 +53,21 @@ import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
 import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.TileCache;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -666,6 +669,21 @@ public class OperatorContext {
                 } else {
                     targetBand.getSourceImage().reset();
                     targetImageMap.put(targetBand, opImage);
+                }
+            } else {
+                final Operator operator = getOperator();
+                // The WriteOp needs to be called for VirtualBands in order to write them as real bands, where necessary (NetCDF-CF).
+                // For other operators it should not be called
+                if (operator instanceof WriteOp) {
+                    targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
+                        @Override
+                        protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+                            Band targetBand = getTargetBand();
+                            tile.setRect(targetBand.getGeophysicalImage().getData(destRect));
+                            TileImpl targetTile = new TileImpl(targetBand, tile, destRect, false);
+                            operator.computeTile(targetBand, targetTile, ProgressMonitor.NULL);
+                        }
+                    });
                 }
             }
 
