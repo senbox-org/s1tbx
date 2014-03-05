@@ -309,6 +309,7 @@ public final class DimapProductConstants {
     public static final String TAG_FILTER_KERNEL = "Filter_Kernel";
     public static final String TAG_FILTER_SUB_WINDOW_SIZE = "FILTER_SUB_WINDOW_SIZE";
     public static final String TAG_FILTER_OPERATOR_CLASS_NAME = "FILTER_OPERATOR_CLASS_NAME";
+    public static final String TAG_FILTER_OP_TYPE = "FILTER_OP_TYPE";
 
     // Kernel support
     public static final String TAG_KERNEL_HEIGHT = "KERNEL_HEIGHT";

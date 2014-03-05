@@ -171,10 +171,10 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
             "            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>" + LS +
             "            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>" + LS +
-            "            <Filter_Band_Info bandType=\"GeneralFilterBand\" version=\"1.1\">" + LS +
+            "            <Filter_Band_Info bandType=\"GeneralFilterBand\" version=\"1.2\">" + LS +
             "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
             "                <FILTER_SUB_WINDOW_SIZE>150</FILTER_SUB_WINDOW_SIZE>" + LS +
-            "                <FILTER_OPERATOR_CLASS_NAME>org.esa.beam.framework.datamodel.GeneralFilterBand$Mean</FILTER_OPERATOR_CLASS_NAME>" + LS +
+            "                <FILTER_OP_TYPE>MEAN</FILTER_OP_TYPE>" + LS +
             "            </Filter_Band_Info>" + LS +
             "        </Spectral_Band_Info>" + LS +
             "    </Image_Interpretation>" + LS;
@@ -548,7 +548,7 @@ public class DimapHeaderWriterTest extends TestCase {
         product.addBand(new VirtualBand("vb1", ProductData.TYPE_INT8, 200, 300, "b1 * 0.4 + 1"));
         product.addBand(new ConvolutionFilterBand("cfb1", band2,
                                                   new Kernel(3, 3, 1, new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9})));
-        product.addBand(new GeneralFilterBand("gfb1", band2, 150, GeneralFilterBand.MEAN));
+        product.addBand(new GeneralFilterBand("gfb1", band2, 150, GeneralFilterBand.OpType.MEAN));
 
 
         band1.setGeoCoding(geoCoding1);

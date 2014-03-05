@@ -216,21 +216,21 @@ public class CreateFilteredBandAction extends ExecCommand {
     };
 
     Filter[] NON_LINEAR_FILTERS = {
-            new GeneralFilter("Minimum 3x3", "min3", 3, GeneralFilterBand.MIN),
-            new GeneralFilter("Minimum 5x5", "min5", 5, GeneralFilterBand.MIN),
-            new GeneralFilter("Minimum 7x7", "min7", 5, GeneralFilterBand.MIN),
-            new GeneralFilter("Maximum 3x3", "max3", 3, GeneralFilterBand.MAX),
-            new GeneralFilter("Maximum 5x5", "max5", 5, GeneralFilterBand.MAX),
-            new GeneralFilter("Maximum 7x7", "max7", 5, GeneralFilterBand.MAX),
-            new GeneralFilter("Mean 3x3", "mean3", 3, GeneralFilterBand.MEAN),
-            new GeneralFilter("Mean 5x5", "mean5", 5, GeneralFilterBand.MEAN),
-            new GeneralFilter("Mean 7x7", "mean7", 5, GeneralFilterBand.MEAN),
-            new GeneralFilter("Median 3x3", "median3", 3, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Median 5x5", "median5", 5, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Median 7x7", "median7", 5, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Standard Deviation 3x3", "stddev3", 3, GeneralFilterBand.STDDEV),
-            new GeneralFilter("Standard Deviation 5x5", "stddev5", 5, GeneralFilterBand.STDDEV),
-            new GeneralFilter("Standard Deviation 7x7", "stddev7", 5, GeneralFilterBand.STDDEV),
+            new GeneralFilter("Minimum 3x3", "min3", 3, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Minimum 5x5", "min5", 5, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Minimum 7x7", "min7", 5, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Maximum 3x3", "max3", 3, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Maximum 5x5", "max5", 5, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Maximum 7x7", "max7", 5, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Mean 3x3", "mean3", 3, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Mean 5x5", "mean5", 5, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Mean 7x7", "mean7", 5, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Median 3x3", "median3", 3, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Median 5x5", "median5", 5, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Median 7x7", "median7", 5, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Standard Deviation 3x3", "stddev3", 3, GeneralFilterBand.OpType.STDDEV),
+            new GeneralFilter("Standard Deviation 5x5", "stddev5", 5, GeneralFilterBand.OpType.STDDEV),
+            new GeneralFilter("Standard Deviation 7x7", "stddev7", 5, GeneralFilterBand.OpType.STDDEV),
     };
 
     private void applyImageKernel() {
@@ -254,7 +254,7 @@ public class CreateFilteredBandAction extends ExecCommand {
             filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel);
         } else {
             final GeneralFilter generalFilter = (GeneralFilter) filter;
-            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.size, generalFilter.operator);
+            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.size, generalFilter.opType);
         }
         final String descr = MessageFormat.format("Filter ''{0}'' applied to ''{1}''",
                                                   filter.toString(),
@@ -447,12 +447,12 @@ public class CreateFilteredBandAction extends ExecCommand {
     private static class GeneralFilter extends Filter {
 
         final int size;
-        final GeneralFilterBand.Operator operator;
+        final GeneralFilterBand.OpType opType;
 
-        public GeneralFilter(String name, String suffix, int size, GeneralFilterBand.Operator operator) {
+        public GeneralFilter(String name, String suffix, int size, GeneralFilterBand.OpType opType) {
             super(name, suffix);
             this.size = size;
-            this.operator = operator;
+            this.opType = opType;
         }
 
      }

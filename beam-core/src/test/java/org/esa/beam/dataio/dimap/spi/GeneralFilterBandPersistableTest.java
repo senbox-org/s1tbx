@@ -60,7 +60,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
     }
 
     public void testCreateXmlFromObject() {
-        final GeneralFilterBand gfb = new GeneralFilterBand("filteredBand", _source, 2, GeneralFilterBand.MAX);
+        final GeneralFilterBand gfb = new GeneralFilterBand("filteredBand", _source, 2, GeneralFilterBand.OpType.MAX);
         gfb.setDescription("somehow explainig");
         gfb.setUnit("someUnit");
         _product.addBand(gfb);
@@ -111,7 +111,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertNotNull(filterInfo);
         assertEquals(GeneralFilterBandPersistable.GENERAL_FILTER_BAND_TYPE, filterInfo.getAttributeValue(
                 GeneralFilterBandPersistable.ATTRIBUTE_BAND_TYPE));
-        assertEquals(GeneralFilterBandPersistable.VERSION_1_1, filterInfo.getAttributeValue(
+        assertEquals(GeneralFilterBandPersistable.VERSION_1_2, filterInfo.getAttributeValue(
                 GeneralFilterBandPersistable.ATTRIBUTE_VERSION));
         assertEquals(3, filterInfo.getChildren().size());
         assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_SOURCE) != null);
@@ -119,13 +119,13 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE) != null);
         assertEquals(gfb.getSubWindowSize(),
                      Integer.parseInt(filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE)));
-        assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME) != null);
-        assertEquals(gfb.getOperator().getClass().getName(),
-                     filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME));
+        assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_OP_TYPE) != null);
+        assertEquals(gfb.getOpType().toString(),
+                     filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OP_TYPE));
     }
 
     public void testReadAndWrite() {
-        final Element xmlElement = createXmlElement(GeneralFilterBandPersistable.VERSION_1_1);
+        final Element xmlElement = createXmlElement(GeneralFilterBandPersistable.VERSION_1_2);
 
         final Object object = _generalFilterBandPersistable.createObjectFromXml(xmlElement, _product);
         _product.addBand((Band) object);
@@ -160,16 +160,19 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertFalse(gfb.isLog10Scaled());
         assertEquals(gfb.getSource().getName(), _source.getName());
         assertEquals(5, gfb.getSubWindowSize());
-        assertTrue(gfb.getOperator() instanceof GeneralFilterBand.Mean);
+        assertEquals(gfb.getOpType(), GeneralFilterBand.OpType.MEAN);
     }
 
 
     private static void assertEqualElement(Element expElement, Element actElement) {
+        assertNotNull(expElement);
+        assertNotNull(actElement);
         if (!expElement.getChildren().isEmpty()) {
             final List expList = expElement.getChildren();
             for (Object expElem : expList) {
                 final Element expSubElement = (Element) expElem;
                 final Element actSubElement = actElement.getChild(expSubElement.getName());
+                assertNotNull(String.format("missing %s", expSubElement), actSubElement);
                 assertEqualElement(expSubElement, actSubElement);
             }
         } else {
@@ -196,19 +199,19 @@ public class GeneralFilterBandPersistableTest extends TestCase {
                                       String.valueOf(_source.getGeophysicalNoDataValue())));
         final List<Element> filterBandInfoList = new ArrayList<Element>(5);
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, "anyBand"));
-        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME,
-                                             "org.esa.beam.framework.datamodel.GeneralFilterBand$Mean"));
+        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OP_TYPE, "MEAN"));
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
         filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_BAND_TYPE,
                                     GeneralFilterBandPersistable.GENERAL_FILTER_BAND_TYPE);
-        if (GeneralFilterBandPersistable.VERSION_1_1.equals(version)) {
-            filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, "5"));
-            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION,
-                                        GeneralFilterBandPersistable.VERSION_1_1);
-        } else {
+        if (GeneralFilterBandPersistable.VERSION_1_0.equals(version)) {
             // Version 1.0
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH, "5"));
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_HEIGHT, "2"));
+        } else {
+            // Version 1.1, 1.2
+            filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, "5"));
+            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION,
+                                        GeneralFilterBandPersistable.VERSION_1_1);
         }
         filterBandInfo.addContent(filterBandInfoList);
         contentList.add(filterBandInfo);

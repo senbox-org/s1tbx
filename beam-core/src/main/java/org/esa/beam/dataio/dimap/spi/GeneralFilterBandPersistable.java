@@ -33,6 +33,7 @@ import java.util.List;
 class GeneralFilterBandPersistable implements DimapPersistable {
     static final String VERSION_1_0 = "1.0";
     static final String VERSION_1_1 = "1.1";
+    static final String VERSION_1_2 = "1.2";
     static final String ATTRIBUTE_BAND_TYPE = DimapProductConstants.ATTRIB_BAND_TYPE;
     static final String ATTRIBUTE_VERSION = "version";
     static final String GENERAL_FILTER_BAND_TYPE = "GeneralFilterBand";
@@ -50,15 +51,46 @@ class GeneralFilterBandPersistable implements DimapPersistable {
             subWindowSize = Integer.parseInt(
                     filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH));
         }
-        final GeneralFilterBand.Operator operator = GeneralFilterBand.createOperator(
-                filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME));
-        if(operator == null) {
+        GeneralFilterBand.OpType opType = null;
+        String filterOpClassName = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME);
+        if (filterOpClassName != null) {
+            // Compatibility with older BEAM-DIMAP <= v1.1
+            int index = filterOpClassName.lastIndexOf('$');
+            if (index > 0) {
+                filterOpClassName = filterOpClassName.substring(index + 1);
+            }
+            switch (filterOpClassName) {
+                case "Min":
+                    opType = GeneralFilterBand.OpType.MIN;
+                    break;
+                case "Max":
+                    opType = GeneralFilterBand.OpType.MAX;
+                    break;
+                case "Mean":
+                    opType = GeneralFilterBand.OpType.MEAN;
+                    break;
+                case "Median":
+                    opType = GeneralFilterBand.OpType.MEDIAN;
+                    break;
+                case "StdDev":
+                    opType = GeneralFilterBand.OpType.STDDEV;
+                    break;
+            }
+        } else {
+            String filterOpTypeName = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OP_TYPE);
+            System.out.println("filterOpTypeName = " + filterOpTypeName);
+            if (filterOpTypeName != null) {
+                opType = GeneralFilterBand.OpType.valueOf(filterOpTypeName);
+            }
+        }
+        if (opType == null) {
             return null;
         }
+
         final String sourceName = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SOURCE);
         final RasterDataNode sourceNode = product.getRasterDataNode(sourceName);
         final String bandName = element.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
-        final GeneralFilterBand gfb = new GeneralFilterBand(bandName, sourceNode, subWindowSize, operator);
+        final GeneralFilterBand gfb = new GeneralFilterBand(bandName, sourceNode, subWindowSize, opType);
 
         gfb.setDescription(element.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION));
         gfb.setUnit(element.getChildTextTrim(DimapProductConstants.TAG_PHYSICAL_UNIT));
@@ -95,11 +127,11 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         final List<Element> filterBandInfoList = new ArrayList<Element>(5);
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, gfb.getSource().getName()));
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, String.valueOf(gfb.getSubWindowSize())));
-        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME, gfb.getOperator().getClass().getName()));
+        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OP_TYPE, gfb.getOpType().toString()));
 
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
         filterBandInfo.setAttribute(ATTRIBUTE_BAND_TYPE, GENERAL_FILTER_BAND_TYPE);
-        filterBandInfo.setAttribute(ATTRIBUTE_VERSION, VERSION_1_1);
+        filterBandInfo.setAttribute(ATTRIBUTE_VERSION, VERSION_1_2);
         filterBandInfo.addContent(filterBandInfoList);
         contentList.add(filterBandInfo);
 
