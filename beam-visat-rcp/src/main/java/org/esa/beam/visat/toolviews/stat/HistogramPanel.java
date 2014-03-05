@@ -25,6 +25,7 @@ import com.bc.ceres.swing.binding.Enablement;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -53,6 +54,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
@@ -109,7 +111,17 @@ class HistogramPanel extends ChartPagePanel {
         VisatApp.getApp().getProductTree().addProductTreeListener(new ProductTreeListenerAdapter() {
             @Override
             public void bandSelected(Band band, int clickCount) {
-                updateChartData(false);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateChartData(false);
+                    }
+                });
+            }
+
+            @Override
+            public void productRemoved(Product product) {
+                model.removeStxFromProduct(product);
             }
         });
         model = new HistogramPanelModel();
@@ -298,17 +310,13 @@ class HistogramPanel extends ChartPagePanel {
     }
 
     private HistogramPanelModel.HistogramConfig createHistogramConfig() {
-        return createHistogramConfig(histogramPlotConfig.histogramLogScaled);
-    }
-
-    private HistogramPanelModel.HistogramConfig createHistogramConfig(boolean histogramLogScaled) {
         if (getRaster() == null) {
-            return new HistogramPanelModel.NullConfig();
+            return null;
         }
-        return new HistogramPanelModel.HistogramConfigImpl(getRaster().getName(),
+        return new HistogramPanelModel.HistogramConfig(getRaster(),
                 histogramPlotConfig.useRoiMask ? histogramPlotConfig.roiMask.getName() : null,
                 histogramPlotConfig.numBins,
-                histogramLogScaled);
+                histogramPlotConfig.histogramLogScaled);
     }
 
     private ChartPanel createChartPanel(JFreeChart chart) {
@@ -571,10 +579,11 @@ class HistogramPanel extends ChartPagePanel {
                 }
                 if (stx.getSampleCount() > 0) {
                     if (autoMinMaxEnabled) {
-                        final double min = stx.getHistogramScaling().scale(stx.getMinimum());
-                        final double max = stx.getHistogramScaling().scale(stx.getMaximum());
                         histogramComputing = true;
-                        xAxisRangeControl.adjustComponents(min, max, 4);
+                        xAxisRangeControl.adjustComponents(
+                                stx.getHistogramScaling().scale(stx.getMinimum()),
+                                stx.getHistogramScaling().scale(stx.getMaximum()),
+                                4);
                         histogramComputing = false;
                     }
                     setStx(stx);

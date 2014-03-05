@@ -15,9 +15,13 @@
  */
 package org.esa.beam.visat.toolviews.stat;
 
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,7 +32,7 @@ class HistogramPanelModel {
     Map<HistogramConfig, Stx> stxMap = new HashMap<>(31);
 
     public boolean hasStx(HistogramConfig config) {
-        return stxMap.containsKey(config);
+        return config != null && stxMap.containsKey(config);
     }
 
     public Stx getStx(HistogramConfig config) {
@@ -45,21 +49,27 @@ class HistogramPanelModel {
         stxMap.put(config, stx);
     }
 
-    static interface HistogramConfig {
+    public void removeStxFromProduct(Product product) {
+        List<HistogramConfig> toRemove = new ArrayList<>(7);
+        for (HistogramConfig histogramConfig : stxMap.keySet()) {
+            if (histogramConfig.raster.getProduct() == product) {
+                toRemove.add(histogramConfig);
+            }
+        }
+        for (HistogramConfig histogramConfig : toRemove) {
+            stxMap.remove(histogramConfig);
+        }
     }
 
-    static class NullConfig implements HistogramConfig {
-    }
+    static class HistogramConfig {
 
-    static class HistogramConfigImpl implements HistogramConfig {
-
-        String bandName;
+        RasterDataNode raster;
         String roiMask;
         int numBins;
         boolean logScaledBins;
 
-        HistogramConfigImpl(String bandName, String roiMask, int numBins, boolean logScaledBins) {
-            this.bandName = bandName;
+        HistogramConfig(RasterDataNode raster, String roiMask, int numBins, boolean logScaledBins) {
+            this.raster = raster;
             this.roiMask = roiMask;
             this.numBins = numBins;
             this.logScaledBins = logScaledBins;
@@ -68,7 +78,7 @@ class HistogramPanelModel {
         @Override
         public String toString() {
             return "HistogramConfig{" +
-                    "bandName='" + bandName + '\'' +
+                    "raster='" + raster + '\'' +
                     "roiMask='" + roiMask + '\'' +
                     ", numBins=" + numBins +
                     ", logScaledBins=" + logScaledBins +
@@ -80,12 +90,12 @@ class HistogramPanelModel {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            HistogramConfigImpl that = (HistogramConfigImpl) o;
+            HistogramConfig that = (HistogramConfig) o;
 
             return logScaledBins == that.logScaledBins &&
                     numBins == that.numBins &&
                     !(roiMask != null ? !roiMask.equals(that.roiMask) : that.roiMask != null) &&
-                    bandName.equals(that.bandName);
+                    raster == that.raster;
 
         }
 
