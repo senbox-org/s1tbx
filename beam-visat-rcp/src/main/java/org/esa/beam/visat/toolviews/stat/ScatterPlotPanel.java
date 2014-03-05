@@ -81,6 +81,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -645,23 +646,29 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private void computeChartDataIfPossible() {
-        if (scatterPlotModel.pointDataSource != null
-            && scatterPlotModel.dataField != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
-                scatterPlotModel.dataField.getLocalName()) != null
-            && getRaster() != null) {
-            compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
-        } else {
-            scatterpointsDataset.removeAllSeries();
-            acceptableDeviationDataset.removeAllSeries();
-            regressionDataset.removeAllSeries();
-            getPlot().removeAnnotation(r2Annotation);
-            computedDatas = null;
-        }
+        // need to do this later: all GUI events must be processed first in order to get the correct state
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (scatterPlotModel.pointDataSource != null
+                    && scatterPlotModel.dataField != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection() != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
+                        scatterPlotModel.dataField.getLocalName()) != null
+                    && getRaster() != null) {
+                    compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
+                } else {
+                    scatterpointsDataset.removeAllSeries();
+                    acceptableDeviationDataset.removeAllSeries();
+                    regressionDataset.removeAllSeries();
+                    getPlot().removeAnnotation(r2Annotation);
+                    computedDatas = null;
+                }
+            }
+        });
     }
 
     private void compute(final Mask selectedMask) {

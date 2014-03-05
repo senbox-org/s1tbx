@@ -57,6 +57,7 @@ Improvements
 
 Bugs
 
+[BEAM-1601] Correlative plot does not reset point data correctly when switching between two products
 [BEAM-1602] Histogram toolview shall remember last computed histograms
 [BEAM-1604] Wavelength values for Landsat need to be updated
 [BEAM-1593] Harmonise transect + mask pixels outputs
