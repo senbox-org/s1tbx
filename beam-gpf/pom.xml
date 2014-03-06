@@ -30,7 +30,6 @@
     </parent>
 
     <name>BEAM Graph Processing Framework (GPF)</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-gpf</artifactId>
     <packaging>jar</packaging>
 
@@ -50,6 +49,10 @@
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-metadata</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
 
