@@ -323,8 +323,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             ProductUtils.copyMetadata(sourceProduct, product);
         }
         addTiePointGridsToProduct(product);
-        addFlagCodingsToProduct(product);
-        addIndexCodingsToProduct(product);
         addBandsToProduct(product);
         ProductUtils.copyMasks(sourceProduct, product);
         addGeoCodingToProduct(product);
@@ -438,14 +436,16 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();
                     FlagCoding destFlagCoding = product.getFlagCodingGroup().get(flagCodingName);
-                    Debug.assertNotNull(
-                            destFlagCoding); // should not happen because flag codings should be already in product
+                    if (destFlagCoding == null) {
+                        destFlagCoding = ProductUtils.copyFlagCoding(sourceFlagCoding, product);
+                    }
                     destBand.setSampleCoding(destFlagCoding);
                 } else if (sourceIndexCoding != null) {
                     String indexCodingName = sourceIndexCoding.getName();
                     IndexCoding destIndexCoding = product.getIndexCodingGroup().get(indexCodingName);
-                    Debug.assertNotNull(
-                            destIndexCoding); // should not happen because index codings should be already in product
+                    if (destIndexCoding == null) {
+                        destIndexCoding = ProductUtils.copyIndexCoding(sourceIndexCoding, product);
+                    }
                     destBand.setSampleCoding(destIndexCoding);
                 } else {
                     destBand.setSampleCoding(null);
