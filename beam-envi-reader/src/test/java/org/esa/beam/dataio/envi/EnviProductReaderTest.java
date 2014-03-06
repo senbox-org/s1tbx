@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import java.io.*;
 import java.text.ParseException;
-import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -182,6 +181,12 @@ public class EnviProductReaderTest {
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81aug15b.n07-VIg", band4.getDescription());
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15a.n07-VIg", band5.getDescription());
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
+
+        Band[] allBands = product.getBands();
+        for (Band band : allBands) {
+            assertTrue(band.isNoDataValueUsed());
+            assertEquals(42, band.getNoDataValue(), 1e-9);
+        }
     }
 
     @Test
@@ -218,7 +223,7 @@ public class EnviProductReaderTest {
         String[] attributeNames = headerElem.getAttributeNames();
         String[] expected = new String[]{
                 "description", "samples", "lines", "bands", "header offset", "file type",
-                "data type", "interleave", "sensor type", "byte order", "map info",
+                "data type", "interleave", "sensor type", "byte order", "data ignore value", "map info",
                 "projection info", "wavelength units", "band names"
         };
         assertArrayEquals(expected, attributeNames);
@@ -261,6 +266,7 @@ public class EnviProductReaderTest {
         pw.println(EnviConstants.HEADER_KEY_INTERLEAVE + " = " + INTERLEAVE);
         pw.println(EnviConstants.HEADER_KEY_SENSOR_TYPE + " = " + SENSOR_TYPE);
         pw.println(EnviConstants.HEADER_KEY_BYTE_ORDER + " = " + BYTE_ORDER);
+        pw.println(EnviConstants.HEADER_KEY_DATA_IGNORE_VALUE + " = 42");
         pw.println();
         pw.println(EnviConstants.HEADER_KEY_MAP_INFO + " = {" + MAP_INFO + "}");
         pw.println(EnviConstants.HEADER_KEY_PROJECTION_INFO + " ={" + PROJECTION_INFO + "}");

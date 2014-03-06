@@ -18,6 +18,7 @@
     <changelog>
         <![CDATA[
           <p>Changes in 3.2:<br/>
+          [BEAM-1621] ENVI reader shall consider "data ignore value"<br/>
           [BEAM-1622] ENVI reader shall have metadata<br/>
           [GBOX-030] Support offset and gain in ENVI header files<br/>
           <p>Changes in 3.1:<br/>

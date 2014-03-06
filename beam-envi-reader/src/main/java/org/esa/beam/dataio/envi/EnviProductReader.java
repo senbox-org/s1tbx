@@ -436,6 +436,7 @@ class EnviProductReader extends AbstractProductReader {
     private void initBands(Product product) {
         final int enviDataType = header.getDataType();
         final int dataType = DataTypeUtils.toBeam(enviDataType);
+        Double dataIgnoreValue = header.getDataIgnoreValue();
 
         final String[] bandNames = getBandNames(header);
         float[] wavelength = getWavelength(header, bandNames);
@@ -460,14 +461,9 @@ class EnviProductReader extends AbstractProductReader {
             band.setSpectralWavelength(wavelength[i]);
             band.setScalingOffset(offsets[i]);
             band.setScalingFactor(gains[i]);
-            band.setNoDataValueUsed(true);
-            switch (dataType) {
-                case ProductData.TYPE_FLOAT32:
-                    band.setNoDataValue(Float.NaN);
-                    break;
-                case ProductData.TYPE_FLOAT64:
-                    band.setNoDataValue(Double.NaN);
-                    break;
+            if (dataIgnoreValue != null) {
+                band.setNoDataValueUsed(true);
+                band.setNoDataValue(dataIgnoreValue);
             }
             product.addBand(band);
         }

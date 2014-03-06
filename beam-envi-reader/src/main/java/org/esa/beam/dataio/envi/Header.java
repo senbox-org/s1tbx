@@ -108,6 +108,13 @@ class Header {
         return headerParser.getDoubles(EnviConstants.HEADER_KEY_DATA_GAIN_VALUES);
     }
 
+    public Double getDataIgnoreValue() {
+        if (headerParser.contains(EnviConstants.HEADER_KEY_DATA_IGNORE_VALUE)) {
+            return headerParser.getDouble(EnviConstants.HEADER_KEY_DATA_IGNORE_VALUE);
+        }
+        return null;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////

@@ -18,6 +18,7 @@ class EnviConstants {
     public static final String HEADER_KEY_BAND_NAMES = "band names";
     public static final String HEADER_KEY_DATA_OFFSET_VALUES = "data offset values";
     public static final String HEADER_KEY_DATA_GAIN_VALUES = "data gain values";
+    public static final String HEADER_KEY_DATA_IGNORE_VALUE = "data ignore value";
     public static final String HEADER_KEY_DESCRIPTION = "description";
     public static final String FIRST_LINE = "ENVI";
     public static final String FORMAT_NAME = "ENVI";

@@ -95,6 +95,13 @@ class HeaderParser {
         return contains(key) ? getInt(key) : defaultValue;
     }
 
+    double getDouble(String key) {
+        if (!contains(key)) {
+            throw new IllegalArgumentException("Missing mandatory header key: " + key);
+        }
+        return Double.parseDouble(getString(key));
+    }
+
     double[] getDoubles(String key) {
         String[] elems = getStrings(key);
         double[] doubles = new double[elems.length];
