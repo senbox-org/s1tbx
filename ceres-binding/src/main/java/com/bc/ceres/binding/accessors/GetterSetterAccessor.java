@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
  * ValueAccessor for values stored in a {@link java.lang.reflect.Field} of a plain Java object.
  *
  * @author Norman
+ * @since Ceres 0.14
  */
 public class GetterSetterAccessor implements PropertyAccessor {
     private final Object object;
