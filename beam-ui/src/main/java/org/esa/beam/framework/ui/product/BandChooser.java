@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class BandChooser extends ModalDialog {
 
-    private final boolean _selectAtLeastOneBand;
+    private final boolean selectAtLeastOneBand;
     private BandChoosingStrategy strategy;
 
     public BandChooser(Window parent, String title, String helpID,
@@ -29,7 +29,7 @@ public class BandChooser extends ModalDialog {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, null);
         strategy = new GroupedBandChoosingStrategy(allBands, selectedBands, null, null, autoGrouping, multipleProducts);
-        _selectAtLeastOneBand = false;
+        selectAtLeastOneBand = false;
         initUI();
     }
 
@@ -45,20 +45,20 @@ public class BandChooser extends ModalDialog {
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, allTiePointGrids);
         strategy = new DefaultBandChoosingStrategy(allBands, selectedBands, allTiePointGrids, selectedTiePointGrids,
                                                    multipleProducts);
-        _selectAtLeastOneBand = selectAtLeastOneBand;
+        this.selectAtLeastOneBand = selectAtLeastOneBand;
         initUI();
     }
 
     private boolean bandsAndGridsFromMoreThanOneProduct(Band[] allBands, TiePointGrid[] allTiePointGrids) {
-        Set productSet = new HashSet();
+        Set<Product> productSet = new HashSet<>();
         if (allBands != null) {
-            for (int i = 0; i < allBands.length; i++) {
-                productSet.add(allBands[i].getProduct());
+            for (Band allBand : allBands) {
+                productSet.add(allBand.getProduct());
             }
         }
         if (allTiePointGrids != null) {
-            for (int i = 0; i < allTiePointGrids.length; i++) {
-                productSet.add(allTiePointGrids[i].getProduct());
+            for (TiePointGrid allTiePointGrid : allTiePointGrids) {
+                productSet.add(allTiePointGrid.getProduct());
             }
         }
         return productSet.size() > 1;
@@ -106,7 +106,7 @@ public class BandChooser extends ModalDialog {
 
     @Override
     protected boolean verifyUserInput() {
-        if (!strategy.atLeastOneBandSelected() && _selectAtLeastOneBand) {
+        if (!strategy.atLeastOneBandSelected() && selectAtLeastOneBand) {
             showInformationDialog("No bands selected.\nPlease select at least one band.");
             return false;
         }
