@@ -23,7 +23,6 @@ import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -109,15 +108,17 @@ class HistogramPanel extends ChartPagePanel {
     @Override
     protected void initComponents() {
         VisatApp.getApp().getProductTree().addProductTreeListener(new ProductTreeListenerAdapter() {
-            @Override
-            public void bandSelected(Band band, int clickCount) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateChartData(false);
-                    }
-                });
-            }
+//            @Override
+//            public void bandSelected(Band band, int clickCount) {
+//                SwingUtilities.invokeLater(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (isRasterChanged()) {
+//                            updateChartData(false);
+//                        }
+//                    }
+//                });
+//            }
 
             @Override
             public void productRemoved(Product product) {
@@ -163,6 +164,17 @@ class HistogramPanel extends ChartPagePanel {
     @Override
     protected boolean mustHandleSelectionChange() {
         return isRasterChanged();
+    }
+
+    @Override
+    protected void handleNodeSelectionChanged() {
+        super.handleNodeSelectionChanged();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                updateChartData(false);
+            }
+        });
     }
 
     @Override
@@ -310,7 +322,7 @@ class HistogramPanel extends ChartPagePanel {
     }
 
     private HistogramPanelModel.HistogramConfig createHistogramConfig() {
-        if (getRaster() == null) {
+        if (getRaster() == null || isRasterChanged()) {
             return null;
         }
         return new HistogramPanelModel.HistogramConfig(getRaster(),
@@ -393,6 +405,9 @@ class HistogramPanel extends ChartPagePanel {
     private void setStx(Stx stx) {
         if (stx != null) {
             HistogramPanelModel.HistogramConfig config = createHistogramConfig();
+            if (config == null) {
+                return;
+            }
             if (!model.hasStx(config)) {
                 model.setStx(config, stx);
             }
@@ -566,6 +581,9 @@ class HistogramPanel extends ChartPagePanel {
                 stx = factory.create(getRaster(), pm);
             } else {
                 stx = getRaster().getStx(true, pm);
+            }
+            if (getRaster() != config.raster) {
+                return null;
             }
             return stx;
         }
