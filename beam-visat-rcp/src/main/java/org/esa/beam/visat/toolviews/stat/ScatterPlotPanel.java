@@ -40,6 +40,7 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.visat.VisatApp;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -230,6 +231,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         getAlternativeView().initComponents();
         initParameters();
         createUI();
+        VisatApp.getApp().getProductManager().addListener(productRemovedListener);
     }
 
     @Override
@@ -244,11 +246,9 @@ class ScatterPlotPanel extends ChartPagePanel {
         final RasterDataNode raster = getRaster();
         yAxisRangeControl.setTitleSuffix(raster != null ? raster.getName() : null);
 
-        final Product product = getProduct();
-
-        injectProductRemovedListener(product);
 
         if (raster != null) {
+            final Product product = getProduct();
             final String rasterName = raster.getName();
 
             final UserSettings userSettings = getUserSettings(product);
@@ -1003,18 +1003,6 @@ class ScatterPlotPanel extends ChartPagePanel {
             this.rasterSigma = rasterSigma;
             this.correlativeData = correlativeData;
             this.featureProperties = featureProperties;
-        }
-    }
-
-    private void injectProductRemovedListener(Product product) {
-        if (product == null) {
-            return;
-        }
-        final ProductManager productManager = product.getProductManager();
-        if (productManager != null) {
-            // If the listener is already added it will not be added twice.
-            // Take a look inte the "addListener" method.
-            productManager.addListener(productRemovedListener);
         }
     }
 
