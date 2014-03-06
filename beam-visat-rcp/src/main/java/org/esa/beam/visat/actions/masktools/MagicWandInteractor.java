@@ -28,10 +28,11 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JDialog;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -47,7 +48,7 @@ import static org.esa.beam.visat.actions.masktools.MagicWandModel.getSpectralBan
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-public class MagicWandInteractor extends ViewportInteractor {
+public class MagicWandInteractor extends ViewportInteractor implements MagicWandModel.Listener {
 
     private static final String DIALOG_TITLE = "Magic Wand Settings";
 
@@ -61,6 +62,22 @@ public class MagicWandInteractor extends ViewportInteractor {
     public MagicWandInteractor() {
         layerListener = new MyLayerListener();
         model = new MagicWandModel();
+        model.addListener(this);
+    }
+
+    @Override
+    public void modelChanged(MagicWandModel model, boolean recomputeMask) {
+        if (recomputeMask) {
+            updateMask();
+        }
+        if (form != null) {
+            form.getBindingContext().adjustComponents();
+            form.updateState();
+        }
+    }
+
+    public Window getOptionsWindow() {
+        return optionsWindow;
     }
 
     static double[] getSpectrum(Band[] bands, int pixelX, int pixelY) throws IOException {
@@ -134,9 +151,9 @@ public class MagicWandInteractor extends ViewportInteractor {
         } catch (IOException e1) {
             return;
         }
+
         MagicWandModel oldModel = getModel().clone();
         getModel().addSpectrum(spectrum);
-        updateMagicWandMask(product, spectralBands);
         MagicWandModel newModel = getModel().clone();
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
     }
@@ -172,9 +189,6 @@ public class MagicWandInteractor extends ViewportInteractor {
 
     void updateModel(MagicWandModel other) {
         getModel().set(other);
-        updateMask();
-        form.getBindingContext().adjustComponents();
-        form.updateUndoRedoState();
     }
 
 

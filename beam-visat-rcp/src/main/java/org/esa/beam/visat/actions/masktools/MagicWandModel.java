@@ -38,19 +38,19 @@ import java.util.List;
  */
 public class MagicWandModel implements Cloneable {
 
-    public enum Mode {
+    public enum PickMode {
         SINGLE,
         PLUS,
         MINUS,
     }
 
-    public enum Operator {
+    public enum SpectrumTransform {
         INTEGRAL,
         IDENTITY,
         DERIVATIVE,
     }
 
-    public enum Method {
+    public enum BandAccumulation {
         DISTANCE,
         AVERAGE,
         LIMITS,
@@ -62,23 +62,47 @@ public class MagicWandModel implements Cloneable {
     private double minTolerance;
     private double maxTolerance;
     private String[] bandNames;
-    private Operator operator;
-    private Method method;
+    private SpectrumTransform spectrumTransform;
+    private BandAccumulation bandAccumulation;
     private boolean normalize;
-    private Mode mode;
+    private PickMode pickMode;
     private ArrayList<double[]> plusSpectra;
     private ArrayList<double[]> minusSpectra;
 
+    private transient ArrayList<Listener> listeners;
+
     public MagicWandModel() {
-        mode = Mode.SINGLE;
-        method = Method.DISTANCE;
-        operator = Operator.IDENTITY;
+        pickMode = PickMode.SINGLE;
+        bandAccumulation = BandAccumulation.DISTANCE;
+        spectrumTransform = SpectrumTransform.IDENTITY;
         bandNames = new String[0];
-        plusSpectra = new ArrayList<double[]>();
-        minusSpectra = new ArrayList<double[]>();
+        plusSpectra = new ArrayList<>();
+        minusSpectra = new ArrayList<>();
         tolerance = 0.1;
         minTolerance = 0.0;
         maxTolerance = 1.0;
+    }
+
+    public void addListener(Listener listener) {
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+        }
+        listeners.add(listener);
+    }
+
+    public void removeListeners() {
+        if (listeners != null) {
+            listeners.clear();
+            listeners = null;
+        }
+    }
+
+    public void fireModelChanged(boolean recomputeMask) {
+        if (listeners != null) {
+            for (Listener listener : listeners) {
+                listener.modelChanged(this, recomputeMask);
+            }
+        }
     }
 
     @SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
@@ -86,8 +110,10 @@ public class MagicWandModel implements Cloneable {
     public MagicWandModel clone() {
         try {
             MagicWandModel clone = (MagicWandModel) super.clone();
-            clone.plusSpectra = new ArrayList<double[]>(plusSpectra);
-            clone.minusSpectra = new ArrayList<double[]>(minusSpectra);
+            clone.bandNames = bandNames.clone();
+            clone.plusSpectra = new ArrayList<>(plusSpectra);
+            clone.minusSpectra = new ArrayList<>(minusSpectra);
+            clone.listeners = null;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
@@ -95,63 +121,79 @@ public class MagicWandModel implements Cloneable {
     }
 
     public void set(MagicWandModel other) {
-        method = other.method;
-        operator = other.operator;
-        mode = other.mode;
+        bandAccumulation = other.bandAccumulation;
+        spectrumTransform = other.spectrumTransform;
+        pickMode = other.pickMode;
         tolerance = other.tolerance;
         minTolerance = other.minTolerance;
         maxTolerance = other.maxTolerance;
-        plusSpectra = new ArrayList<double[]>(other.plusSpectra);
-        minusSpectra = new ArrayList<double[]>(other.minusSpectra);
+        bandNames = other.bandNames.clone();
+        plusSpectra = new ArrayList<>(other.plusSpectra);
+        minusSpectra = new ArrayList<>(other.minusSpectra);
+        fireModelChanged(true);
+    }
+
+    int getSpectraCount() {
+        return plusSpectra.size() + minusSpectra.size();
+    }
+
+    int getBandCount() {
+        return bandNames.length;
     }
 
     void addSpectrum(double... spectrum) {
-        if (mode == Mode.SINGLE) {
+        if (pickMode == PickMode.SINGLE) {
             plusSpectra.clear();
             minusSpectra.clear();
             plusSpectra.add(spectrum);
-        } else if (mode == Mode.PLUS) {
+        } else if (pickMode == PickMode.PLUS) {
             plusSpectra.add(spectrum);
-        } else if (mode == Mode.MINUS) {
+        } else if (pickMode == PickMode.MINUS) {
             minusSpectra.add(spectrum);
         }
+        fireModelChanged(true);
     }
 
     void clearSpectra() {
         plusSpectra.clear();
         minusSpectra.clear();
+        fireModelChanged(true);
     }
 
     public String[] getBandNames() {
-        return bandNames;
+        return bandNames.clone();
     }
 
     public void setBandNames(String[] bandNames) {
-        this.bandNames = bandNames;
+        this.bandNames = bandNames.clone();
+        fireModelChanged(false);
     }
 
-    public Mode getMode() {
-        return mode;
+    public PickMode getPickMode() {
+        return pickMode;
     }
 
-    public void setMode(Mode mode) {
-        this.mode = mode;
+    public void setPickMode(PickMode pickMode) {
+        this.pickMode = pickMode;
+        fireModelChanged(false);
     }
 
-    public Method getMethod() {
-        return method;
+    public BandAccumulation getBandAccumulation() {
+        return bandAccumulation;
     }
 
-    public Operator getOperator() {
-        return operator;
+    public void setBandAccumulation(BandAccumulation bandAccumulation) {
+        this.bandAccumulation = bandAccumulation;
+        fireModelChanged(false);
     }
 
-    public void setOperator(Operator operator) {
-        this.operator = operator;
+    public SpectrumTransform getSpectrumTransform() {
+        return spectrumTransform;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
+    public void setSpectrumTransform(SpectrumTransform spectrumTransform) {
+        this.spectrumTransform = spectrumTransform;
+        fireModelChanged(false);
     }
 
     public double getTolerance() {
@@ -160,6 +202,7 @@ public class MagicWandModel implements Cloneable {
 
     public void setTolerance(double tolerance) {
         this.tolerance = tolerance;
+        fireModelChanged(true);
     }
 
     public double getMinTolerance() {
@@ -168,6 +211,7 @@ public class MagicWandModel implements Cloneable {
 
     public void setMinTolerance(double minTolerance) {
         this.minTolerance = minTolerance;
+        fireModelChanged(false);
     }
 
     public double getMaxTolerance() {
@@ -176,36 +220,17 @@ public class MagicWandModel implements Cloneable {
 
     public void setMaxTolerance(double maxTolerance) {
         this.maxTolerance = maxTolerance;
-    }
-
-
-    public boolean isNormalize() {
-        return normalize;
+        fireModelChanged(false);
     }
 
     public void setNormalize(boolean normalize) {
         this.normalize = normalize;
-    }
-
-    public List<double[]> getPlusSpectra() {
-        return plusSpectra;
-    }
-
-    void setPlusSpectra(List<double[]> plusSpectra) {
-        this.plusSpectra = new ArrayList<double[]>(plusSpectra);
-    }
-
-    public List<double[]> getMinusSpectra() {
-        return minusSpectra;
-    }
-
-    void setMinusSpectra(List<double[]> minusSpectra) {
-        this.minusSpectra = new ArrayList<double[]>(minusSpectra);
+        fireModelChanged(false);
     }
 
     static Band[] getSpectralBands(Product product) {
         final Band[] bands = product.getBands();
-        final ArrayList<Band> spectralBands = new ArrayList<Band>(bands.length);
+        final ArrayList<Band> spectralBands = new ArrayList<>(bands.length);
         for (Band band : bands) {
             if (band.getSpectralWavelength() > 0.0) {
                 spectralBands.add(band);
@@ -225,20 +250,20 @@ public class MagicWandModel implements Cloneable {
         }
     }
 
-    String createExpression(Band... spectralBands) {
+    String createExpression(Band... bands) {
         final String plusPart;
         final String minusPart;
-        if (getMethod() == Method.DISTANCE) {
-            plusPart = getDistancePart(spectralBands, operator, plusSpectra, tolerance, normalize);
-            minusPart = getDistancePart(spectralBands, operator, minusSpectra, tolerance, normalize);
-        } else if (getMethod() == Method.AVERAGE) {
-            plusPart = getAveragePart(spectralBands, operator, plusSpectra, tolerance, normalize);
-            minusPart = getAveragePart(spectralBands, operator, minusSpectra, tolerance, normalize);
-        } else if (getMethod() == Method.LIMITS) {
-            plusPart = getLimitsPart(spectralBands, operator, plusSpectra, tolerance, normalize);
-            minusPart = getLimitsPart(spectralBands, operator, minusSpectra, tolerance, normalize);
+        if (getBandAccumulation() == BandAccumulation.DISTANCE) {
+            plusPart = getDistancePart(bands, spectrumTransform, plusSpectra, tolerance, normalize);
+            minusPart = getDistancePart(bands, spectrumTransform, minusSpectra, tolerance, normalize);
+        } else if (getBandAccumulation() == BandAccumulation.AVERAGE) {
+            plusPart = getAveragePart(bands, spectrumTransform, plusSpectra, tolerance, normalize);
+            minusPart = getAveragePart(bands, spectrumTransform, minusSpectra, tolerance, normalize);
+        } else if (getBandAccumulation() == BandAccumulation.LIMITS) {
+            plusPart = getLimitsPart(bands, spectrumTransform, plusSpectra, tolerance, normalize);
+            minusPart = getLimitsPart(bands, spectrumTransform, minusSpectra, tolerance, normalize);
         } else {
-            throw new IllegalStateException("Unhandled method " + getMethod());
+            throw new IllegalStateException("Unhandled method " + getBandAccumulation());
         }
         if (plusPart != null && minusPart != null) {
             return String.format("(%s) && !(%s)", plusPart, minusPart);
@@ -251,7 +276,7 @@ public class MagicWandModel implements Cloneable {
         }
     }
 
-    private static String getDistancePart(Band[] bands, Operator operator, List<double[]> spectra, double tolerance, boolean normalize) {
+    private static String getDistancePart(Band[] bands, SpectrumTransform spectrumTransform, List<double[]> spectra, double tolerance, boolean normalize) {
         if (spectra.isEmpty()) {
             return null;
         }
@@ -261,26 +286,26 @@ public class MagicWandModel implements Cloneable {
             if (i > 0) {
                 part.append(" || ");
             }
-            part.append(getDistanceSubPart(bands, operator, spectrum, tolerance, normalize));
+            part.append(getDistanceSubPart(bands, spectrumTransform, spectrum, tolerance, normalize));
         }
         return part.toString();
     }
 
-    private static String getAveragePart(Band[] spectralBands, Operator operator, List<double[]> spectra, double tolerance, boolean normalize) {
+    private static String getAveragePart(Band[] spectralBands, SpectrumTransform spectrumTransform, List<double[]> spectra, double tolerance, boolean normalize) {
         if (spectra.isEmpty()) {
             return null;
         }
         double[] avgSpectrum = getAvgSpectrum(spectralBands.length, spectra, normalize);
-        return getDistanceSubPart(spectralBands, operator, avgSpectrum, tolerance, normalize);
+        return getDistanceSubPart(spectralBands, spectrumTransform, avgSpectrum, tolerance, normalize);
     }
 
-    private static String getLimitsPart(Band[] spectralBands, Operator operator, List<double[]> spectra, double tolerance, boolean normalize) {
+    private static String getLimitsPart(Band[] spectralBands, SpectrumTransform spectrumTransform, List<double[]> spectra, double tolerance, boolean normalize) {
         if (spectra.isEmpty()) {
             return null;
         }
         double[] minSpectrum = getMinSpectrum(spectralBands.length, spectra, tolerance, normalize);
         double[] maxSpectrum = getMaxSpectrum(spectralBands.length, spectra, tolerance, normalize);
-        return getLimitsSubPart(spectralBands, operator, minSpectrum, maxSpectrum, normalize);
+        return getLimitsSubPart(spectralBands, spectrumTransform, minSpectrum, maxSpectrum, normalize);
     }
 
     private static double[] getSpectrum(double[] spectrum, boolean normalize) {
@@ -337,7 +362,7 @@ public class MagicWandModel implements Cloneable {
         return normalize ? spectrum[i] / spectrum[0] : spectrum[i];
     }
 
-    private static String getDistanceSubPart(Band[] bands, Operator operator, double[] spectrum, double tolerance, boolean normalize) {
+    private static String getDistanceSubPart(Band[] bands, SpectrumTransform spectrumTransform, double[] spectrum, double tolerance, boolean normalize) {
         if (bands.length == 0) {
             return "0";
         }
@@ -345,14 +370,14 @@ public class MagicWandModel implements Cloneable {
         appendSpectrumBandNames(bands, normalize, arguments);
         appendSpectrumBandValues(spectrum, arguments);
         String functionName;
-        if (operator == Operator.IDENTITY) {
+        if (spectrumTransform == SpectrumTransform.IDENTITY) {
             functionName = "distance";
-        } else if (operator == Operator.DERIVATIVE) {
+        } else if (spectrumTransform == SpectrumTransform.DERIVATIVE) {
             functionName = "distance_deriv";
-        } else if (operator == Operator.INTEGRAL) {
+        } else if (spectrumTransform == SpectrumTransform.INTEGRAL) {
             functionName = "distance_integ";
         } else {
-            throw new IllegalStateException("unhandled operator " + operator);
+            throw new IllegalStateException("unhandled operator " + spectrumTransform);
         }
         if (bands.length == 1) {
             return String.format("%s(%s) < %s", functionName, arguments, tolerance);
@@ -361,7 +386,7 @@ public class MagicWandModel implements Cloneable {
         }
     }
 
-    private static String getLimitsSubPart(Band[] bands, Operator operator, double[] minSpectrum, double[] maxSpectrum, boolean normalize) {
+    private static String getLimitsSubPart(Band[] bands, SpectrumTransform spectrumTransform, double[] minSpectrum, double[] maxSpectrum, boolean normalize) {
         if (bands.length == 0) {
             return "0";
         }
@@ -370,14 +395,14 @@ public class MagicWandModel implements Cloneable {
         appendSpectrumBandValues(minSpectrum, arguments);
         appendSpectrumBandValues(maxSpectrum, arguments);
         String functionName;
-        if (operator == Operator.IDENTITY) {
+        if (spectrumTransform == SpectrumTransform.IDENTITY) {
             functionName = "inrange";
-        } else if (operator == Operator.DERIVATIVE) {
+        } else if (spectrumTransform == SpectrumTransform.DERIVATIVE) {
             functionName = "inrange_deriv";
-        } else if (operator == Operator.INTEGRAL) {
+        } else if (spectrumTransform == SpectrumTransform.INTEGRAL) {
             functionName = "inrange_integ";
         } else {
-            throw new IllegalStateException("unhandled operator " + operator);
+            throw new IllegalStateException("unhandled operator " + spectrumTransform);
         }
         return String.format("%s(%s)", functionName, arguments);
     }
@@ -390,7 +415,7 @@ public class MagicWandModel implements Cloneable {
             }
             String name = BandArithmetic.createExternalName(bands[i].getName());
             if (normalize) {
-                arguments.append(name + "/" + firstName);
+                arguments.append(name).append("/").append(firstName);
             } else {
                 arguments.append(name);
             }
@@ -415,9 +440,9 @@ public class MagicWandModel implements Cloneable {
         if (Double.compare(that.minTolerance, minTolerance) != 0) return false;
         if (normalize != that.normalize) return false;
         if (Double.compare(that.tolerance, tolerance) != 0) return false;
-        if (method != that.method) return false;
-        if (mode != that.mode) return false;
-        if (operator != that.operator) return false;
+        if (bandAccumulation != that.bandAccumulation) return false;
+        if (pickMode != that.pickMode) return false;
+        if (spectrumTransform != that.spectrumTransform) return false;
         if (!ObjectUtils.equalObjects(bandNames, that.bandNames)) return false;
         if (!ObjectUtils.equalObjects(plusSpectra.toArray(), that.plusSpectra.toArray())) return false;
         if (!ObjectUtils.equalObjects(minusSpectra.toArray(), that.minusSpectra.toArray())) return false;
@@ -429,9 +454,9 @@ public class MagicWandModel implements Cloneable {
     public int hashCode() {
         int result;
         long temp;
-        result = mode.hashCode();
-        result = 31 * result + operator.hashCode();
-        result = 31 * result + method.hashCode();
+        result = pickMode.hashCode();
+        result = 31 * result + spectrumTransform.hashCode();
+        result = 31 * result + bandAccumulation.hashCode();
         result = 31 * result + plusSpectra.hashCode();
         result = 31 * result + minusSpectra.hashCode();
         result = 31 * result + bandNames.hashCode();
@@ -458,6 +483,11 @@ public class MagicWandModel implements Cloneable {
         xStream.alias("magicWandSettings", MagicWandModel.class);
         xStream.registerConverter(new SingleValueConverter() {
             @Override
+            public boolean canConvert(Class type) {
+                return type.equals(double[].class);
+            }
+
+            @Override
             public String toString(Object obj) {
                 return StringUtils.arrayToString(obj, ",");
             }
@@ -466,12 +496,11 @@ public class MagicWandModel implements Cloneable {
             public Object fromString(String str) {
                 return StringUtils.toDoubleArray(str, ",");
             }
-
-            @Override
-            public boolean canConvert(Class type) {
-                return type.equals(double[].class);
-            }
         });
         return xStream;
+    }
+
+    public static interface Listener {
+        void modelChanged(MagicWandModel model, boolean recomputeMask);
     }
 }

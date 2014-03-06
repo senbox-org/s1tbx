@@ -9,7 +9,9 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Norman Fomferra
@@ -38,8 +40,8 @@ public class MagicWandModelTest {
     @Test
     public void testConstructorSetsDefaultValues() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        assertEquals(MagicWandModel.Mode.SINGLE, model.getMode());
-        assertEquals(MagicWandModel.Method.DISTANCE, model.getMethod());
+        assertEquals(MagicWandModel.PickMode.SINGLE, model.getPickMode());
+        assertEquals(MagicWandModel.BandAccumulation.DISTANCE, model.getBandAccumulation());
         assertEquals(0.1, model.getTolerance(), 0.0);
         assertEquals("0", model.createExpression());
     }
@@ -83,9 +85,9 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionDistIdent() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        model.setMode(MagicWandModel.Mode.PLUS);
-        model.setMethod(MagicWandModel.Method.DISTANCE);
-        model.setOperator(MagicWandModel.Operator.IDENTITY);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
+        model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
+        model.setSpectrumTransform(MagicWandModel.SpectrumTransform.IDENTITY);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
@@ -102,9 +104,9 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionDistDeriv() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        model.setMode(MagicWandModel.Mode.PLUS);
-        model.setMethod(MagicWandModel.Method.DISTANCE);
-        model.setOperator(MagicWandModel.Operator.DERIVATIVE);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
+        model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
+        model.setSpectrumTransform(MagicWandModel.SpectrumTransform.DERIVATIVE);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
@@ -121,9 +123,9 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionDistInteg() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        model.setMode(MagicWandModel.Mode.PLUS);
-        model.setMethod(MagicWandModel.Method.DISTANCE);
-        model.setOperator(MagicWandModel.Operator.INTEGRAL);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
+        model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
+        model.setSpectrumTransform(MagicWandModel.SpectrumTransform.INTEGRAL);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
@@ -140,9 +142,9 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionLimitsIdent() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        model.setMode(MagicWandModel.Mode.PLUS);
-        model.setMethod(MagicWandModel.Method.LIMITS);
-        model.setOperator(MagicWandModel.Operator.IDENTITY);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
+        model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
+        model.setSpectrumTransform(MagicWandModel.SpectrumTransform.IDENTITY);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
@@ -179,9 +181,9 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionLimitsDeriv() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        model.setMode(MagicWandModel.Mode.PLUS);
-        model.setMethod(MagicWandModel.Method.LIMITS);
-        model.setOperator(MagicWandModel.Operator.DERIVATIVE);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
+        model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
+        model.setSpectrumTransform(MagicWandModel.SpectrumTransform.DERIVATIVE);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
@@ -218,9 +220,9 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionLimitsInteg() throws Exception {
         MagicWandModel model = new MagicWandModel();
-        model.setMode(MagicWandModel.Mode.PLUS);
-        model.setMethod(MagicWandModel.Method.LIMITS);
-        model.setOperator(MagicWandModel.Operator.INTEGRAL);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
+        model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
+        model.setSpectrumTransform(MagicWandModel.SpectrumTransform.INTEGRAL);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
@@ -261,10 +263,10 @@ public class MagicWandModelTest {
         model.setMinTolerance(0.0);
         model.setMaxTolerance(0.01);
         model.setNormalize(true);
-        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.addSpectrum(1, 2, 3, 4, 5, 6);
         model.addSpectrum(2, 3, 4, 5, 6, 7);
-        model.setMode(MagicWandModel.Mode.MINUS);
+        model.setPickMode(MagicWandModel.PickMode.MINUS);
         model.addSpectrum(3, 4, 5, 6, 7, 8);
         model.addSpectrum(4, 5, 6, 7, 8, 9);
 
@@ -279,10 +281,10 @@ public class MagicWandModelTest {
         model.setMinTolerance(0.0);
         model.setMaxTolerance(0.01);
         model.setNormalize(true);
-        model.setMode(MagicWandModel.Mode.PLUS);
+        model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.addSpectrum(1, 2, 3, 4, 5, 6);
         model.addSpectrum(2, 3, 4, 5, 6, 7);
-        model.setMode(MagicWandModel.Mode.MINUS);
+        model.setPickMode(MagicWandModel.PickMode.MINUS);
         model.addSpectrum(3, 4, 5, 6, 7, 8);
         model.addSpectrum(4, 5, 6, 7, 8, 9);
 
