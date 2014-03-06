@@ -378,7 +378,6 @@ class EnviProductReader extends AbstractProductReader {
                         crs = factory.createProjectedCRS("EPSG:" + (WGS84_UTM_zone_S_BASE + zone));
                     }
                 }
-            } catch (NoSuchAuthorityCodeException ignore) {
             } catch (FactoryException ignore) {
             }
         }
@@ -395,10 +394,8 @@ class EnviProductReader extends AbstractProductReader {
                 GeoCoding geoCoding = new CrsGeoCoding(crs, rect, i2m);
 
                 product.setGeoCoding(geoCoding);
-            } catch (FactoryException fe) {
+            } catch (FactoryException | TransformException fe) {
                 Debug.trace(fe);
-            } catch (TransformException te) {
-                Debug.trace(te);
             }
         }
 
