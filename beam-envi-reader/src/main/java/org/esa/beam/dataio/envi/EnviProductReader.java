@@ -55,7 +55,7 @@ class EnviProductReader extends AbstractProductReader {
     }
 
     static File getEnviImageFile(File hdrFile) throws FileNotFoundException {
-        List<File> possibleImageFiles = new ArrayList<File>(20);
+        List<File> possibleImageFiles = new ArrayList<>(20);
         String baseName = FileUtils.getFilenameWithoutExtension(hdrFile);
         possibleImageFiles.add(new File(hdrFile.getParent(), baseName));
         possibleImageFiles.add(new File(hdrFile.getParent(), baseName + EnviConstants.IMG_EXTENSION));
@@ -114,6 +114,7 @@ class EnviProductReader extends AbstractProductReader {
             product.setProductReader(this);
             product.setFileLocation(inputFile);
             product.setDescription(header.getDescription());
+            product.getMetadataRoot().addElement(header.getAsMetadata());
 
             initGeoCoding(product);
             initBands(product);
@@ -231,16 +232,16 @@ class EnviProductReader extends AbstractProductReader {
         try {
             final File headerFile = EnviProductReaderPlugIn.getInputFile(getInput());
             File parentDir = headerFile.getParentFile();
-            final TreeNode<File> root = new TreeNode<File>(parentDir.getCanonicalPath());
+            final TreeNode<File> root = new TreeNode<>(parentDir.getCanonicalPath());
             root.setContent(parentDir);
 
-            final TreeNode<File> header = new TreeNode<File>(headerFile.getName());
+            final TreeNode<File> header = new TreeNode<>(headerFile.getName());
             header.setContent(headerFile);
             root.addChild(header);
 
             if (productZip == null) {
                 final File imageFile = getEnviImageFile(headerFile);
-                final TreeNode<File> image = new TreeNode<File>(imageFile.getName());
+                final TreeNode<File> image = new TreeNode<>(imageFile.getName());
                 image.setContent(imageFile);
                 root.addChild(image);
             }

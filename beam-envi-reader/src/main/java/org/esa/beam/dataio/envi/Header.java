@@ -1,13 +1,12 @@
 package org.esa.beam.dataio.envi;
 
+import org.esa.beam.framework.datamodel.MetadataElement;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 class Header {
 
@@ -202,6 +201,22 @@ class Header {
         } catch (IOException ignore) {
         }
         return properties;
+    }
+
+    public MetadataElement getAsMetadata() {
+        MetadataElement headerElem = new MetadataElement("Header");
+        for (Map.Entry<String, String> entry : headerParser.getHeaderEntries()) {
+            headerElem.setAttributeString(entry.getKey(), entry.getValue());
+        }
+        Set<Map.Entry<String, String>> historyEntries = headerParser.getHistoryEntries();
+        if (!historyEntries.isEmpty()) {
+            MetadataElement historyElem = new MetadataElement("History");
+            for (Map.Entry<String, String> entry : historyEntries) {
+                historyElem.setAttributeString(entry.getKey(), entry.getValue());
+            }
+            headerElem.addElement(historyElem);
+        }
+        return headerElem;
     }
 
     public static class BeamProperties {

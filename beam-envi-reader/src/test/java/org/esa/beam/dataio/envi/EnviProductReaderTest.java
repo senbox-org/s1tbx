@@ -2,6 +2,7 @@ package org.esa.beam.dataio.envi;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.After;
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.text.ParseException;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -196,6 +198,30 @@ public class EnviProductReaderTest {
         assertNotNull(product);
         assertEquals("16-JAN-1998 05:06:07.000000", product.getStartTime().format());
         assertEquals(null, product.getEndTime());
+    }
+
+    @Test
+    public void testMetadata() throws IOException {
+        final String headerContent = createHeaderFileContent("");
+        final File headerFile = createHeaderAndImageFile(headerContent, PRODUCT_NAME);
+
+        final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
+        final ProductReader reader = plugIn.createReaderInstance();
+        product = reader.readProductNodes(headerFile, null);
+
+        assertNotNull(product);
+        MetadataElement metadataRoot = product.getMetadataRoot();
+        assertEquals(1, metadataRoot.getNumElements());
+        MetadataElement headerElem = metadataRoot.getElementAt(0);
+        assertNotNull(headerElem);
+        assertEquals("Header", headerElem.getName());
+        String[] attributeNames = headerElem.getAttributeNames();
+        String[] expected = new String[]{
+                "description", "samples", "lines", "bands", "header offset", "file type",
+                "data type", "interleave", "sensor type", "byte order", "map info",
+                "projection info", "wavelength units", "band names"
+        };
+        assertArrayEquals(expected, attributeNames);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Parses a ENVI HDR header in key value pairs.
@@ -102,6 +103,14 @@ class HeaderParser {
             doubles[i] = Double.parseDouble(elems[i]);
         }
         return doubles;
+    }
+
+    Set<Map.Entry<String, String>> getHeaderEntries() {
+        return header.entrySet();
+    }
+
+    Set<Map.Entry<String, String>> getHistoryEntries() {
+        return history.entrySet();
     }
 
     @Override
