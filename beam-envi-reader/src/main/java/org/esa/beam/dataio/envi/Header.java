@@ -96,6 +96,10 @@ class Header {
         return headerParser.getStrings(EnviConstants.HEADER_KEY_WAVELENGTH);
     }
 
+    public String[] getFWHM() {
+        return headerParser.getStrings(EnviConstants.HEADER_KEY_FWHM);
+    }
+
     public String getWavelengthsUnit() {
         return headerParser.getString(EnviConstants.HEADER_KEY_WAVELENGTH_UNITS, null);
     }

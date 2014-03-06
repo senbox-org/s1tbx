@@ -187,6 +187,8 @@ public class EnviProductReaderTest {
             assertTrue(band.isNoDataValueUsed());
             assertEquals(42, band.getNoDataValue(), 1e-9);
         }
+        assertEquals(100f, band1.getSpectralWavelength(), 1e-5);
+        assertEquals(10f, band1.getSpectralBandwidth(), 1e-5);
     }
 
     @Test
@@ -224,7 +226,7 @@ public class EnviProductReaderTest {
         String[] expected = new String[]{
                 "description", "samples", "lines", "bands", "header offset", "file type",
                 "data type", "interleave", "sensor type", "byte order", "data ignore value", "map info",
-                "projection info", "wavelength units", "band names"
+                "projection info", "wavelength", "fwhm", "wavelength units", "band names"
         };
         assertArrayEquals(expected, attributeNames);
     }
@@ -270,6 +272,8 @@ public class EnviProductReaderTest {
         pw.println();
         pw.println(EnviConstants.HEADER_KEY_MAP_INFO + " = {" + MAP_INFO + "}");
         pw.println(EnviConstants.HEADER_KEY_PROJECTION_INFO + " ={" + PROJECTION_INFO + "}");
+        pw.println(EnviConstants.HEADER_KEY_WAVELENGTH + " = {100,200,300,400,500,600}");
+        pw.println(EnviConstants.HEADER_KEY_FWHM + " = {10,20,30,30,20,10}");
         pw.println(EnviConstants.HEADER_KEY_WAVELENGTH_UNITS + " = " + WAVELENGTH_UNITS);
         pw.println(EnviConstants.HEADER_KEY_BAND_NAMES + " = {");
         pw.println(" _/data/molly/AVHRR/samer/SA81jul15a.n07-VIg,");

@@ -439,7 +439,8 @@ class EnviProductReader extends AbstractProductReader {
         Double dataIgnoreValue = header.getDataIgnoreValue();
 
         final String[] bandNames = getBandNames(header);
-        float[] wavelength = getWavelength(header, bandNames);
+        float[] wavelength = getWavelength(header, bandNames.length);
+        float[] bandwidth = getBandwidth(header, bandNames.length);
         double[] offsets = getOffsetValues(bandNames.length);
         final double[] gains = getGainValues(bandNames.length);
         for (int i = 0; i < bandNames.length; i++) {
@@ -459,6 +460,7 @@ class EnviProductReader extends AbstractProductReader {
                                        product.getSceneRasterHeight());
             band.setDescription(description);
             band.setSpectralWavelength(wavelength[i]);
+            band.setSpectralBandwidth(bandwidth[i]);
             band.setScalingOffset(offsets[i]);
             band.setScalingFactor(gains[i]);
             if (dataIgnoreValue != null) {
@@ -511,15 +513,21 @@ class EnviProductReader extends AbstractProductReader {
         }
     }
 
-    private float[] getWavelength(Header header, String[] bandNames) {
-        float[] wavelengths = new float[bandNames.length];
-        String[] wavelengthsStrings = header.getWavelengths();
-        String wavelengthsUnit = header.getWavelengthsUnit();
+    private float[] getWavelength(Header header, int numBands) {
+        return transformWavelength(header.getWavelengths(), header.getWavelengthsUnit(), numBands);
+    }
+
+    private float[] getBandwidth(Header header, int numBands) {
+        return transformWavelength(header.getFWHM(), header.getWavelengthsUnit(), numBands);
+    }
+
+    private float[] transformWavelength(String[] wavelengthsStrings, String wavelengthsUnit, int numBands) {
+        float[] wavelengths = new float[numBands];
         int scaleFactor = 1;
         if (wavelengthsUnit != null && wavelengthsUnit.equalsIgnoreCase("Micrometers")) {
             scaleFactor = 1000;
         }
-        if (wavelengthsStrings != null && wavelengthsStrings.length == bandNames.length) {
+        if (wavelengthsStrings != null && wavelengthsStrings.length == numBands) {
             for (int i = 0; i < wavelengthsStrings.length; i++) {
                 wavelengths[i] = Float.parseFloat(wavelengthsStrings[i]) * scaleFactor;
             }
