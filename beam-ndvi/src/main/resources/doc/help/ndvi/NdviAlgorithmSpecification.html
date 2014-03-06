@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Data Processors - Algorithm Specification NDVI</title>
+    <title>BEAM NDVI - Algorithm Specification</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -29,8 +29,6 @@
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
     </tr>
 </table>
-
-<p>Algorithm Specification of the science processors of the MERIS/(A)ATSR Toolbox</p>
 
 <h3>NDVI</h3>
 
@@ -62,23 +60,6 @@
     for the photosynthetic activity and is strongly in correlation with density and vitality of the
     vegetation. The normalizing reduces topographicaly and atmospharic effects and enables the simultaneous
     examination of a wide area.
-</p>
-
-<p>
-    Applied to the MERIS Level 1b TOA radiances, using the following bands and factors:</p>
-<table>
-    <tr><td>As the near IR band:</td><td>radiance_10</td><td>(753.75 nm)</td></tr>
-    <tr><td>As the IR factor:</td><td>2.0</td><td></td></tr>
-
-    <tr><td>As the red band:</td><td>radiance_6</td><td>(620.00 nm)</td></tr>
-    <tr><td>As the red factor:</td><td>1.0</td><td></td></tr>
-</table>
-<p>
-    Leads to the following equation:
-</p>
-
-<p>
-    NDVI = (IR_factor * radiance_10 - red_factor * radiance_6) / (IR_factor * radiance_10 + red_factor * radiance_6)
 </p>
 
 <h3>NDVI-Flags</h3>

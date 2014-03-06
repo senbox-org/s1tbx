@@ -5,8 +5,7 @@
 
 <map version="2.0">
 
-    <mapID target="NDVIProcessorPlugIn" url="ndvi/NdviTool.html"/>
+    <mapID target="NDVIOperator" url="ndvi/NdviTool.html"/>
     <mapID target="algorithm" url="ndvi/NdviAlgorithmSpecification.html"/>
-    <mapID target="processor" url="ndvi/NdviProcessorDescription.html"/>
 
 </map>

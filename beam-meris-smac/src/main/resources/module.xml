@@ -36,10 +36,6 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-
-    <dependency>
-        <module>beam-processing</module>
-    </dependency>
     <dependency>
         <module>beam-envisat-reader</module>
     </dependency>

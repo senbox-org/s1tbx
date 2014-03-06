@@ -36,7 +36,7 @@
         <module>../beam-hdf5-writer</module>
         <module>../beam-landsat-reader</module>
         <module>../beam-meris-cloud</module>
-        <module>../beam-meris-ndvi</module>
+        <module>../beam-ndvi</module>
         <module>../beam-meris-radiometry</module>
         <module>../beam-meris-smac</module>
         <module>../beam-merisl3-reader</module>
