@@ -39,41 +39,62 @@ public class GeneralFilterBand extends FilterBand {
         MEDIAN,
         MEAN,
         STDDEV,
+        EROSION,
+        DILATION,
     }
 
-    private final int subWindowSize;
     private final OpType opType;
+    private final int subWindowSize;
+    private final boolean[] structuringElement;
 
     /**
      * Creates a GeneralFilterBand.
      *
-     * @param name             the name of the band.
-     * @param source           the source which shall be filtered.
-     * @param subWindowSize    the window size (width/height) used by the filter
-     * @param opType the predefined operation type.
+     * @param name          the name of the band.
+     * @param source        the source which shall be filtered.
+     * @param opType        the predefined operation type.
+     * @param subWindowSize the window size (width/height) used by the filter
      */
-    public GeneralFilterBand(String name, RasterDataNode source, int subWindowSize, OpType opType) {
+    public GeneralFilterBand(String name, RasterDataNode source, OpType opType, int subWindowSize) {
+        this(name, source, opType, subWindowSize, null);
+    }
+
+    /**
+     * Creates a GeneralFilterBand.
+     *
+     * @param name               the name of the band.
+     * @param source             the source which shall be filtered.
+     * @param opType             the predefined operation type.
+     * @param subWindowSize      the window size (width/height) used by the filter
+     * @param structuringElement The structuring element with a length equal to {@code subWindowSize * subWindowSize}. May be {@code null}.
+     */
+    public GeneralFilterBand(String name, RasterDataNode source, OpType opType, int subWindowSize, boolean[] structuringElement) {
         super(name,
               source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
               source.getSceneRasterWidth(),
               source.getSceneRasterHeight(),
               source);
         Assert.notNull(opType, "opType");
-        this.subWindowSize = subWindowSize;
         this.opType = opType;
-    }
-
-    public int getSubWindowSize() {
-        return subWindowSize;
+        this.subWindowSize = subWindowSize;
+        this.structuringElement = structuringElement;
     }
 
     public OpType getOpType() {
         return opType;
     }
 
+    public int getSubWindowSize() {
+        return subWindowSize;
+    }
+
+    public boolean[] getStructuringElement() {
+        return structuringElement;
+    }
+
     /**
+     * Returns the source level-image according the the
      *
-     * Returns the source lvel-image according the the
      * @param sourceImage The geophysical source image. No-data is masked as NaN.
      * @param level       The image level.
      * @param rh          Rendering hints. JAI.KEY_BORDER_EXTENDER is set to BorderExtenderCopy.BORDER_COPY.
@@ -91,6 +112,10 @@ public class GeneralFilterBand extends FilterBand {
             return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Mean(subWindowSize), rh);
         } else if (getOpType() == OpType.STDDEV) {
             return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.StdDev(subWindowSize), rh);
+        } else if (getOpType() == OpType.EROSION) {
+            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Erosion(subWindowSize, structuringElement), rh);
+        } else if (getOpType() == OpType.DILATION) {
+            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Dilation(subWindowSize, structuringElement), rh);
         }
         throw new IllegalStateException(String.format("Unsupported operation type '%s'", getOpType()));
     }

@@ -60,7 +60,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
     }
 
     public void testCreateXmlFromObject() {
-        final GeneralFilterBand gfb = new GeneralFilterBand("filteredBand", _source, 2, GeneralFilterBand.OpType.MAX);
+        final GeneralFilterBand gfb = new GeneralFilterBand("filteredBand", _source, GeneralFilterBand.OpType.MAX, 2);
         gfb.setDescription("somehow explainig");
         gfb.setUnit("someUnit");
         _product.addBand(gfb);
@@ -207,11 +207,21 @@ public class GeneralFilterBandPersistableTest extends TestCase {
             // Version 1.0
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH, "5"));
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_HEIGHT, "2"));
-        } else {
-            // Version 1.1, 1.2
+        } else if (GeneralFilterBandPersistable.VERSION_1_1.equals(version)) {
+            // Version 1.1
+            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION, version);
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, "5"));
-            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION,
-                                        GeneralFilterBandPersistable.VERSION_1_1);
+        } else {
+            // Version 1.2
+            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION, version);
+            filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, "5"));
+            filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_STRUCTURING_ELEMENT, new boolean[]{
+                    true, false, false ,false, true,
+                    false, true, false ,true, false,
+                    false, false, true ,false, false,
+                    false, true, false ,true, false,
+                    true, false, false ,false, true,
+            }));
         }
         filterBandInfo.addContent(filterBandInfoList);
         contentList.add(filterBandInfo);
@@ -227,4 +237,16 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         return elem;
     }
 
+    private static Element createElement(String tagName, boolean[] se) {
+        final Element elem = new Element(tagName);
+        StringBuilder text = new StringBuilder();
+        for (boolean b : se) {
+            if (text.length() > 0) {
+                text.append(", ");
+            }
+            text.append(b ? "1" : "0");
+        }
+        elem.setText(text.toString());
+        return elem;
+    }
 }

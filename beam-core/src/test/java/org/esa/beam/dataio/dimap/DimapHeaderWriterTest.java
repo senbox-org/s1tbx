@@ -548,7 +548,7 @@ public class DimapHeaderWriterTest extends TestCase {
         product.addBand(new VirtualBand("vb1", ProductData.TYPE_INT8, 200, 300, "b1 * 0.4 + 1"));
         product.addBand(new ConvolutionFilterBand("cfb1", band2,
                                                   new Kernel(3, 3, 1, new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9})));
-        product.addBand(new GeneralFilterBand("gfb1", band2, 150, GeneralFilterBand.OpType.MEAN));
+        product.addBand(new GeneralFilterBand("gfb1", band2, GeneralFilterBand.OpType.MEAN, 150));
 
 
         band1.setGeoCoding(geoCoding1);
