@@ -32,10 +32,6 @@ import org.esa.beam.framework.gpf.pointop.WritableSample;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import org.esa.beam.processor.sst.SstCoefficientLoader;
-import org.esa.beam.processor.sst.SstCoefficientSet;
-import org.esa.beam.processor.sst.SstCoefficients;
-import org.esa.beam.processor.sst.SstConstants;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 
