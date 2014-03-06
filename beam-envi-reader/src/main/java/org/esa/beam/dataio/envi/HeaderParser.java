@@ -41,7 +41,7 @@ class HeaderParser {
                         value = value.substring(1).trim();
                         while (!value.endsWith("}")) {
                             String continuedLine = bufferedReader.readLine();
-                            value = value + "\n" + continuedLine.trim();
+                            value = value + " " + continuedLine.trim();
                             value = value.trim();
                         }
                         value = value.substring(0, value.length() - 1);
