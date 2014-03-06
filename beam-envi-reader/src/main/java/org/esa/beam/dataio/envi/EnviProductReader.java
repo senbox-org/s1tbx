@@ -43,9 +43,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-// @todo 2 tb/** use header offset information in file positioning
-// @todo 2 tb/** evaluate file type information and react accordingly
-// @todo 2 tb/** evaluate data type information and react accordingly
 
 class EnviProductReader extends AbstractProductReader {
 
