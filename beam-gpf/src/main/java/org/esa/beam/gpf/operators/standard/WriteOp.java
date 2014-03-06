@@ -123,7 +123,7 @@ public class WriteOp extends Operator implements Output {
     private boolean clearCacheAfterRowWrite;
 
     private boolean[][][] tilesWritten;
-    private final Map<Row, Tile[]> writeCache = new HashMap<Row, Tile[]>();
+    private final Map<Row, Tile[]> writeCache = new HashMap<>();
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
@@ -242,7 +242,7 @@ public class WriteOp extends Operator implements Output {
         productWriter.setIncrementalMode(incremental);
         targetProduct.setProductWriter(productWriter);
         final Band[] bands = targetProduct.getBands();
-        writableBands = new ArrayList<Band>(bands.length);
+        writableBands = new ArrayList<>(bands.length);
         for (final Band band : bands) {
             band.getSourceImage(); // trigger source image creation
             if (productWriter.shouldWrite(band)) {
