@@ -642,6 +642,13 @@ public class OperatorContext {
         targetImageMap = new HashMap<>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
             // Only register non-virtual bands
+            // Actually it should not be necessary to distinguish between regular and not regular bands.
+            // What does 'regular' actually mean?
+            // Here the question is if the operator needs to compute the data.
+            // Actually there should only one implementation of Band and it should be declared final.
+            // Virtual, filtered and all other types can be implemented by simply exchanging the source image.
+            // Instead of deriving the band class, a band should have an associated type. It would serve the same purpose
+            // as the type we already have for layers.
             if (isRegularBand(targetBand)) {
 
                 OperatorImage opImage = getOwnedOperatorImage(targetBand);
