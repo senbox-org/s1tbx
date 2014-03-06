@@ -58,7 +58,7 @@ public class NdviOp extends Operator {
     public static final int NDVI_LOW_FLAG_VALUE = 1 << 1;
     public static final int NDVI_HIGH_FLAG_VALUE = 1 << 2;
 
-    @SourceProduct(alias = "Name")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
