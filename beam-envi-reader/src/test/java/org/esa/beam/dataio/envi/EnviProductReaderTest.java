@@ -2,6 +2,7 @@ package org.esa.beam.dataio.envi;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.FileUtils;
@@ -189,6 +190,11 @@ public class EnviProductReaderTest {
         }
         assertEquals(100f, band1.getSpectralWavelength(), 1e-5);
         assertEquals(10f, band1.getSpectralBandwidth(), 1e-5);
+
+        assertEquals(1, product.getIndexCodingGroup().getNodeCount());
+        IndexCoding indexCoding = product.getIndexCodingGroup().get(0);
+        assertEquals("classification", indexCoding.getName());
+        assertArrayEquals(new String[]{"classA", "classB"}, indexCoding.getIndexNames());
     }
 
     @Test
@@ -226,7 +232,8 @@ public class EnviProductReaderTest {
         String[] expected = new String[]{
                 "description", "samples", "lines", "bands", "header offset", "file type",
                 "data type", "interleave", "sensor type", "byte order", "data ignore value", "map info",
-                "projection info", "wavelength", "fwhm", "wavelength units", "band names"
+                "projection info", "wavelength", "fwhm", "wavelength units", "band names",
+                "classes", "class lookup", "class names"
         };
         assertArrayEquals(expected, attributeNames);
     }
@@ -282,6 +289,9 @@ public class EnviProductReaderTest {
         pw.println(" /data/molly/AVHRR/samer/SA81aug15b.n07-VIg,");
         pw.println(" /data/molly/AVHRR/samer/SA81sep15a.n07-VIg,");
         pw.println(" /data/molly/AVHRR/samer/SA81sep15b.n07-VIg }");
+        pw.println(EnviConstants.HEADER_KEY_CLASSES + " = 2");
+        pw.println(EnviConstants.HEADER_KEY_CLASS_LOOKUP + " = {0,   0,   0, 255,   0,   0}");
+        pw.println(EnviConstants.HEADER_KEY_CLASS_NAMES + " = {classA, classB}");
         pw.flush();
         return writer.toString();
     }

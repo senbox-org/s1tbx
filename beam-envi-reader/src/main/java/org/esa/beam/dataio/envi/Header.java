@@ -119,6 +119,18 @@ class Header {
         return null;
     }
 
+    public int getNumClasses() {
+        return headerParser.getInt(EnviConstants.HEADER_KEY_CLASSES, 0);
+    }
+
+    public String[] getClassNmaes() {
+        return headerParser.getStrings(EnviConstants.HEADER_KEY_CLASS_NAMES);
+    }
+
+    public int[] getClassColorRGB() {
+        return headerParser.getInts(EnviConstants.HEADER_KEY_CLASS_LOOKUP);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////

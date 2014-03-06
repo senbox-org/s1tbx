@@ -11,13 +11,14 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://www.brockmann-consult.de/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
         <![CDATA[
           <p>Changes in 3.2:<br/>
+          [BEAM-XXXX] ENVI reader shall support classification<br/>
           [BEAM-1623] ENVI reader shall read data in BIP format<br/>
           [BEAM-1614] ENVI Reader shall consider 'Full width at half maximum'<br/>
           [BEAM-1621] ENVI reader shall consider "data ignore value"<br/>

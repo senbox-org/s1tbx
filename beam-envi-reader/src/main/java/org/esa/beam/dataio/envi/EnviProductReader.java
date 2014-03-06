@@ -4,12 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.envi.Header.BeamProperties;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.TreeNode;
@@ -25,7 +20,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.File;
@@ -489,6 +484,33 @@ class EnviProductReader extends AbstractProductReader {
                 band.setNoDataValue(dataIgnoreValue);
             }
             product.addBand(band);
+        }
+
+        int numClasses = header.getNumClasses();
+        String[] classNames = header.getClassNmaes();
+        if (numClasses > 0 && classNames.length == numClasses) {
+            final IndexCoding indexCoding = new IndexCoding("classification");
+            for (int i = 0; i < numClasses; i++) {
+                indexCoding.addIndex(classNames[i], i, "");
+            }
+            product.getIndexCodingGroup().add(indexCoding);
+            Band[] bands = product.getBands();
+            for (Band band : bands) {
+                band.setSampleCoding(indexCoding);
+            }
+
+            int[] classRGB = header.getClassColorRGB();
+            if (classRGB.length == numClasses * 3) {
+                final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numClasses];
+                for (int i = 0; i < numClasses; i++) {
+                    Color color = new Color(classRGB[i*3], classRGB[i*3 + 1], classRGB[i*3 + 2]);
+                    points[i] = new ColorPaletteDef.Point(i, color, classNames[i]);
+                }
+                ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(points, points.length));
+                for (Band band : bands) {
+                    band.setImageInfo(imageInfo);
+                }
+            }
         }
     }
 
