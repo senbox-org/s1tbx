@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -13,19 +13,19 @@ import java.util.Map;
  */
 class HeaderParser {
 
-    private final Map<String, Object> header;
-    private final Map<String, Object> history;
+    private final Map<String, String> header;
+    private final Map<String, String> history;
 
-    public HeaderParser(Map<String, Object> header, Map<String, Object> history) {
+    public HeaderParser(Map<String, String> header, Map<String, String> history) {
         this.header = header;
         this.history = history;
     }
 
     public static HeaderParser parse(Reader reader) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(reader);
-        Map<String, Object> header = new HashMap<>();
-        Map<String, Object> history = new HashMap<>();
-        Map<String, Object> currentMap = header;
+        Map<String, String> header = new LinkedHashMap<>();
+        Map<String, String> history = new LinkedHashMap<>();
+        Map<String, String> currentMap = header;
         for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
             line = line.trim();
             if (line.equals("history = begins")) {
@@ -63,7 +63,7 @@ class HeaderParser {
         if (!contains(key)) {
             throw new IllegalArgumentException("Missing mandatory header key: " + key);
         }
-        return (String) header.get(key);
+        return header.get(key);
     }
 
     String getString(String key, String defaultValue) {
@@ -71,12 +71,11 @@ class HeaderParser {
     }
 
     String[] getStrings(String key) {
-        Object v = header.get(key);
+        String v = header.get(key);
         if (v == null) {
             return new String[0];
         } else {
-            String elem = (String) v;
-            String[] splits = elem.split(",");
+            String[] splits = v.split(",");
             String[] splitsTrimmed = new String[splits.length];
             for (int i = 0; i < splitsTrimmed.length; i++) {
                 splitsTrimmed[i] = splits[i].trim();
@@ -114,8 +113,8 @@ class HeaderParser {
         return sb.toString();
     }
 
-    private static void mapToString(StringBuilder sb, Map<String, Object> map) {
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
+    private static void mapToString(StringBuilder sb, Map<String, String> map) {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
             sb.append(entry.getKey()).append(" = ").append(entry.getValue()).append("\n");
         }
     }
