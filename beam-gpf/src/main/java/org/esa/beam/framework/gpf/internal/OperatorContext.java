@@ -667,6 +667,8 @@ public class OperatorContext {
                         targetBand.setSourceImage(image);
                     }
                 } else {
+                    // Someone has added a band whose image comes from another operator that
+                    // has already been initialised.
                     targetBand.getSourceImage().reset();
                     targetImageMap.put(targetBand, opImage);
                 }
