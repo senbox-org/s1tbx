@@ -6,12 +6,7 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.Color;
@@ -46,7 +41,7 @@ class HicoProductReader extends AbstractProductReader {
         }
     }
 
-    private final EnumMap<FileType, Product> hicoProductParts = new EnumMap<FileType, Product>(FileType.class);
+    private final EnumMap<FileType, Product> hicoProductParts = new EnumMap<>(FileType.class);
 
     HicoProductReader(HicoProductReaderPlugin hicoProductReaderPlugin) {
         super(hicoProductReaderPlugin);
@@ -102,6 +97,7 @@ class HicoProductReader extends AbstractProductReader {
     private void handleRadianceProduct(Product product) {
         Product hicoProductPart = hicoProductParts.get(FileType.RAD);
         if (hicoProductPart != null) {
+            copyMetadata(hicoProductPart, product, FileType.RAD.toString());
             String[] bandNames = hicoProductPart.getBandNames();
             for (String bandName : bandNames) {
                 String[] bandNameSplit = bandName.split("_");
@@ -121,6 +117,7 @@ class HicoProductReader extends AbstractProductReader {
             hicoProductPart = hicoProductParts.get(FileType.GEOM);
         }
         if (hicoProductPart != null) {
+            copyMetadata(hicoProductPart, product, FileType.GEOM.toString());
             String[] bandNames = hicoProductPart.getBandNames();
             Band latitudeBand = null;
             Band longitudeBand = null;
@@ -157,6 +154,7 @@ class HicoProductReader extends AbstractProductReader {
     private void handleNdviProduct(Product product) {
         Product hicoProductPart = hicoProductParts.get(FileType.NDVI);
         if (hicoProductPart != null) {
+            copyMetadata(hicoProductPart, product, FileType.NDVI.toString());
             String[] bandNames = hicoProductPart.getBandNames();
             for (String bandName : bandNames) {
                 String newBandname = bandName.replace(" ", "_");
@@ -169,6 +167,7 @@ class HicoProductReader extends AbstractProductReader {
     private void handleRgbProduct(Product product) {
         Product hicoProductPart = hicoProductParts.get(FileType.RGB);
         if (hicoProductPart != null && hicoProductPart.getNumBands() == 3) {
+            copyMetadata(hicoProductPart, product, FileType.RGB.toString());
             Band red = hicoProductPart.getBandAt(0);
             Band band = ProductUtils.copyBand(red.getName(), hicoProductPart, "red", product, true);
             band.setSpectralWavelength(0.0f);
@@ -184,6 +183,7 @@ class HicoProductReader extends AbstractProductReader {
     private void handleFlagProduct(Product product) {
         Product hicoProductPart = hicoProductParts.get(FileType.FLAG);
         if (hicoProductPart != null) {
+            copyMetadata(hicoProductPart, product, FileType.FLAG.toString());
             Band flags = hicoProductPart.getBandAt(0);
             Band flagBand = ProductUtils.copyBand(flags.getName(), hicoProductPart, "flags", product, true);
 
@@ -208,6 +208,12 @@ class HicoProductReader extends AbstractProductReader {
             product.addMask("CALFAIL", "flags.CALFAIL", "pixel has ≥ bands from a dropped packet", Color.BLUE, 0.5);
             product.addMask("CLOUD", "flags.CLOUD", "rough cloud mask (ρNIR > 0.05 and ρRED > 0.5) or (0.8 < ρNIR/ρRED < 1.1)", Color.YELLOW, 0.5);
         }
+    }
+
+    private void copyMetadata(Product partProduct, Product targetProduct, String name) {
+        MetadataElement header = partProduct.getMetadataRoot().getElement("Header");
+        header.setName(name);
+        targetProduct.getMetadataRoot().addElement(header);
     }
 
     @Override
