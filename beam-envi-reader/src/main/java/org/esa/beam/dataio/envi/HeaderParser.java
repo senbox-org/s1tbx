@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Parses a ENVI HDR header in key value pairs.
@@ -47,9 +45,7 @@ class HeaderParser {
                         }
                         value = value.substring(0, value.length() - 1);
                     }
-                    if (!value.isEmpty()) {
-                        currentMap.put(key, value);
-                    }
+                    currentMap.put(key, value);
                 }
             }
         }
@@ -77,11 +73,14 @@ class HeaderParser {
             return new String[0];
         } else {
             String[] splits = v.split(",");
-            String[] splitsTrimmed = new String[splits.length];
-            for (int i = 0; i < splitsTrimmed.length; i++) {
-                splitsTrimmed[i] = splits[i].trim();
+            List<String> splitsTrimmed = new ArrayList<>(splits.length);
+            for (String split : splits) {
+                String trimmed = split.trim();
+                if (!trimmed.isEmpty()) {
+                    splitsTrimmed.add(trimmed);
+                }
             }
-            return splitsTrimmed;
+            return splitsTrimmed.toArray(new String[splitsTrimmed.size()]);
         }
     }
 
