@@ -250,9 +250,6 @@
         <module>beam-ui</module>
     </dependency>
     <dependency>
-        <module>beam-processing</module>
-    </dependency>
-    <dependency>
         <module>beam-gpf</module>
     </dependency>
     <dependency>

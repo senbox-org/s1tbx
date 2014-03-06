@@ -15,7 +15,7 @@
  */
 package org.esa.beam.aatsr.sst;
 
-import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 
@@ -79,8 +79,7 @@ public class SstCoefficientLoader {
      *
      * @return a validated coeffcient set contained in the file
      */
-    public SstCoefficientSet load(URL coeffFile) throws IOException,
-                                                        ProcessorException {
+    public SstCoefficientSet load(URL coeffFile) throws IOException {
         Guardian.assertNotNull("coeffFile", coeffFile);
 
         _logger.fine("Reading coefficient file: '" + coeffFile.getPath() + "'");
@@ -101,7 +100,7 @@ public class SstCoefficientLoader {
         // check that what we return is really valid
         verify(set);
 
-        _logger.fine(SstConstants.LOG_MSG_SUCCESS);
+        _logger.fine("... success");
 
         return set;
     }
@@ -153,7 +152,7 @@ public class SstCoefficientLoader {
     /**
      * Adds all coefficients with the appropriate ranges to the set passed in
      */
-    private void addCoefficients(SstCoefficientSet set) throws ProcessorException {
+    private void addCoefficients(SstCoefficientSet set) {
         int index = 0;
         String mapKey = _mapKeyStub + index;
         String aKey = _aKeyStub + index;
@@ -208,12 +207,12 @@ public class SstCoefficientLoader {
     /**
      * Scans the map key passed in and loads the ranges read out to the coefficients passed in
      */
-    private static void loadMapStringToCoefficients(String map, SstCoefficients coeffs) throws ProcessorException {
+    private static void loadMapStringToCoefficients(String map, SstCoefficients coeffs) {
         String[] rangeStrings = StringUtils.split(map, _separators, true);
 
         // check that we have TWO values
         if (rangeStrings.length != 2) {
-            throw new ProcessorException("illegal coefficient file format: map.x must have two values");
+            throw new OperatorException("illegal coefficient file format: map.x must have two values");
         }
 
         coeffs.setRange(Integer.parseInt(rangeStrings[0]), Integer.parseInt(rangeStrings[1]));
@@ -222,12 +221,12 @@ public class SstCoefficientLoader {
     /**
      * Scans the String passed in for the a coefficient set and loads thme into the coefficients passed in
      */
-    private static void load_A_ToCoefficients(String a_values, SstCoefficients coeffs) throws ProcessorException {
+    private static void load_A_ToCoefficients(String a_values, SstCoefficients coeffs) {
         String[] aStrings = StringUtils.split(a_values, _separators, true);
 
         // check that we have THREE values
         if (aStrings.length != _numACoeffs) {
-            throw new ProcessorException("illegal coefficient file format: a.x must have " + _numACoeffs + " values");
+            throw new OperatorException("illegal coefficient file format: a.x must have " + _numACoeffs + " values");
         }
 
         // convert the string array to float values
@@ -244,12 +243,12 @@ public class SstCoefficientLoader {
     /**
      * Scans the String passed in for the b coefficient set and loads them into the coefficients passed in
      */
-    private static void load_B_ToCoefficients(String b_values, SstCoefficients coeffs) throws ProcessorException {
+    private static void load_B_ToCoefficients(String b_values, SstCoefficients coeffs) {
         String[] bStrings = StringUtils.split(b_values, _separators, true);
 
         // check that we have FOUR values
         if (bStrings.length != _numBCoeffs) {
-            throw new ProcessorException("illegal coefficient file format: b.x must have " + _numBCoeffs + " values");
+            throw new OperatorException("illegal coefficient file format: b.x must have " + _numBCoeffs + " values");
         }
 
         // convert the string array to float values
@@ -266,12 +265,12 @@ public class SstCoefficientLoader {
     /**
      * Scans the String passed in for the c coefficient set and loads them into the coefficients passed in
      */
-    private static void load_C_ToCoefficients(String c_values, SstCoefficients coeffs) throws ProcessorException {
+    private static void load_C_ToCoefficients(String c_values, SstCoefficients coeffs) {
         String[] cStrings = StringUtils.split(c_values, _separators, true);
 
         // check that we have FIVE values
         if (cStrings.length != _numCCoeffs) {
-            throw new ProcessorException("illegal coefficient file format: c.x must have " + _numCCoeffs + " values");
+            throw new OperatorException("illegal coefficient file format: c.x must have " + _numCCoeffs + " values");
         }
 
         // convert the string array to float values
@@ -288,12 +287,12 @@ public class SstCoefficientLoader {
     /**
      * Scans the String passed in for the d coefficient set and loads them into the coefficients passed in
      */
-    private static void load_D_ToCoefficients(String d_values, SstCoefficients coeffs) throws ProcessorException {
+    private static void load_D_ToCoefficients(String d_values, SstCoefficients coeffs) {
         String[] dStrings = StringUtils.split(d_values, _separators, true);
 
         // check that we have SEVEN values
         if (dStrings.length != _numDCoeffs) {
-            throw new ProcessorException("illegal coefficient file format: d.x must have " + _numDCoeffs + " values");
+            throw new OperatorException("illegal coefficient file format: d.x must have " + _numDCoeffs + " values");
         }
 
         // convert the string array to float values
@@ -310,7 +309,7 @@ public class SstCoefficientLoader {
     /**
      * Checks that the set passed in is a valid coefficient set for the sst processor
      */
-    private void verify(SstCoefficientSet set) throws ProcessorException {
+    private void verify(SstCoefficientSet set) {
         SstCoefficients coeffs;
         // get the number of coefficients in the set
         int nMaps = set.getNumCoefficients();
@@ -327,13 +326,13 @@ public class SstCoefficientLoader {
             nStart = coeffs.getStart();
             nEnd = coeffs.getEnd();
             if ((nStart < 0) || (nEnd < 0) || (nEnd < nStart)) {
-                throw new ProcessorException(
+                throw new OperatorException(
                         "illegal coefficient file: map." + n + " start: " + nStart + " end: " + nEnd);
             }
 
             // check that there is no gap
             if (nStart != nExpStart) {
-                throw new ProcessorException(
+                throw new OperatorException(
                         "illegal coefficient file: map." + n + " expected start: " + nExpStart + " actual: " + nStart);
             }
 
@@ -355,7 +354,7 @@ public class SstCoefficientLoader {
                 // has a coefficients - must also have b coefficcients
                 testTwo = coeffs.get_B_Coeffs();
                 if (testTwo == null) {
-                    throw new ProcessorException(
+                    throw new OperatorException(
                             "illegal coefficient file: map." + n + "has a coefficients but no b coefficient set");
                 }
 
@@ -369,7 +368,7 @@ public class SstCoefficientLoader {
                 // has a coefficients - must also have b coefficcients
                 testTwo = coeffs.get_D_Coeffs();
                 if (testTwo == null) {
-                    throw new ProcessorException(
+                    throw new OperatorException(
                             "illegal coefficient file: map." + n + "has c coefficients but no d coefficient set");
                 }
 
@@ -378,7 +377,7 @@ public class SstCoefficientLoader {
             }
 
             if (!bHasCoeffs) {
-                throw new ProcessorException(
+                throw new OperatorException(
                         "illegal coefficient file: map." + n + " has neither a not c coefficients");
             }
 

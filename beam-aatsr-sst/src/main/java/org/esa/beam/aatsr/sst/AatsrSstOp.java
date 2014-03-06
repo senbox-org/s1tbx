@@ -29,7 +29,6 @@ import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ResourceInstaller;
@@ -320,8 +319,6 @@ public class AatsrSstOp extends PixelOperator {
             coefficientSet = loader.load(nadirCoefficientsFile.getURL(auxdataDir));
         } catch (IOException e) {
             throw new OperatorException(e);
-        } catch (ProcessorException e) {
-            throw new OperatorException(e);
         }
 
         final int numCoeffs = coefficientSet.getNumCoefficients();
@@ -379,8 +376,6 @@ public class AatsrSstOp extends PixelOperator {
         try {
             coefficientSet = loader.load(dualCoefficientsFile.getURL(auxdataDir));
         } catch (IOException e) {
-            throw new OperatorException(e);
-        } catch (ProcessorException e) {
             throw new OperatorException(e);
         }
 

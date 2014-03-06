@@ -96,11 +96,6 @@
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
-                <artifactId>beam-processing</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
                 <artifactId>beam-csv-dataio</artifactId>
                 <version>${beam.version}</version>
             </dependency>

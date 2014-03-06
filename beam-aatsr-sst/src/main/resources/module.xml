@@ -33,9 +33,6 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-processing</module>
-    </dependency>
-    <dependency>
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>
@@ -64,19 +61,6 @@
     <categories>Application,Processor,Envisat,AATSR</categories>
 
     <extension point="beam-ui:actions">
-        <!-- old SST processor action
-        <action>
-            <id>sstScientificTool</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.sst.SstProcessor</processor>
-            <text>SST Processor ((A)ATSR)...</text>
-            <shortDescr>Invoke the BEAM (A)ATSR SST Processor.</shortDescr>
-            <mnemonic>S</mnemonic>
-            <parent>tools</parent>
-            <helpId>sstScientificTool</helpId>
-            <placeAfter>smacScientificTool</placeAfter>
-        </action>
-        -->
         <action>
             <id>sstScientificTool</id>
             <helpId>sstScientificTool</helpId>

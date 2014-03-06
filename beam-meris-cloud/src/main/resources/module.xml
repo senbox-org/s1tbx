@@ -37,9 +37,6 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-processing</module>
-    </dependency>
-    <dependency>
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>

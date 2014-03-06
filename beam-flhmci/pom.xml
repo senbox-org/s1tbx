@@ -29,7 +29,6 @@
     </parent>
 
     <name>BEAM MERIS FLH/MCI Processor</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-flhmci</artifactId>
     <version>1.7.${beam.version}-SNAPSHOT</version>
 
@@ -39,10 +38,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-processing</artifactId>
         </dependency>
     </dependencies>
 

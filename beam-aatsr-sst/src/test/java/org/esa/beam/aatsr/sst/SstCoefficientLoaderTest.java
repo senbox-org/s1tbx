@@ -18,7 +18,7 @@ package org.esa.beam.aatsr.sst;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.gpf.OperatorException;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +49,7 @@ public class SstCoefficientLoaderTest extends TestCase {
     /**
      * Tests the load method for expected behaviour when fed with different erroneous arguments
      */
-    public void testLoadWithInvalidArguments() throws IOException,
-                                                      ProcessorException {
+    public void testLoadWithInvalidArguments() throws IOException {
 
         // shall not accept null arguments
         try {
@@ -72,8 +71,7 @@ public class SstCoefficientLoaderTest extends TestCase {
     /**
      * Tests if a correctly formatted file is read in
      */
-    public void testLoadCorrectFile() throws IOException,
-            ProcessorException, URISyntaxException {
+    public void testLoadCorrectFile() throws IOException, URISyntaxException {
         URL nadirCoeff = createNadirCoeffUrl();
         URL dualCoeff = createDualCoeffUrl();
         SstCoefficientSet coeffs;
@@ -90,8 +88,7 @@ public class SstCoefficientLoaderTest extends TestCase {
     /**
      * Tests that the content for the nadir coeffcient file is read correctly
      */
-    public void testNadirStuffCorrectRead() throws IOException,
-            ProcessorException, URISyntaxException {
+    public void testNadirStuffCorrectRead() throws IOException, URISyntaxException {
         URL nadirCoeff = createNadirCoeffUrl();
 
         SstCoefficientSet coeffSet;
@@ -182,8 +179,7 @@ public class SstCoefficientLoaderTest extends TestCase {
     /**
      * Tests that the content for the dual coeffcient file is read correctly
      */
-    public void testDualStuffCorrectRead() throws IOException,
-            ProcessorException, URISyntaxException {
+    public void testDualStuffCorrectRead() throws IOException, URISyntaxException {
         URL dualCoeff = createDualCoeffUrl();
 
         SstCoefficientSet coeffSet;
@@ -268,8 +264,7 @@ public class SstCoefficientLoaderTest extends TestCase {
     /**
      * Tests that when the coefficient file contains no description none is read
      */
-    public void testNoDescriptionCorrectRead() throws IOException,
-            ProcessorException, URISyntaxException {
+    public void testNoDescriptionCorrectRead() throws IOException, URISyntaxException {
         URL noDescFile = createNoDescriptionCoeffUrl();
 
         SstCoefficientSet coeffs;
@@ -291,22 +286,22 @@ public class SstCoefficientLoaderTest extends TestCase {
 
         try {
             _loader.load(illegalFile);
-            fail("ProcessorException expected");
-        } catch (ProcessorException e) {
+            fail("OperatorException expected");
+        } catch (OperatorException e) {
         }
 
         illegalFile = createMapOverlapUrl();
         try {
             _loader.load(illegalFile);
-            fail("ProcessorException expected");
-        } catch (ProcessorException e) {
+            fail("OperatorException expected");
+        } catch (OperatorException e) {
         }
 
         illegalFile = create_A_and_D_Url();
         try {
             _loader.load(illegalFile);
-            fail("ProcessorException expected");
-        } catch (ProcessorException e) {
+            fail("OperatorException expected");
+        } catch (OperatorException e) {
         }
     }
 

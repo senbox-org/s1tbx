@@ -51,7 +51,6 @@
         <module>../beam-examples</module>
         <module>../beam-gpf</module>
         <module>../beam-help</module>
-        <module>../beam-processing</module>
         <module>../beam-scripting</module>
         <module>../beam-ui</module>
         <module>../beam-visat</module>
@@ -137,11 +136,6 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-processing</artifactId>
                 <version>${beam.version}</version>
             </dependency>
             <dependency>
