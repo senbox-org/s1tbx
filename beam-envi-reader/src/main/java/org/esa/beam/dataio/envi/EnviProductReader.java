@@ -477,7 +477,7 @@ class EnviProductReader extends AbstractProductReader {
 
     private double[] getOffsetValues(int numBands) {
         double[] dataOffsetValues = header.getDataOffsetValues();
-        if (dataOffsetValues == null) {
+        if (dataOffsetValues.length == 0) {
             dataOffsetValues = new double[numBands];
             Arrays.fill(dataOffsetValues, 0.0);
             return dataOffsetValues;
@@ -489,7 +489,7 @@ class EnviProductReader extends AbstractProductReader {
 
     private double[] getGainValues(int numBands) {
         double[] dataGainValues = header.getDataGainValues();
-        if (dataGainValues == null) {
+        if (dataGainValues.length == 0) {
             dataGainValues = new double[numBands];
             Arrays.fill(dataGainValues, 1.0);
             return dataGainValues;
@@ -501,7 +501,7 @@ class EnviProductReader extends AbstractProductReader {
     static String[] getBandNames(final Header header) {
         String[] bandNames = header.getBandNames();
         // there must be at least 1 bandname because in DIMAP-Files are no bandnames given.
-        if (bandNames == null || bandNames.length == 0) {
+        if (bandNames.length == 0) {
             int numBands = header.getNumBands();
             if (numBands == 0) {
                 return new String[]{"Band"};

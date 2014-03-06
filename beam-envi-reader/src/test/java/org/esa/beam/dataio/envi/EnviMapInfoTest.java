@@ -1,9 +1,13 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class EnviMapInfoTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class EnviMapInfoTest {
+
+    @Test
     public void testSetGetProjectionName() {
         final String name_1 = "hurtpiert";
         final String name_2 = "gnasenglanz popuen";
@@ -15,6 +19,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(name_2, mapInfo.getProjectionName());
     }
 
+    @Test
     public void testSetGetReferencePixelX() {
         final double x_1 = 45.88;
         final double x_2 = 109.034;
@@ -26,6 +31,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(x_2, mapInfo.getReferencePixelX(), 1e-8);
     }
 
+    @Test
     public void testSetGetReferencePixelY() {
         final double y_1 = 34.77;
         final double y_2 = 2.99602;
@@ -37,6 +43,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(y_2, mapInfo.getReferencePixelY(), 1e-8);
     }
 
+    @Test
     public void testSetGetEasting() {
         final double easting_1 = -23.99;
         final double easting_2 = 0.0034;
@@ -48,6 +55,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(easting_2, mapInfo.getEasting(), 1e-8);
     }
 
+    @Test
     public void testSetGetNorthing() {
         final double northing_1 = 3.7759;
         final double northing_2 = -10056.9;
@@ -59,6 +67,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(northing_2, mapInfo.getNorthing(), 1e-8);
     }
 
+    @Test
     public void testSetGetPixelSizeX() {
         final double sizeX_1 = 33.76;
         final double sizeX_2 = 18.44;
@@ -70,6 +79,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(sizeX_2, mapInfo.getPixelSizeX(), 1e-8);
     }
 
+    @Test
     public void testSetGetPixelSizeY() {
         final double sizeY_1 = 7761.002;
         final double sizeY_2 = 105.4;
@@ -81,6 +91,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(sizeY_2, mapInfo.getPixelSizeY(), 1e-8);
     }
 
+    @Test
     public void testSetGetDatum() {
         final String datum_1 = "heute";
         final String datum_2 = "WGS_1990";
@@ -92,6 +103,7 @@ public class EnviMapInfoTest extends TestCase {
         assertEquals(datum_2, mapInfo.getDatum());
     }
 
+    @Test
     public void testSetGetUnit() {
         final String unit_1 = "kilometer";
         final String unit_2 = "megazorks";
@@ -109,7 +121,8 @@ public class EnviMapInfoTest extends TestCase {
 
     private EnviMapInfo mapInfo;
 
-    protected void setUp() {
+    @Before
+    public void setUp() {
         mapInfo = new EnviMapInfo();
     }
 }
