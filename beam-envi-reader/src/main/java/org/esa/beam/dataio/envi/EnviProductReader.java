@@ -149,7 +149,7 @@ class EnviProductReader extends AbstractProductReader {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         Product product = destBand.getProduct();
         final int sourceRasterWidth = product.getSceneRasterWidth();
-        final long elemSize = destBuffer.getElemSize();
+        final int elemSize = destBuffer.getElemSize();
 
         final int headerOffset = header.getHeaderOffset();
         final int bandIndex = product.getBandIndex(destBand.getName());
@@ -161,7 +161,6 @@ class EnviProductReader extends AbstractProductReader {
             int numBands = product.getNumBands();
 
             pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
-            // For each scan in the data source
             try {
                 int destPos = 0;
                 for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
@@ -181,14 +180,36 @@ class EnviProductReader extends AbstractProductReader {
             }
         } else if ("bip".equalsIgnoreCase(interleave)) {
             // band interleaved by pixel
-            throw new UnsupportedOperationException("BIP not supported");
+            int numBands = product.getNumBands();
+            final long lineSizeInBytes = header.getNumSamples() * numBands * elemSize;
+            ProductData lineData = ProductData.createInstance(destBuffer.getType(), sourceWidth * numBands);
+
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            try {
+                int destPos = 0;
+                for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+                    synchronized (imageInputStream) {
+                        long lineStartPos = headerOffset + sourceY * lineSizeInBytes;
+                        imageInputStream.seek(lineStartPos + elemSize * sourceMinX * numBands);
+                        lineData.readFrom(0, sourceWidth * numBands, imageInputStream);
+                    }
+                    for (int x = 0; x < sourceWidth; x++) {
+                        destBuffer.setElemDoubleAt(destPos++, lineData.getElemDoubleAt(x * numBands + bandIndex));
+                    }
+                    pm.worked(1);
+                }
+            } finally {
+                pm.done();
+            }
         } else {
             // band sequential (bsq), the default
             final long bandSizeInBytes = header.getNumSamples() * header.getNumLines() * elemSize;
 
             long bandStartPosition = headerOffset + bandSizeInBytes * bandIndex;
             pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
-            // For each scan in the data source
             try {
                 int destPos = 0;
                 for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
