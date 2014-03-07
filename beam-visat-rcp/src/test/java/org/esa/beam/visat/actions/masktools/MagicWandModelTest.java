@@ -6,12 +6,11 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -43,28 +42,40 @@ public class MagicWandModelTest {
         assertEquals(MagicWandModel.PickMode.SINGLE, model.getPickMode());
         assertEquals(MagicWandModel.BandAccumulation.DISTANCE, model.getBandAccumulation());
         assertEquals(0.1, model.getTolerance(), 0.0);
-        assertEquals("0", model.createExpression());
+        assertEquals("0", model.createMaskExpression());
     }
 
     @Test
     public void testGetSpectralBands() throws Exception {
-        Band[] bands = MagicWandModel.getSpectralBands(product);
-        assertEquals(3, bands.length);
-        assertSame(bands[0], b1);
-        assertSame(bands[1], b2);
-        assertSame(bands[2], b3);
+        MagicWandModel model = new MagicWandModel();
+        List<Band> bands;
+
+        bands = model.getBands(product);
+        assertEquals(0, bands.size());
+
+        model.setBandNames("b1", "b2", "b3");
+        bands = model.getBands(product);
+        assertEquals(3, bands.size());
+        assertSame(b1, bands.get(0));
+        assertSame(b2, bands.get(1));
+        assertSame(b3, bands.get(2));
+
+        model.setBandNames("b1", "c2", "b3");
+        bands = model.getBands(product);
+        assertEquals(null, bands);
     }
 
     @Test
     public void testCreateExpressionWith3Bands() throws Exception {
         MagicWandModel model = new MagicWandModel();
+        model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
         model.setTolerance(0.3);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.3", expression);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
         assertTrue(expression.startsWith("distance(b1/b1,b2/b1,b3/b1,1.0,0."));
         assertTrue(expression.endsWith(")/3 < 0.3"));
     }
@@ -72,13 +83,14 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionWith1Band() throws Exception {
         MagicWandModel model = new MagicWandModel();
+        model.setBandNames("a2");
         model.addSpectrum(0.2);
         model.setTolerance(0.05);
-        String expression = model.createExpression(product.getBand("a2"));
+        String expression = model.createMaskExpression();
         assertEquals("distance(a2,0.2) < 0.05", expression);
 
         model.setNormalize(true);
-        expression = model.createExpression(product.getBand("a2"));
+        expression = model.createMaskExpression();
         assertEquals("distance(a2/a2,1.0) < 0.05", expression);
     }
 
@@ -88,15 +100,16 @@ public class MagicWandModelTest {
         model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.IDENTITY);
+        model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
         assertEquals("distance(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
                              " || distance(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
         assertTrue(expression.startsWith("distance(b1/b1,b2/b1,b3/b1,1.0,0."));
         assertTrue(expression.endsWith(")/3 < 0.25"));
     }
@@ -104,18 +117,19 @@ public class MagicWandModelTest {
     @Test
     public void testCreateExpressionDistDeriv() throws Exception {
         MagicWandModel model = new MagicWandModel();
+        model.setBandNames("b1", "b2", "b3");
         model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.DERIVATIVE);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
         assertEquals("distance_deriv(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
                              " || distance_deriv(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
         assertTrue(expression.startsWith("distance_deriv(b1/b1,b2/b1,b3/b1,1.0,0."));
         assertTrue(expression.endsWith(")/3 < 0.25"));
     }
@@ -126,15 +140,16 @@ public class MagicWandModelTest {
         model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.INTEGRAL);
+        model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.25);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
         assertEquals("distance_integ(b1,b2,b3,0.4,0.3,0.2)/3 < 0.25" +
                              " || distance_integ(b1,b2,b3,0.6,0.9,0.7)/3 < 0.25", expression);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
         assertTrue(expression.startsWith("distance_integ(b1/b1,b2/b1,b3/b1,1.0,0."));
         assertTrue(expression.endsWith(")/3 < 0.25"));
     }
@@ -145,10 +160,11 @@ public class MagicWandModelTest {
         model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.IDENTITY);
+        model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
 
         // Test: assertEquals("inrange(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         Pattern pattern = Pattern.compile("inrange\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
@@ -163,7 +179,7 @@ public class MagicWandModelTest {
         assertEquals(expression, 0.8, Double.parseDouble(matcher.group(6)), 1e-8);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
 
         // Test: assertEquals("inrange(b1/b1,b2/b1,b3/b1,0.9,0.6499999999999999,0.4,1.1,1.6,1.2666666666666668)", expression);
         pattern = Pattern.compile("inrange\\(b1/b1,b2/b1,b3/b1,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
@@ -184,10 +200,11 @@ public class MagicWandModelTest {
         model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.DERIVATIVE);
+        model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
 
         // Test: assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         Pattern pattern = Pattern.compile("inrange_deriv\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
@@ -202,7 +219,7 @@ public class MagicWandModelTest {
         assertEquals(expression, 0.8, Double.parseDouble(matcher.group(6)), 1e-8);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
 
         // Test: assertEquals("inrange_deriv(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         pattern = Pattern.compile("inrange_deriv\\(b1/b1,b2/b1,b3/b1,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
@@ -223,10 +240,11 @@ public class MagicWandModelTest {
         model.setPickMode(MagicWandModel.PickMode.PLUS);
         model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.INTEGRAL);
+        model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
         model.setTolerance(0.1);
-        String expression = model.createExpression(b1, b2, b3);
+        String expression = model.createMaskExpression();
 
         // Test: assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         Pattern pattern = Pattern.compile("inrange_integ\\(b1,b2,b3,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");
@@ -241,7 +259,7 @@ public class MagicWandModelTest {
         assertEquals(expression, 0.8, Double.parseDouble(matcher.group(6)), 1e-8);
 
         model.setNormalize(true);
-        expression = model.createExpression(b1, b2, b3);
+        expression = model.createMaskExpression();
 
         // Test: assertEquals("inrange_integ(b1,b2,b3,0.3,0.2,0.1,0.7,1.0,0.8)", expression);
         pattern = Pattern.compile("inrange_integ\\(b1/b1,b2/b1,b3/b1,([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*),([0-9]*\\.[0-9]*)\\)");

@@ -16,26 +16,13 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -44,9 +31,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import static com.bc.ceres.swing.TableLayout.cell;
@@ -498,11 +484,10 @@ class MagicWandForm {
             return;
         }
 
-        String[] oldBandNames = interactor.getModel().getBandNames();
-        Set<String> oldBandNameSet = new HashSet<>(Arrays.asList(oldBandNames));
+        Set<String> oldBandNames = new HashSet<>(interactor.getModel().getBandNames());
         Set<Band> oldBandSet = new HashSet<>();
         for (Band band : bands) {
-            if (oldBandNameSet.contains(band.getName())) {
+            if (oldBandNames.contains(band.getName())) {
                 oldBandSet.add(band);
             }
         }
@@ -515,13 +500,29 @@ class MagicWandForm {
 
         if (bandChooser.show() == ModalDialog.ID_OK) {
             Band[] newBands = bandChooser.getSelectedBands();
-            Set<String> newBandNameSet = new HashSet<>();
+            Arrays.sort(newBands, new Comparator<Band>() {
+                @Override
+                public int compare(Band b1, Band b2) {
+                    float deltaWl = b1.getSpectralWavelength() - b2.getSpectralWavelength();
+                    if (Math.abs(deltaWl) > 1e-05) {
+                        return deltaWl < 0 ? -1 : 1;
+                    }
+                    int deltaSi = b1.getSpectralBandIndex() - b2.getSpectralBandIndex();
+                    if (deltaSi != 0) {
+                        return deltaWl < 0 ? -1 : 1;
+                    }
+                    return b1.getName().compareTo(b2.getName());
+                }
+            });
+
+            List<String> newBandNames = new ArrayList<>();
             for (Band newBand : newBands) {
-                newBandNameSet.add(newBand.getName());
+                newBandNames.add(newBand.getName());
             }
-            if (!oldBandNameSet.containsAll(newBandNameSet)
-                || !newBandNameSet.containsAll(oldBandNameSet)) {
-                interactor.getModel().setBandNames(newBandNameSet.toArray(new String[newBandNameSet.size()]));
+
+            if (!oldBandNames.containsAll(newBandNames)
+                || !newBandNames.containsAll(oldBandNames)) {
+                interactor.getModel().setBandNames(newBandNames);
             }
         }
     }
