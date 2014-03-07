@@ -423,10 +423,10 @@ class ScatterPlotPanel extends ChartPagePanel {
         identityRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
         plot.setRenderer(CONFIDENCE_DSINDEX, identityRenderer);
 
-        final DeviationRenderer regressioonRenderer = new DeviationRenderer(true, false);
-        regressioonRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
-        regressioonRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
-        plot.setRenderer(REGRESSION_DSINDEX, regressioonRenderer);
+        final DeviationRenderer regressionRenderer = new DeviationRenderer(true, false);
+        regressionRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
+        regressionRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
+        plot.setRenderer(REGRESSION_DSINDEX, regressionRenderer);
 
         final XYErrorRenderer scatterPointsRenderer = new XYErrorRenderer();
         scatterPointsRenderer.setDrawXError(true);
