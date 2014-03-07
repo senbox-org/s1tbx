@@ -48,6 +48,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import static com.bc.ceres.swing.TableLayout.cell;
+
 /**
  * @author Norman Fomferra
  * @since BEAM 4.10
@@ -304,21 +306,21 @@ class MagicWandForm {
         */
 
         JPanel subPanel = new JPanel(tableLayout);
-        subPanel.add(toleranceLabel, new TableLayout.Cell(0, 0));
-        subPanel.add(toleranceField, new TableLayout.Cell(0, 1));
-        subPanel.add(toleranceSliderPanel, new TableLayout.Cell(1, 0));
+        subPanel.add(toleranceLabel, cell(0, 0));
+        subPanel.add(toleranceField, cell(0, 1));
+        subPanel.add(toleranceSliderPanel, cell(1, 0));
 
-        subPanel.add(new JLabel("Spectrum transformation:"), new TableLayout.Cell(2, 0));
-        subPanel.add(stButton1, new TableLayout.Cell(3, 0));
-        subPanel.add(stButton2, new TableLayout.Cell(4, 0));
-        subPanel.add(stButton3, new TableLayout.Cell(5, 0));
+        subPanel.add(new JLabel("Spectrum transformation:"), cell(2, 0));
+        subPanel.add(stButton1, cell(3, 0));
+        subPanel.add(stButton2, cell(4, 0));
+        subPanel.add(stButton3, cell(5, 0));
 
-        subPanel.add(new JLabel("Band aggregation:"), new TableLayout.Cell(2, 1));
-        subPanel.add(baButton1, new TableLayout.Cell(3, 1));
-        subPanel.add(baButton2, new TableLayout.Cell(4, 1));
-        subPanel.add(baButton3, new TableLayout.Cell(5, 1));
+        subPanel.add(new JLabel("Band aggregation:"), cell(2, 1));
+        subPanel.add(baButton1, cell(3, 1));
+        subPanel.add(baButton2, cell(4, 1));
+        subPanel.add(baButton3, cell(5, 1));
 
-        subPanel.add(normalizeCheckBox, new TableLayout.Cell(6, 0));
+        subPanel.add(normalizeCheckBox, cell(6, 0));
 
         JPanel toolPanel = new JPanel(new BorderLayout(4, 4));
         toolPanel.add(toolPanelN, BorderLayout.NORTH);
