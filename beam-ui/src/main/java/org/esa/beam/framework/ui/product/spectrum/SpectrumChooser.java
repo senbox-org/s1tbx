@@ -46,6 +46,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -55,6 +56,7 @@ import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 public class SpectrumChooser extends ModalDialog {
 
@@ -107,7 +109,7 @@ public class SpectrumChooser extends ModalDialog {
     protected void onOther() {
         // do nothing. Most importantly, do not hide the dialog
     }
-
+    
     private static JButton[] initLoadSaveConfigurationButtons(final Component parent) {
         JButton loadButton = new JButton("Load Spectra Configuration");
         loadButton.addActionListener(new LoadConfigurationActionListener(parent));
@@ -116,8 +118,10 @@ public class SpectrumChooser extends ModalDialog {
         return new JButton[]{loadButton, saveButton};
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static File getSystemAuxdataDir() {
-        File file = new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/spectra-sets");
+        File file = new File(SystemUtils.getApplicationDataDir(), "beam-ui" + File.separator +"auxdata" +
+                File.separator + "spectra-sets");
         if (!file.exists()) {
             file.mkdir();
         }
@@ -547,6 +551,12 @@ public class SpectrumChooser extends ModalDialog {
         public void actionPerformed(ActionEvent e) {
             File currentDirectory = getSystemAuxdataDir();
             JFileChooser fileChooser = new JFileChooser(currentDirectory);
+            File suggestedFile = new File(currentDirectory + File.separator + "spectra_config.txt");
+            int fileCounter = 1;
+            while(suggestedFile.exists()) {
+                suggestedFile = new File("spectra_config_" + fileCounter + ".txt");
+            }
+            fileChooser.setSelectedFile(suggestedFile);
             if (fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
                 try {
