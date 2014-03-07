@@ -29,6 +29,7 @@ public class SpectrumChooserMainForManualTesting {
         final DisplayableSpectrum spectrum = new DisplayableSpectrum(name + " " + (offset + 1), offset + 1);
         final boolean selected = offset % 2 == 1;
         spectrum.setSelected(selected);
+        spectrum.setLineStyle(SpectrumStrokeProvider.getStroke(offset));
         final int bandOffset = numBands * offset;
         for (int i = 0; i < numBands; i++) {
             spectrum.addBand(createBand(i + bandOffset));
