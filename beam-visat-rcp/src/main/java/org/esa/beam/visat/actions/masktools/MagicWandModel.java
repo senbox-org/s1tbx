@@ -137,6 +137,14 @@ public class MagicWandModel implements Cloneable {
         return plusSpectra.size() + minusSpectra.size();
     }
 
+    int getPlusSpectraCount() {
+        return plusSpectra.size();
+    }
+
+    int getMinusSpectraCount() {
+        return minusSpectra.size();
+    }
+
     int getBandCount() {
         return bandNames.length;
     }
