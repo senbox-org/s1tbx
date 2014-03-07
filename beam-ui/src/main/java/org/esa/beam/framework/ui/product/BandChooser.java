@@ -13,7 +13,12 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,6 +52,39 @@ public class BandChooser extends ModalDialog {
                                                    multipleProducts);
         this.selectAtLeastOneBand = selectAtLeastOneBand;
         initUI();
+    }
+
+    // package local for testing reasons only
+    static void sort(Band[] allBands) {
+        // first, sort by name without digits
+        Arrays.sort(allBands, new Comparator<Band>() {
+            @Override
+            public int compare(Band band1, Band band2) {
+                String regex = "\\d";
+                return band1.getName().replaceAll(regex, "").compareTo(band2.getName().replaceAll(regex, ""));
+            }
+        });
+        // second, sort by wavelength
+        final List<Integer> comparationResult = new ArrayList<>();
+        Arrays.sort(allBands, new Comparator<Band>() {
+            @Override
+            public int compare(Band band1, Band band2) {
+                int n = (int) (band1.getSpectralWavelength() - band2.getSpectralWavelength());
+                comparationResult.add(n);
+                return n;
+            }
+        });
+
+        boolean noWavelengthsDifferences = Collections.frequency(comparationResult, 0) == allBands.length - 1;
+        if (noWavelengthsDifferences) {
+            // third, sort by name WITH digits if all wavelength are equal or don't exist
+            Arrays.sort(allBands, new Comparator<Band>() {
+                @Override
+                public int compare(Band band1, Band band2) {
+                    return band1.getName().compareTo(band2.getName());
+                }
+            });
+        }
     }
 
     private boolean bandsAndGridsFromMoreThanOneProduct(Band[] allBands, TiePointGrid[] allTiePointGrids) {
