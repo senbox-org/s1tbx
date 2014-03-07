@@ -73,12 +73,17 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
         final PropertySet propertyContainer = getBinding().getContext().getPropertySet();
         final Property property = propertyContainer.getProperty(getBinding().getPropertyName());
         final String textValue = property != null ? property.getValueAsText() : "";
-        SwingUtilities.invokeLater(new Runnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 textComponent.setText(textValue);
             }
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+        } else {
+            SwingUtilities.invokeLater(runnable);
+        }
 
     }
 
