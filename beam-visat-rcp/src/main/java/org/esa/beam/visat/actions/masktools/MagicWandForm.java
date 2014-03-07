@@ -500,20 +500,7 @@ class MagicWandForm {
 
         if (bandChooser.show() == ModalDialog.ID_OK) {
             Band[] newBands = bandChooser.getSelectedBands();
-            Arrays.sort(newBands, new Comparator<Band>() {
-                @Override
-                public int compare(Band b1, Band b2) {
-                    float deltaWl = b1.getSpectralWavelength() - b2.getSpectralWavelength();
-                    if (Math.abs(deltaWl) > 1e-05) {
-                        return deltaWl < 0 ? -1 : 1;
-                    }
-                    int deltaSi = b1.getSpectralBandIndex() - b2.getSpectralBandIndex();
-                    if (deltaSi != 0) {
-                        return deltaWl < 0 ? -1 : 1;
-                    }
-                    return b1.getName().compareTo(b2.getName());
-                }
-            });
+            Arrays.sort(newBands, new SpectralBandComparator());
 
             List<String> newBandNames = new ArrayList<>();
             for (Band newBand : newBands) {
@@ -526,4 +513,5 @@ class MagicWandForm {
             }
         }
     }
+
 }

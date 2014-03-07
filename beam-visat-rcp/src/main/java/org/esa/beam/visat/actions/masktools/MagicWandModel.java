@@ -246,16 +246,27 @@ public class MagicWandModel implements Cloneable {
     }
 
     public void setSpectralBandNames(Product product) {
+        List<Band> bands = getSpectralBands(product);
         List<String> bandNames = new ArrayList<>();
-        for (Band band : product.getBands()) {
-            if (band.getSpectralWavelength() > 0.0) {
-                bandNames.add(band.getName());
-            }
+        for (Band band : bands) {
+            bandNames.add(band.getName());
         }
         if (!bandNames.isEmpty()) {
             setBandNames(bandNames.toArray(new String[bandNames.size()]));
         }
     }
+
+    public static List<Band> getSpectralBands(Product product) {
+        List<Band> bands = new ArrayList<>();
+        for (Band band : product.getBands()) {
+            if (band.getSpectralWavelength() > 0.0 || band.getSpectralBandIndex() >= 0) {
+                bands.add(band);
+            }
+        }
+        Collections.sort(bands, new SpectralBandComparator());
+        return bands;
+    }
+
 
     List<Band> getBands(Product product) {
         List<String> names = getBandNames();
