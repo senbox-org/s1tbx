@@ -137,7 +137,7 @@ public class ProductLocationsPane extends JPanel {
         });
         add(new JScrollPane(sourceList));
         add(addButton);
-        add(removeButton, new TableLayout.Cell(1, 1));
+        add(removeButton, TableLayout.cell(1, 1));
     }
 
     private void updatePane(boolean enabled) {

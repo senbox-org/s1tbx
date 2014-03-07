@@ -56,6 +56,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -85,8 +86,8 @@ public class CustomCrsPanel extends JPanel {
     private final CustomCrsPanel.Model model;
     private final PropertyContainer vc;
     private final Window parent;
-    private JComboBox projectionComboBox;
-    private JComboBox datumComboBox;
+    private JComboBox<AbstractCrsProvider> projectionComboBox;
+    private JComboBox<GeodeticDatum> datumComboBox;
     private JButton paramButton;
     private static final String SEMI_MAJOR_PARAM_NAME = "semi_major";
     private static final String SEMI_MINOR_PARAM_NAME = "semi_minor";
@@ -105,7 +106,7 @@ public class CustomCrsPanel extends JPanel {
         }
 
         final List<OperationMethod> methodList = CustomCrsPanel.createProjectionMethodList();
-        this.crsProviderList = new ArrayList<AbstractCrsProvider>(methodList.size() + 3);
+        this.crsProviderList = new ArrayList<>(methodList.size() + 3);
         for (OperationMethod method : methodList) {
             crsProviderList.add(new OperationMethodCrsProvider(method));
         }
@@ -147,13 +148,13 @@ public class CustomCrsPanel extends JPanel {
         final JLabel datumLabel = new JLabel("Geodetic datum:");
         final JLabel projectionLabel = new JLabel("Projection:");
 
-        projectionComboBox = new JComboBox(crsProviderList.toArray());
+        projectionComboBox = new JComboBox<>(crsProviderList.toArray(new AbstractCrsProvider[crsProviderList.size()]));
         projectionComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         final ComboBoxSearchable methodSearchable = new CrsProviderSearchable(projectionComboBox);
         methodSearchable.installListeners();
         projectionComboBox.setRenderer(new CrsProviderCellRenderer());
 
-        datumComboBox = new JComboBox(datumList.toArray());
+        datumComboBox = new JComboBox<>(datumList.toArray(new GeodeticDatum[datumList.size()]));
         datumComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         SearchableUtils.installSearchable(datumComboBox);
         datumComboBox.setRenderer(new IdentifiedObjectCellRenderer());
@@ -277,7 +278,7 @@ public class CustomCrsPanel extends JPanel {
         final JFrame frame = new JFrame("Projection Method Form Test");
         final CustomCrsPanel customCrsForm = new CustomCrsPanel(frame);
         frame.setContentPane(customCrsForm);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -291,13 +292,13 @@ public class CustomCrsPanel extends JPanel {
     private static List<OperationMethod> createProjectionMethodList() {
         MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         Set<OperationMethod> methods = factory.getAvailableMethods(Projection.class);
-        return new ArrayList<OperationMethod>(methods);
+        return new ArrayList<>(methods);
     }
 
     private static List<GeodeticDatum> createDatumList() {
         DatumAuthorityFactory factory = ReferencingFactoryFinder.getDatumAuthorityFactory("EPSG", null);
         List<String> datumCodes = retrieveCodes(GeodeticDatum.class, factory);
-        List<GeodeticDatum> datumList = new ArrayList<GeodeticDatum>(datumCodes.size());
+        List<GeodeticDatum> datumList = new ArrayList<>(datumCodes.size());
         for (String datumCode : datumCodes) {
             try {
                 DefaultGeodeticDatum geodeticDatum = (DefaultGeodeticDatum) factory.createGeodeticDatum(datumCode);
@@ -314,7 +315,7 @@ public class CustomCrsPanel extends JPanel {
     private static List<String> retrieveCodes(Class<? extends GeodeticDatum> crsType, AuthorityFactory factory) {
         try {
             Set<String> localCodes = factory.getAuthorityCodes(crsType);
-            return new ArrayList<String>(localCodes);
+            return new ArrayList<>(localCodes);
         } catch (FactoryException ignore) {
             return Collections.emptyList();
         }
@@ -367,6 +368,7 @@ public class CustomCrsPanel extends JPanel {
 
         private AbstractCrsProvider operationWrapper;
         private GeodeticDatum datum;
+        @SuppressWarnings("UnusedDeclaration")
         private ParameterValueGroup parameters;
     }
 
@@ -398,7 +400,7 @@ public class CustomCrsPanel extends JPanel {
 
     private static class IdentifiedObjectSearchable extends ComboBoxSearchable {
 
-        private IdentifiedObjectSearchable(JComboBox operationComboBox) {
+        private IdentifiedObjectSearchable(JComboBox<GeodeticDatum> operationComboBox) {
             super(operationComboBox);
         }
 
@@ -415,7 +417,7 @@ public class CustomCrsPanel extends JPanel {
 
     private static class CrsProviderSearchable extends ComboBoxSearchable {
 
-        private CrsProviderSearchable(JComboBox operationComboBox) {
+        private CrsProviderSearchable(JComboBox<AbstractCrsProvider> operationComboBox) {
             super(operationComboBox);
         }
 

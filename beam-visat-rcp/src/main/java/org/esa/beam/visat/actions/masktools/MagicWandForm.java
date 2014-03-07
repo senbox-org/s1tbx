@@ -19,7 +19,6 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,8 +32,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -47,6 +48,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.prefs.Preferences;
+
+import static com.bc.ceres.swing.TableLayout.cell;
 
 /**
  * @author Norman Fomferra
@@ -67,6 +70,9 @@ class MagicWandForm {
     private BindingContext bindingContext;
 
     private File settingsFile;
+    private JLabel infoLabel;
+    private AbstractButton minusButton;
+    private AbstractButton plusButton;
 
     MagicWandForm(MagicWandInteractor interactor) {
         this.interactor = interactor;
@@ -89,6 +95,9 @@ class MagicWandForm {
                 interactor.getModel().fireModelChanged(true);
             }
         });
+
+        infoLabel = new JLabel();
+        infoLabel.setForeground(Color.DARK_GRAY);
 
         JLabel toleranceLabel = new JLabel("Tolerance:");
         toleranceLabel.setToolTipText("Sets the maximum Euclidian distance tolerated");
@@ -129,7 +138,7 @@ class MagicWandForm {
         toleranceSliderPanel.add(toleranceSlider, BorderLayout.CENTER);
         toleranceSliderPanel.add(maxToleranceField, BorderLayout.EAST);
 
-        JCheckBox normalizeCheckBox = new JCheckBox("Normalize spectra by first band");
+        JCheckBox normalizeCheckBox = new JCheckBox("Normalize spectra");
         normalizeCheckBox.setToolTipText("Normalizes collected spectra by dividing them by their first band value");
         bindingContext.bind("normalize", normalizeCheckBox);
         bindingContext.addPropertyChangeListener("normalize", new PropertyChangeListener() {
@@ -169,28 +178,35 @@ class MagicWandForm {
             }
         });
 
-        final AbstractButton plusButton = createToggleButton("/org/esa/beam/resources/images/icons/Plus16.gif");
+        plusButton = createToggleButton("/org/esa/beam/resources/images/icons/Plus16.gif");
         plusButton.setToolTipText("Pick mode 'plus': newly picked spectra will be included in the mask.");
-        final AbstractButton minusButton = createToggleButton("/org/esa/beam/resources/images/icons/Minus16.gif");
-        minusButton.setToolTipText("Pick mode 'minus': newly picked spectra will be excluded from the mask.");
         plusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bindingContext.getPropertySet().setValue("pickMode", plusButton.isSelected() ? MagicWandModel.PickMode.PLUS : MagicWandModel.PickMode.SINGLE);
+                if (interactor.getModel().getPickMode() != MagicWandModel.PickMode.PLUS) {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.PLUS);
+                } else {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.SINGLE);
+                }
             }
         });
+
+        minusButton = createToggleButton("/org/esa/beam/resources/images/icons/Minus16.gif");
+        minusButton.setToolTipText("Pick mode 'minus': newly picked spectra will be excluded from the mask.");
         minusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bindingContext.getPropertySet().setValue("pickMode", plusButton.isSelected() ? MagicWandModel.PickMode.MINUS : MagicWandModel.PickMode.SINGLE);
+                if (interactor.getModel().getPickMode() != MagicWandModel.PickMode.MINUS) {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.MINUS);
+                } else {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.SINGLE);
+                }
             }
         });
 
         bindingContext.addPropertyChangeListener("pickMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                plusButton.setSelected(interactor.getModel().getPickMode() == MagicWandModel.PickMode.PLUS);
-                minusButton.setSelected(interactor.getModel().getPickMode() == MagicWandModel.PickMode.MINUS);
                 interactor.getModel().fireModelChanged(false);
             }
         });
@@ -293,32 +309,37 @@ class MagicWandForm {
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTablePadding(2, 2);
         tableLayout.setCellColspan(1, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(6, 0, tableLayout.getColumnCount());
-        /*
-        tableLayout.setCellColspan(2, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(3, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(4, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(5, 0, tableLayout.getColumnCount());
-        */
+        Insets insets = new Insets(2, 10, 2, 2);
+        //tableLayout.setRowPadding(3, insets);
+        //tableLayout.setRowPadding(4, insets);
+        //tableLayout.setRowPadding(5, insets);
+
+        tableLayout.setCellPadding(3, 0, insets);
+        tableLayout.setCellPadding(4, 0, insets);
+        tableLayout.setCellPadding(5, 0, insets);
+        tableLayout.setCellPadding(3, 1, insets);
+        tableLayout.setCellPadding(4, 1, insets);
+        tableLayout.setCellPadding(5, 1, insets);
 
         JPanel subPanel = new JPanel(tableLayout);
-        subPanel.add(toleranceLabel, new TableLayout.Cell(0, 0));
-        subPanel.add(toleranceField, new TableLayout.Cell(0, 1));
-        subPanel.add(toleranceSliderPanel, new TableLayout.Cell(1, 0));
+        subPanel.add(toleranceLabel, cell(0, 0));
+        subPanel.add(toleranceField, cell(0, 1));
+        subPanel.add(toleranceSliderPanel, cell(1, 0));
 
-        subPanel.add(new JLabel("Spectrum transformation:"), new TableLayout.Cell(2, 0));
-        subPanel.add(stButton1, new TableLayout.Cell(3, 0));
-        subPanel.add(stButton2, new TableLayout.Cell(4, 0));
-        subPanel.add(stButton3, new TableLayout.Cell(5, 0));
+        subPanel.add(new JLabel("Spectrum transformation:"), cell(2, 0));
+        subPanel.add(stButton1, cell(3, 0));
+        subPanel.add(stButton2, cell(4, 0));
+        subPanel.add(stButton3, cell(5, 0));
 
-        subPanel.add(new JLabel("Band aggregation:"), new TableLayout.Cell(2, 1));
-        subPanel.add(baButton1, new TableLayout.Cell(3, 1));
-        subPanel.add(baButton2, new TableLayout.Cell(4, 1));
-        subPanel.add(baButton3, new TableLayout.Cell(5, 1));
+        subPanel.add(new JLabel("Band aggregation:"), cell(2, 1));
+        subPanel.add(baButton1, cell(3, 1));
+        subPanel.add(baButton2, cell(4, 1));
+        subPanel.add(baButton3, cell(5, 1));
 
-        subPanel.add(normalizeCheckBox, new TableLayout.Cell(6, 0));
+        subPanel.add(normalizeCheckBox, cell(6, 0));
+        subPanel.add(infoLabel, cell(6, 1));
 
         JPanel toolPanel = new JPanel(new BorderLayout(4, 4));
         toolPanel.add(toolPanelN, BorderLayout.NORTH);
@@ -331,6 +352,7 @@ class MagicWandForm {
         panel.add(toolPanel, BorderLayout.EAST);
 
         adjustSlider();
+        updateState();
 
         return panel;
     }
@@ -408,7 +430,7 @@ class MagicWandForm {
     }
 
     void updateState() {
-
+/*
         JComponent[] bandAccumulationComponents = bindingContext.getBinding("bandAccumulation").getComponentAdapter().getComponents();
         for (JComponent component : bandAccumulationComponents) {
             component.setEnabled(interactor.getModel().getPickMode() != MagicWandModel.PickMode.SINGLE);
@@ -418,6 +440,16 @@ class MagicWandForm {
         for (JComponent component : spectrumTransformComponents) {
             component.setEnabled(interactor.getModel().getBandCount() != 1);
         }
+*/
+        MagicWandModel model = interactor.getModel();
+
+        infoLabel.setText(String.format("%d(+), %d(-), %d bands",
+                                        model.getPlusSpectraCount(),
+                                        model.getMinusSpectraCount(),
+                                        model.getBandCount()));
+
+        plusButton.setSelected(model.getPickMode() == MagicWandModel.PickMode.PLUS);
+        minusButton.setSelected(model.getPickMode() == MagicWandModel.PickMode.MINUS);
 
         undoButton.setEnabled(undoContext.canUndo());
         redoButton.setEnabled(undoContext.canRedo());

@@ -19,7 +19,6 @@ package org.esa.beam.visat.toolviews.mask;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.StringUtils;
 
@@ -37,6 +36,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Locale;
+
+import static com.bc.ceres.swing.TableLayout.cell;
 
 /**
  * @author Marco Peters
@@ -88,9 +89,9 @@ class RangeEditorDialog extends ModalDialog {
         layout.setColumnWeightX(1, 0.0);
         layout.setColumnWeightX(3, 0.0);
         final JPanel panel = new JPanel(layout);
-        panel.add(new JLabel("Min value:"), new TableLayout.Cell(0, 0));
-        panel.add(new JLabel("Raster:"), new TableLayout.Cell(0, 2));
-        panel.add(new JLabel("Max value:"), new TableLayout.Cell(0, 4));
+        panel.add(new JLabel("Min value:"), cell(0, 0));
+        panel.add(new JLabel("Raster:"), cell(0, 2));
+        panel.add(new JLabel("Max value:"), cell(0, 4));
 
         final DoubleFormatter formatter = new DoubleFormatter("###0.0###");
         final JFormattedTextField minValueField = new JFormattedTextField(formatter);

@@ -423,10 +423,10 @@ class ScatterPlotPanel extends ChartPagePanel {
         identityRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
         plot.setRenderer(CONFIDENCE_DSINDEX, identityRenderer);
 
-        final DeviationRenderer regressioonRenderer = new DeviationRenderer(true, false);
-        regressioonRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
-        regressioonRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
-        plot.setRenderer(REGRESSION_DSINDEX, regressioonRenderer);
+        final DeviationRenderer regressionRenderer = new DeviationRenderer(true, false);
+        regressionRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
+        regressionRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
+        plot.setRenderer(REGRESSION_DSINDEX, regressionRenderer);
 
         final XYErrorRenderer scatterPointsRenderer = new XYErrorRenderer();
         scatterPointsRenderer.setDrawXError(true);
@@ -562,7 +562,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
 
         final JCheckBox acceptableCheck = new JCheckBox("Show tolerance range");
-        JLabel fieldPräfix = new JLabel("+/-");
+        JLabel fieldPrefix = new JLabel("+/-");
         final JTextField acceptableField = new JTextField();
         acceptableField.setPreferredSize(new Dimension(40, acceptableField.getPreferredSize().height));
         acceptableField.setHorizontalAlignment(JTextField.RIGHT);
@@ -570,7 +570,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext.bind(PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, acceptableCheck);
         bindingContext.bind(PROPERTY_NAME_ACCEPTABLE_DEVIATION, acceptableField);
         bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(percentLabel);
-        bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(fieldPräfix);
+        bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(fieldPrefix);
         bindingContext.bindEnabledState(PROPERTY_NAME_ACCEPTABLE_DEVIATION, true,
                                         PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, true);
 
@@ -578,7 +578,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints(
                 "anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0,gridwidth=3");
-        GridBagUtils.addToPanel(confidencePanel, fieldPräfix, confidencePanelConstraints,
+        GridBagUtils.addToPanel(confidencePanel, fieldPrefix, confidencePanelConstraints,
                                 "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints,
                                 "weightx=1,gridx=1,insets.left=2,insets.top=2");
