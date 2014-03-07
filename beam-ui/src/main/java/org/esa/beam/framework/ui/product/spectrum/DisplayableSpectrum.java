@@ -22,14 +22,14 @@ public class DisplayableSpectrum implements Spectrum {
     private boolean isSelected;
     private String unit;
 
-    public DisplayableSpectrum(String spectrumName) {
-        this(spectrumName, new SpectrumBand[]{});
+    public DisplayableSpectrum(String spectrumName, int symbolIndex) {
+        this(spectrumName, new SpectrumBand[]{}, symbolIndex);
     }
 
-    public DisplayableSpectrum(String spectrumName, SpectrumBand[] spectralBands) {
+    public DisplayableSpectrum(String spectrumName, SpectrumBand[] spectralBands, int symbolIndex) {
         this.name = spectrumName;
         bands = new ArrayList<SpectrumBand>(spectralBands.length);
-        symbolIndex = -1;
+        this.symbolIndex = symbolIndex;
         symbolSize = SpectrumShapeProvider.DEFAULT_SCALE_GRADE;
         unit = NO_UNIT;
         for (SpectrumBand spectralBand : spectralBands) {
@@ -48,18 +48,8 @@ public class DisplayableSpectrum implements Spectrum {
     }
 
     public Shape getScaledShape() {
-        int usedSymbolIndex = getSymbolIndex();
-        Shape symbol;
-        if (symbolIndex == -1) {
-            symbol = SpectrumShapeProvider.shapes[1];
-            usedSymbolIndex = 1;
-        } else {
-            symbol = SpectrumShapeProvider.shapes[getSymbolIndex()];
-        }
-        if (getSymbolSize() != 3) {
-            symbol = SpectrumShapeProvider.getScaledShape(usedSymbolIndex, getSymbolSize());
-        }
-        return symbol;
+        return SpectrumShapeProvider.getScaledShape(getSymbolIndex(), getSymbolSize());
+
     }
 
     public boolean isDefaultSpectrum() {

@@ -15,7 +15,7 @@ public class SpectrumChooserMainForManualTesting {
 
         spectra[0] = createSpectrum(0);
         spectra[1] = createSpectrum(1);
-        spectra[2] = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+        spectra[2] = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME, 3);
         spectra[2].addBand(createBand(11));
 
         SpectrumChooser chooser = new SpectrumChooser(null, spectra, "");
@@ -26,7 +26,7 @@ public class SpectrumChooserMainForManualTesting {
     private static DisplayableSpectrum createSpectrum(int offset) {
         int numBands = 5;
         String name = "Radiances";
-        final DisplayableSpectrum spectrum = new DisplayableSpectrum(name + " " + (offset + 1));
+        final DisplayableSpectrum spectrum = new DisplayableSpectrum(name + " " + (offset + 1), offset + 1);
         final boolean selected = offset % 2 == 1;
         spectrum.setSelected(selected);
         final int bandOffset = numBands * offset;

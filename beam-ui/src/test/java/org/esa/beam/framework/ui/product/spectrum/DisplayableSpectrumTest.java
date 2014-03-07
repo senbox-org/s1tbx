@@ -11,14 +11,15 @@ public class DisplayableSpectrumTest extends TestCase {
 
     public void testNewDisplayableSpectrumIsSetupCorrectly() {
         String spectrumName = "name";
-        DisplayableSpectrum displayableSpectrum = new DisplayableSpectrum(spectrumName);
+        DisplayableSpectrum displayableSpectrum = new DisplayableSpectrum(spectrumName, 1);
 
         assertEquals(spectrumName, displayableSpectrum.getName());
         assertEquals(DisplayableSpectrum.NO_UNIT, displayableSpectrum.getUnit());
         assertEquals(null, displayableSpectrum.getLineStyle());
-        assertEquals(SpectrumShapeProvider.shapes[1], displayableSpectrum.getScaledShape());
-        assertEquals(-1, displayableSpectrum.getSymbolIndex());
         assertEquals(SpectrumShapeProvider.DEFAULT_SCALE_GRADE, displayableSpectrum.getSymbolSize());
+        assertEquals(SpectrumShapeProvider.getScaledShape(1, SpectrumShapeProvider.DEFAULT_SCALE_GRADE),
+                displayableSpectrum.getScaledShape());
+        assertEquals(1, displayableSpectrum.getSymbolIndex());
         assertEquals(true, displayableSpectrum.isSelected());
         assertEquals(false, displayableSpectrum.isDefaultSpectrum());
         assertEquals(false, displayableSpectrum.hasBands());
@@ -34,7 +35,7 @@ public class DisplayableSpectrumTest extends TestCase {
             band.setUnit("unit");
             spectralBands[i] = new SpectrumBand(band, true);
         }
-        DisplayableSpectrum displayableSpectrum = new DisplayableSpectrum(spectrumName, spectralBands);
+        DisplayableSpectrum displayableSpectrum = new DisplayableSpectrum(spectrumName, spectralBands, 1);
 
         assertEquals(spectrumName, displayableSpectrum.getName());
         assertEquals("unit", displayableSpectrum.getUnit());
@@ -47,7 +48,7 @@ public class DisplayableSpectrumTest extends TestCase {
 
     public void testBandsAreAddedCorrectlyToDisplayableSpectrum() {
         String spectrumName = "name";
-        DisplayableSpectrum displayableSpectrum = new DisplayableSpectrum(spectrumName);
+        DisplayableSpectrum displayableSpectrum = new DisplayableSpectrum(spectrumName, 1);
         SpectrumBand[] bands = new SpectrumBand[3];
         for (int i = 0; i < bands.length; i++) {
             Band band = createBand(i);

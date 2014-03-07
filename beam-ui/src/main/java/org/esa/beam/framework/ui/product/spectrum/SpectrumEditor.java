@@ -303,7 +303,7 @@ public class SpectrumEditor extends ModalDialog {
         for (int i = 0; i < selectedBands.length; i++) {
             selectedBands[i] = new SpectrumBand(availableBandsMap.get(selectedElements.get(i)), true);
         }
-        return new DisplayableSpectrum(nameField.getName(), selectedBands);
+        return new DisplayableSpectrum(nameField.getName(), selectedBands, 1);
     }
 
     @Override

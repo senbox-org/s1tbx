@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -62,10 +61,10 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.ui.product.spectrum.DisplayableSpectrum;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumBand;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumChooser;
+import org.esa.beam.framework.ui.product.spectrum.SpectrumShapeProvider;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumStrokeProvider;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.jai.ImageManager;
@@ -476,7 +475,6 @@ public class SpectrumToolView extends AbstractToolView {
         VisatApp.getApp().addInternalFrameListener(new SpectrumIFL());
 
 
-
         VisatApp.getApp().getProductManager().addListener(new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
@@ -491,14 +489,14 @@ public class SpectrumToolView extends AbstractToolView {
                     setCurrentView(null);
                     setCurrentProduct(null);
                 }
-                if(productToAllSpectraMap.containsKey(product)) {
+                if (productToAllSpectraMap.containsKey(product)) {
                     productToAllSpectraMap.remove(product);
                 }
-                if(productToBandsMap.containsKey(product)) {
+                if (productToBandsMap.containsKey(product)) {
                     productToBandsMap.remove(product);
                 }
                 PlacemarkGroup pinGroup = product.getPinGroup();
-                for(int i = 0; i < pinGroup.getNodeCount(); i++) {
+                for (int i = 0; i < pinGroup.getNodeCount(); i++) {
                     chartHandler.removePinInformation(pinGroup.get(i));
                 }
             }
@@ -567,11 +565,15 @@ public class SpectrumToolView extends AbstractToolView {
                 int i = 0;
                 while (iterator.hasNext()) {
                     final String spectrumName = iterator.next()[0];
-                    DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName);
+                    int symbolIndex = SpectrumShapeProvider.getValidIndex(i, false);
+                    DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName, symbolIndex);
                     spectrum.setSelected(i == selectedSpectrumIndex);
+                    spectrum.setLineStyle(SpectrumStrokeProvider.getStroke(i));
                     spectra[i++] = spectrum;
                 }
-                DisplayableSpectrum defaultSpectrum = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+                int symbolIndex = SpectrumShapeProvider.getValidIndex(i, false);
+                DisplayableSpectrum defaultSpectrum =
+                        new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME, symbolIndex);
                 defaultSpectrum.setSelected(selectedSpectrumIndex == -1);
                 spectra[spectra.length - 1] = defaultSpectrum;
                 final SpectrumBand[] availableSpectralBands = getAvailableSpectralBands();
@@ -586,7 +588,8 @@ public class SpectrumToolView extends AbstractToolView {
                 }
             } else {
                 spectra = new DisplayableSpectrum[1];
-                spectra[0] = new DisplayableSpectrum(DisplayableSpectrum.DEFAULT_SPECTRUM_NAME, getAvailableSpectralBands());
+                spectra[0] = new DisplayableSpectrum(
+                        DisplayableSpectrum.DEFAULT_SPECTRUM_NAME, getAvailableSpectralBands(), 1);
             }
         }
         productToAllSpectraMap.put(currentProduct, spectra);
@@ -802,12 +805,11 @@ public class SpectrumToolView extends AbstractToolView {
             chartUpdater.removePinInformation(pin);
         }
 
-        private void removeBandinformation(Band band) {
+        private void removeBandInformation(Band band) {
             chartUpdater.removeBandinformation(band);
         }
 
-
-            private void setPlotMessage(String messageText) {
+        private void setPlotMessage(String messageText) {
             chart.getXYPlot().clearAnnotations();
             TextTitle tt = new TextTitle(messageText);
             tt.setTextAlignment(HorizontalAlignment.RIGHT);
@@ -1033,11 +1035,7 @@ public class SpectrumToolView extends AbstractToolView {
             final XYItemRenderer renderer = chart.getXYPlot().getRenderer();
             renderer.setSeriesPaint(seriesIndex, seriesColor);
             final Stroke lineStyle = spectrum.getLineStyle();
-            if (lineStyle != null) {
-                renderer.setSeriesStroke(seriesIndex, lineStyle);
-            } else {
-                renderer.setSeriesStroke(seriesIndex, SpectrumStrokeProvider.strokes[0]);
-            }
+            renderer.setSeriesStroke(seriesIndex, lineStyle);
             Shape symbol = spectrum.getScaledShape();
             renderer.setSeriesShape(seriesIndex, symbol);
         }
@@ -1060,7 +1058,7 @@ public class SpectrumToolView extends AbstractToolView {
         private void removeBandinformation(Band band) {
             for (Placemark pin : pinToEnergies.keySet()) {
                 Map<Band, Double> bandToEnergiesMap = pinToEnergies.get(pin);
-                if(bandToEnergiesMap.containsKey(band)) {
+                if (bandToEnergiesMap.containsKey(band)) {
                     bandToEnergiesMap.remove(band);
                 }
             }
@@ -1109,9 +1107,6 @@ public class SpectrumToolView extends AbstractToolView {
             Stroke outlineStroke = new BasicStroke();
             Line2D lineShape = new Line2D.Double(0, 5, 40, 5);
             Stroke lineStyle = spectrum.getLineStyle();
-            if (lineStyle == null) {
-                lineStyle = SpectrumStrokeProvider.strokes[0];
-            }
             Shape symbol = spectrum.getScaledShape();
             return new LegendItem(legendLabel, legendLabel, legendLabel, legendLabel,
                     true, symbol, false,
@@ -1206,7 +1201,7 @@ public class SpectrumToolView extends AbstractToolView {
             if (event.getSourceNode() instanceof Band) {
                 Band band = (Band) event.getSourceNode();
                 removeBandFromSpectra(band);
-                chartHandler.removeBandinformation(band);
+                chartHandler.removeBandInformation(band);
                 recreateChart();
             } else if (event.getSourceNode() instanceof Placemark) {
                 if (isShowingPinSpectra()) {

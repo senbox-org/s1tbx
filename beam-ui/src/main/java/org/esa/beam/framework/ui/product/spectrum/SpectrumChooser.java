@@ -121,21 +121,21 @@ public class SpectrumChooser extends ModalDialog {
         nameColumn.setCellRenderer(new TextFieldRenderer());
 
         final TableColumn strokeColumn = spectraTable.getColumnModel().getColumn(spectrumStrokeIndex);
-        JComboBox strokeComboBox = new JComboBox(SpectrumStrokeProvider.strokeIcons);
+        JComboBox strokeComboBox = new JComboBox(SpectrumStrokeProvider.getStrokeIcons());
         ImageIconComboBoxRenderer strokeComboBoxRenderer = new ImageIconComboBoxRenderer(spectrumStrokeIndex);
         strokeComboBoxRenderer.setPreferredSize(new Dimension(200, 30));
         strokeComboBox.setRenderer(strokeComboBoxRenderer);
         strokeColumn.setCellEditor(new DefaultCellEditor(strokeComboBox));
 
         final TableColumn shapeColumn = spectraTable.getColumnModel().getColumn(spectrumShapeIndex);
-        JComboBox shapeComboBox = new JComboBox(SpectrumShapeProvider.shapeIcons);
+        JComboBox shapeComboBox = new JComboBox(SpectrumShapeProvider.getShapeIcons());
         ImageIconComboBoxRenderer shapeComboBoxRenderer = new ImageIconComboBoxRenderer(spectrumShapeIndex);
         shapeComboBoxRenderer.setPreferredSize(new Dimension(200, 30));
         shapeComboBox.setRenderer(shapeComboBoxRenderer);
         shapeColumn.setCellEditor(new DefaultCellEditor(shapeComboBox));
 
         final TableColumn shapeSizeColumn = spectraTable.getColumnModel().getColumn(spectrumShapeSizeIndex);
-        JComboBox shapeSizeComboBox = new JComboBox(SpectrumShapeProvider.SCALE_GRADES);
+        JComboBox shapeSizeComboBox = new JComboBox(SpectrumShapeProvider.getScaleGrades());
         shapeSizeColumn.setCellEditor(new DefaultCellEditor(shapeSizeComboBox));
     }
 
@@ -210,18 +210,9 @@ public class SpectrumChooser extends ModalDialog {
             if (spectrum.isDefaultSpectrum()) {
                 strokeIcon = new ImageIcon();
             } else {
-                if (spectrum.getLineStyle() == null) {
-                    spectrum.setLineStyle(SpectrumStrokeProvider.strokes[getRowCount() % SpectrumStrokeProvider.strokes.length]);
-                }
-                strokeIcon =
-                        SpectrumStrokeProvider.strokeIcons[ArrayUtils.getElementIndex(spectrum.getLineStyle(), SpectrumStrokeProvider.strokes)];
+                strokeIcon = SpectrumStrokeProvider.getStrokeIcon(spectrum.getLineStyle());
             }
-            if (spectrum.getSymbolIndex() == -1) {
-                spectrum.setSymbolIndex(Math.max(1, getRowCount() + 1) % SpectrumShapeProvider.shapes.length);
-            }
-            final ImageIcon shapeIcon =
-                    SpectrumShapeProvider.shapeIcons[spectrum.getSymbolIndex()];
-
+            final ImageIcon shapeIcon = SpectrumShapeProvider.getShapeIcon(spectrum.getSymbolIndex());
             selectionAdmin.evaluateSpectrumSelections(spectrum);
             super.addRow(new Object[]{selectionAdmin.getState(getRowCount()), spectrum.getName(), spectrum.getUnit(),
                     strokeIcon, shapeIcon, spectrum.getSymbolSize()});
@@ -264,9 +255,9 @@ public class SpectrumChooser extends ModalDialog {
                 fireTableCellUpdated(row, column);
                 selectionChangeLock = false;
             } else if (column == spectrumStrokeIndex) {
-                spectra[row].setLineStyle(SpectrumStrokeProvider.strokes[ArrayUtils.getElementIndex(aValue, SpectrumStrokeProvider.strokeIcons)]);
+                spectra[row].setLineStyle(SpectrumStrokeProvider.getStroke((ImageIcon) aValue));
             } else if (column == spectrumShapeIndex) {
-                spectra[row].setSymbolIndex(ArrayUtils.getElementIndex(aValue, SpectrumShapeProvider.shapeIcons));
+                spectra[row].setSymbolIndex(SpectrumShapeProvider.getShape((ImageIcon) aValue));
             } else if (column == spectrumShapeSizeIndex) {
                 spectra[row].setSymbolSize(Integer.parseInt(aValue.toString()));
             }
