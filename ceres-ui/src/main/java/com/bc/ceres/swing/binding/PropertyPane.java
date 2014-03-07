@@ -21,7 +21,11 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import static com.bc.ceres.swing.TableLayout.cell;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
@@ -71,13 +75,13 @@ public class PropertyPane {
             JComponent[] components = propertyEditor.createComponents(descriptor, bindingContext);
             if (components.length == 2) {
                 layout.setCellWeightX(rowIndex, 0, 0.0);
-                panel.add(components[1], new TableLayout.Cell(rowIndex, 0));
+                panel.add(components[1], cell(rowIndex, 0));
                 layout.setCellWeightX(rowIndex, 1, 1.0);
-                panel.add(components[0], new TableLayout.Cell(rowIndex, 1));
+                panel.add(components[0], cell(rowIndex, 1));
             } else {
                 layout.setCellColspan(rowIndex, 0, 2);
                 layout.setCellWeightX(rowIndex, 0, 1.0);
-                panel.add(components[0], new TableLayout.Cell(rowIndex, 0));
+                panel.add(components[0], cell(rowIndex, 0));
             }
             if (displayUnitColumn) {
                 final JLabel label = new JLabel("");
@@ -85,7 +89,7 @@ public class PropertyPane {
                     label.setText(descriptor.getUnit());
                 }
                 layout.setCellWeightX(rowIndex, 2, 0.0);
-                panel.add(label, new TableLayout.Cell(rowIndex, 2));
+                panel.add(label, cell(rowIndex, 2));
             }
             rowIndex++;
         }
