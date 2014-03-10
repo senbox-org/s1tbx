@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import static org.junit.Assert.*;
 /**
  * @author Thomas Storm
  */
-public class BandChooserTest {
+public class BandSorterTest {
 
     @Test
     public void testSort_With_Wavelengths_and_Digits() throws Exception {
@@ -44,7 +45,7 @@ public class BandChooserTest {
         Collections.shuffle(bands);
         Band[] bandsArray = bands.toArray(new Band[bands.size()]);
 
-        BandChooser.sort(bandsArray);
+        Arrays.sort(bandsArray, BandSorter.createComparator());
         assertEquals("spec_1", bandsArray[0].getName());
         assertEquals("spec_2", bandsArray[1].getName());
         assertEquals("spec_3", bandsArray[2].getName());
@@ -66,7 +67,7 @@ public class BandChooserTest {
         Collections.shuffle(bands);
         Band[] bandsArray = bands.toArray(new Band[bands.size()]);
 
-        BandChooser.sort(bandsArray);
+        BandSorter.sort(bandsArray);
         assertEquals("spec_a", bandsArray[0].getName());
         assertEquals("spec_b", bandsArray[1].getName());
         assertEquals("spec_c", bandsArray[2].getName());
@@ -88,7 +89,7 @@ public class BandChooserTest {
         Collections.shuffle(bands);
         Band[] bandsArray = bands.toArray(new Band[bands.size()]);
 
-        BandChooser.sort(bandsArray);
+        BandSorter.sort(bandsArray);
         assertEquals("spec_1", bandsArray[0].getName());
         assertEquals("spec_2", bandsArray[1].getName());
         assertEquals("spec_3", bandsArray[2].getName());
@@ -110,7 +111,7 @@ public class BandChooserTest {
         Collections.shuffle(bands);
         Band[] bandsArray = bands.toArray(new Band[bands.size()]);
 
-        BandChooser.sort(bandsArray);
+        BandSorter.sort(bandsArray);
         assertEquals("spec_a", bandsArray[0].getName());
         assertEquals("spec_b", bandsArray[1].getName());
         assertEquals("spec_c", bandsArray[2].getName());
@@ -124,4 +125,5 @@ public class BandChooserTest {
         a.setSpectralWavelength(wavelength);
         return a;
     }
+
 }
