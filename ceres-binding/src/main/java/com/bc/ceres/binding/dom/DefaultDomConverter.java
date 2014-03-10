@@ -42,6 +42,8 @@ import java.util.TreeMap;
  */
 public class DefaultDomConverter implements DomConverter {
 
+    private static final String CLASS_ATTRIBUTE_NAME = "class";
+
     private final Class<?> valueType;
     private PropertySetDescriptor propertySetDescriptor;
     private PropertyDescriptorFactory propertyDescriptorFactory;
@@ -120,7 +122,7 @@ public class DefaultDomConverter implements DomConverter {
             // childValue is an implementation of type and it's not of same type
             // we have to store the implementation class in order to re-construct the object
             // but only if type is not an enum.
-            childElement.setAttribute("class", actualType.getName());
+            childElement.setAttribute(CLASS_ATTRIBUTE_NAME, actualType.getName());
         }
 
         ChildConverter childConverter = findChildConverter(descriptor, actualType);
@@ -189,7 +191,7 @@ public class DefaultDomConverter implements DomConverter {
     private void convertDomChildToProperty(DomElement childElement, Property property) throws ConversionException, ValidationException {
         PropertyDescriptor descriptor = property.getDescriptor();
         Object currentValue = property.getValue();
-        Class<?> actualType = getActualType(childElement, currentValue != null ? currentValue.getClass() : null);
+        Class<?> actualType = getActualType(childElement, currentValue != null ? currentValue.getClass() : null, false);
         ChildConverter childConverter = findChildConverter(descriptor, actualType);
         if (childConverter == null) {
             throw new ConversionException(String.format("Don't know how to convert element '%s'", childElement.getName()));
@@ -199,23 +201,27 @@ public class DefaultDomConverter implements DomConverter {
     }
 
     private Object createValueInstance(DomElement parentElement, Class<?> defaultType) throws ConversionException {
-        Class<?> itemType = getActualType(parentElement, defaultType);
+        Class<?> itemType = getActualType(parentElement, defaultType, true);
         return createValueInstance(itemType);
     }
 
-    private Class<?> getActualType(DomElement parentElement, Class<?> defaultType) throws ConversionException {
-        Class<?> itemType;
-        String itemClassName = parentElement.getAttribute("class");
-        if (itemClassName != null) {  // implementation of an interface ?
+    private Class<?> getActualType(DomElement parentElement, Class<?> defaultType, boolean failIfNotFound) throws ConversionException {
+        Class<?> actualType;
+        String className = parentElement.getAttribute(CLASS_ATTRIBUTE_NAME);
+        if (className != null) {  // implementation of an interface ?
             try {
-                itemType = Class.forName(itemClassName);
+                actualType = Thread.currentThread().getContextClassLoader().loadClass(className);
             } catch (ClassNotFoundException e) {
-                throw new ConversionException(e);
+                if (failIfNotFound) {
+                    throw new ConversionException(e);
+                }
+                // This is ok, type info may not be used at all.
+                actualType = defaultType;
             }
         } else {
-            itemType = defaultType;
+            actualType = defaultType;
         }
-        return itemType;
+        return actualType;
     }
 
     protected Object createValueInstance(Class<?> type) {
@@ -319,7 +325,7 @@ public class DefaultDomConverter implements DomConverter {
         }
 
         // up to this point we tried to exploit property descriptor attributes
-        // but didn't find a converter. No we ask the actual type, if any.
+        // but didn't find a converter. Now we ask the actual type, if any.
 
         if (actualType != null) {
             if (!actualType.equals(descriptor.getType())) {
