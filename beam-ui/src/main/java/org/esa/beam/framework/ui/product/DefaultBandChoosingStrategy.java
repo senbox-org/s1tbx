@@ -49,6 +49,7 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
         } else {
             allBandsLength = 0;
         }
+        BandSorter.sort(allBands);
         this.multipleProducts = multipleProducts;
     }
 
