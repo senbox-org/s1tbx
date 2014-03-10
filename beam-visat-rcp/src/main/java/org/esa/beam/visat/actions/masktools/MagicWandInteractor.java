@@ -28,11 +28,12 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import java.awt.*;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -50,7 +51,7 @@ import static org.esa.beam.visat.actions.masktools.MagicWandModel.MAGIC_WAND_MAS
  */
 public class MagicWandInteractor extends ViewportInteractor implements MagicWandModel.Listener {
 
-    private static final String DIALOG_TITLE = "Magic Wand Settings";
+    private static final String DIALOG_TITLE = "Magic Wand Tool";
 
     private JDialog optionsWindow;
     private final MyLayerListener layerListener;
@@ -137,21 +138,25 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
         }
 
         final Product product = view.getProduct();
-        if (model.getBandCount() == 0) {
-            model.setSpectralBandNames(product);
-        }
-        if (model.getBandCount() == 0) {
-            model.setBandNames(view.getRaster().getName());
-        }
-        if (model.getBandCount() == 0) {
-            VisatApp.getApp().showErrorDialog("No bands selected.");
+        if (!ensureBandNamesSet(view, product)) {
             return;
         }
 
         final List<Band> bands = model.getBands(product);
         if (bands == null) {
-            VisatApp.getApp().showErrorDialog("Currently selected band names do not match the selected product.");
-            return;
+            int resp = VisatApp.getApp().showQuestionDialog(DIALOG_TITLE,
+                                                            "The currently selected band filter does not match\n" +
+                                                            "the bands of the selected data product.\n\n" +
+                                                            "Reset filter and use the ones of the selected product?",
+                                                            false,
+                                                            "visat.magicWandTool.resetFilter");
+            if (resp == JOptionPane.NO_OPTION) {
+                return;
+            }
+            model.setBandNames();
+            if (!ensureBandNamesSet(view, product)) {
+                return;
+            }
         }
 
         final Point2D mp = toModelPoint(event);
@@ -169,6 +174,21 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
         getModel().addSpectrum(spectrum);
         MagicWandModel newModel = getModel().clone();
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
+    }
+
+    private boolean ensureBandNamesSet(ProductSceneView view, Product product) {
+        if (model.getBandCount() == 0) {
+            model.setSpectralBandNames(product);
+        }
+        if (model.getBandCount() == 0) {
+            model.setBandNames(view.getRaster().getName());
+        }
+        if (model.getBandCount() == 0) {
+            // It's actually hard to get here, because we have a selected image view...
+            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "No bands selected.");
+            return false;
+        }
+        return true;
     }
 
     void updateMask() {
