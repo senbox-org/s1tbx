@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JDialog;
@@ -33,8 +34,11 @@ import javax.swing.JOptionPane;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.List;
@@ -144,28 +148,19 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
 
         final List<Band> bands = model.getBands(product);
         if (bands == null) {
-            int resp = VisatApp.getApp().showQuestionDialog(DIALOG_TITLE,
-                                                            "The currently selected band filter does not match\n" +
-                                                            "the bands of the selected data product.\n\n" +
-                                                            "Reset filter and use the ones of the selected product?",
-                                                            false,
-                                                            "visat.magicWandTool.resetFilter");
-            if (resp == JOptionPane.NO_OPTION) {
-                return;
-            }
-            model.setBandNames();
-            if (!ensureBandNamesSet(view, product)) {
+            if (!handleInvalidBandFilter(view, product)) {
                 return;
             }
         }
 
-        final Point2D mp = toModelPoint(event);
-        // todo - convert to image point and check against image boundaries! (nf)
-        final int pixelX = (int) mp.getX();
-        final int pixelY = (int) mp.getY();
+        Point pixelPos = getPixelPos(product, event);
+        if (pixelPos == null) {
+            return;
+        }
+
         final double[] spectrum;
         try {
-            spectrum = getSpectrum(bands, pixelX, pixelY);
+            spectrum = getSpectrum(bands, pixelPos.x, pixelPos.y);
         } catch (IOException e1) {
             return;
         }
@@ -174,6 +169,48 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
         getModel().addSpectrum(spectrum);
         MagicWandModel newModel = getModel().clone();
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
+    }
+
+    private boolean handleInvalidBandFilter(ProductSceneView view, Product product) {
+        int resp = VisatApp.getApp().showQuestionDialog(DIALOG_TITLE,
+                                                        "The currently selected band filter does not match\n" +
+                                                        "the bands of the selected data product.\n\n" +
+                                                        "Reset filter and use the ones of the selected product?",
+                                                        false,
+                                                        "visat.magicWandTool.resetFilter");
+        if (resp == JOptionPane.YES_OPTION) {
+            model.setBandNames();
+            return ensureBandNamesSet(view, product);
+        } else {
+            return false;
+        }
+    }
+
+    Point getPixelPos(Product product, MouseEvent event) {
+        final Point2D mp = toModelPoint(event);
+        final Point2D ip;
+        if (product.getGeoCoding() != null) {
+            AffineTransform transform = ImageManager.getImageToModelTransform(product.getGeoCoding());
+            try {
+                ip = transform.inverseTransform(mp, null);
+            } catch (NoninvertibleTransformException e) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "A geographic transformation problem occurred:\n" + e.getMessage());
+                return null;
+            }
+        } else {
+            ip = mp;
+        }
+
+        final int pixelX = (int) ip.getX();
+        final int pixelY = (int) ip.getY();
+        if (pixelX < 0
+            || pixelY < 0
+            || pixelX >= product.getSceneRasterWidth()
+            || pixelY >= product.getSceneRasterHeight()) {
+            return null;
+        }
+
+        return new Point(pixelX, pixelY);
     }
 
     private boolean ensureBandNamesSet(ProductSceneView view, Product product) {
