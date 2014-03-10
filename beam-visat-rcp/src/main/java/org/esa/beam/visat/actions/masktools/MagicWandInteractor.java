@@ -148,9 +148,14 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
             return;
         }
 
-        final List<Band> bands = model.getBands(product);
+        List<Band> bands = model.getBands(product);
         if (bands == null) {
             if (!handleInvalidBandFilter(view)) {
+                return;
+            }
+            bands = model.getBands(product);
+            if (bands == null) {
+                // Should not come here.
                 return;
             }
         }
