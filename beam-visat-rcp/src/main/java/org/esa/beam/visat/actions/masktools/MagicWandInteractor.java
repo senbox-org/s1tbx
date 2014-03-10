@@ -22,7 +22,9 @@ import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 import com.bc.ceres.swing.undo.UndoContext;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
@@ -148,7 +150,7 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
 
         final List<Band> bands = model.getBands(product);
         if (bands == null) {
-            if (!handleInvalidBandFilter(view, product)) {
+            if (!handleInvalidBandFilter(view)) {
                 return;
             }
         }
@@ -168,10 +170,26 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
         MagicWandModel oldModel = getModel().clone();
         getModel().addSpectrum(spectrum);
         MagicWandModel newModel = getModel().clone();
+
+        ensureMaskVisible(view);
+
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
     }
 
-    private boolean handleInvalidBandFilter(ProductSceneView view, Product product) {
+    private void ensureMaskVisible(ProductSceneView view) {
+        Product product = view.getProduct();
+        ProductNodeGroup<Mask> overlayMaskGroup = view.getRaster().getOverlayMaskGroup();
+        Mask mask = overlayMaskGroup.getByDisplayName(MAGIC_WAND_MASK_NAME);
+        if (mask == null) {
+            mask = product.getMaskGroup().get(MAGIC_WAND_MASK_NAME);
+            if (mask != null) {
+                overlayMaskGroup.add(mask);
+            }
+        }
+    }
+
+    private boolean handleInvalidBandFilter(ProductSceneView view) {
+        Product product = view.getProduct();
         int resp = VisatApp.getApp().showQuestionDialog(DIALOG_TITLE,
                                                         "The currently selected band filter does not match\n" +
                                                         "the bands of the selected data product.\n\n" +
