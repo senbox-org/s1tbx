@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Norman Fomferra
@@ -277,6 +279,7 @@ public class MagicWandModelTest {
     @Test
     public void testClone() throws Exception {
         final MagicWandModel model = new MagicWandModel();
+        model.setBandNames("b1", "b2", "b3", "a1", "a2", "a3");
         model.setTolerance(0.005);
         model.setMinTolerance(0.0);
         model.setMaxTolerance(0.01);
@@ -295,6 +298,7 @@ public class MagicWandModelTest {
     @Test
     public void testXml() throws Exception {
         final MagicWandModel model = new MagicWandModel();
+        model.setBandNames("b1", "b2", "b3", "a1", "a2", "a3");
         model.setTolerance(0.005);
         model.setMinTolerance(0.0);
         model.setMaxTolerance(0.01);
