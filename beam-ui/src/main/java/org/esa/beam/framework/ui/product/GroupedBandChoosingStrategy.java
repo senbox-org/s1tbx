@@ -1,6 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.jidesoft.swing.CheckBoxTree;
+import javax.swing.tree.TreeNode;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -347,6 +348,34 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
     @Override
     public boolean atLeastOneBandSelected() {
         return checkBoxTree.getCheckBoxTreeSelectionModel().getSelectionPaths() != null;
+    }
+
+    @Override
+    public void selectRasterDataNodes(String[] nodeNames) {
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) checkBoxTree.getModel().getRoot();
+        selectRasterDataNodes(rootNode, nodeNames);
+    }
+
+    private void selectRasterDataNodes(DefaultMutableTreeNode node, String[] nodeNames) {
+        int childCount = node.getChildCount();
+        if(childCount != 0) {
+            for(int i = 0; i < childCount; i++) {
+                selectRasterDataNodes((DefaultMutableTreeNode)node.getChildAt(i), nodeNames);
+            }
+        } else {
+            for (String nodeName : nodeNames) {
+                if (nodeName.equals(((String) node.getUserObject()).split(" ")[0].trim())) {
+                    List<TreeNode> pathList = new ArrayList<>();
+                    TreeNode currentNode = node;
+                    while(currentNode != null) {
+                        pathList.add(0, currentNode);
+                        currentNode = currentNode.getParent();
+                    }
+                    TreePath path = new TreePath(pathList.toArray(new TreeNode[pathList.size()]));
+                    checkBoxTree.getCheckBoxTreeSelectionModel().addSelectionPath(path);
+                }
+            }
+        }
     }
 
 }

@@ -1,19 +1,18 @@
 package org.esa.beam.framework.ui.product;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.ui.GridBagUtils;
-
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.GridBagUtils;
 
 public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
 
@@ -200,6 +199,28 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
     public boolean atLeastOneBandSelected() {
         checkSelectedBandsAndGrids();
         return selectedBands.length > 0;
+    }
+
+    @Override
+    public void selectRasterDataNodes(String[] nodeNames) {
+        for (int i = 0; i < allBands.length; i++) {
+            Band band = allBands[i];
+            for (String nodeName : nodeNames) {
+                if (nodeName.equals(band.getName())) {
+                    checkBoxes[i].setSelected(true);
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < allTiePointGrids.length; i++) {
+            TiePointGrid grid = allTiePointGrids[i];
+            for (String nodeName : nodeNames) {
+                if (nodeName.equals(grid.getName())) {
+                    checkBoxes[allBandsLength + i].setSelected(true);
+                    break;
+                }
+            }
+        }
     }
 
     private void checkSelectedBandsAndGrids() {

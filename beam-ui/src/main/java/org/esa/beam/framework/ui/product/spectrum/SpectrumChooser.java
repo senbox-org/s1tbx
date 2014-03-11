@@ -1,5 +1,6 @@
 package org.esa.beam.framework.ui.product.spectrum;
 
+import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.grid.AutoFilterTableHeader;
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
@@ -16,28 +17,19 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.AbstractButton;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -46,7 +38,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -54,11 +45,11 @@ import javax.swing.table.TableModel;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.product.LoadSaveRasterDataNodesConfigurationsComponent;
+import org.esa.beam.framework.ui.product.LoadSaveRasterDataNodesConfigurationsProvider;
 import org.esa.beam.util.ArrayUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.FileUtils;
 
-public class SpectrumChooser extends ModalDialog {
+public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNodesConfigurationsComponent {
 
     private static final int spectrumSelectedIndex = 0;
     private static final int spectrumNameIndex = 1;
@@ -84,8 +75,7 @@ public class SpectrumChooser extends ModalDialog {
     private final Map<Integer, SortableTable> rowToBandsTable;
 
     public SpectrumChooser(Window parent, DisplayableSpectrum[] originalSpectra, String helpID) {
-        super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, initLoadSaveConfigurationButtons(parent.getFocusOwner()),
-                helpID);
+        super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, helpID);
         if (originalSpectra != null) {
             this.originalSpectra = originalSpectra;
             List<DisplayableSpectrum> spectraWithBands = new ArrayList<DisplayableSpectrum>();
@@ -105,29 +95,6 @@ public class SpectrumChooser extends ModalDialog {
         initUI();
     }
 
-    @Override
-    protected void onOther() {
-        // do nothing. Most importantly, do not hide the dialog
-    }
-    
-    private static JButton[] initLoadSaveConfigurationButtons(final Component parent) {
-        JButton loadButton = new JButton("Load Spectra Configuration");
-        loadButton.addActionListener(new LoadConfigurationActionListener(parent));
-        JButton saveButton = new JButton("Save Spectra Configuration");
-        saveButton.addActionListener(new SaveConfigurationActionListener(parent));
-        return new JButton[]{loadButton, saveButton};
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static File getSystemAuxdataDir() {
-        File file = new File(SystemUtils.getApplicationDataDir(), "beam-ui" + File.separator +"auxdata" +
-                File.separator + "spectra-sets");
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        return file;
-    }
-
     private void initUI() {
         final JPanel content = new JPanel(new BorderLayout());
         initSpectraTable();
@@ -136,6 +103,18 @@ public class SpectrumChooser extends ModalDialog {
         spectraScrollPane.setPreferredSize(new Dimension(Math.max(preferredSize.width + 20, 550),
                 Math.max(preferredSize.height + 10, 200)));
         content.add(spectraScrollPane, BorderLayout.CENTER);
+
+        LoadSaveRasterDataNodesConfigurationsProvider provider = new LoadSaveRasterDataNodesConfigurationsProvider(this);
+        AbstractButton loadButton = provider.getLoadButton();
+        AbstractButton saveButton = provider.getSaveButton();
+        TableLayout layout = new TableLayout(1);
+        layout.setTablePadding(4, 4);
+        JPanel buttonPanel = new JPanel(layout);
+        buttonPanel.add(loadButton);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(layout.createVerticalSpacer());
+        content.add(buttonPanel, BorderLayout.EAST);
+
         setContent(content);
     }
 
@@ -183,6 +162,35 @@ public class SpectrumChooser extends ModalDialog {
 
     public DisplayableSpectrum[] getSpectra() {
         return originalSpectra;
+    }
+
+    @Override
+    public void setReadRasterDataNodeNames(String[] readRasterDataNodeNames) {
+        for (int i = 0; i < spectraTable.getRowCount(); i++) {
+            SpectrumTableModel spectrumTableModel = getSpectrumTableModel();
+            spectrumTableModel.setValueAt(TristateCheckBox.STATE_UNSELECTED, i, spectrumSelectedIndex);
+            BandTableModel bandTableModel = spectrumTableModel.getBandTableModel(i);
+            for (int j = 0; j < bandTableModel.getRowCount(); j++) {
+                String bandName = bandTableModel.getValueAt(j, bandNameIndex).toString();
+                boolean selected = ArrayUtils.isMemberOf(bandName, readRasterDataNodeNames);
+                bandTableModel.setValueAt(selected, j, bandSelectedIndex);
+            }
+        }
+    }
+
+    @Override
+    public String[] getRasterDataNodeNamesToWrite() {
+        List<String> bandNames = new ArrayList<>();
+        SpectrumTableModel spectrumTableModel = getSpectrumTableModel();
+        for (int i = 0; i < spectrumTableModel.getRowCount(); i++) {
+            BandTableModel bandTableModel = spectrumTableModel.getBandTableModel(i);
+            for (int j = 0; j < bandTableModel.getRowCount(); j++) {
+                if ((boolean) bandTableModel.getValueAt(j, bandSelectedIndex)) {
+                    bandNames.add(bandTableModel.getValueAt(j, bandNameIndex).toString());
+                }
+            }
+        }
+        return bandNames.toArray(new String[bandNames.size()]);
     }
 
     private class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
@@ -499,83 +507,5 @@ public class SpectrumChooser extends ModalDialog {
         }
     }
 
-    private static class LoadConfigurationActionListener implements ActionListener {
-
-        private final Component parent;
-
-        LoadConfigurationActionListener(Component parent) {
-            this.parent = parent;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            File currentDirectory = getSystemAuxdataDir();
-            JFileChooser fileChooser = new JFileChooser(currentDirectory);
-            if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(file));
-                    List<String> bandNameList = new ArrayList<>();
-                    String readBandName;
-                    while ((readBandName = reader.readLine()) != null) {
-                        bandNameList.add(readBandName);
-                    }
-                    reader.close();
-                    String[] bandNames = bandNameList.toArray(new String[bandNameList.size()]);
-                    for (int i = 0; i < spectraTable.getRowCount(); i++) {
-                        SpectrumTableModel spectrumTableModel = getSpectrumTableModel();
-                        spectrumTableModel.setValueAt(TristateCheckBox.STATE_UNSELECTED, i, spectrumSelectedIndex);
-                        BandTableModel bandTableModel = spectrumTableModel.getBandTableModel(i);
-                        for (int j = 0; j < bandTableModel.getRowCount(); j++) {
-                            String bandName = bandTableModel.getValueAt(j, bandNameIndex).toString();
-                            boolean selected = ArrayUtils.isMemberOf(bandName, bandNames);
-                            bandTableModel.setValueAt(selected, j, bandSelectedIndex);
-                        }
-                    }
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(parent, "Could not load spectra configuration");
-                }
-            }
-        }
-    }
-
-    private static class SaveConfigurationActionListener implements ActionListener {
-
-        private final Component parent;
-
-        SaveConfigurationActionListener(Component parent) {
-            this.parent = parent;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            File currentDirectory = getSystemAuxdataDir();
-            JFileChooser fileChooser = new JFileChooser(currentDirectory);
-            File suggestedFile = new File(currentDirectory + File.separator + "spectra_config.txt");
-            int fileCounter = 1;
-            while(suggestedFile.exists()) {
-                suggestedFile = new File("spectra_config_" + fileCounter + ".txt");
-            }
-            fileChooser.setSelectedFile(suggestedFile);
-            if (fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    SpectrumTableModel spectrumTableModel = getSpectrumTableModel();
-                    for (int i = 0; i < spectrumTableModel.getRowCount(); i++) {
-                        BandTableModel bandTableModel = spectrumTableModel.getBandTableModel(i);
-                        for (int j = 0; j < bandTableModel.getRowCount(); j++) {
-                            if ((boolean) bandTableModel.getValueAt(j, bandSelectedIndex)) {
-                                writer.write(bandTableModel.getValueAt(j, bandNameIndex) + "\n");
-                            }
-                        }
-                    }
-                    writer.close();
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(parent, "Could not save spectra configuration");
-                }
-            }
-        }
-    }
 
 }

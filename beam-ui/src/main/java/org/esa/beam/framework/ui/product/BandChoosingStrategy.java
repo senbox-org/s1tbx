@@ -8,10 +8,6 @@ import javax.swing.JPanel;
 
 interface BandChoosingStrategy {
 
-    /**
-     * Returns the selected bands or an empty array.
-     * @return
-     */
     Band[] getSelectedBands();
 
     TiePointGrid[] getSelectedTiePointGrids();
@@ -27,5 +23,7 @@ interface BandChoosingStrategy {
     void selectNone();
 
     boolean atLeastOneBandSelected();
+
+    void selectRasterDataNodes(String[] nodeNames);
 
 }

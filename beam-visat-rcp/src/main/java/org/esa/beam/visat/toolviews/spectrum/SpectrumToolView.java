@@ -390,7 +390,7 @@ public class SpectrumToolView extends AbstractToolView {
         AbstractButton exportSpectraButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"),
                 false);
         exportSpectraButton.addActionListener(new SpectraExportAction(this));
-        exportSpectraButton.setToolTipText("Export allSpectra to text file.");
+        exportSpectraButton.setToolTipText("Export spectra to text file.");
         exportSpectraButton.setName("exportSpectraButton");
 
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help22.png"), false);
@@ -515,6 +515,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private void selectSpectralBands() {
         final DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+//                todo set real help
         final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra,
                 getDescriptor().getHelpId());
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
