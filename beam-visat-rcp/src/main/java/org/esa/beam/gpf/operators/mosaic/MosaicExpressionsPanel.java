@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.BandChooser;
+import org.esa.beam.framework.ui.product.RasterDataNodeChooser;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.ArrayUtils;
@@ -356,7 +356,7 @@ class MosaicExpressionsPanel extends JPanel {
                         }
                         existingBands.add(product.getBand(name.trim()));
                     }
-                    final BandChooser bandChooser = new BandChooser(appContext.getApplicationWindow(), "Band Chooser",
+                    final RasterDataNodeChooser bandChooser = new RasterDataNodeChooser(appContext.getApplicationWindow(), "Band Chooser",
                                                                     null,
                                                                     allBands, /*I18N*/
                                                                     existingBands.toArray(

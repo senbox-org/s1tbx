@@ -21,31 +21,31 @@ import java.util.Set;
 /**
  * A dialog which lets the user select from a product's bands and tie-point grids.
  */
-public class BandChooser extends ModalDialog implements LoadSaveRasterDataNodesConfigurationsComponent {
+public class RasterDataNodeChooser extends ModalDialog implements LoadSaveRasterDataNodesConfigurationsComponent {
 
     private final boolean selectAtLeastOneBand;
-    private BandChoosingStrategy strategy;
+    private RasterDataNodeChoosingStrategy strategy;
 
-    public BandChooser(Window parent, String title, String helpID,
-                       Band[] allBands, Band[] selectedBands, Product.AutoGrouping autoGrouping) {
+    public RasterDataNodeChooser(Window parent, String title, String helpID,
+                                 Band[] allBands, Band[] selectedBands, Product.AutoGrouping autoGrouping) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, null);
-        strategy = new GroupedBandChoosingStrategy(allBands, selectedBands, null, null, autoGrouping, multipleProducts);
+        strategy = new GroupedRasterDataNodeChoosingStrategy(allBands, selectedBands, null, null, autoGrouping, multipleProducts);
         selectAtLeastOneBand = false;
         initUI();
     }
 
-    public BandChooser(Window parent, String title, String helpID,
-                       Band[] allBands, Band[] selectedBands) {
+    public RasterDataNodeChooser(Window parent, String title, String helpID,
+                                 Band[] allBands, Band[] selectedBands) {
         this(parent, title, helpID, true, allBands, selectedBands, null, null);
     }
 
-    public BandChooser(Window parent, String title, String helpID, boolean selectAtLeastOneBand,
-                       Band[] allBands, Band[] selectedBands,
-                       TiePointGrid[] allTiePointGrids, TiePointGrid[] selectedTiePointGrids) {
+    public RasterDataNodeChooser(Window parent, String title, String helpID, boolean selectAtLeastOneBand,
+                                 Band[] allBands, Band[] selectedBands,
+                                 TiePointGrid[] allTiePointGrids, TiePointGrid[] selectedTiePointGrids) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, allTiePointGrids);
-        strategy = new DefaultBandChoosingStrategy(allBands, selectedBands, allTiePointGrids, selectedTiePointGrids,
+        strategy = new DefaultRasterDataNodeChoosingStrategy(allBands, selectedBands, allTiePointGrids, selectedTiePointGrids,
                                                    multipleProducts);
         this.selectAtLeastOneBand = selectAtLeastOneBand;
         initUI();
