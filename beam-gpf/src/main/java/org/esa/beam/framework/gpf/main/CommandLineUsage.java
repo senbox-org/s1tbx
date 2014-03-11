@@ -435,7 +435,7 @@ class CommandLineUsage {
         final DomElement nodeElem = graphElem.createChild("node");
         nodeElem.setAttribute("id", "someNodeId");
         final DomElement operatorElem = nodeElem.createChild("operator");
-        operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorDescriptor.getOperatorClass()));
+        operatorElem.setValue(operatorDescriptor.getAlias());
         DomElement sourcesElem = nodeElem.createChild("sources");
         for (SourceProductDescriptor sourceProduct : operatorDescriptor.getSourceProductDescriptors()) {
             convertSourceProductFieldToDom(sourceProduct, sourcesElem);

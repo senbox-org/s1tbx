@@ -31,7 +31,7 @@
             <groupId>org.jpy</groupId>
             <artifactId>jpy</artifactId>
             <version>0.7-SNAPSHOT</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
     </dependencies>
 

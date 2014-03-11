@@ -160,6 +160,9 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
     static XStream createXStream() {
         XStream xStream = new XStream();
+
+        xStream.setClassLoader(DefaultOperatorDescriptor.class.getClassLoader());
+
         xStream.alias("operator", DefaultOperatorDescriptor.class);
 
         xStream.alias("sourceProduct", DefaultSourceProductDescriptor.class);
@@ -178,6 +181,18 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
         xStream.aliasField("targetProperties", DefaultOperatorDescriptor.class, "targetPropertyDescriptors");
 
         return xStream;
+    }
+
+    private void readResolve() {
+        if (sourceProductDescriptors == null) {
+            sourceProductDescriptors = new DefaultSourceProductDescriptor[0];
+        }
+        if (parameterDescriptors == null) {
+            parameterDescriptors = new DefaultParameterDescriptor[0];
+        }
+        if (targetPropertyDescriptors == null) {
+            targetPropertyDescriptors = new DefaultTargetPropertyDescriptor[0];
+        }
     }
 
 }
