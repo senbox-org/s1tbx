@@ -208,6 +208,7 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
             for (String nodeName : nodeNames) {
                 if (nodeName.equals(band.getName())) {
                     checkBoxes[i].setSelected(true);
+                    numSelected++;
                     break;
                 }
             }
@@ -217,10 +218,12 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
             for (String nodeName : nodeNames) {
                 if (nodeName.equals(grid.getName())) {
                     checkBoxes[allBandsLength + i].setSelected(true);
+                    numSelected++;
                     break;
                 }
             }
         }
+        updateCheckBoxStates();
     }
 
     private void checkSelectedBandsAndGrids() {
