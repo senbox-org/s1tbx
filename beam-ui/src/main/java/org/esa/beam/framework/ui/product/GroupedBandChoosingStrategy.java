@@ -295,7 +295,7 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     public void updateCheckBoxStates() {
         final TreePath[] selectionPaths = checkBoxTree.getCheckBoxTreeSelectionModel().getSelectionPaths();
-        if (selectionPaths == null) {
+        if (selectionPaths == null || selectionPaths.length == 0) {
             selectAllCheckBox.setSelected(false);
             selectAllCheckBox.setEnabled(true);
             selectAllCheckBox.updateUI();
