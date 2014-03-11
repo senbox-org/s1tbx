@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -71,7 +71,6 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
     public void componentShown() {
         final ProductTree productTree = VisatApp.getApp().getProductTree();
         productTree.addProductTreeListener(pagePanelPTL);
-        transferProductNodeListener(product, null);
         VisatApp.getApp().addInternalFrameListener(pagePanelIFL);
         final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
         for (JInternalFrame internalFrame : internalFrames) {
@@ -82,6 +81,7 @@ abstract class AbstractStatisticsToolView extends AbstractToolView {
             }
         }
         setCurrentSelection();
+        transferProductNodeListener(null, product);
     }
 
     @Override

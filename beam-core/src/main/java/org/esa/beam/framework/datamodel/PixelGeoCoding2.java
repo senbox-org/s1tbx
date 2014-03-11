@@ -59,6 +59,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
     private final double pixelDiagonalSquared;
     private final DataProvider dataProvider;
+    private final GeoCoding formerGeocoding;
 
     private transient PixelPosEstimator pixelPosEstimator;
     private transient final PixelFinder pixelFinder;
@@ -100,6 +101,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
         this.latBand = latBand;
         this.lonBand = lonBand;
+        formerGeocoding = product.getGeoCoding();
 
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();
@@ -194,7 +196,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     @Override
     public GeoCoding getPixelPosEstimator() {
-        return null;
+        return formerGeocoding;
     }
 
     @Override
