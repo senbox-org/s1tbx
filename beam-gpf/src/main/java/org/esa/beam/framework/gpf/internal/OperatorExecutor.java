@@ -302,6 +302,8 @@ public class OperatorExecutor {
                                  Raster raster) {
             for (PlanarImage planarImage : images) {
                 if (image != planarImage) {
+                    BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
+                                                                          tileX + 1, tileCountX, tileY + 1, tileCountY, planarImage));
                     planarImage.getTile(tileX, tileY);
                 }
                 pm.worked(1);
