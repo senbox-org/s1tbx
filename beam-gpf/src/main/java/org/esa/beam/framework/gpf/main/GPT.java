@@ -32,8 +32,14 @@ public class GPT {
     public static void main(String... args) {
         try {
             run(args);
-        } catch (Exception e) {
-            System.err.println("\nError: " + e.getMessage());
+        } catch (Throwable e) {
+            String message;
+            if (e.getMessage() != null) {
+                message = e.getMessage();
+            } else {
+                message = e.getClass().getName();
+            }
+            System.err.println("\nError: " + message);
             System.exit(1);
         }
     }
