@@ -340,10 +340,10 @@ public class ReprojectionOp extends Operator {
             targetDataType = sourceRaster.getDataType();
             sourceImage = sourceRaster.getSourceImage();
         }
-        final double targetNoDataValue = getTargetNoDataValue(sourceRaster);
+        final Number targetNoDataValue = getTargetNoDataValue(sourceRaster, targetDataType);
         final Band targetBand = targetProduct.addBand(sourceRaster.getName(), targetDataType);
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
-        targetBand.setNoDataValue(targetNoDataValue);
+        targetBand.setNoDataValue(targetNoDataValue.doubleValue());
         targetBand.setNoDataValueUsed(true);
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
@@ -356,8 +356,8 @@ public class ReprojectionOp extends Operator {
 
         final Interpolation resampling = getResampling(targetBand);
         MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, targetBand, resampling);
-        if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue)) {
-            projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue);
+        if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue.doubleValue())) {
+            projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue.doubleValue());
         }
         if (targetBand.isLog10Scaled()) {
             projectedImage = createLog10ScaledImage(projectedImage);
@@ -400,14 +400,28 @@ public class ReprojectionOp extends Operator {
         return isFloat && isNoDataGiven && !isNoDataNaN;
     }
 
-    private double getTargetNoDataValue(RasterDataNode sourceRaster) {
+    private Number getTargetNoDataValue(RasterDataNode sourceRaster, int targetDataType) {
         double targetNoDataValue = Double.NaN;
         if (noDataValue != null) {
             targetNoDataValue = noDataValue;
         } else if (sourceRaster.isNoDataValueUsed()) {
             targetNoDataValue = sourceRaster.getNoDataValue();
         }
-        return targetNoDataValue;
+        Number targetNoDataNumber = null;
+        if (targetDataType == ProductData.TYPE_INT8) {
+            targetNoDataNumber = (byte) targetNoDataValue;
+        } else if (targetDataType == ProductData.TYPE_INT16 ||
+                   targetDataType == ProductData.TYPE_UINT8) {
+            targetNoDataNumber = (short) targetNoDataValue;
+        } else if (targetDataType == ProductData.TYPE_INT32 ||
+                   targetDataType == ProductData.TYPE_UINT16) {
+            targetNoDataNumber = (int) targetNoDataValue;
+        } else if (targetDataType == ProductData.TYPE_FLOAT32) {
+            targetNoDataNumber = (float) targetNoDataValue;
+        } else if (targetDataType == ProductData.TYPE_FLOAT64) {
+            targetNoDataNumber = targetNoDataValue;
+        }
+        return targetNoDataNumber;
     }
 
     private MultiLevelImage createNaNReplacedImage(final MultiLevelImage projectedImage, final double value) {
@@ -421,7 +435,7 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createNoDataReplacedImage(final RasterDataNode rasterDataNode, final double noData) {
+    private MultiLevelImage createNoDataReplacedImage(final RasterDataNode rasterDataNode, final Number noData) {
         return ImageManager.createMaskedGeophysicalImage(rasterDataNode, noData);
     }
 
@@ -478,10 +492,7 @@ public class ReprojectionOp extends Operator {
                     return reprojection.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
                                                   targetBand.getNoDataValue(), resampling, hints, targetLevel,
                                                   tileSize);
-                } catch (FactoryException e) {
-                    Debug.trace(e);
-                    throw new RuntimeException(e);
-                } catch (TransformException e) {
+                } catch (FactoryException | TransformException e) {
                     Debug.trace(e);
                     throw new RuntimeException(e);
                 }
@@ -550,9 +561,7 @@ public class ReprojectionOp extends Operator {
             if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
                 return collocationProduct.getGeoCoding().getMapCRS();
             }
-        } catch (FactoryException e) {
-            throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
-        } catch (IOException e) {
+        } catch (FactoryException | IOException e) {
             throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
         }
 
