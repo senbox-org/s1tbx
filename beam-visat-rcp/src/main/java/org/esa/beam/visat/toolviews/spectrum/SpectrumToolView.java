@@ -131,8 +131,8 @@ public class SpectrumToolView extends AbstractToolView {
     private boolean tipShown;
     private ProductSceneView currentView;
     private Product currentProduct;
-    private final ChartPanel chartPanel;
-    private final ChartHandler chartHandler;
+    private ChartPanel chartPanel;
+    private ChartHandler chartHandler;
     private CursorSynchronizer cursorSynchronizer;
 
     private boolean domainAxisAdjustmentIsFrozen;
@@ -146,29 +146,6 @@ public class SpectrumToolView extends AbstractToolView {
         productToAllSpectraMap = new HashMap<Product, DisplayableSpectrum[]>();
         productToBandsMap = new HashMap<Product, List<SpectrumBand>>();
         pixelPositionListener = new CursorSpectrumPixelPositionListener(this);
-        final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "", null, PlotOrientation.VERTICAL, true, true, false);
-        chart.getXYPlot().getRangeAxis().addChangeListener(new AxisChangeListener() {
-            @Override
-            public void axisChanged(AxisChangeEvent axisChangeEvent) {
-                if (!isCodeInducedAxisChange) {
-                    rangeAxisAdjustmentIsFrozen = !((ValueAxis) axisChangeEvent.getAxis()).isAutoRange();
-                }
-            }
-        });
-        chart.getXYPlot().getDomainAxis().addChangeListener(new AxisChangeListener() {
-            @Override
-            public void axisChanged(AxisChangeEvent axisChangeEvent) {
-                if (!isCodeInducedAxisChange) {
-                    domainAxisAdjustmentIsFrozen = !((ValueAxis) axisChangeEvent.getAxis()).isAutoRange();
-                }
-            }
-        });
-        chart.getXYPlot().getRangeAxis().setAutoRange(false);
-        rangeAxisAdjustmentIsFrozen = false;
-        chart.getXYPlot().getDomainAxis().setAutoRange(false);
-        domainAxisAdjustmentIsFrozen = false;
-        chartPanel = new ChartPanel(chart);
-        chartHandler = new ChartHandler(chart);
     }
 
     private ProductSceneView getCurrentView() {
@@ -303,6 +280,30 @@ public class SpectrumToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
+        final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "", null, PlotOrientation.VERTICAL, true, true, false);
+        chart.getXYPlot().getRangeAxis().addChangeListener(new AxisChangeListener() {
+            @Override
+            public void axisChanged(AxisChangeEvent axisChangeEvent) {
+                if (!isCodeInducedAxisChange) {
+                    rangeAxisAdjustmentIsFrozen = !((ValueAxis) axisChangeEvent.getAxis()).isAutoRange();
+                }
+            }
+        });
+        chart.getXYPlot().getDomainAxis().addChangeListener(new AxisChangeListener() {
+            @Override
+            public void axisChanged(AxisChangeEvent axisChangeEvent) {
+                if (!isCodeInducedAxisChange) {
+                    domainAxisAdjustmentIsFrozen = !((ValueAxis) axisChangeEvent.getAxis()).isAutoRange();
+                }
+            }
+        });
+        chart.getXYPlot().getRangeAxis().setAutoRange(false);
+        rangeAxisAdjustmentIsFrozen = false;
+        chart.getXYPlot().getDomainAxis().setAutoRange(false);
+        domainAxisAdjustmentIsFrozen = false;
+        chartPanel = new ChartPanel(chart);
+        chartHandler = new ChartHandler(chart);
+
         titleBase = getDescriptor().getTitle();
         filterButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Filter24.gif"), false);
         filterButton.setName("filterButton");
