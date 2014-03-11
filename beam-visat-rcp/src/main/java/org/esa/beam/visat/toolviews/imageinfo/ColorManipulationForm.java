@@ -34,7 +34,7 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.PageComponentDescriptor;
-import org.esa.beam.framework.ui.product.RasterDataNodeChooser;
+import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.ProductUtils;
@@ -525,13 +525,13 @@ class ColorManipulationForm {
             return;
         }
 
-        final RasterDataNodeChooser bandChooser = new RasterDataNodeChooser(toolView.getPaneWindow(),
+        final BandChooser bandChooser = new BandChooser(toolView.getPaneWindow(),
                                                         "Apply to other bands", /*I18N*/
                                                         getToolViewDescriptor().getHelpId(),
                                                         availableBands,
                                                         bandsToBeModified);
         final List<Band> modifiedRasterList = new ArrayList<Band>(availableBands.length);
-        if (bandChooser.show() == RasterDataNodeChooser.ID_OK) {
+        if (bandChooser.show() == BandChooser.ID_OK) {
             bandsToBeModified = bandChooser.getSelectedBands();
             for (final Band band : bandsToBeModified) {
                 applyColorPaletteDef(getImageInfo().getColorPaletteDef(), band, band.getImageInfo());

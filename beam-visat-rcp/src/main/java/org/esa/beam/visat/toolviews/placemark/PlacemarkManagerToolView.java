@@ -45,7 +45,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.RasterDataNodeChooser;
+import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
@@ -202,7 +202,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (product != null) {
             Band[] allBands = product.getBands();
             TiePointGrid[] allGrids = product.getTiePointGrids();
-            RasterDataNodeChooser bandChooser = new RasterDataNodeChooser(getPaneWindow(),
+            BandChooser bandChooser = new BandChooser(getPaneWindow(),
                                                       "Available Bands And Tie Point Grids",
                                                       getDescriptor().getHelpId(), false,
                                                       allBands, selectedBands, allGrids, selectedGrids);

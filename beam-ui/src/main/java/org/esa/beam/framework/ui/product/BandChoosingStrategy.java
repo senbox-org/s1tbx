@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
-interface RasterDataNodeChoosingStrategy {
+interface BandChoosingStrategy {
 
     Band[] getSelectedBands();
 

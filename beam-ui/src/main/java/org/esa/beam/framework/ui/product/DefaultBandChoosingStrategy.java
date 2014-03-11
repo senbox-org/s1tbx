@@ -14,7 +14,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.GridBagUtils;
 
-public class DefaultRasterDataNodeChoosingStrategy implements RasterDataNodeChoosingStrategy {
+public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
 
     // @todo 3 nf/se - see ProductSubsetDialog for a similar declarations  (code smell!)
     private static final Font SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
@@ -31,8 +31,8 @@ public class DefaultRasterDataNodeChoosingStrategy implements RasterDataNodeChoo
     private JCheckBox selectAllCheckBox;
     private JCheckBox selectNoneCheckBox;
 
-    public DefaultRasterDataNodeChoosingStrategy(Band[] allBands, Band[] selectedBands, TiePointGrid[] allTiePointGrids,
-                                                 TiePointGrid[] selectedTiePointGrids, boolean multipleProducts) {
+    public DefaultBandChoosingStrategy(Band[] allBands, Band[] selectedBands, TiePointGrid[] allTiePointGrids,
+                                       TiePointGrid[] selectedTiePointGrids, boolean multipleProducts) {
         this.allBands = allBands;
         this.selectedBands = selectedBands;
         this.allTiePointGrids = allTiePointGrids;

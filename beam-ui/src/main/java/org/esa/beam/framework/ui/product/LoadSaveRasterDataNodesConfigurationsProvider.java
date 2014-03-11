@@ -52,7 +52,7 @@ public class LoadSaveRasterDataNodesConfigurationsProvider {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private static File getSystemAuxDataDir() {
         File file = new File(SystemUtils.getApplicationDataDir(), "beam-ui" + File.separator + "auxdata" +
-                File.separator + "rasterdatanode-sets");
+                File.separator + "band-sets");
         if (!file.exists()) {
             file.mkdir();
         }

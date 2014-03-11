@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class GroupedRasterDataNodeChoosingStrategy implements RasterDataNodeChoosingStrategy {
+public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     // @todo 3 nf/se - see ProductSubsetDialog for a similar declarations  (code smell!)
     private static final Font SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
@@ -44,8 +44,8 @@ public class GroupedRasterDataNodeChoosingStrategy implements RasterDataNodeChoo
     private final Map<TiePointGrid, String> allGridsMap;
     private final Map<TiePointGrid, String> selectedGridsMap;
 
-    public GroupedRasterDataNodeChoosingStrategy(Band[] allBands, Band[] selectedBands, TiePointGrid[] allTiePointGrids,
-                                                 TiePointGrid[] selectedTiePointGrids, Product.AutoGrouping autoGrouping, boolean multipleProducts) {
+    public GroupedBandChoosingStrategy(Band[] allBands, Band[] selectedBands, TiePointGrid[] allTiePointGrids,
+                                       TiePointGrid[] selectedTiePointGrids, Product.AutoGrouping autoGrouping, boolean multipleProducts) {
         allBandsMap = createBandMap(allBands);
         selectedBandsMap = createBandMap(selectedBands);
         allGridsMap = createTiepointGridMap(allTiePointGrids);

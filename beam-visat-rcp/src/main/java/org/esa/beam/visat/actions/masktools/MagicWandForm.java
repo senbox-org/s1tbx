@@ -10,7 +10,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.RasterDataNodeChooser;
+import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.io.FileUtils;
@@ -491,7 +491,7 @@ class MagicWandForm {
                 oldBandSet.add(band);
             }
         }
-        RasterDataNodeChooser bandChooser = new RasterDataNodeChooser(interactor.getOptionsWindow(),
+        BandChooser bandChooser = new BandChooser(interactor.getOptionsWindow(),
                                                   "Available Bands and Tie Point Grids",
                                                   "",
                                                   bands,
