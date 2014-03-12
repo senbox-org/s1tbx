@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -226,13 +226,16 @@ public class SpatialProductBinner {
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             String variableName = variableContext.getVariableName(i);
             String variableExpr = variableContext.getVariableExpression(i);
+            String validMaskExpression = variableContext.getValidMaskExpression();
             if (variableExpr != null) {
                 VirtualBand band = new VirtualBand(variableName,
                                                    ProductData.TYPE_FLOAT32,
                                                    product.getSceneRasterWidth(),
                                                    product.getSceneRasterHeight(),
                                                    variableExpr);
-                band.setValidPixelExpression(variableContext.getValidMaskExpression());
+                if (StringUtils.isNotNullAndNotEmpty(validMaskExpression)) {
+                    band.setValidPixelExpression(validMaskExpression);
+                }
                 product.addBand(band);
                 if (!addedBands.containsKey(product)) {
                     addedBands.put(product, new ArrayList<Band>());
