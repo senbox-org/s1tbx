@@ -252,7 +252,8 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
 
     @Override
     public boolean isStructure() {
-        return isStructure(getDataType());
+        boolean hasNoConverter = getDomConverterClass() == null && getConverterClass() == null;
+        return isStructure(getDataType()) && hasNoConverter;
     }
 
     @Override

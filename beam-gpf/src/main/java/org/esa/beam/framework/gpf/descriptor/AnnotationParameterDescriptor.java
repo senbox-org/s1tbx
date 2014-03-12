@@ -129,7 +129,8 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
 
     @Override
     public boolean isStructure() {
-        return DefaultParameterDescriptor.isStructure(getDataType());
+        boolean hasNoConverter = getDomConverterClass() == null && getConverterClass() == null;
+        return DefaultParameterDescriptor.isStructure(getDataType()) && hasNoConverter;
     }
 
     @Override
