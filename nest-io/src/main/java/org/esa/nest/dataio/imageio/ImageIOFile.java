@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dataio.imageio;
 
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;

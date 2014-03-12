@@ -25,9 +25,9 @@ import org.esa.nest.dataio.netcdf.*;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.eo.Constants;
 import org.esa.nest.util.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -45,7 +45,6 @@ import java.util.Map;
 
 /**
  * The product reader for CosmoSkymed products.
- *
  */
 public class CosmoSkymedReader extends AbstractProductReader {
 
@@ -118,9 +117,9 @@ public class CosmoSkymedReader extends AbstractProductReader {
         final int rasterHeight = rasterDim.getDimY().getLength();
 
         product = new Product(inputFile.getName(),
-                               productType,
-                               rasterWidth, rasterHeight,
-                               this);
+                productType,
+                rasterWidth, rasterHeight,
+                this);
         product.setFileLocation(inputFile);
         product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
         product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
@@ -154,19 +153,19 @@ public class CosmoSkymedReader extends AbstractProductReader {
     }
 
     private static void removeQuickLooks(Map<NcRasterDim, List<Variable>> variableListMap) {
-        final String[] excludeList = { "qlk" };
+        final String[] excludeList = {"qlk"};
         final NcRasterDim[] keys = variableListMap.keySet().toArray(new NcRasterDim[variableListMap.keySet().size()]);
         final List<NcRasterDim> removeList = new ArrayList<NcRasterDim>();
 
         for (final NcRasterDim rasterDim : keys) {
             final List<Variable> varList = variableListMap.get(rasterDim);
             boolean found = false;
-            for(Variable v : varList) {
-                if(found) break;
+            for (Variable v : varList) {
+                if (found) break;
 
                 final String vName = v.getName().toLowerCase();
-                for(String str : excludeList) {
-                    if(vName.contains(str)) {
+                for (String str : excludeList) {
+                    if (vName.contains(str)) {
                         removeList.add(rasterDim);
                         found = true;
                         break;
@@ -174,7 +173,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 }
             }
         }
-        for(NcRasterDim key : removeList) {
+        for (NcRasterDim key : removeList) {
             variableListMap.remove(key);
         }
     }
@@ -183,7 +182,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
 
         final MetadataElement origMetadataRoot = AbstractMetadata.addOriginalProductMetadata(product);
         NetCDFUtils.addAttributes(origMetadataRoot, NetcdfConstants.GLOBAL_ATTRIBUTES_NAME,
-                                  netcdfFile.getGlobalAttributes());
+                netcdfFile.getGlobalAttributes());
 
         addDeliveryNote(product);
 
@@ -201,20 +200,20 @@ public class CosmoSkymedReader extends AbstractProductReader {
         try {
             final File folder = product.getFileLocation().getParentFile();
             File dnFile = null;
-            for(File f : folder.listFiles()) {
+            for (File f : folder.listFiles()) {
                 final String name = f.getName().toLowerCase();
-                if(name.startsWith("dfdn") && name.endsWith("xml")) {
+                if (name.startsWith("dfdn") && name.endsWith("xml")) {
                     dnFile = f;
                     break;
                 }
             }
-            if(dnFile != null) {
+            if (dnFile != null) {
                 final Document xmlDoc = XMLSupport.LoadXML(dnFile.getAbsolutePath());
                 final Element rootElement = xmlDoc.getRootElement();
 
                 AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(product));
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             //System.out.println("Unable to read Delivery Note for "+product.getName());
         }
     }
@@ -236,8 +235,8 @@ public class CosmoSkymedReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, mode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
 
-        if(mode.contains("HUGE") && productType.contains("SCS")) {
-            throw new IOException("Complex "+mode+" products are not supported for Cosmo-Skymed");    
+        if (mode.contains("HUGE") && productType.contains("SCS")) {
+            throw new IOException("Complex " + mode + " products are not supported for Cosmo-Skymed");
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, globalElem.getAttributeString("Satellite Id", "CSK"));
@@ -282,9 +281,9 @@ public class CosmoSkymedReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
                 globalElem.getAttributeDouble("Azimuth Processing Number of Looks", defInt));
 
-        if(productType.contains("GEC")) {
+        if (productType.contains("GEC")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection,
-                globalElem.getAttributeString("Projection ID", defStr));
+                    globalElem.getAttributeString("Projection ID", defStr));
         }
 
         // Global calibration attributes
@@ -295,25 +294,25 @@ public class CosmoSkymedReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
 
         final String rngSpreadComp = globalElem.getAttributeString(
-        		"Range Spreading Loss Compensation Geometry", defStr);
+                "Range Spreading Loss Compensation Geometry", defStr);
         if (rngSpreadComp.equals("NONE"))
-        	AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 0);
         else
-        	AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 1);
-        
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 1);
+
         final String incAngComp = globalElem.getAttributeString(
-        		"Incidence Angle Compensation Geometry", defStr);
+                "Incidence Angle Compensation Geometry", defStr);
         if (incAngComp.equals("NONE"))
-        	AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 0);
         else
-        	AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 1);
 
         final String antElevComp = globalElem.getAttributeString(
-        		"Range Antenna Pattern Compensation Geometry", defStr);
+                "Range Antenna Pattern Compensation Geometry", defStr);
         if (antElevComp.equals("NONE"))
-        	AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 0);
         else
-        	AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 1);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_inc_angle,
                 globalElem.getAttributeDouble("Reference Incidence Angle", defInt));
@@ -323,15 +322,15 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 globalElem.getAttributeDouble("Reference Slant Range Exponent", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.rescaling_factor,
                 globalElem.getAttributeDouble("Rescaling Factor", defInt));
-        
+
         final MetadataElement s01Elem = globalElem.getElement("S01");
-        if(s01Elem != null) {
+        if (s01Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                s01Elem.getAttributeDouble("PRF", defInt));
+                    s01Elem.getAttributeDouble("PRF", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                s01Elem.getAttributeDouble("Sampling Rate", defInt) / Constants.oneMillion);
+                    s01Elem.getAttributeDouble("Sampling Rate", defInt) / Constants.oneMillion);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                s01Elem.getAttributeString("Polarisation", defStr));
+                    s01Elem.getAttributeString("Polarisation", defStr));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = s01Elem.getAttributeDouble("Range Focusing Bandwidth"); // Hz
@@ -343,13 +342,13 @@ public class CosmoSkymedReader extends AbstractProductReader {
             // Calibration constant read from Global_Metadata during calibration initialization
         }
         final MetadataElement s02Elem = globalElem.getElement("S02");
-        if(s02Elem != null) {
+        if (s02Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
-                s02Elem.getAttributeString("Polarisation", defStr));
-            
+                    s02Elem.getAttributeString("Polarisation", defStr));
+
         }
 
-        if(isComplex) {
+        if (isComplex) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 0);
         } else {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
@@ -361,10 +360,10 @@ public class CosmoSkymedReader extends AbstractProductReader {
     private void addSlantRangeToFirstPixel() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
-        if(bandElem != null) {
+        if (bandElem != null) {
             final double slantRangeTime = bandElem.getAttributeDouble("Zero Doppler Range First Time", 0); //s
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                slantRangeTime*Constants.halfLightSpeed);
+                    slantRangeTime * Constants.halfLightSpeed);
         }
     }
 
@@ -377,22 +376,22 @@ public class CosmoSkymedReader extends AbstractProductReader {
         for (int i = 0; i < numPoints; i++) {
             final double stateVectorTime = globalElem.getAttribute("State Vectors Times").getData().getElemDoubleAt(i);
             final ProductData.UTC orbitTime =
-                    new ProductData.UTC(referenceUTC.getMJD() + stateVectorTime/Constants.secondsInDay);
-             
-            final double satellitePositionX =
-                    globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3*i);
-            final double satellitePositionY =
-                    globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3*i+1);
-            final double satellitePositionZ =
-                    globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3*i+2);
-            final double satelliteVelocityX =
-                    globalElem.getAttribute("ECEF Satellite Velocity").getData().getElemDoubleAt(3*i);
-            final double satelliteVelocityY =
-                    globalElem.getAttribute("ECEF Satellite Velocity").getData().getElemDoubleAt(3*i+1);
-            final double satelliteVelocityZ =
-                    globalElem.getAttribute("ECEF Satellite Velocity").getData().getElemDoubleAt(3*i+2);
+                    new ProductData.UTC(referenceUTC.getMJD() + stateVectorTime / Constants.secondsInDay);
 
-            final MetadataElement orbitVectorElem = new MetadataElement(AbstractMetadata.orbit_vector + (i+1));
+            final double satellitePositionX =
+                    globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3 * i);
+            final double satellitePositionY =
+                    globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3 * i + 1);
+            final double satellitePositionZ =
+                    globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3 * i + 2);
+            final double satelliteVelocityX =
+                    globalElem.getAttribute("ECEF Satellite Velocity").getData().getElemDoubleAt(3 * i);
+            final double satelliteVelocityY =
+                    globalElem.getAttribute("ECEF Satellite Velocity").getData().getElemDoubleAt(3 * i + 1);
+            final double satelliteVelocityZ =
+                    globalElem.getAttribute("ECEF Satellite Velocity").getData().getElemDoubleAt(3 * i + 2);
+
+            final MetadataElement orbitVectorElem = new MetadataElement(AbstractMetadata.orbit_vector + (i + 1));
 
             orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time, orbitTime);
             orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos, satellitePositionX);
@@ -426,7 +425,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         for (int i = 0; i < 6; i++) {
             final double coefValue =
                     globalElem.getAttribute("Centroid vs Range Time Polynomial").getData().getElemDoubleAt(i);
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i+1));
+            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             dopplerListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
                     ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
@@ -439,15 +438,16 @@ public class CosmoSkymedReader extends AbstractProductReader {
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
-        
+
         final double referenceUTC = ReaderUtils.getTime(globalElem, "Reference UTC", AbstractMetadata.dateFormat).getMJD(); // in days
-        /*
-        final double firstLineTime = globalElem.getElement("S01").getElement("B001").getAttributeDouble("Azimuth First Time") / (24*3600); // in days
-        final double lastLineTime = globalElem.getElement("S01").getElement("B001").getAttributeDouble("Azimuth Last Time") / (24*3600); // in days
-        double lineTimeInterval = (24*3600)*(lastLineTime - firstLineTime) / (product.getSceneRasterHeight() - 1);
-        */
-        final double firstLineTime = bandElem.getAttributeDouble("Zero Doppler Azimuth First Time") / (24*3600); // in days
-        final double lastLineTime = bandElem.getAttributeDouble("Zero Doppler Azimuth Last Time") / (24*3600); // in days
+        double firstLineTime = bandElem.getAttributeDouble("Zero Doppler Azimuth First Time", 0) / (24 * 3600); // in days
+        if (firstLineTime == 0) {
+            firstLineTime = globalElem.getElement("S01").getElement("B001").getAttributeDouble("Azimuth First Time") / (24 * 3600); // in days
+        }
+        double lastLineTime = bandElem.getAttributeDouble("Zero Doppler Azimuth Last Time", 0) / (24 * 3600); // in days
+        if (lastLineTime == 0) {
+            lastLineTime = globalElem.getElement("S01").getElement("B001").getAttributeDouble("Azimuth Last Time") / (24 * 3600); // in days
+        }
         double lineTimeInterval = bandElem.getAttributeDouble("Line Time Interval", 0); // in s
         final ProductData.UTC startTime = new ProductData.UTC(referenceUTC + firstLineTime);
         final ProductData.UTC stopTime = new ProductData.UTC(referenceUTC + lastLineTime);
@@ -456,7 +456,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
         product.setStartTime(startTime);
         product.setEndTime(stopTime);
-        if(lineTimeInterval == 0) {
+        if (lineTimeInterval == 0) {
             lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
         }
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
@@ -488,7 +488,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                 ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
-        
+
         final int numCoeffs = 6;
         for (int i = 0; i < numCoeffs; i++) {
             double srgrCoeff = globalElem.getAttribute("Ground to Slant Polynomial").getData().getElemDoubleAt(i);
@@ -498,7 +498,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 srgrCoeff /= Math.pow(rangeSpacing, i);
             }
 
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i+1));
+            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             srgrListElem.addElement(coefElem);
 
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
@@ -509,7 +509,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
     }
 
     private String getSampleType(final MetadataElement globalElem) {
-        if(globalElem.getAttributeInt("Samples per Pixel", 0) > 1) {
+        if (globalElem.getAttributeInt("Samples per Pixel", 0) > 1) {
             isComplex = true;
             return "COMPLEX";
         }
@@ -523,25 +523,25 @@ public class CosmoSkymedReader extends AbstractProductReader {
             final int height = variable.getDimension(0).getLength();
             final int width = variable.getDimension(1).getLength();
             String cntStr = "";
-            if(variables.length > 1) {
+            if (variables.length > 1) {
                 final String polStr = getPolarization(product, cnt);
-                if(polStr != null) {
-                    cntStr = "_"+polStr;
+                if (polStr != null) {
+                    cntStr = "_" + polStr;
                 } else {
-                    cntStr = "_"+cnt;
+                    cntStr = "_" + cnt;
                 }
                 ++cnt;
             }
 
-            if(isComplex) {     // add i and q
+            if (isComplex) {     // add i and q
                 final Band bandI = NetCDFUtils.createBand(variable, width, height);
-                createUniqueBandName(product, bandI, "i"+cntStr);
+                createUniqueBandName(product, bandI, "i" + cntStr);
                 bandI.setUnit(Unit.REAL);
                 product.addBand(bandI);
                 bandMap.put(bandI, variable);
 
                 final Band bandQ = NetCDFUtils.createBand(variable, width, height);
-                createUniqueBandName(product, bandQ, "q"+cntStr);
+                createUniqueBandName(product, bandQ, "q" + cntStr);
                 bandQ.setUnit(Unit.IMAGINARY);
                 product.addBand(bandQ);
                 bandMap.put(bandQ, variable);
@@ -550,7 +550,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, cntStr);
             } else {
                 final Band band = NetCDFUtils.createBand(variable, width, height);
-                createUniqueBandName(product, band, "Amplitude"+cntStr);
+                createUniqueBandName(product, band, "Amplitude" + cntStr);
                 band.setUnit(Unit.AMPLITUDE);
                 product.addBand(band);
                 bandMap.put(band, variable);
@@ -562,11 +562,11 @@ public class CosmoSkymedReader extends AbstractProductReader {
     private static String getPolarization(final Product product, final int cnt) {
 
         final MetadataElement globalElem = AbstractMetadata.getOriginalProductMetadata(product).getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
-        if(globalElem != null) {
-            final MetadataElement s01Elem = globalElem.getElement("S0"+cnt);
-            if(s01Elem != null) {
+        if (globalElem != null) {
+            final MetadataElement s01Elem = globalElem.getElement("S0" + cnt);
+            if (s01Elem != null) {
                 final String polStr = s01Elem.getAttributeString("Polarisation", "");
-                if(!polStr.isEmpty())
+                if (!polStr.isEmpty())
                     return polStr;
             }
         }
@@ -576,7 +576,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
     private static void createUniqueBandName(final Product product, final Band band, final String origName) {
         int cnt = 1;
         band.setName(origName);
-        while(product.getBand(band.getName()) != null) {
+        while (product.getBand(band.getName()) != null) {
             band.setName(origName + cnt);
             ++cnt;
         }
@@ -587,10 +587,10 @@ public class CosmoSkymedReader extends AbstractProductReader {
             final int rank = variable.getRank();
             final int gridWidth = variable.getDimension(rank - 1).getLength();
             int gridHeight = variable.getDimension(rank - 2).getLength();
-            if(rank >= 3 && gridHeight <= 1)
+            if (rank >= 3 && gridHeight <= 1)
                 gridHeight = variable.getDimension(rank - 3).getLength();
             final TiePointGrid tpg = NetCDFUtils.createTiePointGrid(variable, gridWidth, gridHeight,
-                        product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
 
             product.addTiePointGrid(tpg);
         }
@@ -601,24 +601,24 @@ public class CosmoSkymedReader extends AbstractProductReader {
     }
 
     private static void addIncidenceAnglesSlantRangeTime(final Product product, final MetadataElement bandElem) {
-        if(bandElem == null) return;
+        if (bandElem == null) return;
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
-        final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
+        final float subSamplingX = (float) product.getSceneRasterWidth() / (float) (gridWidth - 1);
+        final float subSamplingY = (float) product.getSceneRasterHeight() / (float) (gridHeight - 1);
 
-        final float nearRangeAngle = (float)bandElem.getAttributeDouble("Near Incidence Angle", 0);
-        final float farRangeAngle = (float)bandElem.getAttributeDouble("Far Incidence Angle", 0);
+        final float nearRangeAngle = (float) bandElem.getAttributeDouble("Near Incidence Angle", 0);
+        final float farRangeAngle = (float) bandElem.getAttributeDouble("Far Incidence Angle", 0);
 
-        final float firstRangeTime = (float)bandElem.getAttributeDouble("Zero Doppler Range First Time", 0) * 1000000000.0f;
-        final float lastRangeTime = (float)bandElem.getAttributeDouble("Zero Doppler Range Last Time", 0) * 1000000000.0f;
+        final float firstRangeTime = (float) bandElem.getAttributeDouble("Zero Doppler Range First Time", 0) * 1000000000.0f;
+        final float lastRangeTime = (float) bandElem.getAttributeDouble("Zero Doppler Range Last Time", 0) * 1000000000.0f;
 
-        final float[] incidenceCorners = new float[] { nearRangeAngle, farRangeAngle, nearRangeAngle, farRangeAngle };
-        final float[] slantRange = new float[] { firstRangeTime, lastRangeTime, firstRangeTime, lastRangeTime };
+        final float[] incidenceCorners = new float[]{nearRangeAngle, farRangeAngle, nearRangeAngle, farRangeAngle};
+        final float[] slantRange = new float[]{firstRangeTime, lastRangeTime, firstRangeTime, lastRangeTime};
 
-        final float[] fineAngles = new float[gridWidth*gridHeight];
-        final float[] fineTimes = new float[gridWidth*gridHeight];
+        final float[] fineAngles = new float[gridWidth * gridHeight];
+        final float[] fineTimes = new float[gridWidth * gridHeight];
 
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, slantRange, fineTimes);
@@ -639,8 +639,8 @@ public class CosmoSkymedReader extends AbstractProductReader {
         final Variable variable = bandMap.get(band);
         final String varName = variable.getName();
         MetadataElement bandElem = null;
-        for(MetadataElement elem : root.getElements()) {
-            if(elem.getName().equalsIgnoreCase(varName)) {
+        for (MetadataElement elem : root.getElements()) {
+            if (elem.getName().equalsIgnoreCase(varName)) {
                 bandElem = elem;
                 break;
             }
@@ -649,23 +649,23 @@ public class CosmoSkymedReader extends AbstractProductReader {
     }
 
     private static void addGeocodingFromMetadata(final Product product, final MetadataElement bandElem) {
-        if(bandElem == null) return;
+        if (bandElem == null) return;
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         try {
             String str = bandElem.getAttributeString("Top Left Geodetic Coordinates");
             final float latUL = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final float lonUL = Float.parseFloat(str.substring(str.indexOf(',')+1, str.lastIndexOf(',')));
+            final float lonUL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
             str = bandElem.getAttributeString("Top Right Geodetic Coordinates");
             final float latUR = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final float lonUR = Float.parseFloat(str.substring(str.indexOf(',')+1, str.lastIndexOf(',')));
+            final float lonUR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
             str = bandElem.getAttributeString("Bottom Left Geodetic Coordinates");
             final float latLL = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final float lonLL = Float.parseFloat(str.substring(str.indexOf(',')+1, str.lastIndexOf(',')));
+            final float lonLL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
             str = bandElem.getAttributeString("Bottom Right Geodetic Coordinates");
             final float latLR = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final float lonLR = Float.parseFloat(str.substring(str.indexOf(',')+1, str.lastIndexOf(',')));
+            final float lonLR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
 
             absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
             absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
@@ -685,7 +685,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
             final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             // continue
         }
@@ -730,8 +730,8 @@ public class CosmoSkymedReader extends AbstractProductReader {
         shape[0] = 1;
         shape[1] = destWidth;
         origin[1] = sourceOffsetX;
-        if(isComplex && destBand.getUnit().equals(Unit.IMAGINARY)) {
-            origin[2] = 1;        
+        if (isComplex && destBand.getUnit().equals(Unit.IMAGINARY)) {
+            origin[2] = 1;
         }
 
         pm.beginTask("Reading data from band " + destBand.getName(), destHeight);

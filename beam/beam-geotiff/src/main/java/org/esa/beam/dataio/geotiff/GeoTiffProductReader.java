@@ -452,18 +452,21 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private boolean isGlobal(Product product, TiffFileInfo info) {
+    private static boolean isGlobal(Product product, TiffFileInfo info) {
         boolean isGlobal = false;
-        double[] pixelScales = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE).getAsDoubles();
+        final TIFFField pixelScaleField = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
+        if(pixelScaleField != null) {
+            final double[] pixelScales = pixelScaleField.getAsDoubles();
 
-        if (isPixelScaleValid(pixelScales)) {
-            final double widthInDegree = pixelScales[0] * product.getSceneRasterWidth();
-            isGlobal = Math.ceil(widthInDegree) >= 360;
+            if (isPixelScaleValid(pixelScales)) {
+                final double widthInDegree = pixelScales[0] * product.getSceneRasterWidth();
+                isGlobal = Math.ceil(widthInDegree) >= 360;
+            }
         }
         return isGlobal;
     }
 
-    private boolean isPixelScaleValid(double[] pixelScales) {
+    private static boolean isPixelScaleValid(double[] pixelScales) {
         return pixelScales != null &&
                !Double.isNaN(pixelScales[0]) && !Double.isInfinite(pixelScales[0]) &&
                !Double.isNaN(pixelScales[1]) && !Double.isInfinite(pixelScales[1]);

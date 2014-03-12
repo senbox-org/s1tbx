@@ -143,7 +143,7 @@ public class Sentinel1ProductReader extends AbstractProductReader {
         final ImageReadParam param = reader.getDefaultReadParam();
         param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
 
-        final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
+        final RenderedImage image = reader.readAsRenderedImage(0, param);
         final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
 
         final SampleModel sampleModel = data.getSampleModel();
