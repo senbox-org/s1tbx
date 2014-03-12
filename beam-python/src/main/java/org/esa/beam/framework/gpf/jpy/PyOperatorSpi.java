@@ -10,8 +10,6 @@ import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -73,7 +71,7 @@ public class PyOperatorSpi extends OperatorSpi {
                 if (split.length == 2) {
                     try {
                         registerModule(moduleDirPath, split[0].trim(), split[1].trim());
-                    } catch (IOException e) {
+                    } catch (OperatorException e) {
                         BeamLogManager.getSystemLogger().warning(String.format("Invalid Python module entry in %s (line %d): %s", url, reader.getLineNumber(), line));
                         BeamLogManager.getSystemLogger().warning(String.format("Caused by an I/O problem: %s", e.getMessage()));
                     }
@@ -84,7 +82,7 @@ public class PyOperatorSpi extends OperatorSpi {
         }
     }
 
-    private static void registerModule(String moduleDirUri, String pythonModuleRelPath, final String pythonClassName) throws IOException {
+    private static void registerModule(String moduleDirUri, String pythonModuleRelPath, final String pythonClassName) throws OperatorException {
         String pythonModuleRelSubPath;
         final String pythonModuleName;
         int i1 = pythonModuleRelPath.lastIndexOf('/');
@@ -103,27 +101,25 @@ public class PyOperatorSpi extends OperatorSpi {
         try {
             pythonModuleDir = new File(new URI(moduleDirUri + "/" + pythonModuleRelSubPath));
         } catch (URISyntaxException e) {
-            throw new IOException(e.getMessage());
+            throw new OperatorException(e.getMessage());
         }
 
         if (!pythonModuleDir.exists()) {
-            throw new FileNotFoundException("file not found: " + pythonModuleDir);
+            throw new OperatorException("file not found: " + pythonModuleDir);
         }
 
         File pythonModuleFile = new File(pythonModuleDir, pythonModuleName + ".py");
         if (!pythonModuleFile.exists()) {
-            throw new FileNotFoundException("file not found: " + pythonModuleFile);
+            throw new OperatorException("file not found: " + pythonModuleFile);
         }
 
-        File pythonInfoXmlPath = new File(pythonModuleDir, pythonModuleName + "-info.xml");
+        File pythonInfoXmlFile = new File(pythonModuleDir, pythonModuleName + "-info.xml");
         DefaultOperatorDescriptor operatorDescriptor;
-        if (pythonInfoXmlPath.exists()) {
-            try (FileReader reader = new FileReader(pythonInfoXmlPath)) {
-                operatorDescriptor = DefaultOperatorDescriptor.fromXml(reader);
-            }
+        if (pythonInfoXmlFile.exists()) {
+            operatorDescriptor = DefaultOperatorDescriptor.fromXml(pythonInfoXmlFile);
         } else {
             operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, Operator.class);
-            BeamLogManager.getSystemLogger().warning(String.format("Missing operator metadata file '%s'", pythonInfoXmlPath));
+            BeamLogManager.getSystemLogger().warning(String.format("Missing operator metadata file '%s'", pythonInfoXmlFile));
         }
 
         PyOperatorSpi operatorSpi = new PyOperatorSpi(operatorDescriptor) {
