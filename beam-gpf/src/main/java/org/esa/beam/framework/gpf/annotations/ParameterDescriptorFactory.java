@@ -185,7 +185,8 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             propertyDescriptor.setValueSet(new ValueSet(values));
         }
 
-        if (parameterDescriptor.isStructure()) {
+        boolean hasConverter = parameterDescriptor.getDomConverterClass() != null || parameterDescriptor.getConverterClass() != null;
+        if (parameterDescriptor.isStructure() && !hasConverter) {
             ParameterDescriptor[] structureMemberDescriptors = parameterDescriptor.getStructureMemberDescriptors();
             DefaultPropertySetDescriptor propertySetDescriptor = new DefaultPropertySetDescriptor();
             for (ParameterDescriptor structureMemberDescriptor : structureMemberDescriptors) {
