@@ -57,7 +57,7 @@ public class MedianAggregatorStrategyTest {
         final DefaultRecord record = new DefaultRecord(numbers);
 
         assertEquals(1, strategy.getValues(record, 0).length);
-        assertEquals(3.5F, strategy.getValues(record, 0)[0], 0.0001);
+        assertEquals(3.5F, strategy.getValues(record, 0)[0].doubleValue(), 0.0001);
     }
 
     @Test

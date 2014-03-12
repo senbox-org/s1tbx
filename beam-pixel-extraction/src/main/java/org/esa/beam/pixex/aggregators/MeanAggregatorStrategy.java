@@ -18,21 +18,22 @@ public class MeanAggregatorStrategy extends AbstractAggregatorStrategy {
      * @return The mean and the sigma values.
      */
     @Override
-    public float[] getValues(Record record, int rasterIndex) {
+    public Number[] getValues(Record record, int rasterIndex) {
         AggregatedNumber number = getAggregatedNumber(record, rasterIndex);
-        float[] values = new float[2];
+        Number[] values = new Number[3];
         values[0] = (float) number.mean;
         values[1] = (float) number.sigma;
+        values[2] = number.nT;
         return values;
     }
 
     @Override
     public int getValueCount() {
-        return 2;
+        return 3;
     }
 
     @Override
     public String[] getSuffixes() {
-        return new String[]{"mean", "sigma"};
+        return new String[]{"mean", "sigma", "num_pixels"};
     }
 }

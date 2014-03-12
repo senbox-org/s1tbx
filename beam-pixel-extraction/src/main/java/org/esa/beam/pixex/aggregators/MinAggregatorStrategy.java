@@ -18,9 +18,9 @@ public class MinAggregatorStrategy extends AbstractAggregatorStrategy {
      * @return The minimum value.
      */
     @Override
-    public float[] getValues(Record record, int rasterIndex) {
+    public Number[] getValues(Record record, int rasterIndex) {
         AggregatedNumber number = getAggregatedNumber(record, rasterIndex);
-        return new float[]{(float) number.min};
+        return new Number[]{(float) number.min};
     }
 
     @Override

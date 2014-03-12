@@ -25,16 +25,16 @@ public class MeanAggregatorStrategyTest {
 
         final DefaultRecord defaultRecord = new DefaultRecord(numbers);
 
-        assertEquals(2, meanStrategy.getValueCount());
-        final float[] firstBandValues = meanStrategy.getValues(defaultRecord, 0);
-        final float[] secondBandValues = meanStrategy.getValues(defaultRecord, 1);
+        assertEquals(3, meanStrategy.getValueCount());
+        final Number[] firstBandValues = meanStrategy.getValues(defaultRecord, 0);
+        final Number[] secondBandValues = meanStrategy.getValues(defaultRecord, 1);
 
-        assertEquals(2, firstBandValues.length);
-        assertEquals(2, secondBandValues.length);
+        assertEquals(3, firstBandValues.length);
+        assertEquals(3, secondBandValues.length);
 
-        assertEquals(3.5F, firstBandValues[0], 0.0001);
-        assertEquals(1.8708F, firstBandValues[1], 0.0001);
-        assertEquals(4.5, secondBandValues[0], 0.0001);
-        assertEquals(1.8708F, secondBandValues[1], 0.0001);
+        assertEquals(3.5F, firstBandValues[0].doubleValue(), 0.0001);
+        assertEquals(1.8708F, firstBandValues[1].doubleValue(), 0.0001);
+        assertEquals(4.5, secondBandValues[0].doubleValue(), 0.0001);
+        assertEquals(1.8708F, secondBandValues[1].doubleValue(), 0.0001);
     }
 }

@@ -20,9 +20,9 @@ public class MedianAggregatorStrategy extends AbstractAggregatorStrategy {
      * @return The median value.
      */
     @Override
-    public float[] getValues(Record record, int rasterIndex) {
+    public Number[] getValues(Record record, int rasterIndex) {
         final float median = getMedian((Number[]) record.getAttributeValues()[rasterIndex]);
-        return new float[]{median};
+        return new Number[]{median};
     }
 
     @Override

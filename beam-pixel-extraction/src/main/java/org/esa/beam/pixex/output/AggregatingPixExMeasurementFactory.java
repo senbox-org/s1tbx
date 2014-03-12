@@ -48,31 +48,23 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         }
 
         Record record = new DefaultRecord(values);
-        final float[] numbers = new float[rasterNames.length * aggregatorStrategy.getValueCount()];
+        final Number[] numbers = new Number[rasterNames.length * aggregatorStrategy.getValueCount()];
         for (int i = 0; i < rasterNames.length; i++) {
-            float[] valuesForBand = aggregatorStrategy.getValues(record, i);
+            Number[] valuesForBand = aggregatorStrategy.getValues(record, i);
             for (int j = 0; j < aggregatorStrategy.getValueCount(); j++) {
-                float v = valuesForBand[j];
+                Number v = valuesForBand[j];
                 numbers[i * aggregatorStrategy.getValueCount() + j] = v;
             }
         }
 
         measurements[0] = createMeasurement(product, productId, coordinateID, coordinateName,
-                                            createFloatArray(numbers), true, pixelX, pixelY);
+                                            numbers, true, pixelX, pixelY);
         return measurements;
     }
 
     @Override
     public void close() {
         productRegistry.close();
-    }
-
-    private Float[] createFloatArray(float[] values) {
-        final Float[] result = new Float[values.length];
-        for (int i = 0; i < values.length; i++) {
-            result[i] = values[i];
-        }
-        return result;
     }
 
     private static void setBandValues(Product product, RasterDataNode raster, Float[] bandValues,

@@ -103,8 +103,8 @@ public class PixExRasterNamesFactoryTest {
         final AggregatorStrategy aggregatorStrategy = new AggregatorStrategy() {
 
             @Override
-            public float[] getValues(Record record, int rasterIndex) {
-                return new float[0];
+            public Number[] getValues(Record record, int rasterIndex) {
+                return new Number[0];
             }
 
             @Override
