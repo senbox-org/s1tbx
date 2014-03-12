@@ -38,7 +38,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.measurement.Measurement;
@@ -95,9 +94,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static java.lang.Math.floor;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * This operator is used to extract pixels from given locations and source products.
@@ -115,7 +112,7 @@ import static java.lang.Math.min;
         copyright = "(c) 2011 by Brockmann Consult",
         description = "Extracts pixels from given locations and source products.",
         suppressWrite = true)
-public class PixExOp extends Operator implements Output {
+public class PixExOp extends Operator {
 
     public static final String RECURSIVE_INDICATOR = "**";
     private static final String SUB_SCENES_DIR_NAME = "subScenes";
@@ -280,7 +277,7 @@ public class PixExOp extends Operator implements Output {
         }
         if (exportKmz) {
             kmlDocument = new KmlDocument("placemarks", null);
-            knownKmzPlacemarks = new ArrayList<String>();
+            knownKmzPlacemarks = new ArrayList<>();
         }
 
         if (extractTimeFromFilename) {
@@ -418,21 +415,27 @@ public class PixExOp extends Operator implements Output {
             aggregatorStrategy = null;
             return;
         }
-        if (aggregatorStrategyType.equals(MEAN_AGGREGATION)) {
-            aggregatorStrategy = new MeanAggregatorStrategy();
-        } else if (aggregatorStrategyType.equals(MIN_AGGREGATION)) {
-            aggregatorStrategy = new MinAggregatorStrategy();
-        } else if (aggregatorStrategyType.equals(MAX_AGGREGATION)) {
-            aggregatorStrategy = new MaxAggregatorStrategy();
-        } else if (aggregatorStrategyType.equals(MEDIAN_AGGREGATION)) {
-            aggregatorStrategy = new MedianAggregatorStrategy();
-        } else if (aggregatorStrategyType.equals(NO_AGGREGATION)) {
-            aggregatorStrategy = null;
+        switch (aggregatorStrategyType) {
+            case MEAN_AGGREGATION:
+                aggregatorStrategy = new MeanAggregatorStrategy();
+                break;
+            case MIN_AGGREGATION:
+                aggregatorStrategy = new MinAggregatorStrategy();
+                break;
+            case MAX_AGGREGATION:
+                aggregatorStrategy = new MaxAggregatorStrategy();
+                break;
+            case MEDIAN_AGGREGATION:
+                aggregatorStrategy = new MedianAggregatorStrategy();
+                break;
+            case NO_AGGREGATION:
+                aggregatorStrategy = null;
+                break;
         }
     }
 
     public static Set<File> getSourceProductFileSet(String[] sourceProductPaths, Logger logger) {
-        Set<File> sourceProductFileSet = new TreeSet<File>();
+        Set<File> sourceProductFileSet = new TreeSet<>();
         String[] paths = trimSourceProductPaths(sourceProductPaths);
         if (paths != null && paths.length != 0) {
             for (String path : paths) {
@@ -489,8 +492,8 @@ public class PixExOp extends Operator implements Output {
         final int upperLeftX = centerX - offset;
         final int upperLeftY = centerY - offset;
         final Raster validData = validMaskImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
-        boolean areAllPixelsValid = areAllPixelsInWindowValid(upperLeftX, upperLeftY, validData);
-        if (areAllPixelsValid || exportExpressionResult) {
+        boolean isAnyPixelValid = isAnyPixelInWindowValid(upperLeftX, upperLeftY, validData);
+        if (isAnyPixelValid) {
             measurementWriter.writeMeasurements(centerX, centerY, coordinateID, coordinate.getName(), product,
                                                 validData);
             return true;
@@ -502,19 +505,18 @@ public class PixExOp extends Operator implements Output {
         return product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()), null);
     }
 
-    private boolean areAllPixelsInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
+    private boolean isAnyPixelInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
         final int numPixels = windowSize * windowSize;
         for (int n = 0; n < numPixels; n++) {
             int x = upperLeftX + n % windowSize;
             int y = upperLeftY + n / windowSize;
             final boolean isPixelValid = validData.getSample(x, y, 0) != 0;
-            if (!isPixelValid) {
-                return false;
+            if (isPixelValid) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
-
 
     PlanarImage createValidMaskImage(Product product) {
         if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
@@ -552,14 +554,19 @@ public class PixExOp extends Operator implements Output {
         }
         this.timeDelta = Integer.parseInt(timeDifference.substring(0, timeDifference.length() - 1));
         final String s = timeDifference.substring(timeDifference.length() - 1).toUpperCase();
-        if ("D".equals(s)) {
-            calendarField = Calendar.DATE;
-        } else if ("H".equals(s)) {
-            calendarField = Calendar.HOUR;
-        } else if ("M".equals(s)) {
-            calendarField = Calendar.MINUTE;
-        } else {
-            calendarField = Calendar.DATE;
+        switch (s) {
+            case "D":
+                calendarField = Calendar.DATE;
+                break;
+            case "H":
+                calendarField = Calendar.HOUR;
+                break;
+            case "M":
+                calendarField = Calendar.MINUTE;
+                break;
+            default:
+                calendarField = Calendar.DATE;
+                break;
         }
     }
 
@@ -568,7 +575,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private List<Coordinate> initCoordinateList() {
-        List<Coordinate> list = new ArrayList<Coordinate>();
+        List<Coordinate> list = new ArrayList<>();
         if (coordinatesFile != null) {
             list.addAll(extractCoordinates(coordinatesFile));
         }
@@ -586,7 +593,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     static List<Coordinate> extractMatchupCoordinates(File matchupFile) {
-        final List<Coordinate> result = new ArrayList<Coordinate>();
+        final List<Coordinate> result = new ArrayList<>();
         List<SimpleFeature> simpleFeatures;
         try {
             simpleFeatures = PixExOpUtils.extractFeatures(matchupFile);
@@ -611,7 +618,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private List<Coordinate> extractCoordinates(File coordinatesFile) {
-        final List<Coordinate> extractedCoordinates = new ArrayList<Coordinate>();
+        final List<Coordinate> extractedCoordinates = new ArrayList<>();
         FileReader fileReader = null;
         try {
             fileReader = new FileReader(coordinatesFile);
@@ -691,7 +698,7 @@ public class PixExOp extends Operator implements Output {
 
         final PlanarImage validMaskImage = createValidMaskImage(product);
         try {
-            List<Coordinate> matchedCoordinates = new ArrayList<Coordinate>();
+            List<Coordinate> matchedCoordinates = new ArrayList<>();
 
             boolean coordinatesFound = false;
             for (Coordinate coordinate : coordinateList) {

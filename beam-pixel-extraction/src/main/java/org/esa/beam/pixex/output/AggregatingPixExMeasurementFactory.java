@@ -43,7 +43,7 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
             String rasterName = rasterNames[i];
             Float[] bandValues = new Float[numPixels];
             final Band band = product.getBand(rasterName);
-            setBandValues(product, band, bandValues, windowSize, pixelX, pixelY);
+            setBandValues(product, band, bandValues, windowSize, pixelX, pixelY, validData);
             values[i] = bandValues;
         }
 
@@ -58,8 +58,7 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         }
 
         measurements[0] = createMeasurement(product, productId, coordinateID, coordinateName,
-                                            createFloatArray(numbers), validData,
-                                            pixelX, pixelY);
+                                            createFloatArray(numbers), true, pixelX, pixelY);
         return measurements;
     }
 
@@ -77,7 +76,7 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
     }
 
     private static void setBandValues(Product product, RasterDataNode raster, Float[] bandValues,
-                                      int windowSize, int pixelX, int pixelY) {
+                                      int windowSize, int pixelX, int pixelY, Raster validData) {
 
         final int windowBorder = windowSize / 2;
 
@@ -90,7 +89,7 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         for (int x = pixelX - windowBorder; x <= pixelX + windowBorder; x++) {
             for (int y = pixelY - windowBorder; y <= pixelY + windowBorder; y++) {
                 if (product.containsPixel(x, y)) {
-                    if (!raster.isPixelValid(x, y)) {
+                    if (!raster.isPixelValid(x, y) || (validData != null && validData.getSample(x, y, 0) == 0)) {
                         bandValues[pixelIndex] = Float.NaN;
                     } else if (raster.isFloatingPointType()) {
                         float sampleFloat = raster.getSampleFloat(x, y);
