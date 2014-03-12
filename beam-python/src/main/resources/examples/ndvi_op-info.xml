@@ -1,6 +1,6 @@
 <operator>
     <name>com.acme.NdviOp</name>
-    <alias>ndvi_op</alias>
+    <alias>py_ndvi_op</alias>
 
     <description>Fucking great!!!</description>
 

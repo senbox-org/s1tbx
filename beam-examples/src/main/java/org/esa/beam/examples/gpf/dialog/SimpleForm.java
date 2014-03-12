@@ -55,7 +55,7 @@ public class SimpleForm extends JTabbedPane {
     }
 
     private DefaultIOParametersPanel createIOParamTab() {
-        final DefaultIOParametersPanel ioPanel = new DefaultIOParametersPanel(appContext, operatorSpi,
+        final DefaultIOParametersPanel ioPanel = new DefaultIOParametersPanel(appContext, operatorSpi.getOperatorDescriptor(),
                                                                               targetProductSelector);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioPanel.getSourceProductSelectorList();
         if (!sourceProductSelectorList.isEmpty()) {

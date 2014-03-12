@@ -12,14 +12,12 @@ public interface SourceProductDescriptor extends DataElementDescriptor {
 
     /**
      * @return {@code true} if the source product is optional.
-     * In this case the field value thus may be {@code null}.
      * Defaults to {@code false}.
      */
     boolean isOptional();
 
     /**
-     * @return The product type or a regular expression identifying the allowed product types.
-     * Defaults to the empty string (= not set).
+     * @return The product type or a regular expression identifying the allowed product types, or {@code null} if not declared.
      * @see java.util.regex.Pattern
      */
     String getProductType();

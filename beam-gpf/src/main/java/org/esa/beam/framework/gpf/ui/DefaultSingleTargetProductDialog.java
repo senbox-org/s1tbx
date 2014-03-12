@@ -32,6 +32,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
@@ -76,10 +77,11 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
-            throw new IllegalArgumentException("operatorName");
+            throw new IllegalArgumentException("No SPI found for operator name '" + operatorName + "'");
         }
 
-        ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorSpi, getTargetProductSelector());
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorDescriptor, getTargetProductSelector());
 
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();

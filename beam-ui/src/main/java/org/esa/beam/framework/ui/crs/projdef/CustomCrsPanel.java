@@ -93,11 +93,19 @@ public class CustomCrsPanel extends JPanel {
     private static final String SEMI_MAJOR_PARAM_NAME = "semi_major";
     private static final String SEMI_MINOR_PARAM_NAME = "semi_minor";
 
+    /**
+     *  @deprecated since BEAM 5.0, use {@link #CustomCrsPanel(java.awt.Window, java.util.Set, java.util.Set)} instead
+     */
+    @Deprecated
     public CustomCrsPanel(Window parent) {
+        this(parent, CustomCrsPanel.createDatumSet(), CustomCrsPanel.createCrsProviderSet());
+    }
+
+    public CustomCrsPanel(Window parent, Set<GeodeticDatum> datumSet, Set<AbstractCrsProvider> crsProviderSet) {
         this.parent = parent;
 
-        datumSet = CustomCrsPanel.createDatumSet();
-        crsProviderSet = CustomCrsPanel.createCrsProviderSet();
+        this.datumSet = datumSet;
+        this.crsProviderSet = crsProviderSet;
 
         GeodeticDatum wgs84Datum = null;
         // This is necessary because DefaultGeodeticDatum.WGS84 is
@@ -272,7 +280,7 @@ public class CustomCrsPanel extends JPanel {
 
     public static void main(String[] args) {
         final JFrame frame = new JFrame("Projection Method Form Test");
-        final CustomCrsPanel customCrsForm = new CustomCrsPanel(frame);
+        final CustomCrsPanel customCrsForm = new CustomCrsPanel(frame, CustomCrsPanel.createDatumSet(), CustomCrsPanel.createCrsProviderSet());
         frame.setContentPane(customCrsForm);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
