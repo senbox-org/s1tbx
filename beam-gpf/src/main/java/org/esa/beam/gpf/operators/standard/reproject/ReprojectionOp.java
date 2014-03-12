@@ -407,7 +407,7 @@ public class ReprojectionOp extends Operator {
         } else if (sourceRaster.isNoDataValueUsed()) {
             targetNoDataValue = sourceRaster.getNoDataValue();
         }
-        Number targetNoDataNumber = null;
+        Number targetNoDataNumber;
         if (targetDataType == ProductData.TYPE_INT8) {
             targetNoDataNumber = (byte) targetNoDataValue;
         } else if (targetDataType == ProductData.TYPE_INT16 ||
@@ -418,7 +418,7 @@ public class ReprojectionOp extends Operator {
             targetNoDataNumber = (int) targetNoDataValue;
         } else if (targetDataType == ProductData.TYPE_FLOAT32) {
             targetNoDataNumber = (float) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_FLOAT64) {
+        } else {
             targetNoDataNumber = targetNoDataValue;
         }
         return targetNoDataNumber;
