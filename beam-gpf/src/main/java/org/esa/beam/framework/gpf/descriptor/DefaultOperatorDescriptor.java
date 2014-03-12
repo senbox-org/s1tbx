@@ -88,7 +88,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
     @Override
     public SourceProductDescriptor[] getSourceProductDescriptors() {
-        return sourceProductDescriptors;
+        return sourceProductDescriptors != null ? sourceProductDescriptors : new SourceProductDescriptor[0];
     }
 
     @Override
@@ -98,12 +98,12 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
     @Override
     public ParameterDescriptor[] getParameterDescriptors() {
-        return parameterDescriptors;
+        return parameterDescriptors != null ? parameterDescriptors : new ParameterDescriptor[0];
     }
 
     @Override
     public TargetPropertyDescriptor[] getTargetPropertyDescriptors() {
-        return targetPropertyDescriptors;
+        return targetPropertyDescriptors != null ? targetPropertyDescriptors : new TargetPropertyDescriptor[0];
     }
 
     @Override
@@ -182,17 +182,4 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
         return xStream;
     }
-
-    private void readResolve() {
-        if (sourceProductDescriptors == null) {
-            sourceProductDescriptors = new DefaultSourceProductDescriptor[0];
-        }
-        if (parameterDescriptors == null) {
-            parameterDescriptors = new DefaultParameterDescriptor[0];
-        }
-        if (targetPropertyDescriptors == null) {
-            targetPropertyDescriptors = new DefaultTargetPropertyDescriptor[0];
-        }
-    }
-
 }
