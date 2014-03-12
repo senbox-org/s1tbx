@@ -311,7 +311,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private String getRasterName() {
-        return getRaster().getName();
+        return getRaster() != null ? getRaster().getName() : "";
     }
 
     private void initParameters() {
