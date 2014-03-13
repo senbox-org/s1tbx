@@ -22,6 +22,7 @@ import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -32,6 +33,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,8 +45,10 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import static java.lang.Math.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -565,13 +569,14 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testCreateAllProductsFilter() throws Exception {
+    public void testCreateGeoCodingProductFilter() throws Exception {
         BinningOp binningOp = new BinningOp();
         binningOp.useSpatialDataDay = false;
         binningOp.startDate = null;
         binningOp.endDate = null;
 
-        assertSame(ProductFilter.ALL, BinningOp.createSourceProductFilter(null, null, null, null));
+        final ProductFilter allProductsFilter = BinningOp.createSourceProductFilter(null, null, null, null);
+        assertThat(allProductsFilter, is(instanceOf(GeoCodingProductFilter.class)));
     }
 
     @Test

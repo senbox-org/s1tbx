@@ -20,7 +20,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.geometry.jts.JTS;
 
@@ -31,28 +30,27 @@ import java.awt.geom.GeneralPath;
 /**
  * @author Norman Fomferra
  */
-class RegionProductFilter implements ProductFilter {
-    private final ProductFilter parent;
+class RegionProductFilter extends BinningProductFilter {
+
     private final Geometry region;
     private final GeometryFactory factory;
 
-    public RegionProductFilter(ProductFilter parent, Geometry region) {
-        this.parent = parent;
+    public RegionProductFilter(BinningProductFilter parent, Geometry region) {
+        setParent(parent);
         this.region = region;
         this.factory = new GeometryFactory();
     }
 
     @Override
-    public boolean accept(Product product) {
-        if (parent.accept(product)) {
-            GeneralPath[] geoBoundaryPaths = ProductUtils.createGeoBoundaryPaths(product);
-            for (GeneralPath geoBoundaryPath : geoBoundaryPaths) {
-                Geometry boundary = getPolygon(geoBoundaryPath);
-                if (boundary.intersects(region)) {
-                    return true;
-                }
+    protected boolean acceptForBinning(Product product) {
+        GeneralPath[] geoBoundaryPaths = ProductUtils.createGeoBoundaryPaths(product);
+        for (GeneralPath geoBoundaryPath : geoBoundaryPaths) {
+            Geometry boundary = getPolygon(geoBoundaryPath);
+            if (boundary.intersects(region)) {
+                return true;
             }
         }
+        setReason("Does not intersect the region.");
         return false;
     }
 

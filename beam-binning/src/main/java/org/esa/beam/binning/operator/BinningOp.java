@@ -265,8 +265,7 @@ public class BinningOp extends Operator implements Output {
      * Processes all source products and writes the output file.
      * The target product represents the written output file
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If a processing error occurs.
+     * @throws org.esa.beam.framework.gpf.OperatorException If a processing error occurs.
      */
     @Override
     public void initialize() throws OperatorException {
@@ -289,7 +288,7 @@ public class BinningOp extends Operator implements Output {
 
         binningContext = binningConfig.createBinningContext(region);
 
-        ProductFilter productFilter = createSourceProductFilter(useSpatialDataDay ? binningContext.getDataPeriod() : null,
+        BinningProductFilter productFilter = createSourceProductFilter(useSpatialDataDay ? binningContext.getDataPeriod() : null,
                                                                 startDateUtc,
                                                                 endDateUtc,
                                                                 region);
@@ -388,13 +387,13 @@ public class BinningOp extends Operator implements Output {
         return binningConfig.getVariableConfigs() == null || binningConfig.getVariableConfigs().length == 0;
     }
 
-    static ProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime, Geometry region) {
-        ProductFilter productFilter = ProductFilter.ALL;
+    static BinningProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime, Geometry region) {
+        BinningProductFilter productFilter = new GeoCodingProductFilter();
 
         if (dataPeriod != null) {
-            productFilter = new SpatialDataDaySourceProductFilter(dataPeriod);
+            productFilter = new SpatialDataDaySourceProductFilter(productFilter, dataPeriod);
         } else if (startTime != null || endTime != null) {
-            productFilter = new TimeRangeProductFilter(startTime, endTime);
+            productFilter = new TimeRangeProductFilter(productFilter, startTime, endTime);
         }
 
         if (region != null) {
@@ -521,7 +520,7 @@ public class BinningOp extends Operator implements Output {
         return targetProduct;
     }
 
-    private SpatialBinCollection doSpatialBinning(ProductFilter productFilter) throws IOException {
+    private SpatialBinCollection doSpatialBinning(BinningProductFilter productFilter) throws IOException {
         SpatialBinCollector spatialBinCollector = new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
@@ -530,6 +529,7 @@ public class BinningOp extends Operator implements Output {
                     processSource(sourceProduct, spatialBinner);
                 } else {
                     getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
+                    getLogger().warning("              reason: " + productFilter.getReason());
                 }
             }
         }
@@ -554,6 +554,7 @@ public class BinningOp extends Operator implements Output {
                             processSource(sourceProduct, spatialBinner);
                         } else {
                             getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
+                            getLogger().warning("              reason: " + productFilter.getReason());
                         }
                     } finally {
                         sourceProduct.dispose();
@@ -592,7 +593,7 @@ public class BinningOp extends Operator implements Output {
                                                                 ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                productName, numObs, stopWatch));
+                                       productName, numObs, stopWatch));
 
         if (region == null && regionArea != null) {
             for (GeneralPath generalPath : ProductUtils.createGeoBoundaryPaths(sourceProduct)) {
@@ -634,7 +635,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-            Exception {
+                                                                                                                  Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
