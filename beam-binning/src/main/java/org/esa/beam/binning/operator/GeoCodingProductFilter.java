@@ -3,7 +3,7 @@ package org.esa.beam.binning.operator;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 
-public class GeoCodingProductFilter extends BinningProductFilter {
+class GeoCodingProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
