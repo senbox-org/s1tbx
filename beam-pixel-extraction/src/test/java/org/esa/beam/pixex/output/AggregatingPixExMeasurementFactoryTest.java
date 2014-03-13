@@ -87,7 +87,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 12, 20.5f);
+                                                                    coordsName, 12f, 9, 20.5f, 9);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
@@ -110,7 +110,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 22, 30.5f);
+                                                                    coordsName, 22f, 9, 30.5f, 9);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
@@ -133,7 +133,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
-                                                                    coordsName, 17, 25.5f);
+                                                                    coordsName, 17f, 9, 25.5f, 9);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 
@@ -253,10 +253,9 @@ public class AggregatingPixExMeasurementFactoryTest {
     /////////////////////////////*/
 
     private Measurement createExpectedMeasurement(int pixelX, int pixelY, int coordinateID,
-                                                  String coordsName, float firstExpectedValue,
-                                                  float secondExpectedValue) throws
-            IOException {
-        final Number[] values = {firstExpectedValue, secondExpectedValue};
+                                                  String coordsName, Number... expectedValues) throws IOException {
+        final Number[] values = new Number[expectedValues.length];
+        System.arraycopy(expectedValues, 0, values, 0, values.length);
 
         final long productId = productRegistry.getProductId(product);
 

@@ -8,9 +8,11 @@ import org.esa.beam.pixex.calvalus.ma.RecordTransformer;
 
 abstract class AbstractAggregatorStrategy implements AggregatorStrategy {
 
+    static final String NUM_PIXELS_SUFFIX = "num_pixels";
+
     @Override
     public int getValueCount() {
-        return 1;
+        return getSuffixes().length;
     }
 
     protected AggregatedNumber getAggregatedNumber(Record record, int rasterIndex) {

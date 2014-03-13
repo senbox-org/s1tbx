@@ -28,12 +28,7 @@ public class MeanAggregatorStrategy extends AbstractAggregatorStrategy {
     }
 
     @Override
-    public int getValueCount() {
-        return 3;
-    }
-
-    @Override
     public String[] getSuffixes() {
-        return new String[]{"mean", "sigma", "num_pixels"};
+        return new String[]{"mean", "sigma", NUM_PIXELS_SUFFIX};
     }
 }

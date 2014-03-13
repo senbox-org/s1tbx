@@ -22,12 +22,15 @@ public class MedianAggregatorStrategy extends AbstractAggregatorStrategy {
     @Override
     public Number[] getValues(Record record, int rasterIndex) {
         final float median = getMedian((Number[]) record.getAttributeValues()[rasterIndex]);
-        return new Number[]{median};
+        return new Number[]{
+                median,
+                getAggregatedNumber(record, rasterIndex).nT
+        };
     }
 
     @Override
     public String[] getSuffixes() {
-        return new String[]{"median"};
+        return new String[]{"median", NUM_PIXELS_SUFFIX};
     }
 
     float getMedian(Number[] bandValues) {
