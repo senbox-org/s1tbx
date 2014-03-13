@@ -8,6 +8,5 @@ org.esa.beam.gpf.operators.standard.PassThroughOp$Spi
 org.esa.beam.gpf.operators.standard.BandMathsOp$Spi
 org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp$Spi
 org.esa.beam.gpf.operators.meris.N1PatcherOp$Spi
-org.esa.beam.gpf.operators.meris.NdviOp$Spi
 org.esa.beam.gpf.operators.meris.L3ToL1Op$Spi
 org.esa.beam.gpf.operators.meris.RRToFRSOp$Spi

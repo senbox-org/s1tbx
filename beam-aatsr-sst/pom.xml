@@ -29,7 +29,6 @@
     </parent>
 
     <name>BEAM AATSR SST Processor</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-aatsr-sst</artifactId>
     <version>1.5.1.${beam.version}</version>
 
@@ -39,10 +38,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-processing</artifactId>
         </dependency>
     </dependencies>
 

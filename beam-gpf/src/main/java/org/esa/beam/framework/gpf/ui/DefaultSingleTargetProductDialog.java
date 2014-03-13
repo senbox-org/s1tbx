@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
@@ -31,8 +32,10 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.UIUtils;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -74,10 +77,11 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
-            throw new IllegalArgumentException("operatorName");
+            throw new IllegalArgumentException("No SPI found for operator name '" + operatorName + "'");
         }
 
-        ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorSpi, getTargetProductSelector());
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorDescriptor, getTargetProductSelector());
 
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
@@ -87,7 +91,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();
-                List<PropertyDescriptor> rdnTypeProperties = new ArrayList<PropertyDescriptor>(properties.length);
+                List<PropertyDescriptor> rdnTypeProperties = new ArrayList<>(properties.length);
                 for (Property property : properties) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
                     if (parameterDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
@@ -152,6 +156,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             final JPanel parametersPanel = parametersPane.createPanel();
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             form.add("Processing Parameters", new JScrollPane(parametersPanel));
+            updateSourceProduct();
         }
     }
 
@@ -163,6 +168,17 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                                 getHelpID());
     }
 
+    private void updateSourceProduct() {
+        try {
+            Property property = bindingContext.getPropertySet().getProperty(UIUtils.PROPERTY_SOURCE_PRODUCT);
+            if (property != null) {
+                property.setValue(productChangedHandler.currentProduct);
+            }
+        } catch (ValidationException e) {
+            throw new IllegalStateException("Property '" + UIUtils.PROPERTY_SOURCE_PRODUCT + "' must be of type " + Product.class + ".", e);
+        }
+    }
+
     private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
 
         private Product currentProduct;
@@ -171,6 +187,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             if (currentProduct != null) {
                 currentProduct.removeProductNodeListener(this);
                 currentProduct = null;
+                updateSourceProduct();
             }
         }
 
@@ -189,28 +206,29 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                     }
                     updateTargetProductname();
                     updateValueSets(currentProduct);
+                    updateSourceProduct();
                 }
             }
         }
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         private void updateTargetProductname() {
@@ -222,7 +240,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             targetProductSelectorModel.setProductName(productName + getTargetProductNameSuffix());
         }
 
-        private void handleProductNodeEvent(ProductNodeEvent event) {
+        private void handleProductNodeEvent() {
             updateValueSets(currentProduct);
         }
 

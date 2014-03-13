@@ -26,7 +26,7 @@ public class PixExMeasurementFactory extends AbstractMeasurementFactory {
                                             Product product, Raster validData) throws IOException {
         final long productId = productRegistry.getProductId(product);
         final int numPixels = windowSize * windowSize;
-        final List<Measurement> measurements = new ArrayList<Measurement>();
+        final List<Measurement> measurements = new ArrayList<>();
         final String[] rasterNames = rasterNamesFactory.getRasterNames(product);
         final Number[] values = new Number[rasterNames.length];
         final int windowBorder = windowSize / 2;
@@ -38,9 +38,8 @@ public class PixExMeasurementFactory extends AbstractMeasurementFactory {
             int y = centerY - windowBorder + offsetY;
 
             setBandValues(product, rasterNames, x, y, values);
-            measurements.add(
-                    createMeasurement(product, productId, coordinateID, coordinateName, values, validData, x, y)
-            );
+            final boolean isValid = validData == null || validData.getSample(x, y, 0) != 0;
+            measurements.add(createMeasurement(product, productId, coordinateID, coordinateName, values, isValid, x, y));
         }
 
         return measurements.toArray(new Measurement[measurements.size()]);

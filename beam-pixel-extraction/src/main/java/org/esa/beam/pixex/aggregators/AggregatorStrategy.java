@@ -17,7 +17,7 @@ public interface AggregatorStrategy {
      * @param rasterIndex The raster the values shall be aggregated for.
      * @return The aggregated values.
      */
-    float[] getValues(Record record, int rasterIndex);
+    Number[] getValues(Record record, int rasterIndex);
 
     /**
      * The number of values this strategy returns. Corresponds to the size of the return value of {@link org.esa.beam.pixex.aggregators.AggregatorStrategy#getValues(org.esa.beam.pixex.calvalus.ma.Record, int)}.

@@ -78,9 +78,9 @@ class MosaicMapProjectionPanel extends JPanel {
             demValueSet[i] = descriptors[i].getName();
         }
         if (demValueSet.length > 0) {
-            mosaicModel.getPropertySet().setValue("elevationModelName", demValueSet[0]);
+            mosaicModel.getPropertySet().setValue(MosaicFormModel.PROPERTY_ELEVATION_MODEL_NAME, demValueSet[0]);
         }
-        bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        bindingCtx.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_MODE, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final Boolean updateMode = (Boolean) evt.getNewValue();
@@ -102,7 +102,7 @@ class MosaicMapProjectionPanel extends JPanel {
         CrsForm customCrsUI = new CustomCrsForm(appContext);
         CrsForm predefinedCrsUI = new PredefinedCrsForm(appContext);
         crsSelectionPanel = new CrsSelectionPanel(customCrsUI, predefinedCrsUI);
-        crsSelectionPanel.addPropertyChangeListener("crs", new PropertyChangeListener() {
+        crsSelectionPanel.addPropertyChangeListener(MosaicFormModel.PROPERTY_CRS, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 updateForCrsChanged();
@@ -176,18 +176,18 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Orthorectification"));
 
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
-        bindingCtx.bind("orthorectify", orthoCheckBox);
-        bindingCtx.bindEnabledState("orthorectify", false, "updateMode", true);
-        final JComboBox demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
-        bindingCtx.bind("elevationModelName", demComboBox);
+        bindingCtx.bind(MosaicFormModel.PROPERTY_ORTHORECTIFY, orthoCheckBox);
+        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_ORTHORECTIFY, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        final JComboBox<String> demComboBox = new JComboBox<>(new DefaultComboBoxModel<>(demValueSet));
+        bindingCtx.bind(MosaicFormModel.PROPERTY_ELEVATION_MODEL_NAME, demComboBox);
         bindingCtx.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if ("orthorectify".equals(evt.getPropertyName()) ||
-                        "updateMode".equals(evt.getPropertyName())) {
+                if (MosaicFormModel.PROPERTY_ORTHORECTIFY.equals(evt.getPropertyName()) ||
+                        MosaicFormModel.PROPERTY_UPDATE_MODE.equals(evt.getPropertyName())) {
                     final PropertySet propertySet = bindingCtx.getPropertySet();
-                    boolean updateMode = Boolean.TRUE.equals(propertySet.getValue("updateMode"));
-                    boolean orthorectify = Boolean.TRUE.equals(propertySet.getValue("orthoretify"));
+                    boolean updateMode = Boolean.TRUE.equals(propertySet.getValue(MosaicFormModel.PROPERTY_UPDATE_MODE));
+                    boolean orthorectify = Boolean.TRUE.equals(propertySet.getValue(MosaicFormModel.PROPERTY_ORTHORECTIFY));
                     demComboBox.setEnabled(orthorectify && !updateMode);
                 }
             }
@@ -225,7 +225,8 @@ class MosaicMapProjectionPanel extends JPanel {
         private final List<String> knownProperties;
 
         private MapBoundsChangeListener() {
-            knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound", "crs");
+            knownProperties = Arrays.asList(
+                    MosaicFormModel.PROPERTY_WEST_BOUND, MosaicFormModel.PROPERTY_NORTH_BOUND, MosaicFormModel.PROPERTY_EAST_BOUND, MosaicFormModel.PROPERTY_SOUTH_BOUND, MosaicFormModel.PROPERTY_CRS);
         }
 
         @Override

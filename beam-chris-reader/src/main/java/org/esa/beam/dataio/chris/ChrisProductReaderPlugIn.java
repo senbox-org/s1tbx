@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.chris;
 
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -48,7 +48,10 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
         if (file.isFile() && file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION)) {
             NetcdfFile ncFile = null;
             try {
-                ncFile = SimpleNetcdfFile.openNetcdf(file.getAbsolutePath());
+                ncFile = NetcdfFileOpener.open(file.getAbsolutePath());
+                if (ncFile == null) {
+                    return DecodeQualification.UNABLE;
+                }
                 
                 if (isSensorTypeAttributeCorrect(ncFile)) {
                     return DecodeQualification.INTENDED;

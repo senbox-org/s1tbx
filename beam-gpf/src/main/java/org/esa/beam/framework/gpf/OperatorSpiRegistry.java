@@ -55,7 +55,7 @@ public interface OperatorSpiRegistry {
      *
      * @param operatorSpi the SPI to add
      *
-     * @return {@code true}, if the {@link OperatorSpi} could be succesfully added, otherwise {@code false}
+     * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
      */
     boolean addOperatorSpi(OperatorSpi operatorSpi);
 

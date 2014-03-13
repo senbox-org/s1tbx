@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,7 @@ package org.esa.beam.dataio.merisl3;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -33,7 +33,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -80,7 +80,10 @@ public class MerisL3ProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
-        _netcdfFile = SimpleNetcdfFile.openNetcdf(path);
+        _netcdfFile = NetcdfFileOpener.open(path);
+        if (_netcdfFile == null) {
+            throw new IOException("Could not open NetCDF file " + path);
+        }
         bandMap = new HashMap<Band, VariableMetadata>(10);
         try {
             _grid = new ISINGrid(ISINGrid.detectRowCount(path));

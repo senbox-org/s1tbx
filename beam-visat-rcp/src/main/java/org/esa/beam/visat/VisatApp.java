@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -146,6 +146,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -324,7 +325,7 @@ public class VisatApp extends BasicApp implements AppContext {
     private VisatApplicationPage applicationPage;
 
     private ProductsToolView productsToolView;
-    private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService singleThreadExecutor;
     private File sessionFile;
 
     private Interactor activeInteractor = NullInteractor.INSTANCE;
@@ -566,7 +567,10 @@ public class VisatApp extends BasicApp implements AppContext {
         if (plugInManager != null) {
             plugInManager.stopPlugins();
         }
-        getExecutorService().shutdown();
+        if (singleThreadExecutor != null) {
+            singleThreadExecutor.shutdown();
+            singleThreadExecutor = null;
+        }
         super.handleImminentExit();
     }
 
@@ -608,7 +612,6 @@ public class VisatApp extends BasicApp implements AppContext {
 
     /**
      * @return The file of the current session.
-     *
      * @since BEAM 4.6
      */
     public File getSessionFile() {
@@ -619,7 +622,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * Sets the file of the current session.
      *
      * @param sessionFile The file of the current session.
-     *
      * @since BEAM 4.6
      */
     public void setSessionFile(File sessionFile) {
@@ -734,7 +736,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * object cannot be used anymore.
      *
      * @param product the product to be disposed
-     *
      * @see org.esa.beam.framework.datamodel.Product#dispose
      */
     public void disposeProduct(final Product product) {
@@ -894,7 +895,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * @param raster   the raster for which to perform the lookup
      * @param numBands the number of bands in the view, pass -1 for all view types, 1 for single band type and 3 for RGB
      *                 views
-     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster, final int numBands) {
@@ -919,7 +919,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
-     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final RasterDataNode raster) {
@@ -945,7 +944,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
-     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster) {
@@ -972,7 +970,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param metadataElement the metadata element for which to perform the lookup
-     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final MetadataElement metadataElement) {
@@ -998,7 +995,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param productNode the product node for which to perform the lookup
-     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final ProductNode productNode) {
@@ -1023,7 +1019,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * Finds the product associated with the given file.
      *
      * @param file the file
-     *
      * @return the product associated with the given file. or <code>null</code> if no such exists.
      */
     public Product getOpenProduct(final File file) {
@@ -1082,7 +1077,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * Returns true if the given raster data node is used in any product scene view.
      *
      * @param raster
-     *
      * @return true if raster is used
      */
     public boolean hasRasterProductSceneView(final RasterDataNode raster) {
@@ -1207,10 +1201,74 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     private void openProductImpl(final File file) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new OpenProductRunnable(file));
+        File[] selectedFiles;
+        FileFilter selectedFileFilter = null;
+
+        if (file == null || !file.exists()) {
+            JFileChooser fileChooser = showOpenFileDialog();
+            if (fileChooser == null) {
+                return;
+            }
+            selectedFiles = fileChooser.getSelectedFiles();
+            selectedFileFilter = fileChooser.getFileFilter();
+        } else {
+            selectedFiles = new File[]{file};
+        }
+
+        Cursor oldCursor = getMainFrame().getCursor();
+        String formatName = null;
+        if (selectedFileFilter instanceof BeamFileFilter) {
+            formatName = ((BeamFileFilter) selectedFileFilter).getFormatName();
+        }
+        UIUtils.setRootFrameWaitCursor(getMainFrame());
+
+        SwingWorker openProductSwingWorker = new OpenProductSwingWorker(selectedFiles, formatName, oldCursor);
+        openProductSwingWorker.execute();
     }
 
+    private JFileChooser showOpenFileDialog() {
+        String lastDir = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR,
+                                                            SystemUtils.getUserHomeDir().getPath());
+        String lastFormat = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT,
+                                                               ALL_FILES_IDENTIFIER);
+        BeamFileChooser fileChooser = new BeamFileChooser();
+        fileChooser.setCurrentDirectory(new File(lastDir));
+        fileChooser.setAcceptAllFileFilterUsed(true);
+        fileChooser.setDialogTitle(getAppName() + " - " + "Open Data Product(s)"); /*I18N*/
+        fileChooser.setMultiSelectionEnabled(true);
+
+        FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
+        Iterator<ProductReaderPlugIn> allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+        List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(allReaderPlugIns);
+        for (BeamFileFilter productFileFilter : sortedFileFilters) {
+            fileChooser.addChoosableFileFilter(productFileFilter);
+            if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
+                productFileFilter.getFormatName().equals(lastFormat)) {
+                actualFileFilter = productFileFilter;
+            }
+        }
+        fileChooser.setFileFilter(actualFileFilter);
+
+        int result = fileChooser.showDialog(getMainFrame(), "Open Product");    /*I18N*/
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+
+        String currentDir = fileChooser.getCurrentDirectory().getAbsolutePath();
+        if (currentDir != null) {
+            getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDir);
+        }
+
+        if (fileChooser.getFileFilter() instanceof BeamFileFilter) {
+            String currentFormat = ((BeamFileFilter) fileChooser.getFileFilter()).getFormatName();
+            if (currentFormat != null) {
+                getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, currentFormat);
+            }
+        } else {
+            getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, ALL_FILES_IDENTIFIER);
+        }
+        return fileChooser;
+    }
 
     /**
      * Closes the currently selected product.
@@ -1598,7 +1656,10 @@ public class VisatApp extends BasicApp implements AppContext {
         return status;
     }
 
-    public ExecutorService getExecutorService() {
+    public synchronized ExecutorService getExecutorService() {
+        if (singleThreadExecutor == null) {
+            singleThreadExecutor = Executors.newSingleThreadExecutor();
+        }
         return singleThreadExecutor;
     }
 
@@ -1627,7 +1688,7 @@ public class VisatApp extends BasicApp implements AppContext {
                                                   "it has to be converted to the BEAM-DIMAP format.\n" +
                                                   "Depending on the product size the conversion also may take a while.\n\n" +
                                                   "Do you really want to convert the product now?\n",
-                                                  "productConversionRequired"); /*I18N*/
+                                                  "visat.productConversionRequired"); /*I18N*/
             if (answer != 0) { // Zero means YES
                 return;
             }
@@ -1937,15 +1998,13 @@ public class VisatApp extends BasicApp implements AppContext {
                 "pannerTool",
                 "pinTool",
                 "gcpTool",
+                "magicWandTool",
                 "drawLineTool",
                 "drawPolylineTool",
                 "drawRectangleTool",
                 "drawEllipseTool",
                 "drawPolygonTool",
                 "createVectorDataNode",
-                // Magic Wand removed for 4.10 release
-                "true".equalsIgnoreCase(
-                        System.getProperty("beam.magicWandTool.enabled", "false")) ? "magicWandTool" : null,
         });
         return toolBar;
     }
@@ -2007,7 +2066,9 @@ public class VisatApp extends BasicApp implements AppContext {
                 toolBarsMenu.add(action.createMenuItem());
             }
             List<String> commandIds = toolBar2commandIds.get(toolBarId);
-            addCommandsToToolBar(toolBar, commandIds.toArray(new String[commandIds.size()]));
+            String[] commandIDs = commandIds.toArray(new String[commandIds.size()]);
+            Arrays.sort(commandIDs);
+            addCommandsToToolBar(toolBar, commandIDs);
         }
 
         return viewToolBars.toArray(new CommandBar[viewToolBars.size()]);
@@ -2118,9 +2179,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * is selected.
      *
      * @param commandID the command ID
-     *
      * @return a tool button which is automatically added to VISAT's tool button group.
-     *
      * @see #getCommandManager
      */
     public AbstractButton createToolButton(final String commandID) {
@@ -2218,9 +2277,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * @param icon    a frame icon, can be null
      * @param content the frame's content pane
      * @param helpId  the id for help system
-     *
      * @return the newly created frame
-     *
      * @deprecated Since BEAM 4.10, use {@link #createInternalFrame(String, javax.swing.Icon, javax.swing.JComponent, String, boolean)} instead
      */
     @Deprecated
@@ -2237,7 +2294,6 @@ public class VisatApp extends BasicApp implements AppContext {
      * @param content       the frame's content pane
      * @param helpId        the id for help system
      * @param maximizeFrame flag indicating whether the frame is to be maximized
-     *
      * @return the newly created frame
      */
     public synchronized JInternalFrame createInternalFrame(final String title, final Icon icon,
@@ -2527,131 +2583,110 @@ public class VisatApp extends BasicApp implements AppContext {
         }
     }
 
-    private class OpenProductRunnable implements Runnable {
+    private class OpenProductSwingWorker extends SwingWorker<String, Product> {
 
-        private final File file;
+        private final File[] selectedFiles;
+        private final String formatName;
+        private final Cursor oldCursor;
 
-        private OpenProductRunnable(File file) {
-            this.file = file;
+        private OpenProductSwingWorker(File[] files, String formatName, Cursor oldCursor) {
+            selectedFiles = files;
+            this.formatName = formatName;
+            this.oldCursor = oldCursor;
         }
 
         @Override
-        public void run() {
-            File[] selectedFiles;
-            FileFilter selectedFileFilter = null;
-
-            if (file == null || !file.exists()) {
-                JFileChooser fileChooser = showOpenFileDialog();
-                if (fileChooser == null) {
-                    return;
+        protected String doInBackground() throws Exception {
+            StringBuilder problems = new StringBuilder();
+            StringBuilder errors = new StringBuilder();
+            for (File selectedFile : selectedFiles) {
+                if (getOpenProduct(selectedFile) != null) {
+                    problems.append(String.format("Product is already open: %s\n", selectedFile));
+                    continue;
                 }
-                selectedFiles = fileChooser.getSelectedFiles();
-                selectedFileFilter = fileChooser.getFileFilter();
-            } else {
-                selectedFiles = new File[]{file};
+
+                ProductReader reader = getReader(selectedFile);
+                if (reader == null) {
+                    problems.append(String.format("No appropriate reader found: %s\n", selectedFile));  /*I18N*/
+                    continue;
+                }
+                Product product = null;
+                try {
+                    product = loadProduct(reader, selectedFile);
+                } catch (IOException ioe) {
+                    String msg = String.format("An exception occurred:\n   Type: %s\n   ", ioe.getClass().getName());
+                    errors.append(msg);
+                    if (ioe.getMessage() == null) {
+                        errors.append("No message text available.");
+                    } else {
+                        errors.append("Message: ").append(ioe.getMessage());
+                    }
+                    errors.append("\n");
+                }
+                if (product == null) {
+                    problems.append(String.format("Not able to read file: %s\n", selectedFile));  /*I18N*/
+                    continue;
+                }
+                publish(product);
             }
+            if (errors.length() > 0 && problems.length() > 0) {
+                return errors.append("\n").append(problems.toString()).toString();
+            } else if (errors.length() > 0) {
+                return errors.toString();
+            } else if (problems.length() > 0) {
+                return problems.toString();
+            } else {
+                return "";
+            }
+        }
 
-            Cursor oldCursor = getMainFrame().getCursor();
-            UIUtils.setRootFrameWaitCursor(getMainFrame());
+        @Override
+        protected void process(List<Product> products) {
+            for (Product product : products) {
+                addProduct(product);
+            }
+        }
 
+        @Override
+        protected void done() {
             try {
-                StringBuilder msgBuffer = new StringBuilder();
-                for (File selectedFile : selectedFiles) {
-                    if (getOpenProduct(selectedFile) != null) {
-                        msgBuffer.append(String.format("Product is already open: %s\n", selectedFile));
-                        continue;
-                    }
-
-                    ProductReader reader = getReader(selectedFile, selectedFileFilter);
-                    if (reader == null) {
-                        msgBuffer.append(String.format("No appropriate reader found: %s\n", selectedFile));  /*I18N*/
-                        continue;
-                    }
-
-                    setStatusBarMessage(String.format("Opening product %s...", selectedFile)); /*I18N*/
-                    Product product = loadProduct(reader, selectedFile);
-                    if (product == null) {
-                        msgBuffer.append(String.format("Not able to read file: %s\n", selectedFile));  /*I18N*/
-                        continue;
-                    }
-                    addProduct(product);
+                String msgBuffer = get();
+                if (msgBuffer != null && msgBuffer.length() > 0) {
+                    showWarningDialog(msgBuffer);
                 }
-
-                if (msgBuffer.length() > 0) {
-                    showWarningDialog(msgBuffer.toString());
-                }
-                updateState();
+            } catch (InterruptedException | ExecutionException e) {
+                handleUnknownException(e);
             } finally {
+                updateState();
                 UIUtils.setRootFrameCursor(getMainFrame(), oldCursor);
             }
         }
 
-        private JFileChooser showOpenFileDialog() {
-            String lastDir = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR,
-                                                                SystemUtils.getUserHomeDir().getPath());
-            String lastFormat = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT,
-                                                                   ALL_FILES_IDENTIFIER);
-            BeamFileChooser fileChooser = new BeamFileChooser();
-            fileChooser.setCurrentDirectory(new File(lastDir));
-            fileChooser.setAcceptAllFileFilterUsed(true);
-            fileChooser.setDialogTitle(getAppName() + " - " + "Open Data Product(s)"); /*I18N*/
-            fileChooser.setMultiSelectionEnabled(true);
-
-            FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
-            Iterator<ProductReaderPlugIn> allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-            List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(allReaderPlugIns);
-            for (BeamFileFilter productFileFilter : sortedFileFilters) {
-                fileChooser.addChoosableFileFilter(productFileFilter);
-                if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
-                    productFileFilter.getFormatName().equals(lastFormat)) {
-                    actualFileFilter = productFileFilter;
+        private Product loadProduct(ProductReader reader, final File selectedFile) throws IOException {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    setStatusBarMessage(String.format("Opening product %s...", selectedFile)); /*I18N*/
                 }
-            }
-            fileChooser.setFileFilter(actualFileFilter);
-
-            int result = fileChooser.showDialog(getMainFrame(), "Open Product");    /*I18N*/
-            if (result != JFileChooser.APPROVE_OPTION) {
-                return null;
-            }
-
-            String currentDir = fileChooser.getCurrentDirectory().getAbsolutePath();
-            if (currentDir != null) {
-                getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDir);
-            }
-
-            if (fileChooser.getFileFilter() instanceof BeamFileFilter) {
-                String currentFormat = ((BeamFileFilter) fileChooser.getFileFilter()).getFormatName();
-                if (currentFormat != null) {
-                    getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, currentFormat);
-                }
-            } else {
-                getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, ALL_FILES_IDENTIFIER);
-            }
-            return fileChooser;
-
-        }
-
-        private Product loadProduct(ProductReader reader, File selectedFile) {
-            Product product = null;
+            });
             try {
-                product = reader.readProductNodes(selectedFile, null);
-            } catch (Exception e) {
-                handleUnknownException(e);
+                return reader.readProductNodes(selectedFile, null);
             } finally {
-                clearStatusBarMessage();
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        clearStatusBarMessage();
+                    }
+                });
             }
-            return product;
         }
 
-
-        private ProductReader getReader(File selectedFile, FileFilter selectedFileFilter) {
-            if (selectedFileFilter instanceof BeamFileFilter) {
-                return ProductIO.getProductReader(((BeamFileFilter) selectedFileFilter).getFormatName());
+        private ProductReader getReader(File selectedFile) {
+            if (formatName != null) {
+                return ProductIO.getProductReader(formatName);
             } else {
                 return ProductIO.getProductReaderForInput(selectedFile);
             }
         }
-
     }
-
 }

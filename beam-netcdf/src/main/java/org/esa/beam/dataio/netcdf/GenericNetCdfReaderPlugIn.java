@@ -17,7 +17,7 @@
 package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -68,7 +68,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
             final List<String> extensionList = Arrays.asList(getDefaultFileExtensions());
             String fileExtension = FileUtils.getExtension(inputPath);
             if (fileExtension != null && extensionList.contains(fileExtension)) {
-                netcdfFile = SimpleNetcdfFile.openNetcdf(inputPath);
+                netcdfFile = NetcdfFileOpener.open(inputPath);
             }
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;

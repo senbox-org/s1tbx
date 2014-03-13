@@ -54,8 +54,6 @@ public class PgxProductReader extends AbstractProductReader {
             this.width = width;
             this.height = height;
         }
-
-
     }
 
     private ImageInputStream stream;
@@ -76,7 +74,7 @@ public class PgxProductReader extends AbstractProductReader {
         }
 
         final String inputName = input != stream ? input.toString() : "PGX-stream";
-        final Header header = readerHeader(stream);
+        final Header header = readHeader(stream);
         if (header == null) {
             throw new IOException(inputName + " does not appear to have a valid PGX format");
         }
@@ -140,9 +138,11 @@ public class PgxProductReader extends AbstractProductReader {
     }
 
 
-    static Header readerHeader(ImageInputStream stream) throws IOException {
-        String headerLine = stream.readLine();
-        return parseHeaderLine(headerLine);
+    static Header readHeader(ImageInputStream stream) throws IOException {
+        byte[] buffer = new byte[64];
+        stream.read(buffer);
+        String header = new String(buffer).split("\n")[0];
+        return parseHeaderLine(header);
     }
 
     static Header parseHeaderLine(String headerLine) {

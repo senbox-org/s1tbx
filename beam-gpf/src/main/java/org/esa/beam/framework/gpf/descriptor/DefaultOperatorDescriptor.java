@@ -1,8 +1,16 @@
 package org.esa.beam.framework.gpf.descriptor;
 
+import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.StreamException;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.StringUtils;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
@@ -30,7 +38,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     DefaultTargetProductDescriptor targetProductDescriptor;
     DefaultTargetPropertyDescriptor[] targetPropertyDescriptors;
 
-    public DefaultOperatorDescriptor() {
+    DefaultOperatorDescriptor() {
     }
 
     public DefaultOperatorDescriptor(String name, Class<? extends Operator> operatorClass) {
@@ -83,12 +91,12 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
     @Override
     public Class<? extends Operator> getOperatorClass() {
-        return operatorClass;
+        return operatorClass != null ? operatorClass : Operator.class;
     }
 
     @Override
     public SourceProductDescriptor[] getSourceProductDescriptors() {
-        return sourceProductDescriptors;
+        return sourceProductDescriptors != null ? sourceProductDescriptors : new SourceProductDescriptor[0];
     }
 
     @Override
@@ -98,12 +106,12 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
     @Override
     public ParameterDescriptor[] getParameterDescriptors() {
-        return parameterDescriptors;
+        return parameterDescriptors != null ? parameterDescriptors : new ParameterDescriptor[0];
     }
 
     @Override
     public TargetPropertyDescriptor[] getTargetPropertyDescriptors() {
-        return targetPropertyDescriptors;
+        return targetPropertyDescriptors != null ? targetPropertyDescriptors : new TargetPropertyDescriptor[0];
     }
 
     @Override
@@ -119,32 +127,57 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
      * @return A new operator descriptor.
      */
     public static DefaultOperatorDescriptor fromXml(URL url) {
-        DefaultOperatorDescriptor descriptor = new DefaultOperatorDescriptor();
-        createXStream().fromXML(url, descriptor);
-        return descriptor;
+        String resourceName = url.toExternalForm();
+        try {
+            try (InputStreamReader streamReader = new InputStreamReader(url.openStream())) {
+                DefaultOperatorDescriptor operatorDescriptor;
+                operatorDescriptor = fromXml(streamReader, resourceName);
+                return operatorDescriptor;
+            }
+        } catch (IOException e) {
+            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        }
     }
 
     /**
      * Loads an operator descriptor from an XML document.
      *
-     * @param reader The reader providing a valid operator descriptor XML document.
+     * @param file The file containing a valid operator descriptor XML document.
      * @return A new operator descriptor.
      */
-    public static DefaultOperatorDescriptor fromXml(Reader reader) {
-        DefaultOperatorDescriptor descriptor = new DefaultOperatorDescriptor();
-        createXStream().fromXML(reader, descriptor);
-        return descriptor;
+    public static DefaultOperatorDescriptor fromXml(File file) throws OperatorException {
+        String resourceName = file.getPath();
+        try {
+            try (FileReader reader = new FileReader(file)) {
+                return DefaultOperatorDescriptor.fromXml(reader, resourceName);
+            }
+        } catch (IOException e) {
+            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        }
     }
 
     /**
      * Loads an operator descriptor from an XML document.
      *
-     * @param xml A valid operator descriptor XML.
+     * @param reader       The reader providing a valid operator descriptor XML document.
+     * @param resourceName Used in error messages
      * @return A new operator descriptor.
      */
-    public static DefaultOperatorDescriptor fromXml(String xml) {
+    public static DefaultOperatorDescriptor fromXml(Reader reader, String resourceName) throws OperatorException {
+        Assert.notNull(reader, "reader");
+        Assert.notNull(resourceName, "resourceName");
         DefaultOperatorDescriptor descriptor = new DefaultOperatorDescriptor();
-        createXStream().fromXML(xml, descriptor);
+        try {
+            createXStream().fromXML(reader, descriptor);
+            if (StringUtils.isNullOrEmpty(descriptor.getName())) {
+                throw new OperatorException(formatInvalidExceptionMessage(resourceName, "missing 'name' element"));
+            }
+            if (StringUtils.isNullOrEmpty(descriptor.getAlias())) {
+                throw new OperatorException(formatInvalidExceptionMessage(resourceName, "missing 'alias' element"));
+            }
+        } catch (StreamException e) {
+            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        }
         return descriptor;
     }
 
@@ -160,6 +193,9 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
     static XStream createXStream() {
         XStream xStream = new XStream();
+
+        xStream.setClassLoader(DefaultOperatorDescriptor.class.getClassLoader());
+
         xStream.alias("operator", DefaultOperatorDescriptor.class);
 
         xStream.alias("sourceProduct", DefaultSourceProductDescriptor.class);
@@ -178,6 +214,14 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
         xStream.aliasField("targetProperties", DefaultOperatorDescriptor.class, "targetPropertyDescriptors");
 
         return xStream;
+    }
+
+    private static String formatReadExceptionText(String resourceName, Exception e) {
+        return String.format("Failed to read operator descriptor from '%s':\nError: %s", resourceName, e.getMessage());
+    }
+
+    private static String formatInvalidExceptionMessage(String resourceName, String message) {
+        return String.format("Invalid operator descriptor in '%s': %s", resourceName, message);
     }
 
 }

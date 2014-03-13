@@ -1,77 +1,77 @@
 package org.esa.beam.framework.ui.product;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.ui.GridBagUtils;
-
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.GridBagUtils;
 
 public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
 
     // @todo 3 nf/se - see ProductSubsetDialog for a similar declarations  (code smell!)
-    private static final Font _SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
-    private static final Font _SMALL_ITALIC_FONT = _SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
+    private static final Font SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
+    private static final Font SMALL_ITALIC_FONT = SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
 
-    private final Band[] _allBands;
-    private Band[] _selectedBands;
-    private final TiePointGrid[] _allTiePointGrids;
-    private TiePointGrid[] _selectedTiePointGrids;
-    private final int _allBandsLength;
-    private boolean _multipleProducts;
-    private int _numSelected;
-    private JCheckBox[] _checkBoxes;
-    private JCheckBox _selectAllCheckBox;
-    private JCheckBox _selectNoneCheckBox;
+    private final Band[] allBands;
+    private Band[] selectedBands;
+    private final TiePointGrid[] allTiePointGrids;
+    private TiePointGrid[] selectedTiePointGrids;
+    private final int allBandsLength;
+    private boolean multipleProducts;
+    private int numSelected;
+    private JCheckBox[] checkBoxes;
+    private JCheckBox selectAllCheckBox;
+    private JCheckBox selectNoneCheckBox;
 
     public DefaultBandChoosingStrategy(Band[] allBands, Band[] selectedBands, TiePointGrid[] allTiePointGrids,
                                        TiePointGrid[] selectedTiePointGrids, boolean multipleProducts) {
-        this._allBands = allBands;
-        this._selectedBands = selectedBands;
-        this._allTiePointGrids = allTiePointGrids;
-        this._selectedTiePointGrids = selectedTiePointGrids;
-        if (_selectedBands == null) {
-            _selectedBands = new Band[0];
+        this.allBands = allBands;
+        this.selectedBands = selectedBands;
+        this.allTiePointGrids = allTiePointGrids;
+        this.selectedTiePointGrids = selectedTiePointGrids;
+        if (this.selectedBands == null) {
+            this.selectedBands = new Band[0];
         }
-        if (_selectedTiePointGrids == null) {
-            _selectedTiePointGrids = new TiePointGrid[0];
+        if (this.selectedTiePointGrids == null) {
+            this.selectedTiePointGrids = new TiePointGrid[0];
         }
         if (allBands != null) {
-            _allBandsLength = allBands.length;
+            allBandsLength = allBands.length;
         } else {
-            _allBandsLength = 0;
+            allBandsLength = 0;
         }
-        _multipleProducts = multipleProducts;
+        BandSorter.sort(allBands);
+        this.multipleProducts = multipleProducts;
     }
 
     @Override
     public Band[] getSelectedBands() {
-        return _selectedBands;
+        return selectedBands;
     }
 
     @Override
     public TiePointGrid[] getSelectedTiePointGrids() {
-        return _selectedTiePointGrids;
+        return selectedTiePointGrids;
     }
 
     @Override
     public JPanel createCheckersPane() {
         int length = 0;
-        if (_allBands != null) {
-            length += _allBandsLength;
+        if (allBands != null) {
+            length += allBandsLength;
         }
-        if (_allTiePointGrids != null) {
-            length += _allTiePointGrids.length;
+        if (allTiePointGrids != null) {
+            length += allTiePointGrids.length;
         }
-        _checkBoxes = new JCheckBox[length];
+        checkBoxes = new JCheckBox[length];
         final JPanel checkersPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=4,anchor=WEST,fill=HORIZONTAL");
         final ActionListener checkListener = createActionListener();
@@ -82,15 +82,14 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
 
     private void addBandCheckers(final StringBuffer description, final JPanel checkersPane,
                                  final GridBagConstraints gbc, final ActionListener checkListener) {
-        if (_allBands != null) {
-            for (int i = 0; i < _allBandsLength; i++) {
-                Band band = _allBands[i];
+        if (allBands != null) {
+            for (int i = 0; i < allBandsLength; i++) {
+                Band band = allBands[i];
                 boolean checked = false;
-                for (int j = 0; j < _selectedBands.length; j++) {
-                    Band selectedBand = _selectedBands[j];
+                for (Band selectedBand : selectedBands) {
                     if (band == selectedBand) {
                         checked = true;
-                        _numSelected++;
+                        numSelected++;
                         break;
                     }
                 }
@@ -104,31 +103,30 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
                 }
 
                 final JCheckBox check = new JCheckBox(getRasterDisplayName(band), checked);
-                check.setFont(_SMALL_PLAIN_FONT);
+                check.setFont(SMALL_PLAIN_FONT);
                 check.addActionListener(checkListener);
 
                 final JLabel label = new JLabel(description.toString());
-                label.setFont(_SMALL_ITALIC_FONT);
+                label.setFont(SMALL_ITALIC_FONT);
 
                 gbc.gridy++;
                 GridBagUtils.addToPanel(checkersPane, check, gbc, "weightx=0,gridx=0");
                 GridBagUtils.addToPanel(checkersPane, label, gbc, "weightx=1,gridx=1");
-                _checkBoxes[i] = check;
+                checkBoxes[i] = check;
             }
         }
     }
 
     private void addTiePointCheckers(final StringBuffer description, final JPanel checkersPane,
                                      final GridBagConstraints gbc, final ActionListener checkListener) {
-        if (_allTiePointGrids != null) {
-            for (int i = 0; i < _allTiePointGrids.length; i++) {
-                TiePointGrid grid = _allTiePointGrids[i];
+        if (allTiePointGrids != null) {
+            for (int i = 0; i < allTiePointGrids.length; i++) {
+                TiePointGrid grid = allTiePointGrids[i];
                 boolean checked = false;
-                for (int j = 0; j < _selectedTiePointGrids.length; j++) {
-                    TiePointGrid selectedGrid = _selectedTiePointGrids[j];
+                for (TiePointGrid selectedGrid : selectedTiePointGrids) {
                     if (grid == selectedGrid) {
                         checked = true;
-                        _numSelected++;
+                        numSelected++;
                         break;
                     }
                 }
@@ -137,23 +135,23 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
                 description.append(grid.getDescription() == null ? "" : grid.getDescription());
 
                 final JCheckBox check = new JCheckBox(getRasterDisplayName(grid), checked);
-                check.setFont(_SMALL_PLAIN_FONT);
+                check.setFont(SMALL_PLAIN_FONT);
                 check.addActionListener(checkListener);
 
                 final JLabel label = new JLabel(description.toString());
-                label.setFont(_SMALL_ITALIC_FONT);
+                label.setFont(SMALL_ITALIC_FONT);
 
                 gbc.gridy++;
                 GridBagUtils.addToPanel(checkersPane, check, gbc, "weightx=0,gridx=0");
                 GridBagUtils.addToPanel(checkersPane, label, gbc, "weightx=1,gridx=1");
 
-                _checkBoxes[i + _allBandsLength] = check;
+                checkBoxes[i + allBandsLength] = check;
             }
         }
     }
 
     private String getRasterDisplayName(RasterDataNode rasterDataNode) {
-        return _multipleProducts ? rasterDataNode.getDisplayName() : rasterDataNode.getName();
+        return multipleProducts ? rasterDataNode.getDisplayName() : rasterDataNode.getName();
     }
 
     private ActionListener createActionListener() {
@@ -161,9 +159,9 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
             public void actionPerformed(ActionEvent e) {
                 final JCheckBox check = (JCheckBox) e.getSource();
                 if (check.isSelected()) {
-                    _numSelected++;
+                    numSelected++;
                 } else {
-                    _numSelected--;
+                    numSelected--;
                 }
                 updateCheckBoxStates();
             }
@@ -171,18 +169,18 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
     }
 
     public void updateCheckBoxStates() {
-        _selectAllCheckBox.setSelected(_numSelected == _checkBoxes.length);
-        _selectAllCheckBox.setEnabled(_numSelected < _checkBoxes.length);
-        _selectAllCheckBox.updateUI();
-        _selectNoneCheckBox.setSelected(_numSelected == 0);
-        _selectNoneCheckBox.setEnabled(_numSelected > 0);
-        _selectNoneCheckBox.updateUI();
+        selectAllCheckBox.setSelected(numSelected == checkBoxes.length);
+        selectAllCheckBox.setEnabled(numSelected < checkBoxes.length);
+        selectAllCheckBox.updateUI();
+        selectNoneCheckBox.setSelected(numSelected == 0);
+        selectNoneCheckBox.setEnabled(numSelected > 0);
+        selectNoneCheckBox.updateUI();
     }
 
     @Override
     public void setCheckBoxes(JCheckBox selectAllCheckBox, JCheckBox selectNoneCheckBox) {
-        this._selectAllCheckBox = selectAllCheckBox;
-        this._selectNoneCheckBox = selectNoneCheckBox;
+        this.selectAllCheckBox = selectAllCheckBox;
+        this.selectNoneCheckBox = selectNoneCheckBox;
         updateCheckBoxStates();
     }
 
@@ -200,33 +198,58 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
     @Override
     public boolean atLeastOneBandSelected() {
         checkSelectedBandsAndGrids();
-        return _selectedBands.length > 0;
+        return selectedBands.length > 0;
     }
 
-    private void checkSelectedBandsAndGrids() {
-        final List bands = new ArrayList();
-        final List grids = new ArrayList();
-        for (int i = 0; i < _checkBoxes.length; i++) {
-            JCheckBox checkBox = _checkBoxes[i];
-            if (checkBox.isSelected()) {
-                if (_allBandsLength > i) {
-                    bands.add(_allBands[i]);
-                } else {
-                    grids.add(_allTiePointGrids[i - _allBandsLength]);
+    @Override
+    public void selectRasterDataNodes(String[] nodeNames) {
+        for (int i = 0; i < allBands.length; i++) {
+            Band band = allBands[i];
+            for (String nodeName : nodeNames) {
+                if (nodeName.equals(band.getName())) {
+                    checkBoxes[i].setSelected(true);
+                    numSelected++;
+                    break;
                 }
             }
         }
-        _selectedBands = (Band[]) bands.toArray(new Band[bands.size()]);
-        _selectedTiePointGrids = (TiePointGrid[]) grids.toArray(new TiePointGrid[grids.size()]);
+        for (int i = 0; i < allTiePointGrids.length; i++) {
+            TiePointGrid grid = allTiePointGrids[i];
+            for (String nodeName : nodeNames) {
+                if (nodeName.equals(grid.getName())) {
+                    checkBoxes[allBandsLength + i].setSelected(true);
+                    numSelected++;
+                    break;
+                }
+            }
+        }
+        updateCheckBoxStates();
+    }
+
+    private void checkSelectedBandsAndGrids() {
+        final List<Band> bands = new ArrayList<>();
+        final List<TiePointGrid> grids = new ArrayList<>();
+        for (int i = 0; i < checkBoxes.length; i++) {
+            JCheckBox checkBox = checkBoxes[i];
+            if (checkBox.isSelected()) {
+                if (allBandsLength > i) {
+                    bands.add(allBands[i]);
+                } else {
+                    grids.add(allTiePointGrids[i - allBandsLength]);
+                }
+            }
+        }
+        selectedBands = bands.toArray(new Band[bands.size()]);
+        selectedTiePointGrids = grids.toArray(new TiePointGrid[grids.size()]);
     }
 
     private void select(boolean b) {
-        for (JCheckBox checkBox : _checkBoxes) {
+        for (JCheckBox checkBox : checkBoxes) {
             if (b && !checkBox.isSelected()) {
-                _numSelected++;
+                numSelected++;
             }
             if (!b && checkBox.isSelected()) {
-                _numSelected--;
+                numSelected--;
             }
             checkBox.setSelected(b);
         }

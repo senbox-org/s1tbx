@@ -56,6 +56,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -67,6 +68,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Marco Peters
@@ -80,41 +82,44 @@ public class CustomCrsPanel extends JPanel {
     private static final String DATUM = "datum";
     private static final String PARAMETERS = "parameters";
 
-    private final List<GeodeticDatum> datumList;
-    private final List<AbstractCrsProvider> crsProviderList;
+    private final Set<GeodeticDatum> datumSet;
+    private final Set<AbstractCrsProvider> crsProviderSet;
     private final CustomCrsPanel.Model model;
     private final PropertyContainer vc;
     private final Window parent;
-    private JComboBox projectionComboBox;
-    private JComboBox datumComboBox;
+    private JComboBox<AbstractCrsProvider> projectionComboBox;
+    private JComboBox<GeodeticDatum> datumComboBox;
     private JButton paramButton;
     private static final String SEMI_MAJOR_PARAM_NAME = "semi_major";
     private static final String SEMI_MINOR_PARAM_NAME = "semi_minor";
 
+    /**
+     *  @deprecated since BEAM 5.0, use {@link #CustomCrsPanel(java.awt.Window, java.util.Set, java.util.Set)} instead
+     */
+    @Deprecated
     public CustomCrsPanel(Window parent) {
+        this(parent, CustomCrsPanel.createDatumSet(), CustomCrsPanel.createCrsProviderSet());
+    }
+
+    public CustomCrsPanel(Window parent, Set<GeodeticDatum> datumSet, Set<AbstractCrsProvider> crsProviderSet) {
         this.parent = parent;
 
-        this.datumList = CustomCrsPanel.createDatumList();
-        Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
+        this.datumSet = datumSet;
+        this.crsProviderSet = crsProviderSet;
+
         GeodeticDatum wgs84Datum = null;
-        for (GeodeticDatum geodeticDatum : this.datumList) {
+        // This is necessary because DefaultGeodeticDatum.WGS84 is
+        // not equal to the geodetic WGS84 datum from the database
+        for (GeodeticDatum geodeticDatum : datumSet) {
             if (DefaultGeodeticDatum.isWGS84(geodeticDatum)) {
                 wgs84Datum = geodeticDatum;
                 break;
             }
         }
-
-        final List<OperationMethod> methodList = CustomCrsPanel.createProjectionMethodList();
-        this.crsProviderList = new ArrayList<AbstractCrsProvider>(methodList.size() + 3);
-        for (OperationMethod method : methodList) {
-            crsProviderList.add(new OperationMethodCrsProvider(method));
-        }
         AbstractCrsProvider defaultMethod = new WGS84CrsProvider(wgs84Datum);
-        crsProviderList.add(defaultMethod);
-        crsProviderList.add(new UTMZonesCrsProvider(wgs84Datum));
-        crsProviderList.add(new UTMAutomaticCrsProvider(wgs84Datum));
-        Collections.sort(this.crsProviderList, new CrsProviderWrapperComparator());
-
+        crsProviderSet.add(defaultMethod);
+        crsProviderSet.add(new UTMZonesCrsProvider(wgs84Datum));
+        crsProviderSet.add(new UTMAutomaticCrsProvider(wgs84Datum));
 
         model = new Model();
         model.operationWrapper = defaultMethod;
@@ -147,13 +152,13 @@ public class CustomCrsPanel extends JPanel {
         final JLabel datumLabel = new JLabel("Geodetic datum:");
         final JLabel projectionLabel = new JLabel("Projection:");
 
-        projectionComboBox = new JComboBox(crsProviderList.toArray());
+        projectionComboBox = new JComboBox<>(crsProviderSet.toArray(new AbstractCrsProvider[crsProviderSet.size()]));
         projectionComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         final ComboBoxSearchable methodSearchable = new CrsProviderSearchable(projectionComboBox);
         methodSearchable.installListeners();
         projectionComboBox.setRenderer(new CrsProviderCellRenderer());
 
-        datumComboBox = new JComboBox(datumList.toArray());
+        datumComboBox = new JComboBox<>(datumSet.toArray(new GeodeticDatum[datumSet.size()]));
         datumComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         SearchableUtils.installSearchable(datumComboBox);
         datumComboBox.setRenderer(new IdentifiedObjectCellRenderer());
@@ -246,16 +251,16 @@ public class CustomCrsPanel extends JPanel {
 
     public void setCustom(GeodeticDatum geodeticDatum, OperationMethod operationMethod, ParameterValueGroup parameterValues) {
         String geodeticDatumName = geodeticDatum.getName().getCode();
-        for (GeodeticDatum datum : datumList) {
+        for (GeodeticDatum datum : datumSet) {
             if (datum.getName().getCode().equals(geodeticDatumName)) {
                 vc.setValue(DATUM, datum);
                 break;
             }
         }
-        for (AbstractCrsProvider abstractCrsProvider : crsProviderList) {
-            String operationMethodName = operationMethod.getName().getCode();
+        for (AbstractCrsProvider abstractCrsProvider : crsProviderSet) {
             if (abstractCrsProvider instanceof OperationMethodCrsProvider) {
                 OperationMethodCrsProvider operationMethodCrsProvider = (OperationMethodCrsProvider) abstractCrsProvider;
+                String operationMethodName = operationMethod.getName().getCode();
                 if (operationMethodCrsProvider.delegate.getName().getCode().equals(operationMethodName)) {
                     vc.setValue(OPERATION_WRAPPER, abstractCrsProvider);
                     break;
@@ -275,9 +280,9 @@ public class CustomCrsPanel extends JPanel {
 
     public static void main(String[] args) {
         final JFrame frame = new JFrame("Projection Method Form Test");
-        final CustomCrsPanel customCrsForm = new CustomCrsPanel(frame);
+        final CustomCrsPanel customCrsForm = new CustomCrsPanel(frame, CustomCrsPanel.createDatumSet(), CustomCrsPanel.createCrsProviderSet());
         frame.setContentPane(customCrsForm);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -288,33 +293,39 @@ public class CustomCrsPanel extends JPanel {
         });
     }
 
-    private static List<OperationMethod> createProjectionMethodList() {
+    private static Set<AbstractCrsProvider> createCrsProviderSet() {
         MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         Set<OperationMethod> methods = factory.getAvailableMethods(Projection.class);
-        return new ArrayList<OperationMethod>(methods);
+
+        TreeSet<AbstractCrsProvider> crsProviderSet = new TreeSet<>(new CrsProviderComparator());
+        for (OperationMethod method : methods) {
+            crsProviderSet.add(new OperationMethodCrsProvider(method));
+        }
+
+        return crsProviderSet;
     }
 
-    private static List<GeodeticDatum> createDatumList() {
+    private static Set<GeodeticDatum> createDatumSet() {
         DatumAuthorityFactory factory = ReferencingFactoryFinder.getDatumAuthorityFactory("EPSG", null);
         List<String> datumCodes = retrieveCodes(GeodeticDatum.class, factory);
-        List<GeodeticDatum> datumList = new ArrayList<GeodeticDatum>(datumCodes.size());
+        Set<GeodeticDatum> datumSet = new TreeSet<>(AbstractIdentifiedObject.NAME_COMPARATOR);
         for (String datumCode : datumCodes) {
             try {
                 DefaultGeodeticDatum geodeticDatum = (DefaultGeodeticDatum) factory.createGeodeticDatum(datumCode);
                 if (geodeticDatum.getBursaWolfParameters().length != 0 ||
                         DefaultGeodeticDatum.isWGS84(geodeticDatum)) {
-                    datumList.add(geodeticDatum);
+                    datumSet.add(geodeticDatum);
                 }
             } catch (FactoryException ignored) {
             }
         }
-        return datumList;
+        return datumSet;
     }
 
     private static List<String> retrieveCodes(Class<? extends GeodeticDatum> crsType, AuthorityFactory factory) {
         try {
             Set<String> localCodes = factory.getAuthorityCodes(crsType);
-            return new ArrayList<String>(localCodes);
+            return new ArrayList<>(localCodes);
         } catch (FactoryException ignore) {
             return Collections.emptyList();
         }
@@ -367,6 +378,7 @@ public class CustomCrsPanel extends JPanel {
 
         private AbstractCrsProvider operationWrapper;
         private GeodeticDatum datum;
+        @SuppressWarnings("UnusedDeclaration")
         private ParameterValueGroup parameters;
     }
 
@@ -386,7 +398,7 @@ public class CustomCrsPanel extends JPanel {
         }
     }
 
-    private static class CrsProviderWrapperComparator implements Comparator<AbstractCrsProvider> {
+    private static class CrsProviderComparator implements Comparator<AbstractCrsProvider> {
 
         @Override
         public int compare(AbstractCrsProvider o1, AbstractCrsProvider o2) {
@@ -398,7 +410,7 @@ public class CustomCrsPanel extends JPanel {
 
     private static class IdentifiedObjectSearchable extends ComboBoxSearchable {
 
-        private IdentifiedObjectSearchable(JComboBox operationComboBox) {
+        private IdentifiedObjectSearchable(JComboBox<GeodeticDatum> operationComboBox) {
             super(operationComboBox);
         }
 
@@ -415,7 +427,7 @@ public class CustomCrsPanel extends JPanel {
 
     private static class CrsProviderSearchable extends ComboBoxSearchable {
 
-        private CrsProviderSearchable(JComboBox operationComboBox) {
+        private CrsProviderSearchable(JComboBox<AbstractCrsProvider> operationComboBox) {
             super(operationComboBox);
         }
 

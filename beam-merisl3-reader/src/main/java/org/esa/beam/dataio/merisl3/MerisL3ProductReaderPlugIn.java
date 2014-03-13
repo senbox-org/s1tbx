@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,10 +16,10 @@
 
 package org.esa.beam.dataio.merisl3;
 
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
 
@@ -74,7 +74,10 @@ public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {
         }
         final NetcdfFile netcdfFile;
         try {
-            netcdfFile = SimpleNetcdfFile.openNetcdf(path);
+            netcdfFile = NetcdfFileOpener.open(path);
+            if (netcdfFile == null) {
+                return DecodeQualification.UNABLE;
+            }
         } catch (IOException e) {
             return DecodeQualification.UNABLE;
         }

@@ -51,13 +51,45 @@ public class PyOperator extends Operator {
     private transient PyModule pyModule;
     private transient PythonProcessor pythonProcessor;
 
+
+    public String getPythonModulePath() {
+        return pythonModulePath;
+    }
+
+    public void setPythonModulePath(String pythonModulePath) {
+        this.pythonModulePath = pythonModulePath;
+    }
+
+    public String getPythonModuleName() {
+        return pythonModuleName;
+    }
+
+    public void setPythonModuleName(String pythonModuleName) {
+        this.pythonModuleName = pythonModuleName;
+    }
+
+    public String getPythonClassName() {
+        return pythonClassName;
+    }
+
+    public void setPythonClassName(String pythonClassName) {
+        this.pythonClassName = pythonClassName;
+    }
+
     @Override
     public void initialize() throws OperatorException {
+        if (pythonModuleName == null || pythonModuleName.isEmpty()) {
+            throw new OperatorException("Missing parameter 'pythonModuleName'");
+        }
+        if (pythonClassName == null || pythonClassName.isEmpty()) {
+            throw new OperatorException("Missing value for parameter 'pythonClassName'");
+        }
+
         //PyLib.Diag.setFlags(PyLib.Diag.F_JVM);
 
         PyLib.startPython(null);
 
-        if (pythonModulePath != null) {
+        if (pythonModulePath != null && !pythonModulePath.isEmpty()) {
             PyModule pySysModule = PyModule.importModule("sys");
             PyObject pyPathList = pySysModule.getAttribute("path");
             pyPathList.callMethod("append", pythonModulePath);
@@ -91,21 +123,24 @@ public class PyOperator extends Operator {
     public interface PythonProcessor {
         /**
          * Initialize the operator.
+         *
          * @param operator The GPF operator which called the Python code.
          */
         void initialize(Operator operator);
 
         /**
          * Compute the tiles associated with the given bands.
-         * @param operator The GPF operator which called the Python code.
-         * @param targetTiles a mapping from {@link Band} objects to {@link Tile} objects.
+         *
+         * @param operator        The GPF operator which called the Python code.
+         * @param targetTiles     a mapping from {@link Band} objects to {@link Tile} objects.
          * @param targetRectangle the target rectangle to process in pixel coordinates.
          */
         void compute(Operator operator, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
 
         /**
          * Disposes the operator and all the resources associated with it.
-         * @param operator  The GPF operator which called the Python code.
+         *
+         * @param operator The GPF operator which called the Python code.
          */
         void dispose(Operator operator);
     }

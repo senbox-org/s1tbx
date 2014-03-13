@@ -72,13 +72,13 @@ public class OperatorDoclet extends Doclet {
             System.exit(1);
         }
 
-        // Todo (mp) -  Binning2 does not work; always getting error : java.lang.NoClassDefFoundError: ucar/ma2/InvalidRangeException
+        // Todo (mp) -  Binning does not work; always getting error : java.lang.NoClassDefFoundError: ucar/ma2/InvalidRangeException
         com.sun.tools.javadoc.Main.main(new String[]{
                 "-doclet", OperatorDoclet.class.getName(),
                 "-sourcepath", "" +
                                "./beam-gpf/src/main/java;" +
                                "./beam-aatsr-sst/src/main/java;" +
-                               "./beam-binning2/src/main/java;" +
+                               "./beam-binning/src/main/java;" +
                                "./beam-cluster-analysis/src/main/java;" +
                                "./beam-collocation/src/main/java;" +
                                "./beam-flhmci/src/main/java;" +
@@ -92,7 +92,7 @@ public class OperatorDoclet extends Doclet {
                               "./modules/beam-core-4.11;" +
                               "./modules/beam-gpf-4.11;" +
                               "./modules/beam-aatsr-sst-1.5.1;" +
-                              "./modules/beam-binning2-0.8.2-SNAPSHOT;" +
+                              "./modules/beam-binning-0.8.2-SNAPSHOT;" +
                               "./modules/beam-collocation-1.4.1;" +
                               "./modules/beam-flhmci-1.6.204;" +
                               "./modules/beam-meris-radiometry-1.1.2;" +

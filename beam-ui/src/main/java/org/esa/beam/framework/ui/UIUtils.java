@@ -68,6 +68,8 @@ import java.text.DecimalFormat;
  */
 public class UIUtils {
 
+    public static final String PROPERTY_SOURCE_PRODUCT = "SOURCE_PRODUCT";
+
     public static final String IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
     public static final Color COLOR_DARK_RED = new Color(128, 0, 0);
     public static final Color COLOR_DARK_BLUE = new Color(0, 0, 128);

@@ -279,9 +279,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @see #getRasterData
      * @see org.esa.beam.framework.datamodel.RasterDataNode#getSceneRasterWidth
      * @see org.esa.beam.framework.datamodel.RasterDataNode#getSceneRasterHeight
-     * @deprecated since BEAM 4.11, use {@link #getSourceImage()} instead.
      */
-    @Deprecated
     @Override
     public ProductData getSceneRasterData() {
         return getRasterData();
@@ -295,9 +293,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
-     * @deprecated since BEAM 4.11, use {@link #getSampleInt(int, int)} instead.
      */
-    @Deprecated
     @Override
     public int getPixelInt(int x, int y) {
         if (isScalingApplied()) {
@@ -315,9 +311,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
-     * @deprecated since BEAM 4.11, use {@link #getSampleFloat(int, int)} instead.
      */
-    @Deprecated
     @Override
     public float getPixelFloat(int x, int y) {
         if (isScalingApplied()) {
@@ -335,9 +329,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
-     * @deprecated since BEAM 4.11, use {@link #getSampleFloat(int, int)} instead.
      */
-    @Deprecated
     @Override
     public double getPixelDouble(int x, int y) {
         if (isScalingApplied()) {
@@ -354,9 +346,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
      * @throws NullPointerException if this band has no raster data
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     @Override
     public void setPixelInt(int x, int y, int pixelValue) {
         if (isScalingApplied()) {
@@ -375,9 +365,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
      * @throws NullPointerException if this band has no raster data
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     @Override
     public void setPixelFloat(int x, int y, float pixelValue) {
         if (isScalingApplied()) {
@@ -396,9 +384,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
      * @throws NullPointerException if this band has no raster data
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     @Override
     public void setPixelDouble(int x, int y, double pixelValue) {
         if (isScalingApplied()) {
@@ -423,10 +409,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels array of integer pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
-    @Deprecated
     public int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException {
         if (hasRasterData()) {
             pixels = getPixels(x, y, w, h, pixels, pm);
@@ -465,10 +449,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels array of float pixels to be filled with data.
      * @param pm     a monitor to inform the user about progress
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
-    @Deprecated
     public float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException {
         try {
             if (hasRasterData()) {
@@ -513,10 +495,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels array of double pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
-    @Deprecated
     public double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws IOException {
         if (hasRasterData()) {
             pixels = getPixels(x, y, w, h, pixels, pm);
@@ -553,10 +533,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm     a monitor to inform the user about progress
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
-    @Deprecated
     public int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) {
         pixels = ensureMinLengthArray(pixels, w * h);
         final ProductData rasterData = getRasterDataSafe();
@@ -602,9 +580,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm     a monitor to inform the user about progress
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
-    @Deprecated
     @Override
     public float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) {
         pixels = ensureMinLengthArray(pixels, w * h);
@@ -651,9 +627,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm     a monitor to inform the user about progress
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
-    @Deprecated
     @Override
     public double[] getPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) {
         pixels = ensureMinLengthArray(pixels, w * h);
@@ -704,10 +678,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be written.
      * @param pixels integer array to be written
      * @throws NullPointerException if this band has no raster data
-     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
-     *             method variants to set or write raster data.
      */
-    @Deprecated
     @Override
     public void setPixels(int x, int y, int w, int h, int[] pixels) {
         Guardian.assertNotNull("pixels", pixels);
@@ -745,12 +716,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels float array to be written
-     * @throws NullPointerException if this band has no raster data
-     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
-     *             method variants to set or write raster data.
      */
-    @Deprecated
-    @Override
     public void setPixels(int x, int y, int w, int h, float[] pixels) {
         Guardian.assertNotNull("pixels", pixels);
         final ProductData rasterData = getRasterData();
@@ -787,11 +753,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
-     * @throws NullPointerException if this band has no raster data
-     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
-     *             method variants to set or write raster data.
      */
-    @Deprecated
     @Override
     public void setPixels(int x, int y, int w, int h, double[] pixels) {
         Guardian.assertNotNull("pixels", pixels);
@@ -823,10 +785,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Ensures that raster data exists
-     *
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     public void ensureRasterData() {
         if (!hasRasterData()) {
             setRasterData(createCompatibleRasterData());
@@ -849,8 +808,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @see #readRasterDataFully(ProgressMonitor)
      * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     @Override
+    @Deprecated
     public void loadRasterData(ProgressMonitor pm) throws IOException {
         if (!hasRasterData()) {
             readRasterDataFully(pm);

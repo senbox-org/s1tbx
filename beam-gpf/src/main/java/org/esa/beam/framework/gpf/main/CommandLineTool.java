@@ -119,6 +119,9 @@ class CommandLineTool implements GraphProcessingObserver {
                 return;
             }
             run();
+        } catch (Error | RuntimeException e) {
+            e.printStackTrace(System.err);
+            throw e;
         } catch (Exception e) {
             if (stackTraceDumpEnabled) {
                 e.printStackTrace(System.err);

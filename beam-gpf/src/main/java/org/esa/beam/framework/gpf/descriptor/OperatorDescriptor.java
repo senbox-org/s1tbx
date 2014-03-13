@@ -10,20 +10,17 @@ import org.esa.beam.framework.gpf.Operator;
  */
 public interface OperatorDescriptor extends ElementDescriptor {
     /**
-     * @return The version of the operator.
-     * Defaults to the empty string (= not set).
+     * @return The version of the operator, or {@code null} if not declared.
      */
     String getVersion();
 
     /**
-     * @return The author(s) of the operator.
-     * Defaults to the empty string (= not set).
+     * @return The author(s) of the operator, or {@code null} if not declared.
      */
     String getAuthors();
 
     /**
-     * @return The copyright notice for the operator code.
-     * Defaults to the empty string (= not set).
+     * @return The copyright notice for the operator code, or {@code null} if not declared.
      */
     String getCopyright();
 

@@ -56,6 +56,7 @@
             </includes>
             <excludes>
                 <exclude>beam-cli-template.*</exclude>
+                <exclude>summary-csv-tool.bat</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -71,6 +72,7 @@
             </includes>
             <excludes>
                 <exclude>beam-cli-template.*</exclude>
+                <exclude>summary-csv-tool.sh</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -86,6 +88,7 @@
             </includes>
             <excludes>
                 <exclude>beam-cli-template.*</exclude>
+                <exclude>summary-csv-tool.command</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>

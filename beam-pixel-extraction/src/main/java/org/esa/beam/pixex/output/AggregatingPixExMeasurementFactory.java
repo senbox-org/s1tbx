@@ -43,23 +43,22 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
             String rasterName = rasterNames[i];
             Float[] bandValues = new Float[numPixels];
             final Band band = product.getBand(rasterName);
-            setBandValues(product, band, bandValues, windowSize, pixelX, pixelY);
+            setBandValues(product, band, bandValues, windowSize, pixelX, pixelY, validData);
             values[i] = bandValues;
         }
 
         Record record = new DefaultRecord(values);
-        final float[] numbers = new float[rasterNames.length * aggregatorStrategy.getValueCount()];
+        final Number[] numbers = new Number[rasterNames.length * aggregatorStrategy.getValueCount()];
         for (int i = 0; i < rasterNames.length; i++) {
-            float[] valuesForBand = aggregatorStrategy.getValues(record, i);
+            Number[] valuesForBand = aggregatorStrategy.getValues(record, i);
             for (int j = 0; j < aggregatorStrategy.getValueCount(); j++) {
-                float v = valuesForBand[j];
+                Number v = valuesForBand[j];
                 numbers[i * aggregatorStrategy.getValueCount() + j] = v;
             }
         }
 
         measurements[0] = createMeasurement(product, productId, coordinateID, coordinateName,
-                                            createFloatArray(numbers), validData,
-                                            pixelX, pixelY);
+                                            numbers, true, pixelX, pixelY);
         return measurements;
     }
 
@@ -68,16 +67,8 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         productRegistry.close();
     }
 
-    private Float[] createFloatArray(float[] values) {
-        final Float[] result = new Float[values.length];
-        for (int i = 0; i < values.length; i++) {
-            result[i] = values[i];
-        }
-        return result;
-    }
-
     private static void setBandValues(Product product, RasterDataNode raster, Float[] bandValues,
-                                      int windowSize, int pixelX, int pixelY) {
+                                      int windowSize, int pixelX, int pixelY, Raster validData) {
 
         final int windowBorder = windowSize / 2;
 
@@ -90,7 +81,7 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         for (int x = pixelX - windowBorder; x <= pixelX + windowBorder; x++) {
             for (int y = pixelY - windowBorder; y <= pixelY + windowBorder; y++) {
                 if (product.containsPixel(x, y)) {
-                    if (!raster.isPixelValid(x, y)) {
+                    if (!raster.isPixelValid(x, y) || (validData != null && validData.getSample(x, y, 0) == 0)) {
                         bandValues[pixelIndex] = Float.NaN;
                     } else if (raster.isFloatingPointType()) {
                         float sampleFloat = raster.getSampleFloat(x, y);

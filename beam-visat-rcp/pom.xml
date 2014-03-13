@@ -49,10 +49,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
-            <artifactId>beam-processing</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
         <dependency>

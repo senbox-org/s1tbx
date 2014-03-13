@@ -40,12 +40,6 @@
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
-        <!-- for supporting BUFR format
-        <dependency>
-            <groupId>edu.ucar</groupId>
-            <artifactId>bufr</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>nujan</artifactId>

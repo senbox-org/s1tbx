@@ -40,6 +40,7 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.visat.VisatApp;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -81,6 +82,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -104,6 +106,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.*;
 
@@ -163,7 +166,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, false);
-        userSettingsMap = new HashMap<Product, UserSettings>();
+        userSettingsMap = new HashMap<>();
         productRemovedListener = new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
@@ -228,6 +231,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         getAlternativeView().initComponents();
         initParameters();
         createUI();
+        VisatApp.getApp().getProductManager().addListener(productRemovedListener);
     }
 
     @Override
@@ -242,11 +246,9 @@ class ScatterPlotPanel extends ChartPagePanel {
         final RasterDataNode raster = getRaster();
         yAxisRangeControl.setTitleSuffix(raster != null ? raster.getName() : null);
 
-        final Product product = getProduct();
-
-        injectProductRemovedListener(product);
 
         if (raster != null) {
+            final Product product = getProduct();
             final String rasterName = raster.getName();
 
             final UserSettings userSettings = getUserSettings(product);
@@ -289,7 +291,6 @@ class ScatterPlotPanel extends ChartPagePanel {
     public void nodeRemoved(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
             updateComponents();
-            System.out.println("     nodeRemoved");
             computeChartDataIfPossible();
         }
     }
@@ -310,7 +311,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private String getRasterName() {
-        return getRaster().getName();
+        return getRaster() != null ? getRaster().getName() : "";
     }
 
     private void initParameters() {
@@ -318,7 +319,6 @@ class ScatterPlotPanel extends ChartPagePanel {
         final PropertyChangeListener recomputeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                BeamLogManager.getSystemLogger().finest("ScatterPlotPanel -> recomputeListener");
                 computeChartDataIfPossible();
             }
         };
@@ -390,16 +390,20 @@ class ScatterPlotPanel extends ChartPagePanel {
     private void handleAxisRangeControlChanges(PropertyChangeEvent evt, AxisRangeControl axisRangeControl,
                                                ValueAxis valueAxis, Range computedAutoRange) {
         final String propertyName = evt.getPropertyName();
-        if (AxisRangeControl.PROPERTY_NAME_AUTO_MIN_MAX.equals(propertyName)) {
-            if (axisRangeControl.isAutoMinMax()) {
-                final double min = computedAutoRange.getLowerBound();
-                final double max = computedAutoRange.getUpperBound();
-                axisRangeControl.adjustComponents(min, max, 3);
-            }
-        } else if (AxisRangeControl.PROPERTY_NAME_MIN.equals(propertyName)) {
-            valueAxis.setLowerBound(axisRangeControl.getMin());
-        } else if (AxisRangeControl.PROPERTY_NAME_MAX.equals(propertyName)) {
-            valueAxis.setUpperBound(axisRangeControl.getMax());
+        switch (propertyName) {
+            case AxisRangeControl.PROPERTY_NAME_AUTO_MIN_MAX:
+                if (axisRangeControl.isAutoMinMax()) {
+                    final double min = computedAutoRange.getLowerBound();
+                    final double max = computedAutoRange.getUpperBound();
+                    axisRangeControl.adjustComponents(min, max, 3);
+                }
+                break;
+            case AxisRangeControl.PROPERTY_NAME_MIN:
+                valueAxis.setLowerBound(axisRangeControl.getMin());
+                break;
+            case AxisRangeControl.PROPERTY_NAME_MAX:
+                valueAxis.setUpperBound(axisRangeControl.getMax());
+                break;
         }
     }
 
@@ -419,10 +423,10 @@ class ScatterPlotPanel extends ChartPagePanel {
         identityRenderer.setSeriesFillPaint(0, StatisticChartStyling.SAMPLE_DATA_FILL_PAINT);
         plot.setRenderer(CONFIDENCE_DSINDEX, identityRenderer);
 
-        final DeviationRenderer regressioonRenderer = new DeviationRenderer(true, false);
-        regressioonRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
-        regressioonRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
-        plot.setRenderer(REGRESSION_DSINDEX, regressioonRenderer);
+        final DeviationRenderer regressionRenderer = new DeviationRenderer(true, false);
+        regressionRenderer.setSeriesPaint(0, StatisticChartStyling.REGRESSION_DATA_PAINT);
+        regressionRenderer.setSeriesFillPaint(0, StatisticChartStyling.REGRESSION_DATA_FILL_PAINT);
+        plot.setRenderer(REGRESSION_DSINDEX, regressionRenderer);
 
         final XYErrorRenderer scatterPointsRenderer = new XYErrorRenderer();
         scatterPointsRenderer.setDrawXError(true);
@@ -558,7 +562,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         yAxisOptionPanel.add(yLogCheck, BorderLayout.SOUTH);
 
         final JCheckBox acceptableCheck = new JCheckBox("Show tolerance range");
-        JLabel fieldPräfix = new JLabel("+/-");
+        JLabel fieldPrefix = new JLabel("+/-");
         final JTextField acceptableField = new JTextField();
         acceptableField.setPreferredSize(new Dimension(40, acceptableField.getPreferredSize().height));
         acceptableField.setHorizontalAlignment(JTextField.RIGHT);
@@ -566,7 +570,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         bindingContext.bind(PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, acceptableCheck);
         bindingContext.bind(PROPERTY_NAME_ACCEPTABLE_DEVIATION, acceptableField);
         bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(percentLabel);
-        bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(fieldPräfix);
+        bindingContext.getBinding(PROPERTY_NAME_ACCEPTABLE_DEVIATION).addComponent(fieldPrefix);
         bindingContext.bindEnabledState(PROPERTY_NAME_ACCEPTABLE_DEVIATION, true,
                                         PROPERTY_NAME_SHOW_ACCEPTABLE_DEVIATION, true);
 
@@ -574,7 +578,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         GridBagConstraints confidencePanelConstraints = GridBagUtils.createConstraints(
                 "anchor=NORTHWEST,fill=HORIZONTAL,insets.top=5,weighty=0,weightx=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableCheck, confidencePanelConstraints, "gridy=0,gridwidth=3");
-        GridBagUtils.addToPanel(confidencePanel, fieldPräfix, confidencePanelConstraints,
+        GridBagUtils.addToPanel(confidencePanel, fieldPrefix, confidencePanelConstraints,
                                 "weightx=0,insets.left=22,gridy=1,gridx=0,insets.top=4,gridwidth=1");
         GridBagUtils.addToPanel(confidencePanel, acceptableField, confidencePanelConstraints,
                                 "weightx=1,gridx=1,insets.left=2,insets.top=2");
@@ -642,23 +646,29 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private void computeChartDataIfPossible() {
-        if (scatterPlotModel.pointDataSource != null
-            && scatterPlotModel.dataField != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
-            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
-                scatterPlotModel.dataField.getLocalName()) != null
-            && getRaster() != null) {
-            compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
-        } else {
-            scatterpointsDataset.removeAllSeries();
-            acceptableDeviationDataset.removeAllSeries();
-            regressionDataset.removeAllSeries();
-            getPlot().removeAnnotation(r2Annotation);
-            computedDatas = null;
-        }
+        // need to do this later: all GUI events must be processed first in order to get the correct state
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (scatterPlotModel.pointDataSource != null
+                    && scatterPlotModel.dataField != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection() != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
+                    && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
+                        scatterPlotModel.dataField.getLocalName()) != null
+                    && getRaster() != null) {
+                    compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
+                } else {
+                    scatterpointsDataset.removeAllSeries();
+                    acceptableDeviationDataset.removeAllSeries();
+                    regressionDataset.removeAllSeries();
+                    getPlot().removeAnnotation(r2Annotation);
+                    computedDatas = null;
+                }
+            }
+        });
     }
 
     private void compute(final Mask selectedMask) {
@@ -674,9 +684,9 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected ComputedData[] doInBackground() throws Exception {
-                BeamLogManager.getSystemLogger().finest("start computing scatter data");
+                BeamLogManager.getSystemLogger().finest("start computing scatter plot data");
 
-                final ArrayList<ComputedData> computedDataList = new ArrayList<ComputedData>();
+                final List<ComputedData> computedDataList = new ArrayList<>();
 
                 final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
                 final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
@@ -821,16 +831,8 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     computeRegressionAndAcceptableDeviationData();
                     computingData = false;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute correlative plot.\n" +
-                                                  "Calculation canceled.",
-                                                  /*I18N*/
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
-                } catch (CancellationException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException | CancellationException e) {
+                    BeamLogManager.getSystemLogger().log(Level.WARNING, "Failed to compute correlative plot.", e);
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
                                                   "Calculation canceled.",
@@ -838,7 +840,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    BeamLogManager.getSystemLogger().log(Level.WARNING, "Failed to compute correlative plot.", e);
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
                                                   "An error occurred:\n" +
@@ -1004,18 +1006,6 @@ class ScatterPlotPanel extends ChartPagePanel {
         }
     }
 
-    private void injectProductRemovedListener(Product product) {
-        if (product == null) {
-            return;
-        }
-        final ProductManager productManager = product.getProductManager();
-        if (productManager != null) {
-            // If the listener is already added it will not be added twice.
-            // Take a look inte the "addListener" method.
-            productManager.addListener(productRemovedListener);
-        }
-    }
-
     private UserSettings getUserSettings(Product product) {
         if (product == null) {
             return null;
@@ -1028,8 +1018,8 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     private static class UserSettings {
 
-        Map<String, VectorDataNode> pointDataSource = new HashMap<String, VectorDataNode>();
-        Map<String, AttributeDescriptor> dataField = new HashMap<String, AttributeDescriptor>();
+        Map<String, VectorDataNode> pointDataSource = new HashMap<>();
+        Map<String, AttributeDescriptor> dataField = new HashMap<>();
 
         public void set(String rasterName, VectorDataNode pointDataSourceValue, AttributeDescriptor dataFieldValue) {
             if (pointDataSourceValue != null && dataFieldValue != null) {

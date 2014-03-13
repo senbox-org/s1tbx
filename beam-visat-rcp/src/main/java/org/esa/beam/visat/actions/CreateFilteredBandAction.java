@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JLabel;
@@ -44,16 +45,14 @@ import java.awt.Component;
 import java.awt.Font;
 import java.text.MessageFormat;
 
-// todo - allow for user-defined kernels
-// todo - add kernel editor
-// todo - import/export kernels
-// todo - make filtered bands 'real' product components and store in DIMAP
+// todo - allow for user-defined kernels and structuring elements
+// todo - add kernel and structuring element editors
+// todo - import/export kernels and structuring elements
 
 /**
  * Installs commands into VISAT which lets a user attach a {@link org.esa.beam.framework.datamodel.PixelGeoCoding} based on pixels rather than tie points to the current product.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class CreateFilteredBandAction extends ExecCommand {
 
@@ -62,7 +61,7 @@ public class CreateFilteredBandAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        applyImageKernel();
+        createFilteredBand();
     }
 
     @Override
@@ -201,39 +200,66 @@ public class CreateFilteredBandAction extends ExecCommand {
 
     };
     Filter[] LAPLACIAN_FILTERS = {
-            new KernelFilter("Laplace 3x3", "l3", new Kernel(3, 3, new double[]{
+            new KernelFilter("Laplace 3x3 (a)", "lap3a", new Kernel(3, 3, new double[]{
                     +0, -1, +0,
                     -1, +4, -1,
                     +0, -1, +0,
             })),
-            new KernelFilter("Laplace 5x5", "l5", new Kernel(5, 5, new double[]{
-                    +1, +1, +1, +1, +1,
-                    +1, +1, +1, +1, +1,
-                    +1, +1, 24, +1, +1,
-                    +1, +1, +1, +1, +1,
-                    +1, +1, +1, +1, +1,
+            new KernelFilter("Laplace 3x3 (b)", "lap3b", new Kernel(3, 3, new double[]{
+                    -1, -1, -1,
+                    -1, +8, -1,
+                    -1, -1, -1,
+            })),
+            new KernelFilter("Laplace 5x5 (a)", "lap5a", new Kernel(5, 5, new double[]{
+                    0, 0, -1, 0, 0,
+                    0, -1, -2, -1, 0,
+                    -1, -2, 16, -2, -1,
+                    0, -1, -2, -1, 0,
+                    0, 0, -1, 0, 0,
+            })),
+            new KernelFilter("Laplace 5x5 (b)", "lap5b", new Kernel(5, 5, new double[]{
+                    -1, -1, -1, -1, -1,
+                    -1, -1, -1, -1, -1,
+                    -1, -1, 24, -1, -1,
+                    -1, -1, -1, -1, -1,
+                    -1, -1, -1, -1, -1,
             })),
     };
 
     Filter[] NON_LINEAR_FILTERS = {
-            new GeneralFilter("Minimum 3x3", "min3", 3, GeneralFilterBand.MIN),
-            new GeneralFilter("Minimum 5x5", "min5", 5, GeneralFilterBand.MIN),
-            new GeneralFilter("Minimum 7x7", "min7", 5, GeneralFilterBand.MIN),
-            new GeneralFilter("Maximum 3x3", "max3", 3, GeneralFilterBand.MAX),
-            new GeneralFilter("Maximum 5x5", "max5", 5, GeneralFilterBand.MAX),
-            new GeneralFilter("Maximum 7x7", "max7", 5, GeneralFilterBand.MAX),
-            new GeneralFilter("Mean 3x3", "mean3", 3, GeneralFilterBand.MEAN),
-            new GeneralFilter("Mean 5x5", "mean5", 5, GeneralFilterBand.MEAN),
-            new GeneralFilter("Mean 7x7", "mean7", 5, GeneralFilterBand.MEAN),
-            new GeneralFilter("Median 3x3", "median3", 3, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Median 5x5", "median5", 5, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Median 7x7", "median7", 5, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Standard Deviation 3x3", "stddev3", 3, GeneralFilterBand.STDDEV),
-            new GeneralFilter("Standard Deviation 5x5", "stddev5", 5, GeneralFilterBand.STDDEV),
-            new GeneralFilter("Standard Deviation 7x7", "stddev7", 5, GeneralFilterBand.STDDEV),
+            new GeneralFilter("Minimum 3x3", "min3", 3, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Minimum 5x5", "min5", 5, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Minimum 7x7", "min7", 5, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Maximum 3x3", "max3", 3, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Maximum 5x5", "max5", 5, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Maximum 7x7", "max7", 5, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Mean 3x3", "mean3", 3, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Mean 5x5", "mean5", 5, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Mean 7x7", "mean7", 5, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Median 3x3", "median3", 3, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Median 5x5", "median5", 5, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Median 7x7", "median7", 5, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Standard Deviation 3x3", "stddev3", 3, GeneralFilterBand.OpType.STDDEV),
+            new GeneralFilter("Standard Deviation 5x5", "stddev5", 5, GeneralFilterBand.OpType.STDDEV),
+            new GeneralFilter("Standard Deviation 7x7", "stddev7", 5, GeneralFilterBand.OpType.STDDEV),
     };
 
-    private void applyImageKernel() {
+    Filter[] MORPHOLOGICAL_FILTERS = {
+            new GeneralFilter("Erosion 3x3", "erode3", 3, GeneralFilterBand.OpType.EROSION),
+            new GeneralFilter("Erosion 5x5", "erode5", 5, GeneralFilterBand.OpType.EROSION),
+            new GeneralFilter("Erosion 7x7", "erode7", 5, GeneralFilterBand.OpType.EROSION),
+            new GeneralFilter("Dilation 3x3", "dilate3", 3, GeneralFilterBand.OpType.DILATION),
+            new GeneralFilter("Dilation 5x5", "dilate5", 5, GeneralFilterBand.OpType.DILATION),
+            new GeneralFilter("Dilation 7x7", "dilate7", 5, GeneralFilterBand.OpType.DILATION),
+            new GeneralFilter("Opening 3x3", "open3", 3, GeneralFilterBand.OpType.EROSION, GeneralFilterBand.OpType.DILATION),
+            new GeneralFilter("Opening 5x5", "open5", 5, GeneralFilterBand.OpType.EROSION, GeneralFilterBand.OpType.DILATION),
+            new GeneralFilter("Opening 7x7", "open7", 5, GeneralFilterBand.OpType.EROSION, GeneralFilterBand.OpType.DILATION),
+            new GeneralFilter("Closing 3x3", "close3", 3, GeneralFilterBand.OpType.DILATION, GeneralFilterBand.OpType.EROSION),
+            new GeneralFilter("Closing 5x5", "close5", 5, GeneralFilterBand.OpType.DILATION, GeneralFilterBand.OpType.EROSION),
+            new GeneralFilter("Closing 7x7", "close7", 5, GeneralFilterBand.OpType.DILATION, GeneralFilterBand.OpType.EROSION),
+    };
+
+    private void createFilteredBand() {
         final DialogData dialogData = promptForFilter();
         if (dialogData == null) {
             return;
@@ -246,25 +272,40 @@ public class CreateFilteredBandAction extends ExecCommand {
     }
 
     private static FilterBand createFilterBand(Filter filter, String bandName) {
-        final RasterDataNode raster = (RasterDataNode) VisatApp.getApp().getSelectedProductNode();
+        RasterDataNode raster = (RasterDataNode) VisatApp.getApp().getSelectedProductNode();
 
-        final FilterBand filterBand;
+        FilterBand filterBand;
+        Product product = raster.getProduct();
         if (filter instanceof KernelFilter) {
-            final KernelFilter kernelFilter = (KernelFilter) filter;
+            KernelFilter kernelFilter = (KernelFilter) filter;
             filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel);
         } else {
-            final GeneralFilter generalFilter = (GeneralFilter) filter;
-            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.size, generalFilter.operator);
+            RasterDataNode source = raster;
+            GeneralFilter generalFilter = (GeneralFilter) filter;
+            GeneralFilterBand.OpType[] opTypes = generalFilter.opTypes;
+            for (int i = 0; i < opTypes.length - 1; i++) {
+                GeneralFilterBand intermediateFilterBand = new GeneralFilterBand(bandName + "_im" + i, source, opTypes[i], generalFilter.size);
+                intermediateFilterBand.setDescription(String.format("Intermediate filter band #%d for band '%s'",
+                                                                    i,
+                                                                    bandName));
+                if (raster instanceof Band) {
+                    ProductUtils.copySpectralBandProperties((Band) raster, intermediateFilterBand);
+                }
+                intermediateFilterBand.setNoDataValueUsed(false);
+                product.addBand(intermediateFilterBand);
+                source = intermediateFilterBand;
+            }
+            filterBand = new GeneralFilterBand(bandName, source, opTypes[opTypes.length - 1], generalFilter.size);
         }
-        final String descr = MessageFormat.format("Filter ''{0}'' applied to ''{1}''",
-                                                  filter.toString(),
-                                                  raster.getName());
-        filterBand.setDescription(descr);
-        raster.getProduct().addBand(filterBand);
+
+        filterBand.setDescription(String.format("Filter '%s' applied to '%s'", filter.toString(), raster.getName()));
+        if (raster instanceof Band) {
+            ProductUtils.copySpectralBandProperties((Band) raster, filterBand);
+        }
+        product.addBand(filterBand);
         filterBand.fireProductNodeDataChanged();
         return filterBand;
     }
-
 
     private DialogData promptForFilter() {
         final JTree tree = createTree();
@@ -330,6 +371,7 @@ public class CreateFilteredBandAction extends ExecCommand {
         root.add(createNodes("Sharpen", SHARPENING_FILTERS));
         root.add(createNodes("Enhance Discontinuities", LAPLACIAN_FILTERS));
         root.add(createNodes("Non-Linear Filters", NON_LINEAR_FILTERS));
+        root.add(createNodes("Morphological Filters", MORPHOLOGICAL_FILTERS));
         final JTree tree = new JTree(root);
         tree.setRootVisible(false);
         tree.setShowsRootHandles(true);
@@ -382,19 +424,19 @@ public class CreateFilteredBandAction extends ExecCommand {
 
     private static class MyDefaultTreeCellRenderer extends DefaultTreeCellRenderer {
 
-        private Font _plainFont;
-        private Font _boldFont;
+        private Font plainFont;
+        private Font boldFont;
 
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
                                                       boolean leaf, int row, boolean hasFocus) {
             final JLabel c = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row,
                                                                          hasFocus);
-            if (_plainFont == null) {
-                _plainFont = c.getFont().deriveFont(Font.PLAIN);
-                _boldFont = c.getFont().deriveFont(Font.BOLD);
+            if (plainFont == null) {
+                plainFont = c.getFont().deriveFont(Font.PLAIN);
+                boldFont = c.getFont().deriveFont(Font.BOLD);
             }
-            c.setFont(leaf ? _plainFont : _boldFont);
+            c.setFont(leaf ? plainFont : boldFont);
             c.setIcon(null);
             return c;
         }
@@ -447,15 +489,15 @@ public class CreateFilteredBandAction extends ExecCommand {
     private static class GeneralFilter extends Filter {
 
         final int size;
-        final GeneralFilterBand.Operator operator;
+        final GeneralFilterBand.OpType[] opTypes;
 
-        public GeneralFilter(String name, String suffix, int size, GeneralFilterBand.Operator operator) {
+        public GeneralFilter(String name, String suffix, int size, GeneralFilterBand.OpType... opTypes) {
             super(name, suffix);
             this.size = size;
-            this.operator = operator;
+            this.opTypes = opTypes;
         }
 
-     }
+    }
 
     class CreateFilteredBandDialog extends ModalDialog {
 

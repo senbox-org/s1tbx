@@ -65,11 +65,8 @@ public class PgxProductReaderPlugIn implements ProductReaderPlugIn {
             return false;
         }
         try {
-            final FileImageInputStream stream = new FileImageInputStream(file);
-            try {
+            try (FileImageInputStream stream = new FileImageInputStream(file)) {
                 return canReadHeader(stream);
-            } finally {
-                stream.close();
             }
         } catch (IOException e) {
             return false;
@@ -78,7 +75,7 @@ public class PgxProductReaderPlugIn implements ProductReaderPlugIn {
 
     private boolean canReadHeader(ImageInputStream stream) {
         try {
-            return PgxProductReader.readerHeader(stream) != null;
+            return PgxProductReader.readHeader(stream) != null;
         } catch (IOException e) {
             return false;
         }

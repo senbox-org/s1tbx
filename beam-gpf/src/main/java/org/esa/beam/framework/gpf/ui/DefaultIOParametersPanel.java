@@ -21,11 +21,11 @@ import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
 import org.esa.beam.framework.ui.AppContext;
 
 import javax.swing.JPanel;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,16 +35,15 @@ import java.util.HashMap;
 public class DefaultIOParametersPanel extends JPanel {
 
     private ArrayList<SourceProductSelector> sourceProductSelectorList;
-    private HashMap<Field, SourceProductSelector> sourceProductSelectorMap;
+    private HashMap<SourceProductDescriptor, SourceProductSelector> sourceProductSelectorMap;
     private AppContext appContext;
 
-    public DefaultIOParametersPanel(AppContext appContext, OperatorSpi operatorSpi,
-                                    TargetProductSelector targetProductSelector) {
+    public DefaultIOParametersPanel(AppContext appContext, OperatorDescriptor descriptor, TargetProductSelector targetProductSelector) {
         this.appContext = appContext;
-        sourceProductSelectorList = new ArrayList<SourceProductSelector>(3);
-        sourceProductSelectorMap = new HashMap<Field, SourceProductSelector>(3);
+        sourceProductSelectorList = new ArrayList<>(3);
+        sourceProductSelectorMap = new HashMap<>(3);
         // Fetch source products
-        initSourceProductSelectors(operatorSpi);
+        createSourceProductSelectors(descriptor);
         if (!sourceProductSelectorList.isEmpty()) {
             setSourceProductSelectorLabels();
             setSourceProductSelectorToolTipTexts();
@@ -64,6 +63,15 @@ public class DefaultIOParametersPanel extends JPanel {
         add(tableLayout.createVerticalSpacer());
     }
 
+    /**
+     * @deprecated since BEAM 5, use {@link #DefaultIOParametersPanel(AppContext, OperatorDescriptor, TargetProductSelector)}
+     */
+    @Deprecated
+    public DefaultIOParametersPanel(AppContext appContext, OperatorSpi operatorSpi,
+                                    TargetProductSelector targetProductSelector) {
+        this(appContext, operatorSpi.getOperatorDescriptor(), targetProductSelector);
+    }
+
     public ArrayList<SourceProductSelector> getSourceProductSelectorList() {
         return sourceProductSelectorList;
     }
@@ -81,51 +89,37 @@ public class DefaultIOParametersPanel extends JPanel {
     }
 
     public HashMap<String, Product> createSourceProductsMap() {
-        final HashMap<String, Product> sourceProducts = new HashMap<String, Product>(8);
-        for (Field field : sourceProductSelectorMap.keySet()) {
-            final SourceProductSelector selector = sourceProductSelectorMap.get(field);
-            String key = field.getName();
-            final SourceProduct annot = field.getAnnotation(SourceProduct.class);
-            if (!annot.alias().isEmpty()) {
-                key = annot.alias();
-            }
+        final HashMap<String, Product> sourceProducts = new HashMap<>(8);
+        for (SourceProductDescriptor descriptor : sourceProductSelectorMap.keySet()) {
+            final SourceProductSelector selector = sourceProductSelectorMap.get(descriptor);
+            String alias = descriptor.getAlias();
+            String key = alias != null ? alias : descriptor.getName();
             sourceProducts.put(key, selector.getSelectedProduct());
         }
         return sourceProducts;
     }
 
 
-    private void initSourceProductSelectors(OperatorSpi operatorSpi) {
-        final Field[] fields = operatorSpi.getOperatorClass().getDeclaredFields();
-        for (Field field : fields) {
-            final SourceProduct annot = field.getAnnotation(SourceProduct.class);
-            if (annot != null) {
-                final ProductFilter productFilter = new AnnotatedSourceProductFilter(annot);
-                SourceProductSelector sourceProductSelector = new SourceProductSelector(appContext);
-                sourceProductSelector.setProductFilter(productFilter);
-                sourceProductSelectorList.add(sourceProductSelector);
-                sourceProductSelectorMap.put(field, sourceProductSelector);
-            }
+    private void createSourceProductSelectors(OperatorDescriptor operatorDescriptor) {
+        for (SourceProductDescriptor descriptor : operatorDescriptor.getSourceProductDescriptors()) {
+            final ProductFilter productFilter = new AnnotatedSourceProductFilter(descriptor);
+            SourceProductSelector sourceProductSelector = new SourceProductSelector(appContext);
+            sourceProductSelector.setProductFilter(productFilter);
+            sourceProductSelectorList.add(sourceProductSelector);
+            sourceProductSelectorMap.put(descriptor, sourceProductSelector);
         }
     }
 
     private void setSourceProductSelectorLabels() {
-        for (Field field : sourceProductSelectorMap.keySet()) {
-            final SourceProductSelector selector = sourceProductSelectorMap.get(field);
-            String label = null;
-            final SourceProduct annot = field.getAnnotation(SourceProduct.class);
-            if (!annot.label().isEmpty()) {
-                label = annot.label();
-            }
-            if (label == null && !annot.alias().isEmpty()) {
-                label = annot.alias();
+        for (SourceProductDescriptor descriptor : sourceProductSelectorMap.keySet()) {
+            final SourceProductSelector selector = sourceProductSelectorMap.get(descriptor);
+            String label = descriptor.getLabel();
+            String alias = descriptor.getAlias();
+            if (label == null && alias != null) {
+                label = alias;
             }
             if (label == null) {
-                String name = field.getName();
-                if (!annot.alias().isEmpty()) {
-                    name = annot.alias();
-                }
-                label = PropertyDescriptor.createDisplayName(name);
+                label = PropertyDescriptor.createDisplayName(descriptor.getName());
             }
             if (!label.endsWith(":")) {
                 label += ":";
@@ -135,12 +129,10 @@ public class DefaultIOParametersPanel extends JPanel {
     }
 
     private void setSourceProductSelectorToolTipTexts() {
-        for (Field field : sourceProductSelectorMap.keySet()) {
-            final SourceProductSelector selector = sourceProductSelectorMap.get(field);
-
-            final SourceProduct annot = field.getAnnotation(SourceProduct.class);
-            final String description = annot.description();
-            if (!description.isEmpty()) {
+        for (SourceProductDescriptor descriptor : sourceProductSelectorMap.keySet()) {
+            final String description = descriptor.getDescription();
+            if (description != null) {
+                final SourceProductSelector selector = sourceProductSelectorMap.get(descriptor);
                 selector.getProductNameComboBox().setToolTipText(description);
             }
         }
@@ -148,20 +140,21 @@ public class DefaultIOParametersPanel extends JPanel {
 
     private static class AnnotatedSourceProductFilter implements ProductFilter {
 
-        private final SourceProduct annot;
+        private final SourceProductDescriptor productDescriptor;
 
-        private AnnotatedSourceProductFilter(SourceProduct annot) {
-            this.annot = annot;
+        private AnnotatedSourceProductFilter(SourceProductDescriptor productDescriptor) {
+            this.productDescriptor = productDescriptor;
         }
 
         @Override
         public boolean accept(Product product) {
 
-            if (!annot.type().isEmpty() && !product.getProductType().matches(annot.type())) {
+            String productType = productDescriptor.getProductType();
+            if (productType != null && !product.getProductType().matches(productType)) {
                 return false;
             }
 
-            for (String bandName : annot.bands()) {
+            for (String bandName : productDescriptor.getBands()) {
                 if (!product.containsBand(bandName)) {
                     return false;
                 }

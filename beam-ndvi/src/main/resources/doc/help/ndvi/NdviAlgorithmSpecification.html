@@ -1,0 +1,80 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>BEAM NDVI - Algorithm Specification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            NDVI Algorithm Specification</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>NDVI</h3>
+
+<p>
+    The <u><b>N</b></u>ormalized <u><b>D</b></u>ifference <u><b>V</b></u>egetation <u><b>I</b></u>ndex
+    algorithms exploit the strength and the vitality of the vegetation on the earth's surface.
+</p>
+
+<p>
+    The spectral signatur of wholesome vegetation shows a abrupt rise of the reflection level at
+    0,7 µm, whereas land without vegetation, according to the type of surface, has a continuous linear
+    course. So much more active the chlorophyll of the plants, so much bigger is the boost of the
+    reflection level at the near infrared (0,78 - 1 µm). Beside the determination between of the vegetation
+    and other objects it allows to detect the vitality of the vegetation.
+</p>
+
+<p>
+    The NDVI results from the following equation:
+</p>
+
+<p>
+    NDVI = (IR_factor * near_IR - red_factor * red) / (IR_factor * near_IR + red_factor * red)
+</p>
+
+<p>
+    In the area of red the incoming solar radiation won´t be extensively absorbed by the pigments
+    of the mesophyll inside the folios, primarily by the chlorophyll. In the area of the near infrared
+    in contrast the bigger part of the incoming radiation was reflected. The NDVI composes a measurement
+    for the photosynthetic activity and is strongly in correlation with density and vitality of the
+    vegetation. The normalizing reduces topographicaly and atmospharic effects and enables the simultaneous
+    examination of a wide area.
+</p>
+
+<h3>NDVI-Flags</h3>
+
+<p>
+    Also the processor computes an additional flags band called 'ndvi_flags'
+    with the following bit coding:</p>
+<table>
+    <tr><th>Bit Position</th><th>Description</th></tr>
+    <tr><td>Bit 0</td><td>The computed value for NDVI is NAN or is Infinite</td></tr>
+    <tr><td>Bit 1</td><td>The computed value for NDVI is less than 0 (zero)</td></tr>
+    <tr><td>Bit 2</td><td>The computed value for NDVI is gerater than 1 (one)</td></tr>
+</table>
+<p>
+</p>
+<hr>
+</body>
+</html>

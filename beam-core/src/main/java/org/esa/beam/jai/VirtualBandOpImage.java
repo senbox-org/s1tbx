@@ -59,13 +59,6 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     private volatile NoDataRaster noDataRaster;
 
-    public static VirtualBandOpImage createMask(RasterDataNode raster,
-                                                ResolutionLevel level) {
-        return createMask(raster.getValidMaskExpression(),
-                          raster.getProduct(),
-                          level);
-    }
-
     public static VirtualBandOpImage createMask(String expression,
                                                 Product product,
                                                 ResolutionLevel level) {
@@ -74,19 +67,6 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       null,
                       true,
                       product,
-                      level);
-    }
-
-    public static VirtualBandOpImage createMask(String expression,
-                                                Product[] products,
-                                                int defaultProductIndex,
-                                                ResolutionLevel level) {
-        return create(expression,
-                      ProductData.TYPE_UINT8,
-                      null,
-                      true,
-                      products,
-                      defaultProductIndex,
                       level);
     }
 

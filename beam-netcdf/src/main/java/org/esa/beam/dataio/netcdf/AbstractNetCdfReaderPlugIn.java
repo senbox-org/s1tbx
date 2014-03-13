@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,8 +18,8 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartReader;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -43,7 +43,10 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
     public final DecodeQualification getDecodeQualification(Object input) {
         NetcdfFile netcdfFile = null;
         try {
-            netcdfFile = SimpleNetcdfFile.openNetcdf(input.toString());
+            netcdfFile = NetcdfFileOpener.open(input.toString());
+            if (netcdfFile == null) {
+                return DecodeQualification.UNABLE;
+            }
             return getDecodeQualification(netcdfFile);
         } catch (Throwable ignored) {
             // ok -- just clean up and return UNABLE

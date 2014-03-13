@@ -190,16 +190,18 @@ public class OperatorExecutor {
 
     private void scheduleRowColumnBand(Semaphore semaphore, ProgressMonitor pm) {
         //better handle stack operators, should equal well work for normal operators
-        final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images, pm);
-        final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
-        for (int tileY = 0; tileY < tileCountY; tileY++) {
-            for (int tileX = 0; tileX < tileCountX; tileX++) {
-                scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
-            }
-            if (scheduleRowsSeparate) {
-                // wait until all threads / tiles are finished
-                acquirePermits(semaphore, parallelism);
-                semaphore.release(parallelism);
+        if (images.length >= 1) {
+            final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images, pm);
+            final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
+            for (int tileY = 0; tileY < tileCountY; tileY++) {
+                for (int tileX = 0; tileX < tileCountX; tileX++) {
+                    scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
+                }
+                if (scheduleRowsSeparate) {
+                    // wait until all threads / tiles are finished
+                    acquirePermits(semaphore, parallelism);
+                    semaphore.release(parallelism);
+                }
             }
         }
     }
@@ -208,7 +210,7 @@ public class OperatorExecutor {
                               TileComputationListener[] listeners, ProgressMonitor pm) {
 
         BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
-                tileX + 1, tileCountX, tileY + 1, tileCountY, image));
+                                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
 
         checkForCancelation(pm);
         acquirePermits(semaphore, 1);
@@ -241,15 +243,13 @@ public class OperatorExecutor {
             OperatorContext operatorContext = (OperatorContext) field.get(operator);
             field.setAccessible(false);
             return operatorContext;
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
     }
 
     private static PlanarImage[] createImages(Band[] targetBands, OperatorContext operatorContext) {
-        final ArrayList<PlanarImage> images = new ArrayList<PlanarImage>(targetBands.length);
+        final ArrayList<PlanarImage> images = new ArrayList<>(targetBands.length);
         for (final Band band : targetBands) {
             OperatorImage operatorImage = operatorContext.getTargetImage(band);
             if (operatorImage != null) {
@@ -302,6 +302,8 @@ public class OperatorExecutor {
                                  Raster raster) {
             for (PlanarImage planarImage : images) {
                 if (image != planarImage) {
+                    BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
+                                                                          tileX + 1, tileCountX, tileY + 1, tileCountY, planarImage));
                     planarImage.getTile(tileX, tileY);
                 }
                 pm.worked(1);

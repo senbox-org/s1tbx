@@ -69,6 +69,12 @@ public @interface OperatorMetadata {
     String description() default "";
 
     /**
+     * @return The category/context where the operator is used.
+     * Defaults to the empty string (= not set).
+     */
+    String category() default "";
+
+    /**
      * @return If {@code true}, the framework will not automatically write the target product of this
      * operator. Usually, the framework writes the target products of single operators or processing graphs
      * when executed from the GPT commandline operator's GUI.

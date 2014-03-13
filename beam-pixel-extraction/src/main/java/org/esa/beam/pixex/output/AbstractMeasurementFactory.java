@@ -11,14 +11,12 @@ import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementFactory;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.image.Raster;
-
 public abstract class AbstractMeasurementFactory implements MeasurementFactory {
 
     protected static Measurement createMeasurement(Product product, long productId,
                                                    int coordinateID,
                                                    String coordinateName, Number[] values,
-                                                   Raster validData, int x, int y) {
+                                                   boolean isValid, int x, int y) {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
         final GeoCoding geoCoding = product.getGeoCoding();
         final GeoPos currentGeoPos;
@@ -27,7 +25,6 @@ public abstract class AbstractMeasurementFactory implements MeasurementFactory {
         } else {
             currentGeoPos = new GeoPos();
         }
-        final boolean isValid = validData == null || validData.getSample(x, y, 0) != 0;
         final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelPos.y);
         return new Measurement(coordinateID, coordinateName, productId,
                                pixelPos.x, pixelPos.y, scanLineTime, currentGeoPos, values,

@@ -32,6 +32,7 @@ import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
+import org.esa.beam.framework.ui.BooleanExpressionConverter;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
@@ -65,7 +66,7 @@ public class FlhMciOp extends PixelOperator {
     private boolean slope;
     @Parameter(validator = NodeNameValidator.class)
     private String slopeBandName;
-    @Parameter(description = "A ROI-mask expression used to identify pixels of interest") // todo - use ExpressionEditor
+    @Parameter(description = "A ROI-mask expression used to identify pixels of interest", converter = BooleanExpressionConverter.class)
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;
@@ -76,8 +77,12 @@ public class FlhMciOp extends PixelOperator {
     private transient BaselineAlgorithm algorithm;
     private transient OpImage maskOpImage;
 
+    private transient int currentPixel = 0;
+
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample[] targetSamples) {
+        checkCancellation();
+
         final float signal = sourceSamples[0].getFloat();
         final float lower = sourceSamples[1].getFloat();
         final float upper = sourceSamples[2].getFloat();
@@ -93,6 +98,14 @@ public class FlhMciOp extends PixelOperator {
                 targetSamples[1].set(invalidFlhMciValue);
             }
         }
+    }
+
+    private void checkCancellation() {
+        if (currentPixel % 1000 == 0) {
+            checkForCancellation();
+            currentPixel = 0;
+        }
+        currentPixel++;
     }
 
     @Override

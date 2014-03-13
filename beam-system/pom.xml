@@ -51,7 +51,6 @@
         <module>../beam-examples</module>
         <module>../beam-gpf</module>
         <module>../beam-help</module>
-        <module>../beam-processing</module>
         <module>../beam-scripting</module>
         <module>../beam-ui</module>
         <module>../beam-visat</module>
@@ -137,11 +136,6 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-processing</artifactId>
                 <version>${beam.version}</version>
             </dependency>
             <dependency>
@@ -436,7 +430,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.8.2</version>
+                <version>4.11</version>
                 <!-- junit is also used in production code e.g. GlobalTestConfig, therefore we
                 can't declare the test scope -->
                 <!--<scope>test</scope>-->

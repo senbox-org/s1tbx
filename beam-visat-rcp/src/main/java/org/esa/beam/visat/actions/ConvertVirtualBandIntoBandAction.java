@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -81,9 +82,11 @@ public class ConvertVirtualBandIntoBandAction extends ExecCommand {
                 Debug.trace(e);
             }
         }
-        product.removeBand(virtualBand);
+        ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+        int bandIndex = bandGroup.indexOf(virtualBand);
+        bandGroup.remove(virtualBand);
         virtualBand.dispose();
-        product.addBand(realBand);
+        bandGroup.add(bandIndex, realBand);
 
         if (validPixelExpression != null && !validPixelExpression.isEmpty()) {
             expression = "(" + validPixelExpression + ") ? (" + expression + ") : NaN";

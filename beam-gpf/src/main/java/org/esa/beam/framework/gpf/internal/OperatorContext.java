@@ -53,18 +53,21 @@ import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
 import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.TileCache;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -121,9 +124,9 @@ public class OperatorContext {
         this.operator = operator;
         this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
         this.computeTileStackMethodUsable = canOperatorComputeTileStack(operator.getClass());
-        this.sourceProductList = new ArrayList<Product>(3);
-        this.sourceProductMap = new HashMap<String, Product>(3);
-        this.targetPropertyMap = new HashMap<String, Object>(3);
+        this.sourceProductList = new ArrayList<>(3);
+        this.sourceProductMap = new HashMap<>(3);
+        this.targetPropertyMap = new HashMap<>(3);
         this.logger = BeamLogManager.getSystemLogger();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
 
@@ -227,7 +230,7 @@ public class OperatorContext {
 
     public String getSourceProductId(Product product) {
         Set<Map.Entry<String, Product>> entrySet = sourceProductMap.entrySet();
-        List<String> mappedIds = new ArrayList<String>();
+        List<String> mappedIds = new ArrayList<>();
         for (Map.Entry<String, Product> entry : entrySet) {
             //noinspection ObjectEquality
             if (entry.getValue() == product) {
@@ -309,7 +312,7 @@ public class OperatorContext {
         Assert.notNull(name, "name");
         if (value != null) {
             if (parameters == null) {
-                parameters = new HashMap<String, Object>();
+                parameters = new HashMap<>();
             }
             parameters.put(name, value);
         } else if (parameters != null) {
@@ -322,7 +325,7 @@ public class OperatorContext {
     }
 
     public void setParameters(Map<String, Object> parameters) {
-        this.parameters = new HashMap<String, Object>(parameters);
+        this.parameters = new HashMap<>(parameters);
     }
 
     public RenderingHints getRenderingHints() {
@@ -441,7 +444,6 @@ public class OperatorContext {
 
     private void initializeOperator() throws OperatorException {
         Assert.state(targetProduct == null, "targetProduct == null");
-        Assert.state(operator != null, "operator != null");
         Assert.state(!initialising, "!initialising, attempt to call getTargetProduct() from within initialise()?");
 
         try {
@@ -467,8 +469,7 @@ public class OperatorContext {
      * Updates this operator forcing it to recreate the target product.
      * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs.
      * @since BEAM 4.8
      */
     public void updateOperator() throws OperatorException {
@@ -521,7 +522,7 @@ public class OperatorContext {
         Module module = operatorSpi.getModule();
         if (module == null) {
             logger.warning("Could not read module information");
-        }else {
+        } else {
             ProductData nameValue = ProductData.createInstance(module.getSymbolicName());
             targetNodeME.addAttribute(new MetadataAttribute("moduleName", nameValue, false));
 
@@ -576,13 +577,13 @@ public class OperatorContext {
     }
 
     private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
-        final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(
+        final HashMap<String, List<DomElement>> map = new HashMap<>(
                 parentDE.getChildCount() + 5);
         for (DomElement childDE : parentDE.getChildren()) {
             final String name = childDE.getName();
             List<DomElement> elementList = map.get(name);
             if (elementList == null) {
-                elementList = new ArrayList<DomElement>(3);
+                elementList = new ArrayList<>(3);
                 map.put(name, elementList);
             }
             elementList.add(childDE);
@@ -638,9 +639,16 @@ public class OperatorContext {
             int height = targetProduct.getSceneRasterHeight();
             locks = OperatorImageTileStack.createLocks(width, height, tileSize);
         }
-        targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
+        targetImageMap = new HashMap<>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
             // Only register non-virtual bands
+            // Actually it should not be necessary to distinguish between regular and not regular bands.
+            // What does 'regular' actually mean?
+            // Here the question is if the operator needs to compute the data.
+            // Actually there should only one implementation of Band and it should be declared final.
+            // Virtual, filtered and all other types can be implemented by simply exchanging the source image.
+            // Instead of deriving the band class, a band should have an associated type. It would serve the same purpose
+            // as the type we already have for layers.
             if (isRegularBand(targetBand)) {
 
                 OperatorImage opImage = getOwnedOperatorImage(targetBand);
@@ -666,8 +674,25 @@ public class OperatorContext {
                         targetBand.setSourceImage(image);
                     }
                 } else {
+                    // Someone has added a band whose image comes from another operator that
+                    // has already been initialised.
                     targetBand.getSourceImage().reset();
                     targetImageMap.put(targetBand, opImage);
+                }
+            } else {
+                final Operator operator = getOperator();
+                // The WriteOp needs to be called for VirtualBands in order to write them as real bands, where necessary (NetCDF-CF).
+                // For other operators it should not be called
+                if (operator instanceof WriteOp) {
+                    targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
+                        @Override
+                        protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+                            Band targetBand = getTargetBand();
+                            tile.setRect(targetBand.getGeophysicalImage().getData(destRect));
+                            TileImpl targetTile = new TileImpl(targetBand, tile, destRect, false);
+                            operator.computeTile(targetBand, targetTile, ProgressMonitor.NULL);
+                        }
+                    });
                 }
             }
 
@@ -727,7 +752,7 @@ public class OperatorContext {
         if (targetProduct.getProductReader() == null) {
             targetProduct.setProductReader(new OperatorProductReader(this));
         }
-        if (renderingHints != null && GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
+        if (GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
             targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
         }
     }
@@ -886,20 +911,20 @@ public class OperatorContext {
     }
 
     private Product[] getUnnamedProducts() {
-        final Map<String, Product> map = new HashMap<String, Product>(sourceProductMap);
+        final Map<String, Product> map = new HashMap<>(sourceProductMap);
         final Field[] sourceProductFields = getAnnotatedSourceProductFields(operator);
         for (Field sourceProductField : sourceProductFields) {
             final SourceProduct annotation = sourceProductField.getAnnotation(SourceProduct.class);
             map.remove(sourceProductField.getName());
             map.remove(annotation.alias());
         }
-        Set<Product> productSet = new HashSet<Product>(map.values());
+        Set<Product> productSet = new HashSet<>(map.values());
         return productSet.toArray(new Product[productSet.size()]);
     }
 
     private static Field[] getAnnotatedSourceProductFields(Operator operator1) {
         Field[] declaredFields = operator1.getClass().getDeclaredFields();
-        List<Field> fieldList = new ArrayList<Field>();
+        List<Field> fieldList = new ArrayList<>();
         for (Field declaredField : declaredFields) {
             SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
             //noinspection VariableNotUsedInsideIf

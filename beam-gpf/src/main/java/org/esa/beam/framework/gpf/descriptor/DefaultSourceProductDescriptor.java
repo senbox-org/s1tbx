@@ -50,7 +50,7 @@ public class DefaultSourceProductDescriptor implements SourceProductDescriptor {
 
     @Override
     public String[] getBands() {
-        return bands;
+        return bands != null ? bands : new String[0];
     }
 
     @Override

@@ -18,9 +18,9 @@ public class MaxAggregatorStrategy extends AbstractAggregatorStrategy {
      * @return The maximum value.
      */
     @Override
-    public float[] getValues(Record record, int rasterIndex) {
+    public Number[] getValues(Record record, int rasterIndex) {
         AggregatedNumber number = getAggregatedNumber(record, rasterIndex);
-        return new float[]{(float) number.max};
+        return new Number[]{(float) number.max};
     }
 
     @Override

@@ -20,6 +20,18 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.sun.media.imageio.stream.FileChannelImageInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import javax.imageio.stream.ImageInputStream;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.converters.JavaTypeConverter;
@@ -36,19 +48,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import javax.imageio.stream.ImageInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * A CsvFile is a view on a csv file allowing a) to parse it using the {@link CsvSourceParser} interface
@@ -143,7 +142,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
                 values.add(value);
             } catch (ConversionException e) {
                 BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
-                                                                       csv.getPath(), e.getMessage()));
+                        csv.getPath(), e.getMessage()));
             }
             bytePositionForOffset.put(featureCount, stream.getStreamPosition());
         }
@@ -185,7 +184,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
                         builder.set(simpleFeatureType.getDescriptor(currentIndex).getLocalName(), value);
                     } catch (ConversionException e) {
                         BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
-                                                                               csv.getPath(), e.getMessage()));
+                                csv.getPath(), e.getMessage()));
                     }
                 }
             }
@@ -331,22 +330,27 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             String attributeTypeName;
             String attributeName;
             final int colonPos = token.indexOf(':');
+            if(colonPos == 0) {
+                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+            }
+            Class<?> attributeType;
             if (colonPos == -1) {
                 attributeName = token;
-                attributeTypeName = "double";
-            } else if (colonPos == 0) {
-                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                attributeType = Double.class;
             } else {
                 attributeName = token.substring(0, colonPos);
                 attributeTypeName = token.substring(colonPos + 1).toLowerCase();
-            }
-            attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
-            Class<?> attributeType;
-            try {
-                attributeType = jtc.parse(attributeTypeName);
-            } catch (ConversionException e) {
-                throw new IOException(
-                        String.format("Unknown type in attribute descriptor '%s'", token), e);
+                if (attributeTypeName.equals("int")) {
+                    attributeType = Integer.class;
+                } else {
+                    attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
+                    try {
+                        attributeType = jtc.parse(attributeTypeName);
+                    } catch (ConversionException e) {
+                        throw new IOException(
+                                String.format("Unknown type in attribute descriptor '%s'", token), e);
+                    }
+                }
             }
             builder.add(attributeName, attributeType);
         }
@@ -397,56 +401,56 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         return false;
     }
 
-private static class UTCConverter implements Converter<ProductData.UTC> {
+    private static class UTCConverter implements Converter<ProductData.UTC> {
 
-    @Override
-    public Class<? extends ProductData.UTC> getValueType() {
-        return ProductData.UTC.class;
-    }
-
-    @Override
-    public ProductData.UTC parse(String text) throws ConversionException {
-        try {
-            return ProductData.UTC.parse(text, Constants.TIME_PATTERN);
-        } catch (java.text.ParseException e) {
-            throw new ConversionException(e);
+        @Override
+        public Class<? extends ProductData.UTC> getValueType() {
+            return ProductData.UTC.class;
         }
-    }
 
-    @Override
-    public String format(ProductData.UTC value) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(Constants.TIME_PATTERN);
-        return sdf.format(value.getAsDate());
-    }
-}
-
-private class CsvJavaTypeConverter extends JavaTypeConverter {
-
-    @Override
-    public Class parse(String text) throws ConversionException {
-        Class result;
-        try {
-            result = super.parse(text);
-        } catch (ConversionException e) {
+        @Override
+        public ProductData.UTC parse(String text) throws ConversionException {
             try {
-                if (contains(Constants.TIME_NAMES, text.toLowerCase())) {
-                    result = getClass().getClassLoader().loadClass(ProductData.UTC.class.getName());
-                } else if ("ubyte".toLowerCase().equals(text.toLowerCase())) {
-                    result = getClass().getClassLoader().loadClass(Byte.class.getName());
-                } else if ("ushort".toLowerCase().equals(text.toLowerCase())) {
-                    result = getClass().getClassLoader().loadClass(Short.class.getName());
-                } else if ("uint".toLowerCase().equals(text.toLowerCase())) {
-                    result = getClass().getClassLoader().loadClass(Integer.class.getName());
-                } else {
-                    throw new ConversionException(e);
-                }
-            } catch (ClassNotFoundException e1) {
-                throw new ConversionException(e1);
+                return ProductData.UTC.parse(text, Constants.TIME_PATTERN);
+            } catch (java.text.ParseException e) {
+                throw new ConversionException(e);
             }
         }
-        return result;
+
+        @Override
+        public String format(ProductData.UTC value) {
+            final SimpleDateFormat sdf = new SimpleDateFormat(Constants.TIME_PATTERN);
+            return sdf.format(value.getAsDate());
+        }
     }
-}
+
+    private class CsvJavaTypeConverter extends JavaTypeConverter {
+
+        @Override
+        public Class parse(String text) throws ConversionException {
+            Class result;
+            try {
+                result = super.parse(text);
+            } catch (ConversionException e) {
+                try {
+                    if (contains(Constants.TIME_NAMES, text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(ProductData.UTC.class.getName());
+                    } else if ("ubyte".toLowerCase().equals(text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(Byte.class.getName());
+                    } else if ("ushort".toLowerCase().equals(text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(Short.class.getName());
+                    } else if ("uint".toLowerCase().equals(text.toLowerCase())) {
+                        result = getClass().getClassLoader().loadClass(Integer.class.getName());
+                    } else {
+                        throw new ConversionException(e);
+                    }
+                } catch (ClassNotFoundException e1) {
+                    throw new ConversionException(e1);
+                }
+            }
+            return result;
+        }
+    }
 
 
 }

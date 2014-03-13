@@ -62,7 +62,8 @@ public class AggregatingPixExMeasurementFactoryTest {
         final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 1.5F, 1.5F, null,
                                                                 new GeoPos(),
                                                                 new Number[]{
-                                                                        17.0F, 3.5707142F, 25.5F, 3.5707142F
+                                                                        17.0F, 3.5707142F, 9, // mean, sigma, num_pixels
+                                                                        25.5F, 3.5707142F, 9 // mean, sigma, num_pixels
                                                                 }, true);
         assertEquals(expectedMeasurement, measurements[0]);
     }
@@ -165,7 +166,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Number[] expectedValues = {
-                1.0F, 0.0F // mean, sigma
+                1.0F, 0.0F, 20 // mean, sigma, num_pixels
         };
         final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 2.5F, 2.5F, null,
                                                                 new GeoPos(),
@@ -202,7 +203,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Number[] expectedValues = {
-                1.0F, 0.0F // mean, sigma
+                1.0F, 0.0F, 20 // mean, sigma, num_pixels
         };
         final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 2.5F, 2.5F, null,
                                                                 new GeoPos(),
@@ -239,7 +240,7 @@ public class AggregatingPixExMeasurementFactoryTest {
         assertEquals(1, measurements.length);
 
         Number[] expectedValues = {
-                1.0F, 0.0F // mean, sigma
+                1.0F, 0.0F, 20 // mean, sigma, num_pixels
         };
         final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 2.5F, 2.5F, null,
                                                                 new GeoPos(),

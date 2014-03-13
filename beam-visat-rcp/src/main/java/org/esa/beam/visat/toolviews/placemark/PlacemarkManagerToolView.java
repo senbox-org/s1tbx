@@ -795,8 +795,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(
-                    product) && sourceNode instanceof Placemark) {
+            if (sourceNode instanceof Placemark && sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product)) {
                 updateUIState();
             }
         }
@@ -804,8 +803,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(
-                    product) && sourceNode instanceof Placemark) {
+            if (sourceNode instanceof Placemark && sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product)) {
                 updateUIState();
             }
         }
@@ -813,8 +811,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeAdded(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(
-                    product) && sourceNode instanceof Placemark) {
+            if (sourceNode instanceof Placemark && sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product)) {
                 placemarkTableModel.addPlacemark((Placemark) sourceNode);
                 updateUIState();
             }
@@ -823,8 +820,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof Placemark
-                    && sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product)) {
+            if (sourceNode instanceof Placemark && sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product)) {
                 placemarkTableModel.removePlacemark((Placemark) sourceNode);
                 updateUIState();
             }

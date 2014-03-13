@@ -59,6 +59,7 @@ import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
 
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
+import javax.swing.SwingUtilities;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
@@ -342,29 +343,39 @@ public class Session {
         return views.toArray(new ProductNodeView[views.size()]);
     }
 
-    private static void collectSceneView(ViewRef viewRef,
-                                         ProductManager productManager,
-                                         PropertyMap applicationPreferences,
-                                         ProgressMonitor pm,
-                                         List<Exception> problems,
-                                         List<ProductNodeView> views) throws Exception {
-        ProductSceneView view = createSceneView(viewRef, productManager, applicationPreferences, pm);
-        views.add(view);
-        for (int i = 0; i < viewRef.getLayerCount(); i++) {
-            LayerRef ref = viewRef.getLayerRef(i);
-            if (isBaseImageLayerRef(view, ref)) {
-                // The BaseImageLayer is not restored by LayerRef, so we have to adjust
-                // transparency and visibility  manually
-                view.getBaseImageLayer().setTransparency(ref.transparency);
-                view.getBaseImageLayer().setVisible(ref.visible);
-            } else {
-                try {
-                    addLayerRef(view, view.getRootLayer(), ref, productManager);
-                } catch (Exception e) {
-                    problems.add(e);
+    private static void collectSceneView(final ViewRef viewRef,
+                                         final ProductManager productManager,
+                                         final PropertyMap applicationPreferences,
+                                         final ProgressMonitor pm,
+                                         final List<Exception> problems,
+                                         final List<ProductNodeView> views) throws Exception {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run()  {
+                    ProductSceneView view;
+                    try {
+                        view = createSceneView(viewRef, productManager, applicationPreferences, pm);
+                    } catch (Exception e) {
+                        throw new IllegalStateException("Could not create scene", e);
+                    }
+                    views.add(view);
+                    for (int i = 0; i < viewRef.getLayerCount(); i++) {
+                        LayerRef ref = viewRef.getLayerRef(i);
+                        if (isBaseImageLayerRef(view, ref)) {
+                            // The BaseImageLayer is not restored by LayerRef, so we have to adjust
+                            // transparency and visibility  manually
+                            view.getBaseImageLayer().setTransparency(ref.transparency);
+                            view.getBaseImageLayer().setVisible(ref.visible);
+                        } else {
+                            try {
+                                addLayerRef(view, view.getRootLayer(), ref, productManager);
+                            } catch (Exception e) {
+                                problems.add(e);
+                            }
+                        }
+                    }
                 }
-            }
-        }
+            });
     }
 
     private static boolean isBaseImageLayerRef(ProductSceneView view, LayerRef ref) {

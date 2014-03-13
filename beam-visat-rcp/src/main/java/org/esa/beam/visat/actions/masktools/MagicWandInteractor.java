@@ -22,22 +22,30 @@ import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 import com.bc.ceres.swing.undo.UndoContext;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.List;
 
 import static org.esa.beam.visat.actions.masktools.MagicWandModel.MAGIC_WAND_MASK_NAME;
-import static org.esa.beam.visat.actions.masktools.MagicWandModel.getSpectralBands;
 
 /**
  * An interactor that lets users create masks using a "magic wand".
@@ -47,9 +55,9 @@ import static org.esa.beam.visat.actions.masktools.MagicWandModel.getSpectralBan
  * @author Norman Fomferra
  * @since BEAM 4.10
  */
-public class MagicWandInteractor extends ViewportInteractor {
+public class MagicWandInteractor extends ViewportInteractor implements MagicWandModel.Listener {
 
-    private static final String DIALOG_TITLE = "Magic Wand Settings";
+    private static final String DIALOG_TITLE = "Magic Wand Tool";
 
     private JDialog optionsWindow;
     private final MyLayerListener layerListener;
@@ -61,14 +69,30 @@ public class MagicWandInteractor extends ViewportInteractor {
     public MagicWandInteractor() {
         layerListener = new MyLayerListener();
         model = new MagicWandModel();
+        model.addListener(this);
     }
 
-    static double[] getSpectrum(Band[] bands, int pixelX, int pixelY) throws IOException {
-        final double[] pixel = new double[1];
-        final double[] spectrum = new double[bands.length];
+    @Override
+    public void modelChanged(MagicWandModel model, boolean recomputeMask) {
+        if (recomputeMask) {
+            updateMask();
+        }
+        if (form != null) {
+            form.getBindingContext().adjustComponents();
+            form.updateState();
+        }
+    }
 
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+    public Window getOptionsWindow() {
+        return optionsWindow;
+    }
+
+    static double[] getSpectrum(List<Band> bands, int pixelX, int pixelY) throws IOException {
+        final double[] pixel = new double[1];
+        final double[] spectrum = new double[bands.size()];
+
+        for (int i = 0; i < bands.size(); i++) {
+            final Band band = bands.get(i);
             band.readPixels(pixelX, pixelY, 1, 1, pixel, com.bc.ceres.core.ProgressMonitor.NULL);
             final double value;
             if (band.isPixelValid(pixelX, pixelY)) {
@@ -78,6 +102,7 @@ public class MagicWandInteractor extends ViewportInteractor {
             }
             spectrum[i] = value;
         }
+
         return spectrum;
     }
 
@@ -117,40 +142,125 @@ public class MagicWandInteractor extends ViewportInteractor {
         if (view == null) {
             return;
         }
+
         final Product product = view.getProduct();
-        final Band[] spectralBands = getSpectralBands(product);
-        if (spectralBands.length == 0) {
-            VisatApp.getApp().showErrorDialog("No spectral bands found.");
+        if (!ensureBandNamesSet(view, product)) {
             return;
         }
 
-        final Point2D mp = toModelPoint(event);
-        // todo - convert to image point and check against image boundaries! (nf)
-        final int pixelX = (int) mp.getX();
-        final int pixelY = (int) mp.getY();
+        List<Band> bands = model.getBands(product);
+        if (bands == null) {
+            if (!handleInvalidBandFilter(view)) {
+                return;
+            }
+            bands = model.getBands(product);
+            if (bands == null) {
+                // Should not come here.
+                return;
+            }
+        }
+
+        Point pixelPos = getPixelPos(product, event);
+        if (pixelPos == null) {
+            return;
+        }
+
         final double[] spectrum;
         try {
-            spectrum = getSpectrum(spectralBands, pixelX, pixelY);
+            spectrum = getSpectrum(bands, pixelPos.x, pixelPos.y);
         } catch (IOException e1) {
             return;
         }
+
         MagicWandModel oldModel = getModel().clone();
         getModel().addSpectrum(spectrum);
-        updateMagicWandMask(product, spectralBands);
         MagicWandModel newModel = getModel().clone();
+
+        ensureMaskVisible(view);
+
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
+    }
+
+    private void ensureMaskVisible(ProductSceneView view) {
+        Product product = view.getProduct();
+        ProductNodeGroup<Mask> overlayMaskGroup = view.getRaster().getOverlayMaskGroup();
+        Mask mask = overlayMaskGroup.getByDisplayName(MAGIC_WAND_MASK_NAME);
+        if (mask == null) {
+            mask = product.getMaskGroup().get(MAGIC_WAND_MASK_NAME);
+            if (mask != null) {
+                overlayMaskGroup.add(mask);
+            }
+        }
+    }
+
+    private boolean handleInvalidBandFilter(ProductSceneView view) {
+        Product product = view.getProduct();
+        int resp = VisatApp.getApp().showQuestionDialog(DIALOG_TITLE,
+                                                        "The currently selected band filter does not match\n" +
+                                                        "the bands of the selected data product.\n\n" +
+                                                        "Reset filter and use the ones of the selected product?",
+                                                        false,
+                                                        "visat.magicWandTool.resetFilter");
+        if (resp == JOptionPane.YES_OPTION) {
+            model.setBandNames();
+            return ensureBandNamesSet(view, product);
+        } else {
+            return false;
+        }
+    }
+
+    Point getPixelPos(Product product, MouseEvent event) {
+        final Point2D mp = toModelPoint(event);
+        final Point2D ip;
+        if (product.getGeoCoding() != null) {
+            AffineTransform transform = ImageManager.getImageToModelTransform(product.getGeoCoding());
+            try {
+                ip = transform.inverseTransform(mp, null);
+            } catch (NoninvertibleTransformException e) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "A geographic transformation problem occurred:\n" + e.getMessage());
+                return null;
+            }
+        } else {
+            ip = mp;
+        }
+
+        final int pixelX = (int) ip.getX();
+        final int pixelY = (int) ip.getY();
+        if (pixelX < 0
+            || pixelY < 0
+            || pixelX >= product.getSceneRasterWidth()
+            || pixelY >= product.getSceneRasterHeight()) {
+            return null;
+        }
+
+        return new Point(pixelX, pixelY);
+    }
+
+    private boolean ensureBandNamesSet(ProductSceneView view, Product product) {
+        if (model.getBandCount() == 0) {
+            model.setSpectralBandNames(product);
+        }
+        if (model.getBandCount() == 0) {
+            model.setBandNames(view.getRaster().getName());
+        }
+        if (model.getBandCount() == 0) {
+            // It's actually hard to get here, because we have a selected image view...
+            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "No bands selected.");
+            return false;
+        }
+        return true;
     }
 
     void updateMask() {
         final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
         if (view != null) {
             final Product product = view.getProduct();
-            updateMagicWandMask(product, MagicWandModel.getSpectralBands(product));
+            updateMagicWandMask(product);
         }
     }
 
-    private void updateMagicWandMask(Product product, Band[] spectralBands) {
-        MagicWandModel.setMagicWandMask(product, getModel().createExpression(spectralBands));
+    private void updateMagicWandMask(Product product) {
+        MagicWandModel.setMagicWandMask(product, getModel().createMaskExpression());
     }
 
     private JDialog createOptionsWindow() {
@@ -172,9 +282,6 @@ public class MagicWandInteractor extends ViewportInteractor {
 
     void updateModel(MagicWandModel other) {
         getModel().set(other);
-        updateMask();
-        form.getBindingContext().adjustComponents();
-        form.updateUndoRedoState();
     }
 
 

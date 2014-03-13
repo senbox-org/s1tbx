@@ -29,7 +29,6 @@
     </parent>
 
     <name>BEAM MERIS SMAC Atmospheric Correction</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-smac</artifactId>
     <version>1.5.205.${beam.version}</version>
 
@@ -42,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
-            <artifactId>beam-processing</artifactId>
+            <artifactId>beam-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>

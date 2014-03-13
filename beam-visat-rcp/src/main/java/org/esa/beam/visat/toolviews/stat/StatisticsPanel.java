@@ -90,7 +90,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @author Marco Peters
  */
-class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, StatisticalExportContext {
+class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, StatisticsDataProvider {
 
     private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Statistics";
@@ -245,7 +245,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             resultText.append(createText(raster.getStx(), null));
             contentPanel.add(createStatPanel(raster.getStx(), null));
             histograms = new Histogram[]{raster.getStx().getHistogram()};
-            exportAsCsvAction = new ExportStatisticsAsCsvAction(null);
+            exportAsCsvAction = new ExportStatisticsAsCsvAction(this);
             putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(this);
             exportButton.setEnabled(true);
         } else {

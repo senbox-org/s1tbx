@@ -435,7 +435,7 @@ class CommandLineUsage {
         final DomElement nodeElem = graphElem.createChild("node");
         nodeElem.setAttribute("id", "someNodeId");
         final DomElement operatorElem = nodeElem.createChild("operator");
-        operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorDescriptor.getOperatorClass()));
+        operatorElem.setValue(operatorDescriptor.getAlias());
         DomElement sourcesElem = nodeElem.createChild("sources");
         for (SourceProductDescriptor sourceProduct : operatorDescriptor.getSourceProductDescriptors()) {
             convertSourceProductFieldToDom(sourceProduct, sourcesElem);
@@ -464,28 +464,27 @@ class CommandLineUsage {
 
     static void convertParameterFieldToDom(ParameterDescriptor parameter, DomElement parametersElem) {
         String name = getName(parameter);
+        DomElement childElem = parametersElem.createChild(name);
         if (parameter.getDataType().isArray() && parameter.getItemAlias() != null) {
-            DomElement childElem = parameter.areItemsInlined() ? parametersElem : parametersElem.createChild(name);
             String itemName = parameter.getItemAlias();
             DomElement element = childElem.createChild(itemName);
-            if (parameter.isSimple()) {
-                element.setValue(getTypeName(parameter.getDataType().getComponentType()));
-            } else {
+            if (!parameter.isStructure()) {
                 ParameterDescriptor[] members = DefaultParameterDescriptor.getDataMemberDescriptors(parameter.getDataType().getComponentType());
                 for (ParameterDescriptor member : members) {
                     convertParameterFieldToDom(member, element);
                 }
+            } else {
+                element.setValue(getTypeName(parameter.getDataType().getComponentType()));
             }
             childElem.createChild("...");
         } else {
-            DomElement childElem = parametersElem.createChild(name);
-            if (parameter.isSimple()) {
-                childElem.setValue(getTypeName(parameter.getDataType()));
-            } else {
-                ParameterDescriptor[] members = parameter.getDataMemberDescriptors();
+            if (parameter.isStructure()) {
+                ParameterDescriptor[] members = parameter.getStructureMemberDescriptors();
                 for (ParameterDescriptor member : members) {
                     convertParameterFieldToDom(member, childElem);
                 }
+            } else {
+                childElem.setValue(getTypeName(parameter.getDataType()));
             }
         }
     }

@@ -12,7 +12,6 @@
     <packaging>pom</packaging>
 
     <name>BEAM Aggregator of Plugin Modules</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-plugins</artifactId>
     <description>This POM serves as aggregator for all BEAM plugin modules.</description>
     <!--The version number is never to be changed!
@@ -25,10 +24,10 @@
         <module>../beam-atsr-reader</module>
         <module>../beam-avhrr-reader</module>
         <module>../beam-binning</module>
-        <module>../beam-binning2</module>
         <module>../beam-chris-reader</module>
         <module>../beam-cluster-analysis</module>
         <module>../beam-collocation</module>
+        <module>../beam-envi-reader</module>
         <module>../beam-envisat-reader</module>
         <module>../beam-flhmci</module>
         <module>../beam-geotiff</module>
@@ -36,7 +35,7 @@
         <module>../beam-hdf5-writer</module>
         <module>../beam-landsat-reader</module>
         <module>../beam-meris-cloud</module>
-        <module>../beam-meris-ndvi</module>
+        <module>../beam-ndvi</module>
         <module>../beam-meris-radiometry</module>
         <module>../beam-meris-smac</module>
         <module>../beam-merisl3-reader</module>

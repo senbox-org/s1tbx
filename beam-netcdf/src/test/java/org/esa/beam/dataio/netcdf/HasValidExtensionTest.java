@@ -25,7 +25,7 @@ public class HasValidExtensionTest {
 
     @Test
     public void testNumberOfExtensions() {
-        assertEquals(6, Constants.FILE_EXTENSIONS.length);
+        assertEquals(4, Constants.FILE_EXTENSIONS.length);
     }
 
     @Test
@@ -40,8 +40,6 @@ public class HasValidExtensionTest {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.Nc"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.Nc.gz"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.Nc"));
-        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.grb"));
-        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.grb.gz"));
     }
 
     @Test

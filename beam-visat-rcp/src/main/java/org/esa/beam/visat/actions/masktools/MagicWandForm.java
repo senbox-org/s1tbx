@@ -1,48 +1,41 @@
 package org.esa.beam.visat.actions.masktools;
 
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
-import com.jidesoft.combobox.CheckBoxListExComboBox;
 import com.thoughtworks.xstream.XStream;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.BandChooser;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
 
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.*;
+import java.util.List;
 import java.util.prefs.Preferences;
+
+import static com.bc.ceres.swing.TableLayout.cell;
 
 /**
  * @author Norman Fomferra
@@ -54,21 +47,18 @@ class MagicWandForm {
 
     private MagicWandInteractor interactor;
 
-    // don't forget: private JCheckBox cumulativeModeCheckBox;
-    private JTextField toleranceField;
-
     private JSlider toleranceSlider;
     boolean adjustingSlider;
-    private JCheckBox normalizeCheckBox;
-    private JTextField minToleranceField;
-    private JTextField maxToleranceField;
 
     private UndoContext undoContext;
-    private JButton redoButton;
-    private JButton undoButton;
+    private AbstractButton redoButton;
+    private AbstractButton undoButton;
     private BindingContext bindingContext;
 
     private File settingsFile;
+    private JLabel infoLabel;
+    private AbstractButton minusButton;
+    private AbstractButton plusButton;
 
     MagicWandForm(MagicWandInteractor interactor) {
         this.interactor = interactor;
@@ -88,35 +78,17 @@ class MagicWandForm {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 adjustSlider();
-                interactor.updateMask();
+                interactor.getModel().fireModelChanged(true);
             }
         });
 
-        // Development interrupted due to 4.10 release: Band selection list (nf, 2012-05-07)
-        /*
-        Band[] spectralBands = MagicWandModel.getSpectralBands(VisatApp.getApp().getSelectedProduct());
-        String[] bandNames = new String[spectralBands.length];
-        for (int i = 0; i < bandNames.length; i++) {
-            bandNames[i] = spectralBands[i].getName();
-        }
-        CheckBoxListExComboBox bandComboBox = new CheckBoxListExComboBox(bandNames, String[].class);
-        bandComboBox.setEditable(true);
-        bandComboBox.setEnabled(true);
-        bandComboBox.setStretchToFit(true);
-
-        bindingContext.bind("bandNames", new CheckBoxListExComboBoxComponentAdapter(bandComboBox));
-        bindingContext.addPropertyChangeListener("bandNames", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println("bandNames = " + Arrays.toString(interactor.getModel().getBandNames()));
-            }
-        });
-        */
+        infoLabel = new JLabel();
+        infoLabel.setForeground(Color.DARK_GRAY);
 
         JLabel toleranceLabel = new JLabel("Tolerance:");
-        toleranceLabel.setToolTipText("Sets the maximum Euclidian distance tolerated (in units of the spectral bands)");
+        toleranceLabel.setToolTipText("Sets the maximum Euclidian distance tolerated");
 
-        toleranceField = new JTextField(10);
+        JTextField toleranceField = new JTextField(10);
         bindingContext.bind("tolerance", toleranceField);
         toleranceField.setText(String.valueOf(interactor.getModel().getTolerance()));
 
@@ -134,8 +106,8 @@ class MagicWandForm {
             }
         });
 
-        minToleranceField = new JTextField(4);
-        maxToleranceField = new JTextField(4);
+        JTextField minToleranceField = new JTextField(4);
+        JTextField maxToleranceField = new JTextField(4);
         bindingContext.bind("minTolerance", minToleranceField);
         bindingContext.bind("maxTolerance", maxToleranceField);
         final PropertyChangeListener minMaxToleranceListener = new PropertyChangeListener() {
@@ -152,90 +124,89 @@ class MagicWandForm {
         toleranceSliderPanel.add(toleranceSlider, BorderLayout.CENTER);
         toleranceSliderPanel.add(maxToleranceField, BorderLayout.EAST);
 
-        normalizeCheckBox = new JCheckBox("Normalize spectra");
-        normalizeCheckBox.setToolTipText("Normalizes spectra by dividing them by their first values");
+        JCheckBox normalizeCheckBox = new JCheckBox("Normalize spectra");
+        normalizeCheckBox.setToolTipText("Normalizes collected spectra by dividing them by their first band value");
         bindingContext.bind("normalize", normalizeCheckBox);
         bindingContext.addPropertyChangeListener("normalize", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                interactor.updateMask();
+                interactor.getModel().fireModelChanged(true);
             }
         });
 
-        JRadioButton methodButton1 = new JRadioButton("Distance");
-        JRadioButton methodButton2 = new JRadioButton("Average");
-        JRadioButton methodButton3 = new JRadioButton("Limits");
-        ButtonGroup methodGroup = new ButtonGroup();
-        methodGroup.add(methodButton1);
-        methodGroup.add(methodButton2);
-        methodGroup.add(methodButton3);
-        bindingContext.bind("method", methodGroup);
-        JPanel methodPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
-        methodPanel.add(methodButton1);
-        methodPanel.add(methodButton2);
-        methodPanel.add(methodButton3);
-        bindingContext.addPropertyChangeListener("method", new PropertyChangeListener() {
+        JRadioButton baButton1 = new JRadioButton("Distance");
+        JRadioButton baButton2 = new JRadioButton("Average");
+        JRadioButton baButton3 = new JRadioButton("Limits");
+        ButtonGroup baGroup = new ButtonGroup();
+        baGroup.add(baButton1);
+        baGroup.add(baButton2);
+        baGroup.add(baButton3);
+        bindingContext.bind("bandAccumulation", baGroup);
+        bindingContext.addPropertyChangeListener("bandAccumulation", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                interactor.updateMask();
+                interactor.getModel().fireModelChanged(true);
             }
         });
 
-        JRadioButton operatorButton1 = new JRadioButton("Integral");
-        JRadioButton operatorButton2 = new JRadioButton("Identity");
-        JRadioButton operatorButton3 = new JRadioButton("Derivative");
-        ButtonGroup operatorGroup = new ButtonGroup();
-        operatorGroup.add(operatorButton1);
-        operatorGroup.add(operatorButton2);
-        operatorGroup.add(operatorButton3);
-        bindingContext.bind("operator", operatorGroup);
-        JPanel operatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
-        operatorPanel.add(operatorButton1);
-        operatorPanel.add(operatorButton2);
-        operatorPanel.add(operatorButton3);
-        bindingContext.addPropertyChangeListener("operator", new PropertyChangeListener() {
+        JRadioButton stButton1 = new JRadioButton("Integral");
+        JRadioButton stButton2 = new JRadioButton("Identity");
+        JRadioButton stButton3 = new JRadioButton("Derivative");
+        ButtonGroup stGroup = new ButtonGroup();
+        stGroup.add(stButton1);
+        stGroup.add(stButton2);
+        stGroup.add(stButton3);
+        bindingContext.bind("spectrumTransform", stGroup);
+        bindingContext.addPropertyChangeListener("spectrumTransform", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                interactor.updateMask();
+                interactor.getModel().fireModelChanged(true);
             }
         });
 
-        final JToggleButton plusButton = new JToggleButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Plus16.gif")));
-        plusButton.setToolTipText("Switch to 'plus' mode: Selected spectra will be included in the mask.");
-        final JToggleButton minusButton = new JToggleButton(new ImageIcon(getClass().getResource("/org/esa/beam/resources/images/icons/Minus16.gif")));
-        minusButton.setToolTipText("Switch to 'minus' mode: Selected spectra will be excluded from the mask.");
+        plusButton = createToggleButton("/org/esa/beam/resources/images/icons/Plus16.gif");
+        plusButton.setToolTipText("Pick mode 'plus': newly picked spectra will be included in the mask.");
         plusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? MagicWandModel.Mode.PLUS : MagicWandModel.Mode.SINGLE);
+                if (interactor.getModel().getPickMode() != MagicWandModel.PickMode.PLUS) {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.PLUS);
+                } else {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.SINGLE);
+                }
             }
         });
+
+        minusButton = createToggleButton("/org/esa/beam/resources/images/icons/Minus16.gif");
+        minusButton.setToolTipText("Pick mode 'minus': newly picked spectra will be excluded from the mask.");
         minusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bindingContext.getPropertySet().setValue("mode", plusButton.isSelected() ? MagicWandModel.Mode.MINUS : MagicWandModel.Mode.SINGLE);
+                if (interactor.getModel().getPickMode() != MagicWandModel.PickMode.MINUS) {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.MINUS);
+                } else {
+                    interactor.getModel().setPickMode(MagicWandModel.PickMode.SINGLE);
+                }
             }
         });
 
-        bindingContext.addPropertyChangeListener("mode", new PropertyChangeListener() {
+        bindingContext.addPropertyChangeListener("pickMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                plusButton.setSelected(interactor.getModel().getMode() == MagicWandModel.Mode.PLUS);
-                minusButton.setSelected(interactor.getModel().getMode() == MagicWandModel.Mode.MINUS);
+                interactor.getModel().fireModelChanged(false);
             }
         });
 
-        final JButton newButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-new.png")));
+        final AbstractButton newButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-new.png");
         newButton.setToolTipText("New settings");
         newButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 interactor.getModel().clearSpectra();
-                interactor.updateMask();
             }
         });
 
-        final JButton openButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-open.png")));
+        final AbstractButton openButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-open.png");
         openButton.setToolTipText("Open settings");
         openButton.addActionListener(new ActionListener() {
             @Override
@@ -244,7 +215,7 @@ class MagicWandForm {
             }
         });
 
-        final JButton saveButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-save.png")));
+        final AbstractButton saveButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-save.png");
         saveButton.setToolTipText("Save settings");
         saveButton.addActionListener(new ActionListener() {
             @Override
@@ -253,7 +224,7 @@ class MagicWandForm {
             }
         });
 
-        final JButton saveAsButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/document-save-as.png")));
+        final AbstractButton saveAsButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-save-as.png");
         saveAsButton.setToolTipText("Save settings as");
         saveAsButton.addActionListener(new ActionListener() {
             @Override
@@ -262,7 +233,7 @@ class MagicWandForm {
             }
         });
 
-        undoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-undo.png")));
+        undoButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/edit-undo.png");
         undoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -271,7 +242,7 @@ class MagicWandForm {
                 }
             }
         });
-        redoButton = new JButton(new ImageIcon(getClass().getResource("/com/bc/ceres/swing/actions/icons_16x16/edit-redo.png")));
+        redoButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/edit-redo.png");
         redoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -280,54 +251,94 @@ class MagicWandForm {
                 }
             }
         });
-        updateUndoRedoState();
+        updateState();
         undoContext.addUndoableEditListener(new UndoableEditListener() {
             @Override
             public void undoableEditHappened(UndoableEditEvent e) {
-                updateUndoRedoState();
+                updateState();
             }
         });
 
-        JToolBar toolBar = new JToolBar();
-        toolBar.setFloatable(false);
-        toolBar.add(newButton);
-        toolBar.add(openButton);
-        toolBar.add(saveButton);
-        toolBar.add(saveAsButton);
-        toolBar.add(new JLabel("   "));
-        toolBar.add(undoButton);
-        toolBar.add(redoButton);
-        toolBar.add(new JLabel("   "));
-        toolBar.add(plusButton);
-        toolBar.add(minusButton);
+        AbstractButton filterButton = createButton("icons/Filter24.gif");
+        filterButton.setName("filterButton");
+        filterButton.setToolTipText("Select bands to included."); /*I18N*/
+        filterButton.addActionListener(new ActionListener() {
 
-        JPanel toolBarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
-        toolBarPanel.add(toolBar);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showBandChooser();
+            }
+        });
+
+        AbstractButton helpButton = createButton("icons/Help22.png");
+        helpButton.setName("helpButton");
+        helpButton.setToolTipText("Help."); /*I18N*/
+
+
+        JPanel toolPanelN = new JPanel(new GridLayout(-1, 2));
+        toolPanelN.add(newButton);
+        toolPanelN.add(openButton);
+        toolPanelN.add(saveButton);
+        toolPanelN.add(saveAsButton);
+        toolPanelN.add(filterButton);
+        toolPanelN.add(new JLabel());
+        toolPanelN.add(undoButton);
+        toolPanelN.add(redoButton);
+        toolPanelN.add(plusButton);
+        toolPanelN.add(minusButton);
+
+        JPanel toolPanelS = new JPanel(new GridLayout(-1, 2));
+        toolPanelS.add(new JLabel());
+        toolPanelS.add(helpButton);
 
         TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTablePadding(2, 2);
         tableLayout.setCellColspan(1, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(2, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(3, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(4, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(5, 0, tableLayout.getColumnCount());
-        tableLayout.setCellColspan(6, 0, tableLayout.getColumnCount());
+        Insets insets = new Insets(2, 10, 2, 2);
+        //tableLayout.setRowPadding(3, insets);
+        //tableLayout.setRowPadding(4, insets);
+        //tableLayout.setRowPadding(5, insets);
 
-        JPanel panel = new JPanel(tableLayout);
-        panel.add(toleranceLabel, new TableLayout.Cell(0, 0));
-        panel.add(toleranceField, new TableLayout.Cell(0, 1));
-        panel.add(toleranceSliderPanel, new TableLayout.Cell(1, 0));
-        // // Development interrupted due to 4.10 release: Band selection list (nf, 2012-05-07)
-        // panel.add(bandComboBox, new TableLayout.Cell(2, 0));
-        panel.add(methodPanel, new TableLayout.Cell(3, 0));
-        panel.add(operatorPanel, new TableLayout.Cell(4, 0));
-        panel.add(normalizeCheckBox, new TableLayout.Cell(5, 0));
-        panel.add(toolBarPanel, new TableLayout.Cell(6, 0));
+        tableLayout.setCellPadding(3, 0, insets);
+        tableLayout.setCellPadding(4, 0, insets);
+        tableLayout.setCellPadding(5, 0, insets);
+        tableLayout.setCellPadding(3, 1, insets);
+        tableLayout.setCellPadding(4, 1, insets);
+        tableLayout.setCellPadding(5, 1, insets);
+
+        JPanel subPanel = new JPanel(tableLayout);
+        subPanel.add(toleranceLabel, cell(0, 0));
+        subPanel.add(toleranceField, cell(0, 1));
+        subPanel.add(toleranceSliderPanel, cell(1, 0));
+
+        subPanel.add(new JLabel("Spectrum transformation:"), cell(2, 0));
+        subPanel.add(stButton1, cell(3, 0));
+        subPanel.add(stButton2, cell(4, 0));
+        subPanel.add(stButton3, cell(5, 0));
+
+        subPanel.add(new JLabel("Band aggregation:"), cell(2, 1));
+        subPanel.add(baButton1, cell(3, 1));
+        subPanel.add(baButton2, cell(4, 1));
+        subPanel.add(baButton3, cell(5, 1));
+
+        subPanel.add(normalizeCheckBox, cell(6, 0));
+        subPanel.add(infoLabel, cell(6, 1));
+
+        JPanel toolPanel = new JPanel(new BorderLayout(4, 4));
+        toolPanel.add(toolPanelN, BorderLayout.NORTH);
+        toolPanel.add(new JLabel(), BorderLayout.CENTER);
+        toolPanel.add(toolPanelS, BorderLayout.SOUTH);
+
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
+        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        panel.add(subPanel, BorderLayout.CENTER);
+        panel.add(toolPanel, BorderLayout.EAST);
 
         adjustSlider();
+        updateState();
 
         return panel;
     }
@@ -355,11 +366,8 @@ class MagicWandForm {
             }
         }
         try {
-            FileWriter writer = new FileWriter(settingsFile);
-            try {
+            try (FileWriter writer = new FileWriter(settingsFile)) {
                 writer.write(createXStream().toXML(interactor.getModel()));
-            } finally {
-                writer.close();
             }
             this.settingsFile = settingsFile;
         } catch (IOException e) {
@@ -395,7 +403,7 @@ class MagicWandForm {
                 return settingsFile;
             }
             String msg = MessageFormat.format("Settings file ''{0}'' already exists." +
-                                                      "\nOverwrite?", settingsFile.getName());
+                                              "\nOverwrite?", settingsFile.getName());
             int resp2 = JOptionPane.showConfirmDialog(parent, msg,
                                                       "File exists", JOptionPane.YES_NO_CANCEL_OPTION);
             if (resp2 == JOptionPane.YES_OPTION) {
@@ -407,7 +415,28 @@ class MagicWandForm {
         }
     }
 
-    void updateUndoRedoState() {
+    void updateState() {
+/*
+        JComponent[] bandAccumulationComponents = bindingContext.getBinding("bandAccumulation").getComponentAdapter().getComponents();
+        for (JComponent component : bandAccumulationComponents) {
+            component.setEnabled(interactor.getModel().getPickMode() != MagicWandModel.PickMode.SINGLE);
+        }
+
+        JComponent[] spectrumTransformComponents = bindingContext.getBinding("spectrumTransform").getComponentAdapter().getComponents();
+        for (JComponent component : spectrumTransformComponents) {
+            component.setEnabled(interactor.getModel().getBandCount() != 1);
+        }
+*/
+        MagicWandModel model = interactor.getModel();
+
+        infoLabel.setText(String.format("%d(+), %d(-), %d bands",
+                                        model.getPlusSpectraCount(),
+                                        model.getMinusSpectraCount(),
+                                        model.getBandCount()));
+
+        plusButton.setSelected(model.getPickMode() == MagicWandModel.PickMode.PLUS);
+        minusButton.setSelected(model.getPickMode() == MagicWandModel.PickMode.MINUS);
+
         undoButton.setEnabled(undoContext.canUndo());
         redoButton.setEnabled(undoContext.canRedo());
     }
@@ -433,50 +462,56 @@ class MagicWandForm {
         return minTolerance + sliderValue * (maxTolerance - minTolerance) / TOLERANCE_SLIDER_RESOLUTION;
     }
 
+    private static AbstractButton createButton(String iconPath) {
+        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
+    }
 
-    private static class CheckBoxListExComboBoxComponentAdapter extends ComponentAdapter {
-        private final CheckBoxListExComboBox comboBox;
-        private final CheckBoxListExComboBoxComponentAdapter.MyItemListener itemListener;
+    private static AbstractButton createToggleButton(String iconPath) {
+        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), true);
+    }
 
-        public CheckBoxListExComboBoxComponentAdapter(CheckBoxListExComboBox comboBox) {
-            this.comboBox = comboBox;
-            itemListener = new MyItemListener();
+    void showBandChooser() {
+        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+        if (view == null) {
+            VisatApp.getApp().showInfoDialog("Please select an image view first.", null);
+            return;
+        }
+        Product product = view.getProduct();
+
+        Band[] bands = product.getBands();
+        if (bands.length == 0) {
+            VisatApp.getApp().showInfoDialog("No bands in product.", null);
+            return;
         }
 
-        @Override
-        public JComponent[] getComponents() {
-            return new JComponent[]{comboBox};
+        Set<String> oldBandNames = new HashSet<>(interactor.getModel().getBandNames());
+        Set<Band> oldBandSet = new HashSet<>();
+        for (Band band : bands) {
+            if (oldBandNames.contains(band.getName())) {
+                oldBandSet.add(band);
+            }
         }
+        BandChooser bandChooser = new BandChooser(interactor.getOptionsWindow(),
+                                                  "Available Bands and Tie Point Grids",
+                                                  "",
+                                                  bands,
+                                                  oldBandSet.toArray(new Band[oldBandSet.size()]),
+                                                  product.getAutoGrouping());
 
-        @Override
-        public void bindComponents() {
-            comboBox.addItemListener(itemListener);
-        }
+        if (bandChooser.show() == ModalDialog.ID_OK) {
+            Band[] newBands = bandChooser.getSelectedBands();
+            Arrays.sort(newBands, new SpectralBandComparator());
 
-        @Override
-        public void unbindComponents() {
-            comboBox.removeItemListener(itemListener);
-        }
+            List<String> newBandNames = new ArrayList<>();
+            for (Band newBand : newBands) {
+                newBandNames.add(newBand.getName());
+            }
 
-        @Override
-        public void adjustComponents() {
-            PropertySet propertySet = getBinding().getContext().getPropertySet();
-            comboBox.setSelectedObjects((Object[]) propertySet.getValue(getBinding().getPropertyName()));
-        }
-
-        private class MyItemListener implements ItemListener {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                boolean updateOnChange = comboBox.isUpdateOnChange();
-                System.out.println("updateOnChange = " + updateOnChange);
-                Object[] selectedObjects = comboBox.getSelectedObjects();
-                String[] names = new String[selectedObjects.length];
-                for (int i = 0; i < names.length; i++) {
-                    names[i] = (String) selectedObjects[i];
-                }
-                PropertySet propertySet = getBinding().getContext().getPropertySet();
-                propertySet.setValue(getBinding().getPropertyName(), names);
+            if (!oldBandNames.containsAll(newBandNames)
+                || !newBandNames.containsAll(oldBandNames)) {
+                interactor.getModel().setBandNames(newBandNames);
             }
         }
     }
+
 }

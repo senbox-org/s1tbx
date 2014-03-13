@@ -26,13 +26,13 @@ public class MinAggregatorStrategyTest {
         final DefaultRecord defaultRecord = new DefaultRecord(numbers);
 
         assertEquals(1, minStrategy.getValueCount());
-        final float[] firstBandValues = minStrategy.getValues(defaultRecord, 0);
-        final float[] secondBandValues = minStrategy.getValues(defaultRecord, 1);
+        final Number[] firstBandValues = minStrategy.getValues(defaultRecord, 0);
+        final Number[] secondBandValues = minStrategy.getValues(defaultRecord, 1);
 
         assertEquals(1, firstBandValues.length);
         assertEquals(1, secondBandValues.length);
-        assertEquals(1F, firstBandValues[0], 0.0001);
-        assertEquals(2F, secondBandValues[0], 0.0001);
+        assertEquals(1F, firstBandValues[0].doubleValue(), 0.0001);
+        assertEquals(2F, secondBandValues[0].doubleValue(), 0.0001);
     }
 
 }

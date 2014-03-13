@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-cloud</symbolicName>
-    <version>1.6.2</version>
+    <version>1.7</version>
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
@@ -9,6 +9,8 @@
     </description>
     <changelog>
         <![CDATA[
+        Changes in 1.7<br/>
+        [BEAM-1609] - Convert Cloud Processor to GPF<br/>
         Changes in 1.6.2<br>
         Deprecated API.<br/>
         Changes in 1.6.1<br>
@@ -35,9 +37,6 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-processing</module>
-    </dependency>
-    <dependency>
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>
@@ -50,17 +49,17 @@
     <extension point="beam-ui:actions">
         <action>
             <id>cloudScientificTool</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.cloud.CloudProcessor</processor>
-            <text>Cloud Probability Processor (MERIS)...</text>
-            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
-            <mnemonic>C</mnemonic>
-            <parent>tools</parent>
             <helpId>cloudScientificTool</helpId>
-            <placeAfter>merisPreprocessor</placeAfter>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <text>Cloud Probability Processor (MERIS)...</text>
+            <parent>tools</parent>
+            <operatorName>CloudProb</operatorName>
+            <dialogTitle>Cloud Probability Processor</dialogTitle>
+            <placeAfter>merisRadiometryCorrection</placeAfter>
+            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
+            <targetProductNameSuffix>_cloud</targetProductNameSuffix>
         </action>
     </extension>
-
 
     <extension point="beam-ui:helpSets">
         <helpSet>

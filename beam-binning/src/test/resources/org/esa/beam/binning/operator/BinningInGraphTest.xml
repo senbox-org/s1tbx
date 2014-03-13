@@ -1,0 +1,16 @@
+<graph id="subset_Id">
+    <version>1.0</version>
+    <node id="subsetNodeId">
+        <operator>Subset</operator>
+        <sources>
+            <source>${source}</source>
+        </sources>
+        <parameters>
+            <subSamplingX>1</subSamplingX>
+            <fullSwath>false</fullSwath>
+            <geoRegion>POLYGON((-3.0 56.0, 3.09 55.13, -1.18 52.57, -3.0 56.0))</geoRegion>
+            <subSamplingY>1</subSamplingY>
+            <copyMetadata>true</copyMetadata>
+        </parameters>
+    </node>
+</graph>

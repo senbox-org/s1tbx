@@ -42,6 +42,8 @@
     <changelog>
         <![CDATA[
         <p/>Changes in 5.0:<br/>
+        [BEAM-1455] Flag-Coding remains when subsetting<br/>
+        [BEAM-1605] 'InvalidArgumentException: maxima' error message when trying to open a band<br/>
         [BEAM-1474] Data type raw symbols in band maths do not consider the raw data type of the raster<br/>
         [BEAM-276]  Product flipping removes important metadata attributes<br/>
         [BEAM-1452] Log-scaling is not correctly applied in scatter plot<br/>

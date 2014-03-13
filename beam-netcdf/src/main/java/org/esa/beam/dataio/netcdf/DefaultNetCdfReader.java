@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,7 @@ package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -47,7 +47,10 @@ class DefaultNetCdfReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         final AbstractNetCdfReaderPlugIn plugIn = getReaderPlugIn();
         final File fileLocation = new File(getInput().toString());
-        netcdfFile = SimpleNetcdfFile.openNetcdf(fileLocation.getPath());
+        netcdfFile = NetcdfFileOpener.open(fileLocation.getPath());
+        if (netcdfFile == null) {
+            throw new IOException("Failed to open file " + fileLocation.getPath());
+        }
         final ProfileReadContext context = new ProfileReadContextImpl(netcdfFile);
         String filename = extractProductName(fileLocation);
         context.setProperty(Constants.PRODUCT_FILENAME_PROPERTY, filename);

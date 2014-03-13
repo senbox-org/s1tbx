@@ -29,13 +29,8 @@ import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import org.esa.beam.processor.sst.SstCoefficientLoader;
-import org.esa.beam.processor.sst.SstCoefficientSet;
-import org.esa.beam.processor.sst.SstCoefficients;
-import org.esa.beam.processor.sst.SstConstants;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 
@@ -170,6 +165,8 @@ public class AatsrSstOp extends PixelOperator {
     private transient OpImage nadirMaskOpImage;
     private transient OpImage dualMaskOpImage;
 
+    private transient int currentPixel = 0;
+
     @Override
     public void dispose() {
         super.dispose();
@@ -184,6 +181,7 @@ public class AatsrSstOp extends PixelOperator {
 
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample[] targetSamples) {
+        checkCancellation();
         if (nadir) {
             if (isMasked(nadirMaskOpImage, x, y)) {
                 final float ir37 = sourceSamples[0].getFloat();
@@ -219,6 +217,14 @@ public class AatsrSstOp extends PixelOperator {
                 targetSamples[1].set(invalidSstValue);
             }
         }
+    }
+
+    private void checkCancellation() {
+        if (currentPixel % 1000 == 0) {
+            checkForCancellation();
+            currentPixel = 0;
+        }
+        currentPixel++;
     }
 
     private float computeNadirSst(int i, float ir37, float ir11, float ir12, float sea) {
@@ -313,8 +319,6 @@ public class AatsrSstOp extends PixelOperator {
             coefficientSet = loader.load(nadirCoefficientsFile.getURL(auxdataDir));
         } catch (IOException e) {
             throw new OperatorException(e);
-        } catch (ProcessorException e) {
-            throw new OperatorException(e);
         }
 
         final int numCoeffs = coefficientSet.getNumCoefficients();
@@ -372,8 +376,6 @@ public class AatsrSstOp extends PixelOperator {
         try {
             coefficientSet = loader.load(dualCoefficientsFile.getURL(auxdataDir));
         } catch (IOException e) {
-            throw new OperatorException(e);
-        } catch (ProcessorException e) {
             throw new OperatorException(e);
         }
 

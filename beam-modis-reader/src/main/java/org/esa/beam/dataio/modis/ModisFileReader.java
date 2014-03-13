@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,7 @@ import org.esa.beam.dataio.modis.productdb.ModisProductDescription;
 import org.esa.beam.dataio.modis.productdb.ModisSpectralInfo;
 import org.esa.beam.dataio.modis.productdb.ModisTiePointDescription;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -464,7 +464,10 @@ class ModisFileReader {
         final File qcFileContainerFile = qcFileContainer.getFile();
         logger.info("MODIS QC file found: " + qcFileContainerFile.getPath());
 
-        qcFile = SimpleNetcdfFile.openNetcdf(qcFileContainerFile.getPath());
+        qcFile = NetcdfFileOpener.open(qcFileContainerFile.getPath());
+        if (qcFile == null) {
+            throw new IOException("Failed to open file " + qcFileContainerFile.getPath());
+        }
 
         NetCDFAttributes netCDFQCAttributes = new NetCDFAttributes();
         netCDFQCAttributes.add(qcFile.getGlobalAttributes());

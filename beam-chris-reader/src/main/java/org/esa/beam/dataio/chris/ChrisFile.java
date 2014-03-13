@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.chris;
 
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.util.io.CsvReader;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -69,7 +69,7 @@ class ChrisFile {
         }
 
         try {
-            ncFile = SimpleNetcdfFile.openNetcdf(file.getAbsolutePath());
+            ncFile = NetcdfFileOpener.open(file.getAbsolutePath());
             globalAttributes = readGlobalAttributes(ncFile);
             rciImageSds = getRciSds(ncFile);
             maskSds = getMaskSds(ncFile);
