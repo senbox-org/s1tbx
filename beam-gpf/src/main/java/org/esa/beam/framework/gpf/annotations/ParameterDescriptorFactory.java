@@ -173,6 +173,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         }
 
         if (propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
+            @SuppressWarnings("unchecked")
             Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
             String[] values = new String[0];
             if (sourceProductMap != null && sourceProductMap.size() > 0) {
@@ -185,8 +186,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             propertyDescriptor.setValueSet(new ValueSet(values));
         }
 
-        boolean hasConverter = parameterDescriptor.getDomConverterClass() != null || parameterDescriptor.getConverterClass() != null;
-        if (parameterDescriptor.isStructure() && !hasConverter) {
+        if (parameterDescriptor.isStructure() && !hasConverterOrDomConverter(parameterDescriptor)) {
             ParameterDescriptor[] structureMemberDescriptors = parameterDescriptor.getStructureMemberDescriptors();
             DefaultPropertySetDescriptor propertySetDescriptor = new DefaultPropertySetDescriptor();
             for (ParameterDescriptor structureMemberDescriptor : structureMemberDescriptors) {
@@ -196,6 +196,10 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         }
 
         return propertyDescriptor;
+    }
+
+    private static boolean hasConverterOrDomConverter(ParameterDescriptor parameterDescriptor) {
+        return parameterDescriptor.getDomConverterClass() != null || parameterDescriptor.getConverterClass() != null;
     }
 
     @Override
