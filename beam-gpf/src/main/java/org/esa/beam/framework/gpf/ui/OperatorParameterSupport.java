@@ -88,7 +88,7 @@ public class OperatorParameterSupport {
         this.descriptorFactory = new ParameterDescriptorFactory();
 
         if (parameterMap == null) {
-            parameterMap = new HashMap<String, Object>();
+            parameterMap = new HashMap<>();
         }
         this.parameterMap = parameterMap;
 
