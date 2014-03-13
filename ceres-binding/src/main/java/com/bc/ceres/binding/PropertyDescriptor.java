@@ -71,7 +71,7 @@ public class PropertyDescriptor {
         Assert.notNull(attributes, "attributes");
         this.name = name;
         this.type = type;
-        this.attributes = new HashMap<String, Object>(attributes);
+        this.attributes = new HashMap<>(attributes);
         if (type.isPrimitive()) {
             setNotNull(true);
         }
@@ -348,7 +348,7 @@ public class PropertyDescriptor {
     }
 
     private Validator createEffectiveValidator() {
-        List<Validator> validators = new ArrayList<Validator>(3);
+        List<Validator> validators = new ArrayList<>(3);
 
         if (isNotNull()) {
             validators.add(new NotNullValidator());
