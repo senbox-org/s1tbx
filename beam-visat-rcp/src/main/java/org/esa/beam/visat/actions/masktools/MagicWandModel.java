@@ -17,6 +17,7 @@
 package org.esa.beam.visat.actions.masktools;
 
 import com.bc.ceres.core.Assert;
+import com.bc.jexp.ParseException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.SingleValueConverter;
 import org.esa.beam.framework.datamodel.Band;
@@ -282,6 +283,18 @@ public class MagicWandModel implements Cloneable {
     }
 
     static void setMagicWandMask(Product product, String expression) {
+
+        String validMaskExpression;
+        try {
+            validMaskExpression = BandArithmetic.getValidMaskExpression(expression, new Product[]{product}, 0, null);
+        } catch (ParseException e) {
+            validMaskExpression = null;
+        }
+
+        if (validMaskExpression != null) {
+            expression = "(" + validMaskExpression + ") && (" + expression + ")";
+        }
+
         final Mask magicWandMask = product.getMaskGroup().get(MAGIC_WAND_MASK_NAME);
         if (magicWandMask != null) {
             magicWandMask.getImageConfig().setValue("expression", expression);
