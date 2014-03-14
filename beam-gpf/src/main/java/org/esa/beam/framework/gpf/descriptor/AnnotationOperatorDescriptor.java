@@ -66,6 +66,11 @@ public class AnnotationOperatorDescriptor implements OperatorDescriptor {
     }
 
     @Override
+    public boolean isSuppressWrite() {
+        return annotation.suppressWrite();
+    }
+
+    @Override
     public Class<? extends Operator> getOperatorClass() {
         return body.getOperatorClass();
     }

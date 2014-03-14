@@ -31,6 +31,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     String authors;
     String copyright;
     Boolean internal;
+    Boolean suppressWrite;
 
     DefaultSourceProductDescriptor[] sourceProductDescriptors;
     DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -67,6 +68,11 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     @Override
     public boolean isInternal() {
         return internal != null ? internal : false;
+    }
+
+    @Override
+    public boolean isSuppressWrite() {
+        return suppressWrite != null ? suppressWrite : false;
     }
 
     @Override

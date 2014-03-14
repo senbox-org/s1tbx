@@ -303,6 +303,11 @@ public abstract class OperatorSpi {
         }
 
         @Override
+        public boolean isSuppressWrite() {
+            return false;
+        }
+
+        @Override
         public String getLabel() {
             return null;
         }
