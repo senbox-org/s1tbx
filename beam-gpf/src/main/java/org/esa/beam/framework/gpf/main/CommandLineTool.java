@@ -40,6 +40,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphContext;
@@ -254,17 +255,12 @@ class CommandLineTool implements GraphProcessingObserver {
             throw new OperatorException(String.format("Unknown operator name '%s'.", operatorName));
         }
         Operator operator = operatorSpi.createOperator(parameters, sourceProducts, null);
-        OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
-
-        boolean suppressWrite = false;
-        if (operator instanceof Output
-            || operatorMetadata != null && operatorMetadata.suppressWrite()) {
-            suppressWrite = true;
-        }
 
         // Force call to Operator.initialize()
         Product targetProduct = operator.getTargetProduct();
 
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        boolean suppressWrite = operator instanceof Output || operatorDescriptor.isSuppressWrite();
         if (suppressWrite) {
             // operator has its own output management, we "execute" by pulling at tiles
             final OperatorExecutor executor = OperatorExecutor.create(operator);
@@ -281,6 +277,7 @@ class CommandLineTool implements GraphProcessingObserver {
         if (operator != null) {
             velocityContext.put("operator", operator);
             velocityContext.put("operatorSpi", operatorSpi);
+            OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
             velocityContext.put("operatorMetadata", operatorMetadata);
         }
         velocityContext.put("operatorName", operatorName);
@@ -362,7 +359,7 @@ class CommandLineTool implements GraphProcessingObserver {
 
     private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap,
                                                     Map<String, Product> sourceProductMap) throws ValidationException {
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        HashMap<String, Object> parameters = new HashMap<>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
                                                                                                           parameters,
                                                                                                           new ParameterDescriptorFactory(sourceProductMap));
@@ -412,8 +409,8 @@ class CommandLineTool implements GraphProcessingObserver {
     }
 
     private Map<String, Product> getSourceProductMap() throws IOException {
-        SortedMap<File, Product> fileToProductMap = new TreeMap<File, Product>();
-        SortedMap<String, Product> productMap = new TreeMap<String, Product>();
+        SortedMap<File, Product> fileToProductMap = new TreeMap<>();
+        SortedMap<String, Product> productMap = new TreeMap<>();
         SortedMap<String, String> sourceFilePathsMap = commandLineArgs.getSourceFilePathMap();
         for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
@@ -457,7 +454,7 @@ class CommandLineTool implements GraphProcessingObserver {
             }
             parameterMap = configFilemap;
         } else {
-            parameterMap = new HashMap<String, String>();
+            parameterMap = new HashMap<>();
         }
 
         // CLI parameters shall always overwrite file parameters
@@ -467,8 +464,8 @@ class CommandLineTool implements GraphProcessingObserver {
     }
 
     private Map<String, String> getSourceNodeIdMap() throws IOException {
-        SortedMap<File, String> fileToNodeIdMap = new TreeMap<File, String>();
-        SortedMap<String, String> nodeIdMap = new TreeMap<String, String>();
+        SortedMap<File, String> fileToNodeIdMap = new TreeMap<>();
+        SortedMap<String, String> nodeIdMap = new TreeMap<>();
         SortedMap<String, String> sourceFilePathsMap = commandLineArgs.getSourceFilePathMap();
         for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
@@ -596,7 +593,7 @@ class CommandLineTool implements GraphProcessingObserver {
         velocityContext.put("targetProducts", outputProducts);
 
         Product sourceProduct = null;
-        Map<String, Product> sourceProducts = new HashMap<String, Product>();
+        Map<String, Product> sourceProducts = new HashMap<>();
         for (Node node : graphContext.getGraph().getNodes()) {
             final NodeContext nodeContext = graphContext.getNodeContext(node);
             if (nodeContext.getOperator() instanceof ReadOp) {
