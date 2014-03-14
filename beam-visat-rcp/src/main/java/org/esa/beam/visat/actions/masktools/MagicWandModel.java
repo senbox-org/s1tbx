@@ -26,7 +26,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,7 +122,7 @@ public class MagicWandModel implements Cloneable {
         }
     }
 
-    public void set(MagicWandModel other) {
+    public void assign(MagicWandModel other) {
         bandAccumulation = other.bandAccumulation;
         spectrumTransform = other.spectrumTransform;
         pickMode = other.pickMode;

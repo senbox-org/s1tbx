@@ -16,13 +16,26 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -31,8 +44,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import static com.bc.ceres.swing.TableLayout.cell;
@@ -62,6 +78,10 @@ class MagicWandForm {
 
     MagicWandForm(MagicWandInteractor interactor) {
         this.interactor = interactor;
+    }
+
+    public File getSettingsFile() {
+        return settingsFile;
     }
 
     public BindingContext getBindingContext() {
@@ -350,8 +370,8 @@ class MagicWandForm {
         }
         try {
             MagicWandModel model = (MagicWandModel) createXStream().fromXML(FileUtils.readText(settingsFile));
-            interactor.updateModel(model);
             this.settingsFile = settingsFile;
+            interactor.assignModel(model);
         } catch (IOException e) {
             String msg = MessageFormat.format("Failed to open settings:\n{0}", e.getMessage());
             JOptionPane.showMessageDialog(parent, msg, "I/O Error", JOptionPane.ERROR_MESSAGE);
@@ -370,6 +390,7 @@ class MagicWandForm {
                 writer.write(createXStream().toXML(interactor.getModel()));
             }
             this.settingsFile = settingsFile;
+            interactor.updateForm();
         } catch (IOException e) {
             String msg = MessageFormat.format("Failed to safe settings:\n{0}", e.getMessage());
             JOptionPane.showMessageDialog(parent, msg, "I/O Error", JOptionPane.ERROR_MESSAGE);
@@ -385,7 +406,6 @@ class MagicWandForm {
 
     private static File getFile(Component parent, File file, boolean open) {
         String directoryPath = Preferences.userRoot().absolutePath();
-        System.out.println("directoryPath = " + directoryPath);
         JFileChooser fileChooser = new JFileChooser(Preferences.userRoot().get(PREFERENCES_KEY_LAST_DIR, System.getProperty("user.home")));
         if (file != null) {
             fileChooser.setSelectedFile(file);

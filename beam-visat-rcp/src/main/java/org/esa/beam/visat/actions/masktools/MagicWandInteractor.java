@@ -29,6 +29,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JDialog;
@@ -78,9 +79,18 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
             updateMask();
         }
         if (form != null) {
-            form.getBindingContext().adjustComponents();
-            form.updateState();
+            updateForm();
         }
+    }
+
+    void updateForm() {
+        if (form.getSettingsFile() != null) {
+            optionsWindow.setTitle(DIALOG_TITLE + " - " + FileUtils.getFilenameWithoutExtension(form.getSettingsFile()));
+        } else {
+            optionsWindow.setTitle(DIALOG_TITLE);
+        }
+        form.getBindingContext().adjustComponents();
+        form.updateState();
     }
 
     public Window getOptionsWindow() {
@@ -280,8 +290,8 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
         this.undoContext = undoContext;
     }
 
-    void updateModel(MagicWandModel other) {
-        getModel().set(other);
+    void assignModel(MagicWandModel other) {
+        getModel().assign(other);
     }
 
 
@@ -315,13 +325,13 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
         @Override
         public void undo() throws CannotUndoException {
             super.undo();
-            updateModel(oldModel);
+            assignModel(oldModel);
         }
 
         @Override
         public void redo() throws CannotRedoException {
             super.redo();
-            updateModel(newModel);
+            assignModel(newModel);
         }
 
         @Override
