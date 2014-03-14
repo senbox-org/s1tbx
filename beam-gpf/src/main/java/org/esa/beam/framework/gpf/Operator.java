@@ -359,6 +359,21 @@ public abstract class Operator {
     }
 
     /**
+     * Gets the value for the parameter with the given name.
+     *
+     * @param name The parameter name.
+     * @param defaultValue The default value which is used in case {@link #getParameter(String)} returns {@code null}. May be {@code null}.
+     *
+     * @return The parameter value, or the given {@code defaultValue}.
+     *
+     * @since BEAM 5.0
+     */
+    public Object getParameter(String name, Object defaultValue) {
+        Object parameter = context.getParameter(name);
+        return parameter != null ? parameter : defaultValue;
+    }
+
+    /**
      * Sets the value for the parameter with the given name.
      *
      * @param name  The parameter name.
