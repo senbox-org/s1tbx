@@ -2,7 +2,7 @@
     <name>com.acme.NdviOp</name>
     <alias>py_ndvi_op</alias>
 
-    <description>Fucking great!!!</description>
+    <description>Just an example</description>
 
     <namedSourceProducts>
         <sourceProduct>

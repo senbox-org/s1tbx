@@ -11,11 +11,23 @@ class MerisNdviTileComputer:
 
     def initialize(self, operator):
 
-        merisProduct = operator.getSourceProduct()
-        print('initialize: source product is PUPSGURHE ', merisProduct.getFileLocation())
+
+
+        merisProduct = operator.getSourceProduct('sourceomat')
+        print('initialize: source product is ', merisProduct.getFileLocation())
 
         width = merisProduct.getSceneRasterWidth()
         height = merisProduct.getSceneRasterHeight()
+
+        self.parameterA = operator.getParameter('a')
+        if not self.parameterA:
+            self.parameterA = 1.0
+        print('Parameter A is', self.parameterA)
+
+        self.parameterB = operator.getParameter('b')
+        if not self.parameterB:
+            self.parameterB = 1.0
+        print('Parameter B is', self.parameterB)
 
         self.b7 = merisProduct.getBand('radiance_7')
         self.b10 = merisProduct.getBand('radiance_10')
