@@ -23,6 +23,7 @@ import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
@@ -31,10 +32,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.descriptor.AnnotationParameterDescriptor;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.descriptor.ParameterDescriptor;
+import org.esa.beam.framework.gpf.descriptor.PropertySetDescriptorFactory;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 
 import java.lang.reflect.Field;
@@ -60,7 +64,16 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
     public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName,
                                                                              Map<String, Object> operatorParameters,
                                                                              ParameterDescriptorFactory descriptorFactory) {
-        return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName), descriptorFactory);
+        OperatorSpi opSpi = getOpSpi(operatorName);
+        OperatorDescriptor operatorDescriptor = opSpi.getOperatorDescriptor();
+        PropertySetDescriptor propertySetDescriptor;
+        try {
+            propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor,
+                                                                                   descriptorFactory.sourceProductMap);
+        } catch (ConversionException e) {
+            throw new OperatorException("Could not create property container for operator '" + operatorName + "'");
+        }
+        return PropertyContainer.createMapBacked(operatorParameters, propertySetDescriptor);
     }
 
     public ParameterDescriptorFactory() {
@@ -70,7 +83,8 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         this.sourceProductMap = sourceProductMap;
     }
 
-    public static PropertyDescriptor convert(ParameterDescriptor parameterDescriptor, Map<String, Product> sourceProductMap) throws ConversionException {
+    public static PropertyDescriptor convert(ParameterDescriptor parameterDescriptor, Map<String, Product> sourceProductMap) throws
+                                                                                                                             ConversionException {
 
         PropertyDescriptor propertyDescriptor = new PropertyDescriptor(parameterDescriptor.getName(),
                                                                        parameterDescriptor.getDataType());
@@ -174,7 +188,8 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
         if (propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
             @SuppressWarnings("unchecked")
-            Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+            Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) propertyDescriptor.getAttribute(
+                    RasterDataNodeValues.ATTRIBUTE_NAME);
             String[] values = new String[0];
             if (sourceProductMap != null && sourceProductMap.size() > 0) {
                 Product firstProduct = sourceProductMap.values().iterator().next();
@@ -230,13 +245,13 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
                                                          parameterAnnotation), sourceProductMap);
     }
 
-    private static Class<? extends Operator> getOpType(String operatorName) {
+    private static OperatorSpi getOpSpi(String operatorName) {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         registry.loadOperatorSpis();
         OperatorSpi operatorSpi = registry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalStateException("Operator SPI not found for operator [" + operatorName + "]");
         }
-        return operatorSpi.getOperatorClass();
+        return operatorSpi;
     }
 }
