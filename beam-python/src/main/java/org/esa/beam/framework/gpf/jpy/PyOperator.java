@@ -81,7 +81,7 @@ public class PyOperator extends Operator {
 
         //PyLib.Diag.setFlags(PyLib.Diag.F_JVM);
 
-        PyLib.startPython(null);
+        PyLib.startPython();
 
         if (pythonModulePath != null && !pythonModulePath.isEmpty()) {
             PyModule pySysModule = PyModule.importModule("sys");
