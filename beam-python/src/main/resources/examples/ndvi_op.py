@@ -42,9 +42,6 @@ class MerisNdviTileComputer:
         ndviTile = targetTiles.get(self.ndviBand)
         ndviFlagsTile = targetTiles.get(self.ndviFlagsBand)
 
-        ndviTile = jpy.cast(ndviTile, Tile)
-        ndviFlagsTile = jpy.cast(ndviFlagsTile, Tile)
-
         b7Data = b7Tile.getSamplesFloat()
         b10Data = b10Tile.getSamplesFloat()
 
