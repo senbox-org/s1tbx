@@ -18,10 +18,10 @@ package com.bc.ceres.swing.undo.support;
 
 import com.bc.ceres.swing.undo.UndoContext;
 
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEditSupport;
-import javax.swing.undo.UndoableEdit;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
+import javax.swing.undo.UndoableEditSupport;
 
 
 public class DefaultUndoContext implements UndoContext {
@@ -36,6 +36,10 @@ public class DefaultUndoContext implements UndoContext {
         this.undoManager = undoManager;
         this.undoableEditSupport = new UndoableEditSupport(source != null ? source : this);
         this.undoableEditSupport.addUndoableEditListener(undoManager);
+    }
+
+    public UndoManager getUndoManager() {
+        return undoManager;
     }
 
     @Override
