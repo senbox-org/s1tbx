@@ -55,16 +55,6 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>pythonOperator</id>
-            <helpId>pythonOperator</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>tools</parent>
-            <text>Python Processor...</text>
-            <operatorName>PyOp</operatorName>
-            <dialogTitle>Python operator</dialogTitle>
-            <!--<targetProductNameSuffix></targetProductNameSuffix>-->
-        </action>
-        <action>
             <id>MerisNDVIPythonOperator</id>
             <helpId>MerisNDVIPythonOperator</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
