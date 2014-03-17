@@ -3,7 +3,6 @@ package org.esa.beam.visat.actions.masktools;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import com.thoughtworks.xstream.XStream;
 import org.esa.beam.framework.datamodel.Band;
@@ -66,7 +65,7 @@ class MagicWandForm {
     private JSlider toleranceSlider;
     boolean adjustingSlider;
 
-    private UndoContext undoContext;
+    private DefaultUndoContext undoContext;
     private AbstractButton redoButton;
     private AbstractButton undoButton;
     private BindingContext bindingContext;
@@ -75,6 +74,8 @@ class MagicWandForm {
     private JLabel infoLabel;
     private AbstractButton minusButton;
     private AbstractButton plusButton;
+    private AbstractButton clearButton;
+    private AbstractButton saveButton;
 
     MagicWandForm(MagicWandInteractor interactor) {
         this.interactor = interactor;
@@ -145,7 +146,8 @@ class MagicWandForm {
         toleranceSliderPanel.add(maxToleranceField, BorderLayout.EAST);
 
         JCheckBox normalizeCheckBox = new JCheckBox("Normalize spectra");
-        normalizeCheckBox.setToolTipText("Normalizes collected spectra by dividing them by their first band value");
+        normalizeCheckBox.setToolTipText("Normalizes collected band sets by dividing their\n" +
+                                         "individual values by the value of the first band");
         bindingContext.bind("normalize", normalizeCheckBox);
         bindingContext.addPropertyChangeListener("normalize", new PropertyChangeListener() {
             @Override
@@ -154,21 +156,7 @@ class MagicWandForm {
             }
         });
 
-        JRadioButton baButton1 = new JRadioButton("Distance");
-        JRadioButton baButton2 = new JRadioButton("Average");
-        JRadioButton baButton3 = new JRadioButton("Limits");
-        ButtonGroup baGroup = new ButtonGroup();
-        baGroup.add(baButton1);
-        baGroup.add(baButton2);
-        baGroup.add(baButton3);
-        bindingContext.bind("bandAccumulation", baGroup);
-        bindingContext.addPropertyChangeListener("bandAccumulation", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                interactor.getModel().fireModelChanged(true);
-            }
-        });
-
+        JLabel stLabel = new JLabel("Spectrum transformation:");
         JRadioButton stButton1 = new JRadioButton("Integral");
         JRadioButton stButton2 = new JRadioButton("Identity");
         JRadioButton stButton3 = new JRadioButton("Derivative");
@@ -176,6 +164,12 @@ class MagicWandForm {
         stGroup.add(stButton1);
         stGroup.add(stButton2);
         stGroup.add(stButton3);
+        stButton1.setToolTipText("<html>Pixel inclusion test is performed<br>" +
+                                 "on the sums of subsequent band values");
+        stButton2.setToolTipText("<html>Pixel inclusion test is performed<br>" +
+                                 "on the original band values");
+        stButton3.setToolTipText("<html>Pixel inclusion test is performed<br>" +
+                                 "on the differences of subsequent band values");
         bindingContext.bind("spectrumTransform", stGroup);
         bindingContext.addPropertyChangeListener("spectrumTransform", new PropertyChangeListener() {
             @Override
@@ -184,8 +178,31 @@ class MagicWandForm {
             }
         });
 
+        JLabel ptLabel = new JLabel("Inclusion/exclusion test:");
+        JRadioButton ptButton1 = new JRadioButton("Distance");
+        JRadioButton ptButton2 = new JRadioButton("Average");
+        JRadioButton ptButton3 = new JRadioButton("Min-Max");
+        ptButton1.setToolTipText("<html>Tests if the minimum of Euclidian distances of a pixel to<br>" +
+                                 "each collected bands set is below the threshold");
+        ptButton2.setToolTipText("<html>Tests if the Euclidian distances of a pixel to<br>" +
+                                 "the average of all collected bands sets is below the threshold");
+        ptButton3.setToolTipText("<html>Tests if a pixel is within the min/max limits<br>" +
+                                 "of collected bands plus/minus tolerance");
+        ButtonGroup ptGroup = new ButtonGroup();
+        ptGroup.add(ptButton1);
+        ptGroup.add(ptButton2);
+        ptGroup.add(ptButton3);
+        bindingContext.bind("pixelTest", ptGroup);
+        bindingContext.addPropertyChangeListener("pixelTest", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                interactor.getModel().fireModelChanged(true);
+            }
+        });
+
         plusButton = createToggleButton("/org/esa/beam/resources/images/icons/Plus16.gif");
-        plusButton.setToolTipText("Pick mode 'plus': newly picked spectra will be included in the mask.");
+        plusButton.setToolTipText("<html>Switches to pick mode 'plus':<br>" +
+                                  "collect spectra used for inclusion");
         plusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -198,7 +215,8 @@ class MagicWandForm {
         });
 
         minusButton = createToggleButton("/org/esa/beam/resources/images/icons/Minus16.gif");
-        minusButton.setToolTipText("Pick mode 'minus': newly picked spectra will be excluded from the mask.");
+        minusButton.setToolTipText("<html>Switches to pick mode 'minus':<br>" +
+                                   "collect spectra used for exclusion.");
         minusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -222,7 +240,7 @@ class MagicWandForm {
         newButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                interactor.getModel().clearSpectra();
+                newSettings();
             }
         });
 
@@ -235,7 +253,7 @@ class MagicWandForm {
             }
         });
 
-        final AbstractButton saveButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-save.png");
+        saveButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-save.png");
         saveButton.setToolTipText("Save settings");
         saveButton.addActionListener(new ActionListener() {
             @Override
@@ -271,11 +289,22 @@ class MagicWandForm {
                 }
             }
         });
-        updateState();
+
         undoContext.addUndoableEditListener(new UndoableEditListener() {
             @Override
             public void undoableEditHappened(UndoableEditEvent e) {
                 updateState();
+            }
+        });
+
+        clearButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/edit-clear.png");
+        clearButton.setName("clearButton");
+        clearButton.setToolTipText("Removes all collected band ses."); /*I18N*/
+        clearButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clearSpectra();
             }
         });
 
@@ -294,14 +323,13 @@ class MagicWandForm {
         helpButton.setName("helpButton");
         helpButton.setToolTipText("Help."); /*I18N*/
 
-
         JPanel toolPanelN = new JPanel(new GridLayout(-1, 2));
         toolPanelN.add(newButton);
         toolPanelN.add(openButton);
         toolPanelN.add(saveButton);
         toolPanelN.add(saveAsButton);
+        toolPanelN.add(clearButton);
         toolPanelN.add(filterButton);
-        toolPanelN.add(new JLabel());
         toolPanelN.add(undoButton);
         toolPanelN.add(redoButton);
         toolPanelN.add(plusButton);
@@ -325,6 +353,7 @@ class MagicWandForm {
         tableLayout.setCellPadding(3, 0, insets);
         tableLayout.setCellPadding(4, 0, insets);
         tableLayout.setCellPadding(5, 0, insets);
+        tableLayout.setCellPadding(6, 0, insets);
         tableLayout.setCellPadding(3, 1, insets);
         tableLayout.setCellPadding(4, 1, insets);
         tableLayout.setCellPadding(5, 1, insets);
@@ -334,15 +363,15 @@ class MagicWandForm {
         subPanel.add(toleranceField, cell(0, 1));
         subPanel.add(toleranceSliderPanel, cell(1, 0));
 
-        subPanel.add(new JLabel("Spectrum transformation:"), cell(2, 0));
+        subPanel.add(stLabel, cell(2, 0));
         subPanel.add(stButton1, cell(3, 0));
         subPanel.add(stButton2, cell(4, 0));
         subPanel.add(stButton3, cell(5, 0));
 
-        subPanel.add(new JLabel("Band aggregation:"), cell(2, 1));
-        subPanel.add(baButton1, cell(3, 1));
-        subPanel.add(baButton2, cell(4, 1));
-        subPanel.add(baButton3, cell(5, 1));
+        subPanel.add(ptLabel, cell(2, 1));
+        subPanel.add(ptButton1, cell(3, 1));
+        subPanel.add(ptButton2, cell(4, 1));
+        subPanel.add(ptButton3, cell(5, 1));
 
         subPanel.add(normalizeCheckBox, cell(6, 0));
         subPanel.add(infoLabel, cell(6, 1));
@@ -363,18 +392,34 @@ class MagicWandForm {
         return panel;
     }
 
-    private void openSettings(Component parent) {
-        File settingsFile = getFile(parent, this.settingsFile, true);
-        if (settingsFile == null) {
-            return;
+    private void newSettings() {
+        if (proceedWithUnsavedChanges()) {
+            settingsFile = null;
+            interactor.getModel().clearSpectra();
         }
-        try {
-            MagicWandModel model = (MagicWandModel) createXStream().fromXML(FileUtils.readText(settingsFile));
-            this.settingsFile = settingsFile;
-            interactor.assignModel(model);
-        } catch (IOException e) {
-            String msg = MessageFormat.format("Failed to open settings:\n{0}", e.getMessage());
-            JOptionPane.showMessageDialog(parent, msg, "I/O Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void clearSpectra() {
+        interactor.clearSpectra();
+    }
+
+    private void openSettings(Component parent) {
+        if (proceedWithUnsavedChanges()) {
+            File settingsFile = getFile(parent, this.settingsFile, true);
+            if (settingsFile == null) {
+                return;
+            }
+            try {
+                MagicWandModel model = (MagicWandModel) createXStream().fromXML(FileUtils.readText(settingsFile));
+                this.settingsFile = settingsFile;
+                interactor.assignModel(model);
+                undoContext.getUndoManager().discardAllEdits();
+                interactor.setModelModified(false);
+                updateState();
+            } catch (IOException e) {
+                String msg = MessageFormat.format("Failed to open settings:\n{0}", e.getMessage());
+                JOptionPane.showMessageDialog(parent, msg, "I/O Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
@@ -390,6 +435,8 @@ class MagicWandForm {
                 writer.write(createXStream().toXML(interactor.getModel()));
             }
             this.settingsFile = settingsFile;
+            undoContext.getUndoManager().discardAllEdits();
+            interactor.setModelModified(false);
             interactor.updateForm();
         } catch (IOException e) {
             String msg = MessageFormat.format("Failed to safe settings:\n{0}", e.getMessage());
@@ -405,7 +452,6 @@ class MagicWandForm {
     }
 
     private static File getFile(Component parent, File file, boolean open) {
-        String directoryPath = Preferences.userRoot().absolutePath();
         JFileChooser fileChooser = new JFileChooser(Preferences.userRoot().get(PREFERENCES_KEY_LAST_DIR, System.getProperty("user.home")));
         if (file != null) {
             fileChooser.setSelectedFile(file);
@@ -436,26 +482,21 @@ class MagicWandForm {
     }
 
     void updateState() {
-/*
-        JComponent[] bandAccumulationComponents = bindingContext.getBinding("bandAccumulation").getComponentAdapter().getComponents();
-        for (JComponent component : bandAccumulationComponents) {
-            component.setEnabled(interactor.getModel().getPickMode() != MagicWandModel.PickMode.SINGLE);
-        }
+        bindingContext.setComponentsEnabled("spectrumTransform", interactor.getModel().getBandCount() != 1);
+        bindingContext.setComponentsEnabled("normalize", interactor.getModel().getBandCount() != 1);
 
-        JComponent[] spectrumTransformComponents = bindingContext.getBinding("spectrumTransform").getComponentAdapter().getComponents();
-        for (JComponent component : spectrumTransformComponents) {
-            component.setEnabled(interactor.getModel().getBandCount() != 1);
-        }
-*/
         MagicWandModel model = interactor.getModel();
 
         infoLabel.setText(String.format("%d(+), %d(-), %d bands",
-                                        model.getPlusSpectraCount(),
-                                        model.getMinusSpectraCount(),
+                                        model.getPlusSpectrumCount(),
+                                        model.getMinusSpectrumCount(),
                                         model.getBandCount()));
 
         plusButton.setSelected(model.getPickMode() == MagicWandModel.PickMode.PLUS);
         minusButton.setSelected(model.getPickMode() == MagicWandModel.PickMode.MINUS);
+
+        saveButton.setEnabled(settingsFile != null && interactor.isModelModified());
+        clearButton.setEnabled(model.getSpectrumCount() > 0);
 
         undoButton.setEnabled(undoContext.canUndo());
         redoButton.setEnabled(undoContext.canRedo());
@@ -532,6 +573,17 @@ class MagicWandForm {
                 interactor.getModel().setBandNames(newBandNames);
             }
         }
+    }
+
+    private boolean proceedWithUnsavedChanges() {
+        if (settingsFile != null && interactor.isModelModified()) {
+            String msg = MessageFormat.format("You have unsaved changes." +
+                                              "\nProceed anyway?", settingsFile.getName());
+            int resp = JOptionPane.showConfirmDialog(interactor.getOptionsWindow(), msg,
+                                                     "New Settings", JOptionPane.YES_NO_OPTION);
+            return resp == JOptionPane.YES_OPTION;
+        }
+        return true;
     }
 
 }

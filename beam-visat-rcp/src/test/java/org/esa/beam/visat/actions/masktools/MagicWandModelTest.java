@@ -42,7 +42,7 @@ public class MagicWandModelTest {
     public void testConstructorSetsDefaultValues() throws Exception {
         MagicWandModel model = new MagicWandModel();
         assertEquals(MagicWandModel.PickMode.SINGLE, model.getPickMode());
-        assertEquals(MagicWandModel.BandAccumulation.DISTANCE, model.getBandAccumulation());
+        assertEquals(MagicWandModel.PixelTest.DISTANCE, model.getPixelTest());
         assertEquals(0.1, model.getTolerance(), 0.0);
         assertEquals("0", model.createMaskExpression());
     }
@@ -100,7 +100,7 @@ public class MagicWandModelTest {
     public void testCreateExpressionDistIdent() throws Exception {
         MagicWandModel model = new MagicWandModel();
         model.setPickMode(MagicWandModel.PickMode.PLUS);
-        model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
+        model.setPixelTest(MagicWandModel.PixelTest.DISTANCE);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.IDENTITY);
         model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
@@ -121,7 +121,7 @@ public class MagicWandModelTest {
         MagicWandModel model = new MagicWandModel();
         model.setBandNames("b1", "b2", "b3");
         model.setPickMode(MagicWandModel.PickMode.PLUS);
-        model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
+        model.setPixelTest(MagicWandModel.PixelTest.DISTANCE);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.DERIVATIVE);
         model.addSpectrum(0.4, 0.3, 0.2);
         model.addSpectrum(0.6, 0.9, 0.7);
@@ -140,7 +140,7 @@ public class MagicWandModelTest {
     public void testCreateExpressionDistInteg() throws Exception {
         MagicWandModel model = new MagicWandModel();
         model.setPickMode(MagicWandModel.PickMode.PLUS);
-        model.setBandAccumulation(MagicWandModel.BandAccumulation.DISTANCE);
+        model.setPixelTest(MagicWandModel.PixelTest.DISTANCE);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.INTEGRAL);
         model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
@@ -160,7 +160,7 @@ public class MagicWandModelTest {
     public void testCreateExpressionLimitsIdent() throws Exception {
         MagicWandModel model = new MagicWandModel();
         model.setPickMode(MagicWandModel.PickMode.PLUS);
-        model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
+        model.setPixelTest(MagicWandModel.PixelTest.LIMITS);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.IDENTITY);
         model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
@@ -200,7 +200,7 @@ public class MagicWandModelTest {
     public void testCreateExpressionLimitsDeriv() throws Exception {
         MagicWandModel model = new MagicWandModel();
         model.setPickMode(MagicWandModel.PickMode.PLUS);
-        model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
+        model.setPixelTest(MagicWandModel.PixelTest.LIMITS);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.DERIVATIVE);
         model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);
@@ -240,7 +240,7 @@ public class MagicWandModelTest {
     public void testCreateExpressionLimitsInteg() throws Exception {
         MagicWandModel model = new MagicWandModel();
         model.setPickMode(MagicWandModel.PickMode.PLUS);
-        model.setBandAccumulation(MagicWandModel.BandAccumulation.LIMITS);
+        model.setPixelTest(MagicWandModel.PixelTest.LIMITS);
         model.setSpectrumTransform(MagicWandModel.SpectrumTransform.INTEGRAL);
         model.setBandNames("b1", "b2", "b3");
         model.addSpectrum(0.4, 0.3, 0.2);

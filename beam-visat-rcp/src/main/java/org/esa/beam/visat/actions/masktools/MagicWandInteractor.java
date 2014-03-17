@@ -67,14 +67,26 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
     private UndoContext undoContext;
     private MagicWandForm form;
 
+    private boolean modelModified;
+
     public MagicWandInteractor() {
         layerListener = new MyLayerListener();
         model = new MagicWandModel();
         model.addListener(this);
     }
 
+    public boolean isModelModified() {
+        return modelModified;
+    }
+
+    public void setModelModified(boolean modelModified) {
+        this.modelModified = modelModified;
+    }
+
     @Override
     public void modelChanged(MagicWandModel model, boolean recomputeMask) {
+        setModelModified(true);
+
         if (recomputeMask) {
             updateMask();
         }
@@ -188,6 +200,13 @@ public class MagicWandInteractor extends ViewportInteractor implements MagicWand
 
         ensureMaskVisible(view);
 
+        undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
+    }
+
+    void clearSpectra() {
+        MagicWandModel oldModel = getModel().clone();
+        getModel().clearSpectra();
+        MagicWandModel newModel = getModel().clone();
         undoContext.postEdit(new MyUndoableEdit(oldModel, newModel));
     }
 
