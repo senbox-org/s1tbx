@@ -51,7 +51,7 @@ public interface ServiceRegistry<T> {
 
     /**
      * Adds a new service to this registry. The method will automatically remove
-     * an already registered service of the same type. If the regsitry changes
+     * an already registered service of the same type. If the registry changes
      * due to a call of this method, a change event will be fired.
      *
      * @param service The service to be added.
@@ -60,7 +60,7 @@ public interface ServiceRegistry<T> {
     boolean addService(T service);
 
     /**
-     * Removes an existing service from this registry. If the regsitry changes
+     * Removes an existing service from this registry. If the registry changes
      * due to a call of this method, a change event will be fired.
      *
      * @param service The service to be removed.
