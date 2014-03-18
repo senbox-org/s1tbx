@@ -54,14 +54,6 @@ class CommandLineUsage {
 
         OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         ArrayList<OperatorSpi> spiList = new ArrayList<>(registry.getOperatorSpis());
-        Collections.sort(spiList, new Comparator<OperatorSpi>() {
-            @Override
-            public int compare(OperatorSpi o1, OperatorSpi o2) {
-                String opName1 = getOperatorUIName(o1);
-                String opName2 = getOperatorUIName(o2);
-                return opName1.compareToIgnoreCase(opName2);
-            }
-        });
         ArrayList<DocElement> docElementList = new ArrayList<>(spiList.size());
         for (OperatorSpi operatorSpi : spiList) {
             String opName = getOperatorUIName(operatorSpi);
@@ -431,7 +423,7 @@ class CommandLineUsage {
         Collections.sort(docElementList, new Comparator<DocElement>() {
             @Override
             public int compare(DocElement element1, DocElement element2) {
-                return element1.syntax.compareTo(element2.syntax);
+                return element1.syntax.compareToIgnoreCase(element2.syntax);
             }
         });
     }
