@@ -50,7 +50,7 @@ class CollocationDialog extends SingleTargetProductDialog {
 
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
-        form = new CollocationForm(parameterSupport.getPopertySet(), getTargetProductSelector(), appContext);
+        form = new CollocationForm(parameterSupport.getPropertySet(), getTargetProductSelector(), appContext);
 
     }
 

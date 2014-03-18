@@ -104,7 +104,7 @@ public class OperatorParameterSupport {
         this.parameterUpdater = parameterUpdater;
     }
 
-    public PropertySet getPopertySet() {
+    public PropertySet getPropertySet() {
         return propertySet;
     }
 

@@ -85,12 +85,12 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
-        final PropertySet propertyContainer = parameterSupport.getPopertySet();
-        bindingContext = new BindingContext(propertyContainer);
+        final PropertySet propertySet = parameterSupport.getPropertySet();
+        bindingContext = new BindingContext(propertySet);
 
-        if (propertyContainer.getProperties().length > 0) {
+        if (propertySet.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
-                Property[] properties = propertyContainer.getProperties();
+                Property[] properties = propertySet.getProperties();
                 List<PropertyDescriptor> rdnTypeProperties = new ArrayList<>(properties.length);
                 for (Property property : properties) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();

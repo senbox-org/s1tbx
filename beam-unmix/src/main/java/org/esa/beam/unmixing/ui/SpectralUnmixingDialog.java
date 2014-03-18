@@ -60,7 +60,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         };
 
         parameterSupport = new OperatorParameterSupport(SpectralUnmixingOp.class, null, null, parameterUpdater);
-        form = new SpectralUnmixingForm(appContext, parameterSupport.getPopertySet(), getTargetProductSelector());
+        form = new SpectralUnmixingForm(appContext, parameterSupport.getPropertySet(), getTargetProductSelector());
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
                                                      SpectralUnmixingOp.class,
                                                      parameterSupport,

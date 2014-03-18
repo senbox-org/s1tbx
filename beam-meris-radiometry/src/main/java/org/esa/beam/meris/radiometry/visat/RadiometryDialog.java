@@ -44,7 +44,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(alias);
 
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
-        form = new RadiometryForm(appContext, operatorSpi, parameterSupport.getPopertySet(),
+        form = new RadiometryForm(appContext, operatorSpi, parameterSupport.getPropertySet(),
                                   getTargetProductSelector());
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
                                                      operatorSpi.getOperatorClass(),
