@@ -78,7 +78,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     /**
-     * Gets a registrered operator SPI. The given <code>operatorName</code> can be
+     * Gets a registered operator SPI. The given <code>operatorName</code> can be
      * either the fully qualified class name of the {@link OperatorSpi}
      * or an alias name.
      *
