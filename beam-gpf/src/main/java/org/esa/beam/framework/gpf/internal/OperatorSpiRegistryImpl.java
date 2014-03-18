@@ -43,7 +43,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     public OperatorSpiRegistryImpl() {
         serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(OperatorSpi.class);
-        aliases = new HashMap<String, String>(20);
+        aliases = new HashMap<>(20);
         serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
             public void serviceAdded(ServiceRegistry<OperatorSpi> registry, OperatorSpi service) {
                 setAliases(service);
@@ -141,7 +141,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     private void unregisterAliases(OperatorSpi operatorSpi) {
         Class<? extends OperatorSpi> spiClass = operatorSpi.getClass();
         String spiClassName = spiClass.getName();
-        String[] keys = aliases.keySet().toArray(new String[0]);
+        String[] keys = aliases.keySet().toArray(new String[aliases.size()]);
         for (String key : keys) {
             if (aliases.get(key).equalsIgnoreCase(spiClassName)) {
                 aliases.remove(key);
