@@ -15,14 +15,16 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.ServiceRegistryListener;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,32 +38,37 @@ import java.util.Set;
 public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     private final ServiceRegistry<OperatorSpi> serviceRegistry;
-    private final Map<String, String> aliases;
+    private final Map<String, String> classNames;
+    private final Map<String, OperatorSpi> extraOperatorSpis;
 
     /**
-     * The provate singleton constructor.
+     * The constructor.
      */
     public OperatorSpiRegistryImpl() {
         serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(OperatorSpi.class);
-        aliases = new HashMap<>(20);
+        classNames = new HashMap<>(20);
         serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
+            @Override
             public void serviceAdded(ServiceRegistry<OperatorSpi> registry, OperatorSpi service) {
-                setAliases(service);
+                registerAlias(service);
             }
 
+            @Override
             public void serviceRemoved(ServiceRegistry<OperatorSpi> registry, OperatorSpi service) {
-                unregisterAliases(service);
+                unregisterAlias(service);
             }
         });
         Set<OperatorSpi> services = serviceRegistry.getServices();
         for (OperatorSpi operatorSpi : services) {
-            setAliases(operatorSpi);
+            registerAlias(operatorSpi);
         }
+        extraOperatorSpis = new HashMap<>();
     }
 
     /**
-     * Loads the SPI's defined in {@code META-INF/services}.
+     * Loads the SPIs defined in {@code META-INF/services}.
      */
+    @Override
     public void loadOperatorSpis() {
         if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(getServiceRegistry());
@@ -69,10 +76,22 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     /**
+     * @return The set of all registered operator SPIs.
+     * @since BEAM 5
+     */
+    @Override
+    public Set<OperatorSpi> getOperatorSpis() {
+        HashSet<OperatorSpi> operatorSpis = new HashSet<>(serviceRegistry.getServices());
+        operatorSpis.addAll(extraOperatorSpis.values());
+        return operatorSpis;
+    }
+
+    /**
      * Gets the {@link ServiceRegistry ServiceRegistry}
      *
      * @return the {@link ServiceRegistry service registry}
      */
+    @Override
     public ServiceRegistry<OperatorSpi> getServiceRegistry() {
         return serviceRegistry;
     }
@@ -85,16 +104,27 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param operatorName A name identifying the operator SPI.
      * @return the operator SPI, or <code>null</code>
      */
+    @Override
     public OperatorSpi getOperatorSpi(String operatorName) {
         OperatorSpi service = serviceRegistry.getService(operatorName);
         if (service != null) {
             return service;
         }
-        operatorName = aliases.get(operatorName);
-        if (operatorName != null) {
-            service = serviceRegistry.getService(operatorName);
+
+        service = extraOperatorSpis.get(operatorName);
+        if (service != null) {
+            return service;
         }
-        return service;
+
+        String className = classNames.get(operatorName);
+        if (className != null) {
+            service = serviceRegistry.getService(className);
+            if (service != null) {
+                return service;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -103,14 +133,35 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param operatorSpi the SPI to add
      * @return {@code true}, if the {@link OperatorSpi} could be succesfully added, otherwise {@code false}
      */
+    @Override
     public boolean addOperatorSpi(OperatorSpi operatorSpi) {
-        Class<? extends OperatorSpi> spiClass = operatorSpi.getClass();
-        String spiClassName = spiClass.getName();
+        String spiClassName = operatorSpi.getClass().getName();
         if (serviceRegistry.getService(spiClassName) == operatorSpi) {
             return false;
         }
-        setAliases(operatorSpi);
+        registerAlias(operatorSpi);
         return serviceRegistry.addService(operatorSpi);
+    }
+
+    /**
+     * Adds the given {@link OperatorSpi operatorSpi} to this registry.
+     *
+     * @param operatorName an (alias) name used as key for the registration.
+     * @param operatorSpi  the SPI to add
+     * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
+     * @since BEAM 5
+     */
+    @Override
+    public boolean addOperatorSpi(String operatorName, OperatorSpi operatorSpi) {
+        if (operatorName.equals(operatorSpi.getClass().getName())) {
+            return addOperatorSpi(operatorSpi);
+        }
+        if (extraOperatorSpis.get(operatorName) == operatorSpi) {
+            return false;
+        }
+        registerAlias(operatorSpi.getClass().getName(), operatorName);
+        extraOperatorSpis.put(operatorName, operatorSpi);
+        return true;
     }
 
     /**
@@ -119,6 +170,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param operatorSpi the SPI to remove
      * @return {@code true}, if the SPI could be removed, otherwise {@code false}
      */
+    @Override
     public boolean removeOperatorSpi(OperatorSpi operatorSpi) {
         return serviceRegistry.removeService(operatorSpi);
     }
@@ -128,23 +180,32 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      *
      * @param aliasName    the alias
      * @param spiClassName the name of the SPI class
+     * @deprecated since BEAM 5, used internally only
      */
+    @Deprecated
+    @Override
     public void setAlias(String aliasName, String spiClassName) {
-        aliases.put(aliasName, spiClassName);
+        registerAlias(spiClassName, aliasName);
     }
 
-    private void setAliases(OperatorSpi operatorSpi) {
-        Class<? extends OperatorSpi> spiClass = operatorSpi.getClass();
-        setAlias(operatorSpi.getOperatorAlias(), spiClass.getName());
+    private void registerAlias(String spiClassName, String aliasName) {
+        Assert.notNull(aliasName, "aliasName");
+        Assert.notNull(spiClassName, "spiClassName");
+        classNames.put(aliasName, spiClassName);
     }
 
-    private void unregisterAliases(OperatorSpi operatorSpi) {
-        Class<? extends OperatorSpi> spiClass = operatorSpi.getClass();
-        String spiClassName = spiClass.getName();
-        String[] keys = aliases.keySet().toArray(new String[aliases.size()]);
-        for (String key : keys) {
-            if (aliases.get(key).equalsIgnoreCase(spiClassName)) {
-                aliases.remove(key);
+    private void registerAlias(OperatorSpi operatorSpi) {
+        String operatorAlias = operatorSpi.getOperatorAlias();
+        if (operatorAlias != null) {
+            registerAlias(operatorSpi.getClass().getName(), operatorAlias);
+        }
+    }
+
+    private void unregisterAlias(OperatorSpi operatorSpi) {
+        String spiClassName = operatorSpi.getClass().getName();
+        for (String key : new HashSet<>(classNames.keySet())) {
+            if (classNames.get(key).equals(spiClassName)) {
+                classNames.remove(key);
             }
         }
     }

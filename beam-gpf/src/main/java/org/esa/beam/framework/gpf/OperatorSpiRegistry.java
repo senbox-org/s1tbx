@@ -18,19 +18,28 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ServiceRegistry;
 
+import java.util.Set;
+
 /**
  * A registry for operator SPI instances.
  *
  * @author Norman Fomferra
+ * @author Marco Peters
  * @author Marco Zühlke
  * @since 4.1
  */
 public interface OperatorSpiRegistry {
 
     /**
-     * Loads the SPI's defined in {@code META-INF/services}.
+     * Loads the SPIs defined in {@code META-INF/services}.
      */
     void loadOperatorSpis();
+
+    /**
+     * @return The set of all registered operator SPIs.
+     * @since BEAM 5
+     */
+    Set<OperatorSpi> getOperatorSpis();
 
     /**
      * Gets the {@link ServiceRegistry ServiceRegistry}
@@ -40,7 +49,7 @@ public interface OperatorSpiRegistry {
     ServiceRegistry<OperatorSpi> getServiceRegistry();
 
     /**
-     * Gets a registrered operator SPI. The given <code>operatorName</code> can be
+     * Gets a registered operator SPI. The given <code>operatorName</code> can be
      * either the fully qualified class name of the {@link OperatorSpi}
      * or an alias name.
      *
@@ -60,6 +69,17 @@ public interface OperatorSpiRegistry {
     boolean addOperatorSpi(OperatorSpi operatorSpi);
 
     /**
+     * Adds the given {@link OperatorSpi operatorSpi} to this registry.
+     *
+     * @param operatorName an (alias) name used as key for the registration.
+     * @param operatorSpi the SPI to add
+     *
+     * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
+     * @since BEAM 5
+     */
+    boolean addOperatorSpi(String operatorName, OperatorSpi operatorSpi);
+
+    /**
      * Removes the given {@link OperatorSpi operatorSpi} this registry.
      *
      * @param operatorSpi the SPI to remove
@@ -73,6 +93,8 @@ public interface OperatorSpiRegistry {
      *
      * @param aliasName    the alias
      * @param spiClassName the name of the SPI class
+     * @deprecated since BEAM 5, used internally only
      */
+    @Deprecated
     void setAlias(String aliasName, String spiClassName);
 }

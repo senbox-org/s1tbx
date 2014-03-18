@@ -19,7 +19,6 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
-import com.bc.ceres.core.ServiceRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -45,7 +44,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 class CommandLineUsage {
@@ -55,16 +53,23 @@ class CommandLineUsage {
         String usagePattern = getUsagePattern();
 
         OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        ServiceRegistry<OperatorSpi> serviceRegistry = registry.getServiceRegistry();
-        Set<OperatorSpi> spiSet = serviceRegistry.getServices();
-        ArrayList<DocElement> docElementList = new ArrayList<>(spiSet.size());
-        for (OperatorSpi operatorSpi : spiSet) {
-            OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-            String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
-            if (!operatorDescriptor.isInternal()) {
+        ArrayList<OperatorSpi> spiList = new ArrayList<>(registry.getOperatorSpis());
+        Collections.sort(spiList, new Comparator<OperatorSpi>() {
+            @Override
+            public int compare(OperatorSpi o1, OperatorSpi o2) {
+                String opName1 = getOperatorUIName(o1);
+                String opName2 = getOperatorUIName(o2);
+                return opName1.compareToIgnoreCase(opName2);
+            }
+        });
+        ArrayList<DocElement> docElementList = new ArrayList<>(spiList.size());
+        for (OperatorSpi operatorSpi : spiList) {
+            String opName = getOperatorUIName(operatorSpi);
+            if (!operatorSpi.getOperatorDescriptor().isInternal()) {
                 final String descriptionLine;
-                if (operatorDescriptor.getDescription() != null) {
-                    descriptionLine = operatorDescriptor.getDescription();
+                String description = operatorSpi.getOperatorDescriptor().getDescription();
+                if (description != null) {
+                    descriptionLine = description;
                 } else {
                     descriptionLine = "No description available.";
                 }
@@ -80,6 +85,11 @@ class CommandLineUsage {
                                     CommandLineArgs.DEFAULT_TILE_CACHE_SIZE_IN_M,
                                     CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM,
                                     opListText.toString());
+    }
+
+    private static String getOperatorUIName(OperatorSpi operatorSpi) {
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        return operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
     }
 
     private static String getUsagePattern() {

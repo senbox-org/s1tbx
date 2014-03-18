@@ -199,7 +199,7 @@ public abstract class OperatorSpi {
      * <p/>
      * Shorthand for {@code getOperatorDescriptor().getAlias()}.
      *
-     * @return The alias name of the (@link Operator).
+     * @return The alias name of the (@link Operator), or {@code null} if not declared.
      */
     public final String getOperatorAlias() {
         if (operatorAlias != null && !operatorAlias.isEmpty()) {
