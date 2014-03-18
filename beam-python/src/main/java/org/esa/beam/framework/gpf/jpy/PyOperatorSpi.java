@@ -133,7 +133,8 @@ public class PyOperatorSpi extends OperatorSpi {
             }
         };
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi);
+        String operatorName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorName, operatorSpi);
         BeamLogManager.getSystemLogger().info(String.format("Python operator '%s' registered (class '%s' in file '%s')",
                                                             pythonModuleName, pythonClassName, pythonModuleFile));
     }
