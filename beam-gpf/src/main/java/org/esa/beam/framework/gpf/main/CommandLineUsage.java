@@ -140,7 +140,7 @@ class CommandLineUsage {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         for (HeaderSource headerSource : sources) {
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", headerSource.getName());
-            final ArrayList<String> descriptionLines = createSourceDecriptionLines(headerSource);
+            final ArrayList<String> descriptionLines = createSourceDescriptionLines(headerSource);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
 
@@ -160,7 +160,7 @@ class CommandLineUsage {
     }
 
     private static ArrayList<String> createParamDescriptionLines(HeaderParameter parameter) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        final ArrayList<String> descriptionLines = new ArrayList<>();
         final String description = parameter.getDescription();
 
         if (!(description == null || description.isEmpty())) {
@@ -204,7 +204,7 @@ class CommandLineUsage {
         return descriptionLines;
     }
 
-    private static ArrayList<String> createSourceDecriptionLines(HeaderSource headerSource) {
+    private static ArrayList<String> createSourceDescriptionLines(HeaderSource headerSource) {
         final ArrayList<String> descriptionLines = new ArrayList<>();
 
         final String description = headerSource.getDescription();
@@ -316,14 +316,14 @@ class CommandLineUsage {
         SourceProductDescriptor[] sourceProductDescriptors = operatorDescriptor.getSourceProductDescriptors();
         for (SourceProductDescriptor sourceProduct : sourceProductDescriptors) {
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", getName(sourceProduct));
-            final ArrayList<String> descriptionLines = createSourceDecriptionLines(sourceProduct);
+            final ArrayList<String> descriptionLines = createSourceDescriptionLines(sourceProduct);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
         return docElementList;
     }
 
     private static ArrayList<String> createParamDescriptionLines(ParameterDescriptor parameter) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        final ArrayList<String> descriptionLines = new ArrayList<>();
         if (parameter.getDescription() != null) {
             descriptionLines.add(parameter.getDescription());
         } else {
@@ -358,8 +358,8 @@ class CommandLineUsage {
         return descriptionLines;
     }
 
-    private static ArrayList<String> createSourceDecriptionLines(SourceProductDescriptor sourceProduct) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+    private static ArrayList<String> createSourceDescriptionLines(SourceProductDescriptor sourceProduct) {
+        final ArrayList<String> descriptionLines = new ArrayList<>();
         if (sourceProduct.getDescription() != null) {
             descriptionLines.add(sourceProduct.getDescription());
         } else {
