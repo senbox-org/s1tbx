@@ -15,10 +15,16 @@
     <dependency>
       <module>nest-graph-builder</module>
     </dependency>
+	<dependency>
+      <module>nest-core</module>
+    </dependency>
     <dependency>
       <module>nest-dat</module>
     </dependency>
-
+	<dependency>
+        <module>jlinda-core</module>
+    </dependency>
+	
     <categories>Processing</categories>
 
     <extension point="beam-ui:actions">

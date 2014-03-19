@@ -1,20 +1,21 @@
 package org.jlinda.core.coregistration.estimation;
 
+import ch.qos.logback.classic.Level;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
 import org.jlinda.core.utils.PolyUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.jblas.MatrixFunctions.pow;
 
 public class SystemOfEquations {
 
-    private static Logger logger = LoggerFactory.getLogger(SystemOfEquations.class.getName());
+    private static final ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SystemOfEquations.class);
+
     private int nObs;
     private DoubleMatrix data;
     private int minL;
@@ -210,6 +211,8 @@ public class SystemOfEquations {
      * @return Design Matrix
      */
     public static double[][] constructDesignMatrix_loop(final double[] line, final double[] pixel, final int degree) {
+
+        logger.setLevel(Level.WARN);
 
         final int nObs = line.length;
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);

@@ -73,7 +73,7 @@
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
 	        <id>ForestAreaDetection</id>
 	        <helpId>ForestAreaDetection</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -84,9 +84,9 @@
 	        <operatorName>Forest-Area-Detection</operatorName>
 	        <dialogTitle>Forest Area Detection</dialogTitle>
             <targetProductNameSuffix>_forest</targetProductNameSuffix>
-        </action>
+        </action-->
 
-        <action>
+        <!--action>
 	        <id>ForestAreaClassification</id>
 	        <helpId>ForestAreaClassification</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -97,7 +97,7 @@
 	        <operatorName>Forest-Area-Classification</operatorName>
 	        <dialogTitle>Forest Area Classification</dialogTitle>
             <targetProductNameSuffix>_cls</targetProductNameSuffix>
-        </action>
+        </action-->
 
         <action>
             <id>FloodDetection</id>

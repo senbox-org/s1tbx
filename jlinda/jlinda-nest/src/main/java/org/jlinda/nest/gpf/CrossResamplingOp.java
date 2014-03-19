@@ -3,11 +3,9 @@ package org.jlinda.nest.gpf;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.bc.ceres.core.ProgressMonitor;
-import org.apache.commons.lang.ArrayUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.apache.commons.lang3.ArrayUtils;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -18,10 +16,11 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
-import org.jlinda.core.Constants;
-import org.jlinda.core.SLCImage;
+import org.jlinda.core.*;
+import org.jlinda.core.Point;
 import org.jlinda.core.coregistration.LUT;
 import org.jlinda.core.coregistration.SimpleLUT;
 import org.jlinda.core.coregistration.cross.CrossGeometry;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.media.jai.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -77,6 +77,7 @@ public class CrossResamplingOp extends Operator {
     private SLCImage slcMetadata = null;
 
     private WarpPolynomial warpPolynomial;
+    private WarpPolynomial reverseWarpPolynomial;
 
     // ERS NOMINAL PRF and RSR
     private final static double ERS_PRF_NOMINAL = 1679.902;  // [Hz]
@@ -86,7 +87,28 @@ public class CrossResamplingOp extends Operator {
     private final static double ASAR_PRF_NOMINAL = 1652.4156494140625;  // [Hz]
     private final static double ASAR_RSR_NOMINAL = 19.20768;            // [MHz]
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
+    // Metadata
+    MetadataElement absSrc;
+    MetadataElement absTgt;
+    SLCImage targetMeta;
+    SLCImage sourceMeta;
+    Orbit targetOrbit;
+
+    // Grids
+    TiePointGrid longitudeTPG;
+    TiePointGrid latitudeTPG;
+    TiePointGrid incidenceAngleTPG;
+    TiePointGrid slantRangeTimeTPG;
+    int targetTPGWidth;
+    int targetTPGHeight;
+    
+    // Source & Target dimensions
+    int sourceImageWidth;
+    int sourceImageHeight;
+    int targetImageWidth;
+    int targetImageHeight;
+    
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
 
     private CrossGeometry crossGeometry;
 
@@ -95,6 +117,7 @@ public class CrossResamplingOp extends Operator {
      * requires that an operator has a default constructor.
      */
     public CrossResamplingOp() {
+        logger.setLevel(Level.TRACE);
     }
 
     /**
@@ -114,24 +137,23 @@ public class CrossResamplingOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        logger.setLevel(Level.TRACE);
-
         try {
 
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            slcMetadata = new SLCImage(absRoot);
+            absSrc = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            slcMetadata = new SLCImage(absSrc);
 
-            final String mission = slcMetadata.getMission().toLowerCase();
+            final String sourceMission = slcMetadata.getMission().toLowerCase();
 
-            boolean ersMission = mission.contains("ers");
-            boolean asarMission = mission.contains("asar") || mission.contains("envisat");
+            boolean ersMission = sourceMission.contains("ers");
+            boolean asarMission = sourceMission.contains("asar") || sourceMission.contains("envisat");
 
             if (!ersMission && !asarMission) {
                 throw new OperatorException("The Cross Interferometry operator is for ERS 1/2 and Envisat ASAR products only");
             }
 
-            if (mission.contains(targetGeometry.toLowerCase())) {
-                throw new OperatorException("You selected the same geometry as of input image");
+            if (sourceMission.contains(targetGeometry.toLowerCase())) {
+//            if (targetGeometry.toLowerCase().contains(sourceMission)) {
+                throw new OperatorException("You selected the same target geometry as of input image");
             }
 
             // declare source
@@ -148,6 +170,7 @@ public class CrossResamplingOp extends Operator {
             }
 
             constructPolynomial();
+            constructReversePolynomial();
             constructInterpolationTable(interpolationMethod);
             createTargetProduct();
 
@@ -186,10 +209,46 @@ public class CrossResamplingOp extends Operator {
         logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
         logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
 
-        // construct polynomial
-        warpPolynomial = new WarpGeneralPolynomial(xCoeffsFloat, yCoeffsFloat);
+        // construct polynomial <- this is strange! Some inconsistency!!!
+        warpPolynomial = new WarpGeneralPolynomial(yCoeffsFloat, xCoeffsFloat);
 
     }
+
+    private void constructReversePolynomial() {
+
+        CrossGeometry crossReverseGeometry = new CrossGeometry();
+
+        crossReverseGeometry.setPrfOriginal(targetPRF);
+        crossReverseGeometry.setRsrOriginal(targetRSR);
+        crossReverseGeometry.setPrfTarget(sourcePRF);
+        crossReverseGeometry.setRsrTarget(sourceRSR);
+
+        crossReverseGeometry.setDataWindow(slcMetadata.getOriginalWindow());
+
+        crossReverseGeometry.setPolyDegree(warpPolynomialOrder);
+        crossReverseGeometry.setNormalizeFlag(false);
+
+        // use grids for computing polynomial using JAI Warp
+        crossReverseGeometry.computeCoeffsFromCoords_JAI();
+
+        // cast coefficients to floats
+        double[] xCoeffsDouble = crossReverseGeometry.getCoeffsRg();
+        double[] yCoeffsDouble = crossReverseGeometry.getCoeffsAz();
+        float[] xCoeffsFloat = new float[xCoeffsDouble.length];
+        float[] yCoeffsFloat = new float[yCoeffsDouble.length];
+        for (int i = 0; i < xCoeffsFloat.length; i++) {
+            yCoeffsFloat[i] = (float) yCoeffsDouble[i];
+            xCoeffsFloat[i] = (float) xCoeffsDouble[i];
+        }
+        // show polynomials
+        logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
+        logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
+
+        // construct polynomial
+        reverseWarpPolynomial = new WarpGeneralPolynomial(yCoeffsFloat, xCoeffsFloat);
+
+    }
+
 
     private void constructInterpolationTable(String interpolationMethod) {
 
@@ -200,7 +259,7 @@ public class CrossResamplingOp extends Operator {
         int kernelLength = lut.getKernelLength();
 
         // get LUT and cast it to float for JAI
-        double[] lutArrayDoubles = lut.getKernel().toArray();
+        double[] lutArrayDoubles = lut.getKernelAsArray();
         float lutArrayFloats[] = new float[lutArrayDoubles.length];
         int i = 0;
         for (double lutElement : lutArrayDoubles) {
@@ -208,40 +267,29 @@ public class CrossResamplingOp extends Operator {
         }
 
         // construct interpolation table for JAI resampling
+        final int subsampleBits = 7;
+        final int precisionBits = 32;
         int padding = kernelLength / 2 - 1;
+
+        interpTable = new InterpolationTable(padding, kernelLength, subsampleBits, precisionBits, lutArrayFloats);
 
     }
 
     /**
      * Create target product.
      */
-    private void createTargetProduct() {
+    private void createTargetProduct() throws Exception {
 
-        final int offsetX = 0;
-        final int offsetY = 0;
+        sourceImageWidth = sourceProduct.getSceneRasterWidth();
+        sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-        int sourceWidth = sourceProduct.getSceneRasterWidth();
-        int sourceHeight = sourceProduct.getSceneRasterHeight();
-
-        int targetWidth = (int) Math.ceil(sourceWidth * crossGeometry.getRatioRSR());
-        int targetHeight = (int) Math.ceil(sourceHeight * crossGeometry.getRatioPRF());
-
-        // trim to extent
-        if (targetWidth > sourceWidth) {
-            targetWidth = sourceWidth - offsetX;
-        } else {
-            targetWidth -= offsetX;
-        }
-
-        if (targetHeight > sourceHeight) {
-            targetHeight = sourceHeight - offsetY;
-        } else {
-            targetHeight -= offsetY;
-        }
+        targetImageWidth = (int) Math.ceil(sourceImageWidth * crossGeometry.getRatioRSR());
+        targetImageHeight = (int) Math.ceil(sourceImageHeight * crossGeometry.getRatioPRF());
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
-                targetWidth, targetHeight);
+                targetImageWidth, 
+                targetImageHeight);
 
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -271,19 +319,135 @@ public class CrossResamplingOp extends Operator {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
-        // TODO - here goes update of metadata
+        absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+
+        double azSpacingSrc = absTgt.getAttributeDouble(AbstractMetadata.azimuth_spacing);
+        double rngSpacingSrc = absTgt.getAttributeDouble(AbstractMetadata.range_spacing);
+        
+        double azSpacingTgt = azSpacingSrc * (1 / crossGeometry.getRatioPRF()); // ratios inverted because of resampling semantics
+        double rngSpacingTgt = rngSpacingSrc * (1 / crossGeometry.getRatioRSR());
+
         // 1. RSR of source replaced with RSR of target
         // 2. PRF of source replaced with PRF of target
-        // 3. resolution cell sampling
-        // 4. update of geocodings to allow 'old' coregistration to work
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.pulse_repetition_frequency, targetPRF);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_sampling_rate, targetRSR);
 
-//        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
-//        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
+        // 3. resolution cell sampling
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, azSpacingTgt);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, rngSpacingTgt);
+
+        // TODO - here goes update of metadata
+        // 4. update of geocodings to allow 'old' coregistration to work
+        updateTargetProductGEOCoding();
 
     }
 
+    private void updateTargetProductGEOCoding() throws Exception {
+
+        targetMeta = new SLCImage(absTgt);
+        sourceMeta = new SLCImage(absSrc);
+        targetOrbit = new Orbit(absTgt, 3);
+
+        latitudeTPG = OperatorUtils.getLatitude(sourceProduct);
+        longitudeTPG = OperatorUtils.getLongitude(sourceProduct);
+        slantRangeTimeTPG = OperatorUtils.getSlantRangeTime(sourceProduct);
+        incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
+
+        targetTPGWidth = latitudeTPG.getRasterWidth();
+        targetTPGHeight = latitudeTPG.getRasterHeight();
+
+        final float[] targetLatTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final float[] targetLonTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final float[] targetIncidenceAngleTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final float[] targetSlantRangeTimeTiePoints = new float[targetTPGHeight * targetTPGWidth];
+
+        final int subSamplingX = sourceImageWidth / (targetTPGWidth - 1);
+        final int subSamplingY = sourceImageHeight / (targetTPGHeight - 1);
+
+        // Create new tie point grid
+        int k = 0;
+        for (int r = 0; r < targetTPGHeight; r++) {
+
+            // get the zero Doppler time for the rth line
+            int y;
+            if (r == targetTPGHeight - 1) { // last row
+                y = sourceImageHeight - 1;
+            } else { // other rows
+                y = r * subSamplingY;
+            }
+
+            for (int c = 0; c < targetTPGWidth; c++) {
+
+                final int x = getSampleIndex(c, subSamplingX);
+                targetIncidenceAngleTiePoints[k] = incidenceAngleTPG.getPixelFloat((float) x, (float) y);
+                targetSlantRangeTimeTiePoints[k] = slantRangeTimeTPG.getPixelFloat((float) x, (float) y);
+
+                final GeoPoint geoPos = computeLatLon(x, y);
+                targetLatTiePoints[k] = (float) geoPos.lat;
+                targetLonTiePoints[k] = (float) geoPos.lon;
+                k++;
+            }
+        }
+
+        final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTPGWidth, targetTPGHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetIncidenceAngleTiePoints);
+        angleGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTPGWidth, targetTPGHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetSlantRangeTimeTiePoints);
+        slrgtGrid.setUnit(Unit.NANOSECONDS);
+
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTPGWidth, targetTPGHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLatTiePoints);
+        latGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTPGWidth, targetTPGHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+
+        for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
+            targetProduct.removeTiePointGrid(tpg);
+        }
+
+        targetProduct.addTiePointGrid(angleGrid);
+        targetProduct.addTiePointGrid(slrgtGrid);
+        targetProduct.addTiePointGrid(latGrid);
+        targetProduct.addTiePointGrid(lonGrid);
+        targetProduct.setGeoCoding(tpGeoCoding);
+
+    }
+    
+    private int getSampleIndex(final int colIdx, final int subSamplingX) {
+
+        if (colIdx == targetTPGWidth - 1) { // last column
+            return sourceImageWidth - 1;
+        } else { // other columns
+            return colIdx * subSamplingX;
+        }
+    }
+    
+    private GeoPoint computeLatLon(final int x, final int y) throws Exception {
+
+        final double[] ell = new double[3];
+
+        ell[0] = latitudeTPG.getPixelFloat((float)x, (float)y) * Constants.DTOR;
+        ell[1] = longitudeTPG.getPixelFloat((float)x, (float)y)  * Constants.DTOR;
+        ell[2] = 0;
+
+        Point posPixSrc = targetOrbit.ell2lp(ell, sourceMeta);
+        Point posXYZSrc = targetOrbit.lp2xyz(posPixSrc, sourceMeta);
+        Point posPixTgt = targetOrbit.xyz2lp(posXYZSrc, targetMeta);
+        double[] posGeoTgt = targetOrbit.lp2ell(posPixTgt, targetMeta);
+
+        return new GeoPoint(posGeoTgt[0] * Constants.RTOD, posGeoTgt[1] * Constants.RTOD);
+        
+    }
+    
+    
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -302,8 +466,14 @@ public class CrossResamplingOp extends Operator {
         final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
         final int h = targetRectangle.height;
-        System.out.println("CrossResamplingOperator: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+        System.out.println("Target Rectangle: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
+        final Rectangle sourceRectangle = getSourceRectangle(targetRectangle);
+        System.out.println("Source Rectangle: x0 = " + sourceRectangle.x + ", y0 = " + sourceRectangle.y + ", w = " + sourceRectangle.width + ", h = " + sourceRectangle.height);
+
+        System.out.println("------");
+        
+        
         final BorderExtender borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
         try {
@@ -359,6 +529,22 @@ public class CrossResamplingOp extends Operator {
         RenderedOp warpOutput = JAI.create("warp", pb2);
 
         return warpOutput;
+    }
+
+    private Rectangle getSourceRectangle(Rectangle rect) {
+
+        Point2D lowerLeftSrc = new Point2D.Double(rect.x, rect.y);
+        Point2D upperRightSrc = new Point2D.Double(rect.x + rect.width - 1, rect.y + rect.height - 1);
+
+        Point2D lowerLeftTgt = reverseWarpPolynomial.mapDestPoint(lowerLeftSrc);
+        Point2D upperRightTgt = reverseWarpPolynomial.mapDestPoint(upperRightSrc);
+
+        int x = (int) Math.ceil(lowerLeftTgt.getX());
+        int y = (int) Math.ceil(lowerLeftTgt.getY());
+        int w = (int) Math.ceil(upperRightTgt.getX() - lowerLeftTgt.getX() + 1);
+        int h = (int) Math.ceil(upperRightTgt.getY() - lowerLeftTgt.getY() + 1);
+
+        return new Rectangle(x, y, w, h);
     }
 
     /**

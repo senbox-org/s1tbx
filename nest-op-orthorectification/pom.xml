@@ -42,6 +42,10 @@
       <artifactId>nest-op-coregistration</artifactId>
 	  <version>${nest.version}</version>
     </dependency>
+	<dependency>
+      <groupId>org.jlinda</groupId>
+      <artifactId>jlinda-core</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.esa.nest</groupId>
       <artifactId>nest-reader-dem</artifactId>

@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Help - Create InSAR Stack</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header"> Create InSAR Stack</td>
+        <td class="header" align="right">
+            <a href="../general/Overview.html">
+                <img src="../images/HeaderLogo.jpg" border="0">
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Create InSAR Stack</h3>
+
+<p>
+    Create InSAR Stack is a component of the <a href="../tutorials/insar_coregistration.html"> interferometric
+    coregistration processing chain</a>. The <i>Create InSAR Stack</i> Operator collocates two spatially overlapping
+    SAR products.
+</p>
+
+<p><br>
+    When number of products are collocated, slaves product are subset-ed into the SAR geometry of the master product.
+    In order to establish a mapping between the master and the slave, either orbits and timing information is used, or
+    annotated geographical position grids. The algorithm requires reasonable accurate orbital or geopositioning
+    information for both master and slave products.
+</p>
+
+<p><br>
+    In simple terms this operator can be interpreted as a coarse (1st-level) coregistration between the master and
+    slave(s) products, based on orbit or geo-information, and that instead of resampling repositioning and subset-ing of
+    slave images is performed. Importantly, after stacking operation is performed, the reference SAR geometry of
+    the stack is the one of master.
+</p>
+
+<h4>Operator Parameters</h4>
+
+<p>
+    The following parameters are used by this operator:</p>
+
+<ol>
+    <li>
+        <b>Master Band:</b> All bands (real or virtual) of the selected products are listed. User can select master
+        bands (for real image). Note that i and q bands for complex image are automatically pre-selected.
+    </li>
+    <li>
+        <b>Slave Band:</b> All bands (real or virtual) of the selected product. User can select
+        one number of slave products. For complex data, i and q bands are automatically pre-selected.
+    </li>
+    <li>
+        <b>Initial Offset Method:</b> It specifies the method used for the offset computation.
+    </li>
+    <li>
+        <b>Find Optimal Master:</b> Selection of the optimal master based on the <a href="InSARMaster.html"> InSAR Stack
+        Overview</a> procedure.
+    </li>
+</ol>
+
+<p>
+    The user may choose between two methods for computation of the initial offsets:
+</p>
+
+<ul>
+    <li><b>Orbit method</b>, described in somewhat detail in implementation notes;
+    </li>
+    <li><b>GCPs method</b>, this method is similar to the one implemented in <i>Create Stack
+        Operator</i> of NEST and not described in detail here. It is not removed because of legacy reasons.
+    </li>
+</ul>
+
+<p>
+    <b>Note:</b> For interferometry the Orbit method is recommended. The Orbit based method is less effected by
+    sometimes erroneous GCP annotations. Especially with missions where the quality of GCP annotations would change
+    throughout the lifetime of the mission, e.g., ERS 1/2 satellite data.
+</p>
+
+<h4>Implementation Notes</h4>
+
+<p>
+    The algorithm used for computation of offset between the master and slave images consists of three steps:
+</p>
+
+<ol>
+    <li>
+        For the approximate center (line,pixel) of the input master image, compute the position (x,y,z in the system of
+        the orbits) of the reference point P on a reference surface (i.e., ellipsoid).
+    </li>
+    <li>
+        Using the Doppler equation, the position of the slave satellite that corresponds to the reference point P is
+        computed, and also compute the (line, pixel) coordinates in the slave system.
+    </li>
+    <li>
+        The offset between master and slave image is defined as the difference between (line,pixel) coordinates of the
+        reference point P in the master and slave SAR coordinate system. Note that for the offset
+        <i>"slave minus master"</i> semantics is used.
+    </li>
+
+</ol>
+
+<br>
+<br>
+<hr>
+</body>
+</html>

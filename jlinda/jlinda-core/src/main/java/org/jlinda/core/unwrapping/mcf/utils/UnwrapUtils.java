@@ -1,6 +1,7 @@
 package org.jlinda.core.unwrapping.mcf.utils;
 
 import org.jblas.DoubleMatrix;
+import org.jlinda.core.Constants;
 
 import static org.jlinda.core.Constants._PI;
 import static org.jlinda.core.Constants._TWO_PI;
@@ -9,35 +10,6 @@ import static org.jlinda.core.Constants._TWO_PI;
  * Description: Utility code used in unwrapping. Code is mainly moved from around into this class.
  */
 public class UnwrapUtils {
-
-    public static DoubleMatrix[] grid2D(DoubleMatrix x, DoubleMatrix y) {
-
-        // assumes y and x are vectors
-        if (!x.isVector() || !y.isVector()) {
-            throw new IllegalArgumentException();
-        }
-
-        // make both input vectors 'laying' and 'standing' vectors
-        if (!x.isColumnVector()) x = x.transpose();
-        if (!y.isRowVector()) y = y.transpose();
-
-        // allocate return array
-        DoubleMatrix[] returnMatrixArray = new DoubleMatrix[2];
-
-        // should work using repmat
-        returnMatrixArray[0] = x.repmat(1, y.length);
-        returnMatrixArray[1] = y.repmat(x.length, 1);
-
-        return returnMatrixArray;
-    }
-
-    public static DoubleMatrix[] meshgrid(DoubleMatrix x, DoubleMatrix y) {
-        DoubleMatrix[] tempArray = grid2D(y, x); // swapping x and y!
-        DoubleMatrix[] output = new DoubleMatrix[2];
-        output[0] = tempArray[1];
-        output[1] = tempArray[0];
-        return output;
-    }
 
     public static void iWrapDoubleMatrix(DoubleMatrix phase) {
         for (int i = 0; i < phase.length; i++) {
@@ -109,21 +81,27 @@ public class UnwrapUtils {
         return mod(fAng, 360.);
     }
 
+    public static double unwrap(double reference, double wrapped) {
 
-    private static int[] linspaceInt(int min, int max, int numelems, int offset) {
-        int[] out = new int[numelems];
-        for (int i = min; i < max; i++) {
-            out[i] = (min - offset) + i;
+        double po = 0.0D;
+        double dp = wrapped - reference;
+
+        if (dp > Constants._PI) {
+            while (dp > Constants._PI) {
+                po -= Constants._TWO_PI;
+                dp -= Constants._TWO_PI;
+            }
         }
-        return out;
-    }
 
-    public static int[] linspaceInt(int min, int max, int numelems) {
-        return linspaceInt(min, max, numelems, 1); // starts at zero!
-    }
+        if (dp < -Constants._PI) {
+            while (dp < -Constants._PI) {
+                po += Constants._TWO_PI;
+                dp += Constants._TWO_PI;
+            }
+        }
 
-    public static DoubleMatrix sub2ind(int nRows, int nCols, DoubleMatrix rowMatrix, DoubleMatrix colMatrix) {
-        return rowMatrix.add(colMatrix.sub(1).mmul(nRows));
+        return wrapped + po;
+
     }
 
 }

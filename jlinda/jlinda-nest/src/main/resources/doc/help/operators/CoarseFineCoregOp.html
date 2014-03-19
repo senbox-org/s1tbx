@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Help - Coarse and Fine InSAR Coregistration</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header"> Coarse and Fine InSAR Coregistration</td>
+        <td class="header" align="right">
+            <a href="../general/Overview.html">
+                <img src="../images/HeaderLogo.jpg" border="0">
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Coarse and Fine InSAR Coregistration</h3>
+
+<p>
+    Coarse and Fine InSAR Coregistration is an operator of an <a href="../tutorials/insar_coregistration.html">
+    interferometric coregistration processing chain.</a> The <i>Coarse and Fine Coregistration</i> Operator
+    computes coregistration offsets between master and slave products.
+</p>
+
+<p><br>
+    The computation of coregistration offsets is implemented in <i>coarse to fine</i> manner, and it is separated
+    into two processing steps. First <i>coarse</i> computation of the coarse coregistration offsets is performed,
+    and the coarse coregistration offset is refined in
+    the <i>fine</i> step.
+</p>
+
+<h4>Operator Parameters</h4>
+
+<p>
+    The following parameters are used by this operator:</p>
+
+<ol>
+    <li>
+        <b>Number of Correlation Optimization Windows:</b> Number of windows to be distributed over the total image to
+        estimate the master-slave offset.
+    </li>
+    <li>
+        <b>Coarse Window Width and Height:</b> Size of the window in lines/pixels for coarse coregistration.
+    </li>
+    <li>
+        <b>Coarse Accuracy in Azimuth/Range direction:</b> The default method for the coarse
+        offset computation is the 'Space Domain' that allows to define the accuracy to search within for the maximum
+        correlation.
+    </li>
+    <li>
+        <b>Fine Correlation Method:</b> Method selector for the fine step. Compute cross-correlation based on magnitude
+        image either in the space or the spectral domain. Note that the magnitude patches are zero mean-ed.
+        The 'Frequency Domain' is fast, but patch size varies depending on shift. 'Space Domain' keeps constant
+        patch-size and shifts it over the master, but is slower in comparison to the spectral method. In theory the
+        'Spectral Method with Oversampling' is best, since it mitigates the aliasing of spectra when magnitude
+        is computed (using FFTs), but it is also the slowest one. Recommended method is 'Frequency Domain' since it
+        provides a good balance between robustness and computational efficiency.
+    </li>
+    <li>
+        <b>Fine Window Width/Height:</b> The size of the correlation window. Recommended is 32 32.
+    </li>
+    <li>
+        <b>Fine Accuracy in Azimuth/Range direction:</b> The search accuracy for the maximum correlation. This parameter
+        applies only if 'Space Method' is selected. In that case advised is 8 8. Total search are from -Acc to +Acc.
+        For Spectral Methods (based on FFT) methods accuracy automatically equals to half of the windows size.
+    </li>
+    <li>
+        <b>Fine Oversampling Factor:</b> The oversampling factor for the harmonic
+        interpolation of the correlation. Recommended value is minimum 16, and in order to co-register the images
+        within a tenth of a pixel factor 32 is recommended.
+    </li>
+    <li>
+        <b>Coherence Threshold:</b> Threshold for correlation value to use estimated offset of in the estimation of
+        the corregistration polynomial. Note that estimated coherence using small windows are more biased towards 1.0,
+        so a higher threshold is better. For window size 32 32 a threshold of 0.4 seems to give reliable results in most
+        of the cases.
+    </li>
+</ol>
+
+<h4>Implementation Details</h4>
+
+<h5>Coarse Coregistration - Overview</h5>
+
+<p>
+    The <i>coarse</i> offset in line (azimuth) and pixel (range) direction between master and slave is
+    computed with an accuracy of about 1 pixel (1 offset for whole image). The magnitude images are used. The
+    correlation is computed in the space or spectral domain.
+</p>
+
+<p>
+    At a number of positions (geometrically distributed) in the image the correlation between master and slave is
+    computed for different offsets. The offset with the highest correlation is the estimate for that position.
+    The (approximate) offset between the two images is set to the offset that most occurred over the positions,
+    so the one that is most likely and used as initial offset in the fine coregistration.
+</p>
+
+<p>
+    Note that sometimes an estimated offset is totally unreliable, for example for a position in a sea, but the
+    correlation is not very small. The estimated correlation at a position is likely to be biased. Therefore it
+    would not be recommended to use the offset between the two images based purely on the highest correlation values.
+    Thus this 'consistency test' is used instead.
+</p>
+
+<h5>Fine Coregistration - Overview</h5>
+
+<p>
+    The fine coregistration computes an offset vectors with sub pixel accuracy, that are used to align the slave
+    to the master image. The offset vector computation is performed for a number of locations in the master image.
+</p>
+
+<p>
+    Specifically, for a large number of windows over the total image (e.g., not less than 500), the offset between
+    master and slave is estimated by computing the correlation of the magnitude images for shifts at pixel level.
+    Further, in a local neighborhood of the maximum (correlation at pixel level) these correlations are harmonically
+    oversampled (i.e., interpolated) to find the maximum at sub pixel level. These offsets are then stored to the
+    product (metadata) file. The offset can be computed in the spectral or in the space domain. The correlation is
+    computed on the magnitude images.
+</p>
+
+<h5>Method: 'Space Domain'</h5>
+
+
+<p>
+    The implementation in the space domain requires an odd window size, which is automatically forced. This
+    restriction is not strictly necessary by the method, but was introduced to relax the implementation requirements
+    - since it is easier to the center of the shifting window if window is defined at a pixel. For each location the
+    (zero mean-ed) slave magnitude window is shifted over the (zero mean) master window, and the correlation is computed
+    by computing all point wise products and dividing by the norms of the particular windows.
+</p>
+
+<h5>Method: 'Frequency Domain'</h5>
+
+<p>
+    In the nutshell the implementation in the frequency domain similar to the one the space domain. The main 
+    difference is that FFT's are used to compute the products for the correlation in an efficient way, due to the
+    fact that a convolution in the space domain corresponds to a multiplication in the frequency domain. Input are the 
+    zero mean magnitude images.
+</p>
+
+<p>
+    The cross products are obtained by computing the point wise product of the zero-padded master * conj(slave). A 
+    block function is used to compute the norms. Note that the correlation window (the overlap) does not have a constant
+    size with this method, but varies between winsizeL/P and .5winsizeL/P, thus can bias slightly the coherence estimate.
+</p>
+
+<h5>Method: 'Frequency Domain with Oversampling'</h5>
+
+<p>
+    Refer to the source code.
+</p>
+
+<br>
+<br>
+<hr>
+</body>
+</html>

@@ -21,6 +21,7 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.unwrapping.mcf.Unwrapper;
+import org.jlinda.core.unwrapping.mcf.UnwrapperGLPK;
 import org.jlinda.core.utils.SarUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
 import org.jlinda.nest.utils.CplxContainer;
@@ -57,15 +58,36 @@ public class UnwrapOp extends Operator {
     private int tileWidth = 16;
     private int tileHeight = 16;
 
+    // method selector
+    private boolean nativeMethod = false;
 
+    // architecture flavor
+    private String name;
+    private String arch;
+    
     @Override
     public void initialize() throws OperatorException {
         try {
+            archFlavor();
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
         } catch (Exception e) {
             throw new OperatorException(e);
+        }
+    }
+
+    private void archFlavor() {
+        arch = System.getProperty("os.arch");
+        name = System.getProperty("os.name");
+
+        if (name.startsWith("Linux") && arch.equals("amd64")) {
+
+            nativeMethod = true;
+
+            // extend tiles
+            tileWidth = 64;
+            tileHeight = 64;
         }
     }
 
@@ -212,9 +234,16 @@ public class UnwrapOp extends Operator {
                 final ComplexDoubleMatrix cplxData = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
                 DoubleMatrix phaseData = SarUtils.angle(cplxData);
 
-                Unwrapper unwrapper = new Unwrapper(phaseData);
-                unwrapper.unwrap();
-                phaseData = unwrapper.getUnwrappedPhase();
+                // TODO: this cries for interface!
+                if (nativeMethod) {
+                    UnwrapperGLPK unwrapperGLPK = new UnwrapperGLPK(phaseData);
+                    unwrapperGLPK.unwrap();
+                    phaseData = unwrapperGLPK.getUnwrappedPhase();
+                } else {
+                    Unwrapper unwrapper = new Unwrapper(phaseData);
+                    unwrapper.unwrap();
+                    phaseData = unwrapper.getUnwrappedPhase();
+                }
 
                 // commit to target
                 final Band targetBand_I = targetProduct.getBand(product.targetBandName_I);

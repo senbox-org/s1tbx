@@ -223,10 +223,10 @@ public class CplxIfgOp extends Operator {
 
             final Band srcBand = sourceRasterMap.get(targetBand);
 
-            final Tile masterRasterI = getSourceTile(masterBand0, targetTileRectangle);
+            final Tile masterRasterI = getSourceTile(masterBand0, targetTileRectangle, pm);
             final ProductData masterDataI = masterRasterI.getDataBuffer();
 
-            final Tile masterRasterQ = getSourceTile(masterBand1, targetTileRectangle);
+            final Tile masterRasterQ = getSourceTile(masterBand1, targetTileRectangle, pm);
             final ProductData masterDataQ = masterRasterQ.getDataBuffer();
 
 //          complexSrcMapQ.put(srcBandI, srcBandQ);
@@ -236,11 +236,11 @@ public class CplxIfgOp extends Operator {
 
             if (srcBand.getUnit().equals(Unit.REAL)) {
 
-                final Tile slaveRasterI = getSourceTile(srcBand, targetTileRectangle);
+                final Tile slaveRasterI = getSourceTile(srcBand, targetTileRectangle, pm);
                 final ProductData slaveDataI = slaveRasterI.getDataBuffer();
 
                 final Band cplxSlaveBandQ = complexSrcMapQ.get(srcBand);
-                final Tile slaveRasterQ = getSourceTile(cplxSlaveBandQ, targetTileRectangle);
+                final Tile slaveRasterQ = getSourceTile(cplxSlaveBandQ, targetTileRectangle, pm);
                 final ProductData slaveDataQ = slaveRasterQ.getDataBuffer();
 
                 for (int y = y0; y < y0 + h; y++) {
@@ -257,11 +257,11 @@ public class CplxIfgOp extends Operator {
                 }
             } else if (srcBand.getUnit().equals(Unit.IMAGINARY)) {
 
-                final Tile slaveRasterQ = getSourceTile(srcBand, targetTileRectangle);
+                final Tile slaveRasterQ = getSourceTile(srcBand, targetTileRectangle, pm);
                 final ProductData slaveDataQ = slaveRasterQ.getDataBuffer();
 
                 final Band cplxSlaveBandI = complexSrcMapI.get(srcBand);
-                final Tile slaveRasterI = getSourceTile(cplxSlaveBandI, targetTileRectangle);
+                final Tile slaveRasterI = getSourceTile(cplxSlaveBandI, targetTileRectangle, pm);
                 final ProductData slaveDataI = slaveRasterI.getDataBuffer();
 
                 for (int y = y0; y < y0 + h; y++) {

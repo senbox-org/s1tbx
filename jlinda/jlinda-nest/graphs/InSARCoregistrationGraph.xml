@@ -51,6 +51,7 @@
             <cpmMaxIterations>20</cpmMaxIterations>
             <cpmAlphaValue>0.05</cpmAlphaValue>
             <cpmDemRefinement>false</cpmDemRefinement>
+            <demName>SRTM 3Sec</demName>
             <openResidualsFile>false</openResidualsFile>
         </parameters>
     </node>

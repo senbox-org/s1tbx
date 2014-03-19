@@ -48,15 +48,14 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
     private Double extNoDataValue = 0.0;
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
+    private final JCheckBox allowTuningCheckBox = new JCheckBox("Advance Performance Optimization");
+    private final JComboBox tileExtensionPercent = new JComboBox(new String[]{"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"});
+
+    private Boolean allowTuning;
+    
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
-//        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-//
-//        final ElevationModelDescriptor[] demDesciptors = elevationModelRegistry.getAllDescriptors();
-//        for(ElevationModelDescriptor dem : demDesciptors) {
-//            demName.addItem(DEMFactory.appendAutoDEM(dem.getName()));
-//        }
         demName.addItem(externalDEMStr);
 
         initializeOperatorUI(operatorName, parameterMap);
@@ -90,9 +89,16 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
         externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
 
+        allowTuningCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                allowTuning = (e.getStateChange() == ItemEvent.SELECTED);
+                enableTuningFields();
+            }
+        });
+        
+        
         return new JScrollPane(panel);
     }
-
 
 /*
     @Override
@@ -119,6 +125,12 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             }
         }
         topoPhaseBandName.setText(String.valueOf(paramMap.get("topoPhaseBandName")));
+
+        allowTuning = (Boolean) paramMap.get("allowTuning");
+        allowTuningCheckBox.setSelected(allowTuning);
+
+        tileExtensionPercent.setSelectedItem(paramMap.get("tileExtensionPercent"));
+        enableTuningFields();
     }
 
     @Override
@@ -136,6 +148,12 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
         paramMap.put("topoPhaseBandName", topoPhaseBandName.getText());
+
+        paramMap.put("allowTuning", allowTuning);
+        if (allowTuning) {
+            paramMap.put("tileExtensionPercent", Integer.parseInt((String) tileExtensionPercent.getSelectedItem()));
+        }
+        
     }
 
     private JComponent createPanel() {
@@ -158,6 +176,12 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Topo Phase Band Name:", topoPhaseBandName);
         gbc.gridy++;
 
+        gbc.gridx = 0;
+        gbc.gridy = gbc.gridy++;
+        contentPane.add(allowTuningCheckBox, gbc);
+        gbc.gridy = gbc.gridy + 10;
+        DialogUtils.addComponent(contentPane, gbc, "Tile Extension [%]", tileExtensionPercent);
+        
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
@@ -170,4 +194,8 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             externalDEMBrowseButton.setVisible(flag);
         }
 
+    private void enableTuningFields() {
+        tileExtensionPercent.setEnabled(allowTuning);
+    }
+    
 }

@@ -86,7 +86,7 @@
         <dependency>
             <groupId>org.csa.rstb</groupId>
             <artifactId>rstb-polarimetric-tools</artifactId>
-            <version>5.7</version>
+            <version>5.9</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

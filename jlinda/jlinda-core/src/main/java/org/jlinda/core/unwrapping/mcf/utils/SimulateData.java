@@ -35,7 +35,7 @@ public class SimulateData {
         this.simulatedData = new DoubleMatrix(xNumElems, yNumElems);
 
         // initially I was using ndgrid, but inconsistent with matlab prototype, therefore meshgrid
-        this.grid = UnwrapUtils.meshgrid(DoubleMatrix.linspace(xMin, xMax, xNumElems),
+        this.grid = JblasUtils.meshgrid(DoubleMatrix.linspace(xMin, xMax, xNumElems),
                 DoubleMatrix.linspace(yMin, yMax, yNumElems));
 
         this.xGrid = grid[0];
@@ -70,3 +70,4 @@ public class SimulateData {
     }
 
 }
+

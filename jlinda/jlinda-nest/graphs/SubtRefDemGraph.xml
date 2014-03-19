@@ -13,6 +13,13 @@
       <sourceProduct refid="1-Read"/>
     </sources>
     <parameters>
+        <orbitDegree>3</orbitDegree>
+        <demName>SRTM 3Sec</demName>
+        <externalDEMFile/>
+        <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+        <allowTuning>false</allowTuning>
+        <tileExtensionPercent>50</tileExtensionPercent>
+        <topoPhaseBandName>topo_phase</topoPhaseBandName>
     </parameters>
   </node>
   <node id="3-Write">

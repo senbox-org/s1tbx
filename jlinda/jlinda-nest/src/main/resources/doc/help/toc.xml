@@ -19,6 +19,13 @@
             <tocitem text="Snaphu Data Export" target="SnaphuExportOp"/>
             <tocitem text="Snaphu Data Import" target="SnaphuImportOp"/>
             <tocitem text="InSAR Stack Overview" target="InSARMaster"/>
+            <tocitem text="Unwrapping Operator" target="UnwrapOp"/>
+            <tocitem text="Stitching of unwrapped results" target="StitchOp"/>
+            <tocitem text="InSAR Coregistration Overview" target="insar_coregistration"/>
+            <tocitem text="Create InSAR Stack" target="CreateInSARStackOp"/>
+            <tocitem text="Coarse and Fine Coregistration" target="CoarseFineCoregOp"/>
+            <tocitem text="CPM Estimation and Resampling" target="ResampleOp"/>
+            <tocitem text="Cross Interferometry" target="CrossResamplingOp"/>
 		</tocitem>
     </tocitem>
     

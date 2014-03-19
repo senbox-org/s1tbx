@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+
+<head>
+    <title>Help - CPM Estimation and Resampling</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header"> CPM Estimation and Resampling</td>
+        <td class="header" align="right">
+            <a href="../general/Overview.html">
+                <img src="../images/HeaderLogo.jpg" border="0">
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Estimation of Coregistration Polynomial (CPM) and Resampling</h3>
+
+<p>
+    Estimation of Coregistration Polynomial (CPM) and Resampling is an operator of an
+    <a href="../tutorials/insar_coregistration.html"> interferometric coregistration processing chain.</a>
+    This operator estimates the coregistration polynomial, and utilizes that polynomial in resampling of the slave
+    image into the geometry of the master image.
+</p>
+
+<p><br>
+    The estimation of the coregistration polynomial, a polynomial that models tha alignment of slave on master, is
+    performed in the least-square sense. Then using this transformation model, the slave image is resampled. The
+    resampling operation is implemented as the reconstruction of original signal from the input samples by correlation
+    with interpolation kernels in the space domain. This estimation and resampling model is in accordance with sub-pixel
+    accuracy demands.
+</p>
+
+<h4>Operator Parameters</h4>
+
+<p>
+    The following parameters are used by this operator:</p>
+
+<ul>
+    <li>
+        <b>Coregistration Polynomial Degree:</b> Degree of two-dimensional polynomial - degree 2 is advised.
+    </li>
+    <li>
+        <b>Maximum number of iterations:</b> Number of iterations for the outliers removal. The outliers are removed
+        automatically based on statistical tests (i.e., hypothesis testing). The least squares adjustment is repeated,
+        until all statistical tests are accepted or the maximum number of iterations is reached.
+    </li>
+    <li>
+        <b>Significance Level for Outlier Removal:</b> Level of significance for the the outlier detection (i.e.,
+        hypothesis
+        testing). A higher value accepts more outliers. The listed values are so called alpha parameters, and are used
+        in computation of the test critical values. For listed parameters these test critical values are pre-computed.
+        In theory the critical levels are computed as a square distribution. For example, for the significance level
+        of alpha = 0.05, the critical value is 1.96, for a half sided test.
+    </li>
+    <li>
+        <b>Interpolation Method:</b> List of interpolation kernels. Available convolution kernels are: Linear, Cubic
+        Convolution and Truncated Sinc. For interferometric applications Cubic or Truncated sinc kernels are
+        recommended. These kernels assure the optimal interpolation in terms of Signal-to-Noise ratio.
+
+    </li>
+    <li>
+        <b>Offset Refinement Based on DEM:</b> Optional refinement of the coregistration offsets based on the
+        a-priori DEM. See Implementation notes for more implementation details. The level of coregistration improvement
+        (i.e., measured by coherence) increases with the resolution of the input data, scales with the length of 
+        baselines, and it is also dependent on the topography roughness.
+        <ul>
+            <li><b>Digital Elevation Model:</b> List of supported Digital-Elevation-Models (DEMs). Note that elevation
+                data for given master/slave combination is downloaded and interpolated automatically. No user
+                interaction is required.
+            </li>
+        </ul>
+    </li>
+
+    <li>
+        <b>Show Residuals:</b> Display log file if selected.
+    </li>
+</ul>
+
+<h4>Implementation Details</h4>
+
+<h5>Estimation of Coregistration Polynomial</h5>
+
+<p>
+    Based on the estimated offsets computed in previous <i>Coarse and Fine Coregistration</i> step, a 2d-polynomial
+    model of
+    certain degree of the coregistration is computed. When the step DEM refinement is applied, the polynomial is
+    estimated through the residuals between the Fine Coregistration and geometrical offsets computed using DEM.
+</p>
+
+<p>
+    For computation of the polynomial a least squares solution is used, i.e., solution by Cholesky decomposition of the
+    normal matrix. Note that data may be excluded a-priori by setting a threshold value for the correlation, in operator
+    <i>Coarse and Fine Coregistration</i>.
+</p>
+
+<h5>Resampling</h5>
+
+<p>Image interpolation is performed with a kernel function such as, e.g., a truncated sinc function. First a look-up
+    table is pre-computed for the selected interpolation kernel. Interpolation is independent for azimuth and range
+    direction. For all points in the overlap between master and slave, the co-registration polynomial is evaluated.</p>
+</p>
+
+<h5>DEM Based Refinement</h5>
+
+<p>
+    Depending on the geometry of interferometric pair and date resolution, the coregistration offsets estimated
+    by the correlation optimization can be improved (refined) using a height information (via DEM). For pixel of the 
+    master image the corresponding (real valued) coordinate in the slave image is computed. To perform this step 
+    accurately a DEM is required, e.g., obtained by the SRTM mission. Note that this DEM based refinement is 
+    not directly dependent on the correlation between the master and the slave image. Using DEM refinement prevents 
+    coregistration errors due to bad window distribution or lack of useful correlation windows in the conventional 
+    method. Moreover, the coregistration improves in case of large baselines and strong topography. This
+    improvement becomes especially significant in case of X-band data.
+</p>
+
+<br>
+<br>
+<hr>
+</body>
+</html>

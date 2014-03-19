@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - InSAR Coregistration</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">InSAR&nbsp;Coregistration&nbsp;Tutorial</td>
+        <td class="header" align="right">
+            <a href="../general/Overview.html">
+                <img src="../images/HeaderLogo.jpg" border="0">
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h3>Coregistering&nbsp;InSAR&nbsp;Products</h3>
+
+<p>
+    The sub-pixel coregistration of SAR images is a strict requirement and critical component of any interferometric
+    processing chain. It is an essential step for the accurate determination of phase difference, and applications such
+    as DEM map generation, interferometric deformation analysis, etc.
+</p>
+
+<p><br>
+    The interferometric modules of the toolbox will accurately&nbsp;co-register one&nbsp;or more&nbsp;slave images with
+    respect to a master image. The co-registration procedure is completely automatic. Apart from defining the processing
+    parameters, no additional input nor intervention from the user is required. For example the distribution
+    of correlation (optimization) windows are done in automatic manner for both master and slave image. Also,
+    the refinement of the coregistration offsets is done in a fully automatic way, including downloading and
+    interpolation of the a-priori digitial-elevation-model.
+</p>
+
+<h4>Brief Implementation Details</h4>
+
+<p><br>
+    The implementation of the coregistration procedure is based on the cross-correlation technique. Since this technique
+    for an optimal alignment tend to be slow for very large search windows, the procedure is usually separated in two
+    main steps: <i>coarse</i> and <i>fine</i> coregistration. In the coarse coregistration, the offsets are approximated
+    either by using the satellite orbits and timing as a reference, and/or by defining an approximate common points in
+    master/slave images and performing correlation matching with large windows. The subsequent fine coregistration
+    applies automation correlation technique to obtain sub-pixel alignment accuracy. After the coregistration offsets
+    are computed, the estimation of the coregistration polynomial (CPM) and interferometric resampling of slave images
+    to the master geometry is performed.
+</p>
+
+<h5>Comparison with 'Old' Coregistration Implementation</h5>
+
+<p><br>
+    Interferometric coregistration is fully implemented in NEST toolbox since version 5. While there are
+    conceptual overlaps with initial coregistration implementation, the algorithmic and implementation robustness
+    is much higher and more optimal for the interferometric applications.
+    <br><br>
+    <b><u>For any interferometric application this is the recommended coregistration processing chain.</u></b>
+</p>
+
+<p><br>
+    In future releases 'old' and 'interferometric' coregistration will be integrated into uniform processing chain.
+</p>
+
+<h4>Overview of Coregistration Processing Chain</h4>
+
+<p><br>
+    The interferometric coregistration is performed in three major processing steps (see Figure 1) with three operators:
+    <a href="../operators/CreateInSARStackOp.html">Create InSAR Stack operator</a>,
+    &nbsp;<a href="../operators/CoarseFineCoregOp.html">Coarse and Fine Coregistration operator</a> and
+    &nbsp;<a href="../operators/ResampleOp.html">Coregistration Polynomial and Resampling operator</a>.
+</p>
+
+<br>
+<img style="" alt="" src="../images/insar_coregistration_diagram.jpg">
+<br>
+<br>
+<div style="margin-left: 20px;"><b>Figure 1.</b> Flowchart of inteferometric co-registration<br></div>
+
+<h4>Input Images and Data Support</h4>
+
+<p><br>
+    Input SAR images may be fully ("full frame") or only partially overlapping ("subset"), they have to be
+    from acquisitions taken at different times using compatible, in the interferometric sense, sensors, and input
+    images must belong to the same type (i.e., them must be complex).
+</p>
+
+<p><br>
+    While in principle the implementation of the InSAR coregistration is flexible enough to allow processing of real
+    (detected) products, for now only complex (single-look-complex) data is supported.
+</p>
+
+</p><h4>Create InSAR Stack</h4>
+
+<p>
+    The Create InSAR Stack operator collocates the master and slave images based into a single reference (master)
+    geometry. Basically the slave image data is subset into geometry of the master image. With performing this operation
+    the master and slave images share the same geo-positioning information, and have the similar dimensions. For overlap
+    and geometry calculation either orbital data, or annotated tie-point-grids (i.e., ground-control-points) can be
+    used.
+    In other words the coarse coregistration is performed using orbital information or annotated GCPs. The method based
+    on orbits is recommended for all platforms, since especially in case of old sensors (ERS1/2) annotated GCPs prove
+    not to be reliable through-out the whole mission lifetime.
+</p>
+
+<p><br>
+    More details on this operator are given in the operator help -
+    <a href="../operators/CreateInSARStack.html">Create InSAR Stack</a>.
+</p>
+
+
+<h4>Coarse and Fine Coregistration</h4>
+
+<p><br>
+    The Coarse and Fine Coregistration operator creates an alignment between master and slave images by matching
+    automatically distributed correlation optimization windows to their corresponding slave windows. There are two
+    steps: coarse and fine registration. The offsets between master and slave are computed by maximizing the
+    cross-correlation between master and slave images on a series of imagettes defined across
+    the images. First on coarse level, with large windows and lower oversampling factors, later on fine level, with
+    smaller windows and higher oversampling factors.
+</p>
+
+<p><br>
+    For details and specifics on the operators input parameters, readers are referred to operators help
+    <a href="../operators/CoarseFineCoregOp.html">Coarse and Fine Coregistration</a>.
+</p>
+
+<h4>Coregistration Polynomial (CPM) estimation and Resampling</h4>
+
+<p><br>
+    With the master-slave offsets computed, a coregistration polynomial (CPM) is estimated by the Resample operator,
+    which resamples pixels in the slave image into pixels in the master image.
+</p>
+
+<p><br>
+    This resampling is performend in two-steps: (1) reconstruction of the continuous signal from its sampled version by
+    convolution with an interpolation kernel, and (2) sampling of the constructed signal at the new sampling locations.
+</p>
+
+<p><br>
+    For details of the&nbsp;Resample operator, readers are referred to <a href="../operators/ResampleOp.html">Resample
+    operator</a>.
+</p>
+
+<h4>Co-Registration from the DAT</h4>
+
+<p><br>
+    Processing steps that are listed below should give satisfactory results for most of the interferometric
+    combinations.
+</p>
+
+<ol>
+    <li>From the <i>InSAR</i> menu, in sub-menu <i>Coregistration</i>, select <i>InSAR Coregistration</i>.</li>
+    <li>Add a master product to the ProductSet Reader.</li>
+    <li>Add any slave products to the ProductSet reader or drag and drop products from a Project.</li>
+    <li>In the InSARCreateStack tab, select the master and slave products. Note that i and q channels are
+        automatically pre-selected.
+    </li>
+    <li>In the Coarse and Fine Coregistration enter the number of correlation optimization windows to create.</li>
+    <li>In the Resample tab select the thresholds and coregistration polynomial order.</li>
+    <li>In the Target tab enter in the output product name and location.</li>
+    <li>Press the Run button to begin processing.</li>
+</ol>
+<br><br><br><br><br><br>
+<hr>
+</body>
+</html>

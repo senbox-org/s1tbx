@@ -24,6 +24,9 @@
 	<dependency>
       <module>nest-reader-dem</module>
     </dependency>
+	<dependency>
+        <module>jlinda-core</module>
+    </dependency>
 
     <categories>Processing</categories>
 

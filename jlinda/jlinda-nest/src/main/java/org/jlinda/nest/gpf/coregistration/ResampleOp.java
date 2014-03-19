@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -24,6 +25,7 @@ import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.StackUtils;
 import org.esa.nest.util.ResourceUtils;
+import org.jlinda.core.Constants;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
@@ -85,6 +87,12 @@ public class ResampleOp extends Operator {
             label = "Offset Refinement Based on DEM")
     private boolean cpmDemRefinement = false;
 
+    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
+            description = "The digital elevation model.",
+            defaultValue = "SRTM 3Sec", 
+            label = "Digital Elevation Model")
+    private String demName = "SRTM 3Sec";
+
     @Parameter(description = "Show the Residuals file in a text viewer",
             defaultValue = "false",
             label = "Show Residuals")
@@ -94,6 +102,7 @@ public class ResampleOp extends Operator {
     private Band masterBand = null;
     private Band masterBand2 = null;
     private String[] masterBandNames = null;
+    private String processedSlaveBand;
 
     // maps
     private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
@@ -200,8 +209,8 @@ public class ResampleOp extends Operator {
 
             createTargetProduct();
 
-//            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-//            processedSlaveBand = absRoot.getAttributeString("processed_slave");
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            processedSlaveBand = absRoot.getAttributeString("processed_slave");
 
         } catch (Throwable e) {
             openResidualsFile = true;
@@ -304,7 +313,8 @@ public class ResampleOp extends Operator {
                 if (cpmDemRefinement) {
                     createDEM();
                 }
-                computeCPM();
+                // Most likely not needed
+                computeCPM(targetRectangle);
             }
 
             // get source bands
@@ -346,27 +356,42 @@ public class ResampleOp extends Operator {
 
     private synchronized void createDEM() throws IOException {
 
+        final Resampling resampling = ResamplingFactory.createResampling(ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
+
         if (dem != null) return;
 
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
+        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
 
-        if (demDescriptor.isInstallingDem()) {
-            throw new OperatorException("The DEM is currently being installed.");
+        if (demDescriptor == null) {
+            throw new OperatorException("The DEM '" + demName + "' is not supported.");
         }
 
-        dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.BILINEAR_INTERPOLATION_NAME));
+        if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
+            if (!demDescriptor.installDemFiles(VisatApp.getApp())) {
+                throw new OperatorException("DEM " + demName + " must be installed first");
+            }
+        }
+
+        dem = demDescriptor.createDem(resampling);
+        if (dem == null) {
+            throw new OperatorException("The DEM '" + demName + "' has not been installed.");
+        }
+
         demNoDataValue = demDescriptor.getNoDataValue();
 
     }
 
 
     // CPM: Coregistration PolynoMial
-    private synchronized void computeCPM() throws Exception {
-
+    private synchronized void computeCPM(final Rectangle targetRectangle) throws Exception {
+        
         if (cpmAvailable) {
             return;
         }
+
+        final Band targetBand = targetProduct.getBand(processedSlaveBand);
+        final Tile sourceRaster = getSourceTile(sourceRasterMap.get(targetBand), targetRectangle);
 
         // for all slave band pairs compute a CPM
         final int numSrcBands = sourceProduct.getNumBands();
@@ -374,7 +399,6 @@ public class ResampleOp extends Operator {
 
         boolean appendFlag = false;
         final ProductNodeGroup<Placemark> masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
-
         final Window masterWindow = new Window(0, sourceProduct.getSceneRasterHeight(), 0, sourceProduct.getSceneRasterWidth());
 
         // setup master metadata
@@ -435,18 +459,19 @@ public class ResampleOp extends Operator {
                     final Placemark sPin = slaveGCPList.get(j);
                     final Placemark mPin = masterGCPGroup.get(sPin.getName());
                     final PixelPos mGCPPos = mPin.getPixelPos();
-                    //System.out.println("ResampleOp: master gcp[" + j + "] = " + "(" + mGCPPos.x + "," + mGCPPos.y + ")");
 
-                    float height = dem.getSample(mGCPPos.x, mGCPPos.y);
+                    double[] phiLamPoint = masterOrbit.lph2ell(mGCPPos.y, mGCPPos.x, 0, masterMeta);
+                    PixelPos demIndexPoint = dem.getIndex(new GeoPos((float) (phiLamPoint[0] * Constants.RTOD), (float) (phiLamPoint[1] * Constants.RTOD)));
+                    
+                    float height = dem.getSample(demIndexPoint.x, demIndexPoint.y);
 
-                    if (Float.isNaN(height) && height == demNoDataValue) {
+                    if (Float.isNaN(height) || height == demNoDataValue) {
                         height = demNoDataValue;
                     }
 
                     heightArray[j] = height;
 
                 }
-
 
                 final MetadataElement slaveRoot = targetProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElementAt(slaveMetaCnt);
                 final SLCImage slaveMeta = new SLCImage(slaveRoot);
@@ -693,6 +718,12 @@ public class ResampleOp extends Operator {
             if (appendFlag) {
                 p.println();
                 p.format("W-test critical value: %5.3f", cpm.criticalValue);
+                p.println();
+            }
+
+            if (appendFlag) {
+                p.println();
+                p.format("Geometry based offset refinement: %B", cpm.demRefinement);
                 p.println();
             }
 

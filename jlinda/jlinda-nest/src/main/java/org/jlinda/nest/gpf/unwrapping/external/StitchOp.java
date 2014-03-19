@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
- *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -16,6 +14,7 @@
 package org.jlinda.nest.gpf.unwrapping.external;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -27,18 +26,20 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
+import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileIndex;
-import org.esa.nest.eo.Constants;
+import org.jlinda.core.Constants;
+import org.jlinda.core.unwrapping.mcf.utils.UnwrapUtils;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "Stitch",
-        category = "InSAR\\Tools",
-        description = "Unwrap phase for each tile")
+        category = "InSAR\\Unwrapping",
+        description = "Unwrap phase for each tile",
+        internal = false)
 public class StitchOp extends Operator {
 
     @SourceProduct
@@ -50,11 +51,17 @@ public class StitchOp extends Operator {
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
 
-    private boolean phaseDifferenceComputed  = false;
+    private boolean phaseDifferenceComputed = false;
     private double[][] solution = null;
 
-    private int tileWidth = 512;
-    private int tileHeight = 512;
+    private static final String UNW_PHASE_BAND_NAME = "unwrapped_phase";
+
+    private int tileWidth = 16;
+    private int tileHeight = 16;
+    
+    // 
+    private String arch;
+    private String name;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -73,6 +80,8 @@ public class StitchOp extends Operator {
     public void initialize() throws OperatorException {
         try {
 
+            archFlavor();
+            
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
@@ -83,22 +92,34 @@ public class StitchOp extends Operator {
         }
     }
 
+    private void archFlavor() {
+        arch = System.getProperty("os.arch");
+        name = System.getProperty("os.name");
+
+        if (name.startsWith("Linux") && arch.equals("amd64")) {
+
+            // extend tiles
+            tileWidth = 64;
+            tileHeight = 64;
+        }
+    }
+    
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
 
         final int numSrcBands = sourceProduct.getNumBands();
-        for(int i = 0; i < numSrcBands; ++i) {
+        for (int i = 0; i < numSrcBands; ++i) {
             final Band srcBand = sourceProduct.getBandAt(i);
             final Band targetBand = targetProduct.addBand(srcBand.getName(), srcBand.getDataType());
             targetBand.setUnit(srcBand.getUnit());
             ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
-            if (srcBand.getName().equals("Residue") || srcBand.getName().equals("BranchCut")) {
+            if (!srcBand.getUnit().equals(Unit.ABS_PHASE)) {
                 targetBand.setSourceImage(srcBand.getSourceImage());
             }
         }
@@ -110,7 +131,7 @@ public class StitchOp extends Operator {
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetTileMap     The current tiles to be computed for each target band.
+     * @param targetTileMap   The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
      * @throws OperatorException if an error occurs during computation of the target rasters.
@@ -125,12 +146,12 @@ public class StitchOp extends Operator {
             final int h = targetRectangle.height;
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            final int tileIndexX = MathUtils.ceilInt(targetRectangle.x / (double) tileWidth);
-            final int tileIndexY = MathUtils.ceilInt(targetRectangle.y / (double) tileHeight);
+            final int tileIndexX = (int) FastMath.ceil(targetRectangle.x / (double) tileWidth);
+            final int tileIndexY = (int) FastMath.ceil(targetRectangle.y / (double) tileHeight);
 
             Band phaseBand = null;
-            for(Band band : sourceProduct.getBands()) {
-                if(band.getUnit().equals("phase")) {
+            for (Band band : sourceProduct.getBands()) {
+                if (band.getUnit().equals(Unit.ABS_PHASE)) {
                     phaseBand = band;
                     break;
                 }
@@ -144,7 +165,7 @@ public class StitchOp extends Operator {
             final int numBands = targetBands.length;
             Tile targetTile = null;
             for (int i = 0; i < numBands; i++) {
-                if (targetBands[i].getUnit().equals("phase")) {
+                if (targetBands[i].getUnit().equals(Unit.ABS_PHASE)) {
                     targetTile = targetTileMap.get(targetBands[i]);
                     break;
                 }
@@ -157,13 +178,13 @@ public class StitchOp extends Operator {
             final Tile phaseRaster = getSourceTile(phaseBand, targetRectangle);
             final ProductData phaseData = phaseRaster.getRawSamples();
             final int num = phaseData.getNumElems();
-            final double[] unWrapped = new double[num];
+            final float[] unWrapped = new float[num];
             final double solutionValue = solution[tileIndexY][tileIndexX];
-            for(int i = 0; i < num; ++i) {
-                unWrapped[i] = phaseData.getElemDoubleAt(i) + solutionValue;
+            for (int i = 0; i < num; ++i) {
+                unWrapped[i] = (float) (phaseData.getElemDoubleAt(i) + solutionValue);
             }
 
-            targetTile.setRawSamples(new ProductData.Double(unWrapped));
+            targetTile.setRawSamples(new ProductData.Float(unWrapped));
 
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -171,15 +192,199 @@ public class StitchOp extends Operator {
     }
 
     private synchronized void computePhaseDifference(final Band phaseBand, final int tileWidth, final int tileHeight) {
-        // ToDo: to be implemented
+
+        if (phaseDifferenceComputed) return;
+
+        final int tileCountX = (int) FastMath.ceil(sourceImageWidth / (double) tileWidth);
+        final int tileCountY = (int) FastMath.ceil(sourceImageHeight / (double) tileHeight);
+
+        final int xRef = tileCountX / 2;
+        final int yRef = tileCountY / 2;
+        final short[][] flags = new short[tileCountY][tileCountX];
+        solution = new double[tileCountY][tileCountX];
+        flags[yRef][xRef] |= Mask.UNWRAPPED;
+        solution[yRef][xRef] = 0.0;
+
+        // set initial active front
+        int numActiveFrontPixels = 0;
+        if (yRef - 1 >= 0) {
+            flags[yRef - 1][xRef] |= Mask.ACTIVE;
+            numActiveFrontPixels++;
+        }
+
+        if (yRef + 1 < tileCountY) {
+            flags[yRef + 1][xRef] |= Mask.ACTIVE;
+            numActiveFrontPixels++;
+        }
+
+        if (xRef - 1 >= 0) {
+            flags[yRef][xRef - 1] |= Mask.ACTIVE;
+            numActiveFrontPixels++;
+        }
+
+        if (xRef + 1 < tileCountX) {
+            flags[yRef][xRef + 1] |= Mask.ACTIVE;
+            numActiveFrontPixels++;
+        }
+
+        while (numActiveFrontPixels > 0) {
+            //System.out.println("numActiveFrontPixels = " + numActiveFrontPixels);
+
+            for (int tileY = 0; tileY < tileCountY; tileY++) {
+
+                for (int tileX = 0; tileX < tileCountX; tileX++) {
+
+                    if ((flags[tileY][tileX] & Mask.ACTIVE) <= 0) {
+                        continue;
+                    }
+
+                    //System.out.println();
+                    //System.out.println("Found active front tile: tileY = " + tileY + ", tileX = " + tileX);
+                    final int x0 = tileX * tileWidth;
+                    final int y0 = tileY * tileHeight;
+                    final int w = Math.min(tileWidth, sourceImageWidth - x0);
+                    final int h = Math.min(tileHeight, sourceImageHeight - y0);
+
+                    final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
+                    final Tile sourceTile = getSourceTile(phaseBand, sourceRectangle);
+                    final ProductData dataBuffer = sourceTile.getDataBuffer();
+
+                    boolean unwrapSucceed = false;
+
+                    // First search down for a phase unwrapped tile
+                    if (tileY + 1 <= tileCountY - 1 && (flags[tileY + 1][tileX] & Mask.UNWRAPPED) > 0) {
+
+                        final double[] wrappedPhases = new double[w];
+                        final double[] unWrappedPhases = new double[w];
+
+                        getWrappedPhaseData(x0, y0 + h - 1, w, 1, sourceTile, dataBuffer, wrappedPhases);
+                        getUnwrappedPhaseData(x0, y0 + h, w, 1, sourceTile, dataBuffer, unWrappedPhases, solution[tileY + 1][tileX]);
+
+                        unwrapSucceed = unwrapPhase(wrappedPhases, unWrappedPhases, tileX, tileY, solution);
+
+                        if (unwrapSucceed) {
+                            flags[tileY][tileX] |= Mask.UNWRAPPED;
+                            flags[tileY][tileX] ^= Mask.ACTIVE;
+                            numActiveFrontPixels--;
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile below, succeed");
+
+                            // find new active front pixels in other 3 directions: up, left, right
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX, tileY - 1, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX - 1, tileY, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX + 1, tileY, tileCountX, tileCountY);
+                        } else {
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile below, failed");
+                        }
+                    }
+
+                    // Second search up for a phase unwrapped tile
+                    if (!unwrapSucceed && tileY > 0 && (flags[tileY - 1][tileX] & Mask.UNWRAPPED) > 0) {
+
+                        final double[] wrappedPhases = new double[w];
+                        final double[] unWrappedPhases = new double[w];
+
+                        getWrappedPhaseData(x0, y0, w, 1, sourceTile, dataBuffer, wrappedPhases);
+                        getUnwrappedPhaseData(x0, y0 - 1, w, 1, sourceTile, dataBuffer, unWrappedPhases, solution[tileY - 1][tileX]);
+
+                        unwrapSucceed = unwrapPhase(wrappedPhases, unWrappedPhases, tileX, tileY, solution);
+
+                        if (unwrapSucceed) {
+                            flags[tileY][tileX] |= Mask.UNWRAPPED;
+                            flags[tileY][tileX] ^= Mask.ACTIVE;
+                            numActiveFrontPixels--;
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile above, succeed");
+
+                            // find new water front pixels in other 3 directions: down, left, right
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX, tileY + 1, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX - 1, tileY, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX + 1, tileY, tileCountX, tileCountY);
+                        } else {
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile above, failed");
+                        }
+                    }
+
+                    // Third search right for a phase unwrapped pixel
+                    if (!unwrapSucceed && tileX < tileCountX - 1 && (flags[tileY][tileX + 1] & Mask.UNWRAPPED) > 0) {
+
+                        final double[] wrappedPhases = new double[h];
+                        final double[] unWrappedPhases = new double[h];
+
+                        getWrappedPhaseData(x0 + w - 1, y0, 1, h, sourceTile, dataBuffer, wrappedPhases);
+                        getUnwrappedPhaseData(x0 + w, y0, 1, h, sourceTile, dataBuffer, unWrappedPhases, solution[tileY][tileX + 1]);
+
+                        unwrapSucceed = unwrapPhase(wrappedPhases, unWrappedPhases, tileX, tileY, solution);
+
+                        if (unwrapSucceed) {
+                            flags[tileY][tileX] |= Mask.UNWRAPPED;
+                            flags[tileY][tileX] ^= Mask.ACTIVE;
+                            numActiveFrontPixels--;
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile right, succeed");
+
+                            // find new water front pixels in other 3 directions: up, down, left
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX, tileY - 1, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX, tileY + 1, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX - 1, tileY, tileCountX, tileCountY);
+                        } else {
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile right, failed");
+                        }
+
+                    }
+
+                    // Finally search left for a phase unwrapped pixel
+                    if (!unwrapSucceed && tileX > 0 && (flags[tileY][tileX - 1] & Mask.UNWRAPPED) > 0) {
+
+                        final double[] wrappedPhases = new double[h];
+                        final double[] unWrappedPhases = new double[h];
+
+                        getWrappedPhaseData(x0, y0, 1, h, sourceTile, dataBuffer, wrappedPhases);
+                        getUnwrappedPhaseData(x0 - 1, y0, 1, h, sourceTile, dataBuffer, unWrappedPhases, solution[tileY][tileX - 1]);
+
+                        unwrapSucceed = unwrapPhase(wrappedPhases, unWrappedPhases, tileX, tileY, solution);
+
+                        if (unwrapSucceed) {
+                            flags[tileY][tileX] |= Mask.UNWRAPPED;
+                            flags[tileY][tileX] ^= Mask.ACTIVE;
+                            numActiveFrontPixels--;
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile left, succeed");
+
+                            // find new water front pixels in other 3 directions: up, down, right
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX, tileY - 1, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX, tileY + 1, tileCountX, tileCountY);
+                            numActiveFrontPixels += addActiveFrontPixel(flags, tileX + 1, tileY, tileCountX, tileCountY);
+                        } else {
+                            //System.out.println("Unwrap tile: tileY = " + tileY + ", tileX = " + tileX + " from the tile left, failed");
+                        }
+                    }
+
+                    if (!unwrapSucceed) {
+                        flags[tileY][tileX] ^= Mask.ACTIVE;
+                        numActiveFrontPixels--;
+                    }
+                }
+            }
+        }
+        phaseDifferenceComputed = true;
+    }
+
+    private static int addActiveFrontPixel(final short[][] bitFlags, final int tileX, final int tileY,
+                                           final int tileCountX, final int tileCountY) {
+
+        if (tileX >= 0 && tileX < tileCountX && tileY >= 0 && tileY < tileCountY &&
+                (bitFlags[tileY][tileX] & Mask.UNWRAPPED) <= 0 &&
+                (bitFlags[tileY][tileX] & Mask.ACTIVE) <= 0) {
+            bitFlags[tileY][tileX] |= Mask.ACTIVE;
+            return 1;
+        }
+        return 0;
     }
 
     /**
      * Get the source tile rectangle.
+     *
      * @param x0 The x coordinate of the pixel on the upper left corner of current tile.
      * @param y0 The y coordinate of the pixel on the upper left corner of current tile.
-     * @param w The width of current tile.
-     * @param h The height of current tile.
+     * @param w  The width of current tile.
+     * @param h  The height of current tile.
      * @return The rectangle.
      */
     private Rectangle getSourceRectangle(final int x0, final int y0, final int w, final int h) {
@@ -188,24 +393,25 @@ public class StitchOp extends Operator {
         final int sy0 = Math.max(y0 - 1, 0);
         final int sxMax = Math.min(x0 + w, sourceImageWidth - 1);
         final int syMax = Math.min(y0 + h, sourceImageHeight - 1);
-        final int sw  = sxMax - sx0 + 1;
-        final int sh  = syMax - sy0 + 1;
+        final int sw = sxMax - sx0 + 1;
+        final int sh = syMax - sy0 + 1;
 
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
     /**
      * Get wrapped phase data from source tile for given rectangle.
-     * @param x0 X coordinate of the upper left pixel of the given rectangle
-     * @param y0 Y coordinate of the upper left pixel of the given rectangle
-     * @param w Width of the given rectangle
-     * @param h Height of the given rectangle
+     *
+     * @param x0         X coordinate of the upper left pixel of the given rectangle
+     * @param y0         Y coordinate of the upper left pixel of the given rectangle
+     * @param w          Width of the given rectangle
+     * @param h          Height of the given rectangle
      * @param sourceTile The source tile
      * @param dataBuffer The source data
-     * @param phaseData The wrapped phase data array
+     * @param phaseData  The wrapped phase data array
      */
     private static void getWrappedPhaseData(final int x0, final int y0, final int w, final int h,
-                              final Tile sourceTile, final ProductData dataBuffer, double[] phaseData) {
+                                            final Tile sourceTile, final ProductData dataBuffer, double[] phaseData) {
 
         final TileIndex srcIndex = new TileIndex(sourceTile);
         int k = 0;
@@ -219,17 +425,18 @@ public class StitchOp extends Operator {
 
     /**
      * Get unwrapped phase data from source tile for given rectangle.
-     * @param x0 X coordinate of the upper left pixel of the given rectangle
-     * @param y0 Y coordinate of the upper left pixel of the given rectangle
-     * @param w Width of the given rectangle
-     * @param h Height of the given rectangle
+     *
+     * @param x0         X coordinate of the upper left pixel of the given rectangle
+     * @param y0         Y coordinate of the upper left pixel of the given rectangle
+     * @param w          Width of the given rectangle
+     * @param h          Height of the given rectangle
      * @param sourceTile The source tile
      * @param dataBuffer The source data
-     * @param refPhase The reference unwrapped phase
-     * @param phaseData The unwrapped phase data array
+     * @param refPhase   The reference unwrapped phase
+     * @param phaseData  The unwrapped phase data array
      */
     private static void getUnwrappedPhaseData(final int x0, final int y0, final int w, final int h, final Tile sourceTile,
-                                       final ProductData dataBuffer, double[] phaseData, double refPhase) {
+                                              final ProductData dataBuffer, double[] phaseData, double refPhase) {
 
         final TileIndex srcIndex = new TileIndex(sourceTile);
         int k = 0;
@@ -243,26 +450,28 @@ public class StitchOp extends Operator {
 
     /**
      * Unwrap a given wrapped phase array using a reference unwrapped phase array provided
-     * @param wrappedPhases The wrapped phase data array
+     *
+     * @param wrappedPhases      The wrapped phase data array
      * @param refUnWrappedPhases The reference unwrapped phase data array
-     * @param tileX Tile index in range direction
-     * @param tileY Tile index in azimuth direction
-     * @param solution The unwrapped phase for the given tile
-     * @return Boolean flag indicating if the phase unwrap is successful
+     * @param tileX              Tile index in range direction
+     * @param tileY              Tile index in azimuth direction
+     * @param solution           The unwrapped phase for the given tile
+     * @return Boolean flag indicating if the phase unwrapping is successful
      */
     private static boolean unwrapPhase(final double[] wrappedPhases, final double[] refUnWrappedPhases,
-                               final int tileX, final int tileY, double[][] solution) {
+                                       final int tileX, final int tileY,
+                                       double[][] solution) {
 
         final int len = wrappedPhases.length;
         if (len != refUnWrappedPhases.length) {
             throw new OperatorException("WrappedPhase array must have the same length as refUnWrappedPhases array");
         }
 
-        final Map<Integer, Long> count = new HashMap<Integer, Long>(len);
+        final Map<Integer, Long> count = new HashMap<>(len);
         for (int i = 0; i < len; i++) {
-            final double unWrappedPhase = unwrap(refUnWrappedPhases[i], wrappedPhases[i]);
+            final double unWrappedPhase = UnwrapUtils.unwrap(refUnWrappedPhases[i], wrappedPhases[i]);
 
-            int numCycles = Math.round((float)((unWrappedPhase - wrappedPhases[i]) / Constants.TWO_PI));
+            final int numCycles = Math.round((float) ((unWrappedPhase - wrappedPhases[i]) / Constants._TWO_PI));
             if (count.containsKey(numCycles)) {
                 count.put(numCycles, count.get(numCycles) + 1);
             } else {
@@ -280,18 +489,13 @@ public class StitchOp extends Operator {
         }
 
         //System.out.println("countMax = " + countMax + ", len/2 = " + (len/2));
-        if (countMax > len*2/3) {
-            solution[tileY][tileX] = nc*Constants.TWO_PI;
+        if (countMax > len * 2 / 3) {
+            solution[tileY][tileX] = nc * Constants._TWO_PI;
             return true;
         } else {
             solution[tileY][tileX] = 0.0;
             return false;
         }
-    }
-
-    private static double unwrap(double refUnWrappedPhase, double wrappedPhase) {
-        // ToDo: to be implemented
-        return Double.parseDouble(null);
     }
 
     /**

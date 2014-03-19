@@ -1,14 +1,21 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+
+<head>
+    <title>Help - Cross InSAR Resampling</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
 <body>
 
 <table class="header">
     <tbody>
     <tr class="header">
-        <td class="header">&nbsp; Cross Interferometry Resampling (InSAR operator)</td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header"> Cross InSAR Resampling</td>
+        <td class="header" align="right">
+            <a href="../general/Overview.html">
+                <img src="../images/HeaderLogo.jpg" border="0">
+            </a>
+        </td>
     </tr>
     </tbody>
 </table>
@@ -16,54 +23,69 @@
 <h3>Cross Interferometry Resampling</h3>
 
 <p>
-    Lorem ipsum dolor sit amet, est non. Magna sit dictumst. Arcu vivamus quis cursus vestibulum, id in risus ut, sed
-    sapien vivamus, nunc laoreet arcu tortor consequat diam a, autem saepe accumsan augue. Adipiscing ut. Ligula a odio
-    dolor in proin lacinia, nec ante gravida nec faucibus ante dui. Etiam nunc cursus nulla sed. Aliquam ultrices,
-    volutpat nibh et vestibulum lacus, amet justo magna euismod a commodo arcu, vel ut, mattis sagittis lectus odio
-    bibendum vel. Nec quis integer a inventore nec. In et sit rutrum dui ipsum praesent. Turpis urna posuere suspendisse
-    accumsan, porttitor mi diam. Penatibus nam nibh suspendisse, ante pellentesque nonummy, et dignissim urna egestas
-    ante pede ultrices.
+    This operator prepares input, ERS1/2 and Envisat, data for cross interferometric processing. The input image is 
+    resampled to the requested geometry. For example, for Cross InSAR, with ERS image as a master Envisat ASAR image 
+    should be resampled into the geometry of ERS to allow reliable corregistration.  
+</p>
+
+<h4>Operator Parameters</h4>
+
+<p>
+    The following parameters are used by this operator:</p>
+
+<ul>
+    <li>
+        <b>Interpolation Polynomial Degree:</b> Degree of two-dimensional polynomial. Degree 2 is advised.
+    </li>
+    <li>
+        <b>Interpolation Method:</b> List of interpolation kernels.
+    </li>
+    <li>
+        <b>Target Geometry:</b> List of target geometry. For example, to resample ERS to ASAR geometry, select ASAR.
+    </li>
+</ul>
+    
+<h4>Important Usability Note</h4>
+
+<p>This operator is designed and implemented having having in mind data acquired during dedicated ERS2 - Envisat 
+    Tandem Campaigns. For successful computation of Cross InSAR interferograms, between ERS/Envisat data, a 
+    perpendicular baseline of approximately 2km is required. For the regular smaller baselines the results will be
+    suboptimal, if not completely decorrelated.
+</p>
+
+
+<h4>Implementation Details</h4>
+
+<p>
+    Basically this operator performs estimation of the resampling polynomial, and resampling of input image from the 
+    source into the target geometry using a deterministic relationship between source/target geometries. In this 
+    case, this deterministic, relationship is defined by ratios of azimuth resolution (governed by 
+    Pulse Repetition Frequeny (PRF)) and range resolution (governed by Range Sampling Rate (RSR)) - see Figure 1. 
+    Ratios between source and target resolution is used to compute a deterministic offsets between geometries, 
+    than these offsets are used to compute polynomial and resample geometries.
+</p>
+
+<br>
+<img style="" alt="" src="../images/ers_envisat_ratios.jpg">
+<br>
+<br>
+<div style="margin-left: 20px;"><b>Figure 1.</b> Ratio between Envisat ASAR and ERS 1/2 SAR geometries.<br></div>
+
+
+<h4>Known Issues</h4>
+
+<p>
+    Because of inconsistent orbit interpolation of <i>Apply Orbit Operator</i> of NEST, fringes in range direction might
+    be observed. This issue will be resolved in one of the future updates of the core modules of NEST.
 </p>
 
 <p>
-    Etiam libero suscipit. Porttitor porta posuere, laoreet ligula et quis semper arcu, neque mauris augue eros. Vel
-    sem, vitae eu magna vel pede, pellentesque vivamus, pretium auctor bibendum cum quisque, wisi suscipit non.
-    Sollicitudin wisi, ratione mus mollis sollicitudin dolor tellus. Libero donec arcu, eget purus nam magna nulla
-    nisl dolor. Et risus cum, habitasse odio nulla, suspendisse quis ante. Morbi ac vestibulum, neque nascetur praesent
-    ut in sit dapibus. Donec nascetur id eget mi vulputate.
 </p>
 
-<p>
-    Tellus tempor congue, placerat id, nibh pellentesque imperdiet et deserunt suspendisse, at inceptos integer lacus
-    ac, gravida semper quisquam. Sapien nibh enim lorem volutpat et, amet wisi. Et tortor non, a ultrices molestiae
-    vestibulum justo. Nulla tortor at est aptent neque praesent, mattis eu risus, sit in sagittis vestibulum leo ac
-    elit. Commodo pede mauris vestibulum vel, tempus vestibulum, in nibh mollis mauris tincidunt condimentum quis, donec
-    tincidunt proin sit porttitor necessitatibus lectus. Felis dolorum justo aenean lobortis, vestibulum montes pede
-    duis quam pulvinar temporibus, dignissim egestas, wisi orci et. Ac adipiscing eget vestibulum nam luctus massa, ipsa
-    et a porttitor aliquet, mauris rhoncus tortor est felis est lorem, mi urna duis adipiscing. Dui vivamus, lobortis
-    est donec. Sodales aliquet nulla est id amet morbi, dolor mattis adipiscing orci amet, accumsan ullamcorper.
-    Penatibus maecenas, wisi ac massa ac.
-</p>
-
-<p>
-    Eget dui potenti libero. Nisl magna faucibus mauris nisl, lacus elit. Diam consequat vitae sagittis sapien aenean
-    nec, nam ut tristique tincidunt integer. Porttitor pretium, at suspendisse, lectus nulla ut ultrices. Sed et quis
-    eget perspiciatis iaculis, etiam elit enim non eu atque.
-</p>
-
-<h4>Source bands:</h4>&nbsp;&nbsp;
-<p> Source Bands are bands of the ERS1/2 or Envisat ASAR Level-1 Complex product.</p>
-
-<h4>Output bands:</h4>&nbsp;&nbsp;
-<p> Output Bands are set of bands with geometry re-sampled to either ERS or Envisat ASAR frequency sampling.</p>
 
 
 <br>
 <br>
 <hr>
 </body>
-<head>
-    <title>Help - Azimuth Filtering</title>
-    <link rel="stylesheet" href="../style.css">
-</head>
 </html>

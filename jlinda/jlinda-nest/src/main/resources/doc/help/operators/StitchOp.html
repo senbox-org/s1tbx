@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Help - Stitching for Unwrapping</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Stitching for Unwrapping</td>
+        <td class="header" align="right">
+            <a href="../general/Overview.html">
+                <img src="../images/HeaderLogo.jpg" border="0">
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Stitch Operator</h3>
+
+<p>
+    When working with tiles, Unwrapping operator stores unwrapped phase for each tile individually. Therefore
+    between unwrapped tiles, the unwrapped phases have a phase difference of multiple of pi. This operator
+    <i>stitches</i> the unwrapped phases of all tiles to form a complete smooth image of unwrapped phase.
+</p>
+
+
+<h4>Input and Output</h4>&nbsp;&nbsp;
+
+<ul>
+    <li>
+        The input is the output of Unwrapping operator.
+    </li>
+    <li>
+        The output is the final image of, smooth and integrated, unwrapped phase.
+    </li>
+</ul>
+
+<h4>Processing Parameters</h4>&nbsp;&nbsp;
+
+<p>
+    No processing parameter is required.
+</p>
+
+<h4>Usage Notes</h4>&nbsp;&nbsp;
+
+<p>
+    The unwrapping functionality, because of the restrictions of NEST/BEAM framework is being implemented as a two-step
+    process. First, the initial unwrapping has to be performed with the unwrap operator, results need to be saved, and
+    then as a second step, the unwrapping result is <i>stitched</i> into a smooth result with this operator.
+</p>
+
+<br>
+<br>
+<hr>
+</body>
+</html>

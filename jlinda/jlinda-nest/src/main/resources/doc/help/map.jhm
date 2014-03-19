@@ -15,9 +15,22 @@
     <mapID target="PhaseFilterOp" url="operators/PhaseFilterOp.html"/>
     <mapID target="DInSAROp" url="operators/DInSAROp.html"/>
     <mapID target="Slant2HeightOp" url="operators/Slant2HeightOp.html"/>
+    <mapID target="InSARMaster" url="operators/InSARMaster.html"/>
+
+    <!--Unwrapping Operators-->
     <mapID target="Unwrap" url="operators/Unwrap.html"/>
     <mapID target="SnaphuExportOp" url="operators/SnaphuExportOp.html"/>
     <mapID target="SnaphuImportOp" url="operators/SnaphuImportOp.html"/>
-    <mapID target="InSARMaster" url="operators/InSARMaster.html"/>
+    <mapID target="UnwrapOp" url="operators/UnwrapOp.html"/>
+    <mapID target="StitchOp" url="operators/StitchOp.html"/>
 
+    <!--Coregistration Operators-->
+   	<mapID target="CreateInSARStackOp" url="operators/CreateInSARStackOp.html"/>
+    <mapID target="CoarseFineCoregOp" url="operators/CoarseFineCoregOp.html"/>
+    <mapID target="ResampleOp" url="operators/ResampleOp.html"/>
+    <mapID target="CrossResamplingOp" url="operators/CrossResamplingOp.html"/>
+    
+    <!--Tutorials-->
+   	<mapID target="InSARCoregistration" url="tutorials/insar_coregistration.html"/>
+    
 </map>

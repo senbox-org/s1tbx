@@ -183,12 +183,12 @@ public final class Settings {
         return val != null && val.equals("true");
     }
 
-    public static File getAuxDataFolder() throws IOException {
+    public static File getAuxDataFolder() {
         String auxDataPath = Settings.instance().get("AuxDataPath");
         if(auxDataPath == null)
             auxDataPath = Settings.instance().get("dataPath");
         if(auxDataPath == null)
-            throw new IOException("Cannot find AuxDataPath in setting.xml file");
+            return new File(SystemUtils.getApplicationDataDir(true), "AuxData");
         return new File(auxDataPath);
     }
 

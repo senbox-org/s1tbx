@@ -72,6 +72,16 @@ public final class SubtRefDemOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
+    @Parameter(label = "Advance Performance Optimization",
+            defaultValue = "false")
+    private boolean allowTuning = false;
+
+    @Parameter(valueSet = {"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"},
+            label = "Tile Extension [%]",
+            description = "Define extension of tile for DEM similuation (optimization parameter).",
+            defaultValue = "50")
+    private int tileExtensionPercent = 50;
+
     @Parameter(description = "The topographic phase band name.",
             defaultValue = "topo_phase",
             label = "Topo Phase Band Name")
@@ -458,10 +468,9 @@ public final class SubtRefDemOp extends Operator {
 
          */
 
-        final float extraTileX = 1.75f; // = 1.5f
-        final float extraTileY = 1.75f; // = 1.5f
-        final float scaleMinHeight = 0;
-        final float scaleMaxHeight = 5; // = 1.25f
+        final float extraTileX = (float) (1 + tileExtensionPercent / 100); // = 1.5f
+        final float extraTileY = (float) (1 + tileExtensionPercent / 100); // = 1.5f
+        final float scaleMaxHeight = (float) (1 + tileExtensionPercent/ 100); // = 1.25f
 
         double[] heightArray = new double[2];
 
@@ -493,7 +502,7 @@ public final class SubtRefDemOp extends Operator {
         if (heights.size() > 2) {
             // set minimum to 'zero', eg, what if there's small lake in tile?
             // heightArray[0] = Collections.min(heights);
-            heightArray[0] = 0;
+            heightArray[0] = Collections.min(heights);
             heightArray[1] = Collections.max(heights) * scaleMaxHeight;
         } else { // if nodatavalues return 0s ~ tile in the sea
             heightArray[0] = 0;

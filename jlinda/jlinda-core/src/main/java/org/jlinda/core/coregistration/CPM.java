@@ -59,14 +59,14 @@ public class CPM {
     public TDoubleArrayList xMaster = new TDoubleArrayList();
     public TDoubleArrayList ySlave = new TDoubleArrayList();
     public TDoubleArrayList xSlave = new TDoubleArrayList();
-    TDoubleArrayList ySlaveGeometry = new TDoubleArrayList();
-    TDoubleArrayList xSlaveGeometry = new TDoubleArrayList();
+//    TDoubleArrayList ySlaveGeometry = new TDoubleArrayList();
+//    TDoubleArrayList xSlaveGeometry = new TDoubleArrayList();
     public TDoubleArrayList yOffset = new TDoubleArrayList();
     public TDoubleArrayList xOffset = new TDoubleArrayList();
     TDoubleArrayList yOffsetGeometry = new TDoubleArrayList();
     TDoubleArrayList xOffsetGeometry = new TDoubleArrayList();
-    TDoubleArrayList yError = new TDoubleArrayList();
-    TDoubleArrayList xError = new TDoubleArrayList();
+    double[] yError;
+    double[] xError;
     TDoubleArrayList coherence = new TDoubleArrayList();
 
     private TDoubleArrayList heightMaster = new TDoubleArrayList();
@@ -148,8 +148,6 @@ public class CPM {
                 xSlave.add(sGCPPos.x);
                 yOffset.add(sGCPPos.y - mGCPPos.y);
                 xOffset.add(sGCPPos.x - mGCPPos.x);
-                yError.add(0);
-                xError.add(0);
                 coherence.add(1);
 
                 // check if master and slave coordinates are identical, if yes CPM coefficients will be set
@@ -195,6 +193,8 @@ public class CPM {
 
     public void setUpDEMRefinement(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, double[] heightArray) {
 
+        demRefinement = true;
+
         // master metadata
         setMasterMeta(masterMeta);
         setSlaveMeta(slaveMeta);
@@ -217,23 +217,55 @@ public class CPM {
             Point masterXYZ;
 
             double height = heightMaster.getQuick(i);
-            if (height != demNoDataValue) {
-                masterXYZ = masterOrbit.lph2xyz(yMaster.getQuick(i), xMaster.getQuick(i), height, masterMeta);
+
+            Point delta;
+            if (height == demNoDataValue) {
+
+                // skip this offset if corresponding height is no-data-value
+                delta = new Point(0, 0);
+
             } else {
-                // TODO: work with mean values if nodata for this point, am not sure how smart is this?!
-                masterXYZ = masterOrbit.lph2xyz(yMaster.getQuick(i), xMaster.getQuick(i), heightMean, masterMeta);
+
+                double line = yMaster.getQuick(i);
+                double pixel = xMaster.getQuick(i);
+
+                // reference
+                Point refXYZ_0 = masterOrbit.lph2xyz(line, pixel, 0, masterMeta);
+//                double[] refGeo_0 = Ellipsoid.xyz2ell(refXYZ_0);
+
+                Point refXYZ_H = masterOrbit.lph2xyz(line, pixel, height, masterMeta);
+//                double[] refGeo_H = Ellipsoid.xyz2ell(refXYZ_H);
+
+//                Point master0 = masterOrbit.ell2lp(refGeo_0, masterMeta);
+//                Point masterH = masterOrbit.ell2lp(refGeo_H, masterMeta);
+//
+//                Point slave0 = slaveOrbit.ell2lp(refGeo_0, slaveMeta);
+//                Point slaveH = slaveOrbit.ell2lp(refGeo_H, slaveMeta);
+
+                Point master0 = masterOrbit.xyz2lp(refXYZ_0, masterMeta);
+                Point masterH = masterOrbit.xyz2lp(refXYZ_H, masterMeta);
+
+                Point slave0 = slaveOrbit.xyz2lp(refXYZ_0, slaveMeta);
+                Point slaveH = slaveOrbit.xyz2lp(refXYZ_H, slaveMeta);
+
+                delta = (slaveH.min(slave0)).min(masterH.min(master0));
+
+//                System.out.println("i = " + i + " -- " + refXYZ_0 + " -- " + refXYZ_H + " -- " + line + ", " + pixel + ", " + height);
             }
+            
+            double deltaY = delta.y;
+            double deltaX = delta.x;
 
-            Point slaveLP = slaveOrbit.xyz2lp(masterXYZ, slaveMeta);
+            yOffsetGeometry.add(delta.y);
+            xOffsetGeometry.add(delta.x);
 
-            ySlaveGeometry.add(slaveLP.y);
-            xSlaveGeometry.add(slaveLP.x);
+            yOffset.replace(i, yOffset.getQuick(i) - deltaY);
+            xOffset.replace(i, xOffset.getQuick(i) - deltaX);
 
-            yOffsetGeometry.add(yMaster.getQuick(i) - slaveLP.y);
-            xOffsetGeometry.add(xMaster.getQuick(i) - slaveLP.x);
+            ySlave.replace(i, ySlave.getQuick(i) - deltaY);
+            xSlave.replace(i, xSlave.getQuick(i) - deltaX);
 
-            yOffset.replace(i, yOffset.getQuick(i) - yOffsetGeometry.getQuick(i));
-            xOffset.replace(i, xOffset.getQuick(i) - xOffsetGeometry.getQuick(i));
+//            System.out.println("deltaX and height = " + delta.toString() + ", " + height);
 
         }
 
@@ -333,10 +365,10 @@ public class CPM {
                 // also take care of slave pins
                 slaveGCPList.remove(maxWSum_idx);
 
-                if (demRefinement) {
-                    ySlaveGeometry.removeAt(maxWSum_idx);
-                    xSlaveGeometry.removeAt(maxWSum_idx);
-                }
+//                if (demRefinement) {
+//                    ySlaveGeometry.removeAt(maxWSum_idx);
+//                    xSlaveGeometry.removeAt(maxWSum_idx);
+//                }
 
             }
 
@@ -566,8 +598,8 @@ public class CPM {
 
         } // only warn when iterating
 
-        yError.addAll(eL_hat.getData());
-        xError.addAll(eP_hat.getData());
+        yError = eL_hat.getData();
+        xError = eP_hat.getData();
 
         yCoef = rhsL.getData();
         xCoef = rhsP.getData();
@@ -587,13 +619,13 @@ public class CPM {
             xyMaster[j] = (float) xMaster.getQuick(i);
             xyMaster[j + 1] = (float) yMaster.getQuick(i);
 
-            if (!demRefinement) {
+//            if (!demRefinement) {
                 xySlave[j] = (float) (xSlave.getQuick(i));
                 xySlave[j + 1] = (float) (ySlave.getQuick(i));
-            } else {
-                xySlave[j] = (float) (xSlaveGeometry.getQuick(i));
-                xySlave[j + 1] = (float) (ySlaveGeometry.getQuick(i));
-            }
+//            } else {
+//                xySlave[j] = (float) (xSlaveGeometry.getQuick(i));
+//                xySlave[j + 1] = (float) (ySlaveGeometry.getQuick(i));
+//            }
         }
 
         jaiWarp = WarpPolynomial.createWarp(xySlave, 0, xyMaster, 0, 2 * numObservations, 1f, 1f, 1f, 1f, cpmDegree);
@@ -620,17 +652,17 @@ public class CPM {
 
         for (int i = 0; i < numObservations; i++) {
 
-            double dY = yError.getQuick(i);
-            double dX = xError.getQuick(i);
+            double dY = yError[i];
+            double dX = xError[i];
             rms.add(Math.sqrt(dY * dY + dX * dX));
 
             rmsMean += rms.get(i);
-            yErrorMean += yError.getQuick(i);
-            xErrorMean += xError.getQuick(i);
+            yErrorMean += yError[i];
+            xErrorMean += xError[i];
 
             rms2Mean += rms.getQuick(i) * rms.getQuick(i);
-            yError2Mean += yError.getQuick(i) * yError.getQuick(i);
-            xError2Mean += xError.getQuick(i) * xError.getQuick(i);
+            yError2Mean += yError[i] * yError[i];
+            xError2Mean += xError[i] * xError[i];
         }
 
         // means

@@ -12,7 +12,7 @@ public class UnwrapUtilsTest {
         DoubleMatrix xGrid = DoubleMatrix.linspace(1, 2, 2);
         DoubleMatrix yGrid = DoubleMatrix.linspace(1, 3, 3);
 
-        DoubleMatrix grid[] = UnwrapUtils.grid2D(xGrid, yGrid);
+        DoubleMatrix grid[] = JblasUtils.grid2D(xGrid, yGrid);
 
         DoubleMatrix xGridMatrix_ACTUALS = grid[0];
         DoubleMatrix xGridMatrix_EXPECTED = new DoubleMatrix(xGrid.length, yGrid.length);
@@ -39,7 +39,7 @@ public class UnwrapUtilsTest {
         DoubleMatrix x = DoubleMatrix.linspace(1, 2, 2);
         DoubleMatrix y = DoubleMatrix.linspace(1, 3, 3);
 
-        DoubleMatrix meshGrid[] = UnwrapUtils.meshgrid(x, y);
+        DoubleMatrix meshGrid[] = JblasUtils.meshgrid(x, y);
 
         DoubleMatrix xGrid_ACTUAL = meshGrid[0];
         DoubleMatrix xGrid_EXPECTED = new DoubleMatrix(y.length, x.length); // first rows, then columns

@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.ui;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.*;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class TargetUI extends BaseOperatorUI {
     TargetProductSelector targetProductSelector = null;
     private static final String FILE_PARAMETER = "file";
     private static final String FORMAT_PARAMETER = "formatName";
-    private static final String deafultFileName = "target.dim";
+    private static final String deafultFileName = "target";
     private AppContext appContext;
 
     @Override
@@ -54,7 +55,7 @@ public class TargetUI extends BaseOperatorUI {
         final Object fileValue = paramMap.get(FILE_PARAMETER);
         if(fileValue != null) {
             final File file = (File)fileValue;
-            fileName = file.getName();
+            fileName = FileUtils.getFilenameWithoutExtension(file);
         }
         if(sourceProducts != null && sourceProducts.length > 0 && fileName.equals(deafultFileName)) {
             fileName = sourceProducts[0].getName();
