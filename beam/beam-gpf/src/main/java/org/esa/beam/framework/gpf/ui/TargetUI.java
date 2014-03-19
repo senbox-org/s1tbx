@@ -16,6 +16,7 @@ public class TargetUI extends BaseOperatorUI {
     TargetProductSelector targetProductSelector = null;
     private static final String FILE_PARAMETER = "file";
     private static final String FORMAT_PARAMETER = "formatName";
+    private static final String deafultFileName = "target.dim";
     private AppContext appContext;
 
     @Override
@@ -48,13 +49,14 @@ public class TargetUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
         assert(paramMap != null);
-        String fileName = null;
+        String fileName = deafultFileName;
         String format = "BEAM-DIMAP";
         final Object fileValue = paramMap.get(FILE_PARAMETER);
         if(fileValue != null) {
             final File file = (File)fileValue;
             fileName = file.getName();
-        } else if(sourceProducts != null && sourceProducts.length > 0) {
+        }
+        if(sourceProducts != null && sourceProducts.length > 0 && fileName.equals(deafultFileName)) {
             fileName = sourceProducts[0].getName();
         }
         final Object formatValue = paramMap.get(FORMAT_PARAMETER);
@@ -73,7 +75,7 @@ public class TargetUI extends BaseOperatorUI {
 
         final String productName = targetProductSelector.getModel().getProductName();
         if(productName == null || productName.isEmpty())
-            return new UIValidation(UIValidation.State.WARNING, "Target file not specified");
+            return new UIValidation(UIValidation.State.ERROR, "productName not specified");
         final File file = targetProductSelector.getModel().getProductFile();
         if(file == null)
             return new UIValidation(UIValidation.State.ERROR, "Target file not specified");
