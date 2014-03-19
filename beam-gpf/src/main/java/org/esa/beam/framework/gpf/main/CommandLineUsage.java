@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -120,8 +121,8 @@ class CommandLineUsage {
         if (header != null) {
             usageText.append("Usage:\n");
             usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, path));
-            ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
-            ArrayList<DocElement> paramDocElementList = createParamDocuElementList(header.getParameters());
+            ArrayList<DocElement> sourceDocElementList = createSourceDocElementList(header.getSources());
+            ArrayList<DocElement> paramDocElementList = createParamDocElementList(header.getParameters());
 
             if (!sourceDocElementList.isEmpty()) {
                 usageText.append("\nSource Options:\n");
@@ -136,26 +137,25 @@ class CommandLineUsage {
         return usageText.toString();
     }
 
-    private static ArrayList<DocElement> createSourceDocuElementList(List<HeaderSource> sources) {
+    private static ArrayList<DocElement> createSourceDocElementList(List<HeaderSource> sources) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         for (HeaderSource headerSource : sources) {
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", headerSource.getName());
             final ArrayList<String> descriptionLines = createSourceDescriptionLines(headerSource);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
-
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createParamDocuElementList(List<HeaderParameter> parameterList) {
+    private static ArrayList<DocElement> createParamDocElementList(List<HeaderParameter> parameterList) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
-
         for (HeaderParameter parameter : parameterList) {
             String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", parameter.getName(), parameter.getType());
             final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
             docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
-
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
@@ -297,12 +297,23 @@ class CommandLineUsage {
                 docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
             }
         }
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
     private static ArrayList<DocElement> createPropertyDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         TargetPropertyDescriptor[] targetPropertyDescriptors = operatorDescriptor.getTargetPropertyDescriptors();
+        // The sorting of the properties needs to be treated special, compared to the other DocElements.
+        // It would be sorted by the Type name instead of the name of the property
+        List<TargetPropertyDescriptor> targetPropertyDescriptorList = Arrays.asList(targetPropertyDescriptors);
+        Collections.sort(targetPropertyDescriptorList, new Comparator<TargetPropertyDescriptor>() {
+                             @Override
+                             public int compare(TargetPropertyDescriptor tpd1, TargetPropertyDescriptor tpd2) {
+                                 return getName(tpd1).compareToIgnoreCase(getName(tpd2));
+                             }
+                         }
+                         );
         for (TargetPropertyDescriptor property : targetPropertyDescriptors) {
             String propertySyntax = MessageFormat.format("{0} {1}", property.getDataType().getSimpleName(), getName(property));
             final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(property);
@@ -319,6 +330,7 @@ class CommandLineUsage {
             final ArrayList<String> descriptionLines = createSourceDescriptionLines(sourceProduct);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
@@ -391,8 +403,6 @@ class CommandLineUsage {
         for (DocElement docElement : docElementList) {
             maxLength = Math.max(maxLength, docElement.syntax.length());
         }
-
-        sortAlphabetically(docElementList);
 
         for (DocElement docElement : docElementList) {
             usageText.append(docElement.syntax);
