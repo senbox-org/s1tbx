@@ -65,6 +65,7 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
         if (textComponent instanceof JTextField) {
             ((JTextField) textComponent).removeActionListener(this);
         }
+        textComponent.removeFocusListener(this);
         textComponent.setInputVerifier(null);
     }
 
