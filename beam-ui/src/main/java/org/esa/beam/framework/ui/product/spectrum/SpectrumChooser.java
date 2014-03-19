@@ -166,9 +166,8 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
 
     @Override
     public void setReadRasterDataNodeNames(String[] readRasterDataNodeNames) {
+        SpectrumTableModel spectrumTableModel = getSpectrumTableModel();
         for (int i = 0; i < spectraTable.getRowCount(); i++) {
-            SpectrumTableModel spectrumTableModel = getSpectrumTableModel();
-            spectrumTableModel.setValueAt(TristateCheckBox.STATE_UNSELECTED, i, spectrumSelectedIndex);
             BandTableModel bandTableModel = spectrumTableModel.getBandTableModel(i);
             for (int j = 0; j < bandTableModel.getRowCount(); j++) {
                 String bandName = bandTableModel.getValueAt(j, bandNameIndex).toString();
