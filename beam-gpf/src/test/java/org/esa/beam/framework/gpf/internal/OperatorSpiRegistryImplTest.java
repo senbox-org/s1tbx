@@ -21,6 +21,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Set;
@@ -33,10 +34,19 @@ import static org.junit.Assert.assertTrue;
 
 public class OperatorSpiRegistryImplTest {
 
+    private OperatorSpiRegistry registry;
+
+    @Before
+    public void setUp() throws Exception {
+        registry = new OperatorSpiRegistryImpl();
+        Set<OperatorSpi> alreadyRegisteredSpis = registry.getOperatorSpis();
+        for (OperatorSpi alreadyRegisteredSpi : alreadyRegisteredSpis) {
+            registry.removeOperatorSpi(alreadyRegisteredSpi);
+        }
+    }
+
     @Test
     public void testAddRemoveWithAndWithoutAlias() {
-        OperatorSpiRegistry registry = new OperatorSpiRegistryImpl();
-
         DummyOp.Spi spi = new DummyOp.Spi();
 
         assertTrue(registry.addOperatorSpi(spi));
@@ -56,7 +66,6 @@ public class OperatorSpiRegistryImplTest {
 
     @Test
     public void testMultipleSpiInstanceOfSameClass() {
-        OperatorSpiRegistry registry = new OperatorSpiRegistryImpl();
 
         DummyOp.Spi heino1 = new DummyOp.Spi();
         DummyOp.Spi heino2 = new DummyOp.Spi();
