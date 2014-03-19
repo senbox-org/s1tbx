@@ -232,9 +232,9 @@ class CommandLineUsage {
         StringBuilder usageText = new StringBuilder(1024);
         usageText.append("Usage:\n");
         usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, operatorName));
-        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorDescriptor);
-        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorDescriptor);
-        ArrayList<DocElement> propertyDocElementList = createPropertyDocuElementList(operatorDescriptor);
+        ArrayList<DocElement> sourceDocElementList = createSourceDocElementList(operatorDescriptor);
+        ArrayList<DocElement> paramDocElementList = createParamDocElementList(operatorDescriptor);
+        ArrayList<DocElement> propertyDocElementList = createPropertyDocElementList(operatorDescriptor);
         final SourceProductsDescriptor productsDescriptor = operatorDescriptor.getSourceProductsDescriptor();
         if (productsDescriptor != null) {
             appendSourceFiles(usageText, productsDescriptor);
@@ -287,7 +287,7 @@ class CommandLineUsage {
         }
     }
 
-    private static ArrayList<DocElement> createParamDocuElementList(OperatorDescriptor operatorDescriptor) {
+    private static ArrayList<DocElement> createParamDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         ParameterDescriptor[] parameterDescriptors = operatorDescriptor.getParameterDescriptors();
         for (ParameterDescriptor parameter: parameterDescriptors) {
@@ -300,7 +300,7 @@ class CommandLineUsage {
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createPropertyDocuElementList(OperatorDescriptor operatorDescriptor) {
+    private static ArrayList<DocElement> createPropertyDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         TargetPropertyDescriptor[] targetPropertyDescriptors = operatorDescriptor.getTargetPropertyDescriptors();
         for (TargetPropertyDescriptor property : targetPropertyDescriptors) {
@@ -311,7 +311,7 @@ class CommandLineUsage {
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createSourceDocuElementList(OperatorDescriptor operatorDescriptor) {
+    private static ArrayList<DocElement> createSourceDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         SourceProductDescriptor[] sourceProductDescriptors = operatorDescriptor.getSourceProductDescriptors();
         for (SourceProductDescriptor sourceProduct : sourceProductDescriptors) {
