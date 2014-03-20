@@ -87,8 +87,7 @@ public class ExclusionListBuilder {
     }
 
     static void addPomToExclusionList(File exclusionList, URL pom) throws Exception {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(exclusionList, true));
-        try {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(exclusionList, true))) {
             final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             final Document w3cDoc = builder.parse(pom.openStream());
             final DOMBuilder domBuilder = new DOMBuilder();
@@ -99,24 +98,21 @@ public class ExclusionListBuilder {
             if (modules != null) {
                 // hard-coded index 0 is ok because xml-schema allows only one <modules>-node
                 final Element modulesNode = modules.get(0);
-                final List<Element> modulesList = (List<Element>) modulesNode.getChildren(MODULE_NAME, namespace);
+                final List<Element> modulesList = modulesNode.getChildren(MODULE_NAME, namespace);
                 for (Element module : modulesList) {
                     addModuleToExclusionList(exclusionList, writer, module.getText());
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            writer.close();
         }
 
     }
 
     static void addModuleToExclusionList(File exclusionList, Writer writer, String moduleName) throws IOException {
-        CsvReader reader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY);
-        try {
+        try (CsvReader reader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY)) {
             final String[] records = reader.readRecord();
-            List<String> recordList = new ArrayList<String>();
+            List<String> recordList = new ArrayList<>();
             if (records != null) {
                 recordList.addAll(Arrays.asList(records));
             }
@@ -125,13 +121,11 @@ public class ExclusionListBuilder {
                 writer.write(moduleName);
                 writer.write(CSV_SEPARATOR);
             }
-        } finally {
-            reader.close();
         }
     }
 
     static List<URL> retrievePoms(String fileName) {
-        List<URL> pomList = new ArrayList<URL>();
+        List<URL> pomList = new ArrayList<>();
         final String pomListFile = SiteCreator.class.getResource(fileName).getFile();
         BufferedReader reader = null;
         try {
