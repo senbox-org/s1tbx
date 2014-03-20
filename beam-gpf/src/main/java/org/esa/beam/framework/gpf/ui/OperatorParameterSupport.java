@@ -59,6 +59,7 @@ public class OperatorParameterSupport {
     private ParameterUpdater parameterUpdater;
     private PropertySetDescriptor propertySetDescriptor;
     private OperatorDescriptor operatorDescriptor;
+    private Class<? extends Operator> operatorType;
 
     /**
      * Creates a parameter support for the operator described by the given {@link OperatorDescriptor}.
@@ -125,10 +126,9 @@ public class OperatorParameterSupport {
         }
         this.parameterMap = parameterMap;
 
-        if (opType == null) {
-            opType = operatorDescriptor.getOperatorClass();
-        }
-        propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(opType, descriptorFactory);
+        this.operatorType = opType != null ? opType : operatorDescriptor.getOperatorClass();
+
+        propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
         if (propertySet == null) {
             if (operatorDescriptor != null) {
                 String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
@@ -136,7 +136,7 @@ public class OperatorParameterSupport {
                                                                                                   this.parameterMap, descriptorFactory);
                 propertySet.setDefaultValues();
             } else {
-                propertySet = PropertyContainer.createMapBacked(parameterMap, opType, descriptorFactory);
+                propertySet = PropertyContainer.createMapBacked(parameterMap, operatorType, descriptorFactory);
                 propertySet.setDefaultValues();
             }
         }
@@ -172,6 +172,6 @@ public class OperatorParameterSupport {
     }
 
     private DefaultDomConverter createDomConverter() {
-        return new DefaultDomConverter(operatorDescriptor.getOperatorClass(), descriptorFactory, propertySetDescriptor);
+        return new DefaultDomConverter(operatorType, descriptorFactory, propertySetDescriptor);
     }
 }
