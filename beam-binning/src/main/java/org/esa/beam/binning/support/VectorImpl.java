@@ -53,4 +53,12 @@ public final class VectorImpl implements WritableVector {
         this.offset = offset;
         this.size = size;
     }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public int getSize() {
+        return size;
+    }
 }
