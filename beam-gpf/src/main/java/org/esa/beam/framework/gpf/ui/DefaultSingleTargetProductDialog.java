@@ -45,8 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
-
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
@@ -83,7 +81,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
         ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorDescriptor, getTargetProductSelector());
 
-        parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
+        parameterSupport = new OperatorParameterSupport(operatorDescriptor);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
         final PropertySet propertySet = parameterSupport.getPropertySet();
         bindingContext = new BindingContext(propertySet);
