@@ -51,7 +51,7 @@ public class ExclusionListBuilder {
     public static final String EXCLUSION_LIST_FILENAME = "exclusion_list";
     public static final char CSV_SEPARATOR = ',';
     public static final char[] CSV_SEPARATOR_ARRAY = new char[]{CSV_SEPARATOR};
-    public static final String POM_LIST_FILENAME = "pom_list";
+    private static final String POM_LIST_FILENAME = "pom_list";
 
     /**
      * Usage: ExclusionListBuilder [output_directory version pom_list_filename]
@@ -124,28 +124,15 @@ public class ExclusionListBuilder {
         }
     }
 
-    static List<URL> retrievePoms(String fileName) {
+    static List<URL> retrievePoms(String fileName) throws Exception {
         List<URL> pomList = new ArrayList<>();
         final String pomListFile = SiteCreator.class.getResource(fileName).getFile();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(pomListFile));
+        try (BufferedReader reader = new BufferedReader(new FileReader(pomListFile))){
             String line;
             while ((line = reader.readLine()) != null) {
                 pomList.add(new URL(line));
             }
-        } catch (IOException e) {
-            return pomList;
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
         }
-
         return pomList;
     }
 }

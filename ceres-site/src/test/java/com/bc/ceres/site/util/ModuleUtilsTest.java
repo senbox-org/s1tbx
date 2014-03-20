@@ -25,12 +25,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.bc.ceres.site.util.ExclusionListBuilder.*;
@@ -41,7 +41,6 @@ import static org.junit.Assert.*;
 public class ModuleUtilsTest {
 
     private List<Module> modules = new ArrayList<>();
-    public static final String PLUGINS_LIST_CSV = "plugins_list.csv";
 
     @Before
     public void setUp() throws Exception {
@@ -68,7 +67,8 @@ public class ModuleUtilsTest {
     public void testFileBasedPomParsing() throws Exception {
         final List<URL> poms = new ArrayList<>();
         poms.add(getClass().getResource("test_pom.xml"));
-        File exclusionList = generateFileBasedTestInclusionFile();
+        File exclusionList = File.createTempFile("plugins_list", ".csv");
+        exclusionList.deleteOnExit();
         ExclusionListBuilder.generateExclusionList(exclusionList, poms);
 
         CsvReader csvReader = new CsvReader(new FileReader(exclusionList), new char[]{','});
@@ -102,7 +102,9 @@ public class ModuleUtilsTest {
 
     @Test
     public void testIsIncluded() throws Exception {
-        final List<URL> pomList = ExclusionListBuilder.retrievePoms(ExclusionListBuilder.POM_LIST_FILENAME);
+        final List<URL> pomList = new LinkedList<>();
+        pomList.add(getClass().getResource("beam_pom.xml"));
+        pomList.add(getCurrentCeresPom());
         final File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
         ExclusionListBuilder.generateExclusionList(exclusionList, pomList);
 
@@ -113,6 +115,14 @@ public class ModuleUtilsTest {
             assertEquals(true, ModuleUtils.isExcluded(modules.get(1), excludedModules));
             assertEquals(true, ModuleUtils.isExcluded(modules.get(2), excludedModules));
         }
+    }
+
+    private URL getCurrentCeresPom() throws Exception {
+        URL location = getClass().getProtectionDomain().getCodeSource().getLocation();
+        File sourceDir = new File(location.toURI());
+        File ceresProjDir = sourceDir.getParentFile().getParentFile().getParentFile();
+        File ceresPom = new File(ceresProjDir, "pom.xml");
+        return ceresPom.toURI().toURL();
     }
 
     @Test
@@ -174,12 +184,4 @@ public class ModuleUtilsTest {
         return module;
     }
 
-    private File generateFileBasedTestInclusionFile() throws IOException {
-        final String someResource = getClass().getResource("test_pom.xml").getFile();
-        final String resourceDir = new File(someResource).getParent();
-        final File inclusionList = new File(resourceDir + File.separator + PLUGINS_LIST_CSV);
-        inclusionList.delete();
-        inclusionList.createNewFile();
-        return inclusionList;
-    }
 }
