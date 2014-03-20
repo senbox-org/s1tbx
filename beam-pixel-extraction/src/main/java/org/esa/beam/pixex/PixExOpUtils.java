@@ -56,7 +56,7 @@ public class PixExOpUtils {
     }
 
     public static List<SimpleFeature> extractFeatures(File matchupFile) throws IOException {
-        final List<SimpleFeature> result = new ArrayList<SimpleFeature>();
+        final List<SimpleFeature> result = new ArrayList<>();
         final Product dummyProduct = new Product("dummy", "dummy", 10, 10);
         FeatureIterator<SimpleFeature> featureIterator = null;
         FileReader reader = null;
