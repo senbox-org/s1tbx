@@ -153,6 +153,14 @@ public class OperatorParameterSupport {
         return propertySet;
     }
 
+    /**
+     * @deprecated since BEAM 5, use {@link #getPropertySet()}
+     */
+    @Deprecated
+    public PropertySet getPopertySet() {
+        return propertySet;
+    }
+
     public Map<String, Object> getParameterMap() {
         return parameterMap;
     }
