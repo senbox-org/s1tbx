@@ -40,7 +40,7 @@ import static org.junit.Assert.*;
 
 public class ModuleUtilsTest {
 
-    private List<Module> modules = new ArrayList<Module>();
+    private List<Module> modules = new ArrayList<>();
     public static final String PLUGINS_LIST_CSV = "plugins_list.csv";
 
     @Before
@@ -58,13 +58,15 @@ public class ModuleUtilsTest {
     public void tearDown() {
         final File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
         if (exclusionList.exists()) {
-            exclusionList.delete();
+            if (exclusionList.delete()) {
+                exclusionList.deleteOnExit();
+            }
         }
     }
 
     @Test
     public void testFileBasedPomParsing() throws Exception {
-        final List<URL> poms = new ArrayList<URL>();
+        final List<URL> poms = new ArrayList<>();
         poms.add(getClass().getResource("test_pom.xml"));
         File exclusionList = generateFileBasedTestInclusionFile();
         ExclusionListBuilder.generateExclusionList(exclusionList, poms);
@@ -104,15 +106,12 @@ public class ModuleUtilsTest {
         final File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
         ExclusionListBuilder.generateExclusionList(exclusionList, pomList);
 
-        final CsvReader csvReader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY);
-        try {
+        try (CsvReader csvReader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY)) {
             final String[] excludedModules = csvReader.readRecord();
 
             assertEquals(false, ModuleUtils.isExcluded(modules.get(0), excludedModules));
             assertEquals(true, ModuleUtils.isExcluded(modules.get(1), excludedModules));
             assertEquals(true, ModuleUtils.isExcluded(modules.get(2), excludedModules));
-        } finally {
-            csvReader.close();
         }
     }
 
@@ -120,15 +119,12 @@ public class ModuleUtilsTest {
     public void testFileBasedIsIncluded() throws Exception {
 
         String moduleString = "some-beam-module,ceres-glayer, ceres-jai,ceres-main-module";
-        final CsvReader csvReader = new CsvReader(new StringReader(moduleString), CSV_SEPARATOR_ARRAY);
-        try {
+        try (CsvReader csvReader = new CsvReader(new StringReader(moduleString), CSV_SEPARATOR_ARRAY)) {
             final String[] excludedModules = csvReader.readRecord();
 
             assertEquals(false, ModuleUtils.isExcluded(modules.get(0), excludedModules));
             assertEquals(true, ModuleUtils.isExcluded(modules.get(1), excludedModules));
             assertEquals(true, ModuleUtils.isExcluded(modules.get(2), excludedModules));
-        } finally {
-            csvReader.close();
         }
     }
 
@@ -171,11 +167,8 @@ public class ModuleUtilsTest {
         final URI uri = getClass().getResource(resource).toURI();
         String xml = uri.getPath();
         ModuleImpl module;
-        FileReader fileReader = new FileReader(xml);
-        try {
+        try (FileReader fileReader = new FileReader(xml)) {
             module = new ModuleManifestParser().parse(fileReader);
-        } finally {
-            fileReader.close();
         }
         module.setLocation(uri.toURL());
         return module;
