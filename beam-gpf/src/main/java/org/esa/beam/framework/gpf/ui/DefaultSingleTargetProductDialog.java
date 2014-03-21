@@ -54,7 +54,7 @@ import java.util.List;
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 
     private final String operatorName;
-    private final OperatorSpi operatorSpi;
+    private final OperatorDescriptor operatorDescriptor;
     private DefaultIOParametersPanel ioParametersPanel;
     private final OperatorParameterSupport parameterSupport;
     private final BindingContext bindingContext;
@@ -73,12 +73,12 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.operatorName = operatorName;
         targetProductNameSuffix = "";
 
-        operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+        OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalArgumentException("No SPI found for operator name '" + operatorName + "'");
         }
 
-        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        operatorDescriptor = operatorSpi.getOperatorDescriptor();
         ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorDescriptor, getTargetProductSelector());
 
         parameterSupport = new OperatorParameterSupport(operatorDescriptor);
@@ -160,7 +160,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
     private OperatorMenu createDefaultMenuBar() {
         return new OperatorMenu(getJDialog(),
-                                operatorSpi.getOperatorDescriptor(),
+                                operatorDescriptor,
                                 parameterSupport,
                                 getAppContext(),
                                 getHelpID());
@@ -256,6 +256,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (product != null) {
             Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
             if (object != null) {
+                @SuppressWarnings("unchecked")
                 Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
                 boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() &&
                         !propertyDescriptor.getType().isArray();
