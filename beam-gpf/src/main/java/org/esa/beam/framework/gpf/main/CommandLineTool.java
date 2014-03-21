@@ -277,8 +277,8 @@ class CommandLineTool implements GraphProcessingObserver {
         if (operator != null) {
             velocityContext.put("operator", operator);
             velocityContext.put("operatorSpi", operatorSpi);
-            OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
-            velocityContext.put("operatorMetadata", operatorMetadata);
+            velocityContext.put("operatorMetadata", operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class));
+            velocityContext.put("operatorDescriptor", operatorSpi.getOperatorDescriptor());
         }
         velocityContext.put("operatorName", operatorName);
         velocityContext.put("parameters", parameters); // Check if we should use parameterMap here (nf)
@@ -323,11 +323,11 @@ class CommandLineTool implements GraphProcessingObserver {
         if (operatorSpi == null) {
             throw new GraphException(String.format("Unknown operator name '%s'.", operatorName));
         }
-        OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
 
         boolean suppressWrite = false;
         if (Output.class.isAssignableFrom(operatorSpi.getOperatorClass())
-            || operatorMetadata != null && operatorMetadata.suppressWrite()) {
+            || operatorDescriptor != null && operatorDescriptor.isSuppressWrite()) {
             suppressWrite = true;
         }
 
@@ -369,15 +369,15 @@ class CommandLineTool implements GraphProcessingObserver {
         // handle xml parameters
         Object parametersObject = metadataResourceEngine.getVelocityContext().get("parameterFile");
         if (parametersObject instanceof Resource) {
-            Resource paramatersResource = (Resource) parametersObject;
-            if (paramatersResource.isXml()) {
+            Resource parametersResource = (Resource) parametersObject;
+            if (parametersResource.isXml()) {
                 OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
                 OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
                 Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
                 DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
                                                                            new ParameterDescriptorFactory());
 
-                DomElement parametersElement = createDomElement(paramatersResource.getContent());
+                DomElement parametersElement = createDomElement(parametersResource.getContent());
                 try {
                     domConverter.convertDomToValue(parametersElement, container);
                 } catch (ConversionException e) {
