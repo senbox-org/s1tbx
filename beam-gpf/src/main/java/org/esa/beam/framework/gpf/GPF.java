@@ -62,7 +62,7 @@ public class GPF {
      * both width and height positive.
      */
     public static final RenderingHints.Key KEY_TILE_SIZE =
-            new RenderingKey<Dimension>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
+            new RenderingKey<>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
                 @Override
                 public boolean isValid(Dimension val) {
                     return val.width > 0 && val.height > 0;
@@ -217,7 +217,7 @@ public class GPF {
                                         RenderingHints renderingHints) throws OperatorException {
         Map<String, Product> sourceProductMap = NO_SOURCES;
         if (sourceProducts.length > 0) {
-            sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
+            sourceProductMap = new HashMap<>(sourceProducts.length);
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
             if (operatorSpi == null) {
                 throw new OperatorException(
