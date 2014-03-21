@@ -291,7 +291,7 @@ class CommandLineUsage {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         ParameterDescriptor[] parameterDescriptors = operatorDescriptor.getParameterDescriptors();
         for (ParameterDescriptor parameter: parameterDescriptors) {
-            if (isConverterAvailable(parameter)) {
+            if (isConverterAvailable(parameter) && !parameter.isDeprecated()) {
                 String paramSyntax = String.format("  -P%s=<%s>", getName(parameter), getTypeName(parameter.getDataType()));
                 final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
                 docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
@@ -459,7 +459,9 @@ class CommandLineUsage {
         }
         DomElement parametersElem = nodeElem.createChild("parameters");
         for (ParameterDescriptor parameter : operatorDescriptor.getParameterDescriptors()) {
-            convertParameterFieldToDom(parameter, parametersElem);
+            if (!parameter.isDeprecated()) {
+                convertParameterFieldToDom(parameter, parametersElem);
+            }
         }
 
         final StringTokenizer st = new StringTokenizer(graphElem.toXml().replace('\r', ' '), "\n");
