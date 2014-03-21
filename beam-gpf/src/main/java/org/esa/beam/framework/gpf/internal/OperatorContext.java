@@ -73,6 +73,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -542,8 +544,7 @@ public class OperatorContext {
         }
 
 
-        final MetadataElement targetSourcesME = new MetadataElement("sources");
-
+        List<MetadataAttribute> sourceAttributeList = new ArrayList<>(context.sourceProductList.size() * 2);
         for (Product sourceProduct : context.sourceProductList) {
             final String sourceId = context.getSourceProductId(sourceProduct);
             final String sourceNodeId;
@@ -559,6 +560,16 @@ public class OperatorContext {
             final MetadataAttribute sourceAttribute = new MetadataAttribute(sourceId,
                                                                             ProductData.createInstance(sourceNodeId),
                                                                             false);
+            sourceAttributeList.add(sourceAttribute);
+        }
+        final MetadataElement targetSourcesME = new MetadataElement("sources");
+        Collections.sort(sourceAttributeList, new Comparator<MetadataAttribute>() {
+            @Override
+            public int compare(MetadataAttribute ma1, MetadataAttribute ma2) {
+                return ma1.getName().compareTo(ma2.getName());
+            }
+        });
+        for (MetadataAttribute sourceAttribute : sourceAttributeList) {
             targetSourcesME.addAttribute(sourceAttribute);
         }
         targetNodeME.addElement(targetSourcesME);
