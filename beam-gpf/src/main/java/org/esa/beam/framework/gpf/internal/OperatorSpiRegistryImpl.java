@@ -195,7 +195,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     private void registerAlias(OperatorSpi operatorSpi) {
-        String operatorAlias = operatorSpi.getOperatorAlias();
+        String operatorAlias = operatorSpi.getOperatorDescriptor().getAlias();
         if (operatorAlias != null) {
             registerAlias(operatorSpi.getClass().getName(), operatorAlias);
         }
