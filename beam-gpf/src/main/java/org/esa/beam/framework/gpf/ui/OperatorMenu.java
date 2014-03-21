@@ -331,12 +331,11 @@ public class OperatorMenu {
     }
 
     private static OperatorDescriptor getOperatorDescriptor(Class<? extends Operator> opType) {
+        String operatorAlias = OperatorSpi.getOperatorAlias(opType);
+
+        OperatorDescriptor operatorDescriptor;
         OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
-        OperatorDescriptor operatorDescriptor = null;
-        if (operatorMetadata != null && operatorMetadata.alias() != null) {
-            operatorDescriptor = spiRegistry.getOperatorSpi(operatorMetadata.alias()).getOperatorDescriptor();
-        }
+        operatorDescriptor = spiRegistry.getOperatorSpi(operatorAlias).getOperatorDescriptor();
         if (operatorDescriptor == null) {
             Class<?>[] declaredClasses = opType.getDeclaredClasses();
             for (Class<?> declaredClass : declaredClasses) {
