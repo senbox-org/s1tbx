@@ -78,6 +78,9 @@ public class OperatorMenu {
     private final Action aboutAction;
     private final String lastDirPreferenceKey;
 
+    /**
+     * @deprecated since BEAM 5, use {@link #OperatorMenu(Component, Class, OperatorParameterSupport, AppContext, String)} instead
+     */
     @Deprecated
     public OperatorMenu(Component parentComponent,
                         Class<? extends Operator> opType,
