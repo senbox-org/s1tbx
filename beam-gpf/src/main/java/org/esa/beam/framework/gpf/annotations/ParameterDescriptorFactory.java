@@ -240,9 +240,11 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             return new PropertyDescriptor(field.getName(), field.getType());
         }
 
+        boolean isDeprecated = field.getAnnotation(Deprecated.class) != null;
+
         return convert(new AnnotationParameterDescriptor(field.getName(),
                                                          field.getType(),
-                                                         parameterAnnotation), sourceProductMap);
+                                                         isDeprecated, parameterAnnotation), sourceProductMap);
     }
 
     private static OperatorSpi getOpSpi(String operatorName) {

@@ -97,6 +97,13 @@ public interface ParameterDescriptor extends DataElementDescriptor {
     boolean isNotEmpty();
 
     /**
+     * Is the parameter marked as deprecated?
+     *
+     * @return {@code true}, if so. Defaults to {@code false}.
+     */
+    boolean isDeprecated();
+
+    /**
      * A validator to be used to validate a parameter value.
      *
      * @return The validator class.

@@ -59,6 +59,7 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
     Class<? extends Converter> converterClass;
     Class<? extends DomConverter> domConverterClass;
     String itemAlias;
+    Boolean deprecated;
 
     public DefaultParameterDescriptor() {
     }
@@ -201,6 +202,11 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
         return notEmpty != null ? notEmpty : false;
     }
 
+    @Override
+    public boolean isDeprecated() {
+        return deprecated != null ? deprecated : false;
+    }
+
     public void setNotEmpty(boolean notEmpty) {
         this.notEmpty = notEmpty;
     }
@@ -284,7 +290,9 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
             if (!(Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers) || Modifier.isStatic(modifiers))) {
                 Parameter annotation = declaredField.getAnnotation(Parameter.class);
                 if (annotation != null) {
-                    parameterDescriptors.add(new AnnotationParameterDescriptor(declaredField.getName(), declaredField.getType(), annotation));
+                    boolean isDeprecated = declaredField.getAnnotation(Deprecated.class) != null;
+                    parameterDescriptors.add(new AnnotationParameterDescriptor(declaredField.getName(), declaredField.getType(), isDeprecated,
+                                                                               annotation));
                 } else {
                     parameterDescriptors.add(new DefaultParameterDescriptor(declaredField.getName(), declaredField.getType()));
                 }
