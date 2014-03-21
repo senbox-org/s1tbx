@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class PolBandUtils {
 
-    public static enum MATRIX { FULL, C3, T3, C4, T4, C2, COMPACT }
+    public static enum MATRIX { FULL, C3, T3, C4, T4, C2, LCHCP, RCHCP }
 
     public static class QuadSourceBand {
         public final String productName;
@@ -61,7 +61,7 @@ public class PolBandUtils {
     public static MATRIX getSourceProductType(final Product sourceProduct) {
 
         final String[] bandNames = sourceProduct.getBandNames();
-        boolean isC3 = false, isT3 = false, isC2 = false, isS2 = false;
+        boolean isC3 = false, isT3 = false, isC2 = false, isLCHS2 = false, isRCHS2 = false;
         for(String name : bandNames) {
             if(name.contains("C44")) {
                 return MATRIX.C4;
@@ -73,8 +73,10 @@ public class PolBandUtils {
                 isT3 = true;
             } else if(name.contains("C22")) {
                 isC2 = true;
+            } else if (name.contains("LH")) {
+                isLCHS2 = true;
             } else if (name.contains("RH")) {
-                isS2 = true;
+                isRCHS2 = true;
             }
         }
 
@@ -84,8 +86,10 @@ public class PolBandUtils {
             return MATRIX.T3;
         else if (isC2)
             return MATRIX.C2;
-        else if (isS2)
-            return MATRIX.COMPACT;
+        else if (isLCHS2)
+            return MATRIX.LCHCP;
+        else if (isRCHS2)
+            return MATRIX.RCHCP;
 
         return MATRIX.FULL;
     }
@@ -145,8 +149,10 @@ public class PolBandUtils {
             return getProductBands(srcProduct, bandNames, getT4BandNames());
         } else if(sourceProductType == MATRIX.C2) { // compact pol C2
             return getProductBands(srcProduct, bandNames, getC2BandNames());
-        } else if(sourceProductType == MATRIX.COMPACT) { // compact pol S2
-            return getProductBands(srcProduct, bandNames, getS2BandNames());
+        } else if(sourceProductType == MATRIX.LCHCP) { // LCH compact pol S2
+            return getProductBands(srcProduct, bandNames, getLCHModeS2BandNames());
+        } else if (sourceProductType == MATRIX.RCHCP) { // RCH compact pol S2
+            return getProductBands(srcProduct, bandNames, getRCHModeS2BandNames());
         }
         return null;
     }
@@ -265,7 +271,7 @@ public class PolBandUtils {
     }
 
     /**
-     * Get compact pol Stokes vector product band names.
+     * Get band names for compact pol Stokes vector product.
      * @return The source band names.
      */
     public static String[] getG4BandNames() {
@@ -278,10 +284,23 @@ public class PolBandUtils {
     }
 
     /**
-     * Get compact pol scatter vector product band names.
+     * Get band names for Right Circular Hybrid mode compact pol scattering vector product.
      * @return The source band names.
      */
-    public static String[] getS2BandNames() {
+    public static String[] getLCHModeS2BandNames() {
+        return new String[] {
+            "i_LH",
+            "q_LH",
+            "i_LV",
+            "q_LV",
+        };
+    }
+
+    /**
+     * Get band names for Left Circular Hybrid mode compact pol scattering vector product.
+     * @return The source band names.
+     */
+    public static String[] getRCHModeS2BandNames() {
         return new String[] {
             "i_RH",
             "q_RH",
