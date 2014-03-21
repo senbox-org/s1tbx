@@ -150,12 +150,15 @@ public class GraphNode {
         }
     }
 
-    void AssignParameters(final XppDom presentationXML) throws GraphException {
-
+    void updateParameters() throws GraphException {
         final XppDomElement config = new XppDomElement("parameters");
         updateParameterMap(config);
         node.setConfiguration(config);
+    }
 
+    void AssignParameters(final XppDom presentationXML) throws GraphException {
+
+        updateParameters();
         AssignDisplayParameters(presentationXML);
     }
 

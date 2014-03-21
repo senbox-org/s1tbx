@@ -264,11 +264,12 @@ public class GraphExecuter extends Observable {
         graphContext = new GraphContext(graph);
     }
 
-    private void updateGraphNodes() {
+    private void updateGraphNodes() throws GraphException {
         if(graphContext != null) {
             for(GraphNode n : nodeList) {
                 final NodeContext context = graphContext.getNodeContext(n.getNode());
                 n.setSourceProducts(context.getSourceProducts());
+                n.updateParameters();
             }
         }
     }
