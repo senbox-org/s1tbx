@@ -21,8 +21,7 @@
     <name>BEAM Python Interface</name>
     <packaging>dir</packaging>
 
-    <description>
-    </description>
+    <description>Example of how to implement an operator in Python</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
@@ -30,23 +29,9 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-    <changelog>
-        <![CDATA[
-                ]]>
-    </changelog>
-
 
     <dependency>
         <module>beam-python</module>
-    </dependency>
-    <dependency>
-        <module>beam-gpf</module>
-    </dependency>
-    <dependency>
-        <module>beam-visat-rcp</module>
-    </dependency>
-    <dependency>
-        <lib>lib/jpy-0.7-SNAPSHOT.jar</lib>
     </dependency>
 
 
@@ -62,7 +47,7 @@
             <text>Python NDVI Operator...</text>
             <operatorName>py_ndvi_op</operatorName>
             <dialogTitle>Python MERIS NDVI operator</dialogTitle>
-            <!--<targetProductNameSuffix></targetProductNameSuffix>-->
+            <targetProductNameSuffix>pyNDVI</targetProductNameSuffix>
         </action>
     </extension>
 
