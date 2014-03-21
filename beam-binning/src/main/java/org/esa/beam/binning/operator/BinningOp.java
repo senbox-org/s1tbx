@@ -36,7 +36,6 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -44,6 +43,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.esa.beam.util.ProductUtils;
@@ -206,7 +206,7 @@ public class BinningOp extends Operator implements Output {
     private Product writtenProduct;
 
     public BinningOp() throws OperatorException {
-        addedBands = new HashMap<Product, List<Band>>();
+        addedBands = new HashMap<>();
     }
 
     public Geometry getRegion() {
@@ -293,8 +293,8 @@ public class BinningOp extends Operator implements Output {
                                                                 endDateUtc,
                                                                 region);
 
-        metadataProperties = new TreeMap<String, String>();
-        sourceProductNames = new ArrayList<String>();
+        metadataProperties = new TreeMap<>();
+        sourceProductNames = new ArrayList<>();
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
@@ -453,11 +453,8 @@ public class BinningOp extends Operator implements Output {
         String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
         try {
             getLogger().info(String.format("Writing metadata file '%s'...", outputName));
-            Writer writer = new FileWriter(outputName);
-            try {
+            try (Writer writer = new FileWriter(outputName)) {
                 ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
-            } finally {
-                writer.close();
             }
         } catch (Exception e) {
             String msgPattern = "Failed to generate metadata file from template '%s': %s";
@@ -470,11 +467,11 @@ public class BinningOp extends Operator implements Output {
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
 
         File outputFile = new File(formatterConfig.getOutputFile());
-        Class<? extends Operator> operatorClass = getSpi().getOperatorClass();
+        OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
         metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(outputFile));
-        metadataProperties.put("software_qualified_name", operatorClass.getName());
-        metadataProperties.put("software_name", operatorClass.getAnnotation(OperatorMetadata.class).alias());
-        metadataProperties.put("software_version", operatorClass.getAnnotation(OperatorMetadata.class).version());
+        metadataProperties.put("software_qualified_name", operatorDescriptor.getName());
+        metadataProperties.put("software_name", operatorDescriptor.getAlias());
+        metadataProperties.put("software_version", operatorDescriptor.getVersion());
         metadataProperties.put("processing_time", dateFormat.format(new Date()));
         metadataProperties.put("source_products", StringUtils.join(sourceProductNames, ","));
 
@@ -484,15 +481,12 @@ public class BinningOp extends Operator implements Output {
             } else {
                 try {
                     getLogger().info(String.format("Reading metadata properties file '%s'...", metadataPropertiesFile));
-                    final FileReader reader = new FileReader(metadataPropertiesFile);
-                    try {
+                    try (FileReader reader = new FileReader(metadataPropertiesFile)) {
                         final Properties properties = new Properties();
                         properties.load(reader);
                         for (String name : properties.stringPropertyNames()) {
                             metadataProperties.put(name, properties.getProperty(name));
                         }
-                    } finally {
-                        reader.close();
                     }
                 } catch (IOException e) {
                     String msgPattern = "Failed to load metadata properties file '%s': %s";
@@ -534,7 +528,7 @@ public class BinningOp extends Operator implements Output {
             }
         }
         if (sourceProductPaths != null) {
-            SortedSet<File> fileSet = new TreeSet<File>();
+            SortedSet<File> fileSet = new TreeSet<>();
             for (String filePattern : sourceProductPaths) {
                 WildcardMatcher.glob(filePattern, fileSet);
             }
