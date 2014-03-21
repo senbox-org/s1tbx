@@ -160,7 +160,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
     private OperatorMenu createDefaultMenuBar() {
         return new OperatorMenu(getJDialog(),
-                                operatorSpi.getOperatorClass(),
+                                operatorSpi.getOperatorDescriptor(),
                                 parameterSupport,
                                 getAppContext(),
                                 getHelpID());

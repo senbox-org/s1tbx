@@ -23,8 +23,12 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.AppContext;
@@ -69,7 +73,7 @@ public class OperatorMenu {
 
     private final Component parentComponent;
     private final OperatorParameterSupport parameterSupport;
-    private final Class<? extends Operator> opType;
+    private final OperatorDescriptor opDescriptor;
     private final AppContext appContext;
     private final String helpId;
     private final Action loadParametersAction;
@@ -79,27 +83,27 @@ public class OperatorMenu {
     private final String lastDirPreferenceKey;
 
     /**
-     * @deprecated since BEAM 5, use {@link #OperatorMenu(Component, Class, OperatorParameterSupport, AppContext, String)} instead
+     * @deprecated since BEAM 5, use {@link #OperatorMenu(Component, OperatorDescriptor, OperatorParameterSupport, AppContext, String)} instead
      */
     @Deprecated
     public OperatorMenu(Component parentComponent,
                         Class<? extends Operator> opType,
                         OperatorParameterSupport parameterSupport,
                         String helpId) {
-        this(parentComponent, opType, parameterSupport, null, helpId);
+        this(parentComponent, getOperatorDescriptor(opType), parameterSupport, null, helpId);
     }
 
     public OperatorMenu(Component parentComponent,
-                        Class<? extends Operator> opType,
+                        OperatorDescriptor opDescriptor,
                         OperatorParameterSupport parameterSupport,
                         AppContext appContext,
                         String helpId) {
         this.parentComponent = parentComponent;
         this.parameterSupport = parameterSupport;
-        this.opType = opType;
+        this.opDescriptor = opDescriptor;
         this.appContext = appContext;
         this.helpId = helpId;
-        lastDirPreferenceKey = opType.getCanonicalName() + ".lastDir";
+        lastDirPreferenceKey = opDescriptor.getName() + ".lastDir";
         loadParametersAction = new LoadParametersAction();
         saveParametersAction = new SaveParametersAction();
         displayParametersAction = new DisplayParametersAction();
@@ -301,36 +305,50 @@ public class OperatorMenu {
     }
 
     String getOperatorName() {
-        OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
-        if (operatorMetadata != null) {
-            return operatorMetadata.alias();
-        }
-        return opType.getName();
+        return opDescriptor.getAlias() != null ? opDescriptor.getAlias() : opDescriptor.getName();
     }
 
     String getOperatorDescription() {
-        OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
-        if (operatorMetadata != null) {
+            @SuppressWarnings("StringBufferReplaceableByString")
             StringBuilder sb = new StringBuilder("<html>");
-            sb.append("<h2>").append(operatorMetadata.alias()).append(" Operator</h2>");
+            sb.append("<h2>").append(getOperatorName()).append(" Operator</h2>");
             sb.append("<table>");
-            sb.append("  <tr><td><b>Name:</b></td><td><code>").append(operatorMetadata.alias()).append(
+            sb.append("  <tr><td><b>Name:</b></td><td><code>").append(getOperatorName()).append(
                     "</code></td></tr>");
-            sb.append("  <tr><td><b>Full name:</b></td><td><code>").append(opType.getName()).append(
+            sb.append("  <tr><td><b>Full name:</b></td><td><code>").append(opDescriptor.getName()).append(
                     "</code></td></tr>");
-            sb.append("  <tr><td><b>Purpose:</b></td><td>").append(operatorMetadata.description()).append("</td></tr>");
-            sb.append("  <tr><td><b>Authors:</b></td><td>").append(operatorMetadata.authors()).append("</td></tr>");
-            sb.append("  <tr><td><b>Version:</b></td><td>").append(operatorMetadata.version()).append("</td></tr>");
-            sb.append("  <tr><td><b>Copyright:</b></td><td>").append(operatorMetadata.copyright()).append("</td></tr>");
+            sb.append("  <tr><td><b>Purpose:</b></td><td>").append(opDescriptor.getDescription()).append("</td></tr>");
+            sb.append("  <tr><td><b>Authors:</b></td><td>").append(opDescriptor.getAuthors()).append("</td></tr>");
+            sb.append("  <tr><td><b>Version:</b></td><td>").append(opDescriptor.getVersion()).append("</td></tr>");
+            sb.append("  <tr><td><b>Copyright:</b></td><td>").append(opDescriptor.getCopyright()).append("</td></tr>");
             sb.append("</table>");
             sb.append("</html>");
             return makeHtmlConform(sb.toString());
-        }
-        return "No operator metadata available.";
     }
 
     private static String makeHtmlConform(String text) {
         return text.replace("\n", "<br/>");
+    }
+
+    private static OperatorDescriptor getOperatorDescriptor(Class<? extends Operator> opType) {
+        OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        OperatorMetadata operatorMetadata = opType.getAnnotation(OperatorMetadata.class);
+        OperatorDescriptor operatorDescriptor = null;
+        if (operatorMetadata != null && operatorMetadata.alias() != null) {
+            operatorDescriptor = spiRegistry.getOperatorSpi(operatorMetadata.alias()).getOperatorDescriptor();
+        }
+        if (operatorDescriptor == null) {
+            Class<?>[] declaredClasses = opType.getDeclaredClasses();
+            for (Class<?> declaredClass : declaredClasses) {
+                if(OperatorSpi.class.isAssignableFrom(declaredClass)) {
+                    operatorDescriptor = spiRegistry.getOperatorSpi(declaredClass.getName()).getOperatorDescriptor();
+                }
+            }
+        }
+        if(operatorDescriptor == null) {
+            throw new IllegalStateException("Not able to find SPI for operator class '" + opType.getName() + "'");
+        }
+        return operatorDescriptor;
     }
 
     private void applyCurrentDirectory(JFileChooser fileChooser) {
