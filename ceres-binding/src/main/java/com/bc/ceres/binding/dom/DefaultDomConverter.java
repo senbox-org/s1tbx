@@ -100,6 +100,9 @@ public class DefaultDomConverter implements DomConverter {
     private void convertPropertySetToDom(PropertySet propertySet, DomElement parentElement) throws ConversionException {
         Property[] properties = propertySet.getProperties();
         for (Property property : properties) {
+            if(property.getDescriptor().isDeprecated()) {
+                continue;
+            }
             convertPropertyToDom(property, parentElement);
         }
     }
