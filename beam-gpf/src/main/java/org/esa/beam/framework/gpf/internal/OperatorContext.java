@@ -49,6 +49,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
@@ -172,7 +173,9 @@ public class OperatorContext {
 
     public String getId() {
         if (id == null) {
-            id = getOperatorSpi().getOperatorAlias() + '$' + Long.toHexString(System.currentTimeMillis()).toUpperCase();
+            OperatorDescriptor descriptor = getOperatorSpi().getOperatorDescriptor();
+            String aliasName = descriptor.getAlias() != null ? descriptor.getAlias() : descriptor.getName();
+            id = aliasName + '$' + Long.toHexString(System.currentTimeMillis()).toUpperCase();
         }
         return id;
     }
