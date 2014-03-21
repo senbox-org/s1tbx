@@ -19,8 +19,7 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
-
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import java.util.List;
 
 /**
  * Base class for all {@link Figure} implementations.
- *
+ * <p/>
  * Provides support for the following properties:
  * {@code selectable}, {@code selected}, {@code normalStyle}, {@code selectedStyle}.
  *
@@ -97,8 +96,10 @@ public abstract class AbstractFigure implements Figure {
 
     public void setNormalStyle(FigureStyle normalStyle) {
         Assert.notNull(normalStyle, "normalStyle");
-        this.normalStyle = normalStyle;
-        fireFigureChanged();
+        if (!normalStyle.equals(this.normalStyle)) {
+            this.normalStyle = normalStyle;
+            fireFigureChanged();
+        }
     }
 
     @Override
@@ -108,8 +109,10 @@ public abstract class AbstractFigure implements Figure {
 
     public void setSelectedStyle(FigureStyle selectedStyle) {
         Assert.notNull(selectedStyle, "selectedStyle");
-        this.selectedStyle = selectedStyle;
-        fireFigureChanged();
+        if (!selectedStyle.equals(this.selectedStyle)) {
+            this.selectedStyle = selectedStyle;
+            fireFigureChanged();
+        }
     }
 
     @Override
@@ -161,7 +164,6 @@ public abstract class AbstractFigure implements Figure {
      * The default implementation returns an empty array.
      *
      * @param shape The shape defining the area in which the figures must be contained.
-     *
      * @return Always an empty array.
      */
     @Override
@@ -250,7 +252,6 @@ public abstract class AbstractFigure implements Figure {
      *
      * @param index  The index.
      * @param figure The figure.
-     *
      * @return Does never return normally.
      */
     protected boolean addFigureImpl(int index, Figure figure) {
@@ -275,7 +276,6 @@ public abstract class AbstractFigure implements Figure {
      * The default implementation throws an [@code IllegalStateException}.
      *
      * @param figure The figure.
-     *
      * @return Does never return normally.
      */
     protected boolean removeFigureImpl(Figure figure) {
@@ -418,20 +418,20 @@ public abstract class AbstractFigure implements Figure {
 
     protected void fireFiguresAdded(Figure... figures) {
         fireFigureChanged(new FigureChangeEvent(this,
-                                                FigureChangeEvent.FIGURES_ADDED,
-                                                figures));
+                FigureChangeEvent.FIGURES_ADDED,
+                figures));
     }
 
     protected void fireFiguresRemoved(Figure... figures) {
         fireFigureChanged(new FigureChangeEvent(this,
-                                                FigureChangeEvent.FIGURES_REMOVED,
-                                                figures));
+                FigureChangeEvent.FIGURES_REMOVED,
+                figures));
     }
 
     protected void fireFigureChanged() {
         fireFigureChanged(new FigureChangeEvent(this,
-                                                FigureChangeEvent.FIGURE_CHANGED,
-                                                null));
+                FigureChangeEvent.FIGURE_CHANGED,
+                null));
     }
 
     protected void fireFigureChanged(FigureChangeEvent event) {
