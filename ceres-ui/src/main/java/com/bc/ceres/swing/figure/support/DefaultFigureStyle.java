@@ -236,11 +236,11 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         if (scale != 1.0 && stroke instanceof BasicStroke) {
             BasicStroke basicStroke = (BasicStroke) stroke;
             return new BasicStroke((float) (basicStroke.getLineWidth() * scale),
-                                   basicStroke.getEndCap(),
-                                   basicStroke.getLineJoin(),
-                                   basicStroke.getMiterLimit(),
-                                   basicStroke.getDashArray(),
-                                   basicStroke.getDashPhase());
+                    basicStroke.getEndCap(),
+                    basicStroke.getLineJoin(),
+                    basicStroke.getMiterLimit(),
+                    basicStroke.getDashArray(),
+                    basicStroke.getDashPhase());
         }
         return stroke;
     }
@@ -610,5 +610,22 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         } else {
             return defaultValue;
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DefaultFigureStyle)) {
+            return false;
+        }
+        DefaultFigureStyle other = (DefaultFigureStyle) obj;
+        Property[] properties = this.getProperties();
+        for (Property property : properties) {
+            Property otherProperty = other.getProperty(property.getName());
+            if (otherProperty == null || otherProperty.getValue() != null && property.getValue() == null ||
+                    (property.getValue() != null && !property.getValue().equals(otherProperty.getValue()))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
