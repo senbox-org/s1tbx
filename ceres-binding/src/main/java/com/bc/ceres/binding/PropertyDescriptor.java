@@ -138,6 +138,14 @@ public class PropertyDescriptor {
         setAttribute("notEmpty", notEmpty);
     }
 
+    public boolean isDeprecated() {
+        return getBooleanProperty("deprecated");
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        setAttribute("deprecated", deprecated);
+    }
+
     public boolean isTransient() {
         return getBooleanProperty("transient");
     }

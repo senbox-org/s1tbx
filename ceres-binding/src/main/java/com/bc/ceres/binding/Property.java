@@ -40,7 +40,7 @@ public class Property {
     static final HashMap<Class<?>, Object> PRIMITIVE_ZERO_VALUES;
 
     static {
-        PRIMITIVE_ZERO_VALUES = new HashMap<Class<?>, Object>(17);
+        PRIMITIVE_ZERO_VALUES = new HashMap<>(17);
         PRIMITIVE_ZERO_VALUES.put(Boolean.TYPE, false);
         PRIMITIVE_ZERO_VALUES.put(Character.TYPE, (char) 0);
         PRIMITIVE_ZERO_VALUES.put(Byte.TYPE, (byte) 0);
@@ -81,12 +81,18 @@ public class Property {
 
     public static Property createForField(Object object, String name) {
         final Field field = getField(object, name);
-        return createImpl(createDescriptor(name, field.getType()), new ClassFieldAccessor(object, field));
+        PropertyDescriptor descriptor = createDescriptor(name, field.getType());
+        boolean isDeprecated = field.getAnnotation(Deprecated.class) != null;
+        descriptor.setDeprecated(isDeprecated);
+        return createImpl(descriptor, new ClassFieldAccessor(object, field));
     }
 
     public static Property createForField(Object object, String name, Object value) {
         final Field field = getField(object, name);
-        return createImpl(createDescriptor(name, field.getType()), new ClassFieldAccessor(object, field), value);
+        PropertyDescriptor descriptor = createDescriptor(name, field.getType());
+        boolean isDeprecated = field.getAnnotation(Deprecated.class) != null;
+        descriptor.setDeprecated(isDeprecated);
+        return createImpl(descriptor, new ClassFieldAccessor(object, field), value);
     }
 
     public static Property createForMapEntry(Map<String, Object> map, String name, Class<?> type) {

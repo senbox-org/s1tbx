@@ -17,6 +17,9 @@ public class DefaultPropertyDescriptorFactory implements PropertyDescriptorFacto
      */
     @Override
     public PropertyDescriptor createValueDescriptor(Field field) {
-        return new PropertyDescriptor(field.getName(), field.getType());
+        boolean isDeprecated = field.getAnnotation(Deprecated.class) != null;
+        PropertyDescriptor propertyDescriptor = new PropertyDescriptor(field.getName(), field.getType());
+        propertyDescriptor.setDeprecated(isDeprecated);
+        return propertyDescriptor;
     }
 }
