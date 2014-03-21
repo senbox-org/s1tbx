@@ -150,6 +150,8 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
         propertyDescriptor.setNotEmpty(parameterDescriptor.isNotEmpty());
 
+        propertyDescriptor.setDeprecated(parameterDescriptor.isDeprecated());
+
         if (isNotNullAndNotEmpty(parameterDescriptor.getPattern())) {
             Pattern pattern = Pattern.compile(parameterDescriptor.getPattern());
             propertyDescriptor.setPattern(pattern);
@@ -236,11 +238,12 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             return null;
         }
 
-        if (parameterAnnotation == null) {
-            return new PropertyDescriptor(field.getName(), field.getType());
-        }
-
         boolean isDeprecated = field.getAnnotation(Deprecated.class) != null;
+        if (parameterAnnotation == null) {
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(field.getName(), field.getType());
+            propertyDescriptor.setDeprecated(isDeprecated);
+            return propertyDescriptor;
+        }
 
         return convert(new AnnotationParameterDescriptor(field.getName(),
                                                          field.getType(),
