@@ -33,6 +33,7 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -66,11 +67,16 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
             final ProductGeometrySelectorDialog dlg = new ProductGeometrySelectorDialog("Select Training Geometries");
             dlg.show();
             if(dlg.IsOK()) {
-                final Product quadPolProduct = dlg.getQuadPolProduct();
+                final Product quadPolProduct = dlg.getProduct();
                 sourceImageWidth = quadPolProduct.getSceneRasterWidth();
                 sourceImageHeight = quadPolProduct.getSceneRasterHeight();
 
                 PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(quadPolProduct);
+                if (sourceProductType != PolBandUtils.MATRIX.T3 && sourceProductType != PolBandUtils.MATRIX.C3 &&
+                    sourceProductType != PolBandUtils.MATRIX.FULL) {
+                    VisatApp.getApp().showErrorDialog("Quad pol product is expected");
+                    return;
+                }
 
                 PolBandUtils.QuadSourceBand[] srcBandList =
                         PolBandUtils.getSourceBands(quadPolProduct, sourceProductType);
@@ -325,6 +331,15 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         final double[] i_vv = new double[num];
         final double[] q_vv = new double[num];
 
+        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_hh);
+        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_hh);
+        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_hv);
+        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_hv);
+        sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_vh);
+        sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_vh);
+        sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_vv);
+        sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_vv);
+        /*
         sourceBands[0].readPixels(xSt, ySt, w, h, i_hh);
         sourceBands[1].readPixels(xSt, ySt, w, h, q_hh);
         sourceBands[2].readPixels(xSt, ySt, w, h, i_hv);
@@ -333,7 +348,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         sourceBands[5].readPixels(xSt, ySt, w, h, q_vh);
         sourceBands[6].readPixels(xSt, ySt, w, h, i_vv);
         sourceBands[7].readPixels(xSt, ySt, w, h, q_vv);
-
+        */
         final Matrix TrMat = new Matrix(3,3);
         final Matrix TiMat = new Matrix(3,3);
         for (int i = 0; i < num; ++i) {
@@ -379,6 +394,16 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         final double[] c23i = new double[num];
         final double[] c33 = new double[num];
 
+        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c11);
+        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12r);
+        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12i);
+        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c13r);
+        sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c13i);
+        sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c22);
+        sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c23r);
+        sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c23i);
+        sourceBands[8].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c33);
+        /*
         sourceBands[0].readPixels(xSt, ySt, w, h, c11);
         sourceBands[1].readPixels(xSt, ySt, w, h, c12r);
         sourceBands[2].readPixels(xSt, ySt, w, h, c12i);
@@ -388,7 +413,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         sourceBands[6].readPixels(xSt, ySt, w, h, c23r);
         sourceBands[7].readPixels(xSt, ySt, w, h, c23i);
         sourceBands[8].readPixels(xSt, ySt, w, h, c33);
-
+        */
         final Matrix TrMat = new Matrix(3,3);
         final Matrix TiMat = new Matrix(3,3);
         for (int i = 0; i < num; ++i) {
@@ -444,6 +469,16 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         final double[] t23i = new double[num];
         final double[] t33 = new double[num];
 
+        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t11);
+        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t12r);
+        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t12i);
+        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t13r);
+        sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t13i);
+        sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t22);
+        sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t23r);
+        sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t23i);
+        sourceBands[8].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t33);
+        /*
         sourceBands[0].readPixels(xSt, ySt, w, h, t11);
         sourceBands[1].readPixels(xSt, ySt, w, h, t12r);
         sourceBands[2].readPixels(xSt, ySt, w, h, t12i);
@@ -453,7 +488,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         sourceBands[6].readPixels(xSt, ySt, w, h, t23r);
         sourceBands[7].readPixels(xSt, ySt, w, h, t23i);
         sourceBands[8].readPixels(xSt, ySt, w, h, t33);
-
+        */
         final Matrix TrMat = new Matrix(3,3);
         final Matrix TiMat = new Matrix(3,3);
         for (int i = 0; i < num; ++i) {
