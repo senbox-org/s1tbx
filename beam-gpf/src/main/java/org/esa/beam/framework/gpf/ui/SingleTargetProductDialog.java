@@ -22,8 +22,6 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
@@ -310,11 +308,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 if (targetProduct.getProductReader() instanceof OperatorProductReader) {
                     final OperatorProductReader opReader = (OperatorProductReader) targetProduct.getProductReader();
                     Operator operator = opReader.getOperatorContext().getOperator();
-                    OperatorSpi operatorSpi = operator.getSpi();
-                    OperatorMetadata operatorMetadata = operatorSpi.getClass().getAnnotation(OperatorMetadata.class);
-
-                    if (operator instanceof Output
-                        || operatorMetadata != null && operatorMetadata.suppressWrite()) {
+                    if (operator instanceof Output || operator.getSpi().getOperatorDescriptor().isSuppressWrite()) {
                         execOp = operator;
                     }
                 }
