@@ -19,11 +19,11 @@ package org.esa.beam.framework.gpf.doclet;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class OperatorDesc  implements ElementDesc {
     private final Class<? extends Operator> type;
     private final ClassDoc classDoc;
 
-    private final OperatorMetadata annotation;
+    private final OperatorDescriptor annotation;
 
     private final TargetProductDesc targetProduct;
 
@@ -43,21 +43,21 @@ public class OperatorDesc  implements ElementDesc {
 
     private final ArrayList<ParameterDesc> parameters;
 
-    OperatorDesc(Class<? extends Operator> type, ClassDoc classDoc, OperatorMetadata annotation) {
+    OperatorDesc(Class<? extends Operator> type, ClassDoc classDoc, OperatorDescriptor annotation) {
         this.type = type;
         this.classDoc = classDoc;
         this.annotation = annotation;
 
         Field[] fields = type.getDeclaredFields();
         FieldDoc[] fieldDocs = classDoc.fields();
-        HashMap<String, FieldDoc> fieldDocMap = new HashMap<String, FieldDoc>();
+        HashMap<String, FieldDoc> fieldDocMap = new HashMap<>();
         for (FieldDoc fieldDoc : fieldDocs) {
             fieldDocMap.put(fieldDoc.name(), fieldDoc);
         }
 
         TargetProductDesc targetProductDesc = null;
-        sourceProductList = new ArrayList<SourceProductDesc>();
-        parameters = new ArrayList<ParameterDesc>();
+        sourceProductList = new ArrayList<>();
+        parameters = new ArrayList<>();
         for (Field field : fields) {
             TargetProduct targetProduct = field.getAnnotation(TargetProduct.class);
             if (targetProduct != null) {
@@ -89,11 +89,11 @@ public class OperatorDesc  implements ElementDesc {
     }
 
     public String getName() {
-        return annotation.alias();
+        return annotation.getAlias();
     }
 
     public String getShortDescription() {
-        return annotation.description();
+        return annotation.getDescription();
     }
 
     public String getLongDescription() {
@@ -101,7 +101,7 @@ public class OperatorDesc  implements ElementDesc {
     }
 
     public String getVersion() {
-        return annotation.version();
+        return annotation.getVersion();
     }
 
     public TargetProductDesc getTargetProduct() {
