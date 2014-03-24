@@ -32,15 +32,7 @@ import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
 /**
  * A doclet which scans the classpath for GPF operators and creates
- * associated documentation derived from an operator's annotations
- * <ol>
- * <li>{@link org.esa.beam.framework.gpf.annotations.OperatorMetadata OperatorMetadata}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.SourceProduct SourceProduct}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.SourceProducts SourceProducts}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}</li>
- * </ol>
- * <p/>
+ * associated documentation from the {@link OperatorDescriptor} retrieved via the {@link OperatorSpi}.
  * <p/>
  * This Doclet can be called on Windows from the command line
  * by the following instruction.
