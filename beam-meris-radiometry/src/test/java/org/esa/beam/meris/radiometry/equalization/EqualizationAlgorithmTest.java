@@ -25,8 +25,8 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
-import static junit.framework.Assert.*;
 import static org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm.*;
+import static org.junit.Assert.*;
 
 public class EqualizationAlgorithmTest {
 
