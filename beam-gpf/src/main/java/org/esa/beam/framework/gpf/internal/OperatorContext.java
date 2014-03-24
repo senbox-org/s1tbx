@@ -537,22 +537,25 @@ public class OperatorContext {
 
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(opName);
-        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        if (operatorDescriptor.getDescription() != null) {
-            ProductData purposeValue = ProductData.createInstance(operatorDescriptor.getDescription());
-            targetNodeME.addAttribute(new MetadataAttribute("purpose", purposeValue, false));
-        }
-        if (operatorDescriptor.getAuthors() != null) {
-            ProductData authorsValue = ProductData.createInstance(operatorDescriptor.getAuthors());
-            targetNodeME.addAttribute(new MetadataAttribute("authors", authorsValue, false));
-        }
-        if (operatorDescriptor.getVersion() != null) {
-            ProductData opVersionValue = ProductData.createInstance(operatorDescriptor.getVersion());
-            targetNodeME.addAttribute(new MetadataAttribute("version", opVersionValue, false));
-        }
-        if (operatorDescriptor.getCopyright() != null) {
-            ProductData copyrightValue = ProductData.createInstance(operatorDescriptor.getCopyright());
-            targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
+        OperatorDescriptor operatorDescriptor;
+        if (operatorSpi != null) {
+            operatorDescriptor = operatorSpi.getOperatorDescriptor();
+            if (operatorDescriptor.getDescription() != null) {
+                ProductData purposeValue = ProductData.createInstance(operatorDescriptor.getDescription());
+                targetNodeME.addAttribute(new MetadataAttribute("purpose", purposeValue, false));
+            }
+            if (operatorDescriptor.getAuthors() != null) {
+                ProductData authorsValue = ProductData.createInstance(operatorDescriptor.getAuthors());
+                targetNodeME.addAttribute(new MetadataAttribute("authors", authorsValue, false));
+            }
+            if (operatorDescriptor.getVersion() != null) {
+                ProductData opVersionValue = ProductData.createInstance(operatorDescriptor.getVersion());
+                targetNodeME.addAttribute(new MetadataAttribute("version", opVersionValue, false));
+            }
+            if (operatorDescriptor.getCopyright() != null) {
+                ProductData copyrightValue = ProductData.createInstance(operatorDescriptor.getCopyright());
+                targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
+            }
         }
 
 
