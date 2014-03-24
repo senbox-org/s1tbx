@@ -263,7 +263,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             detectorIndex = sourceSamples[detectorIndexSampleIndex].getInt();
         }
         double value = sourceRadiance.getDouble();
-        if (doCalibration && detectorIndex != -1 && value < sourceRadiance.getNode().scale(RAW_SATURATION_THRESHOLD)) {
+        if (doCalibration && detectorIndex >= 0 && value < sourceRadiance.getNode().scale(RAW_SATURATION_THRESHOLD)) {
             value = calibrationAlgorithm.calibrate(bandIndex, detectorIndex, value);
         }
         if (doSmile) {
