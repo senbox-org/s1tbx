@@ -132,7 +132,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
         return content;
     }
 
-    public Product getQuadPolProduct() {
+    public Product getProduct() {
         return VisatApp.getApp().getProductManager().getProductByDisplayName(
                 (String)productList.getSelectedItem());
     }
