@@ -70,7 +70,9 @@ class CommandLineUsage {
             }
         }
         StringBuilder opListText = new StringBuilder(1024);
+        sortAlphabetically(docElementList);
         appendDocElementList(opListText, docElementList);
+
         return MessageFormat.format(usagePattern,
                                     CommandLineTool.TOOL_NAME,
                                     CommandLineArgs.DEFAULT_TARGET_FILEPATH,
