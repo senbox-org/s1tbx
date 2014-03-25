@@ -1,10 +1,9 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.glayer.support.ImageLayer;
-import org.esa.beam.framework.ui.PixelPositionListener;
-
-import javax.swing.SwingWorker;
 import java.awt.event.MouseEvent;
+import javax.swing.SwingWorker;
+import org.esa.beam.framework.ui.PixelPositionListener;
 
 public class CursorSpectrumPixelPositionListener implements PixelPositionListener {
 
@@ -55,13 +54,14 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         @Override
         protected Void doInBackground() throws Exception {
             if (shouldUpdateCursorPosition()) {
-                toolView.removeCursorSpectra();
+                toolView.removeCursorSpectraFromDataset();
             }
             return null;
         }
 
         @Override
         protected void done() {
+            toolView.updateChart();
             support.removeWorkerAndStartNext(this);
         }
     }
@@ -89,19 +89,35 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         protected Void doInBackground() throws Exception {
             if (pixelPosValid) {
                 if (shouldUpdateCursorPosition()) {
-                    toolView.updateSpectra(pixelX, pixelY, currentLevel, adjustAxes);
+                    Waiter waiter = new Waiter();
+                    waiter.execute();
+                    toolView.updateData(pixelX, pixelY, currentLevel);
+                    waiter.cancel(true);
                 }
-            } else {
-                if (toolView.hasValidCursorPosition()) {
-                    toolView.removeCursorSpectra();
-                }
+            } else if (toolView.hasValidCursorPosition()) {
+                toolView.removeCursorSpectraFromDataset();
             }
             return null;
         }
 
         @Override
         protected void done() {
+            toolView.updateChart(adjustAxes);
             support.removeWorkerAndStartNext(this);
+        }
+    }
+
+    private class Waiter extends SwingWorker<Void, Void> {
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            Thread.sleep(1000);
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            toolView.setPrepareForUpdateMessage();
         }
     }
 
