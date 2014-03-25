@@ -7,6 +7,7 @@ import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.HierarchicalTableModel;
 import com.jidesoft.grid.JideTable;
 import com.jidesoft.grid.SortableTable;
+import com.jidesoft.grid.SortableTableModel;
 import com.jidesoft.grid.TableModelWrapperUtils;
 import com.jidesoft.grid.TreeLikeHierarchicalPanel;
 import com.jidesoft.grid.TristateCheckBoxCellEditor;
@@ -25,7 +26,6 @@ import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -126,6 +126,11 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
         AutoFilterTableHeader header = new AutoFilterTableHeader(spectraTable);
         spectraTable.setTableHeader(header);
         spectraTable.setRowHeight(21);
+        SortableTableModel sortableTableModel =
+                (SortableTableModel)TableModelWrapperUtils.getActualTableModel(spectraTable.getModel(),
+                        SortableTableModel.class);
+        sortableTableModel.setColumnSortable(spectrumStrokeIndex, false);
+        sortableTableModel.setColumnSortable(spectrumShapeIndex, false);
 
         final TableColumn selectionColumn = spectraTable.getColumnModel().getColumn(spectrumSelectedIndex);
         final TristateCheckBoxCellEditor tristateCheckBoxCellEditor = new TristateCheckBoxCellEditor();
@@ -301,7 +306,8 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
         @Override
         public boolean isCellEditable(int row, int column) {
             return !(column == spectrumStrokeIndex && spectra[row].isDefaultSpectrum()) && column != spectrumNameIndex
-                    && column != spectrumUnitIndex;
+                    && column != spectrumUnitIndex &&
+                    !(column == spectrumShapeSizeIndex && getValueAt(row, spectrumShapeSizeIndex).toString().equals(""));
         }
 
         @Override
@@ -317,9 +323,17 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
             } else if (column == spectrumStrokeIndex) {
                 spectra[row].setLineStyle(SpectrumStrokeProvider.getStroke((ImageIcon) aValue));
             } else if (column == spectrumShapeIndex) {
-                spectra[row].setSymbolIndex(SpectrumShapeProvider.getShape((ImageIcon) aValue));
+                int shapeIndex = SpectrumShapeProvider.getShape((ImageIcon) aValue);
+                spectra[row].setSymbolIndex(shapeIndex);
+                if(shapeIndex == SpectrumShapeProvider.EMPTY_SHAPE_INDEX) {
+                    setValueAt("", row, spectrumShapeSizeIndex);
+                } else {
+                    setValueAt(spectra[row].getSymbolSize(), row, spectrumShapeSizeIndex);
+                }
             } else if (column == spectrumShapeSizeIndex) {
-                spectra[row].setSymbolSize(Integer.parseInt(aValue.toString()));
+                if(!aValue.toString().equals("")) {
+                    spectra[row].setSymbolSize(Integer.parseInt(aValue.toString()));
+                }
             }
             super.setValueAt(aValue, row, column);
         }
