@@ -18,7 +18,7 @@ public class SpectrumChooserMainForManualTesting {
         spectra[2] = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME, 3);
         spectra[2].addBand(createBand(11));
 
-        SpectrumChooser chooser = new SpectrumChooser(null, spectra, "");
+        SpectrumChooser chooser = new SpectrumChooser(null, spectra);
         chooser.show();
         System.exit(0);
     }

@@ -520,7 +520,7 @@
             <tabTitle>Spectrum</tabTitle>
             <mnemonic>S</mnemonic>
             <accelerator>ctrl alt S</accelerator>
-            <description>Display spectrum at the current pixel position.</description>
+            <description>Display spectra at the current pixel position and for pins.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/Spectrum16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Spectrum24.gif</largeIcon>
             <helpId>showSpectrumWnd</helpId>
@@ -542,6 +542,7 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
+
         <toolView>
             <id>org.esa.beam.visat.toolviews.stat.GeoCodingToolView</id>
             <class>org.esa.beam.visat.toolviews.stat.GeoCodingToolView</class>

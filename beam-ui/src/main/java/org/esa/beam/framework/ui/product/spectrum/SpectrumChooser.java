@@ -74,8 +74,8 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
 
     private final Map<Integer, SortableTable> rowToBandsTable;
 
-    public SpectrumChooser(Window parent, DisplayableSpectrum[] originalSpectra, String helpID) {
-        super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, helpID);
+    public SpectrumChooser(Window parent, DisplayableSpectrum[] originalSpectra) {
+        super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL_HELP, "spectrumChooser");
         if (originalSpectra != null) {
             this.originalSpectra = originalSpectra;
             List<DisplayableSpectrum> spectraWithBands = new ArrayList<DisplayableSpectrum>();
