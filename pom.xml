@@ -225,7 +225,7 @@
                     <version>2.9.1</version>
                     <configuration>
                         <links>
-                            <link>http://java.sun.com/javase/6/docs/api/</link>
+                            <link>http://java.sun.com/javase/7/docs/api/</link>
                         </links>
                         <aggregate>true</aggregate>
                         <subpackages>
