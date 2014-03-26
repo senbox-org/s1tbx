@@ -18,7 +18,6 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
-import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -79,10 +78,7 @@ class BinningVariablesPanel extends JPanel {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final String name;
-                final int expressionCount = bandsTable.getExpressionCount();
-                name = "<expression_" + expressionCount + ">";
-                bandsTable.addRow(name, null, AggregatorAverage.Descriptor.NAME, 1.0, 0);
+                bandsTable.addNewRow();
             }
         });
         removeButton.addActionListener(new ActionListener() {

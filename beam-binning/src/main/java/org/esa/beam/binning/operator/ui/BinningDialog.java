@@ -53,7 +53,9 @@ import java.util.Set;
  * @author Thomas Storm
  */
 public class BinningDialog extends SingleTargetProductDialog {
+
     private static final String OPERATOR_NAME = "Binning";
+
     private final BinningForm form;
     private final BinningFormModel formModel;
 
@@ -110,19 +112,23 @@ public class BinningDialog extends SingleTargetProductDialog {
     }
 
     private BinningConfig createBinningConfig() {
-        final List<VariableConfig> variableConfigs = new ArrayList<VariableConfig>();
-        final List<AggregatorConfig> aggregatorConfigs = new ArrayList<AggregatorConfig>();
-        for (TableRow tableRow : formModel.getTableRows()) {
-            variableConfigs.add(new VariableConfig(tableRow.name, tableRow.expression));
-            aggregatorConfigs.add(createAggregatorConfig(tableRow.aggregator.getName(),
-                                                         tableRow.name,
-                                                         tableRow.weight,
-                                                         tableRow.percentile));
+        final List<VariableConfig> variableConfigs = new ArrayList<>();
+        final List<AggregatorConfig> aggregatorConfigs = new ArrayList<>();
+        final TargetVariableSpec[] targetVariableSpecs = formModel.getTargetVariableSpecs();
+        for (final TargetVariableSpec spec : targetVariableSpecs) {
+            variableConfigs.add(new VariableConfig(getVarName(spec), spec.source.expression));
+            aggregatorConfigs.add(createAggregatorConfig(spec.aggregatorDescriptor.getName(),
+                                                         getVarName(spec),
+                                                         spec.aggregatorProperties));
         }
         return createBinningConfig(variableConfigs, aggregatorConfigs);
     }
 
-    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, Double weightCoeff, int percentile) {
+    private static String getVarName(TargetVariableSpec spec) {
+        return spec.source.type == TargetVariableSpec.Source.BAND_SOURCE_TYPE ? spec.source.bandName : spec.targetPrefix;
+    }
+
+    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, PropertyContainer aggregatorProperties) {
         TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorName);
         final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createConfig();
@@ -130,11 +136,8 @@ public class BinningDialog extends SingleTargetProductDialog {
         if (pc.isPropertyDefined("varName")) {
             pc.setValue("varName", varName);
         }
-        if (pc.isPropertyDefined("weightCoeff")) {
-            pc.setValue("weightCoeff", weightCoeff);
-        }
-        if (pc.isPropertyDefined("percentage")) {
-            pc.setValue("percentage", percentile);
+        for (Property property : aggregatorProperties.getProperties()) {
+            pc.setValue(property.getName(), property.getValue());
         }
         return aggregatorConfig;
     }
@@ -165,7 +168,7 @@ public class BinningDialog extends SingleTargetProductDialog {
         protected Product doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Binning...", 100);
 
-            final Map<String, Object> parameters = new HashMap<String, Object>();
+            final Map<String, Object> parameters = new HashMap<>();
             parameters.put("region", formModel.getRegion());
             parameters.put("startDate", formModel.getStartDate());
             parameters.put("endDate", formModel.getEndDate());

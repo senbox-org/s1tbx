@@ -77,12 +77,12 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     @Override
-    public TableRow[] getTableRows() {
-        TableRow[] tableRows = getPropertyValue(PROPERTY_KEY_VARIABLE_CONFIGS);
-        if (tableRows == null) {
-            tableRows = new TableRow[0];
+    public TargetVariableSpec[] getTargetVariableSpecs() {
+        TargetVariableSpec[] targetVariableSpecs = getPropertyValue(PROPERTY_KEY_VARIABLE_CONFIGS);
+        if (targetVariableSpecs == null) {
+            targetVariableSpecs = new TargetVariableSpec[0];
         }
-        return tableRows;
+        return targetVariableSpecs;
     }
 
     @Override
@@ -93,10 +93,10 @@ class BinningFormModelImpl implements BinningFormModel {
                 (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
             return null;
         } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
-            final double westValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
-            final double eastValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_EAST_BOUND);
-            final double northValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_NORTH_BOUND);
-            final double southValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_SOUTH_BOUND);
+            final double westValue = getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
+            final double eastValue = getPropertyValue(BinningFilterPanel.PROPERTY_EAST_BOUND);
+            final double northValue = getPropertyValue(BinningFilterPanel.PROPERTY_NORTH_BOUND);
+            final double southValue = getPropertyValue(BinningFilterPanel.PROPERTY_SOUTH_BOUND);
             Coordinate[] coordinates = {
                     new Coordinate(westValue, southValue), new Coordinate(westValue, northValue),
                     new Coordinate(eastValue, northValue), new Coordinate(eastValue, southValue),

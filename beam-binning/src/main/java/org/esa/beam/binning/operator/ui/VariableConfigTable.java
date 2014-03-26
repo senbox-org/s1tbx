@@ -17,361 +17,173 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ValidationException;
-import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.TypedDescriptorsRegistry;
-import org.esa.beam.binning.aggregators.AggregatorAverage;
-import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.product.ProductExpressionPane;
-import org.esa.beam.util.StringUtils;
+import org.esa.beam.framework.ui.UIUtils;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import java.awt.BorderLayout;
+import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.HashMap;
 
 /**
  * @author Thomas Storm
  */
 class VariableConfigTable {
 
-    private static final int AGGREGATOR_COLUMN_INDEX = 2;
-    private static final int PERCENTILE_COLUMN_INDEX = 4;
-
     private final JTable table;
     private final DefaultTableModel tableModel;
     private final JScrollPane scrollPane;
-    private final SortedSet<String> bandNames;
-    private final String[] aggregatorNames;
-    private final JComboBox bandNamesComboBox;
     private final BinningFormModel binningFormModel;
     private final AppContext appContext;
+    private final HashMap<Integer, TargetVariableSpec> specs = new HashMap<>();
 
     VariableConfigTable(final BinningFormModel binningFormModel, AppContext appContext) {
         this.binningFormModel = binningFormModel;
         this.appContext = appContext;
-        bandNames = new TreeSet<String>();
-        bandNames.add("<expression_0>");
-        binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
+
+        tableModel = new DefaultTableModel() {
             @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
-                    updateBandNames();
-                }
+            public boolean isCellEditable(int row, int column) {
+                return column == 3;
             }
-        });
-        final List<AggregatorDescriptor> aggregatorDescriptors = getAggregatorDescriptors(AggregatorOnMaxSet.Descriptor.NAME);
-        aggregatorNames = new String[aggregatorDescriptors.size()];
-        for (int i = 0; i < aggregatorDescriptors.size(); i++) {
-            aggregatorNames[i] = aggregatorDescriptors.get(i).getName();
-        }
-
-        tableModel = new DefaultTableModel();
+        };
         tableModel.setColumnIdentifiers(new String[]{
-                "Band",
-                "Expression",
+                "Target prefix",
+                "Band / Expression",
                 "Aggregation",
-                "Weight",
-                "Percentile"
+                ""
         });
 
-        tableModel.addTableModelListener(new VariableConfigTableListener(this));
+        tableModel.addTableModelListener(new VariableConfigTableListener());
 
         table = new JTable(tableModel) {
             @Override
             public Class getColumnClass(int column) {
-                if (column == 3) {
-                    return Double.class;
-                } else if (column == 4) {
-                    return Integer.class;
-                } else {
-                    return String.class;
-                }
+                return String.class;
             }
         };
         table.getTableHeader().setReorderingAllowed(false);
 
         table.getColumnModel().getColumn(0).setMinWidth(100);
-        table.getColumnModel().getColumn(1).setMinWidth(100);
+        table.getColumnModel().getColumn(0).setWidth(100);
 
-        table.getColumnModel().getColumn(2).setWidth(80);
-        table.getColumnModel().getColumn(3).setWidth(60);
-        table.getColumnModel().getColumn(4).setWidth(60);
+        table.getColumnModel().getColumn(1).setMinWidth(180);
+        table.getColumnModel().getColumn(1).setWidth(180);
 
-        table.getColumnModel().getColumn(2).setMaxWidth(80);
-        table.getColumnModel().getColumn(3).setMaxWidth(60);
-        table.getColumnModel().getColumn(4).setMaxWidth(60);
+        table.getColumnModel().getColumn(3).setMinWidth(50);
+        table.getColumnModel().getColumn(3).setMaxWidth(50);
+        table.getColumnModel().getColumn(3).setWidth(50);
 
-        table.getColumnModel().getColumn(0).setResizable(false);
-        table.getColumnModel().getColumn(1).setResizable(true);
-        table.getColumnModel().getColumn(2).setResizable(false);
-        table.getColumnModel().getColumn(3).setResizable(false);
-        table.getColumnModel().getColumn(4).setResizable(false);
+        ButtonEditor buttonEditor = new ButtonEditor(table, specs, binningFormModel, appContext);
 
-        bandNamesComboBox = new JComboBox(bandNames.toArray());
-        bandNamesComboBox.setEditable(true);
+        table.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(3).setCellEditor(buttonEditor);
 
-        table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(bandNamesComboBox));
-        table.getColumnModel().getColumn(1).setCellEditor(new CellExpressionEditor());
-        table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(aggregatorNames)));
-        final DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                return super.getTableCellRendererComponent(table, value.toString(), isSelected, hasFocus, row, column);
-            }
-        };
-        table.getColumnModel().getColumn(3).setCellRenderer(cellRenderer);
-        table.getColumnModel().getColumn(4).setCellRenderer(cellRenderer);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         scrollPane = new JScrollPane(table);
     }
 
-    private List<AggregatorDescriptor> getAggregatorDescriptors(String... filterNames) {
-        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-        List<AggregatorDescriptor> allDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
-        final List<AggregatorDescriptor> filteredDescriptors = new ArrayList<AggregatorDescriptor>();
-        for (final AggregatorDescriptor descriptor : allDescriptors) {
-            for (String name : filterNames) {
-                if (!descriptor.getName().equals(name)) {
-                    filteredDescriptors.add(descriptor);
-                }
-            }
+    private static class ButtonRenderer extends JButton implements TableCellRenderer {
+
+        public ButtonRenderer() {
+            super("...");
         }
-        return filteredDescriptors;
+
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+    private static class ButtonEditor extends DefaultCellEditor {
+
+        protected JButton button;
+
+        public ButtonEditor(final JTable table, final HashMap<Integer, TargetVariableSpec> specs, final BinningFormModel binningFormModel, final AppContext appContext) {
+            super(new JCheckBox());
+            button = new JButton("...");
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
+                    EditTargetVariableDialog editTargetVariableDialog = new EditTargetVariableDialog(UIUtils.getRootWindow(table), specs.get(selectionIndex), binningFormModel, appContext);
+                    int result = editTargetVariableDialog.show();
+                    if (result == EditTargetVariableDialog.ID_OK) {
+                        TargetVariableSpec spec = editTargetVariableDialog.getSpec();
+                        specs.put(selectionIndex, spec);
+                        table.setValueAt(spec.targetPrefix, selectionIndex, 0);
+                        table.setValueAt(getSource(spec.source), selectionIndex, 1);
+                        table.setValueAt(spec.aggregationString, selectionIndex, 2);
+                    }
+                    fireEditingStopped();
+                }
+
+                private String getSource(TargetVariableSpec.Source source) {
+                    if (source.type == TargetVariableSpec.Source.BAND_SOURCE_TYPE) {
+                        return source.bandName;
+                    } else if (source.type == TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE) {
+                        return source.expression;
+                    }
+                    throw new IllegalStateException(
+                            "Invalid source type, must be "
+                            + TargetVariableSpec.Source.BAND_SOURCE_TYPE + " or " +
+                            TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE);
+                }
+            });
+        }
+
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                                                     boolean isSelected, int row, int column) {
+            return button;
+        }
+
+        public Object getCellEditorValue() {
+            return super.getCellEditorValue();
+        }
     }
 
     JComponent getComponent() {
         return scrollPane;
     }
 
-    void addRow(final String name, String expression, String algorithmName, double weightCoefficient, int percentile) {
-        if (algorithmName == null || !StringUtils.contains(aggregatorNames, algorithmName)) {
-            algorithmName = AggregatorAverage.Descriptor.NAME;
-        }
-        bandNames.add("<expression_" + getExpressionCount() + ">");
-        updateBandNameCombobox();
-        tableModel.addRow(new Object[]{name, expression, algorithmName, weightCoefficient, percentile});
+    public void addNewRow() {
+        tableModel.addRow(new Object[]{"", "", ""});
     }
 
-    void removeSelectedRows() {
+    public void removeSelectedRows() {
         while (table.getSelectedRows().length != 0) {
             tableModel.removeRow(table.getSelectedRows()[0]);
-        }
-        updateBandNames();
-    }
-
-    private Row[] getRows() {
-        final List dataList = tableModel.getDataVector();
-        final Row[] rows = new Row[dataList.size()];
-        for (int i = 0; i < dataList.size(); i++) {
-            final List dataListRow = (List) dataList.get(i);
-            rows[i] = new Row((String) dataListRow.get(0),
-                              (String) dataListRow.get(1),
-                              (String) dataListRow.get(2),
-                              (Double) dataListRow.get(3),
-                              (Integer) dataListRow.get(4));
-        }
-        return rows;
-    }
-
-    private void updateBandNames() {
-        bandNames.clear();
-        final Product[] sourceProducts = binningFormModel.getSourceProducts();
-        for (Product sourceProduct : sourceProducts) {
-            Collections.addAll(bandNames, sourceProduct.getBandNames());
-        }
-        for (int i = 0; i < getExpressionCount(); i++) {
-            bandNames.add("<expression_" + i + ">");
-        }
-        updateBandNameCombobox();
-    }
-
-    private void updateBandNameCombobox() {
-        ((DefaultComboBoxModel) bandNamesComboBox.getModel()).removeAllElements();
-        for (String bandName : bandNames) {
-            bandNamesComboBox.addItem(bandName);
-        }
-    }
-
-    int getExpressionCount() {
-        int expressionCount = 0;
-        final Row[] rows = getRows();
-        for (Row row : rows) {
-            final String bandName = row.bandName;
-            expressionCount += bandName != null && bandName.matches("<expression_?\\d*>") ? 1 : 0;
-        }
-        return expressionCount;
-    }
-
-    private class CellExpressionEditor extends AbstractCellEditor implements TableCellEditor {
-
-        private final JPanel editorComponent;
-        private final JTextField textField;
-
-        CellExpressionEditor() {
-
-            final JButton button = new JButton("...");
-            final Dimension preferredSize = button.getPreferredSize();
-            preferredSize.setSize(25, preferredSize.getHeight());
-            button.setPreferredSize(preferredSize);
-            button.setEnabled(false);
-
-            final ActionListener actionListener = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    final String expression = editExpression(textField.getText());
-                    if (expression != null) {
-                        textField.setText(expression);
-                        fireEditingStopped();
-                    } else {
-                        fireEditingCanceled();
-                    }
-                }
-            };
-            button.addActionListener(actionListener);
-            binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
-                        if (binningFormModel.getSourceProducts().length > 0) {
-                            button.setEnabled(true);
-                        } else {
-                            button.setEnabled(false);
-                        }
-                    }
-                }
-            });
-            textField = new JTextField();
-
-            editorComponent = new JPanel(new BorderLayout());
-            editorComponent.add(textField);
-            editorComponent.add(button, BorderLayout.EAST);
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return textField.getText();
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table,
-                                                     Object value,
-                                                     boolean isSelected,
-                                                     int row,
-                                                     int column) {
-            textField.setText((String) value);
-            return editorComponent;
-        }
-
-        private String editExpression(String expression) {
-            if (binningFormModel.getSourceProducts().length == 0) {
-                return null;
-            }
-            final Product product;
-            product = binningFormModel.getSourceProducts()[0];
-            final ProductExpressionPane expressionPane = ProductExpressionPane.createGeneralExpressionPane(
-                    new Product[]{product}, product, appContext.getPreferences());
-            expressionPane.setCode(expression);
-            final int i = expressionPane.showModalDialog(appContext.getApplicationWindow(), "Expression Editor");
-            if (i == ModalDialog.ID_OK) {
-                return expressionPane.getCode();
-            }
-            return null;
         }
     }
 
     private class VariableConfigTableListener implements TableModelListener {
 
-        private VariableConfigTable bandsTable;
-
-        private VariableConfigTableListener(VariableConfigTable bandsTable) {
-            this.bandsTable = bandsTable;
-        }
-
         @Override
         public void tableChanged(TableModelEvent event) {
-            TableRow[] tableRows = new TableRow[bandsTable.getRows().length];
-            Row[] rows = bandsTable.getRows();
-            TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-            for (int i = 0; i < rows.length; i++) {
-                Row row = rows[i];
-                AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, row.algorithmName);
-                int percentile = 0;
-                if (hasAggregatorChanged(event) || aggregatorDescriptor.getName().equals("PERCENTILE")) {
-                    percentile = 90;
-                }
-                if (hasPercentileChanged(event) && row.percentile == percentile) {
-                    return;
-                }
-                tableRows[i] = new TableRow(row.bandName,
-                                            row.expression,
-                                            aggregatorDescriptor,
-                                            row.weightCoefficient,
-                                            percentile);
-                bandsTable.setPercentile(i, percentile);
-            }
             try {
-                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, tableRows);
+                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, getSpecsAsArray());
             } catch (ValidationException e) {
                 appContext.handleError("Unable to validate variable configurations.", e);
             }
         }
 
-        private boolean hasPercentileChanged(TableModelEvent event) {
-            return hasColumnChanged(event, PERCENTILE_COLUMN_INDEX);
-        }
-
-        private boolean hasAggregatorChanged(TableModelEvent event) {
-            return hasColumnChanged(event, AGGREGATOR_COLUMN_INDEX);
-        }
-
-        private boolean hasColumnChanged(TableModelEvent event, int columnIndex) {
-            return event.getColumn() == columnIndex;
-        }
-    }
-
-    private void setPercentile(int rowIndex, int percentile) {
-        tableModel.setValueAt(percentile, rowIndex, PERCENTILE_COLUMN_INDEX);
-    }
-
-    private static class Row {
-
-        private final String bandName;
-        private final String expression;
-        private final String algorithmName;
-        private final double weightCoefficient;
-        private final Integer percentile;
-
-        Row(String bandName, String expression, String algorithmName, double weightCoefficient, Integer percentile) {
-            this.bandName = bandName;
-            this.expression = expression;
-            this.algorithmName = algorithmName;
-            this.weightCoefficient = weightCoefficient;
-            this.percentile = percentile;
+        private TargetVariableSpec[] getSpecsAsArray() {
+            TargetVariableSpec[] targetVariableSpecs = new TargetVariableSpec[specs.size()];
+            int i = 0;
+            for (TargetVariableSpec spec : specs.values()) {
+                targetVariableSpecs[i++] = spec;
+            }
+            return targetVariableSpecs;
         }
     }
 }

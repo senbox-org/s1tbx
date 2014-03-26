@@ -48,13 +48,18 @@ public class BinningFormModelImplTest {
     @Test
     public void testVariableConfigurationProperty() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModelImpl();
-        assertArrayEquals(new TableRow[0], binningFormModel.getTableRows());
+        assertArrayEquals(new TargetVariableSpec[0], binningFormModel.getTargetVariableSpecs());
 
-        final TableRow tableRow = new TableRow("name", "name", null, 0.1, 90);
+        final TargetVariableSpec spec = new TargetVariableSpec();
+        spec.targetPrefix = "prefix";
+        TargetVariableSpec.Source source = new TargetVariableSpec.Source();
+        source.type = 1;
+        source.bandName = "testBand";
+        spec.source = source;
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
-                                     new TableRow[]{tableRow});
+                                     new TargetVariableSpec[]{spec});
 
-        assertArrayEquals(new TableRow[]{tableRow}, binningFormModel.getTableRows());
+        assertArrayEquals(new TargetVariableSpec[]{spec}, binningFormModel.getTargetVariableSpecs());
     }
 
     @Test

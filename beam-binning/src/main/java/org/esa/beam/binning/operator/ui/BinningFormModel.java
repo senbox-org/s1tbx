@@ -59,7 +59,7 @@ interface BinningFormModel {
     /**
      * @return The variable configurations.
      */
-    TableRow[] getTableRows();
+    TargetVariableSpec[] getTargetVariableSpecs();
 
     /**
      * @return The selected target region.
