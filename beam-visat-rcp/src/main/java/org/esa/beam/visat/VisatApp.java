@@ -351,8 +351,8 @@ public class VisatApp extends BasicApp implements AppContext {
         try {
             pm.beginTask(String.format("Initialising %s components", getAppName()), 3);
 
-            internalFrameListeners = new ArrayList<InternalFrameListener>(10);
-            propertyMapChangeListeners = new ArrayList<PropertyMapChangeListener>(4);
+            internalFrameListeners = new ArrayList<>(10);
+            propertyMapChangeListeners = new ArrayList<>(4);
             productNodeListener = createProductNodeListener();
             productManager = new ProductManager();
             productManager.addListener(new ProductManager.Listener() {
@@ -681,7 +681,7 @@ public class VisatApp extends BasicApp implements AppContext {
      */
     public void removeProductTreeListener(final ProductTreeListener listener) {
         if (productsToolView == null) {
-            throw new IllegalStateException("_productstoolView == null");
+            throw new IllegalStateException("productsToolView == null");
         }
         productsToolView.getProductTree().removeProductTreeListener(listener);
     }
@@ -899,7 +899,7 @@ public class VisatApp extends BasicApp implements AppContext {
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster, final int numBands) {
         final JInternalFrame[] frames = getAllInternalFrames();
-        final ArrayList<JInternalFrame> frameList = new ArrayList<JInternalFrame>(10);
+        final ArrayList<JInternalFrame> frameList = new ArrayList<>(10);
         for (final JInternalFrame frame : frames) {
             final Container contentPane = frame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
@@ -948,7 +948,7 @@ public class VisatApp extends BasicApp implements AppContext {
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster) {
         final JInternalFrame[] frames = getAllInternalFrames();
-        final ArrayList<JInternalFrame> frameList = new ArrayList<JInternalFrame>(10);
+        final ArrayList<JInternalFrame> frameList = new ArrayList<>(10);
         for (final JInternalFrame frame : frames) {
             final Container contentPane = frame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
@@ -1076,7 +1076,7 @@ public class VisatApp extends BasicApp implements AppContext {
     /**
      * Returns true if the given raster data node is used in any product scene view.
      *
-     * @param raster
+     * @param raster the raster for which to perform the lookup
      * @return true if raster is used
      */
     public boolean hasRasterProductSceneView(final RasterDataNode raster) {
@@ -1143,7 +1143,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
     @Override
     public synchronized void shutDown() {
-        final ArrayList<Product> modifiedOrNew = new ArrayList<Product>(5);
+        final ArrayList<Product> modifiedOrNew = new ArrayList<>(5);
         final Product[] products = getProductManager().getProducts();
         for (final Product product : products) {
             final ProductReader reader = product.getProductReader();
@@ -1255,9 +1255,7 @@ public class VisatApp extends BasicApp implements AppContext {
         }
 
         String currentDir = fileChooser.getCurrentDirectory().getAbsolutePath();
-        if (currentDir != null) {
-            getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDir);
-        }
+        getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDir);
 
         if (fileChooser.getFileFilter() instanceof BeamFileFilter) {
             String currentFormat = ((BeamFileFilter) fileChooser.getFileFilter()).getFormatName();
@@ -1450,7 +1448,7 @@ public class VisatApp extends BasicApp implements AppContext {
         if (getProductManager().getProductCount() == 0) {
             return null;
         }
-        final ProductNodeList<Product> products = new ProductNodeList<Product>();
+        final ProductNodeList<Product> products = new ProductNodeList<>();
         products.copyInto(getProductManager().getProducts());
         final Product selectedProduct = getSelectedProduct();
         if (selectedProduct == null) {
@@ -1472,10 +1470,10 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     private boolean closeProductImpl(final Product product, final boolean modificationLostWarning) {
-        final List<String> derivedProductNameList = new LinkedList<String>();
+        final List<String> derivedProductNameList = new LinkedList<>();
 
         for (final Product p : getProductManager().getProducts()) {
-            final Set<Product> sourceProductSet = new HashSet<Product>(2);
+            final Set<Product> sourceProductSet = new HashSet<>(2);
             collectSourceProducts(p, sourceProductSet);
 
             if (sourceProductSet.contains(product)) {
@@ -1570,7 +1568,7 @@ public class VisatApp extends BasicApp implements AppContext {
             saveADS = getPreferences().getPropertyBool(PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS, saveADS);
         }
         final MetadataElement metadataRoot = product.getMetadataRoot();
-        final ProductNodeList<MetadataElement> metadataElementBackup = new ProductNodeList<MetadataElement>();
+        final ProductNodeList<MetadataElement> metadataElementBackup = new ProductNodeList<>();
         if (!saveProductHeaders) {
             String[] headerNames = new String[]{
                     "MPH", "SPH",
@@ -1959,7 +1957,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private CommandBar createLayersToolBar() {
         final CommandBar toolBar = createToolBar(LAYERS_TOOL_BAR_ID, "Layers");
-        ArrayList<String> commandIdList = new ArrayList<String>(Arrays.asList(
+        ArrayList<String> commandIdList = new ArrayList<>(Arrays.asList(
                 "showNoDataOverlay",
                 "showShapeOverlay",
                 "showGraticuleOverlay",
@@ -1970,7 +1968,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 commandIdList.add(placemarkDescriptor.getShowLayerCommandId());
             }
         }
-        addCommandsToToolBar(toolBar, commandIdList.toArray(new String[0]));
+        addCommandsToToolBar(toolBar, commandIdList.toArray(new String[commandIdList.size()]));
         return toolBar;
     }
 
@@ -2012,7 +2010,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private CommandBar[] createViewsToolBars() {
 
-        final HashSet<String> excludedIds = new HashSet<String>(8);
+        final HashSet<String> excludedIds = new HashSet<>(8);
         // todo - remove bad forward dependencies to tool views (nf - 30.10.2008)
         excludedIds.add(TileCacheDiagnosisToolView.ID);
         excludedIds.add(InformationToolView.ID);
@@ -2027,7 +2025,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
         ToolViewDescriptor[] toolViewDescriptors = VisatActivator.getInstance().getToolViewDescriptors();
 
-        Map<String, List<String>> toolBar2commandIds = new HashMap<String, List<String>>();
+        Map<String, List<String>> toolBar2commandIds = new HashMap<>();
         for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
             if (!excludedIds.contains(toolViewDescriptor.getId())) {
                 final String commandId = toolViewDescriptor.getId() + SHOW_TOOLVIEW_CMD_POSTFIX;
@@ -2039,7 +2037,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
                 List<String> commandIds = toolBar2commandIds.get(toolBarId);
                 if (commandIds == null) {
-                    commandIds = new ArrayList<String>(5);
+                    commandIds = new ArrayList<>(5);
                     toolBar2commandIds.put(toolBarId, commandIds);
                 }
                 commandIds.add(commandId);
@@ -2104,14 +2102,14 @@ public class VisatApp extends BasicApp implements AppContext {
         message.setText("Ready.");
         message.setPreferredWidth(600);
         message.setAlignment(JLabel.LEFT);
-        message.setToolTip("Displays status messages.");
+        message.setToolTipText("Displays status messages.");
         statusBar.add(message, JideBoxLayout.FLEXIBLE);
 
         final LabelStatusBarItem position = new LabelStatusBarItem(POSITION_STATUS_BAR_ITEM_KEY);
         position.setText("");
         position.setPreferredWidth(80);
         position.setAlignment(JLabel.CENTER);
-        position.setToolTip("Displays pixel position");
+        position.setToolTipText("Displays pixel position");
         statusBar.add(position, JideBoxLayout.FLEXIBLE);
 
         final TimeStatusBarItem time = new TimeStatusBarItem();
