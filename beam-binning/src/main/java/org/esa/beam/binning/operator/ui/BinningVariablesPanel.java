@@ -16,8 +16,8 @@
 
 package org.esa.beam.binning.operator.ui;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.Product;
@@ -32,17 +32,16 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -60,16 +59,17 @@ class BinningVariablesPanel extends JPanel {
     private final AppContext appContext;
     private final BinningFormModel binningFormModel;
     private VariableConfigTable bandsTable;
+    private double currentResolution;
 
     BinningVariablesPanel(AppContext appContext, BinningFormModel binningFormModel) {
         this.appContext = appContext;
         this.binningFormModel = binningFormModel;
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        GridBagUtils.addToPanel(this, createBandsPanel(), gbc, "insets=5,fill=BOTH,weightx=1.0,weighty=1.0");
-        GridBagUtils.addToPanel(this, createValidExpressionPanel(), gbc, "gridy=1,fill=HORIZONTAL,weightx=1.0,weighty=0.0");
-        GridBagUtils.addToPanel(this, createSuperSamplingAndTargetHeightPanel(), gbc, "gridy=4");
-        GridBagUtils.addToPanel(this, createOutputBinnedDataComponent(), gbc, "gridy=5");
+        TableLayout layout = new TableLayout(1);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableWeightX(1.0);
+        setLayout(layout);
+        add(createBandsPanel());
+        add(createParametersPanel());
     }
 
     private JPanel createBandsPanel() {
@@ -114,27 +114,30 @@ class BinningVariablesPanel extends JPanel {
         return bandsPanel;
     }
 
-    private JPanel createValidExpressionPanel() {
-        final JButton button = new JButton("...");
-        final Dimension preferredSize = button.getPreferredSize();
+    private JPanel createParametersPanel() {
+        JLabel validPixelExpressionLabel = new JLabel("Valid pixel expression:");
+        final JButton validPixelExpressionButton = new JButton("...");
+        final Dimension preferredSize = validPixelExpressionButton.getPreferredSize();
         preferredSize.setSize(25, preferredSize.getHeight());
-        button.setPreferredSize(preferredSize);
-        button.setEnabled(hasSourceProducts());
+        validPixelExpressionButton.setPreferredSize(preferredSize);
+        validPixelExpressionButton.setEnabled(hasSourceProducts());
         binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
-                    return;
+                if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)
+                    || evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS)) {
+                    validPixelExpressionButton.setEnabled(hasSourceProducts());
                 }
-                button.setEnabled(hasSourceProducts());
             }
         });
-        final JTextField textField = new JTextField();
-        button.addActionListener(new ActionListener() {
+
+        JLabel targetHeightLabel = new JLabel("#Rows (90N - 90S):");
+        final JTextField validPixelExpressionField = new JTextField();
+        validPixelExpressionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                final String expression = editExpression(textField.getText());
+                final String expression = editExpression(validPixelExpressionField.getText());
                 if (expression != null) {
-                    textField.setText(expression);
+                    validPixelExpressionField.setText(expression);
                     try {
                         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, expression);
                     } catch (ValidationException e) {
@@ -144,77 +147,103 @@ class BinningVariablesPanel extends JPanel {
             }
         });
 
-        final JPanel validExpressionPanel = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        GridBagUtils.addToPanel(validExpressionPanel, new JLabel("Valid expression:"), gbc, "anchor=NORTHWEST,insets=3,insets.top=6");
-        GridBagUtils.addToPanel(validExpressionPanel, textField, gbc, "gridx=1,weightx=1,fill=HORIZONTAL,insets.top=3,insets.left=24");
-        GridBagUtils.addToPanel(validExpressionPanel, button, gbc, "gridx=2,weightx=0,fill=NONE,insets.top=2,insets.left=3");
-
-        return validExpressionPanel;
-    }
-
-    private JComponent createOutputBinnedDataComponent() {
-        final JCheckBox checkBox = new JCheckBox("Output binned data");
-        final Property property = BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, Boolean.class);
-        binningFormModel.getBindingContext().getPropertySet().addProperty(property);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, checkBox);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA).setPropertyValue(Boolean.TRUE);
-        return checkBox;
-    }
-
-    private Component createSuperSamplingAndTargetHeightPanel() {
-        final JLabel targetHeightLabel = new JLabel("Target height (px):");
-        final JLabel superSamplingLabel = new JLabel("Supersampling:");
         final JTextField targetHeightTextField = new IntegerTextField(BinningFormModel.DEFAULT_NUM_ROWS);
-        final JLabel resolutionLabel = new JLabel();
-        updateResolutionLabel(targetHeightTextField, resolutionLabel);
-        final JTextField superSamplingTextField = new IntegerTextField(1);
-        targetHeightTextField.setPreferredSize(new Dimension(120, 20));
-        targetHeightTextField.setMinimumSize(new Dimension(120, 20));
-        superSamplingTextField.setPreferredSize(new Dimension(120, 20));
-        superSamplingTextField.setMinimumSize(new Dimension(120, 20));
 
-        binningFormModel.getBindingContext().getPropertySet().addProperty(
-                BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(
-                BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
+        JLabel resolutionLabel = new JLabel("Spatial resolution (km/px):");
+        final String defaultResolution = getString(computeResolution(BinningFormModel.DEFAULT_NUM_ROWS));
+        final JTextField resolutionTextField = new DoubleTextField(defaultResolution);
+        JButton resolutionButton = new JButton("default");
+
+        JLabel supersamplingLabel = new JLabel("Supersampling:");
+        final JTextField superSamplingTextField = new IntegerTextField(1);
+
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
+
         binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
         binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(
-                BinningFormModel.DEFAULT_NUM_ROWS);
+
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
         binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
 
         binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        updateResolutionLabel(targetHeightTextField, resolutionLabel);
+                        updateResolutionLabel(targetHeightTextField, resolutionTextField);
                     }
-                });
+                }
+        );
 
-        final JPanel panel = GridBagUtils.createPanel();
-        GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        GridBagUtils.addToPanel(panel, targetHeightLabel, gbc, "anchor=NORTHWEST,weightx=0,insets=3,insets.top=8");
-        GridBagUtils.addToPanel(panel, targetHeightTextField, gbc, "gridx=2,weightx=0,insets.top=3,insets.left=13");
-        GridBagUtils.addToPanel(panel, resolutionLabel, gbc, "gridx=3,weightx=1,insets.left=3,insets.top=5,fill=HORIZONTAL");
-        GridBagUtils.addToPanel(panel, superSamplingLabel, gbc, "gridy=1,gridx=0,weightx=0,insets.top=8,insets.left=3,fill=NONE");
-        GridBagUtils.addToPanel(panel, superSamplingTextField, gbc, "gridx=2,weightx=1,gridwidth=2,insets.top=3,insets.left=13");
+        final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
+        resolutionTextField.addFocusListener(listener);
+        resolutionTextField.addActionListener(listener);
+        resolutionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resolutionTextField.setText(defaultResolution);
+                listener.update();
+            }
+        });
 
-        return panel;
+        validPixelExpressionLabel.setToolTipText("Only those pixels matching this expression are considered");
+        targetHeightLabel.setToolTipText("<html>The height of the <b>maximum</b> target grid in pixels</html>");
+        resolutionLabel.setToolTipText("The spatial resolution, directly depending on #rows");
+        supersamplingLabel.setToolTipText("Every input pixel is subdivided into n x n subpixels in order to reduce or avoid Moiré effect");
+
+        TableLayout layout = new TableLayout(3);
+        layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        layout.setTableWeightX(0.0);
+        layout.setCellColspan(1, 1, 2);
+        layout.setCellColspan(3, 1, 2);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setColumnWeightX(1, 1.0);
+        layout.setTablePadding(10, 5);
+
+        final JPanel parametersPanel = new JPanel(layout);
+
+        parametersPanel.add(validPixelExpressionLabel);
+        parametersPanel.add(validPixelExpressionField);
+        parametersPanel.add(validPixelExpressionButton);
+
+        parametersPanel.add(targetHeightLabel);
+        parametersPanel.add(targetHeightTextField);
+
+        parametersPanel.add(resolutionLabel);
+        parametersPanel.add(resolutionTextField);
+        parametersPanel.add(resolutionButton);
+
+        parametersPanel.add(supersamplingLabel);
+        parametersPanel.add(superSamplingTextField);
+
+        return parametersPanel;
     }
 
-    private static void updateResolutionLabel(JTextField targetHeightTextField, JLabel resolutionLabel) {
-        resolutionLabel.setText(
-                "Spatial resolution: ~ " + getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
+    private static int computeNumRows(double resolution) {
+        final double RE = 6378.145;
+        int numRows = (int) ((RE * Math.PI) / resolution) + 1 ;
+        return numRows % 2 == 0 ? numRows : numRows + 1;
+    }
+
+    private static double computeResolution(int numRows) {
+        final double RE = 6378.145;
+        return (RE * Math.PI) / (numRows - 1);
+    }
+
+    private static void updateResolutionLabel(JTextField targetHeightTextField, JTextField resolutionField) {
+        resolutionField.setText(getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
     }
 
     static String getResolutionString(int numRows) {
-        final double RE = 6378.145;
-        final double resolution = (RE * Math.PI) / (numRows - 1);
+        double number = computeResolution(numRows);
+        return getString(number);
+    }
+
+    private static String getString(double number) {
         final DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols();
         formatSymbols.setDecimalSeparator('.');
         final DecimalFormat decimalFormat = new DecimalFormat("#.##", formatSymbols);
-        return decimalFormat.format(resolution) + " km/pixel";
+        return decimalFormat.format(number);
     }
 
     private boolean hasSourceProducts() {
@@ -274,6 +303,51 @@ class BinningVariablesPanel extends JPanel {
                 return imageIcon;
             }
             return super.getValue(key);
+        }
+    }
+
+    private class DoubleTextField extends JTextField {
+
+        private final static String disallowedChars = "`§~!@#$%^&*()_+=\\|\"':;?/><,- ";
+
+        public DoubleTextField(String defaultValue) {
+            super(defaultValue);
+        }
+
+        @Override
+        protected void processKeyEvent(KeyEvent e) {
+            if (!Character.isLetter(e.getKeyChar()) && disallowedChars.indexOf(e.getKeyChar()) == -1) {
+                super.processKeyEvent(e);
+            }
+        }
+    }
+
+    private class ResolutionTextFieldListener extends FocusAdapter implements ActionListener {
+
+        private final JTextField resolutionTextField;
+        private final JTextField numPixelsTextField;
+
+        public ResolutionTextFieldListener(JTextField resolutionTextField, JTextField numPixelsTextField) {
+            this.resolutionTextField = resolutionTextField;
+            this.numPixelsTextField = numPixelsTextField;
+        }
+
+        @Override
+        public void focusLost(FocusEvent e) {
+            update();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            update();
+        }
+
+        private void update() {
+            double resolution = Double.parseDouble(resolutionTextField.getText());
+            if (Math.abs(currentResolution - resolution) > 1E-6) {
+                numPixelsTextField.setText(String.valueOf(computeNumRows(resolution)));
+                currentResolution = resolution;
+            }
         }
     }
 }

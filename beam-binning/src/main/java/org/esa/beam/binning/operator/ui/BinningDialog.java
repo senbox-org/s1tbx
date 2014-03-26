@@ -96,6 +96,23 @@ public class BinningDialog extends SingleTargetProductDialog {
     }
 
     @Override
+    protected void onApply() {
+        TargetVariableSpec[] targetVariableSpecs = formModel.getTargetVariableSpecs();
+        if (targetVariableSpecs.length == 0) {
+            showErrorDialog("No target variable set.");
+            return;
+        }
+        for (TargetVariableSpec spec : targetVariableSpecs) {
+            boolean specValid = spec.isValid();
+            if (!specValid) {
+                showErrorDialog("Aggregation " + spec.toString() + " is invalid.");
+                return;
+            }
+        }
+        super.onApply();
+    }
+
+    @Override
     protected Product createTargetProduct() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new BinningOp.Spi());
         final TargetProductCreator targetProductCreator = new TargetProductCreator();
@@ -119,22 +136,26 @@ public class BinningDialog extends SingleTargetProductDialog {
             variableConfigs.add(new VariableConfig(getVarName(spec), spec.source.expression));
             aggregatorConfigs.add(createAggregatorConfig(spec.aggregatorDescriptor.getName(),
                                                          getVarName(spec),
+                                                         spec.targetName,
                                                          spec.aggregatorProperties));
         }
         return createBinningConfig(variableConfigs, aggregatorConfigs);
     }
 
     private static String getVarName(TargetVariableSpec spec) {
-        return spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ? spec.source.bandName : spec.targetPrefix;
+        return spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ? spec.source.bandName : spec.targetName;
     }
 
-    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, PropertyContainer aggregatorProperties) {
+    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, String targetName, PropertyContainer aggregatorProperties) {
         TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorName);
         final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createConfig();
         PropertyContainer pc = PropertyContainer.createObjectBacked(aggregatorConfig);
         if (pc.isPropertyDefined("varName")) {
             pc.setValue("varName", varName);
+        }
+        if (pc.isPropertyDefined("targetName")) {
+            pc.setValue("targetName", targetName);
         }
         for (Property property : aggregatorProperties.getProperties()) {
             pc.setValue(property.getName(), property.getValue());
@@ -172,7 +193,6 @@ public class BinningDialog extends SingleTargetProductDialog {
             parameters.put("region", formModel.getRegion());
             parameters.put("startDate", formModel.getStartDate());
             parameters.put("endDate", formModel.getEndDate());
-            parameters.put("outputBinnedData", formModel.shallOutputBinnedData());
             parameters.put("binningConfig", createBinningConfig());
             parameters.put("formatterConfig", createFormatterConfig());
 

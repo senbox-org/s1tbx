@@ -38,11 +38,10 @@ interface BinningFormModel {
     static final String PROPERTY_KEY_TEMPORAL_FILTER = "temporalFilter";
     static final String PROPERTY_KEY_START_DATE = "startDate";
     static final String PROPERTY_KEY_END_DATE = "endDate";
-    static final String PROPERTY_KEY_OUTPUT_BINNED_DATA = "outputBinnedData";
     static final String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
     static final String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
-    static final String PROPERTY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
+    static final String PROPERTY_KEY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
 
     static int DEFAULT_NUM_ROWS = 2160;
 
@@ -81,8 +80,6 @@ interface BinningFormModel {
      * @return the user-chosen end date; <code>null</code> if no end date has been chosen
      */
     String getEndDate();
-
-    boolean shallOutputBinnedData();
 
     int getSuperSampling();
 

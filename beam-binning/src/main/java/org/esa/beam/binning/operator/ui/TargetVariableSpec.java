@@ -19,31 +19,53 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.binning.AggregatorDescriptor;
+import org.esa.beam.util.StringUtils;
 
 /**
  * @author thomas
  */
 class TargetVariableSpec implements Cloneable {
 
-    String targetPrefix;
+    String targetName = "";
     Source source;
-    String aggregationString;
+    String aggregationString = "";
     AggregatorDescriptor aggregatorDescriptor;
     PropertyContainer aggregatorProperties;
 
     TargetVariableSpec() {
+        source = new Source();
     }
 
     TargetVariableSpec(TargetVariableSpec spec) {
-        this();
-        this.targetPrefix = spec.targetPrefix;
+        this.targetName = spec.targetName;
         this.source = new Source(spec.source);
         this.aggregationString = spec.aggregationString;
         this.aggregatorDescriptor = spec.aggregatorDescriptor; // using the same instance is ok
         this.aggregatorProperties = new PropertyContainer();
-        for (Property property : spec.aggregatorProperties.getProperties()) {
-            aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
+        if (spec.aggregatorProperties != null) {
+            for (Property property : spec.aggregatorProperties.getProperties()) {
+                aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
+            }
         }
+    }
+
+    @Override
+    public String toString() {
+        String aggregation = aggregationString;
+        if (StringUtils.isNullOrEmpty(aggregation)) {
+            aggregation = "null";
+        }
+        return "{" +
+               "source=" + source +
+               ", targetName='" + targetName + '\'' +
+               ", aggregation='" + aggregation +
+               '}';
+    }
+
+    public boolean isValid() {
+        boolean expressionCorrect = (source.type == Source.EXPRESSION_SOURCE_TYPE && source.expression != null && targetName != null) || source.type == Source.RASTER_SOURCE_TYPE;
+        boolean bandCorrect = (source.type == Source.RASTER_SOURCE_TYPE && source.bandName != null) || source.type == Source.EXPRESSION_SOURCE_TYPE;
+        return expressionCorrect && bandCorrect;
     }
 
     static class Source {
@@ -63,6 +85,15 @@ class TargetVariableSpec implements Cloneable {
             this.type = source.type;
             this.expression = source.expression;
             this.bandName = source.bandName;
+        }
+
+        @Override
+        public String toString() {
+            String s = type == RASTER_SOURCE_TYPE ? bandName : expression;
+            if (StringUtils.isNullOrEmpty(s)) {
+                return "null";
+            }
+            return s;
         }
     }
 }

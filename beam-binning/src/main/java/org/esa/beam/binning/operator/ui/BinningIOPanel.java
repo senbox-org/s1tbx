@@ -30,10 +30,11 @@ import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +63,7 @@ class BinningIOPanel extends JPanel {
         this.appContext = appContext;
         this.binningFormModel = binningFormModel;
         this.targetProductSelectorPanel = targetProductSelectorPanel;
+        this.targetProductSelectorPanel.getModel().setProductName("level-3");
         final SourceProductSelector sourceProductSelectorPanel = new SourceProductSelector(appContext);
         sourceProductSelectorPanel.setProductFilter(null); // todo -- set product filter
         init();
@@ -85,10 +87,11 @@ class BinningIOPanel extends JPanel {
 
         final JPanel sourceProductPanel = new JPanel(layout);
         sourceProductPanel.setBorder(BorderFactory.createTitledBorder("Source Products"));
-        final Property sourceProductPaths = binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_SOURCE_PRODUCT_PATHS);
-        ChangeListener changeListener = new ChangeListener() {
+        final Property sourceProductPaths = binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS);
+        ListDataListener changeListener = new ListDataListener() {
+
             @Override
-            public void stateChanged(ChangeEvent e) {
+            public void contentsChanged(ListDataEvent e) {
                 final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
@@ -117,10 +120,25 @@ class BinningIOPanel extends JPanel {
                 Collections.addAll(result, files);
                 return result.toArray(new String[result.size()]);
             }
+
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                contentsChanged(e);
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                contentsChanged(e);
+            }
         };
 
-        sourceProductList = new SourceProductList(appContext, sourceProductPaths, "org.esa.beam.binning.lastDir", "org.esa.beam.binning.lastFormat", changeListener);
-        JPanel[] panels = sourceProductList.createComponents();
+        sourceProductList = new SourceProductList(appContext);
+        sourceProductList.setLastOpenInputDir("org.esa.beam.binning.lastDir");
+        sourceProductList.setLastOpenedFormat("org.esa.beam.binning.lastFormat");
+        sourceProductList.addChangeListener(changeListener);
+        sourceProductList.setXAxis(false);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS, sourceProductList);
+        JComponent[] panels = sourceProductList.getComponents();
         sourceProductPanel.add(panels[0], BorderLayout.CENTER);
         sourceProductPanel.add(panels[1], BorderLayout.EAST);
 

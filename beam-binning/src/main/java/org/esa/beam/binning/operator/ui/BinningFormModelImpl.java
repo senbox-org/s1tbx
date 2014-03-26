@@ -64,7 +64,7 @@ class BinningFormModelImpl implements BinningFormModel {
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_SOURCE_PRODUCT_PATHS, String[].class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
         propertySet.setDefaultValues();
     }
 
@@ -91,7 +91,7 @@ class BinningFormModelImpl implements BinningFormModel {
         if (getPropertyValue(PROPERTY_KEY_GLOBAL) != null && (Boolean) getPropertyValue(PROPERTY_KEY_GLOBAL)) {
             return GLOBAL_WKT;
         } else if (getPropertyValue(PROPERTY_KEY_COMPUTE_REGION) != null &&
-                (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
+                   (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
             return null;
         } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
             final double westValue = getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
@@ -108,7 +108,7 @@ class BinningFormModelImpl implements BinningFormModel {
             final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
             return polygon.toText();
         } else if (getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
-                (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
+                   (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
             return getPropertyValue(BinningFilterPanel.PROPERTY_WKT);
         }
         throw new IllegalStateException("Should never come here");
@@ -134,14 +134,6 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     @Override
-    public boolean shallOutputBinnedData() {
-        if (getPropertyValue(PROPERTY_KEY_OUTPUT_BINNED_DATA) == null) {
-            return false;
-        }
-        return (Boolean) getPropertyValue(PROPERTY_KEY_OUTPUT_BINNED_DATA);
-    }
-
-    @Override
     public int getSuperSampling() {
         if (getPropertyValue(PROPERTY_KEY_SUPERSAMPLING) == null) {
             return 1;
@@ -151,7 +143,7 @@ class BinningFormModelImpl implements BinningFormModel {
 
     private String getDate(String propertyKey) {
         if (getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER) != null &&
-                (Boolean) getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER)) {
+            (Boolean) getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER)) {
             final Calendar propertyValue = getPropertyValue(propertyKey);
             if (propertyValue == null) {
                 return null;
