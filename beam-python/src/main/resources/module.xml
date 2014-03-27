@@ -52,18 +52,4 @@
 
     <categories>Processor,System</categories>
 
-
-    <extension point="beam-ui:actions">
-        <action>
-            <id>MerisNDVIPythonOperator</id>
-            <helpId>MerisNDVIPythonOperator</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>tools</parent>
-            <text>Python NDVI Operator...</text>
-            <operatorName>py_ndvi_op</operatorName>
-            <dialogTitle>Python MERIS NDVI operator</dialogTitle>
-            <!--<targetProductNameSuffix></targetProductNameSuffix>-->
-        </action>
-    </extension>
-
 </module>
