@@ -32,7 +32,7 @@ class TargetVariableSpec {
 
     static class Source {
 
-        static final int BAND_SOURCE_TYPE = 0;
+        static final int RASTER_SOURCE_TYPE = 0;
         static final int EXPRESSION_SOURCE_TYPE = 1;
 
         String bandName;

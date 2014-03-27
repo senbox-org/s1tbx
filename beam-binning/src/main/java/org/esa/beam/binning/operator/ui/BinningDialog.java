@@ -125,7 +125,7 @@ public class BinningDialog extends SingleTargetProductDialog {
     }
 
     private static String getVarName(TargetVariableSpec spec) {
-        return spec.source.type == TargetVariableSpec.Source.BAND_SOURCE_TYPE ? spec.source.bandName : spec.targetPrefix;
+        return spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ? spec.source.bandName : spec.targetPrefix;
     }
 
     private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, PropertyContainer aggregatorProperties) {

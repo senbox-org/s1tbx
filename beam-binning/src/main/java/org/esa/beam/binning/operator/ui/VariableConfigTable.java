@@ -121,7 +121,11 @@ class VariableConfigTable {
                     if (result == EditTargetVariableDialog.ID_OK) {
                         TargetVariableSpec spec = editTargetVariableDialog.getSpec();
                         specs.put(selectionIndex, spec);
-                        table.setValueAt(spec.targetPrefix, selectionIndex, 0);
+                        if (spec.source.type == TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE) {
+                            table.setValueAt(spec.targetPrefix, selectionIndex, 0);
+                        } else {
+                            table.setValueAt("", selectionIndex, 0);
+                        }
                         table.setValueAt(getSource(spec.source), selectionIndex, 1);
                         table.setValueAt(spec.aggregationString, selectionIndex, 2);
                     }
@@ -129,14 +133,14 @@ class VariableConfigTable {
                 }
 
                 private String getSource(TargetVariableSpec.Source source) {
-                    if (source.type == TargetVariableSpec.Source.BAND_SOURCE_TYPE) {
+                    if (source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE) {
                         return source.bandName;
                     } else if (source.type == TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE) {
                         return source.expression;
                     }
                     throw new IllegalStateException(
                             "Invalid source type, must be "
-                            + TargetVariableSpec.Source.BAND_SOURCE_TYPE + " or " +
+                            + TargetVariableSpec.Source.RASTER_SOURCE_TYPE + " or " +
                             TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE);
                 }
             });
