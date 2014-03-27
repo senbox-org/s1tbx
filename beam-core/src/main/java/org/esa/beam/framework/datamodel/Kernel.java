@@ -43,7 +43,6 @@ public class Kernel implements Cloneable {
      * @param width  width of the filter
      * @param height height of the filter
      * @param data   filter data in row major order
-     *
      * @throws IllegalArgumentException if the length of <code>data</code>
      *                                  is less than the product of <code>width</code> and
      *                                  <code>height</code>
@@ -64,21 +63,42 @@ public class Kernel implements Cloneable {
      * @param height height of the filter
      * @param factor factor to be applied to each element of <code>data</code>
      * @param data   filter data in row major order
-     *
      * @throws IllegalArgumentException if the length of <code>data</code>
      *                                  is less than the product of <code>width</code> and
      *                                  <code>height</code>
      */
     public Kernel(int width, int height, double factor, double data[]) {
+        this(width, height, (width - 1) / 2, (height - 1) / 2, factor, data);
+    }
+
+    /**
+     * Constructs a <code>Kernel</code> object from an array of floats.
+     * The first <code>width</code>*<code>height</code> elements of
+     * the <code>data</code> array are copied.
+     * If the length of the <code>data</code> array is less
+     * than width*height, an <code>IllegalArgumentException</code> is thrown.
+     * The X origin is (width-1)/2 and the Y origin is (height-1)/2.
+     *
+     * @param width   width of the filter
+     * @param height  height of the filter
+     * @param xOrigin X origin of the filter
+     * @param yOrigin Y origin of the filter
+     * @param factor  factor to be applied to each element of <code>data</code>
+     * @param data    filter data in row major order
+     * @throws IllegalArgumentException if the length of <code>data</code>
+     *                                  is less than the product of <code>width</code> and
+     *                                  <code>height</code>
+     */
+    public Kernel(int width, int height, int xOrigin, int yOrigin, double factor, double data[]) {
         this.width = width;
         this.height = height;
-        this.xOrigin = (width - 1) >> 1;
-        this.yOrigin = (height - 1) >> 1;
+        this.xOrigin = xOrigin;
+        this.yOrigin = yOrigin;
         int len = width * height;
         if (data.length < len) {
             throw new IllegalArgumentException("Data array too small " +
-                                               "(is " + data.length +
-                                               " and should be " + len);
+                                                       "(is " + data.length +
+                                                       " and should be " + len);
         }
         this.factor = factor;
         this.data = new double[len];
@@ -137,12 +157,10 @@ public class Kernel implements Cloneable {
      * is <code>null</code>, a new array is allocated.
      *
      * @param data if non-null, contains the returned filter data
-     *
      * @return the <code>data</code> array containing the filter data
-     *         in row major order or, if <code>data</code> is
-     *         <code>null</code>, a newly allocated array containing
-     *         the filter data in row major order
-     *
+     * in row major order or, if <code>data</code> is
+     * <code>null</code>, a newly allocated array containing
+     * the filter data in row major order
      * @throws IllegalArgumentException if <code>data</code> is less
      *                                  than the size of this <code>Kernel</code>
      */
@@ -151,9 +169,9 @@ public class Kernel implements Cloneable {
             data = new double[this.data.length];
         } else if (data.length < this.data.length) {
             throw new IllegalArgumentException("Data array too small " +
-                                               "(should be " + this.data.length +
-                                               " but is " +
-                                               data.length + " )");
+                                                       "(should be " + this.data.length +
+                                                       " but is " +
+                                                       data.length + " )");
         }
         System.arraycopy(this.data, 0, data, 0, this.data.length);
 

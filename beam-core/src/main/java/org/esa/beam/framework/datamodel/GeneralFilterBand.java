@@ -19,7 +19,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.jai.GeneralFilterFunction;
 import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
 
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -39,25 +39,21 @@ public class GeneralFilterBand extends FilterBand {
         MEDIAN,
         MEAN,
         STDDEV,
+        /**
+         * Morphological erosion (= min)
+         */
         EROSION,
+        /**
+         * Morphological dilation (= max)
+         */
         DILATION,
+        OPENING,
+        CLOSING,
     }
 
     private final OpType opType;
-    private final int subWindowSize;
-    private final boolean[] structuringElement;
-
-    /**
-     * Creates a GeneralFilterBand.
-     *
-     * @param name          the name of the band.
-     * @param source        the source which shall be filtered.
-     * @param opType        the predefined operation type.
-     * @param subWindowSize the window size (width/height) used by the filter
-     */
-    public GeneralFilterBand(String name, RasterDataNode source, OpType opType, int subWindowSize) {
-        this(name, source, opType, subWindowSize, null);
-    }
+    private final Kernel structuringElement;
+    private final int iterationCount;
 
     /**
      * Creates a GeneralFilterBand.
@@ -65,30 +61,26 @@ public class GeneralFilterBand extends FilterBand {
      * @param name               the name of the band.
      * @param source             the source which shall be filtered.
      * @param opType             the predefined operation type.
-     * @param subWindowSize      the window size (width/height) used by the filter
-     * @param structuringElement The structuring element with a length equal to {@code subWindowSize * subWindowSize}. May be {@code null}.
+     * @param structuringElement the structuring element (as used by morphological filters)
      */
-    public GeneralFilterBand(String name, RasterDataNode source, OpType opType, int subWindowSize, boolean[] structuringElement) {
+    public GeneralFilterBand(String name, RasterDataNode source, OpType opType, Kernel structuringElement, int iterationCount) {
         super(name,
               source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
               source.getSceneRasterWidth(),
               source.getSceneRasterHeight(),
               source);
         Assert.notNull(opType, "opType");
+        Assert.notNull(structuringElement, "structuringElement");
         this.opType = opType;
-        this.subWindowSize = subWindowSize;
         this.structuringElement = structuringElement;
+        this.iterationCount = iterationCount;
     }
 
     public OpType getOpType() {
         return opType;
     }
 
-    public int getSubWindowSize() {
-        return subWindowSize;
-    }
-
-    public boolean[] getStructuringElement() {
+    public Kernel getStructuringElement() {
         return structuringElement;
     }
 
@@ -102,21 +94,61 @@ public class GeneralFilterBand extends FilterBand {
      */
     @Override
     protected RenderedImage createSourceLevelImage(RenderedImage sourceImage, int level, RenderingHints rh) {
-        if (getOpType() == OpType.MIN) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Min(subWindowSize), rh);
-        } else if (getOpType() == OpType.MAX) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Max(subWindowSize), rh);
-        } else if (getOpType() == OpType.MEDIAN) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Median(subWindowSize), rh);
-        } else if (getOpType() == OpType.MEAN) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Mean(subWindowSize), rh);
-        } else if (getOpType() == OpType.STDDEV) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.StdDev(subWindowSize), rh);
-        } else if (getOpType() == OpType.EROSION) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Erosion(subWindowSize, structuringElement), rh);
-        } else if (getOpType() == OpType.DILATION) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Dilation(subWindowSize, structuringElement), rh);
+        int x = structuringElement.getXOrigin();
+        int y = structuringElement.getYOrigin();
+        int w = structuringElement.getWidth();
+        int h = structuringElement.getHeight();
+        boolean[] data = toStructuringElementData(structuringElement);
+        RenderedImage targetImage = sourceImage;
+        for (int i = 0; i < iterationCount; i++) {
+            targetImage = createSourceLevelImage(targetImage, x, y, w, h, data, rh);
         }
-        throw new IllegalStateException(String.format("Unsupported operation type '%s'", getOpType()));
+        return targetImage;
     }
+
+    private RenderedImage createSourceLevelImage(RenderedImage sourceImage, int x, int y, int w, int h, boolean[] data, RenderingHints rh) {
+        RenderedImage targetImage;
+        if (getOpType() == OpType.MIN) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Min(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.MAX) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Max(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.MEDIAN) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Median(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.MEAN) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Mean(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.STDDEV) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.StdDev(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.EROSION) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Erosion(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.DILATION) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Dilation(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.OPENING) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Erosion(w, h, x, y, data), rh);
+            targetImage = GeneralFilterDescriptor.create(targetImage, new GeneralFilterFunction.Dilation(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.CLOSING) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Dilation(w, h, x, y, data), rh);
+            targetImage = GeneralFilterDescriptor.create(targetImage, new GeneralFilterFunction.Erosion(w, h, x, y, data), rh);
+        } else {
+            throw new IllegalStateException(String.format("Unsupported operation type '%s'", getOpType()));
+        }
+        return targetImage;
+    }
+
+    private static boolean[] toStructuringElementData(Kernel kernel) {
+        double[] kernelElements = kernel.getKernelData(null);
+        boolean[] structuringElement = new boolean[kernelElements.length];
+        boolean hasFalse = false;
+        boolean hasTrue = false;
+        for (int i = 0; i < kernelElements.length; i++) {
+            boolean b = kernelElements[i] != 0.0;
+            if (b) {
+                hasTrue = true;
+            } else {
+                hasFalse = true;
+            }
+            structuringElement[i] = b;
+        }
+        return hasTrue && hasFalse ? structuringElement : null;
+    }
+
 }

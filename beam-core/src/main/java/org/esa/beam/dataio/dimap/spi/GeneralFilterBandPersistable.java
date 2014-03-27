@@ -16,15 +16,13 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.GeneralFilterBand;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.util.StringUtils;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Element;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -51,24 +49,28 @@ class GeneralFilterBandPersistable implements DimapPersistable {
             return null;
         }
 
-        Integer subWindowSize = parseSize(filterBandInfo);
-        if (subWindowSize == null || subWindowSize <= 0) {
-            BeamLogManager.getSystemLogger().warning(String.format("BEAM-DIMAP problem in element '%s': missing or illegal value for element '%s'",
-                                                                   filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE));
-            return null;
-        }
-
-        boolean[] structuringElement = parseStructuringElement(filterBandInfo);
-        if (structuringElement != null && structuringElement.length != subWindowSize * subWindowSize) {
-            BeamLogManager.getSystemLogger().warning(String.format("BEAM-DIMAP problem in element '%s': illegal value for element '%s'",
-                                                                   filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_STRUCTURING_ELEMENT));
-            return null;
+        final Element kernelInfo = filterBandInfo.getChild(DimapProductConstants.TAG_FILTER_KERNEL);
+        Kernel kernel;
+        if (kernelInfo != null) {
+            kernel = ConvolutionFilterBandPersistable.convertElementToKernel(kernelInfo);
+        } else {
+            Dimension size = parseSize(filterBandInfo);
+            if (size == null || size.width <= 0|| size.height <= 0) {
+                BeamLogManager.getSystemLogger().warning(String.format("BEAM-DIMAP problem in element '%s': missing or illegal value for element '%s'",
+                                                                       filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE));
+                return null;
+            }
+            double[] data = new double[size.width * size.height];
+            Arrays.fill(data, 1.0);
+            kernel = new Kernel(size.width, size.height, data);
         }
 
         final String sourceName = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SOURCE);
         final RasterDataNode sourceNode = product.getRasterDataNode(sourceName);
         final String bandName = element.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
-        final GeneralFilterBand gfb = new GeneralFilterBand(bandName, sourceNode, opType, subWindowSize, structuringElement);
+
+        // todo - read iterationCount
+        final GeneralFilterBand gfb = new GeneralFilterBand(bandName, sourceNode, opType, kernel, 1);
 
         gfb.setDescription(element.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION));
         gfb.setUnit(element.getChildTextTrim(DimapProductConstants.TAG_PHYSICAL_UNIT));
@@ -85,29 +87,27 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         return gfb;
     }
 
-    private Integer parseSize(Element filterBandInfo) {
-        String subWindowSizeText = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE);
-        if (subWindowSizeText == null) {
+    private Dimension parseSize(Element filterBandInfo) {
+        int width = 1;
+        int height = 1;
+        // Version 1.1
+        String sizeText = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE);
+        if (sizeText != null) {
+            int size = Integer.parseInt(sizeText);
+            width = size;
+            height = size;
+        } else {
             // Version 1.0
-            subWindowSizeText = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH);
-        }
-        if (subWindowSizeText == null) {
-            return null;
-        }
-        return Integer.parseInt(subWindowSizeText);
-    }
-
-    private boolean[] parseStructuringElement(Element filterBandInfo) {
-        boolean[] structuringElement = null;
-        String structuringElementText = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_STRUCTURING_ELEMENT);
-        if (structuringElementText != null) {
-            int[] array = StringUtils.toIntArray(structuringElementText, ",");
-            structuringElement = new boolean[array.length];
-            for (int i = 0; i < array.length; i++) {
-                structuringElement[i] = array[i] != 0;
+            String widthText = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH);
+            if (widthText != null) {
+                width = Integer.parseInt(widthText);
+            }
+            String heightText = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_HEIGHT);
+            if (heightText != null) {
+                height = Integer.parseInt(heightText);
             }
         }
-        return structuringElement;
+        return new Dimension(width, height);
     }
 
     private GeneralFilterBand.OpType parseOpType(Element filterBandInfo) {
@@ -164,12 +164,8 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, String.valueOf(gfb.getNoDataValue())));
         final List<Element> filterBandInfoList = new ArrayList<Element>(5);
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, gfb.getSource().getName()));
-        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, String.valueOf(gfb.getSubWindowSize())));
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OP_TYPE, gfb.getOpType().toString()));
-        if (gfb.getStructuringElement() != null) {
-            filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_STRUCTURING_ELEMENT,
-                                                 StringUtils.arrayToString(toIntArray(gfb.getStructuringElement()), ", ")));
-        }
+        filterBandInfoList.add(ConvolutionFilterBandPersistable.convertKernelToElement(gfb.getStructuringElement()));
 
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
         filterBandInfo.setAttribute(ATTRIBUTE_BAND_TYPE, GENERAL_FILTER_BAND_TYPE);
@@ -186,13 +182,5 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         final Element elem = new Element(tagName);
         elem.setText(text);
         return elem;
-    }
-
-    private static int[] toIntArray(boolean[] ba) {
-        int[] ia = new int[ba.length];
-        for (int i = 0; i < ia.length; i++) {
-            ia[i] = ba[i] ? 1 : 0;
-        }
-        return ia;
     }
 }

@@ -15,35 +15,23 @@
  */
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
-import org.esa.beam.framework.datamodel.FilterBand;
-import org.esa.beam.framework.datamodel.GeneralFilterBand;
-import org.esa.beam.framework.datamodel.Kernel;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Font;
+import java.awt.*;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 // todo - allow for user-defined kernels and structuring elements
 // todo - add kernel and structuring element editors
@@ -278,13 +266,13 @@ public class CreateFilteredBandAction extends ExecCommand {
         Product product = raster.getProduct();
         if (filter instanceof KernelFilter) {
             KernelFilter kernelFilter = (KernelFilter) filter;
-            filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel);
+            filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel, 1);
         } else {
             RasterDataNode source = raster;
             GeneralFilter generalFilter = (GeneralFilter) filter;
             GeneralFilterBand.OpType[] opTypes = generalFilter.opTypes;
             for (int i = 0; i < opTypes.length - 1; i++) {
-                GeneralFilterBand intermediateFilterBand = new GeneralFilterBand(bandName + "_im" + i, source, opTypes[i], generalFilter.size);
+                GeneralFilterBand intermediateFilterBand = new GeneralFilterBand(bandName + "_im" + i, source, opTypes[i], getKernel(generalFilter), 1);
                 intermediateFilterBand.setDescription(String.format("Intermediate filter band #%d for band '%s'",
                                                                     i,
                                                                     bandName));
@@ -295,7 +283,7 @@ public class CreateFilteredBandAction extends ExecCommand {
                 product.addBand(intermediateFilterBand);
                 source = intermediateFilterBand;
             }
-            filterBand = new GeneralFilterBand(bandName, source, opTypes[opTypes.length - 1], generalFilter.size);
+            filterBand = new GeneralFilterBand(bandName, source, opTypes[opTypes.length - 1], getKernel(generalFilter), 1);
         }
 
         filterBand.setDescription(String.format("Filter '%s' applied to '%s'", filter.toString(), raster.getName()));
@@ -305,6 +293,13 @@ public class CreateFilteredBandAction extends ExecCommand {
         product.addBand(filterBand);
         filterBand.fireProductNodeDataChanged();
         return filterBand;
+    }
+
+    private static Kernel getKernel(GeneralFilter generalFilter) {
+        int size = generalFilter.size;
+        double[] data = new double[size * size];
+        Arrays.fill(data, 1.0);
+        return new Kernel(size, size, data);
     }
 
     private DialogData promptForFilter() {
@@ -521,10 +516,10 @@ public class CreateFilteredBandAction extends ExecCommand {
                 message = "Please enter a name for the new filtered band."; /*I18N*/
             } else if (!ProductNode.isValidNodeName(bandName)) {
                 message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
-                                               "Please choose a different band name.", bandName); /*I18N*/
+                                                       "Please choose a different band name.", bandName); /*I18N*/
             } else if (product.containsBand(bandName)) {
                 message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
-                                               "Please choose a different band name.", bandName); /*I18N*/
+                                                       "Please choose a different band name.", bandName); /*I18N*/
             } else if (getSelectedFilter(tree) == null) {
                 message = "Please select a filter.";    /*I18N*/
             }

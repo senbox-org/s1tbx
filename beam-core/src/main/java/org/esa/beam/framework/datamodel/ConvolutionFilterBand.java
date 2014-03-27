@@ -18,7 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import javax.media.jai.KernelJAI;
 import javax.media.jai.operator.ConvolveDescriptor;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -32,15 +32,17 @@ import java.awt.image.RenderedImage;
  */
 public class ConvolutionFilterBand extends FilterBand {
 
-    private Kernel kernel;
+    private final Kernel kernel;
+    private final int iterationCount;
 
-    public ConvolutionFilterBand(String name, RasterDataNode source, Kernel kernel) {
+    public ConvolutionFilterBand(String name, RasterDataNode source, Kernel kernel, int iterationCount) {
         super(name,
               source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
               source.getSceneRasterWidth(),
               source.getSceneRasterHeight(),
               source);
         this.kernel = kernel;
+        this.iterationCount = iterationCount;
     }
 
     public Kernel getKernel() {
@@ -49,7 +51,12 @@ public class ConvolutionFilterBand extends FilterBand {
 
     @Override
     protected RenderedImage createSourceLevelImage(RenderedImage sourceImage, int level, RenderingHints rh) {
-        return ConvolveDescriptor.create(sourceImage, createJaiKernel(), rh);
+        KernelJAI jaiKernel = createJaiKernel();
+        RenderedImage targetImage = sourceImage;
+        for (int i = 0; i < iterationCount; i++) {
+            targetImage = ConvolveDescriptor.create(targetImage, jaiKernel, rh);
+        }
+        return targetImage;
     }
 
     private KernelJAI createJaiKernel() {

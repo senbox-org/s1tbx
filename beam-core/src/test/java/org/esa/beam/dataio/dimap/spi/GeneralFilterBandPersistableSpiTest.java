@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeneralFilterBand;
+import org.esa.beam.framework.datamodel.Kernel;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -80,7 +81,7 @@ public class GeneralFilterBandPersistableSpiTest extends TestCase {
 
     public void testCanPersist() {
         final Band source = new Band("b", ProductData.TYPE_INT8, 2, 2);
-        final GeneralFilterBand gfb = new GeneralFilterBand("test", source, GeneralFilterBand.OpType.MAX, 3);
+        final GeneralFilterBand gfb = new GeneralFilterBand("test", source, GeneralFilterBand.OpType.MAX, new Kernel(3, 3, new double[3 * 3]), 1);
 
         assertTrue(_persistableSpi.canPersist(gfb));
 

@@ -18,13 +18,8 @@ package org.esa.beam.dataio.dimap.spi;
 
 import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
-import org.esa.beam.framework.datamodel.Kernel;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ArrayUtils;
-import org.esa.beam.util.StringUtils;
 import org.jdom.Element;
 
 import java.util.ArrayList;
@@ -85,7 +80,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
     public void testCreateXmlFromObject() {
         final double[] kernelData = new double[]{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
         final ConvolutionFilterBand cfb = new ConvolutionFilterBand("filteredBand", _source,
-                                                                    new Kernel(3, 3, 1.7, kernelData));
+                                                                    new Kernel(3, 3, 1.7, kernelData), 1);
         cfb.setDescription("somehow explainig");
         cfb.setUnit("someUnit");
         _product.addBand(cfb);
@@ -131,7 +126,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         final Kernel kernel = cfb.getKernel();
         final Element kernelInfo = filterInfo.getChild(DimapProductConstants.TAG_FILTER_KERNEL);
         assertNotNull(kernelInfo);
-        assertEquals(4, kernelInfo.getChildren().size());
+        assertEquals(6, kernelInfo.getChildren().size());
         assertTrue(kernelInfo.getChild(DimapProductConstants.TAG_KERNEL_WIDTH) != null);
         assertEquals(kernel.getWidth(), Integer.parseInt(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_WIDTH)));
         assertTrue(kernelInfo.getChild(DimapProductConstants.TAG_KERNEL_HEIGHT) != null);
@@ -139,7 +134,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         assertTrue(kernelInfo.getChild(DimapProductConstants.TAG_KERNEL_FACTOR) != null);
         assertEquals(kernel.getFactor(), Double.parseDouble(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_FACTOR)), EPS);
         assertTrue(kernelInfo.getChild(DimapProductConstants.TAG_KERNEL_DATA) != null);
-        assertEquals(StringUtils.arrayToCsv(kernel.getKernelData(null)), kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_DATA));
+        assertEquals(ConvolutionFilterBandPersistable.toCsv(kernel.getKernelData(null)), kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_DATA));
     }
 
     public void testReadAndWrite() {
@@ -195,7 +190,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         kernelInfoList.add(createElement(DimapProductConstants.TAG_KERNEL_HEIGHT, "3"));
         kernelInfoList.add(createElement(DimapProductConstants.TAG_KERNEL_FACTOR, "1.7"));
         kernelInfoList.add(createElement(DimapProductConstants.TAG_KERNEL_DATA,
-                                         StringUtils.arrayToCsv(
+                                         ConvolutionFilterBandPersistable.toCsv(
                                                  new double[]{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0})));
 
         final Element filterKernel = new Element(DimapProductConstants.TAG_FILTER_KERNEL);
