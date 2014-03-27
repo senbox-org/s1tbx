@@ -100,7 +100,7 @@ class BinningFilterPanel extends JPanel {
         GridBagUtils.addToPanel(this, wktOption, gbc, "gridy=3");
         GridBagUtils.addToPanel(this, createWktInputPanel(), gbc, "gridy=4");
         GridBagUtils.addToPanel(this, regionOption, gbc, "gridy=5");
-//        GridBagUtils.addToPanel(this, createAndInitBoundsUI(), gbc, "gridy=6,insets.bottom=5");
+        GridBagUtils.addToPanel(this, createAndInitBoundsUI(), gbc, "gridy=6,insets.bottom=5");
 
         GridBagUtils.addToPanel(this, new TitledSeparator("Specify temporal filtering", SwingConstants.CENTER), gbc, "gridy=7,insets.bottom=3");
         GridBagUtils.addToPanel(this, createTemporalFilterPanel(), gbc, "gridy=8");
