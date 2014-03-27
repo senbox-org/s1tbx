@@ -1,5 +1,6 @@
 package org.esa.beam.visat.actions.imgfilter;
 
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSetStore;
@@ -93,7 +94,7 @@ public class FilterSetForm extends JPanel {
 
     private void initUI() {
 
-        addButton = new JButton(new ImageIcon(FilterSetForm.class.getResource("list-add.png")));
+        addButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/list-add.png"));
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -104,7 +105,7 @@ public class FilterSetForm extends JPanel {
         });
 
 
-        removeButton = new JButton(new ImageIcon(FilterSetForm.class.getResource("list-remove.png")));
+        removeButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/list-remove.png"));
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,10 +113,8 @@ public class FilterSetForm extends JPanel {
             }
         });
 
-        editButton = new JButton(new ImageIcon(FilterSetForm.class.getResource("document-properties.png")));
+        editButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/document-properties.png"));
         editButton.addActionListener(new ActionListener() {
-
-
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -126,13 +125,10 @@ public class FilterSetForm extends JPanel {
             }
         });
 
-        saveButton = new JButton(new ImageIcon(FilterSetForm.class.getResource("document-save.png")));
+        saveButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/document-save.png"));
         saveButton.addActionListener(new ActionListener() {
-
-
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 try {
                     filterSetStore.storeFilterSetModel(filterSet);
                     setModified(false);
