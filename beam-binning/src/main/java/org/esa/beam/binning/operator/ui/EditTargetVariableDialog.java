@@ -33,6 +33,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.StringUtils;
 
@@ -183,7 +184,9 @@ public class EditTargetVariableDialog extends ModalDialog {
         dataSource.setEnabled(hasSourceProducts);
 
         panel.add(dataSource);
-        final JButton sourceButton = new JButton("...");
+        final JButton sourceButton = new JButton("...", UIUtils.loadImageIcon("icons/PanelDown12.png"));
+        sourceButton.setPreferredSize(new Dimension(40, 20));
+        sourceButton.setHorizontalTextPosition(JButton.LEFT);
         sourceButton.addActionListener(new SourceButtonAction(sourceButton));
         sourceButton.setEnabled(hasSourceProducts);
         panel.add(sourceButton);
