@@ -27,64 +27,11 @@ import java.util.Arrays;
  */
 public abstract class GeneralFilterFunction {
 
-    private final int width;
-    private final int height;
-    private final int xOrigin;
-    private final int yOrigin;
-    private final boolean[] structuringElement;
-
-    /**
-     * Constructs a GeneralFilterFunction.
-     *
-     * @param size The width and height of the kernel.
-     * @throws IllegalArgumentException if width or height is not a positive number.
-     */
-    protected GeneralFilterFunction(int size) {
-        this(size, size, null);
-    }
-
-    /**
-     * Constructs a GeneralFilterFunction.
-     *
-     * @param size               The width and height of the kernel.
-     * @param structuringElement The structuring element with a length equal to {@code size * size}. May be {@code null}.
-     */
-    protected GeneralFilterFunction(int size, boolean[] structuringElement) {
-        this(size, size, structuringElement);
-    }
-
-    /**
-     * Constructs a GeneralFilterFunction.
-     *
-     * @param width  the width of the kernel.
-     * @param height the height of the kernel.
-     */
-    protected GeneralFilterFunction(int width, int height) {
-        this(width, height, null);
-    }
-
-    /**
-     * Constructs a GeneralFilterFunction.
-     *
-     * @param width              the width of the kernel.
-     * @param height             the height of the kernel.
-     * @param structuringElement The structuring element with a length equal to {@code width * height}. May be {@code null}.
-     */
-    protected GeneralFilterFunction(int width, int height, boolean[] structuringElement) {
-        this(width, height, width / 2, height / 2, structuringElement);
-    }
-
-    /**
-     * Constructs a GeneralFilterFunction.
-     *
-     * @param width   the width of the kernel.
-     * @param height  the height of the kernel.
-     * @param xOrigin the X coordinate of the key kernel element.
-     * @param yOrigin the Y coordinate of the key kernel element.
-     */
-    protected GeneralFilterFunction(int width, int height, int xOrigin, int yOrigin) {
-        this(width, height, xOrigin, yOrigin, null);
-    }
+    protected final int width;
+    protected final int height;
+    protected final int xOrigin;
+    protected final int yOrigin;
+    protected final boolean[] structuringElement;
 
     /**
      * Constructs a GeneralFilterFunction.
@@ -174,24 +121,18 @@ public abstract class GeneralFilterFunction {
 
     public abstract float filter(float[] fdata);
 
-    public static class Min extends GeneralFilterFunction {
-        public Min(int size) {
-            super(size);
-        }
-
-        public Min(int width, int height) {
-            super(width, height);
-        }
-
-        public Min(int width, int height, int xOrigin, int yOrigin) {
-            super(width, height, xOrigin, yOrigin);
+    public static final class Min extends GeneralFilterFunction {
+        public Min(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
+            super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         public float filter(float[] fdata) {
+            final boolean[] se = structuringElement;
             float min = Float.POSITIVE_INFINITY;
             int n = 0;
-            for (float v : fdata) {
-                if (v < min) {
+            for (int i = 0; i < fdata.length; i++) {
+                float v = fdata[i];
+                if ((se == null || se[i]) && v < min) {
                     min = v;
                     n++;
                 }
@@ -200,24 +141,18 @@ public abstract class GeneralFilterFunction {
         }
     }
 
-    public static class Max extends GeneralFilterFunction {
-        public Max(int size) {
-            super(size);
-        }
-
-        public Max(int width, int height) {
-            super(width, height);
-        }
-
-        public Max(int width, int height, int xOrigin, int yOrigin) {
-            super(width, height, xOrigin, yOrigin);
+    public static final class Max extends GeneralFilterFunction {
+        public Max(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
+            super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         public float filter(float[] fdata) {
+            final boolean[] se = structuringElement;
             float max = Float.NEGATIVE_INFINITY;
             int n = 0;
-            for (float v : fdata) {
-                if (v > max) {
+            for (int i = 0; i < fdata.length; i++) {
+                float v = fdata[i];
+                if ((se == null || se[i]) && v > max) {
                     max = v;
                     n++;
                 }
@@ -226,26 +161,20 @@ public abstract class GeneralFilterFunction {
         }
     }
 
-    public static class Median extends GeneralFilterFunction {
+    public static final class Median extends GeneralFilterFunction {
 
-        public Median(int size) {
-            this(size, size);
-        }
-
-        public Median(int width, int height) {
-            this(width, height, width / 2, height / 2);
-        }
-
-        public Median(int width, int height, int xOrigin, int yOrigin) {
-            super(width, height, xOrigin, yOrigin);
+        public Median(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
+            super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         public float filter(float[] fdata) {
+            final boolean[] se = structuringElement;
             // Note: NaN's are moved to the end of the array
             Arrays.sort(fdata);
             int n = 0;
-            for (float v : fdata) {
-                if (!Float.isNaN(v)) {
+            for (int i = 0; i < fdata.length; i++) {
+                float v = fdata[i];
+                if ((se == null || se[i]) && !Float.isNaN(v)) {
                     n++;
                     break;
                 }
@@ -262,25 +191,19 @@ public abstract class GeneralFilterFunction {
         }
     }
 
-    public static class Mean extends GeneralFilterFunction {
+    public static final class Mean extends GeneralFilterFunction {
 
-        public Mean(int size) {
-            this(size, size);
-        }
-
-        public Mean(int width, int height) {
-            this(width, height, width / 2, height / 2);
-        }
-
-        public Mean(int width, int height, int xOrigin, int yOrigin) {
-            super(width, height, xOrigin, yOrigin);
+        public Mean(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
+            super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         public float filter(float[] fdata) {
+            final boolean[] se = structuringElement;
             float sum = 0F;
             int n = 0;
-            for (float v : fdata) {
-                if (!Float.isNaN(v)) {
+            for (int i = 0; i < fdata.length; i++) {
+                float v = fdata[i];
+                if ((se == null || se[i]) && !Float.isNaN(v)) {
                     sum += v;
                     n++;
                 }
@@ -289,26 +212,20 @@ public abstract class GeneralFilterFunction {
         }
     }
 
-    public static class StdDev extends GeneralFilterFunction {
+    public static final class StdDev extends GeneralFilterFunction {
 
-        public StdDev(int size) {
-            this(size, size);
-        }
-
-        public StdDev(int width, int height) {
-            this(width, height, width / 2, height / 2);
-        }
-
-        public StdDev(int width, int height, int xOrigin, int yOrigin) {
-            super(width, height, xOrigin, yOrigin);
+        public StdDev(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
+            super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         @Override
         public float filter(float[] fdata) {
+            final boolean[] se = structuringElement;
             float sum = 0F;
             int n = 0;
-            for (float v : fdata) {
-                if (!Float.isNaN(v)) {
+            for (int i = 0; i < fdata.length; i++) {
+                float v = fdata[i];
+                if ((se == null || se[i]) && !Float.isNaN(v)) {
                     sum += v;
                     n++;
                 }
@@ -316,8 +233,9 @@ public abstract class GeneralFilterFunction {
             if (n > 0) {
                 float mean = sum / n;
                 float sqrSum = 0;
-                for (float v : fdata) {
-                    if (!Float.isNaN(v)) {
+                for (int i = 0; i < fdata.length; i++) {
+                    float v = fdata[i];
+                    if ((se == null || se[i]) && !Float.isNaN(v)) {
                         float delta = v - mean;
                         sqrSum += delta * delta;
                     }
@@ -329,21 +247,14 @@ public abstract class GeneralFilterFunction {
         }
     }
 
-    public static class Erosion extends GeneralFilterFunction {
-        public Erosion(int size, boolean[] structuringElement) {
-            super(size, structuringElement);
-        }
-
-        public Erosion(int width, int height, boolean[] structuringElement) {
-            super(width, height, structuringElement);
-        }
+    public static final class Erosion extends GeneralFilterFunction {
 
         public Erosion(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
             super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         public float filter(float[] fdata) {
-            boolean[] se = getStructuringElement();
+            final boolean[] se = structuringElement;
             float min = Float.POSITIVE_INFINITY;
             int n = 0;
             for (int i = 0; i < fdata.length; i++) {
@@ -357,21 +268,13 @@ public abstract class GeneralFilterFunction {
         }
     }
 
-    public static class Dilation extends GeneralFilterFunction {
-        public Dilation(int size, boolean[] structuringElement) {
-            super(size, structuringElement);
-        }
-
-        public Dilation(int width, int height, boolean[] structuringElement) {
-            super(width, height, structuringElement);
-        }
-
+    public static final class Dilation extends GeneralFilterFunction {
         public Dilation(int width, int height, int xOrigin, int yOrigin, boolean[] structuringElement) {
             super(width, height, xOrigin, yOrigin, structuringElement);
         }
 
         public float filter(float[] fdata) {
-            boolean[] se = getStructuringElement();
+            final boolean[] se = structuringElement;
             float max = Float.NEGATIVE_INFINITY;
             int n = 0;
             for (int i = 0; i < fdata.length; i++) {

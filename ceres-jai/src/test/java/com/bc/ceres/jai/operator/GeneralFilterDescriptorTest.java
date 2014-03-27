@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferUShort;
@@ -48,7 +48,8 @@ public class GeneralFilterDescriptorTest extends TestCase {
 
         BufferedImage image = SourceImageFactory.createOneBandedUShortImage(5, 5, sourceData);
         BorderExtender borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
-        RenderedOp op = GeneralFilterDescriptor.create(image, new GeneralFilterFunction.Max(3), new RenderingHints(JAI.KEY_BORDER_EXTENDER, borderExtender));
+        GeneralFilterFunction.Max max = new GeneralFilterFunction.Max(3,3,1,1,null);
+        RenderedOp op = GeneralFilterDescriptor.create(image, max, new RenderingHints(JAI.KEY_BORDER_EXTENDER, borderExtender));
         assertNotNull(op);
         assertEquals(5, op.getWidth());
         assertEquals(5, op.getHeight());
