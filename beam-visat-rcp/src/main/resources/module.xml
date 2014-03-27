@@ -1412,7 +1412,7 @@
 
         <action>
             <id>createFilteredBand</id>
-            <class>org.esa.beam.visat.actions.CreateFilteredBandAction</class>
+            <class>org.esa.beam.visat.actions.imgfilter.CreateFilteredBandAction</class>
             <text>Create Filtered Band...</text>
             <shortDescr>Creates an filtered band</shortDescr>
             <description>Creates an filtered band from the currently selected band</description>
