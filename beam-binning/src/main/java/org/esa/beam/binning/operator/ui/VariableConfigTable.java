@@ -17,6 +17,8 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 
@@ -26,6 +28,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -33,7 +38,11 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Thomas Storm
@@ -72,25 +81,110 @@ class VariableConfigTable {
                 return String.class;
             }
         };
+        table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
 
-        table.getColumnModel().getColumn(0).setMinWidth(100);
-        table.getColumnModel().getColumn(0).setWidth(100);
+        table.getColumnModel().getColumn(0).setMinWidth(80);
+        table.getColumnModel().getColumn(0).setWidth(80);
 
-        table.getColumnModel().getColumn(1).setMinWidth(180);
-        table.getColumnModel().getColumn(1).setWidth(180);
+        table.getColumnModel().getColumn(1).setMinWidth(110);
+        table.getColumnModel().getColumn(1).setWidth(220);
 
-        table.getColumnModel().getColumn(3).setMinWidth(50);
-        table.getColumnModel().getColumn(3).setMaxWidth(50);
-        table.getColumnModel().getColumn(3).setWidth(50);
+        table.getColumnModel().getColumn(2).setMinWidth(110);
+
+        table.getColumnModel().getColumn(3).setMinWidth(40);
+        table.getColumnModel().getColumn(3).setMaxWidth(40);
+        table.getColumnModel().getColumn(3).setWidth(40);
 
         ButtonEditor buttonEditor = new ButtonEditor(table, specs, binningFormModel, appContext);
 
         table.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
         table.getColumnModel().getColumn(3).setCellEditor(buttonEditor);
 
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         scrollPane = new JScrollPane(table);
+    }
+
+    JComponent getComponent() {
+        return scrollPane;
+    }
+
+    public void duplicateSelectedRow() {
+        int rowIndex = table.getSelectedRows()[0];
+        TargetVariableSpec spec = specs.get(rowIndex);
+        TargetVariableSpec copiedSpec = new TargetVariableSpec(spec);
+        List<Map.Entry<Integer, TargetVariableSpec>> newEntries = new ArrayList<>();
+        for (Map.Entry<Integer, TargetVariableSpec> entry : specs.entrySet()) {
+            if (entry.getKey() > rowIndex) {
+                newEntries.add(new AbstractMap.SimpleEntry<>(entry.getKey() + 1, entry.getValue()));
+            }
+        }
+        for (Map.Entry<Integer, TargetVariableSpec> newEntry : newEntries) {
+            specs.put(newEntry.getKey(), newEntry.getValue());
+        }
+        specs.put(rowIndex + 1, copiedSpec);
+        for (int row = tableModel.getRowCount() - 1; row > rowIndex; row--) {
+            for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                Object value = tableModel.getValueAt(row, col);
+                tableModel.setValueAt(value, rowIndex + 1, col);
+            }
+        }
+        String source =
+                spec.source.type == TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE ? spec.source.expression :
+                spec.source.bandName;
+        tableModel.insertRow(rowIndex + 1, new Object[]{spec.targetPrefix, source, spec.aggregationString});
+        table.getSelectionModel().setSelectionInterval(rowIndex + 1, rowIndex + 1);
+    }
+
+    public void addNewRow() {
+        tableModel.addRow(new Object[]{"", "", ""});
+    }
+
+    public void removeSelectedRows() {
+        if (table.getSelectedRows().length != 0) {
+            tableModel.removeRow(table.getSelectedRows()[0]);
+        }
+    }
+
+    public boolean canDuplicate() {
+        int[] selectedRows = table.getSelectedRows();
+        return tableModel.getRowCount() > 0 && selectedRows.length != 0 && specs.get(selectedRows[0]) != null;
+    }
+
+    public void addSelectionListener(final SelectionChangeListener listener) {
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                listener.selectionChanged(new SelectionChangeEvent(table, null, null));
+            }
+        });
+        tableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                listener.selectionChanged(new SelectionChangeEvent(table, null, null));
+            }
+        });
+    }
+
+    private class VariableConfigTableListener implements TableModelListener {
+
+        @Override
+        public void tableChanged(TableModelEvent event) {
+            try {
+                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, getSpecsAsArray());
+            } catch (ValidationException e) {
+                appContext.handleError("Unable to validate variable configurations.", e);
+            }
+        }
+
+        private TargetVariableSpec[] getSpecsAsArray() {
+            TargetVariableSpec[] targetVariableSpecs = new TargetVariableSpec[specs.size()];
+            int i = 0;
+            for (TargetVariableSpec spec : specs.values()) {
+                targetVariableSpecs[i++] = spec;
+            }
+            return targetVariableSpecs;
+        }
     }
 
     private static class ButtonRenderer extends JButton implements TableCellRenderer {
@@ -141,7 +235,8 @@ class VariableConfigTable {
                     throw new IllegalStateException(
                             "Invalid source type, must be "
                             + TargetVariableSpec.Source.RASTER_SOURCE_TYPE + " or " +
-                            TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE);
+                            TargetVariableSpec.Source.EXPRESSION_SOURCE_TYPE
+                    );
                 }
             });
         }
@@ -156,38 +251,4 @@ class VariableConfigTable {
         }
     }
 
-    JComponent getComponent() {
-        return scrollPane;
-    }
-
-    public void addNewRow() {
-        tableModel.addRow(new Object[]{"", "", ""});
-    }
-
-    public void removeSelectedRows() {
-        while (table.getSelectedRows().length != 0) {
-            tableModel.removeRow(table.getSelectedRows()[0]);
-        }
-    }
-
-    private class VariableConfigTableListener implements TableModelListener {
-
-        @Override
-        public void tableChanged(TableModelEvent event) {
-            try {
-                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, getSpecsAsArray());
-            } catch (ValidationException e) {
-                appContext.handleError("Unable to validate variable configurations.", e);
-            }
-        }
-
-        private TargetVariableSpec[] getSpecsAsArray() {
-            TargetVariableSpec[] targetVariableSpecs = new TargetVariableSpec[specs.size()];
-            int i = 0;
-            for (TargetVariableSpec spec : specs.values()) {
-                targetVariableSpecs[i++] = spec;
-            }
-            return targetVariableSpecs;
-        }
-    }
 }

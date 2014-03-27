@@ -16,13 +16,14 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.binning.AggregatorDescriptor;
 
 /**
  * @author thomas
  */
-class TargetVariableSpec {
+class TargetVariableSpec implements Cloneable {
 
     String targetPrefix;
     Source source;
@@ -30,13 +31,38 @@ class TargetVariableSpec {
     AggregatorDescriptor aggregatorDescriptor;
     PropertyContainer aggregatorProperties;
 
+    TargetVariableSpec() {
+    }
+
+    TargetVariableSpec(TargetVariableSpec spec) {
+        this();
+        this.targetPrefix = spec.targetPrefix;
+        this.source = new Source(spec.source);
+        this.aggregationString = spec.aggregationString;
+        this.aggregatorDescriptor = spec.aggregatorDescriptor; // using the same instance is ok
+        this.aggregatorProperties = new PropertyContainer();
+        for (Property property : spec.aggregatorProperties.getProperties()) {
+            aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
+        }
+    }
+
     static class Source {
 
         static final int RASTER_SOURCE_TYPE = 0;
         static final int EXPRESSION_SOURCE_TYPE = 1;
 
+        int type;
         String bandName;
         String expression;
-        int type;
+
+        Source() {
+        }
+
+        Source(Source source) {
+            this();
+            this.type = source.type;
+            this.expression = source.expression;
+            this.bandName = source.bandName;
+        }
     }
 }

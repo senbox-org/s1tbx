@@ -18,6 +18,8 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -26,7 +28,9 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -74,6 +78,8 @@ class BinningVariablesPanel extends JPanel {
 
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"), false);
         final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"), false);
+        final AbstractButton copyButton = ToolButtonFactory.createButton(new CopyRowAction(bandsTable), false);
+        copyButton.setEnabled(false);
 
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -87,12 +93,23 @@ class BinningVariablesPanel extends JPanel {
                 bandsTable.removeSelectedRows();
             }
         });
+        bandsTable.addSelectionListener(new AbstractSelectionChangeListener() {
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                copyButton.setEnabled(bandsTable.canDuplicate());
+            }
+        });
+
+        addButton.setToolTipText("Add new aggregation");
+        removeButton.setToolTipText("Remove selected aggregation");
+        copyButton.setToolTipText("Clone selected aggregation");
 
         final GridBagConstraints gbc = new GridBagConstraints();
         GridBagUtils.addToPanel(bandsPanel, addButton, gbc, "gridx=0");
         GridBagUtils.addToPanel(bandsPanel, removeButton, gbc, "gridx=1");
+        GridBagUtils.addToPanel(bandsPanel, copyButton, gbc, "gridx=2");
         GridBagUtils.addHorizontalFiller(bandsPanel, gbc);
-        GridBagUtils.addToPanel(bandsPanel, bandsTable.getComponent(), gbc, "gridx=0,gridy=1,gridwidth=3,fill=BOTH,weightx=1,weighty=1");
+        GridBagUtils.addToPanel(bandsPanel, bandsTable.getComponent(), gbc, "gridx=0,gridy=1,gridwidth=4,fill=BOTH,weightx=1,weighty=1");
 
         return bandsPanel;
     }
@@ -236,4 +253,27 @@ class BinningVariablesPanel extends JPanel {
         }
     }
 
+    private static class CopyRowAction extends AbstractAction {
+
+        private final ImageIcon imageIcon;
+        private VariableConfigTable bandsTable;
+
+        private CopyRowAction(VariableConfigTable bandsTable) {
+            this.bandsTable = bandsTable;
+            this.imageIcon = UIUtils.loadImageIcon("icons/Copy24.gif");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            bandsTable.duplicateSelectedRow();
+        }
+
+        @Override
+        public Object getValue(String key) {
+            if (key.equals(LARGE_ICON_KEY)) {
+                return imageIcon;
+            }
+            return super.getValue(key);
+        }
+    }
 }
