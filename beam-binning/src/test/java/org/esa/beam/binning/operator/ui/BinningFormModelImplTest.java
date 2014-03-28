@@ -117,14 +117,6 @@ public class BinningFormModelImplTest {
     }
 
     @Test
-    public void testGetOutputBinnedData() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
-        assertFalse(binningFormModel.shallOutputBinnedData());
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_OUTPUT_BINNED_DATA, true);
-        assertTrue(binningFormModel.shallOutputBinnedData());
-    }
-
-    @Test
     public void testGetSuperSampling() throws Exception {
         final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
         assertEquals(1, binningFormModel.getSuperSampling());
@@ -185,7 +177,7 @@ public class BinningFormModelImplTest {
 
     private static class MyPropertyChangeListener implements PropertyChangeListener {
 
-        Map<String, Object> targetMap = new HashMap<String, Object>();
+        Map<String, Object> targetMap = new HashMap<>();
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {

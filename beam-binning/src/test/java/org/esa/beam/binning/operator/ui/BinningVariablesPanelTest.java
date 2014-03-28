@@ -27,9 +27,9 @@ public class BinningVariablesPanelTest {
 
     @Test
     public void testGetResolutionString() throws Exception {
-        assertEquals("9.28 km/pixel", BinningVariablesPanel.getResolutionString(2160));
-        assertEquals("5.86 km/pixel", BinningVariablesPanel.getResolutionString(3420));
-        assertEquals("2.1 km/pixel", BinningVariablesPanel.getResolutionString(9544));
-        assertEquals("15.81 km/pixel", BinningVariablesPanel.getResolutionString(1268));
+        assertEquals("9.28", BinningVariablesPanel.getResolutionString(2160));
+        assertEquals("5.86", BinningVariablesPanel.getResolutionString(3420));
+        assertEquals("2.1", BinningVariablesPanel.getResolutionString(9544));
+        assertEquals("15.81", BinningVariablesPanel.getResolutionString(1268));
     }
 }

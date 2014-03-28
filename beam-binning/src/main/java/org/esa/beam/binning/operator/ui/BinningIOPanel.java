@@ -88,8 +88,12 @@ class BinningIOPanel extends JPanel {
         final JPanel sourceProductPanel = new JPanel(layout);
         sourceProductPanel.setBorder(BorderFactory.createTitledBorder("Source Products"));
         final Property sourceProductPaths = binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS);
+<<<<<<< HEAD
         ListDataListener changeListener = new ListDataListener() {
 
+=======
+        ChangeListener changeListener = new ChangeListener() {
+>>>>>>> restructuring parameters panel
             @Override
             public void contentsChanged(ListDataEvent e) {
                 final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
