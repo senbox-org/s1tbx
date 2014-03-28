@@ -447,7 +447,7 @@ public class ActiveLearning {
      * @param patchList The patch list.
      * @return The cluster center.
      */
-    private double[] computeClusterCenter(final List<Patch> patchList) {
+    private static double[] computeClusterCenter(final List<Patch> patchList) {
 
         double[] center = new double[patchList.get(0).getFeatures().length];
         for (Patch patch : patchList) {
@@ -490,7 +490,7 @@ public class ActiveLearning {
      * @param x2 The second point.
      * @return The distance.
      */
-    private double computeEuclideanDistance(final double[] x1, final double[] x2) {
+    private static double computeEuclideanDistance(final double[] x1, final double[] x2) {
 
         double distance = 0.0;
         for (int i = 0; i < x1.length; i++) {

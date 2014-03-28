@@ -57,9 +57,11 @@ public class PatchSelectionInteractor extends FigureEditorInteractor {
     public void cancelInteraction(InputEvent event) {
         if (!canceled) {
             canceled = true;
-            figure.setShape(new Rectangle2D.Double(0, 0, 0, 0));
-            getFigureEditor(event).getFigureSelection().removeAllFigures();
-            getFigureEditor(event).getFigureCollection().removeFigure(figure);
+            if(figure != null) {
+                figure.setShape(new Rectangle2D.Double(0, 0, 0, 0));
+                getFigureEditor(event).getFigureSelection().removeAllFigures();
+                getFigureEditor(event).getFigureCollection().removeFigure(figure);
+            }
             super.cancelInteraction(event);
         }
     }
