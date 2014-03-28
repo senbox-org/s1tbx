@@ -37,18 +37,26 @@ import java.awt.geom.Point2D;
 
 public class SelectionInteractor extends FigureEditorInteractor {
 
-    private final Tool selectPointTool = new SelectPointTool();
-    private final Tool selectRectangleTool = new SelectRectangleTool();
-    private final Tool moveSelectionTool = new MoveSelectionTool();
-    private final Tool moveHandleTool = new MoveHandleTool();
+    private Tool selectPointTool;
+    private Tool selectRectangleTool;
+    private Tool moveSelectionTool;
+    private Tool moveHandleTool;
 
-    private boolean canceled;
-    private Point referencePoint;
+    protected boolean canceled;
+    protected Point referencePoint;
     private Object figureMemento;
     private Tool tool;
 
     public SelectionInteractor() {
+        createTools();
+    }
+
+    protected void createTools() {
         tool = new NullTool();
+        selectPointTool = createSelectPointTool();
+        selectRectangleTool = createSelectRectangleTool();
+        moveSelectionTool = createMoveSelectionTool();
+        moveHandleTool = createMoveHandleTool();
     }
 
     @Override
@@ -142,7 +150,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
         referencePoint = event.getPoint();
     }
 
-    private boolean isMouseOverSelection(MouseEvent event) {
+    protected boolean isMouseOverSelection(MouseEvent event) {
         return getFigureEditor(event).getFigureSelection().isCloseTo(toModelPoint(event),
                                                                      getModelToViewTransform(event));
     }
@@ -177,12 +185,28 @@ public class SelectionInteractor extends FigureEditorInteractor {
     }
 
     // todo - Tool is a helper, it may later be replaced by an Interactor delegate
-    private interface Tool {
+    protected interface Tool {
         void start(MouseEvent event);
 
         void drag(MouseEvent event);
 
         void end(MouseEvent event);
+    }
+
+    public SelectPointTool createSelectPointTool() {
+        return new SelectPointTool();
+    }
+
+    public SelectRectangleTool createSelectRectangleTool() {
+        return new SelectRectangleTool();
+    }
+
+    public MoveSelectionTool createMoveSelectionTool() {
+        return new MoveSelectionTool();
+    }
+
+    public MoveHandleTool createMoveHandleTool() {
+        return new MoveHandleTool();
     }
 
     private static class NullTool implements Tool {
@@ -199,7 +223,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
         }
     }
 
-    private class MoveSelectionTool implements Tool {
+    protected class MoveSelectionTool implements Tool {
         @Override
         public void start(MouseEvent event) {
             figureMemento = getFigureEditor(event).getFigureSelection().createMemento();
@@ -217,7 +241,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
         }
     }
 
-    private class MoveHandleTool implements Tool {
+    protected class MoveHandleTool implements Tool {
         @Override
         public void start(MouseEvent event) {
             figureMemento = getFigureEditor(event).getFigureSelection().createMemento();
@@ -295,7 +319,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
         }
     }
 
-    private class SelectPointTool implements Tool {
+    protected class SelectPointTool implements Tool {
         @Override
         public void start(MouseEvent event) {
             figureMemento = null;
@@ -374,7 +398,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
     }
 
-    private class SelectRectangleTool implements Tool {
+    protected class SelectRectangleTool implements Tool {
         @Override
         public void start(MouseEvent event) {
             figureMemento = null;
