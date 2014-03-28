@@ -28,7 +28,7 @@
 
     <artifactId>beam-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
-    <version>1.5.${beam.version}</version>
+    <version>1.4.5.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
     <description>A reader for NASA Ocean Color (OBPG) Data Products</description>
 
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>1.5.${beam.version}</version>
+            <version>1.4.5.${beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.esa.beam</groupId>

@@ -15,6 +15,7 @@
  */
 package gov.nasa.gsfc.seadas.dataio;
 
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -63,8 +64,8 @@ public class ViirsProductReaderPlugIn implements ProductReaderPlugIn {
         }
         NetcdfFile ncfile = null;
         try {
-            if (NetcdfFile.canOpen(file.getPath())) {
-                ncfile = NetcdfFile.open(file.getPath());
+            ncfile = NetcdfFileOpener.open(file.getPath());
+            if (ncfile != null) {
                 Attribute platformShortName = ncfile.findGlobalAttribute("Platform_Short_Name");
                 if (platformShortName != null) {
                     String platformName = platformShortName.getStringValue();
