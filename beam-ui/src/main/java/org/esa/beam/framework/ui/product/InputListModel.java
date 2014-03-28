@@ -36,31 +36,8 @@ class InputListModel extends AbstractListModel<Object> {
 
     private final List<Object> list = new ArrayList<>();
     private List<Product> sourceProducts = new ArrayList<>();
-    private final Property sourceProductPaths;
+    private Property sourceProductPaths;
     private boolean internalPropertyChange;
-
-    InputListModel(Property propertySourceProductPaths) {
-        sourceProductPaths = propertySourceProductPaths;
-        if (sourceProductPaths.getContainer() != null) {
-            sourceProductPaths.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if (!internalPropertyChange) {
-                        Object newValue = evt.getNewValue();
-                        try {
-                            if (newValue == null) {
-                                clear();
-                            } else {
-                                setElements((String[]) newValue);
-                            }
-                        } catch (ValidationException e) {
-                            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Problems at setElements.", e);
-                        }
-                    }
-                }
-            });
-        }
-    }
 
     @Override
     public Object getElementAt(int index) {
@@ -94,7 +71,7 @@ class InputListModel extends AbstractListModel<Object> {
         for (Object element : elements) {
             if (!(element instanceof File || element instanceof Product)) {
                 throw new IllegalStateException(
-                            "Only java.io.File or org.esa.beam.framework.datamodel.Product allowed.");
+                        "Only java.io.File or org.esa.beam.framework.datamodel.Product allowed.");
             }
             if (mayAdd(element)) {
                 list.add(element);
@@ -171,5 +148,32 @@ class InputListModel extends AbstractListModel<Object> {
             }
         }
         return false;
+    }
+
+    public void setProperty(Property property) {
+        this.sourceProductPaths = property;
+        if (sourceProductPaths != null && sourceProductPaths.getContainer() != null) {
+            sourceProductPaths.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (!internalPropertyChange) {
+                        Object newValue = evt.getNewValue();
+                        try {
+                            if (newValue == null) {
+                                clear();
+                            } else {
+                                setElements((String[]) newValue);
+                            }
+                        } catch (ValidationException e) {
+                            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Problems at setElements.", e);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    public Property getProperty() {
+        return sourceProductPaths;
     }
 }

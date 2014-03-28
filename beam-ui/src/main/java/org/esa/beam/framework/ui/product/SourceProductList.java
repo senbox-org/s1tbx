@@ -19,26 +19,24 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.swing.binding.ComponentAdapter;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -47,6 +45,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Enables clients to create a component for choosing source products. The list of source products can arbitrarily be
@@ -63,46 +62,37 @@ import java.io.File;
  * {@link #getSourceProducts()}. So, clients of these must take care that the value in the given property is taken into
  * account as well as the return value of that method.
  *
+ * The property that serves as target container for the source product paths must be of type
+ * <code>String[].class</code>. Changes in the list are synchronised with the property. If the changes of the property
+ * values outside this component shall be synchronised with the list, it is necessary that the property lies within a
+ * property container.
+ *
  * @author thomas
  */
-public class SourceProductList {
+public class SourceProductList extends ComponentAdapter {
 
     private final AppContext appContext;
-    private final ChangeListener changeListener;
-    private final Property propertySourceProductPaths;
-    private final String lastOpenInputDir;
-    private final String lastOpenedFormat;
+
+    private String lastOpenInputDir;
+    private String lastOpenedFormat;
     private JList inputPathsList;
     private InputListModel listModel;
+    private boolean xAxis;
+    private JComponent[] components;
+    private final ArrayList<ListDataListener> listenersQueue;
 
     /**
      * Constructor.
      *
      * @param appContext                 The context of the app using this component.
-     * @param propertySourceProductPaths A property which serves as target container for the source product paths. Must
-     *                                   be of type <code>String[].class</code>. Changes in the list are synchronised
-     *                                   with the property. If the changes of the property values outside this component
-     *                                   shall be synchronised with the list, it is necessary that the property lies
-     *                                   within a property container.
-     * @param lastOpenInputDir           A property name indicating the last directory the user has opened, may be <code>null</code>.
-     * @param lastOpenedFormat           A property name indicating the last product format the user has opened, may be <code>null</code>.
-     * @param changeListener             A listener that is informed every time the list's contents change.
+     *
      */
-    public SourceProductList(AppContext appContext, Property propertySourceProductPaths, String lastOpenInputDir, String lastOpenedFormat, ChangeListener changeListener) {
-        Assert.argument(propertySourceProductPaths.getType().equals(String[].class), "propertySourceProductPaths must be of type String.class");
+    public SourceProductList(AppContext appContext) {
         this.appContext = appContext;
-        this.propertySourceProductPaths = propertySourceProductPaths;
-        if (StringUtils.isNullOrEmpty(lastOpenInputDir)) {
-            this.lastOpenInputDir = "org.esa.beam.framework.ui.product.lastOpenInputDir";
-        } else {
-            this.lastOpenInputDir = lastOpenInputDir;
-        }
-        if (StringUtils.isNullOrEmpty(lastOpenInputDir)) {
-            this.lastOpenedFormat = "org.esa.beam.framework.ui.product.lastOpenedFormat";
-        } else {
-            this.lastOpenedFormat = lastOpenedFormat;
-        }
-        this.changeListener = changeListener;
+        this.lastOpenInputDir = "org.esa.beam.framework.ui.product.lastOpenInputDir";
+        this.lastOpenedFormat = "org.esa.beam.framework.ui.product.lastOpenedFormat";
+        this.xAxis = true;
+        listenersQueue = new ArrayList<>();
     }
 
     /**
@@ -112,8 +102,12 @@ public class SourceProductList {
      *
      * @return an array of two JPanels.
      */
-    public JPanel[] createComponents() {
-        return createComponents(false);
+    @Override
+    public JComponent[] getComponents() {
+        if (components == null) {
+            components = createComponents();
+        }
+        return components;
     }
 
     /**
@@ -121,21 +115,21 @@ public class SourceProductList {
      * contains buttons for adding and removing products, laid out in configurable direction. Note that it makes only sense
      * to use both components.
      *
-     * @param xAxis <code>true</code> if the buttons on the second panel shall be laid out in horizontal direction.
-     *
      * @return an array of two JPanels.
      */
-    public JPanel[] createComponents(boolean xAxis) {
+    private JComponent[] createComponents() {
         JPanel listPanel = new JPanel(new BorderLayout());
-        listModel = new InputListModel(propertySourceProductPaths);
-        listModel.addListDataListener(new WrapListDataListener(changeListener));
+        listModel = new InputListModel();
+        for (ListDataListener listDataListener : listenersQueue) {
+            listModel.addListDataListener(listDataListener);
+        }
         inputPathsList = createInputPathsList(listModel);
         final JScrollPane scrollPane = new JScrollPane(inputPathsList);
         scrollPane.setPreferredSize(new Dimension(100, 50));
         listPanel.add(scrollPane, BorderLayout.CENTER);
 
         final JPanel addRemoveButtonPanel = new JPanel();
-        int axis = xAxis ? BoxLayout.X_AXIS : BoxLayout.Y_AXIS;
+        int axis = this.xAxis ? BoxLayout.X_AXIS : BoxLayout.Y_AXIS;
         final BoxLayout buttonLayout = new BoxLayout(addRemoveButtonPanel, axis);
         addRemoveButtonPanel.setLayout(buttonLayout);
         addRemoveButtonPanel.add(createAddInputButton());
@@ -181,7 +175,7 @@ public class SourceProductList {
 
     private JList<Object> createInputPathsList(InputListModel inputListModel) {
         JList<Object> list = new JList<>(inputListModel);
-        list.setCellRenderer(new MyDefaultListCellRenderer());
+        list.setCellRenderer(new SourceProductListRenderer());
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         return list;
     }
@@ -216,7 +210,75 @@ public class SourceProductList {
         return removeButton;
     }
 
-    private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+    @Override
+    public void bindComponents() {
+        String propertyName = getBinding().getPropertyName();
+        Property property = getBinding().getContext().getPropertySet().getProperty(propertyName);
+        Assert.argument(property.getType().equals(String[].class), "property '" + propertyName +"' must be of type String[].class");
+        listModel.setProperty(property);
+    }
+
+    @Override
+    public void unbindComponents() {
+        listModel.setProperty(null);
+    }
+
+    @Override
+    public void adjustComponents() {
+
+    }
+
+    /**
+     * Add a listener that is informed every time the list's contents change.
+     * @param changeListener the listener to add
+     */
+    public void addChangeListener(ListDataListener changeListener) {
+        if (listModel == null) {
+            listenersQueue.add(changeListener);
+        } else {
+            listModel.addListDataListener(changeListener);
+        }
+    }
+
+    /**
+     * Remove a change listener
+     * @param changeListener the listener to remove
+     */
+    public void removeChangeListener(ListDataListener changeListener) {
+        if (listModel == null) {
+            listenersQueue.remove(changeListener);
+        } else {
+            listModel.removeListDataListener(changeListener);
+        }
+    }
+
+    /**
+     * Setter for property name indicating the last directory the user has opened
+     *
+     * @param lastOpenedFormat property name indicating the last directory the user has opened
+     */
+    public void setLastOpenedFormat(String lastOpenedFormat) {
+        this.lastOpenedFormat = lastOpenedFormat;
+    }
+
+    /**
+     * Setter for property name indicating the last product format the user has opened
+     * @param lastOpenInputDir property name indicating the last product format the user has opened
+     */
+    public void setLastOpenInputDir(String lastOpenInputDir) {
+        this.lastOpenInputDir = lastOpenInputDir;
+    }
+
+    /**
+     * Setter for xAxis property.
+     *
+     * @param xAxis <code>true</code> if the buttons on the second panel shall be laid out in horizontal direction
+     */
+    public void setXAxis(boolean xAxis) {
+        this.xAxis = xAxis;
+    }
+
+    private static class SourceProductListRenderer extends DefaultListCellRenderer {
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
@@ -234,35 +296,4 @@ public class SourceProductList {
             return label;
         }
     }
-
-    private static class WrapListDataListener implements ListDataListener {
-
-
-        private ChangeListener inputChangeListener;
-
-        private WrapListDataListener(ChangeListener inputChangeListener) {
-            this.inputChangeListener = inputChangeListener;
-        }
-
-        @Override
-        public void intervalAdded(ListDataEvent e) {
-            delegateToChangeListener();
-        }
-
-        @Override
-        public void intervalRemoved(ListDataEvent e) {
-            delegateToChangeListener();
-        }
-
-        @Override
-        public void contentsChanged(ListDataEvent e) {
-        }
-
-        private void delegateToChangeListener() {
-            if (inputChangeListener != null) {
-                inputChangeListener.stateChanged(new ChangeEvent(this));
-            }
-        }
-    }
-
 }
