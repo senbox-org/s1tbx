@@ -63,7 +63,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
 
-	//NESTMOD
     private final static DescendingLevelsComparator descendingLevelsComparator = new DescendingLevelsComparator();
     private final static AscendingLevelsComparator ascendingLevelsComparator = new AscendingLevelsComparator();
 
@@ -180,7 +179,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
 
         // Remove any tile images that are older than the retention period.
-        //localTileCache.trim(currentLevel); //NESTMOD
+        localTileCache.trim(currentLevel);
     }
 
     private void drawTentativeTileImages(Graphics2D g,
