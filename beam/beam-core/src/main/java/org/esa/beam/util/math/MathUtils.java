@@ -28,7 +28,7 @@ import java.awt.Rectangle;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public final class MathUtils {
+public class MathUtils {
 
     /**
      * The epsilon value for the <code>float</code> data type. The exact value of this constant is <code>1.0E-6</code>.

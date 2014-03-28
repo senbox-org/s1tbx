@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * The <code>StringUtils</code> class provides frequently used utility methods dealing with <code>String</code> values
@@ -53,7 +52,7 @@ public class StringUtils {
      * @throws IllegalArgumentException if one of the arguments was null
      * @see java.util.StringTokenizer
      */
-    public static List split(String text, char[] separators, boolean trimTokens, List tokens) {
+    public static List<String> split(String text, char[] separators, boolean trimTokens, List<String> tokens) {
 
         Guardian.assertNotNull("text", text);
 
@@ -62,12 +61,12 @@ public class StringUtils {
         }
 
         if (tokens == null) {
-            tokens = new Vector();
+            tokens = new ArrayList<>();
         }
 
         String sepsStr = new String(separators);
         StringTokenizer st = new StringTokenizer(text, sepsStr, true);
-        String token = null;
+        String token;
         String lastToken = null;
         while (st.hasMoreTokens()) {
             try {
@@ -189,11 +188,10 @@ public class StringUtils {
      */
     public static boolean isIntegerString(String token, int radix) {
         if (token != null) {
-            // @todo 1 nf/nf - the follwing code is not performant, replace try/catch construct!
             try {
                 Integer.parseInt(token, radix);
                 return true;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return false;
@@ -220,9 +218,8 @@ public class StringUtils {
         }
         final String[] tokens = split(text, delim.toCharArray(), true);
         final int[] numbers = new int[tokens.length];
-        int i=0;
-        for (String token : tokens) {
-            numbers[i++] = Integer.parseInt(token);
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = Integer.parseInt(tokens[i]);
         }
         return numbers;
     }
@@ -247,9 +244,8 @@ public class StringUtils {
         }
         final String[] tokens = split(text, delim.toCharArray(), true);
         final float[] numbers = new float[tokens.length];
-        int i=0;
-        for (String token : tokens) {
-            numbers[i++] = Float.parseFloat(token);
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = Float.parseFloat(tokens[i]);
         }
         return numbers;
     }
@@ -274,9 +270,8 @@ public class StringUtils {
         }
         final String[] tokens = split(text, delim.toCharArray(), true);
         final double[] numbers = new double[tokens.length];
-        int i=0;
-        for (String token : tokens) {
-            numbers[i++] = Double.parseDouble(token);
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = Double.parseDouble(tokens[i]);
         }
         return numbers;
     }
@@ -315,9 +310,8 @@ public class StringUtils {
             return (String[]) objArray;
         }
         String[] strArray = new String[objArray.length];
-        int i=0;
-        for(Object obj : objArray) {
-            strArray[i++] = (obj != null) ? obj.toString() : null;
+        for (int i = 0; i < objArray.length; i++) {
+            strArray[i] = (objArray[i] != null) ? objArray[i].toString() : null;
         }
         return strArray;
     }
@@ -329,7 +323,7 @@ public class StringUtils {
      * @return <code>true</code> if so
      */
     public static boolean isNullOrEmpty(String str) {
-        return str == null || str.length() == 0;
+        return str == null || str.isEmpty();
     }
 
     /**
@@ -339,7 +333,7 @@ public class StringUtils {
      * @return <code>true</code> if so
      */
     public static boolean isNotNullAndNotEmpty(String str) {
-        return !isNullOrEmpty(str);
+        return str != null && !str.isEmpty();
     }
 
     /**
@@ -402,8 +396,8 @@ public class StringUtils {
         }
 
         String[] newArray = array;
-        for (String aToRemove : toRemove) {
-            newArray = removeFromArray(newArray, aToRemove);
+        for (String item : toRemove) {
+            newArray = removeFromArray(newArray, item);
         }
         return newArray;
     }
@@ -634,7 +628,7 @@ public class StringUtils {
 
 
     private static boolean isSeparatorToken(String token, String separators) {
-        return token.length() == 1 && separators.indexOf(token) >= 0;
+        return token.length() == 1 && separators.contains(token);
     }
 
     protected StringUtils() {
@@ -697,11 +691,11 @@ public class StringUtils {
      */
     public static String createValidName(String name, char[] validChars, char replaceChar) {
         Guardian.assertNotNull("name", name);
-        char[] sortedValidChars = null;
+        char[] sortedValidChars;
         if (validChars == null) {
             sortedValidChars = new char[0];
         } else {
-            sortedValidChars = (char[]) validChars.clone();
+            sortedValidChars = validChars.clone();
         }
         Arrays.sort(sortedValidChars);
         StringBuilder validName = new StringBuilder(name.length());

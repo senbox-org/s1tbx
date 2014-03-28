@@ -22,7 +22,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -30,7 +36,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * This scanner can be used to retrieve resources, e.g. auxillary data.
+ * This scanner can be used to retrieve resources, e.g. auxiliary data.
  * The scanner searches for all resources in the given locations.
  *
  * @author Marco Peters

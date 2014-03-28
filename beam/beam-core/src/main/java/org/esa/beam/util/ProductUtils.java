@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -1565,7 +1565,6 @@ public class ProductUtils {
             CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
 
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-                try {
                 VectorDataNode sourceVDN = vectorDataGroup.get(i);
                 String name = sourceVDN.getName();
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
@@ -1584,9 +1583,6 @@ public class ProductUtils {
                 targetVDN.getFeatureCollection().addAll(featureCollection);
                 targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());
-                } catch (Exception e) {
-                    continue;
-                }
             }
         }
     }
@@ -2518,6 +2514,7 @@ public class ProductUtils {
     }
 
     public static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
+        final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
         final ArrayList<GeneralPath> pathList = new ArrayList<GeneralPath>(16);
 
         if (geoPoints.length > 1) {
@@ -2525,7 +2522,6 @@ public class ProductUtils {
             float minLon = lon;
             float maxLon = lon;
 
-            final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
             path.moveTo(lon, geoPoints[0].getLat());
             for (int i = 1; i < geoPoints.length; i++) {
                 lon = geoPoints[i].getLon();
@@ -2545,6 +2541,12 @@ public class ProductUtils {
 
             int runIndexMin = (int) Math.floor((minLon + 180) / 360);
             int runIndexMax = (int) Math.floor((maxLon + 180) / 360);
+
+            if (runIndexMin == 0 && runIndexMax == 0) {
+                // the path is completely within [-180, 180] longitude
+                pathList.add(path);
+                return pathList;
+            }
 
             final Area pathArea = new Area(path);
             for (int k = runIndexMin; k <= runIndexMax; k++) {

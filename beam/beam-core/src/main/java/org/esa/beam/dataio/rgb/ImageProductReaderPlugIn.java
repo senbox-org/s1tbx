@@ -39,7 +39,7 @@ public class ImageProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{".png", ".gif", ".jpg", ".bmp"};
+        return new String[]{".png", ".gif", ".jpg", ".bmp", ".pnm", ".pbm", ".pgm", ".ppm"};
     }
 
     @Override

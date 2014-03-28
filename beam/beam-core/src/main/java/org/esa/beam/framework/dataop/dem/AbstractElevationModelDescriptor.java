@@ -86,7 +86,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         return 0;
     }
 
-    public synchronized boolean installDemFiles(Object uiComponent) {
+    public boolean installDemFiles(Object uiComponent) {
         if (isDemInstalled()) {
             return true;
         }

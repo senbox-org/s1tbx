@@ -97,7 +97,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
             return false;
         }
 
-        return geoCoding.equals(that.geoCoding);
+        return geoCoding == that.geoCoding;
     }
 
     @Override

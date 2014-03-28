@@ -25,8 +25,7 @@ import org.junit.Test;
 import java.awt.*;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Tests for class {@link ProductSubsetBuilder}.
@@ -37,8 +36,9 @@ import static org.junit.Assert.assertNotNull;
 public class ProductSubsetBuilderTest {
 
     private Product product;
-    private static final String DUMMY_BAND1 = "dummyBand1";
-    private static final String DUMMY_BAND2 = "dummyBand2";
+    private static final String INDEX_CODED_BAND_NAME = "indexCodedBand";
+    private static final String COLORED_BAND_NAME = "coloredBand";
+    private static final String INDEX_CODING_NAME = "indexCoding";
     private static final int PRODUCT_WIDTH = 11;
     private static final int PRODUCT_HEIGHT = 11;
 
@@ -47,16 +47,16 @@ public class ProductSubsetBuilderTest {
 
         product = new Product("p", "t", PRODUCT_WIDTH, PRODUCT_HEIGHT);
         TiePointGrid lat = new TiePointGrid("t1", 3, 3, 0, 0, 5, 5,
-                                            new float[]{
-                                                    2.0f, 2.0f, 2.0f,
-                                                    1.0f, 1.0f, 1.0f,
-                                                    0.0f, 0.0f, 0.0f});
+                new float[]{
+                        2.0f, 2.0f, 2.0f,
+                        1.0f, 1.0f, 1.0f,
+                        0.0f, 0.0f, 0.0f});
         product.addTiePointGrid(lat);
         TiePointGrid lon = new TiePointGrid("t2", 3, 3, 0, 0, 5, 5,
-                                            new float[]{
-                                                    0.0f, 1.0f, 2.0f,
-                                                    0.0f, 1.0f, 2.0f,
-                                                    0.0f, 1.0f, 2.0f});
+                new float[]{
+                        0.0f, 1.0f, 2.0f,
+                        0.0f, 1.0f, 2.0f,
+                        0.0f, 1.0f, 2.0f});
         product.addTiePointGrid(lon);
         product.setGeoCoding(new TiePointGeoCoding(lat, lon, Datum.WGS_84));
         attachIndexCodedBand();
@@ -66,18 +66,18 @@ public class ProductSubsetBuilderTest {
     @Test
     public void testStxHandling() throws IOException {
         final Product product2 = ProductSubsetBuilder.createProductSubset(product, null, "subset", "");
-        assertEquals(false, product2.getBand(DUMMY_BAND1).isStxSet());
+        assertEquals(false, product2.getBand(INDEX_CODED_BAND_NAME).isStxSet());
 
-        product.getBand(DUMMY_BAND1).getStx(true, ProgressMonitor.NULL);
+        product.getBand(INDEX_CODED_BAND_NAME).getStx(true, ProgressMonitor.NULL);
         final Product product3 = ProductSubsetBuilder.createProductSubset(product, null, "subset", "");
-        assertEquals(true, product3.getBand(DUMMY_BAND1).isStxSet());
+        assertEquals(true, product3.getBand(INDEX_CODED_BAND_NAME).isStxSet());
     }
 
     @Test
     public void testPreserveImageInfo() throws IOException {
         final Product product2 = ProductSubsetBuilder.createProductSubset(product, null, "subset", "");
-        final Band band = product2.getBand(DUMMY_BAND1);
-        final Band band2 = product2.getBand(DUMMY_BAND2);
+        final Band band = product2.getBand(INDEX_CODED_BAND_NAME);
+        final Band band2 = product2.getBand(COLORED_BAND_NAME);
         assertNotNull(band);
         assertNotNull(band2);
 
@@ -95,8 +95,8 @@ public class ProductSubsetBuilderTest {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.setRegion(2, 2, 5, 5);
         final Product product2 = ProductSubsetBuilder.createProductSubset(product, subsetDef, "subset", "");
-        final Band band = product2.getBand(DUMMY_BAND1);
-        final Band band2 = product2.getBand(DUMMY_BAND2);
+        final Band band = product2.getBand(INDEX_CODED_BAND_NAME);
+        final Band band2 = product2.getBand(COLORED_BAND_NAME);
         assertNotNull(band);
         assertNotNull(band2);
 
@@ -117,21 +117,41 @@ public class ProductSubsetBuilderTest {
     }
 
     @Test
+    public void testSampleCodingPreservedInSubset() throws IOException {
+        final ProductSubsetDef subsetDef = new ProductSubsetDef();
+        subsetDef.setNodeNames(new String[]{INDEX_CODED_BAND_NAME});
+        final Product subset = ProductSubsetBuilder.createProductSubset(product, subsetDef, "subset", "");
+        assertTrue(subset.getBandGroup().contains(INDEX_CODED_BAND_NAME));
+        assertFalse(subset.getBandGroup().contains(COLORED_BAND_NAME));
+        assertTrue(subset.getIndexCodingGroup().contains(INDEX_CODING_NAME));
+    }
+
+    @Test
+    public void testSampleCodingRemovedInSubset() throws IOException {
+        final ProductSubsetDef subsetDef = new ProductSubsetDef();
+        subsetDef.setNodeNames(new String[]{COLORED_BAND_NAME});
+        final Product subset = ProductSubsetBuilder.createProductSubset(product, subsetDef, "subset", "");
+        assertFalse(subset.getBandGroup().contains(INDEX_CODED_BAND_NAME));
+        assertTrue(subset.getBandGroup().contains(COLORED_BAND_NAME));
+        assertFalse(subset.getIndexCodingGroup().contains(INDEX_CODING_NAME));
+    }
+
+    @Test
     public void testCopyPlacemarkGroupsOnlyForRegionSubset() throws IOException {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final PlacemarkDescriptor gcpDescriptor = GcpDescriptor.getInstance();
         final Placemark pin1 = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5f, 1.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark pin2 = Placemark.createPointPlacemark(pinDescriptor, "P2", "", "", new PixelPos(3.5f, 3.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark pin3 = Placemark.createPointPlacemark(pinDescriptor, "P3", "", "", new PixelPos(9.5f, 9.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark gcp1 = Placemark.createPointPlacemark(gcpDescriptor, "G1", "", "", new PixelPos(2.5f, 2.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark gcp2 = Placemark.createPointPlacemark(gcpDescriptor, "G2", "", "", new PixelPos(4.5f, 4.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark gcp3 = Placemark.createPointPlacemark(gcpDescriptor, "G3", "", "", new PixelPos(10.5f, 10.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
 
         product.getPinGroup().add(pin1);
         product.getPinGroup().add(pin2);
@@ -157,17 +177,17 @@ public class ProductSubsetBuilderTest {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final PlacemarkDescriptor gcpDescriptor = GcpDescriptor.getInstance();
         final Placemark pin1 = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5f, 1.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark pin2 = Placemark.createPointPlacemark(pinDescriptor, "P2", "", "", new PixelPos(3.5f, 3.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark pin3 = Placemark.createPointPlacemark(pinDescriptor, "P3", "", "", new PixelPos(9.5f, 9.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark gcp1 = Placemark.createPointPlacemark(gcpDescriptor, "G1", "", "", new PixelPos(2.5f, 2.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark gcp2 = Placemark.createPointPlacemark(gcpDescriptor, "G2", "", "", new PixelPos(4.5f, 4.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
         final Placemark gcp3 = Placemark.createPointPlacemark(gcpDescriptor, "G3", "", "", new PixelPos(10.5f, 10.5f), null,
-                                                              product.getGeoCoding());
+                product.getGeoCoding());
 
         product.getPinGroup().add(pin1);
         product.getPinGroup().add(pin2);
@@ -194,8 +214,8 @@ public class ProductSubsetBuilderTest {
     }
 
     private void attachIndexCodedBand() {
-        final Band band = createDataBand(0, 1, DUMMY_BAND1);
-        final IndexCoding indexCoding = new IndexCoding("ic1");
+        final Band band = createDataBand(0, 1, INDEX_CODED_BAND_NAME);
+        final IndexCoding indexCoding = new IndexCoding(INDEX_CODING_NAME);
         indexCoding.addIndex("i0", 0, "i0");
         indexCoding.addIndex("i1", 1, "i1");
         band.setSampleCoding(indexCoding);
@@ -209,7 +229,7 @@ public class ProductSubsetBuilderTest {
     }
 
     private void attachColoredBand() {
-        final Band band = createDataBand(0, 255, DUMMY_BAND2);
+        final Band band = createDataBand(0, 255, COLORED_BAND_NAME);
         ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[2];
         points[0] = new ColorPaletteDef.Point(128, Color.BLUE);
         points[1] = new ColorPaletteDef.Point(255, Color.BLACK);

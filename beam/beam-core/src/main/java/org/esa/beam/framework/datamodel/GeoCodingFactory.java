@@ -75,14 +75,27 @@ public class GeoCodingFactory {
         }
     }
 
-    static Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
-        Band band = new Band(srcBand.getName(),
-                             srcBand.getDataType(),
-                             destScene.getRasterWidth(),
-                             destScene.getRasterHeight());
-        ProductUtils.copyRasterDataNodeProperties(srcBand, band);
-        band.setSourceImage(getSourceImage(subsetDef, srcBand));
-        return band;
+    static Band createSubset(Band sourceBand, Scene targetScene, ProductSubsetDef subsetDef) {
+        final Band targetBand = new Band(sourceBand.getName(),
+                                         sourceBand.getDataType(),
+                                         targetScene.getRasterWidth(),
+                                         targetScene.getRasterHeight());
+        ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+        targetBand.setSourceImage(getSourceImage(subsetDef, sourceBand));
+        return targetBand;
+    }
+
+    // for copying mask images - don't remove
+    static Mask createSubset(Mask sourceMask, Scene targetScene, ProductSubsetDef subsetDef) {
+        final Mask targetMask = Mask.BandMathsType.create(sourceMask.getName(),
+                                                          sourceMask.getDescription(),
+                                                          targetScene.getRasterWidth(),
+                                                          targetScene.getRasterHeight(),
+                                                          Mask.BandMathsType.getExpression(sourceMask),
+                                                          sourceMask.getImageColor(),
+                                                          sourceMask.getImageTransparency());
+        targetMask.setSourceImage(getSourceImage(subsetDef, sourceMask));
+        return targetMask;
     }
 
     private static void setFlagCoding(Band band, FlagCoding flagCoding) {
@@ -117,15 +130,23 @@ public class GeoCodingFactory {
             }
             final int subSamplingX = subsetDef.getSubSamplingX();
             final int subSamplingY = subsetDef.getSubSamplingY();
-            if (subSamplingX != 1 || subSamplingY != 1) {
+            if (mustSubSample(subSamplingX, subSamplingY) || mustTranslate(region)) {
                 float scaleX = 1.0f / subSamplingX;
                 float scaleY = 1.0f / subSamplingY;
-                float transX = 0.0f;
-                float transY = 0.0f;
+                float transX = region != null ? -region.x : 0;
+                float transY = region != null ? -region.y : 0;
                 Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 sourceImage = ScaleDescriptor.create(sourceImage, scaleX, scaleY, transX, transY, interpolation, null);
             }
         }
         return sourceImage;
+    }
+
+    private static boolean mustTranslate(Rectangle region) {
+        return (region != null && (region.x != 0 || region.y != 0));
+    }
+
+    private static boolean mustSubSample(int subSamplingX, int subSamplingY) {
+        return subSamplingX != 1 || subSamplingY != 1;
     }
 }

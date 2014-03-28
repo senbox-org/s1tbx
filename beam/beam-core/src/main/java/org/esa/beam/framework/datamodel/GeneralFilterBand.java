@@ -15,115 +15,140 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.jai.GeneralFilterFunction;
 import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
 
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
  * A band that obtains its input data from an underlying source raster and filters
- * its data using an arbitrary {@link Operator algorithm}.
- * <p/>
- * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
+ * its data using a predefined {@link OpType operation type}.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class GeneralFilterBand extends FilterBand {
 
-    public static final Operator MIN = new Min();
-    public static final Operator MAX = new Max();
-    public static final Operator MEDIAN = new Median();
-    public static final Operator MEAN = new Mean();
-    public static final Operator STDDEV = new StdDev();
+    /**
+     * Predefined operation types.
+     */
+    public enum OpType {
+        MIN,
+        MAX,
+        MEDIAN,
+        MEAN,
+        STDDEV,
+        /**
+         * Morphological erosion (= min)
+         */
+        EROSION,
+        /**
+         * Morphological dilation (= max)
+         */
+        DILATION,
+        OPENING,
+        CLOSING,
+    }
 
-    private static final Operator[] operators = {MIN, MAX, MEDIAN, MEAN, STDDEV};
-
-    private final int subWindowSize;
-    private final Operator operator;
+    private final OpType opType;
+    private final Kernel structuringElement;
+    private final int iterationCount;
 
     /**
      * Creates a GeneralFilterBand.
      *
-     * @param name          the name of the band.
-     * @param source        the source which shall be filtered.
-     * @param subWindowSize the window size (width/height) used by the filter
-     * @param operator      the operator which performs the filter operation
+     * @param name               the name of the band.
+     * @param source             the source which shall be filtered.
+     * @param opType             the predefined operation type.
+     * @param structuringElement the structuring element (as used by morphological filters)
      */
-    public GeneralFilterBand(String name, RasterDataNode source, int subWindowSize, Operator operator) {
+    public GeneralFilterBand(String name, RasterDataNode source, OpType opType, Kernel structuringElement, int iterationCount) {
         super(name,
               source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
               source.getSceneRasterWidth(),
               source.getSceneRasterHeight(),
               source);
-        this.subWindowSize = subWindowSize;
-        this.operator = operator;
+        Assert.notNull(opType, "opType");
+        Assert.notNull(structuringElement, "structuringElement");
+        this.opType = opType;
+        this.structuringElement = structuringElement;
+        this.iterationCount = iterationCount;
+    }
+
+    public OpType getOpType() {
+        return opType;
+    }
+
+    public Kernel getStructuringElement() {
+        return structuringElement;
     }
 
     /**
-     * Creates an instance {@link Operator} by the given class name
+     * Returns the source level-image according the the
      *
-     * @param operatorClassName the class name
-     * @return instance of {@link Operator}
+     * @param sourceImage The geophysical source image. No-data is masked as NaN.
+     * @param level       The image level.
+     * @param rh          Rendering hints. JAI.KEY_BORDER_EXTENDER is set to BorderExtenderCopy.BORDER_COPY.
+     * @return The resulting filtered level image.
      */
-    public static Operator createOperator(String operatorClassName) {
-        for (Operator operator : operators) {
-            if (operator.getClass().getName().equals(operatorClassName)) {
-                return operator;
-            }
-        }
-        return null;
-    }
-
-    public int getSubWindowSize() {
-        return subWindowSize;
-    }
-
-    public Operator getOperator() {
-        return operator;
-    }
-
     @Override
     protected RenderedImage createSourceLevelImage(RenderedImage sourceImage, int level, RenderingHints rh) {
-        if (getOperator() == MIN) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Min(subWindowSize), rh);
-        } else if (getOperator() == MAX) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Max(subWindowSize), rh);
-        } else if (getOperator() == MEDIAN) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Median(subWindowSize), rh);
-        } else if (getOperator() == MEAN) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Mean(subWindowSize), rh);
-        } else if (getOperator() == STDDEV) {
-            return GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.StdDev(subWindowSize), rh);
+        int x = structuringElement.getXOrigin();
+        int y = structuringElement.getYOrigin();
+        int w = structuringElement.getWidth();
+        int h = structuringElement.getHeight();
+        boolean[] data = toStructuringElementData(structuringElement);
+        RenderedImage targetImage = sourceImage;
+        for (int i = 0; i < iterationCount; i++) {
+            targetImage = createSourceLevelImage(targetImage, x, y, w, h, data, rh);
         }
-        throw new IllegalStateException(
-                String.format("Operator class %s not supported.", getOperator().getClass()));
-
+        return targetImage;
     }
 
-
-    /**
-     * An operator which performs an operation on an array of pixel values extracted from a raster sub-window.
-     * <p/>
-     * Note: since BEAM 5, this serves as just a marker interface.
-     */
-    public static interface Operator {
+    private RenderedImage createSourceLevelImage(RenderedImage sourceImage, int x, int y, int w, int h, boolean[] data, RenderingHints rh) {
+        RenderedImage targetImage;
+        if (getOpType() == OpType.MIN) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Min(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.MAX) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Max(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.MEDIAN) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Median(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.MEAN) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Mean(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.STDDEV) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.StdDev(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.EROSION) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Erosion(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.DILATION) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Dilation(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.OPENING) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Erosion(w, h, x, y, data), rh);
+            targetImage = GeneralFilterDescriptor.create(targetImage, new GeneralFilterFunction.Dilation(w, h, x, y, data), rh);
+        } else if (getOpType() == OpType.CLOSING) {
+            targetImage = GeneralFilterDescriptor.create(sourceImage, new GeneralFilterFunction.Dilation(w, h, x, y, data), rh);
+            targetImage = GeneralFilterDescriptor.create(targetImage, new GeneralFilterFunction.Erosion(w, h, x, y, data), rh);
+        } else {
+            throw new IllegalStateException(String.format("Unsupported operation type '%s'", getOpType()));
+        }
+        return targetImage;
     }
 
-    public static class Min implements Operator {
-    }
-
-    public static class Max implements Operator {
-    }
-
-    public static class Mean implements Operator {
-    }
-
-    public static class Median implements Operator {
-    }
-
-    public static class StdDev implements Operator {
+    private static boolean[] toStructuringElementData(Kernel kernel) {
+        double[] kernelElements = kernel.getKernelData(null);
+        boolean[] structuringElement = new boolean[kernelElements.length];
+        boolean hasFalse = false;
+        boolean hasTrue = false;
+        for (int i = 0; i < kernelElements.length; i++) {
+            boolean b = kernelElements[i] != 0.0;
+            if (b) {
+                hasTrue = true;
+            } else {
+                hasFalse = true;
+            }
+            structuringElement[i] = b;
+        }
+        return hasTrue && hasFalse ? structuringElement : null;
     }
 
 }

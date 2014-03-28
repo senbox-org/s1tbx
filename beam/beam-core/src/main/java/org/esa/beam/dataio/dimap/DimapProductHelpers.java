@@ -1095,8 +1095,8 @@ public class DimapProductHelpers {
                 }
                 final int type = ProductData.getType(attType);
 
-                final String attValue = attribElement.getText();
-                if (attValue == null) {                  //NESTMOD  allow black attributes
+                final String attValue = attribElement.getTextTrim();
+                if (attValue == null) {                  //NESTMOD  allow blank attributes
                     continue;
                 }
                 final ProductData data;

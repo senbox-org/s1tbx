@@ -68,15 +68,14 @@ public class BeamFileChooser extends JFileChooser {
         init();
     }
 
-  //NESTMOD
-  //  @Override
-  //  public Icon getIcon(File f) {
-  //      final Icon icon = super.getIcon(f);
-  //      if (f.isDirectory() && isCompoundDocument(f)) {
-  //          return new CompoundDocumentIcon(icon);
-  //      }
-  //      return icon;
-  //  }
+    @Override
+    public Icon getIcon(File f) {
+        final Icon icon = super.getIcon(f);
+        if (f.isDirectory() && isCompoundDocument(f)) {
+            return new CompoundDocumentIcon(icon);
+        }
+        return icon;
+    }
 
     @Override
     public boolean isTraversable(File f) {
@@ -277,7 +276,6 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     private boolean isCompoundDocument(File file) {
-        try {
         final FileFilter[] filters = getChoosableFileFilters();
         for (FileFilter fileFilter : filters) {
             if (fileFilter instanceof BeamFileFilter) {
@@ -286,9 +284,6 @@ public class BeamFileChooser extends JFileChooser {
                     return true;
                 }
             }
-        }
-        } catch(Exception e) {
-            //e.printStackTrace();
         }
         return false;
     }

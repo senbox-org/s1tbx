@@ -73,7 +73,7 @@ public class FilterOperator extends Operator {
         populateFilterMap(SMOOTHING_FILTERS);
         populateFilterMap(SHARPENING_FILTERS);
         populateFilterMap(LAPLACIAN_FILTERS);
-        populateFilterMap(NON_LINEAR_FILTERS);
+       // populateFilterMap(NON_LINEAR_FILTERS);
     }
 
     private void populateFilterMap(Filter[] filters) {
@@ -98,7 +98,7 @@ public class FilterOperator extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        try {
+ /*       try {
             targetProduct = new Product(sourceProduct.getName(),
                                         sourceProduct.getProductType(),
                                         sourceProduct.getSceneRasterWidth(),
@@ -138,7 +138,7 @@ public class FilterOperator extends Operator {
             targetProduct.setPreferredTileSize(sourceProduct.getSceneRasterWidth(), 512);
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }
+        }    */
     }
 
     /**
@@ -165,7 +165,7 @@ public class FilterOperator extends Operator {
             }
         }
     }
-
+ /*
     private static FilterBand createFilterBand(Filter filter, String bandName, RasterDataNode raster) {
 
         final FilterBand filterBand;
@@ -179,7 +179,7 @@ public class FilterOperator extends Operator {
         final String descr = MessageFormat.format("Filter ''{0}''", filter.toString());
         filterBand.setDescription(descr);
         return filterBand;
-    }
+    }    */
 
     private static KernelFilter getUserDefinedFilter(File userDefinedKernelFile) {
         final float[][] kernelData = UndersamplingOp.readFile(userDefinedKernelFile.getAbsolutePath());
@@ -234,7 +234,7 @@ public class FilterOperator extends Operator {
         }
     }
 
-    private static class GeneralFilter extends Filter {
+ /*   private static class GeneralFilter extends Filter {
 
         final int width;
         final int height;
@@ -257,7 +257,7 @@ public class FilterOperator extends Operator {
             }
             return false;
         }
-    }
+    }   */
 
     static final Filter[] LINE_DETECTION_FILTERS = {
             new KernelFilter("Horizontal Edges", new Kernel(3, 3, new double[]{
@@ -402,7 +402,7 @@ public class FilterOperator extends Operator {
                     +1, +1, +1, +1, +1,
             })),
     };
-
+ /*
     static final Filter[] NON_LINEAR_FILTERS = {
             new GeneralFilter("Minimum 3x3", 3, 3, GeneralFilterBand.MIN),
             new GeneralFilter("Minimum 5x5", 5, 5, GeneralFilterBand.MIN),
@@ -416,7 +416,7 @@ public class FilterOperator extends Operator {
             //new GeneralFilter("Standard Deviation 5x5", 5, 5, GeneralFilterBand.STDDEV),
             //new GeneralFilter("Root-Mean-Square 3x3", 3, 3, GeneralFilterBand.RMS),
             //new GeneralFilter("Root-Mean-Square 5x5", 5, 5, GeneralFilterBand.RMS),
-    };
+    }; */
 
     /**
      * The SPI is used to register this operator in the graph processing framework

@@ -19,7 +19,6 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**

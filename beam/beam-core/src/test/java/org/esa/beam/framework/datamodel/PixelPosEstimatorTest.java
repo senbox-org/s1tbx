@@ -45,7 +45,7 @@ public class PixelPosEstimatorTest {
 
     @Test
     @Ignore
-    public void testGetPixelPos() {
+    public void testGetPixelPosForSimulatedSwath() {
         final int nx = 512;
         final int ny = 36000;
 
@@ -76,7 +76,7 @@ public class PixelPosEstimatorTest {
     }
 
     @Test
-    public void testCreateApproximation() {
+    public void testSingleApproximation() {
         final int nx = 512;
         final int ny = 512;
         final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, 0.0, 265.0));

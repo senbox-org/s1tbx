@@ -163,7 +163,7 @@ public class FilterOpUI extends BaseOperatorUI {
         root.add(createNodes("Smooth and Blurr", FilterOperator.SMOOTHING_FILTERS));
         root.add(createNodes("Sharpen", FilterOperator.SHARPENING_FILTERS));
         root.add(createNodes("Enhance Discontinuities", FilterOperator.LAPLACIAN_FILTERS));
-        root.add(createNodes("Non-Linear Filters", FilterOperator.NON_LINEAR_FILTERS));
+        //root.add(createNodes("Non-Linear Filters", FilterOperator.NON_LINEAR_FILTERS));
         final JTree tree = new JTree(root);
         tree.setRootVisible(false);
         tree.setShowsRootHandles(true);

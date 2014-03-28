@@ -118,7 +118,7 @@ public interface ProductWriter {
     void close() throws IOException;
 
     /**
-     * Returns wether the given product node is to be written.
+     * Returns whether the given product node is to be written.
      *
      * @param node the product node
      *

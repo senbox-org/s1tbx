@@ -22,7 +22,8 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 
 import javax.media.jai.Histogram;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Map;
 
@@ -449,16 +450,13 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         }
         if (!isMetadataIgnored()) {
             ProductUtils.copyMetadata(sourceProduct, product);
-            addTiePointGridsToProduct(product);
-            addFlagCodingsToProduct(product);
-            addIndexCodingsToProduct(product);
         }
+        addTiePointGridsToProduct(product);
         addBandsToProduct(product);
-        if (!isMetadataIgnored()) {
-            addGeoCodingToProduct(product);
-        }
-        ProductUtils.copyVectorData(sourceProduct, product);
         ProductUtils.copyMasks(sourceProduct, product);
+		addFlagCodingsToProduct(product);
+        addGeoCodingToProduct(product);
+		addIndexCodingsToProduct(product);        ProductUtils.copyVectorData(sourceProduct, product);
         ProductUtils.copyOverlayMasks(sourceProduct, product);
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
         setSceneRasterStartAndStopTime(product);
@@ -568,14 +566,16 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();
                     FlagCoding destFlagCoding = product.getFlagCodingGroup().get(flagCodingName);
-                    Debug.assertNotNull(
-                            destFlagCoding); // should not happen because flag codings should be already in product
+                    if (destFlagCoding == null) {
+                        destFlagCoding = ProductUtils.copyFlagCoding(sourceFlagCoding, product);
+                    }
                     destBand.setSampleCoding(destFlagCoding);
                 } else if (sourceIndexCoding != null) {
                     String indexCodingName = sourceIndexCoding.getName();
                     IndexCoding destIndexCoding = product.getIndexCodingGroup().get(indexCodingName);
-                    Debug.assertNotNull(
-                            destIndexCoding); // should not happen because index codings should be already in product
+                    if (destIndexCoding == null) {
+                        destIndexCoding = ProductUtils.copyIndexCoding(sourceIndexCoding, product);
+                    }
                     destBand.setSampleCoding(destIndexCoding);
                 } else {
                     destBand.setSampleCoding(null);

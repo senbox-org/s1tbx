@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,8 @@ import java.awt.image.WritableRaster;
 public final class FillConstantOpImage extends PointOpImage {
 
     private final Number fillValue;
-    private final RasterFormatTag maskRasterFormatTag;
+    private final RasterFormatTag maskFormatTag;
+    private final RasterFormatTag[] srcDestFormatTags;
 
     /**
      * Where the mask image is set the original values in the source image are preserved.
@@ -47,7 +48,8 @@ public final class FillConstantOpImage extends PointOpImage {
         super(sourceImage, maskImage, createImageLayout(sourceImage, fillValue), null, true);
         this.fillValue = fillValue;
         int compatibleTagId = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());
-        maskRasterFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTagId);
+        maskFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTagId);
+        srcDestFormatTags = RasterAccessor.findCompatibleTags(new RenderedImage[]{sourceImage}, this);
     }
 
     private static ImageLayout createImageLayout(RenderedImage sourceImage, Number fillValue) {
@@ -60,10 +62,9 @@ public final class FillConstantOpImage extends PointOpImage {
 
     @Override
     protected void computeRect(Raster[] sources, WritableRaster dest, Rectangle destRect) {
-        RasterFormatTag[] formatTags = getFormatTags();
-        RasterAccessor s = new RasterAccessor(sources[0], destRect, formatTags[0], getSourceImage(0).getColorModel());
-        RasterAccessor m = new RasterAccessor(sources[1], destRect, maskRasterFormatTag, getSourceImage(1).getColorModel());
-        RasterAccessor d = new RasterAccessor(dest, destRect, formatTags[2], getColorModel());
+        RasterAccessor s = new RasterAccessor(sources[0], destRect, srcDestFormatTags[0], getSourceImage(0).getColorModel());
+        RasterAccessor m = new RasterAccessor(sources[1], destRect, maskFormatTag, getSourceImage(1).getColorModel());
+        RasterAccessor d = new RasterAccessor(dest, destRect, srcDestFormatTags[1], getColorModel());
         switch (d.getDataType()) {
             case 0: // '\0'
                 computeRectByte(s, m, d, fillValue.byteValue());
