@@ -39,6 +39,7 @@ public class OpParameterInitialisationTest {
     public void testUnknownParameters() {
         try {
             final SomeOp op = new SomeOp();
+            op.setParameterDefaultValues();
             op.setParameter("pi", 21);
             op.getTargetProduct(); // force initialisation through framework
             assertEquals(21, op.getParameter("pi"));
@@ -50,6 +51,7 @@ public class OpParameterInitialisationTest {
 
         try {
             final SomeOp op = new SomeOp();
+            op.setParameterDefaultValues();
             op.setParameter("iamAnUnknownParameter", -1);
             op.getTargetProduct(); // force initialisation through framework
         } catch (OperatorException e) {
@@ -61,6 +63,7 @@ public class OpParameterInitialisationTest {
     @Test
     public void testParameterDefaultValueInitialisation() {
         final SomeOp op = new SomeOp();
+        op.setParameterDefaultValues();
         testParameterValues(op, false);
         op.getTargetProduct(); // force initialisation through framework
         testParameterValues(op, true);
@@ -69,6 +72,7 @@ public class OpParameterInitialisationTest {
     @Test
     public void testDerivedParameterDefaultValueInitialisation() {
         final SomeDerivedOp op = new SomeDerivedOp();
+        op.setParameterDefaultValues();
         testParameterValues(op, false);
         assertEquals(new File("/usr/marco"), op.pFile);
         op.getTargetProduct(); // force initialisation through framework

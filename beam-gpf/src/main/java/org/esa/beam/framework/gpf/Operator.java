@@ -85,7 +85,13 @@ public abstract class Operator {
      */
     protected Operator() {
         context = new OperatorContext(this);
-        context.injectParameterDefaultValues();
+    }
+
+    /**
+     * Sets the operator parameters to their default values, if any.
+     */
+    public void setParameterDefaultValues() {
+        context.getParameterSet().setDefaultValues();
     }
 
     /**

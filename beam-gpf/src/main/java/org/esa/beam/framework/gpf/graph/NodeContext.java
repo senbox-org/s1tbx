@@ -122,7 +122,7 @@ public class NodeContext {
             this.operator.setLogger(graphContext.getLogger());
             // this.operator.setConfiguration(node.getConfiguration());
         } catch (OperatorException e) {
-            throw new GraphException("Failed to create instance of operator '" + node.getOperatorName() + "'");
+            throw new GraphException("Failed to create instance of operator '" + node.getOperatorName() + "'", e);
         }
     }
 
@@ -133,9 +133,7 @@ public class NodeContext {
             operatorContext = (OperatorContext) field.get(operator);
             operatorContext.setId(node.getId());
             field.setAccessible(false);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
     }
