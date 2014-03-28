@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.jdom.Element;
+import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -310,7 +310,7 @@ public class L1BModisFileReader extends SeadasFileReader {
         //grab granuleID
         try {
             Element inventoryMetadata = eosElement.getChild("INVENTORYMETADATA");
-            Element inventoryElem = (Element) inventoryMetadata.getChildren().get(0);
+            Element inventoryElem = inventoryMetadata.getChildren().get(0);
             Element ecsdataElem = inventoryElem.getChild("ECSDATAGRANULE");
             Element granIdElem = ecsdataElem.getChild("LOCALGRANULEID");
             String granId = granIdElem.getValue().substring(1);
