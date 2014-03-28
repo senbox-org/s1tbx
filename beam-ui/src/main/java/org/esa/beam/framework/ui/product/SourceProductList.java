@@ -79,15 +79,18 @@ public class SourceProductList {
      * Constructor.
      *
      * @param appContext                 The context of the app using this component.
-     * @param propertySourceProductPaths A property which serves as target container for the source product paths. Must be of type <code>String[].class</code>.
+     * @param propertySourceProductPaths A property which serves as target container for the source product paths. Must
+     *                                   be of type <code>String[].class</code>. Changes in the list are synchronised
+     *                                   with the property. If the changes of the property values outside this component
+     *                                   shall be synchronised with the list, it is necessary that the property lies
+     *                                   within a property container.
      * @param lastOpenInputDir           A property name indicating the last directory the user has opened, may be <code>null</code>.
      * @param lastOpenedFormat           A property name indicating the last product format the user has opened, may be <code>null</code>.
      * @param changeListener             A listener that is informed every time the list's contents change.
      */
     public SourceProductList(AppContext appContext, Property propertySourceProductPaths, String lastOpenInputDir, String lastOpenedFormat, ChangeListener changeListener) {
-        this.appContext = appContext;
-        this.changeListener = changeListener;
         Assert.argument(propertySourceProductPaths.getType().equals(String[].class), "propertySourceProductPaths must be of type String.class");
+        this.appContext = appContext;
         this.propertySourceProductPaths = propertySourceProductPaths;
         if (StringUtils.isNullOrEmpty(lastOpenInputDir)) {
             this.lastOpenInputDir = "org.esa.beam.framework.ui.product.lastOpenInputDir";
@@ -99,6 +102,7 @@ public class SourceProductList {
         } else {
             this.lastOpenedFormat = lastOpenedFormat;
         }
+        this.changeListener = changeListener;
     }
 
     /**

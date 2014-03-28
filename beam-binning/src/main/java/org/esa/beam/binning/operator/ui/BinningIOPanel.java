@@ -17,6 +17,7 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import org.apache.commons.lang.ArrayUtils;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -25,6 +26,8 @@ import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.SourceProductList;
+import org.esa.beam.util.io.WildcardMatcher;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -33,9 +36,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  * The panel in the binning operator UI which allows for setting input products and the path of the output product.
@@ -73,14 +81,6 @@ class BinningIOPanel extends JPanel {
     }
 
     private JPanel createSourceProductsPanel() {
-//        final TableLayout layout = new TableLayout(2);
-//        layout.setTablePadding(4, 4);
-//        layout.setTableWeightX(1.0);
-//        layout.setTableWeightY(1.0);
-//        layout.setTableAnchor(TableLayout.Anchor.WEST);
-//        layout.setTableFill(TableLayout.Fill.BOTH);
-//        layout.setRowPadding(0, new Insets(1, 4, 1, 4));
-
         BorderLayout layout = new BorderLayout();
 
         final JPanel sourceProductPanel = new JPanel(layout);
@@ -93,11 +93,7 @@ class BinningIOPanel extends JPanel {
                     @Override
                     protected Void doInBackground() throws Exception {
                         final String[] productFiles = removeDuplicates((String[]) sourceProductPaths.getValue());
-                        final Product[] products = new Product[productFiles.length];
-                        for (int i = 0; i < productFiles.length; i++) {
-                            final File productFile = new File(productFiles[i]);
-                            products[i] = ProductIO.readProduct(productFile);
-                        }
+                        Product[] products = openProducts(productFiles);
                         Object[] allProducts = ArrayUtils.addAll(products, sourceProductList.getSourceProducts());
                         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS, allProducts);
                         return null;
@@ -130,4 +126,40 @@ class BinningIOPanel extends JPanel {
 
         return sourceProductPanel;
     }
+
+    private Product[] openProducts(String[] inputPaths) {
+        if (inputPaths != null) {
+
+            final Logger logger = BeamLogManager.getSystemLogger();
+
+            List<Product> products = new ArrayList<>();
+            for (String inputPath : inputPaths) {
+                if (inputPath == null || inputPath.trim().length() == 0) {
+                    continue;
+                }
+                try {
+                    final TreeSet<File> fileSet = new TreeSet<>();
+                    WildcardMatcher.glob(inputPath, fileSet);
+                    boolean firstProduct = true;
+                    for (File file : fileSet) {
+                        final Product product = ProductIO.readProduct(file);
+                        if (product != null) {
+                            products.add(product);
+                            if (firstProduct) {
+                                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS, new Product[]{product});
+                                firstProduct = false;
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.severe("I/O problem occurred while scanning source product files: " + e.getMessage());
+                } catch (ValidationException e) {
+                    throw new IllegalStateException("Cannot come here.", e);
+                }
+            }
+            return products.toArray(new Product[products.size()]);
+        }
+        return new Product[0];
+    }
+
 }

@@ -41,23 +41,25 @@ class InputListModel extends AbstractListModel<Object> {
 
     InputListModel(Property propertySourceProductPaths) {
         sourceProductPaths = propertySourceProductPaths;
-        sourceProductPaths.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (!internalPropertyChange) {
-                    Object newValue = evt.getNewValue();
-                    try {
-                        if (newValue == null) {
-                            clear();
-                        } else {
-                            setElements((String[]) newValue);
+        if (sourceProductPaths.getContainer() != null) {
+            sourceProductPaths.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (!internalPropertyChange) {
+                        Object newValue = evt.getNewValue();
+                        try {
+                            if (newValue == null) {
+                                clear();
+                            } else {
+                                setElements((String[]) newValue);
+                            }
+                        } catch (ValidationException e) {
+                            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Problems at setElements.", e);
                         }
-                    } catch (ValidationException e) {
-                        BeamLogManager.getSystemLogger().log(Level.SEVERE, "Problems at setElements.", e);
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
