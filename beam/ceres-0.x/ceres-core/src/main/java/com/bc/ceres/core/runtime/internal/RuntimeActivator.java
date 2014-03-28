@@ -233,9 +233,9 @@ public class RuntimeActivator implements Activator {
                     ServiceRegistration serviceRegistration = new ServiceRegistration(url, module, serviceRegistry);
                     if (!serviceRegistrationsForClass.contains(serviceRegistration)) {
                         serviceRegistrationsForClass.add(serviceRegistration);
-                    } //else {  //NESTMOD
-                      //  moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
-                    //}
+                    } else {
+                        moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
+                    }
                 } else {
                     moduleContext.getLogger().warning("Module not found for service provider URL " + url);
                 }
