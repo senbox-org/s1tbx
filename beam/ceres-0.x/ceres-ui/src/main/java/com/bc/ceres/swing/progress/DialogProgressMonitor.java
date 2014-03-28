@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -79,22 +79,24 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      *                  the implementation is free to indicate progress in a way which
      *                  doesn't require the total number of work units in advance.
      */
-    public void beginTask(String name, int totalWork) {
+    public void beginTask(final String name, int totalWork) {
         Assert.notNull(name, "name");
         this.currentWork = 0.0;
         this.totalWork = totalWork;
         this.currentWorkUI = 0;
         this.lastWorkUI = 0;
         this.totalWorkUI = progressDialog.getMaximum() - progressDialog.getMinimum();
-        if (messageLabel != null) {
-            this.messageLabel.setText(name);
-        }
+
         runInUI(new Runnable() {
             public void run() {
                 if (progressDialog != null) {
                     if (currentWorkUI < totalWorkUI) {
+                        if (messageLabel != null) {
+                            messageLabel.setText(name);
+                        }
                         progressDialog.show();
                     } else {
+                        progressDialog.close();
                         progressDialog = null; // no longer used                        
                     }
                 }
@@ -221,6 +223,10 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      */
     public void worked(int work) {
         internalWorked(work);
+    }
+
+    void setModalityType(Dialog.ModalityType modalityType) {
+        progressDialog.setModalityType(modalityType);
     }
 
     ////////////////////////////////////////////////////////////////////////

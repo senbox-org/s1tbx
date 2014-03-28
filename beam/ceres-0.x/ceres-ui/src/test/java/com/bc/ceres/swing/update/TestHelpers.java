@@ -16,21 +16,16 @@
 
 package com.bc.ceres.swing.update;
 
-import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.ModuleState;
-import com.bc.ceres.core.runtime.Version;
-import com.bc.ceres.core.runtime.internal.ModuleImpl;
-import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
-import junit.framework.Assert;
-import org.junit.Ignore;
+import com.bc.ceres.core.*;
+import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.internal.*;
+import org.junit.Assert;
+import org.junit.*;
 
-import java.io.IOException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.io.*;
+import java.net.*;
+import java.text.*;
+import java.util.*;
 
 @Ignore
 public class TestHelpers {

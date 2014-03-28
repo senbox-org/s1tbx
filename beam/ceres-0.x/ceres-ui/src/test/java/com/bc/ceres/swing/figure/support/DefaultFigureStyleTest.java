@@ -107,6 +107,20 @@ public class DefaultFigureStyleTest {
                          DefaultFigureStyle.createPolygonStyle(new Color(12, 23, 34, 127), new Color(100, 100, 100, 98)));
     }
 
+    @Test
+    public void testEquals() {
+        FigureStyle oneStyle = DefaultFigureStyle.createPointStyle(ImageSymbol.createIcon("TestSymbolIcon.png", 2.0, 6.0));
+        FigureStyle sameStyle = DefaultFigureStyle.createPointStyle(ImageSymbol.createIcon("TestSymbolIcon.png", 2.0, 6.0));
+        FigureStyle otherStyle = DefaultFigureStyle.createPointStyle(NamedSymbol.STAR, Color.ORANGE, new BasicStroke(2.5f));
+        FigureStyle sameOtherStyle = DefaultFigureStyle.createPointStyle(NamedSymbol.STAR, Color.ORANGE, new BasicStroke(2.5f));
+
+        assertEquals(true, oneStyle.equals(oneStyle));
+        assertEquals(true, oneStyle.equals(sameStyle));
+        assertEquals(false, oneStyle.equals(otherStyle));
+        assertEquals(false, oneStyle.equals(sameOtherStyle));
+        assertEquals(true, otherStyle.equals(sameOtherStyle));
+    }
+
     private void testToPointCss(String expectedCss, FigureStyle style) {
         String css = style.toCssString();
         assertEquals(expectedCss, css);

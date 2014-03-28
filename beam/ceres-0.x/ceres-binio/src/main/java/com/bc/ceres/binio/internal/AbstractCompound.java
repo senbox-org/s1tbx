@@ -30,7 +30,7 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
 
     private final CompoundType compoundType;
     private final long position;
-    protected final MemberInstance[] members;
+    private final MemberInstance[] members;
 
     protected AbstractCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position) {
         super(context, parent);
@@ -86,27 +86,32 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
 
     @Override
     public byte getByte(int index) throws IOException {
-        return getMemberInstance(index).getByte();
+        final MemberInstance memberInstance = getMemberInstance(index);
+        return memberInstance.getByte();
     }
 
     @Override
     public short getShort(int index) throws IOException {
-        return getMemberInstance(index).getShort();
+        final MemberInstance memberInstance = getMemberInstance(index);
+        return memberInstance.getShort();
     }
 
     @Override
     public int getInt(int index) throws IOException {
-        return getMemberInstance(index).getInt();
+        final MemberInstance memberInstance = getMemberInstance(index);
+        return memberInstance.getInt();
     }
 
     @Override
     public long getLong(int index) throws IOException {
-        return getMemberInstance(index).getLong();
+        final MemberInstance memberInstance = getMemberInstance(index);
+        return memberInstance.getLong();
     }
 
     @Override
     public float getFloat(int index) throws IOException {
-        return getMemberInstance(index).getFloat();
+        final MemberInstance memberInstance = getMemberInstance(index);
+        return memberInstance.getFloat();
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class MetadataEngineMainTest {
 

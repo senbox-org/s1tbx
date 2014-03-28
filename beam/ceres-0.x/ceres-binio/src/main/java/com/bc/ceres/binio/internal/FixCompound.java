@@ -21,16 +21,8 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.Type;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 
 final class FixCompound extends AbstractCompound {
-    private Segment segment;
-    private CompoundType compoundType;
-    private int[] offsetList;
-    private boolean offsetsCalculated = false;
-    private int baseOffset;
 
     FixCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position) {
         this(context, parent, compoundType, new Segment(position, compoundType.getSize()), 0);
@@ -38,33 +30,12 @@ final class FixCompound extends AbstractCompound {
 
     FixCompound(DataContext context, CollectionData parent, CompoundType compoundType, Segment segment, int bufferOffset) {
         super(context, parent, compoundType, segment.getPosition() + bufferOffset);
-        this.segment = segment;
-        this.compoundType = compoundType;
-        this.baseOffset = bufferOffset;
-        offsetList = new int[compoundType.getMemberCount()];
-        offsetList[0] = bufferOffset;
-    }
-
-    private void calculateOffsets() {
-        final int cnt = compoundType.getMemberCount();
-        int bufferOffset = baseOffset;
-        for (int i = 0; i < cnt; i++) {
-            offsetList[i] = bufferOffset;
-            bufferOffset += compoundType.getMemberSize(i);
+        for (int i = 0; i < compoundType.getMemberCount(); i++) {
+            final Type memberType = compoundType.getMember(i).getType();
+            setMemberInstance(i, InstanceFactory.createFixMember(context, this, memberType, segment, bufferOffset));
+            bufferOffset += memberType.getSize();
         }
-        offsetsCalculated = true;
     }
-
-    protected final MemberInstance getMemberInstance(final int index) throws IOException {
-        if(members[index] == null) {
-            if(index > 0 && !offsetsCalculated)
-                calculateOffsets();
-            members[index] = InstanceFactory.createFixMember(getContext(), this,
-                    compoundType.getMemberType(index), segment, offsetList[index]);
-        }
-        return members[index];
-    }
-
 
     @Override
     public long getSize() {

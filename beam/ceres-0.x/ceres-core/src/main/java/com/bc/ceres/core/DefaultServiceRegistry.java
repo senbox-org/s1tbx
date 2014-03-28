@@ -34,8 +34,8 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     public DefaultServiceRegistry(Class<T> serviceType) {
         Assert.notNull(serviceType, "serviceType");
         this.serviceType = serviceType;
-        this.services = new HashMap<String, T>(10);
-        this.listeners = new ArrayList<ServiceRegistryListener<T>>(3);
+        this.services = new HashMap<>(10);
+        this.listeners = new ArrayList<>(3);
     }
 
     /**

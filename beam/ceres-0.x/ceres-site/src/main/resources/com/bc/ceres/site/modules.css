@@ -1,0 +1,130 @@
+body { background-color: white;
+       margin-top:10px; }
+
+.footer { font-family:Verdana, Arial, Helvetica, sans-serif;
+          font-size:10px;
+          width:90%; }
+
+h2 { font-size:13px !important; }
+
+a:link 	  {color:A72525; text-decoration:none;}
+a:active  {color:630C3F; text-decoration:none;}
+a:visited {color:740C50; text-decoration:none;}
+a:hover   {color:02773F; text-decoration:underline;}
+
+.module .head  { display: none; }
+/* .head * { display:none; } */
+
+.module { background-color: #ffffff;
+	  border: 1px solid;
+	  border-color:#ffbbbb;
+	  margin-bottom:10px;
+	  width:90%;
+	  font-family:Verdana, Arial, Helvetica, sans-serif;
+	  font-size:12;}
+.module .name { background-color:#F2E9D4;
+		padding-top:2px;
+		padding-bottom:3px;}
+.module .symbolicName { display: none;}
+.module .activatorClassName { display: none;}
+.module .manifestVersion { display:none; }
+.module .packaging { display:none; }
+.module * { display: block; empty-cells: show;
+	    padding: 2px;
+	    padding-top:1px;
+	    padding-bottom:1px;}
+
+.module .key   { display: inline; float: left;width: 170px; font-weight: bold; }
+.module .value { display: inline; float: right; margin-left: 180px; color: black; font-weight: none; clear:right;}
+
+.modules
+{   empty-cells:show;
+}
+
+.modules .head
+{   background-color:#DACFB5;
+    padding:4px;
+    vertical-align:middle;
+    font-weight:bold;
+}
+.modules .name               td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .description        td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .aboutUrl           td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .vendor             td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .activatorClassName { display:none; }
+.modules .symbolicName       { display:none; }
+.modules .contactAddress     td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .url                td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .copyright          td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .licenseUrl         td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .manifestVersion    { display:none; }
+.modules .packaging          { display:none; }
+.modules .version            td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .contentLength      td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .lastModified       td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .keywords           td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .key                td { vertical-align:top; border: solid 1px #F2E9D4; }
+
+
+.modules * .key
+{   font-weight:bold;
+    width:150px;
+}
+.modules .totop
+{   border:none;
+    background-color:white;
+    text-align:right;
+}
+
+.toc_modules .head .name               { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;}
+.toc_modules .head .description        { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;min-width:400px;}
+.toc_modules .head .aboutUrl           { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;}
+.toc_modules .head .vendor             { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;}
+.toc_modules .head .activatorClassName { display: none; }
+.toc_modules .head .symbolicName       { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;}
+.toc_modules .head .contactAddress     { display: none; }
+.toc_modules .head .url                { display: none; }
+.toc_modules .head .copyright          { display: none; }
+.toc_modules .head .licenseUrl         { display: none; }
+.toc_modules .head .manifestVersion    { display: none; }
+.toc_modules .head .packaging          { display: none; }
+.toc_modules .head .version            { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;}
+.toc_modules .head .contentLength      { display: none; }
+.toc_modules .head .lastModified       { display: visible; border: none; background-color: #DACFB5; padding: 4px; margin: 2px; font-weight: bold;}
+
+.toc_modules                           { display: visible; empty-cells: show; padding: 2px; margin: 2px; }
+.toc_modules                        td { vertical-align: middle; display: visible; empty-cells: show; padding: 4px; margin: 2px; }
+.toc_modules .line                     { display: visible;  border: thin solid #F2E9D4; padding: 2px; margin: 2px;}
+.toc_modules .line .name               { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px;}
+.toc_modules .line .description        { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; min-width:400px;}
+.toc_modules .line .aboutUrl           { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
+.toc_modules .line .vendor             { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
+.toc_modules .line .activatorClassName { display: none; }
+.toc_modules .line .symbolicName       { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
+.toc_modules .line .contactAddress     { display: none; }
+.toc_modules .line .url                { display: none; }
+.toc_modules .line .copyright          { display: none; }
+.toc_modules .line .licenseUrl         { display: none; }
+.toc_modules .line .manifestVersion    { display: none; }
+.toc_modules .line .packaging          { display: none; }
+.toc_modules .line .version            { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px;}
+.toc_modules .line .contentLength      { display: none; }
+.toc_modules .line .lastModified       { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
+
+.toc_modules .even {
+    color:#000000;
+    font-family:Verdana, Arial, Helvetica, sans-serif;
+    font-size:12;
+    padding: 2px;
+    padding-left: 4px;
+    background-color: #F2E9D4;
+}
+
+.toc_modules .odd {
+    color:#000000;
+    font-family:Verdana, Arial, Helvetica, sans-serif;
+    font-size:12;
+    padding: 2px;
+    padding-left: 4px;
+    background-color: #FFFFFF;
+}

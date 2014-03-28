@@ -185,23 +185,23 @@ public class ModuleImpl implements Module {
     }
 
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        //checkClassLoader();
-        return classLoader.loadClass(name);
+        checkClassLoader();
+        return getClassLoader().loadClass(name);
     }
 
     public URL getResource(String name) {
-        //checkClassLoader();
-        return classLoader.getResource(name);
+        checkClassLoader();
+        return getClassLoader().getResource(name);
     }
 
     public InputStream getResourceAsStream(String name) {
-        //checkClassLoader();
-        return classLoader.getResourceAsStream(name);
+        checkClassLoader();
+        return getClassLoader().getResourceAsStream(name);
     }
 
     public Enumeration<URL> getResources(String name) throws IOException {
-        //checkClassLoader();
-        return classLoader.getResources(name);
+        checkClassLoader();
+        return getClassLoader().getResources(name);
     }
 
 // Introduce not before usage of JRE 1.6 is agreed.

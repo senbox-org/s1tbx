@@ -16,18 +16,19 @@
 
 package com.bc.ceres.swing.binding.internal;
 
-import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 /**
  * A binding for a set of {@link javax.swing.AbstractButton} components sharing a multiple-exclusion scope.
@@ -100,13 +101,17 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
     }
 
     public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, PropertySet propertySet, String propertyName) {
-        ValueSet valueSet = propertySet.getDescriptor(propertyName).getValueSet();
+        PropertyDescriptor descriptor = propertySet.getDescriptor(propertyName);
+        if (descriptor == null) {
+            throw new IllegalStateException(String.format("descriptor == null (property '%s')", propertyName));
+        }
+        ValueSet valueSet = descriptor.getValueSet();
         if (valueSet == null) {
-            throw new IllegalStateException("valueSet == null");
+            throw new IllegalStateException(String.format("valueSet == null (property '%s')", propertyName));
         }
         Object[] items = valueSet.getItems();
         if (buttonGroup.getButtonCount() != items.length) {
-            throw new IllegalStateException("buttonGroup.getButtonCount() != items.length");
+            throw new IllegalStateException(String.format("buttonGroup.getButtonCount() != items.length (property '%s')", propertyName));
         }
         Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
         HashMap<AbstractButton, Object> buttonToValueMap = new HashMap<AbstractButton, Object>(items.length);

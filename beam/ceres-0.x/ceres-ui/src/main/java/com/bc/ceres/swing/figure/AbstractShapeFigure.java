@@ -44,6 +44,7 @@ import java.util.Arrays;
  */
 public abstract class AbstractShapeFigure extends AbstractFigure implements ShapeFigure {
 
+    private static final double SELECTION_TOLERANCE = 12.0;
     private Rank rank;
 
     protected AbstractShapeFigure() {
@@ -153,8 +154,11 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         } else {
             try {
                 Point2D viewPoint = m2v.transform(point, null);
-                Rectangle2D.Double aDouble = new Rectangle2D.Double(viewPoint.getX() - 1.5, viewPoint.getY() - 1.5, 3.0,
-                                                                    3.0);
+                double x = viewPoint.getX() - SELECTION_TOLERANCE / 2;
+                double y = viewPoint.getY() - SELECTION_TOLERANCE / 2;
+                double w = SELECTION_TOLERANCE;
+                double h = SELECTION_TOLERANCE;
+                Rectangle2D.Double aDouble = new Rectangle2D.Double(x, y, w, h);
                 Rectangle2D rectangle2D = m2v.createInverse().createTransformedShape(aDouble).getBounds2D();
                 return getShape().intersects(rectangle2D);
             } catch (NoninvertibleTransformException e) {

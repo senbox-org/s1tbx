@@ -22,9 +22,6 @@ public interface Type {
 
     int getSize();
 
-    public enum TYPE { SIMPLE, COLLECTION, SEQUENCE, COMPOUND }
-    TYPE getType();
-
     boolean isSizeKnown();
 
     boolean isSimpleType();

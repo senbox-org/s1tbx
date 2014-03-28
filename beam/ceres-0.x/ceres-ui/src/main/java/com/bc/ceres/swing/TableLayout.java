@@ -374,6 +374,18 @@ public class TableLayout implements LayoutManager2 {
         return gbl.maximumLayoutSize(parent);
     }
 
+    public static Cell cell() {
+        return new Cell();
+    }
+
+    public static Cell cell(int row, int col) {
+        return new Cell(row, col);
+    }
+
+    public static Cell cell(int row, int col, int rowspan, int colspan) {
+        return new Cell(row, col, rowspan, colspan);
+    }
+
     /////////////////////////////////////////////////////////////////////////
 
     private void addLayoutComponent(Component comp, final Cell cell) {

@@ -21,13 +21,9 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.swing.binding.Binding;
-import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.BindingProblem;
-import com.bc.ceres.swing.binding.BindingProblemListener;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -40,12 +36,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.text.BadLocationException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 
-public class BindingContextTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class BindingContextTest {
 
     private BindingContext bindingContextVB;
     private PropertyContainer propertyContainerVB;
@@ -57,8 +54,8 @@ public class BindingContextTest extends TestCase {
     private Exception error;
     private JComponent component;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         propertyContainerVB = PropertyContainer.createValueBacked(TestPojo.class);
         propertyContainerVB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
         bindingContextVB = new BindingContext(propertyContainerVB, null);
@@ -79,6 +76,7 @@ public class BindingContextTest extends TestCase {
         component = null;
     }
 
+    @Test
     public void testBindSpinner() throws ValidationException {
         JSpinner spinner = new JSpinner();
         Binding binding = bindingContextVB.bind("intValue", spinner);
@@ -97,8 +95,9 @@ public class BindingContextTest extends TestCase {
 
     }
 
+    @Test
     public void testBindComboBox() throws ValidationException {
-        JComboBox comboBox = new JComboBox(new Integer[]{1, 3, 7});
+        JComboBox<Integer> comboBox = new JComboBox<>(new Integer[]{1, 3, 7});
         comboBox.setEditable(false);
 
         Binding binding = bindingContextVB.bind("intValue", comboBox);
@@ -140,17 +139,19 @@ public class BindingContextTest extends TestCase {
         descriptor.setValueSet(valueSet);
 
         assertEquals(2, comboBox.getModel().getSize());
-        assertEquals(10, comboBox.getModel().getElementAt(0));
-        assertEquals(20, comboBox.getModel().getElementAt(1));
+        assertEquals(10, comboBox.getModel().getElementAt(0).intValue());
+        assertEquals(20, comboBox.getModel().getElementAt(1).intValue());
 
         assertEquals(10, comboBox.getSelectedItem());
         assertEquals(10, binding.getPropertyValue());
         assertNull(binding.getProblem());
     }
 
-    public void testBindTextField() throws ValidationException {
+    @Test
+    public void testBindTextField() throws Exception {
         JTextField textField = new JTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
+        Thread.sleep(100);
         assertNotNull(binding);
         assertSame(textField, getPrimaryComponent(binding));
         assertNotNull(binding.getComponents());
@@ -163,10 +164,12 @@ public class BindingContextTest extends TestCase {
         assertEquals("Bibo", propertyContainerVB.getValue("stringValue"));
 
         propertyContainerVB.setValue("stringValue", "Samson");
+        Thread.sleep(100);
         assertEquals("Samson", textField.getText());
     }
 
-    public void testBindTextField2() throws ValidationException {
+    @Test
+    public void testBindTextField2() throws Exception {
         JTextField textField = new JTextField();
         Binding binding = bindingContextOB.bind("stringValue", textField);
         assertNotNull(binding);
@@ -181,6 +184,7 @@ public class BindingContextTest extends TestCase {
         assertEquals("Bibo", propertyContainerOB.getValue("stringValue"));
 
         propertyContainerOB.setValue("stringValue", "Samson");
+        Thread.sleep(100);
         assertEquals("Samson", pojo.stringValue);
         assertEquals("Samson", textField.getText());
 
@@ -189,6 +193,7 @@ public class BindingContextTest extends TestCase {
         assertNotSame("Oscar", textField.getText()); // value change not detected by binding
     }
 
+    @Test
     public void testBindFormattedTextFieldToString() throws ValidationException {
         JFormattedTextField textField = new JFormattedTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
@@ -206,6 +211,7 @@ public class BindingContextTest extends TestCase {
         assertEquals("Samson", textField.getValue());
     }
 
+    @Test
     public void testBindFormattedTextFieldToDouble() throws ValidationException {
         JFormattedTextField textField = new JFormattedTextField();
         Binding binding = bindingContextVB.bind("doubleValue", textField);
@@ -223,7 +229,8 @@ public class BindingContextTest extends TestCase {
         assertEquals(2.71, textField.getValue());
     }
 
-    public void testBindTextArea() throws ValidationException, BadLocationException {
+    @Test
+    public void testBindTextArea() throws Exception {
         JTextArea textArea = new JTextArea();
         TextComponentAdapter textComponentAdapter = new TextComponentAdapter(textArea);
         Binding binding = bindingContextVB.bind("stringValue", textComponentAdapter);
@@ -239,9 +246,11 @@ public class BindingContextTest extends TestCase {
         assertEquals("Bibo", propertyContainerVB.getValue("stringValue"));
 
         propertyContainerVB.setValue("stringValue", "Samson");
+        Thread.sleep(100);
         assertEquals("Samson", textArea.getText());
     }
 
+    @Test
     public void testBindCheckBox() throws ValidationException {
         JCheckBox checkBox = new JCheckBox();
         Binding binding = bindingContextVB.bind("booleanValue", checkBox);
@@ -259,6 +268,7 @@ public class BindingContextTest extends TestCase {
         assertEquals(false, checkBox.isSelected());
     }
 
+    @Test
     public void testBindRadioButton() throws ValidationException {
         JRadioButton radioButton = new JRadioButton();
         Binding binding = bindingContextVB.bind("booleanValue", radioButton);
@@ -276,6 +286,7 @@ public class BindingContextTest extends TestCase {
         assertEquals(false, radioButton.isSelected());
     }
 
+    @Test
     public void testBindButtonGroup() throws ValidationException {
         JRadioButton radioButton1 = new JRadioButton();
         JRadioButton radioButton2 = new JRadioButton();
@@ -335,8 +346,9 @@ public class BindingContextTest extends TestCase {
         assertEquals(TestPojo.intValueSet[1], m.getValue());
     }
 
+    @Test
     public void testBindListSelection() throws ValidationException {
-        JList list = new JList(new Integer[]{3, 4, 5, 6, 7});
+        JList<Integer> list = new JList<>(new Integer[]{3, 4, 5, 6, 7});
         Binding binding = bindingContextVB.bind("listValue", list, true);
         assertNotNull(binding);
         assertSame(list, getPrimaryComponent(binding));
@@ -349,10 +361,11 @@ public class BindingContextTest extends TestCase {
         assertTrue(Arrays.equals(new int[]{5}, (int[]) propertyContainerVB.getValue("listValue")));
 
         propertyContainerVB.setValue("listValue", new int[]{6});
-        assertEquals(6, list.getSelectedValue());
+        assertEquals(6, list.getSelectedValue().intValue());
     }
 
-    public void testAdjustComponents() throws ValidationException {
+    @Test
+    public void testAdjustComponents() throws Exception {
         JTextField textField1 = new JTextField();
         JTextField textField2 = new JTextField();
         JCheckBox checkBox = new JCheckBox();
@@ -365,6 +378,7 @@ public class BindingContextTest extends TestCase {
         bindingContextOB.bind("doubleValue", textField1);
         bindingContextOB.bind("stringValue", textField2);
 
+        Thread.sleep(100);
         assertEquals(true, checkBox.isSelected());
         assertEquals("3.2", textField1.getText());
         assertEquals("ABC", textField2.getText());
@@ -378,12 +392,14 @@ public class BindingContextTest extends TestCase {
         assertEquals("ABC", textField2.getText());
 
         bindingContextOB.adjustComponents();
+        Thread.sleep(100);
 
         assertEquals(false, checkBox.isSelected());
         assertEquals("1.5", textField1.getText());
         assertEquals("XYZ", textField2.getText());
     }
 
+    @Test
     public void testSecondaryComponent() throws Exception {
         JTextField textField = new JTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
@@ -397,6 +413,7 @@ public class BindingContextTest extends TestCase {
         assertSame(label, components[1]);
     }
 
+    @Test
     public void testProblemManagement() {
         JTextField intTextField = new JTextField();
         JTextField stringTextField = new JTextField();
@@ -463,11 +480,14 @@ public class BindingContextTest extends TestCase {
 
     private static class TestPojo {
         boolean booleanValue;
+        @SuppressWarnings("UnusedDeclaration")
         int intValue;
         double doubleValue;
         String stringValue;
+        @SuppressWarnings("UnusedDeclaration")
         int[] listValue;
 
+        @SuppressWarnings("UnusedDeclaration")
         int valueSetBoundIntValue;
         static Integer[] intValueSet = new Integer[]{101, 102, 103};
     }

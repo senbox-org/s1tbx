@@ -47,13 +47,14 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
 
-public final class RuntimeActivator implements Activator {
+public class RuntimeActivator implements Activator {
 
     private static RuntimeActivator instance;
 
     private Map<String, RuntimeRunnable> applications;
     private List<ServiceRegistration> serviceRegistrations;
     private ModuleContext moduleContext;
+    private ClassLoader resourcesClassLoader;
 
     public static RuntimeActivator getInstance() {
         return instance;
@@ -89,10 +90,21 @@ public final class RuntimeActivator implements Activator {
         }
     }
 
+    public ClassLoader getResourcesClassLoader() {
+        if (resourcesClassLoader == null) {
+            synchronized (this) {
+                if (resourcesClassLoader == null) {
+                    resourcesClassLoader = createResourcesClassLoader();
+                }
+            }
+        }
+        return resourcesClassLoader;
+    }
+
 
     private void initServiceProviders() {
-        ClassLoader providerLoader = initProviderLoader();
-        serviceRegistrations = new ArrayList<ServiceRegistration>(32);
+        ClassLoader providerLoader = getResourcesClassLoader();
+        serviceRegistrations = new ArrayList<>(32);
         ExtensionPoint extensionPoint = moduleContext.getModule().getExtensionPoint("serviceProviders");
         Extension[] extensions = extensionPoint.getExtensions();
         for (Extension extension : extensions) {
@@ -127,8 +139,8 @@ public final class RuntimeActivator implements Activator {
         }
     }
 
-    private ClassLoader initProviderLoader() {
-        ArrayList<URL> urlArrayList = new ArrayList<URL>();
+    private ClassLoader createResourcesClassLoader() {
+        ArrayList<URL> urlArrayList = new ArrayList<>();
         for (Module module : moduleContext.getModules()) {
             if (module.getState().is(ModuleState.RESOLVED)) {
                 URL location = module.getLocation();
@@ -297,11 +309,12 @@ public final class RuntimeActivator implements Activator {
                                                          serviceRegistration.providerImpl.getClass()));
         }
         serviceRegistrations.clear();
+        resourcesClassLoader = null;
     }
 
 
     private void initApplications() {
-        applications = new HashMap<String, RuntimeRunnable>(3);
+        applications = new HashMap<>(3);
         ExtensionPoint extensionPoint = moduleContext.getModule().getExtensionPoint("applications");
         Extension[] extensions = extensionPoint.getExtensions();
         for (int i = 0; i < extensions.length; i++) {
@@ -347,8 +360,7 @@ public final class RuntimeActivator implements Activator {
     private void initAdapters() {
         ExtensionPoint extensionPoint = moduleContext.getModule().getExtensionPoint("adapters");
         Extension[] extensions = extensionPoint.getExtensions();
-        for (int i = 0; i < extensions.length; i++) {
-            Extension extension = extensions[i];
+        for (Extension extension : extensions) {
             ConfigurationElement[] children = extension.getConfigurationElement().getChildren("adapter");
             for (ConfigurationElement child : children) {
                 try {
@@ -412,8 +424,7 @@ public final class RuntimeActivator implements Activator {
     }
 
     public static String[] parseSpiConfiguration(URL resource) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource.openStream()));
-        try {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource.openStream()))) {
             ArrayList<String> classNames = new ArrayList<String>(3);
             while (true) {
                 String s = bufferedReader.readLine();
@@ -430,8 +441,6 @@ public final class RuntimeActivator implements Activator {
                 }
             }
             return classNames.toArray(new String[classNames.size()]);
-        } finally {
-            bufferedReader.close();
         }
     }
 

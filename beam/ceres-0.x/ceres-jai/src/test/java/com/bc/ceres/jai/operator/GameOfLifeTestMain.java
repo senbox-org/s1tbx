@@ -18,18 +18,15 @@ package com.bc.ceres.jai.operator;
 
 import com.bc.ceres.jai.GeneralFilterFunction;
 
-import javax.media.jai.RenderedOp;
-import javax.media.jai.JAI;
 import javax.media.jai.BorderExtender;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.RenderingHints;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,7 +81,7 @@ public class GameOfLifeTestMain {
     private static class GoLFilterFunction extends GeneralFilterFunction {
 
         private GoLFilterFunction() {
-            super(3);
+            super(3, 3, 1, 1, null);
         }
 
         public float filter(float[] fdata) {

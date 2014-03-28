@@ -29,16 +29,15 @@ import java.util.concurrent.CountDownLatch;
  */
 public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V> {
 
-    private final Component parentComponent;
-    private final String title;
+    private final CountDownLatch unBlock;
+    private final DialogProgressMonitor dialogPM;
     private boolean blocking;
     private Window blockingWindow;
-    private final CountDownLatch unBlock = new CountDownLatch(1);
 
 
     protected ProgressMonitorSwingWorker(Component parentComponent, String title) {
-        this.parentComponent = parentComponent;
-        this.title = title;
+        unBlock = new CountDownLatch(1);
+        dialogPM = new DialogProgressMonitor(parentComponent, title, Dialog.ModalityType.MODELESS);
     }
 
     /**
@@ -51,13 +50,11 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
      */
     @Override
     protected final T doInBackground() throws Exception {
-        DialogProgressMonitor pm = new DialogProgressMonitor(parentComponent, title,
-                                                             blocking ? Dialog.ModalityType.APPLICATION_MODAL : Dialog.ModalityType.MODELESS);
         T value;
         try {
-            value = doInBackground(pm);
+            value = doInBackground(dialogPM);
         } finally {
-            pm.done();
+            dialogPM.done();
             if (blocking) {
                 unBlock.await();
                 unblock();
@@ -86,6 +83,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
      */
     public final void executeWithBlocking() {
         this.blocking = true;
+        dialogPM.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         execute();
         block();
         this.blocking = false;

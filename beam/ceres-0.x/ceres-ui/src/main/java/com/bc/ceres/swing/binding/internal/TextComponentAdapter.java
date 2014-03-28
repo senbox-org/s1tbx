@@ -23,6 +23,7 @@ import com.bc.ceres.swing.binding.ComponentAdapter;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,6 +65,7 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
         if (textComponent instanceof JTextField) {
             ((JTextField) textComponent).removeActionListener(this);
         }
+        textComponent.removeFocusListener(this);
         textComponent.setInputVerifier(null);
     }
 
@@ -71,11 +73,19 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
     public void adjustComponents() {
         final PropertySet propertyContainer = getBinding().getContext().getPropertySet();
         final Property property = propertyContainer.getProperty(getBinding().getPropertyName());
-        if (property != null) {
-            textComponent.setText(property.getValueAsText());
+        final String textValue = property != null ? property.getValueAsText() : "";
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                textComponent.setText(textValue);
+            }
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
         } else {
-            textComponent.setText("");
+            SwingUtilities.invokeLater(runnable);
         }
+
     }
 
     void adjustValue() {

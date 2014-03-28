@@ -37,8 +37,6 @@ public final class SequenceTypeImpl extends AbstractType implements SequenceType
         this.elementType = elementType;
         this.elementCount = elementCount;
         this.size = elementCount * elementType.getSize();
-
-        theType = TYPE.SEQUENCE;
     }
 
     @Override

@@ -40,7 +40,7 @@ public interface PropertySet extends PropertyChangeEmitter {
      * For undefined properties, the method  {@link #getProperty(String) getProperty(name)} will
      * always return {@code null}.
      *
-     * @param name The property name  (case sensitive).
+     * @param name The property name or the property's alias name (both case sensitive).
      * @return {@code true} if the property is defined.
      */
     boolean isPropertyDefined(String name);
@@ -48,9 +48,10 @@ public interface PropertySet extends PropertyChangeEmitter {
     /**
      * Gets the named property.
      *
-     * @param name The property name  (case sensitive).
+     * @param name The property name or the property's alias name (both case sensitive).
      * @return The property, or {@code null} if the property does not exist.
      * @see #isPropertyDefined(String)
+     * @see com.bc.ceres.binding.PropertyDescriptor#getAlias()
      */
     Property getProperty(String name);
 

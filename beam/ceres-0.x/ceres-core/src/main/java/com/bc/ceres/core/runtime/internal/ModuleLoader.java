@@ -51,7 +51,7 @@ public class ModuleLoader {
     public ModuleLoader(Logger logger) {
         Assert.notNull(logger, "logger");
         this.logger = logger;
-        this.visitedLocations = new HashSet<URL>(32);
+        this.visitedLocations = new HashSet<>(32);
     }
 
     public ModuleImpl[] loadModules(ClassLoader classLoader, ProgressMonitor pm) throws IOException {
@@ -59,14 +59,14 @@ public class ModuleLoader {
         Assert.notNull(pm, "pm");
 
         Enumeration<URL> resources = classLoader.getResources(MODULE_MANIFEST_NAME);
-        ArrayList<URL> resourceList = new ArrayList<URL>(32);
+        ArrayList<URL> resourceList = new ArrayList<>(32);
         while (resources.hasMoreElements()) {
             resourceList.add(resources.nextElement());
         }
 
         pm.beginTask("Scanning classpath for modules", resourceList.size());
         try {
-            ArrayList<ModuleImpl> moduleList = new ArrayList<ModuleImpl>(32);
+            ArrayList<ModuleImpl> moduleList = new ArrayList<>(32);
             for (URL manifestUrl : resourceList) {
                 URL locationUrl = UrlHelper.manifestToLocationUrl(manifestUrl);
                 if (locationUrl != null) {
@@ -85,7 +85,7 @@ public class ModuleLoader {
                 }
                 pm.worked(1);
             }
-            return moduleList.toArray(ModuleImpl.EMPTY_ARRAY);
+            return moduleList.toArray(new ModuleImpl[moduleList.size()]);
         } finally {
             pm.done();
         }
@@ -109,7 +109,7 @@ public class ModuleLoader {
 
         pm.beginTask("Scanning directory for modules", moduleFiles.length);
         try {
-            ArrayList<ModuleImpl> moduleList = new ArrayList<ModuleImpl>(32);
+            ArrayList<ModuleImpl> moduleList = new ArrayList<>(32);
             for (File moduleFile : moduleFiles) {
                 File uninstallMarker = new File(moduleFile.getPath() + RuntimeImpl.UNINSTALL_FILE_SUFFIX);
                 int toWork = 1;
@@ -130,7 +130,7 @@ public class ModuleLoader {
                 }
                 pm.worked(toWork);
             }
-            return moduleList.toArray(ModuleImpl.EMPTY_ARRAY);
+            return moduleList.toArray(new ModuleImpl[moduleList.size()]);
         } finally {
             pm.done();
         }
@@ -183,12 +183,9 @@ public class ModuleLoader {
 
     private void writeInstallInfo(File moduleDir, List<String> installedFiles) throws IOException {
         File installInfoFile = new File(moduleDir, ModuleInstaller.INSTALL_INFO_XML);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(installInfoFile));
-        try {
-            InstallInfo installInfo = new InstallInfo(installedFiles.toArray(new String[0]));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(installInfoFile))) {
+            InstallInfo installInfo = new InstallInfo(installedFiles.toArray(new String[installedFiles.size()]));
             installInfo.write(writer);
-        } finally {
-            writer.close();
         }
     }
 }

@@ -100,7 +100,8 @@ public abstract class ComponentAdapter {
      * </ol>
      * <p/>
      * Most implementations adjusts the editor component with the value retrieved by
-     * {@link Binding#getPropertyValue() getBinding().getPropertyValue()}.
+     * {@link Binding#getPropertyValue() getBinding().getPropertyValue()}. Note that changes to the UI component shall be made on the EDT.
+     * Consider using {@link javax.swing.SwingUtilities#invokeLater(Runnable) SwingUtilities.invokeLater()}.
      *
      * @see #bindComponents()
      * @see #unbindComponents()

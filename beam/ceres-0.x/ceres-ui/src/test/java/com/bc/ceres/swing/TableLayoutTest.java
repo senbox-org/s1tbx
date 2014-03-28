@@ -16,22 +16,12 @@
 
 package com.bc.ceres.swing;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.*;
 
-import com.bc.ceres.swing.TableLayout;
+import javax.swing.*;
+import java.awt.*;
 
-import org.junit.Test;
-
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import java.awt.BorderLayout;
+import static org.junit.Assert.*;
 
 public class TableLayoutTest {
 
@@ -103,8 +93,8 @@ public class TableLayoutTest {
         layout.setRowWeightY(1, 0.0);
 
         final JPanel panel = new JPanel(layout);
-        panel.add(new JScrollPane(new JList(new Object[]{"Ernie", "Bibo", "Bert"})));
-        panel.add(new JScrollPane(new JList(new Object[]{"Ernie", "Bibo", "Bert"})));
+        panel.add(new JScrollPane(new JList<>(new Object[]{"Ernie", "Bibo", "Bert"})));
+        panel.add(new JScrollPane(new JList<>(new Object[]{"Ernie", "Bibo", "Bert"})));
         JButton comp = new JButton("Start");
         comp.setMinimumSize(null);
         comp.setMaximumSize(null);
@@ -124,7 +114,7 @@ public class TableLayoutTest {
 
     private static void showFrame(JPanel panel) {
         final JFrame frame = new JFrame(TableLayoutTest.class.getName());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);

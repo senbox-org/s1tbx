@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,16 +16,27 @@
 
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Symbol;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Paint;
+import java.awt.Stroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -225,11 +236,11 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         if (scale != 1.0 && stroke instanceof BasicStroke) {
             BasicStroke basicStroke = (BasicStroke) stroke;
             return new BasicStroke((float) (basicStroke.getLineWidth() * scale),
-                                   basicStroke.getEndCap(),
-                                   basicStroke.getLineJoin(),
-                                   basicStroke.getMiterLimit(),
-                                   basicStroke.getDashArray(),
-                                   basicStroke.getDashPhase());
+                    basicStroke.getEndCap(),
+                    basicStroke.getLineJoin(),
+                    basicStroke.getMiterLimit(),
+                    basicStroke.getDashArray(),
+                    basicStroke.getDashPhase());
         }
         return stroke;
     }
@@ -555,7 +566,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     }
 
     private static PropertyDescriptor createStrokeWidthDescriptor() {
-        return createPropertyDescriptor("stroke-width", Double.class, 0.0, false);
+        PropertyDescriptor descriptor = createPropertyDescriptor("stroke-width", Double.class, 0.0, false);
+        descriptor.setValueRange(new ValueRange(0.0, Double.POSITIVE_INFINITY));
+        return descriptor;
     }
 
     private static PropertyDescriptor createSymbolNameDescriptor() {
@@ -597,5 +610,22 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         } else {
             return defaultValue;
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DefaultFigureStyle)) {
+            return false;
+        }
+        DefaultFigureStyle other = (DefaultFigureStyle) obj;
+        Property[] properties = this.getProperties();
+        for (Property property : properties) {
+            Property otherProperty = other.getProperty(property.getName());
+            if (otherProperty == null || otherProperty.getValue() != null && property.getValue() == null ||
+                    (property.getValue() != null && !property.getValue().equals(otherProperty.getValue()))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

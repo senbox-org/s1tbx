@@ -29,11 +29,9 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
     private volatile HashMap<String, Integer> indices;
     private volatile Object metadata;
     private int size;
-    private final int[] memberSize;
 
     public CompoundTypeImpl(String name, CompoundMember[] members) {
         this(name, members, null);
-        theType = TYPE.COMPOUND;
     }
 
     public CompoundTypeImpl(String name, CompoundMember[] members, Object metadata) {
@@ -41,7 +39,6 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
         this.members = members.clone();
         this.metadata = metadata;
         this.size = -1;
-        this.memberSize = new int[members.length];
     }
 
     @Override
@@ -89,7 +86,6 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
     public void setMember(int memberIndex, CompoundMember member) {
         Assert.notNull(member, "member");
         members[memberIndex] = member;
-        memberSize[memberIndex] = 0;
         size = -1;
     }
 
@@ -104,11 +100,8 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
     }
 
     @Override
-    public final int getMemberSize(int memberIndex) {
-        if(memberSize[memberIndex] == 0)
-            memberSize[memberIndex] = members[memberIndex].getType().getSize();
-        return memberSize[memberIndex];
-        //return members[memberIndex].getType().getSize();
+    public int getMemberSize(int memberIndex) {
+        return getMember(memberIndex).getType().getSize();
     }
 
     @Override

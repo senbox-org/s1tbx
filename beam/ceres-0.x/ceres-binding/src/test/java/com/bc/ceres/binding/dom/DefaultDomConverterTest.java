@@ -26,8 +26,8 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.xmlpull.mxp1.MXParser;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -44,17 +44,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class DefaultDomConverterTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-    private static final PropertyDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
+public class DefaultDomConverterTest {
+
+    private static final PropertyDescriptorFactory PROPERTY_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
         @Override
         public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field) {
             final PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);
             if (xAnnotation != null) {
                 descriptor.setAlias(xAnnotation.alias());
-                descriptor.setItemAlias(xAnnotation.componentAlias());
-                descriptor.setItemsInlined(xAnnotation.inlined());
+                descriptor.setItemAlias(xAnnotation.itemAlias());
                 if (xAnnotation.defaultValue() != null && !xAnnotation.defaultValue().isEmpty()) {
                     try {
                         descriptor.setDefaultConverter();
@@ -77,6 +82,7 @@ public class DefaultDomConverterTest extends TestCase {
         }
     };
 
+    @Test
     public void testUnknownElement() throws Exception {
         final String xml = ""
                            + "<parameters>"
@@ -91,13 +97,14 @@ public class DefaultDomConverterTest extends TestCase {
         }
     }
 
+    @Test
     public void testDomToSimplePojo() throws Exception {
         final String xml = ""
                            + "<parameters>"
-                           + "  <intField>42</intField>"
-                           + "  <stringField>a string</stringField>"
-                           + "  <doubleArrayField>1.2, 4.5, -0.034</doubleArrayField>"
                            + "  <fileField>C:/data/MER.N1</fileField>"
+                           + "  <stringField>a string</stringField>"
+                           + "  <intField>42</intField>"
+                           + "  <doubleArrayField>1.2, 4.5, -0.034</doubleArrayField>"
                            + "</parameters>";
         final XppDom dom = createDom(xml);
         final SimplePojo value = new SimplePojo();
@@ -116,13 +123,14 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(-0.034, value.doubleArrayField[2], 1.0e-10);
     }
 
+    @Test
     public void testSimplePojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>"
-                                   + "  <intField>43</intField>"
-                                   + "  <stringField>This is a test.</stringField>"
-                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>"
+                                   + "<parameters>\n"
+                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>\n"
+                                   + "  <stringField>This is a test.</stringField>\n"
+                                   + "  <intField>43</intField>\n"
+                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>\n"
                                    + "</parameters>";
         final XppDom dom = new XppDom("parameters");
         final SimplePojo value = new SimplePojo();
@@ -131,16 +139,16 @@ public class DefaultDomConverterTest extends TestCase {
         value.doubleArrayField = new double[]{0.1, 0.2, -0.4};
         value.fileField = new File("C:/data/dat.ini");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testSimplePojoWithNullArrayToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>"
-                                   + "  <intField>43</intField>"
-                                   + "  <stringField>This is a test.</stringField>"
-                                   + "  <doubleArrayField/>"
+                                   + "<parameters>\n"
+                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>\n"
+                                   + "  <stringField>This is a test.</stringField>\n"
+                                   + "  <intField>43</intField>\n"
                                    + "</parameters>";
         final XppDom dom = new XppDom("parameters");
         final SimplePojo value = new SimplePojo();
@@ -149,16 +157,16 @@ public class DefaultDomConverterTest extends TestCase {
         value.doubleArrayField = null;
         value.fileField = new File("C:/data/dat.ini");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testSimplePojoWithNullObjectToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <fileField/>"
-                                   + "  <intField>43</intField>"
-                                   + "  <stringField>This is a test.</stringField>"
-                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>"
+                                   + "<parameters>\n"
+                                   + "  <stringField>This is a test.</stringField>\n"
+                                   + "  <intField>43</intField>\n"
+                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>\n"
                                    + "</parameters>";
         final XppDom dom = new XppDom("parameters");
         final SimplePojo value = new SimplePojo();
@@ -167,16 +175,21 @@ public class DefaultDomConverterTest extends TestCase {
         value.doubleArrayField = new double[]{0.1, 0.2, -0.4};
         value.fileField = null;
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testArrayWithDomConverterPojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <allies>"
-                                   + "  <member><name>bibo</name></member>"
-                                   + "  <member><name>mimi</name></member>"
-                                   + "  </allies>"
+                                   + "<parameters>\n"
+                                   + "  <allies>\n"
+                                   + "    <member>\n"
+                                   + "      <name>bibo</name>\n"
+                                   + "    </member>\n"
+                                   + "    <member>\n"
+                                   + "      <name>mimi</name>\n"
+                                   + "    </member>\n"
+                                   + "  </allies>\n"
                                    + "</parameters>";
         final XppDom dom = new XppDom("parameters");
         final ArrayWithDomConverterPojo value = new ArrayWithDomConverterPojo();
@@ -184,43 +197,43 @@ public class DefaultDomConverterTest extends TestCase {
         value.allies[0] = new Member("bibo");
         value.allies[1] = new Member("mimi");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testArrayWithDomConverterPojoToDom_NullValue() throws ValidationException, ConversionException {
-        final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "</parameters>";
+        final String expectedXml = "<parameters/>";
         final XppDom dom = new XppDom("parameters");
         final ArrayWithDomConverterPojo value = new ArrayWithDomConverterPojo();
         value.allies = null;
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
 
+    @Test
     public void testWeirdPojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <finalWeird/>"
-                                   + "  <weird/>"
-                                   + "  <name>ernie</name>"
+                                   + "<parameters>\n"
+                                   + "  <weird/>\n"
+                                   + "  <name>ernie</name>\n"
                                    + "</parameters>";
         final XppDom dom = new XppDom("parameters");
         final WeirdPojo value = new WeirdPojo();
         value.weird = new Weird();
         value.name = "ernie";
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testDomToArrayPojo() throws ConversionException {
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>"
-                                   + "  <intField>43</intField>"
-                                   + "  <stringField>This is a test.</stringField>"
-                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>"
+                                   + "<parameters>\n"
+                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>\n"
+                                   + "  <stringField>This is a test.</stringField>\n"
+                                   + "  <intField>43</intField>\n"
+                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>\n"
                                    + "</parameters>";
         final XppDom dom = new XppDom("parameters");
         final SimplePojo value = new SimplePojo();
@@ -229,9 +242,10 @@ public class DefaultDomConverterTest extends TestCase {
         value.doubleArrayField = new double[]{0.1, 0.2, -0.4};
         value.fileField = new File("C:/data/dat.ini");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testArrayPojoToDom() throws ConversionException {
         ConverterRegistry.getInstance().setConverter(Member.class, new Converter<Member>() {
             @Override
@@ -250,11 +264,10 @@ public class DefaultDomConverterTest extends TestCase {
             }
         });
 
-        final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <prince>bert</prince>"
-                                   + "  <allies>bibo,mimi</allies>"
-                                   + "</parameters>";
+        final String expectedXml = "<parameters>\n" +
+                                   "  <prince>bert</prince>\n" +
+                                   "  <allies>bibo,mimi</allies>\n" +
+                                   "</parameters>";
 
         final XppDom dom = new XppDom("parameters");
         final ArrayPojo arrayPojo = new ArrayPojo();
@@ -264,9 +277,10 @@ public class DefaultDomConverterTest extends TestCase {
         arrayPojo.allies[1] = new Member("mimi");
 
         convertValueToDom(arrayPojo, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testDomToAnnotatedPojo() throws Exception {
 
         final String xml = ""
@@ -289,27 +303,28 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals("b", value.targetBandNames[1]);
     }
 
+    @Test
     public void testAnnotatedPojoToDom() throws ValidationException, ConversionException {
 
-        final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <targetBand>radiance_13</targetBand>"
-                                   + "  <defaultBandName>userDefault</defaultBandName>"
-                                   + "  <targetBands>"
-                                   + "    <band>u</band>"
-                                   + "    <band>v</band>"
-                                   + "    <band>w</band>"
-                                   + "  </targetBands>"
-                                   + "</parameters>";
+        final String expectedXml = "<parameters>\n" +
+                                   "  <targetBand>radiance_13</targetBand>\n" +
+                                   "  <defaultBandName>radiance_12</defaultBandName>\n" +
+                                   "  <targetBands>\n" +
+                                   "    <band>u</band>\n" +
+                                   "    <band>v</band>\n" +
+                                   "    <band>w</band>\n" +
+                                   "  </targetBands>\n" +
+                                   "</parameters>";
         final AnnotatedPojo value = new AnnotatedPojo();
         value.targetBandName = "radiance_13";
-        value.defaultBandName = "userDefault";
+        value.defaultBandName = "radiance_12";
         value.targetBandNames = new String[]{"u", "v", "w"};
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testDomToEnumPojo() throws Exception {
 
         final String xml = ""
@@ -323,26 +338,28 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(EnumPojo.Muppet.KERMIT, value.character);
     }
 
+    @Test
     public void testEnumPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <character>MISS_PIGGY</character>"
+                                   + "<parameters>\n"
+                                   + "  <character>MISS_PIGGY</character>\n"
                                    + "</parameters>";
         final EnumPojo value = new EnumPojo();
         value.character = DefaultDomConverterTest.EnumPojo.Muppet.MISS_PIGGY;
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testDomToComplexPojo() throws Exception {
 
         final String xmlString = ""
                                  + "<parameters>"
                                  + "  <simple>"
-                                 + "    <intField>42</intField>"
                                  + "    <stringField>a string</stringField>"
+                                 + "    <intField>42</intField>"
                                  + "    <doubleArrayField>1.2, 4.5, -0.034</doubleArrayField>"
                                  + "  </simple>"
                                  + "  <annotatedPojo>"
@@ -369,7 +386,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(-0.034, value.simplePojo.doubleArrayField[2], 1.0e-10);
 
         assertEquals("result", value.annotatedPojo.targetBandName);
-        assertEquals("defaultBand", value.annotatedPojo.defaultBandName);
+        assertEquals("reflec_13", value.annotatedPojo.defaultBandName);
         assertNotNull(value.annotatedPojo.targetBandNames);
         assertEquals(2, value.annotatedPojo.targetBandNames.length);
         assertEquals("a", value.annotatedPojo.targetBandNames[0]);
@@ -377,25 +394,24 @@ public class DefaultDomConverterTest extends TestCase {
 
     }
 
+    @Test
     public void testComplexPojoToDom() throws ValidationException, ConversionException {
 
-        final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <simple>"
-                                   + "    <intField>87</intField>"
-                                   + "    <stringField>Test, test, test!</stringField>"
-                                   + "    <doubleArrayField>0.5,1.0</doubleArrayField>"
-                                   + "    <fileField/>"
-                                   + "  </simple>"
-                                   + "  <annotatedPojo>"
-                                   + "    <targetBand>reflec_4</targetBand>"
-                                   + "  <defaultBandName>userDefault</defaultBandName>"
-                                   + "    <targetBands>"
-                                   + "      <band>real</band>"
-                                   + "      <band>imag</band>"
-                                   + "    </targetBands>"
-                                   + "  </annotatedPojo>"
-                                   + "</parameters>";
+        final String expectedXml = "<parameters>\n" +
+                                   "  <simple>\n" +
+                                   "    <stringField>Test, test, test!</stringField>\n" +
+                                   "    <intField>87</intField>\n" +
+                                   "    <doubleArrayField>0.5,1.0</doubleArrayField>\n" +
+                                   "  </simple>\n" +
+                                   "  <annotatedPojo>\n" +
+                                   "    <targetBand>reflec_4</targetBand>\n" +
+                                   "    <defaultBandName>reflec_27</defaultBandName>\n" +
+                                   "    <targetBands>\n" +
+                                   "      <band>real</band>\n" +
+                                   "      <band>imag</band>\n" +
+                                   "    </targetBands>\n" +
+                                   "  </annotatedPojo>\n" +
+                                   "</parameters>";
         final ComplexPojo value = new ComplexPojo();
         value.simplePojo = new SimplePojo();
         value.simplePojo.intField = 87;
@@ -403,45 +419,48 @@ public class DefaultDomConverterTest extends TestCase {
         value.simplePojo.doubleArrayField = new double[]{0.5, 1.0};
         value.annotatedPojo = new AnnotatedPojo();
         value.annotatedPojo.targetBandName = "reflec_4";
-        value.annotatedPojo.defaultBandName = "userDefault";
+        value.annotatedPojo.defaultBandName = "reflec_27";
         value.annotatedPojo.targetBandNames = new String[]{"real", "imag"};
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
-    public void testDomToInlinedArrayPojo() throws Exception {
+    @Test
+    public void testDomToNamedItemArrayPojo() throws Exception {
 
         final String xml = ""
                            + "<parameters>"
-                           + "  <endmember>"
-                           + "    <name>Land</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>220,230,240,250</radiances>"
-                           + "  </endmember>"
+                           + "  <endmembers>"
+                           + "    <endmember>"
+                           + "      <name>Land</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>220,230,240,250</radiances>"
+                           + "    </endmember>"
+                           + "    <endmember>"
+                           + "      <name>Water</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>620,630,640,650</radiances>"
+                           + "    </endmember>"
+                           + "    <endmember>"
+                           + "      <name>Cloud</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>920,930,940,950</radiances>"
+                           + "    </endmember>"
+                           + "  </endmembers>"
                            + "  <defaultEndmember>"      // note the order!
                            + "    <name>Fallback</name>"
                            + "    <size>4</size>"
                            + "    <wavelengths>820,830,840,850</wavelengths>"
                            + "    <radiances>420,430,440,450</radiances>"
                            + "  </defaultEndmember>"
-                           + "  <endmember>"
-                           + "    <name>Water</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>620,630,640,650</radiances>"
-                           + "  </endmember>"
-                           + "  <endmember>"
-                           + "    <name>Cloud</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>920,930,940,950</radiances>"
-                           + "  </endmember>"
                            + "</parameters>";
 
         final XppDom dom = createDom(xml);
-        final InlinedArrayPojo value = new InlinedArrayPojo();
+        final NamedItemArrayPojo value = new NamedItemArrayPojo();
         assertNull(value.defaultEndmember);
         assertNull(value.endmembers);
 
@@ -472,37 +491,40 @@ public class DefaultDomConverterTest extends TestCase {
         assertNotNull(value.endmembers[2].radiances);
     }
 
-    public void testInlinedArrayPojoToDom() throws ValidationException, ConversionException {
+    @Test
+    public void testNamedItemArrayPojoToDom() throws ValidationException, ConversionException {
 
-        final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <defaultEndmember>"
-                                   + "    <name>Fallback</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>420.0,430.0,440.0,450.0</radiances>"
-                                   + "  </defaultEndmember>"
-                                   + "  <endmember>"
-                                   + "    <name>Land</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>220.0,230.0,240.0,250.0</radiances>"
-                                   + "  </endmember>"
-                                   + "  <endmember>"
-                                   + "    <name>Water</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>620.0,630.0,640.0,650.0</radiances>"
-                                   + "  </endmember>"
-                                   + "  <endmember>"
-                                   + "    <name>Cloud</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>920.0,930.0,940.0,950.0</radiances>"
-                                   + "  </endmember>"
-                                   + "</parameters>";
+        final String expectedXml = "" +
+                                   "<parameters>\n" +
+                                   "  <defaultEndmember>\n" +
+                                   "    <name>Fallback</name>\n" +
+                                   "    <size>4</size>\n" +
+                                   "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>\n" +
+                                   "    <radiances>420.0,430.0,440.0,450.0</radiances>\n" +
+                                   "  </defaultEndmember>\n" +
+                                   "  <endmembers>\n" +
+                                   "    <endmember>\n" +
+                                   "      <name>Land</name>\n" +
+                                   "      <size>4</size>\n" +
+                                   "      <wavelengths>820.0,830.0,840.0,850.0</wavelengths>\n" +
+                                   "      <radiances>220.0,230.0,240.0,250.0</radiances>\n" +
+                                   "    </endmember>\n" +
+                                   "    <endmember>\n" +
+                                   "      <name>Water</name>\n" +
+                                   "      <size>4</size>\n" +
+                                   "      <wavelengths>820.0,830.0,840.0,850.0</wavelengths>\n" +
+                                   "      <radiances>620.0,630.0,640.0,650.0</radiances>\n" +
+                                   "    </endmember>\n" +
+                                   "    <endmember>\n" +
+                                   "      <name>Cloud</name>\n" +
+                                   "      <size>4</size>\n" +
+                                   "      <wavelengths>820.0,830.0,840.0,850.0</wavelengths>\n" +
+                                   "      <radiances>920.0,930.0,940.0,950.0</radiances>\n" +
+                                   "    </endmember>\n" +
+                                   "  </endmembers>\n" +
+                                   "</parameters>";
 
-        final InlinedArrayPojo value = new InlinedArrayPojo();
+        final NamedItemArrayPojo value = new NamedItemArrayPojo();
         value.defaultEndmember = new Endmember("Fallback", new double[]{820, 830, 840, 850},
                                                new double[]{420, 430, 440, 450});
         value.endmembers = new Endmember[3];
@@ -514,48 +536,48 @@ public class DefaultDomConverterTest extends TestCase {
 
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(value, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testInterfaceFieldsPojoToDom() throws ConversionException {
-        final String expectedXml = ""
-                                   + "<parameters>"
-                                   + "  <shape1 class=\"java.awt.Rectangle\" >"
-                                   + "    <x>10</x>"
-                                   + "    <y>10</y>"
-                                   + "    <width>20</width>"
-                                   + "    <height>25</height>"
-                                   + "  </shape1>"
-                                   + "  <shape2 class=\"java.awt.geom.Line2D$Float\" >"
-                                   + "    <x1>0.0</x1>"
-                                   + "    <y1>10.3</y1>"
-                                   + "    <x2>15.7</x2>"
-                                   + "    <y2>34.6</y2>"
-                                   + "  </shape2>"
-                                   + "</parameters>";
+        final String expectedXml = "<parameters>\n" +
+                                   "  <shape1 class=\"java.awt.Rectangle\">\n" +
+                                   "    <x>10</x>\n" +
+                                   "    <y>10</y>\n" +
+                                   "    <width>20</width>\n" +
+                                   "    <height>25</height>\n" +
+                                   "  </shape1>\n" +
+                                   "  <shape2 class=\"java.awt.geom.Line2D$Float\">\n" +
+                                   "    <x1>0.0</x1>\n" +
+                                   "    <y1>10.3</y1>\n" +
+                                   "    <x2>15.7</x2>\n" +
+                                   "    <y2>34.6</y2>\n" +
+                                   "  </shape2>\n" +
+                                   "</parameters>";
         final InterfaceFieldsPojo interfacePojo = new InterfaceFieldsPojo(new Rectangle(10, 10, 20, 25),
                                                                           new Line2D.Float(0.0f, 10.3f, 15.7f, 34.6f));
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(interfacePojo, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
+    @Test
     public void testDomToInterfaceFieldsPojo() throws Exception {
-        final String xml = ""
-                           + "<parameters>"
-                           + "  <shape1 class=\"java.awt.Rectangle\" >"
-                           + "    <x>10</x>"
-                           + "    <y>10</y>"
-                           + "    <width>20</width>"
-                           + "    <height>25</height>"
-                           + "  </shape1>"
-                           + "  <shape2 class=\"java.awt.geom.Line2D$Float\" >"
-                           + "    <x1>0.0</x1>"
-                           + "    <y1>10.3</y1>"
-                           + "    <x2>15.7</x2>"
-                           + "    <y2>34.6</y2>"
-                           + "  </shape2>"
-                           + "</parameters>";
+        final String xml = "<parameters>\n" +
+                           "  <shape1 class=\"java.awt.Rectangle\">\n" +
+                           "    <x>10</x>\n" +
+                           "    <y>10</y>\n" +
+                           "    <width>20</width>\n" +
+                           "    <height>25</height>\n" +
+                           "  </shape1>\n" +
+                           "  <shape2 class=\"java.awt.geom.Line2D$Float\">\n" +
+                           "    <x1>0.0</x1>\n" +
+                           "    <y1>10.3</y1>\n" +
+                           "    <x2>15.7</x2>\n" +
+                           "    <y2>34.6</y2>\n" +
+                           "  </shape2>\n" +
+                           "</parameters>";
 
         final XppDom dom = createDom(xml);
         final InterfaceFieldsPojo value = new InterfaceFieldsPojo(null, null);
@@ -575,10 +597,10 @@ public class DefaultDomConverterTest extends TestCase {
         assertNotNull(value.shape2);
         assertNotNull(value.shape2 instanceof Line2D.Float);
         final Line2D.Float shape2 = (Line2D.Float) value.shape2;
-        assertEquals(0.0f, shape2.x1);
-        assertEquals(10.3f, shape2.y1);
-        assertEquals(15.7f, shape2.x2);
-        assertEquals(34.6f, shape2.y2);
+        assertEquals(0.0f, shape2.x1, 1e-5);
+        assertEquals(10.3f, shape2.y1, 1e-5);
+        assertEquals(15.7f, shape2.x2, 1e-5);
+        assertEquals(34.6f, shape2.y2, 1e-5);
     }
 
     public void doNotTestMapFieldPojoToDom() throws ConversionException {
@@ -607,7 +629,7 @@ public class DefaultDomConverterTest extends TestCase {
         final MapFieldPojo mapFieldPojo = new MapFieldPojo(map);
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(mapFieldPojo, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
     public void doNotTestDomToMapFieldPojo() throws Exception {
@@ -673,7 +695,7 @@ public class DefaultDomConverterTest extends TestCase {
         final CollectionFieldPojo collectionFieldPojo = new CollectionFieldPojo(stack);
         final XppDom dom = new XppDom("parameters");
         convertValueToDom(collectionFieldPojo, dom);
-        assertDomEquals(createDom(expectedXml), dom);
+        assertEquals(expectedXml, getXml(dom));
     }
 
     public void doNotTestDomToCollectionFieldPojo() throws Exception {
@@ -718,19 +740,24 @@ public class DefaultDomConverterTest extends TestCase {
 
     private XppDom createDom(String xml) {
         XppDomWriter domWriter = new XppDomWriter();
-        new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
+        new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml), new MXParser()), domWriter);
         return domWriter.getConfiguration();
     }
 
+    public static String getXml(XppDom dom) {
+        XppDomElement domElement = new XppDomElement(dom);
+        return domElement.toXml();
+    }
+
     public static void convertValueToDom(Object value, XppDom parentElement) throws ConversionException {
-        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY);
+        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), PROPERTY_DESCRIPTOR_FACTORY);
         XppDomElement domElement = new XppDomElement(parentElement);
         domConverter.convertValueToDom(value, domElement);
     }
 
 
     public static void convertDomToValue(XppDom parentElement, Object value) throws Exception {
-        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY);
+        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), PROPERTY_DESCRIPTOR_FACTORY);
         XppDomElement domElement = new XppDomElement(parentElement);
         domConverter.convertDomToValue(domElement, value);
     }
@@ -748,10 +775,10 @@ public class DefaultDomConverterTest extends TestCase {
         @X(alias = "targetBand")
         String targetBandName;
 
-        @X(defaultValue = "defaultBand")
+        @X(defaultValue = "reflec_13")
         String defaultBandName;
 
-        @X(alias = "targetBands", componentAlias = "band")
+        @X(alias = "targetBands", itemAlias = "band")
         String[] targetBandNames;
     }
 
@@ -773,7 +800,7 @@ public class DefaultDomConverterTest extends TestCase {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             DomElement[] children = parentElement.getChildren("member");
             Member[] members = new Member[children.length];
             for (int i = 0; i < children.length; i++) {
@@ -807,7 +834,7 @@ public class DefaultDomConverterTest extends TestCase {
 
     public static class Member {
 
-        private final String name;
+        private String name;
 
         public Member(String name) {
             this.name = name;
@@ -825,11 +852,11 @@ public class DefaultDomConverterTest extends TestCase {
         Muppet character;
     }
 
-    public static class InlinedArrayPojo {
+    public static class NamedItemArrayPojo {
 
         Endmember defaultEndmember;
 
-        @X(componentAlias = "endmember", inlined = true)
+        @X(itemAlias = "endmember")
         Endmember[] endmembers;
     }
 
@@ -881,9 +908,7 @@ public class DefaultDomConverterTest extends TestCase {
 
         String alias() default "";
 
-        String componentAlias() default "";
-
-        boolean inlined() default false;
+        String itemAlias() default "";
 
         String defaultValue() default "";
 
@@ -909,45 +934,4 @@ public class DefaultDomConverterTest extends TestCase {
         double[] radiances;
     }
 
-    public static void assertDomEquals(XppDom expected, XppDom actual) {
-        assertDomEquals("", expected, actual);
-    }
-
-    public static void assertDomEquals(String message, XppDom expected, XppDom actual) {
-        message = message + "/" + expected.getName();
-        assertEquals(message, expected.getName(), actual.getName());
-        assertEquals(message, expected.getChildCount(), actual.getChildCount());
-        if (expected.getChildCount() == 0) {
-            assertEquals(message, expected.getValue(), actual.getValue());
-        } else {
-            assertTrue(message, expected.getValue() == null || expected.getValue().trim().isEmpty());
-            assertTrue(message, actual.getValue() == null || actual.getValue().trim().isEmpty());
-        }
-        final String[] attributeNames = expected.getAttributeNames();
-        for (String expectedAttrName : attributeNames) {
-            final String expectedAttrValue = expected.getAttribute(expectedAttrName);
-            final String actualAttrValue = actual.getAttribute(expectedAttrName);
-            assertEquals(message, expectedAttrValue, actualAttrValue);
-        }
-        final XppDom[] expectedChildren = expected.getChildren();
-        final XppDom[] actualChildren = actual.getChildren();
-        for (XppDom expectedChild : expectedChildren) {
-            boolean success = false;
-            for (XppDom actualChild : actualChildren) {
-                try {
-                    assertDomEquals(message, expectedChild, actualChild);
-                    success = true;
-                    break;
-                } catch (AssertionFailedError e) {
-                    // try next one
-                }
-            }
-            if (!success) {
-                final XppDom actualChild = actual.getChild(expectedChild.getName());
-                assertNotNull(message, actualChild);
-                assertDomEquals(message, expectedChild, actualChild);
-            }
-
-        }
-    }
 }

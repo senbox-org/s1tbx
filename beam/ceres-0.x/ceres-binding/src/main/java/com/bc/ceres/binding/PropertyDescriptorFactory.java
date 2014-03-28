@@ -19,17 +19,17 @@ package com.bc.ceres.binding;
 import java.lang.reflect.Field;
 
 /**
- * A factory for value descriptors derived from Java class {@link Field}s.
+ * A factory for property descriptors derived from Java class {@link Field}s.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
 public interface PropertyDescriptorFactory {
     /**
-     * Creates a new value descriptor for the given field.
+     * Creates a new property descriptor for the given field.
      *
      * @param field The field.
-     * @return The value descriptor.
+     * @return The property descriptor or {@code null}, if it cannot be derived from the given field.
      */
     PropertyDescriptor createValueDescriptor(Field field);
 }
