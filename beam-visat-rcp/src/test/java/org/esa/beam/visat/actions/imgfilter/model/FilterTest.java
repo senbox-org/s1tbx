@@ -42,8 +42,8 @@ public class FilterTest {
         String xml = xStream.toXML(filter);
         assertEquals("" +
                              "<filter>\n" +
-                             "  <name>Norman2</name>\n" +
-                             "  <shorthand>my2</shorthand>\n" +
+                             "  <name>" + filter.getName() + "</name>\n" +
+                             "  <shorthand>"+filter.getShorthand()+"</shorthand>\n" +
                              "  <operation>CONVOLVE</operation>\n" +
                              "  <editable>false</editable>\n" +
                              "  <tags>\n" +
