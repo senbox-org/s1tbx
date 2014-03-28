@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex.visat;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.CheckBoxList;
@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Component;
@@ -57,7 +58,7 @@ class ProductChooser extends ModalDialog {
         layout.setTableWeightX(1.0);
         JPanel panel = new JPanel(layout);
 
-        DefaultListModel listModel = new ProductListModel();
+        ProductListModel listModel = new ProductListModel();
         selectAll = new JCheckBox("Select all");
         selectNone = new JCheckBox("Select none", true);
 
@@ -89,7 +90,7 @@ class ProductChooser extends ModalDialog {
     }
 
     List<Product> getSelectedProducts() {
-        List<Product> selectedProducts = new ArrayList<Product>();
+        List<Product> selectedProducts = new ArrayList<>();
         for (int i = 0; i < productsList.getModel().getSize(); i++) {
             if (productsList.getCheckBoxListSelectionModel().isSelectedIndex(i)) {
                 selectedProducts.add((Product) productsList.getModel().getElementAt(i));
@@ -122,36 +123,33 @@ class ProductChooser extends ModalDialog {
         return buttonsPanel;
     }
 
-    private static class ProductListCellRenderer extends DefaultListCellRenderer {
+    private static class ProductListCellRenderer implements ListCellRenderer<Product> {
+
+        private DefaultListCellRenderer delegate = new DefaultListCellRenderer();
 
         @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+        public Component getListCellRendererComponent(JList list, Product value, int index, boolean isSelected,
                                                       boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            Product product = (Product) value;
-            label.setText(product.getDisplayName());
+            JLabel label = (JLabel) delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setText(value.getDisplayName());
             return label;
         }
 
     }
 
-    private static class ProductListModel extends DefaultListModel {
+    private static class ProductListModel extends DefaultListModel<Product> {
 
         @Override
-        public void addElement(Object obj) {
-            if (!(obj instanceof Product)) {
-                throw new IllegalArgumentException(
-                        "Only elements of type org.esa.beam.framework.datamodel.Product allowed.");
-            }
+        public void addElement(Product product) {
             boolean alreadyContained = false;
             for (int i = 0; i < getSize(); i++) {
-                String currentProductName = ((Product) get(i)).getName();
-                String newProductName = ((Product) obj).getName();
+                String currentProductName = get(i).getName();
+                String newProductName = product.getName();
                 alreadyContained |= currentProductName.equals(newProductName);
             }
 
             if (!alreadyContained) {
-                super.addElement(obj);
+                super.addElement(product);
             }
         }
     }

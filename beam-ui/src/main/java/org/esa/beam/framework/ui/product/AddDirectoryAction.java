@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex.visat;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.ValidationException;
 import com.jidesoft.swing.FolderChooser;
@@ -34,23 +34,25 @@ import java.io.File;
  */
 class AddDirectoryAction extends AbstractAction {
 
+    private final String lastDirProperty;
     private boolean recursive;
     private AppContext appContext;
     private InputListModel listModel;
 
-    AddDirectoryAction(AppContext appContext, InputListModel listModel, boolean recursive) {
-        this(recursive);
+    AddDirectoryAction(AppContext appContext, InputListModel listModel, boolean recursive, String lastDirProperty) {
+        this(recursive, lastDirProperty);
         this.appContext = appContext;
         this.listModel = listModel;
     }
 
-    private AddDirectoryAction(boolean recursive) {
-        this("Add directory" + (recursive ? " recursively" : "(s)") + "...");
+    private AddDirectoryAction(boolean recursive, String lastDirProperty) {
+        this("Add directory" + (recursive ? " recursively" : "(s)") + "...", lastDirProperty);
         this.recursive = recursive;
     }
 
-    private AddDirectoryAction(String title) {
+    private AddDirectoryAction(String title, String lastDirProperty) {
         super(title);
+        this.lastDirProperty = lastDirProperty;
     }
 
     @Override
@@ -58,8 +60,7 @@ class AddDirectoryAction extends AbstractAction {
         final FolderChooser folderChooser = new FolderChooser();
 
         final PropertyMap preferences = appContext.getPreferences();
-        String lastDir = preferences.getPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
-                                                       SystemUtils.getUserHomeDir().getPath());
+        String lastDir = preferences.getPropertyString(lastDirProperty, SystemUtils.getUserHomeDir().getPath());
         if (lastDir != null) {
             folderChooser.setCurrentDirectory(new File(lastDir));
         }
@@ -73,7 +74,7 @@ class AddDirectoryAction extends AbstractAction {
         }
 
         final String defaultPattern = recursive ? "*.dim" : "*";
-        final FileSelectionPatternDialog dialog = new FileSelectionPatternDialog(defaultPattern, parent, PixelExtractionDialog.HELP_ID_JAVA_HELP);
+        final FileSelectionPatternDialog dialog = new FileSelectionPatternDialog(defaultPattern, parent);
         if (dialog.show() != ModalDialog.ID_OK) {
             return;
         }
@@ -97,10 +98,9 @@ class AddDirectoryAction extends AbstractAction {
                 selectedDirs[i] = new File(selectedFile, pattern);
             }
         }
-        preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR, lastDir);
+        preferences.setPropertyString(lastDirProperty, lastDir);
         try {
             listModel.addElements(selectedDirs);
-
         } catch (ValidationException ve) {
             // not expected to ever come here
             appContext.handleError("Invalid input path", ve);

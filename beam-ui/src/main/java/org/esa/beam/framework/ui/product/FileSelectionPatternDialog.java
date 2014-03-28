@@ -1,4 +1,4 @@
-package org.esa.beam.pixex.visat;
+package org.esa.beam.framework.ui.product;
 
 import org.esa.beam.framework.ui.ModalDialog;
 
@@ -13,8 +13,8 @@ class FileSelectionPatternDialog extends ModalDialog {
 
     private final JTextField textField;
 
-    public FileSelectionPatternDialog(String defaultPattern, Window parent, String helpId) {
-        super(parent, "File Selection Pattern", ModalDialog.ID_OK_CANCEL_HELP, helpId);
+    public FileSelectionPatternDialog(String defaultPattern, Window parent) {
+        super(parent, "File Selection Pattern", ModalDialog.ID_OK_CANCEL_HELP, null);
         final JPanel contentPane = new JPanel(new BorderLayout(8, 8));
         contentPane.add(new JLabel("Please define a file selection pattern. For example '*.nc'"), BorderLayout.NORTH);
         contentPane.add(new JLabel("Pattern:"), BorderLayout.WEST);
@@ -25,7 +25,7 @@ class FileSelectionPatternDialog extends ModalDialog {
 
     public String getPattern() {
         final String text = textField.getText();
-        return text != null ? text.trim() : text;
+        return text != null ? text.trim() : null;
     }
 
     @Override

@@ -64,6 +64,7 @@ class BinningFormModelImpl implements BinningFormModel {
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_SOURCE_PRODUCT_PATHS, String[].class));
         propertySet.setDefaultValues();
     }
 

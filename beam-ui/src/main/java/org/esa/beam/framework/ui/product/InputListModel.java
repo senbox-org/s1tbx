@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex.visat;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
@@ -32,15 +32,15 @@ import java.util.logging.Level;
 /**
  * @author Thomas Storm
  */
-class InputListModel extends AbstractListModel {
+class InputListModel extends AbstractListModel<Object> {
 
-    private final List<Object> list = new ArrayList<Object>();
-    private List<Product> sourceProducts = new ArrayList<Product>();
+    private final List<Object> list = new ArrayList<>();
+    private List<Product> sourceProducts = new ArrayList<>();
     private final Property sourceProductPaths;
     private boolean internalPropertyChange;
 
-    InputListModel(Property sourceProductPaths) {
-        this.sourceProductPaths = sourceProductPaths;
+    InputListModel(Property propertySourceProductPaths) {
+        sourceProductPaths = propertySourceProductPaths;
         sourceProductPaths.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -115,7 +115,7 @@ class InputListModel extends AbstractListModel {
     }
 
     void removeElementsAt(int[] selectedIndices) {
-        List<Object> toRemove = new ArrayList<Object>();
+        List<Object> toRemove = new ArrayList<>();
         int startIndex = Integer.MAX_VALUE;
         int endIndex = Integer.MIN_VALUE;
         for (int selectedIndex : selectedIndices) {
@@ -133,8 +133,8 @@ class InputListModel extends AbstractListModel {
     }
 
     private void updateProperty() throws ValidationException {
-        final List<String> files = new ArrayList<String>();
-        final List<Product> products = new ArrayList<Product>();
+        final List<String> files = new ArrayList<>();
+        final List<Product> products = new ArrayList<>();
         for (Object element : list) {
             if (element instanceof File) {
                 files.add(((File) element).getPath());

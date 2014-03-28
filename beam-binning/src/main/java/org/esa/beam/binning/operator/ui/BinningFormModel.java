@@ -29,19 +29,20 @@ import java.beans.PropertyChangeListener;
  */
 interface BinningFormModel {
 
-    static String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
-    static String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
-    static String PROPERTY_KEY_REGION = "region";
-    static String PROPERTY_KEY_COMPUTE_REGION = "compute";
-    static String PROPERTY_KEY_GLOBAL = "global";
-    static String PROPERTY_KEY_EXPRESSION = "expression";
-    static String PROPERTY_KEY_TEMPORAL_FILTER = "temporalFilter";
-    static String PROPERTY_KEY_START_DATE = "startDate";
-    static String PROPERTY_KEY_END_DATE = "endDate";
-    static String PROPERTY_KEY_OUTPUT_BINNED_DATA = "outputBinnedData";
-    static String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
-    static String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
-    static String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
+    static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
+    static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
+    static final String PROPERTY_KEY_REGION = "region";
+    static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
+    static final String PROPERTY_KEY_GLOBAL = "global";
+    static final String PROPERTY_KEY_EXPRESSION = "expression";
+    static final String PROPERTY_KEY_TEMPORAL_FILTER = "temporalFilter";
+    static final String PROPERTY_KEY_START_DATE = "startDate";
+    static final String PROPERTY_KEY_END_DATE = "endDate";
+    static final String PROPERTY_KEY_OUTPUT_BINNED_DATA = "outputBinnedData";
+    static final String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
+    static final String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
+    static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
+    static final String PROPERTY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
 
     static int DEFAULT_NUM_ROWS = 2160;
 

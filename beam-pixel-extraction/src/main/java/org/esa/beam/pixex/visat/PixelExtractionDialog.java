@@ -19,6 +19,7 @@ package org.esa.beam.pixex.visat;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.jidesoft.utils.Lm;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -89,8 +90,7 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
                                                            HELP_ID_JAVA_HELP);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
-        ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
-        ioForm.setInputChangeListener(new ChangeListener() {
+        ChangeListener changeListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 final Product[] sourceProducts = ioForm.getSourceProducts();
@@ -111,7 +111,8 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
                 }
                 parametersForm.setActiveProduct(null);
             }
-        });
+        };
+        ioForm = new PixelExtractionIOForm(appContext, propertyContainer, changeListener);
 
         parametersForm = new PixelExtractionParametersForm(appContext, propertyContainer);
 
@@ -168,7 +169,7 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
 
     @Override
     public int show() {
-        ioForm.setSelectedProduct(appContext.getSelectedProduct());
+        ioForm.addProduct(appContext.getSelectedProduct());
         return super.show();
     }
 
@@ -261,6 +262,8 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
 
     public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
 
         final DefaultAppContext context = new DefaultAppContext("dev0");
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();

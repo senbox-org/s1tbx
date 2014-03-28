@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex.visat;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
@@ -60,7 +60,7 @@ class AddProductAction extends AbstractAction {
     private Product[] filterProducts() {
         List<Product> currentlyOpenedProducts = Arrays.asList(listModel.getSourceProducts());
         List<Product> productManagerProducts = Arrays.asList(appContext.getProductManager().getProducts());
-        ArrayList<Product> result = new ArrayList<Product>();
+        ArrayList<Product> result = new ArrayList<>();
         for (Product product : productManagerProducts) {
             if (!currentlyOpenedProducts.contains(product)) {
                 result.add(product);

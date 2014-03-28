@@ -14,19 +14,21 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pixex.visat;
-
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.*;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -53,7 +55,7 @@ public class InputFilesListModelTest {
         listModel.removeElementsAt(new int[]{0});
         assertEquals(0, listModel.getSize());
 
-        ArrayList<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
         files.add(new File("abc"));
         files.add(new File("def"));
         files.add(new File("ghi"));
@@ -61,7 +63,7 @@ public class InputFilesListModelTest {
         assertEquals(3, listModel.getSize());
         assertEquals(3, ((String[]) property.getValue()).length);
 
-        ArrayList<Product> products = new ArrayList<Product>();
+        List<Product> products = new ArrayList<>();
         products.add(new Product("abc", "meris", 10, 120));
         products.add(new Product("def", "meris", 10, 120));
         products.add(new Product("ghi", "meris", 10, 120));
