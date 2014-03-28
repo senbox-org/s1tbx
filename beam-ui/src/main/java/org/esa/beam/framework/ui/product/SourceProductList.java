@@ -84,8 +84,7 @@ public class SourceProductList extends ComponentAdapter {
     /**
      * Constructor.
      *
-     * @param appContext                 The context of the app using this component.
-<<<<<<< HEAD
+     * @param appContext The context of the app using this component.
      *
      */
     public SourceProductList(AppContext appContext) {
@@ -94,32 +93,6 @@ public class SourceProductList extends ComponentAdapter {
         this.lastOpenedFormat = "org.esa.beam.framework.ui.product.lastOpenedFormat";
         this.xAxis = true;
         listenersQueue = new ArrayList<>();
-=======
-     * @param propertySourceProductPaths A property which serves as target container for the source product paths. Must
-     *                                   be of type <code>String[].class</code>. Changes in the list are synchronised
-     *                                   with the property. If the changes of the property values outside this component
-     *                                   shall be synchronised with the list, it is necessary that the property lies
-     *                                   within a property container.
-     * @param lastOpenInputDir           A property name indicating the last directory the user has opened, may be <code>null</code>.
-     * @param lastOpenedFormat           A property name indicating the last product format the user has opened, may be <code>null</code>.
-     * @param changeListener             A listener that is informed every time the list's contents change.
-     */
-    public SourceProductList(AppContext appContext, Property propertySourceProductPaths, String lastOpenInputDir, String lastOpenedFormat, ChangeListener changeListener) {
-        Assert.argument(propertySourceProductPaths.getType().equals(String[].class), "propertySourceProductPaths must be of type String.class");
-        this.appContext = appContext;
-        this.propertySourceProductPaths = propertySourceProductPaths;
-        if (StringUtils.isNullOrEmpty(lastOpenInputDir)) {
-            this.lastOpenInputDir = "org.esa.beam.framework.ui.product.lastOpenInputDir";
-        } else {
-            this.lastOpenInputDir = lastOpenInputDir;
-        }
-        if (StringUtils.isNullOrEmpty(lastOpenInputDir)) {
-            this.lastOpenedFormat = "org.esa.beam.framework.ui.product.lastOpenedFormat";
-        } else {
-            this.lastOpenedFormat = lastOpenedFormat;
-        }
-        this.changeListener = changeListener;
->>>>>>> beautification & fix
     }
 
     /**
