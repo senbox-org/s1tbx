@@ -27,11 +27,7 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         this.filterSet.addListener(this);
         root = new Root();
         listeners = new ArrayList<>();
-
-        List<Filter> filters = filterSet.getFilterModels();
-        for (Filter filter : filters) {
-            insertTreeNodes(filter);
-        }
+        createTreeNodes();
     }
 
     public void addFilterModel(Filter filter, TreePath selectionPath) {
@@ -60,8 +56,13 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter) {
-        notifyTreeNodesChanged(filter);
+    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+        if ("tags".equals(propertyName)) {
+            createTreeNodes();
+            notifyTreeStructureChanged();
+        } else {
+            notifyTreeNodesChanged(filter);
+        }
     }
 
     @Override
@@ -182,11 +183,11 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     }
 
     private void notifyTreeNodeInserted(int groupIndex, Group group) {
-        notifyTreeNodesInserted(new TreeModelEvent(this, new Object[]{root}, new int[]{groupIndex}, new Object[]{group}));
+        notifyTreeNodesInserted(new TreeModelEvent(this, getPath(root), new int[]{groupIndex}, new Object[]{group}));
     }
 
     private void notifyTreeNodeInserted(Group group, int filterIndex, Filter filter) {
-        notifyTreeNodesInserted(new TreeModelEvent(this, new Object[]{root, group}, new int[]{filterIndex}, new Object[]{filter}));
+        notifyTreeNodesInserted(new TreeModelEvent(this, getPath(root, group), new int[]{filterIndex}, new Object[]{filter}));
     }
 
     private void notifyTreeNodesInserted(TreeModelEvent treeModelEvent) {
@@ -196,11 +197,11 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     }
 
     private void notifyTreeNodeRemoved(int groupIndex, Group group) {
-        notifyTreeNodesRemoved(new TreeModelEvent(this, new Object[]{root}, new int[]{groupIndex}, new Object[]{group}));
+        notifyTreeNodesRemoved(new TreeModelEvent(this, getPath(root), new int[]{groupIndex}, new Object[]{group}));
     }
 
     private void notifyTreeNodeRemoved(Group group, int filterIndex, Filter filter) {
-        notifyTreeNodesRemoved(new TreeModelEvent(this, new Object[]{root, group}, new int[]{filterIndex}, new Object[]{filter}));
+        notifyTreeNodesRemoved(new TreeModelEvent(this, getPath(root, group), new int[]{filterIndex}, new Object[]{filter}));
     }
 
     private void notifyTreeNodesRemoved(TreeModelEvent treeModelEvent) {
@@ -222,7 +223,7 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     }
 
     private void notifyTreeNodeChanged(Group group, Filter filter) {
-        notifyTreeNodesChanged(new TreeModelEvent(this, new Object[]{root.groups, group, filter}));
+        notifyTreeNodesChanged(new TreeModelEvent(this, getPath(root, group, filter)));
     }
 
     private void notifyTreeNodeChanged(TreePath treePath) {
@@ -232,6 +233,25 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     private void notifyTreeNodesChanged(TreeModelEvent treeModelEvent) {
         for (TreeModelListener listener : listeners) {
             listener.treeNodesChanged(treeModelEvent);
+        }
+    }
+
+    public void notifyTreeStructureChanged() {
+        TreeModelEvent treeModelEvent = new TreeModelEvent(this, getPath(root));
+        for (TreeModelListener listener : listeners) {
+            listener.treeStructureChanged(treeModelEvent);
+        }
+    }
+
+    static Object[] getPath(Object ... path) {
+        return path;
+    }
+
+    private void createTreeNodes() {
+        root.groups.clear();
+        List<Filter> filters = filterSet.getFilterModels();
+        for (Filter filter : filters) {
+            insertTreeNodes(filter);
         }
     }
 

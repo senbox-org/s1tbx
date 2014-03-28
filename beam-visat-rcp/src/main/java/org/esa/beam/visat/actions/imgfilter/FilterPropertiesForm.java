@@ -3,6 +3,7 @@ package org.esa.beam.visat.actions.imgfilter;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
@@ -83,19 +84,26 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext.bind("kernelWidth", kernelWidthField);
                 bindingContext.bind("kernelHeight", kernelHeightField);
 
-                Enablement.Condition condition = new Enablement.Condition() {
+                Enablement.Condition editableCondition = new Enablement.Condition() {
                     @Override
                     public boolean evaluate(BindingContext bindingContext) {
                         return bindingContext.getPropertySet().getValue("editable");
                     }
                 };
-                bindingContext.bindEnabledState("operation", true, condition);
-                bindingContext.bindEnabledState("name", true, condition);
-                bindingContext.bindEnabledState("shorthand", true, condition);
-                bindingContext.bindEnabledState("tags", true, condition);
-                bindingContext.bindEnabledState("kernelQuotient", true, condition);
-                bindingContext.bindEnabledState("kernelOffsetX", true, condition);
-                bindingContext.bindEnabledState("kernelOffsetY", true, condition);
+                Enablement.Condition editableConvolutionCondition = new Enablement.Condition() {
+                    @Override
+                    public boolean evaluate(BindingContext bindingContext) {
+                        PropertySet propertySet = bindingContext.getPropertySet();
+                        return Boolean.TRUE.equals(propertySet.getValue("editable")) && Filter.Operation.CONVOLVE.equals(propertySet.getValue("operation"));
+                    }
+                };
+                bindingContext.bindEnabledState("operation", true, editableCondition);
+                bindingContext.bindEnabledState("name", true, editableCondition);
+                bindingContext.bindEnabledState("shorthand", true, editableCondition);
+                bindingContext.bindEnabledState("tags", true, editableCondition);
+                bindingContext.bindEnabledState("kernelQuotient", true, editableConvolutionCondition);
+                bindingContext.bindEnabledState("kernelOffsetX", true, TRUE_CONDITION);
+                bindingContext.bindEnabledState("kernelOffsetY", true, TRUE_CONDITION);
                 bindingContext.bindEnabledState("kernelWidth", false, TRUE_CONDITION);
                 bindingContext.bindEnabledState("kernelHeight", false, TRUE_CONDITION);
                 bindingContext.adjustComponents();
@@ -108,13 +116,13 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
     }
 
     @Override
-    public void filterModelChanged(Filter filter) {
+    public void filterModelChanged(Filter filter, String propertyName) {
         bindingContext.adjustComponents();
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        this.filter.notifyChange();
+        this.filter.notifyChange(evt.getPropertyName());
     }
 
     private void clearComponents() {

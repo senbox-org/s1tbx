@@ -56,7 +56,7 @@ public class FilterSetForm extends JPanel {
             }
 
             @Override
-            public void filterModelChanged(FilterSet filterSet, Filter filter) {
+            public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
                 setModified(true);
             }
         });

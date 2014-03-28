@@ -85,7 +85,7 @@ public class FilterSetsForm extends JPanel implements FilterSetForm.Listener {
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter) {
+    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
         if (this.selectedFilter == filter) {
             updateBandNameField();
         }

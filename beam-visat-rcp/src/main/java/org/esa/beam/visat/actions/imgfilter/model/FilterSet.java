@@ -96,13 +96,13 @@ public class FilterSet implements Filter.Listener {
     }
 
     @Override
-    public void filterModelChanged(Filter filter) {
-        notifyFilterModelChanged(filter);
+    public void filterModelChanged(Filter filter, String propertyName) {
+        notifyFilterModelChanged(filter, propertyName);
     }
 
-    void notifyFilterModelChanged(Filter filter) {
+    void notifyFilterModelChanged(Filter filter, String propertyName) {
         for (Listener listener : listeners) {
-            listener.filterModelChanged(this, filter);
+            listener.filterModelChanged(this, filter, propertyName);
         }
     }
 
@@ -131,6 +131,6 @@ public class FilterSet implements Filter.Listener {
 
         void filterModelRemoved(FilterSet filterSet, Filter filter);
 
-        void filterModelChanged(FilterSet filterSet, Filter filter);
+        void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName);
     }
 }

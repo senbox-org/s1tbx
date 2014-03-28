@@ -121,8 +121,8 @@ public class CreateFilteredBandDialog extends ModalDialog implements FilterSetFo
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter) {
-        System.out.println("filterModelChanged: filterModel = " + filter);
+    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+        System.out.println("filterModelChanged: filterModel = " + filter + ", propertyName = \"" + propertyName + "\"");
     }
 
 

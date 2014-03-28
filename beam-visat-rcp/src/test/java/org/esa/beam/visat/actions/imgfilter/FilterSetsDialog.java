@@ -54,7 +54,7 @@ public class FilterSetsDialog implements FilterSetForm.Listener {
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter) {
+    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
         System.out.println("filterModelChanged: filterModel = " + filter);
     }
 

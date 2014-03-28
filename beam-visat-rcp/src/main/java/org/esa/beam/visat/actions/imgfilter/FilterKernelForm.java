@@ -35,7 +35,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
     }
 
     @Override
-    public void filterModelChanged(Filter filter) {
+    public void filterModelChanged(Filter filter, String propertyName) {
 
         boolean structureElement = filter.getOperation() != Filter.Operation.CONVOLVE;
         fillValueCombo.setModel(structureElement ? structuringFillValueModel : kernelFillValueModel);

@@ -103,7 +103,7 @@ public class Filter {
     public void setName(String name) {
         if (!name.equals(this.name)) {
             this.name = name;
-            notifyChange();
+            notifyChange("name");
         }
     }
 
@@ -114,7 +114,7 @@ public class Filter {
     public void setShorthand(String shorthand) {
         if (!shorthand.equals(this.shorthand)) {
             this.shorthand = shorthand;
-            notifyChange();
+            notifyChange("shorthand");
         }
     }
 
@@ -125,7 +125,7 @@ public class Filter {
     public void setOperation(Operation operation) {
         if (operation != this.operation) {
             this.operation = operation;
-            notifyChange();
+            notifyChange("operation");
         }
     }
 
@@ -136,7 +136,7 @@ public class Filter {
     public void setEditable(boolean editable) {
         if (editable != this.editable) {
             this.editable = editable;
-            notifyChange();
+            notifyChange("editable");
         }
     }
 
@@ -148,10 +148,10 @@ public class Filter {
         setTags(new HashSet<>(Arrays.asList(tags)));
     }
 
-    public void setTags(HashSet<String> tags) {
+    private void setTags(HashSet<String> tags) {
         if (!tags.equals(this.tags)) {
             this.tags = tags;
-            notifyChange();
+            notifyChange("tags");
         }
     }
 
@@ -170,7 +170,7 @@ public class Filter {
     public void setKernelElement(int index, double value) {
         if (value != kernelElements[index]) {
             kernelElements[index] = value;
-            notifyChange();
+            notifyChange("kernelElements");
         }
     }
 
@@ -184,7 +184,7 @@ public class Filter {
                 throw new IllegalArgumentException("kernelElements.length != kernelWidth * kernelHeight");
             }
             this.kernelElements = kernelElements;
-            notifyChange();
+            notifyChange("kernelElements");
         }
     }
 
@@ -216,7 +216,7 @@ public class Filter {
             this.kernelOffsetX = width / 2;
             this.kernelOffsetY = height / 2;
             this.kernelElements = elements;
-            notifyChange();
+            notifyChange("kernelSize");
         }
     }
 
@@ -235,14 +235,14 @@ public class Filter {
                 sum += v;
             }
         }
-        this.kernelQuotient = sum;
-        notifyChange();
+        this.kernelQuotient = operation == Operation.CONVOLVE ? sum : 1.0;
+        notifyChange("kernelElements");
     }
 
     public void fillRectangle(double fillValue) {
         Arrays.fill(kernelElements, fillValue);
-        this.kernelQuotient = kernelWidth * kernelHeight * fillValue;
-        notifyChange();
+        this.kernelQuotient = operation == Operation.CONVOLVE ? kernelWidth * kernelHeight * fillValue : 1;
+        notifyChange("kernelElements");
     }
 
     public void fillEllipse(final double fillValue) {
@@ -299,8 +299,10 @@ public class Filter {
     }
 
     public void setKernelQuotient(double kernelQuotient) {
-        this.kernelQuotient = kernelQuotient;
-        notifyChange();
+        if (kernelQuotient != this.kernelQuotient) {
+            this.kernelQuotient = kernelQuotient;
+            notifyChange("kernelQuotient");
+        }
     }
 
     public int getKernelOffsetX() {
@@ -315,7 +317,7 @@ public class Filter {
         if (kernelOffsetX != this.kernelOffsetX || kernelOffsetY != this.kernelOffsetY) {
             this.kernelOffsetX = kernelOffsetX;
             this.kernelOffsetY = kernelOffsetY;
-            notifyChange();
+            notifyChange("kernelOffset");
         }
     }
 
@@ -397,6 +399,7 @@ public class Filter {
 
     public static XStream createXStream() {
         final XStream xStream = new XStream();
+        xStream.setClassLoader(Filter.class.getClassLoader());
         xStream.alias("filter", Filter.class);
         xStream.registerLocalConverter(Filter.class, "kernelElements", new SingleValueConverter() {
             @Override
@@ -440,9 +443,9 @@ public class Filter {
         return strings != null;
     }
 
-    public void notifyChange() {
+    public void notifyChange(String propertyName) {
         for (Listener listener : listeners) {
-            listener.filterModelChanged(this);
+            listener.filterModelChanged(this, propertyName);
         }
     }
 
@@ -455,7 +458,7 @@ public class Filter {
     }
 
     public interface Listener {
-        void filterModelChanged(Filter filter);
+        void filterModelChanged(Filter filter, String propertyName);
     }
 
     interface FillFunction {
