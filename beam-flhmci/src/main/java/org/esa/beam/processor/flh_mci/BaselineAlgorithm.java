@@ -88,7 +88,7 @@ public final class BaselineAlgorithm {
      *
      * @param lower lower baseline wavelength radiance
      * @param upper upper baseline wavelength radiance
-     * @param peak  array of signal wavelength radiances
+     * @param peak  the signal wavelength radiance
      *
      * @return the line height
      */
