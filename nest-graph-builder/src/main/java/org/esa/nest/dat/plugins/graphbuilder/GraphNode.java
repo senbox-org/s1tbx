@@ -110,7 +110,11 @@ public class GraphNode {
                     for(DomElement ch : child.getChildren()) {
                         final String v = ch.getValue();
 
-                        objArray[c++] = converter.parse(v);
+                        if(converter != null) {
+                            objArray[c++] = converter.parse(v);
+                        } else {
+                            objArray[c++] = v;
+                        }
                     }
                     parameterMap.put(name, objArray);
                 }
