@@ -42,23 +42,23 @@ public class FilterTest {
         XStream xStream = Filter.createXStream();
         String xml = xStream.toXML(filter);
         assertEquals("" +
-                        "<filter>\n" +
-                        "  <name>Norman2</name>\n" +
-                        "  <shorthand>my2</shorthand>\n" +
-                        "  <operation>CONVOLVE</operation>\n" +
-                        "  <editable>false</editable>\n" +
-                        "  <tags>\n" +
-                        "    <string>sharpen</string>\n" +
-                        "    <string>all</string>\n" +
-                        "  </tags>\n" +
-                        "  <kernelElements>0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0</kernelElements>\n" +
-                        "  <kernelWidth>5</kernelWidth>\n" +
-                        "  <kernelHeight>5</kernelHeight>\n" +
-                        "  <kernelQuotient>1.0</kernelQuotient>\n" +
-                        "  <kernelOffsetX>2</kernelOffsetX>\n" +
-                        "  <kernelOffsetY>2</kernelOffsetY>\n" +
-                        "</filter>",
-                xml
+                             "<filter>\n" +
+                             "  <name>" + filter.getName() + "</name>\n" +
+                             "  <shorthand>"+filter.getShorthand()+"</shorthand>\n" +
+                             "  <operation>CONVOLVE</operation>\n" +
+                             "  <editable>false</editable>\n" +
+                             "  <tags>\n" +
+                             "    <string>sharpen</string>\n" +
+                             "    <string>all</string>\n" +
+                             "  </tags>\n" +
+                             "  <kernelElements>0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0</kernelElements>\n" +
+                             "  <kernelWidth>5</kernelWidth>\n" +
+                             "  <kernelHeight>5</kernelHeight>\n" +
+                             "  <kernelQuotient>1.0</kernelQuotient>\n" +
+                             "  <kernelOffsetX>2</kernelOffsetX>\n" +
+                             "  <kernelOffsetY>2</kernelOffsetY>\n" +
+                             "</filter>",
+                     xml
         );
     }
 
