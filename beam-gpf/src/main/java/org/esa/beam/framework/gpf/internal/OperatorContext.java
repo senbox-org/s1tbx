@@ -16,6 +16,7 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
@@ -1055,7 +1056,7 @@ public class OperatorContext {
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
             try {
-                configureOperator(operator, configuration);
+                configureOperator(configuration);
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
@@ -1064,11 +1065,15 @@ public class OperatorContext {
         }
     }
 
-    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration)
+    private void configureOperator(OperatorConfiguration operatorConfiguration)
             throws ValidationException, ConversionException {
-        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
-        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
+
+        Class<? extends Operator> operatorType = getOperatorSpi().getOperatorDescriptor().getOperatorClass();
+        ParameterDescriptorFactory descriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+        PropertySetDescriptor propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
+
+        DefaultDomConverter domConverter = new DefaultDomConverter(operatorType, descriptorFactory, propertySetDescriptor);
+        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), getParameterSet());
 
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
