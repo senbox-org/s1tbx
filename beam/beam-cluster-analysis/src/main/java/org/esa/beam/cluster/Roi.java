@@ -30,13 +30,23 @@ import java.util.List;
 import java.util.Set;
 
 
-final class Roi {
+class Roi {
 
     private final Set<RenderedImage> maskImageSet = new HashSet<RenderedImage>();
     private final RenderedImage combinedMaskImage;
 
     Roi(Product sourceProduct, Band[] sourceBands, String roiMaskName) {
         handleRoiMask(sourceProduct, roiMaskName);
+        handleValidMasks(sourceBands);
+        if (maskImageSet.size() > 0) {
+            combinedMaskImage = createCombinedMaskImage();
+        } else {
+            combinedMaskImage = null;
+        }
+    }
+
+    Roi(Product sourceProduct, Band[] sourceBands, Mask roiMask) {
+        handleRoiMask(sourceProduct, roiMask);
         handleValidMasks(sourceBands);
         if (maskImageSet.size() > 0) {
             combinedMaskImage = createCombinedMaskImage();
@@ -66,6 +76,12 @@ final class Roi {
                 maskImageSet.add(mask.getSourceImage());
             }
         }
+    }
+
+    private void handleRoiMask(Product product, Mask  mask) {
+            if (mask != null) {
+                maskImageSet.add(mask.getSourceImage());
+            }
     }
 
     private void handleValidMasks(Band[] sourceBands) {

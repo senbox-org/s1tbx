@@ -1,5 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><!--
+<!--
   ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
@@ -14,21 +13,25 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-    
-    <title>Cluster Analysis Tools</title><link rel="stylesheet" href="../style.css"></head>
 
+<html>
+<head>
+    <title>Cluster Analysis Tools</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
 
 <body>
 
 <table class="header">
-    <tbody><tr class="header">
+    <tr class="header">
         <td class="header">&nbsp;
             Cluster Analysis
         </td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
         </td>
     </tr>
-</tbody></table>
+</table>
 
 <h3>Introduction</h3>
 
@@ -69,7 +72,9 @@
     the different scales and correlations in the data.
 </p>
 
-<h3>Cluster analysis tools</h3>
+<h3>BEAM cluster analysis tools</h3>
+
+BEAM currently offers two clustering tools, both employing partional algorithms:
 
 <dl>
     <dt><a href="KMeans.html">K-means clustering</a></dt>
@@ -79,7 +84,7 @@
         allows it to run on large datasets. Its disadvantage is that it does not take into account different scales and
         correlations in the data. It minimizes intra-cluster variance, but does not ensure that the result has a global
         minimum of variance. This algorithm should be your primary choice for performing a cluster analysis. <em>For
-        the analysis of large scenes, this algorithm is strongly recommended.</em>
+        the anylysis of large scenes, this algorithm is strongly remmended.</em>
     </dd>
     <dt><a href="EM.html">EM clustering</a></dt>
     <dd>
@@ -95,9 +100,11 @@
 
 <h3>Further information</h3>
 
-<p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
+<p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a
+        href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
 </p>
 
 <br>
 <hr>
-</body></html>
+</body>
+</html>

@@ -20,13 +20,13 @@ import org.esa.beam.framework.gpf.Tile;
 import java.util.Iterator;
 
 /**
- * todo - add API doc
+ * Iterator for pixels within a region of interest.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-final class PixelIter {
+class PixelIter {
 
     private final Tile[] tiles;
     private final Iterator<Tile.Pos> iterator;
@@ -38,12 +38,11 @@ final class PixelIter {
         iterator = tiles[0].iterator();
     }
 
-    double[] next(final double[] samples) {
-        final int length = samples.length;
+    double[] next(double[] samples) {
         while (iterator.hasNext()) {
             Tile.Pos nextPos = iterator.next();
-            if (roi.contains(nextPos.x, nextPos.y)) {
-                for (int i = 0; i < length; i++) {
+            if (roi == null || roi.contains(nextPos.x, nextPos.y)) {
+                for (int i = 0; i < samples.length; i++) {
                     samples[i] = tiles[i].getSampleDouble(nextPos.x, nextPos.y);
                 }
                 return samples;

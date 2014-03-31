@@ -23,14 +23,15 @@
 <body>
 
 <table class="header">
-    <tbody><tr class="header">
+    <tr class="header">
         <td class="header">&nbsp;
             Expectation Maximization (EM) Cluster Analysis
         </td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/BeamHeader.jpg" border="0"></a>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
         </td>
     </tr>
-</tbody></table>
+</table>
 
 <h3>Introduction</h3>
 
@@ -48,7 +49,7 @@
 <h3>Algorithm</h3>
 
 <p>
-    The EM algorithm can be regarded as a generalization of
+    The EM algorithm implemented in BEAM can be regarded as a generalization of
     the <a href="KMeans.html">k-means algorithm</a>. The main differences are:
 </p>
 
@@ -84,7 +85,7 @@
     algorithm when you want to perform a cluster analysis of a small scene or region-of-interest and are not satisfied
     with the results obtained from the <a href="KMeans.html">k-means</a> algorithm.
 
-</p><p>
+<p>
     The result of the cluster analysis is written to a band named <strong>class_indices</strong>. The
     values in this band indicate the class indices, where a value '0' refers to the first
     cluster, a value of '1' refers to the second cluster, etc. The class indices are sorted according
@@ -94,31 +95,32 @@
 
 <p>
     Note that an index coding is attached to the <strong>class_indices</strong> band, which can be edited
-    in the <a href="../visat/ColorManipulationWindow.html#editingIndexCodedBands">Color Manipulation Window</a>.
+    in the <a href="visat/ColorManipulationWindow.html#editingIndexCodedBands">Color Manipulation Window</a>.
     It is possible to change the label and the color associated with a class index. The last columns of the
     color manipulation window lists the location of the cluster centers. Further information on the clusters
     is listed in the <strong>Cluster-Analysis</strong> group of the product metadata.
 </p>
 
 <p align="center">
-    <img src="images/em-color-manip.png" alt="Color Manipulation Window">
+    <img src="images/em-color-manip.png" alt="Color Manipulation Window"/>
 </p>
 
 <h3>User Interface</h3>
 
 <p>
-    The EM cluster analysis tool can be invoked by selecting
+    The EM cluster analysis tool can be invoked from VISAT tool menu by selecting
     the <b>EM Cluster Analysis</b> command in the <b>Image Analysis</b> submenu. In the command line it is
-    available by means of the Graph Processing Tool <code>gpt</code>. Please type <code>gpt EMClusterAnalysis -h</code> for further information.
+    available by means of the Graph Processing Tool <code>gpt</code> which is located in the BEAM <code>bin</code>
+    directory. Please type <code>gpt EMClusterAnalysis -h</code> for further information.
 </p>
 
 <p>
-    Selecting the <b>EM Cluster Analysis</b> command from the Image Analysis menu pops up the
+    Selecting the <b>EM Cluster Analysis</b> command from the VISAT tool menu pops up the
     following dialog:
 </p>
 
 <p align="center">
-    <img src="images/em-io-parameters.png" alt="EM Cluster Analysis Dialog">
+    <img src="images/em-io-parameters.png" alt="EM Cluster Analysis Dialog"/>
 </p>
 
 <h5>Source Product Group</h5>
@@ -126,7 +128,7 @@
 <p class="i1">
     <b>Name:</b>
     Here the user specifies the name of the source product. The combo box presents
-    a list of all products open in DAT. The user may select one of these
+    a list of all products open in VISAT. The user may select one of these
     or, by clicking on the button next to the combo box, choose a product
     from the file system.
 </p>
@@ -146,13 +148,13 @@
 </p>
 
 <p class="i1">
-    <b>Open in DAT:</b>
-    Used to specify whether the target product should be opened in DAT. When the
-    the target product is not saved, it is opened in DAT automatically.
+    <b>Open in VISAT:</b>
+    Used to specify whether the target product should be opened in VISAT. When the
+    the target product is not saved, it is opened in VISAT automatically.
 </p>
 
 <p align="center">
-    <img src="images/em-proc-parameters.png" alt="K-Means Cluster Analysis Dialog">
+    <img src="images/em-proc-parameters.png" alt="K-Means Cluster Analysis Dialog"/>
 </p>
 
 <h5>Processing Parameters Panel</h5>
@@ -183,7 +185,7 @@
 </p>
 
 <p class="i1">
-    <b>Region of interest:</b>
+    <b>ROI-Mask:</b>
     Use this field to restrict the cluster analysis to a region-of-interest (ROI). The combo box allows to select the
     band which provides the ROI.
 </p>
@@ -210,14 +212,16 @@
 
 <p class="i1">
     <b>Help</b>
-    Displays this page in the Help.
+    Displays this page in VISAT Help.
 </p>
 
 <h3>Further information</h3>
 
-<p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
+<p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a
+        href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
 </p>
 
 <br>
 <hr>
-</body></html>
+</body>
+</html>

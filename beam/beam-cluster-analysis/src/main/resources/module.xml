@@ -11,6 +11,9 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1.2:<br/>
+        Added PCA<br/>
+        Adapted to new Maven-architecture<br>
         Changes in 1.1:<br/>
         [BEAM-841] EM clustering does not come to an end for small scenes<br/>
         [BEAM-839] Improper initialization of EM clustering algorithm<br/>
@@ -42,7 +45,6 @@
             <parent>classification</parent>
             <placeAfter>FeatureExtractionGroup</placeAfter>
         </action>
-
         <action>
             <id>emClusterAnalysis</id>
             <helpId>clusterAnalysisEM</helpId>
@@ -67,6 +69,16 @@
             <dialogTitle>K-Means Cluster Analysis</dialogTitle>
             <targetProductNameSuffix>_kmeans</targetProductNameSuffix>
         </action>
+        <!--action>
+            <id>principleComponentAnalysis</id>
+            <helpId>principleComponentAnalysis</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <parent>imageAnalysis</parent>
+            <text>Principle Component Analysis...</text>
+            <operatorName>PCA</operatorName>
+            <dialogTitle>Principle Component Analysis</dialogTitle>
+            <targetProductNameSuffix>_pca</targetProductNameSuffix>
+        </action-->
     </extension>
 
     <extension point="beam-ui:helpSets">
