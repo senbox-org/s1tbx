@@ -101,7 +101,7 @@ public class ReadOp extends Operator {
             productElem.addElement(inputElem);
         }
 
-        MetadataAttribute[] inputProductAttrbList = inputElem.getAttributes();
+        final MetadataAttribute[] inputProductAttrbList = inputElem.getAttributes();
         boolean found = false;
         for(MetadataAttribute attrib : inputProductAttrbList) {
             if(attrib.getData().getElemString().equals(targetProduct.getName()))
