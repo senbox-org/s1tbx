@@ -16,12 +16,12 @@
 
 package org.esa.beam.dataio.ceos.avnir2;
 
+import org.esa.beam.dataio.ceos.CeosHelper;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.dataio.ceos.CeosHelper;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -56,7 +56,7 @@ public class Avnir2ProductReaderPlugIn implements ProductReaderPlugIn {
         }
 
         final File parentDir = file.getParentFile();
-        if (file.isFile() && parentDir.isDirectory()) {
+        if (file.isFile() && parentDir != null && parentDir.isDirectory()) {
             final FilenameFilter filter = new FilenameFilter() {
                 public boolean accept(final File dir, final String name) {
                     return name.contains(_AVNIR2_INDICATION_KEY);
