@@ -49,15 +49,15 @@ public class ImageLegend {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
-    private static final int _GAP = 10;
-    private static final int _LABEL_GAP = 12;
-    private static final int _SLIDER_WIDTH = 10;
-    private static final int _SLIDER_HEIGHT = 14;
+    private static final int GAP = 10;
+    private static final int LABEL_GAP = 12;
+    private static final int SLIDER_WIDTH = 10;
+    private static final int SLIDER_HEIGHT = 14;
 
-    private static final int _MIN_PALETTE_WIDTH = 256;
-    private static final int _MIN_PALETTE_HEIGHT = 32;
-    private static final int _MIN_LEGEND_WIDTH = 320;
-    private static final int _MIN_LEGEND_HEIGHT = 48;
+    private static final int MIN_PALETTE_WIDTH = 256;
+    private static final int MIN_PALETTE_HEIGHT = 32;
+    private static final int MIN_LEGEND_WIDTH = 320;
+    private static final int MIN_LEGEND_HEIGHT = 48;
 
     private static final Font _DEFAULT_FONT = new Font("Arial", Font.BOLD, 14);
 
@@ -222,7 +222,7 @@ public class ImageLegend {
         int headerTextVSpace = 0;
         int headerTextWidth = 0;
         if (hasHeaderText()) {
-            headerTextVSpace = textHeight + _GAP;
+            headerTextVSpace = textHeight + GAP;
             headerTextWidth = fontMetrics.stringWidth(headerText);
         }
 
@@ -230,44 +230,44 @@ public class ImageLegend {
         int legendHeight = 0;
         int maxLabelWidth = 0;
         for (int i = 0; i < n; i++) {
-            legendWidth += _LABEL_GAP + labelWidths[i];
+            legendWidth += LABEL_GAP + labelWidths[i];
             legendHeight += 2 * textHeight;
             maxLabelWidth = Math.max(labelWidths[i], maxLabelWidth);
         }
 
         if (orientation == HORIZONTAL) {
-            legendWidth = Math.max(legendWidth, _MIN_PALETTE_HEIGHT);
-            legendWidth = _GAP + Math.max(legendWidth, headerTextWidth) + _GAP;
-            legendHeight = _GAP + headerTextVSpace + _MIN_PALETTE_HEIGHT + _LABEL_GAP + textHeight + _GAP;
-            legendWidth = Math.max(_MIN_LEGEND_WIDTH, adjust(legendWidth, 16));
-            legendHeight = Math.max(_MIN_LEGEND_HEIGHT, adjust(legendHeight, 16));
+            legendWidth = Math.max(legendWidth, MIN_PALETTE_HEIGHT);
+            legendWidth = GAP + Math.max(legendWidth, headerTextWidth) + GAP;
+            legendHeight = GAP + headerTextVSpace + MIN_PALETTE_HEIGHT + LABEL_GAP + textHeight + GAP;
+            legendWidth = Math.max(MIN_LEGEND_WIDTH, adjust(legendWidth, 16));
+            legendHeight = Math.max(MIN_LEGEND_HEIGHT, adjust(legendHeight, 16));
         } else {
-            legendWidth = _MIN_PALETTE_HEIGHT + _LABEL_GAP + maxLabelWidth;
-            legendWidth = _GAP + Math.max(legendWidth, headerTextWidth) + _GAP;
-            legendHeight = _GAP + headerTextVSpace + Math.max(legendHeight, _MIN_PALETTE_WIDTH) + _LABEL_GAP + textHeight + _GAP;
-            legendWidth = Math.max(_MIN_LEGEND_HEIGHT, adjust(legendWidth, 16));
-            legendHeight = Math.max(_MIN_LEGEND_WIDTH, adjust(legendHeight, 16));
+            legendWidth = MIN_PALETTE_HEIGHT + LABEL_GAP + maxLabelWidth;
+            legendWidth = GAP + Math.max(legendWidth, headerTextWidth) + GAP;
+            legendHeight = GAP + headerTextVSpace + Math.max(legendHeight, MIN_PALETTE_WIDTH) + LABEL_GAP + textHeight + GAP;
+            legendWidth = Math.max(MIN_LEGEND_HEIGHT, adjust(legendWidth, 16));
+            legendHeight = Math.max(MIN_LEGEND_WIDTH, adjust(legendHeight, 16));
         }
 
         legendSize = new Dimension(legendWidth, legendHeight);
 
 
-        final int headerTextSpace = headerText != null ? textHeight + _GAP : 0;
-        final int labelTextSpace = _LABEL_GAP + textHeight;
+        final int headerTextSpace = headerText != null ? textHeight + GAP : 0;
+        final int labelTextSpace = LABEL_GAP + textHeight;
         if (orientation == HORIZONTAL) {
-            paletteRect = new Rectangle(_GAP,
-                                         _GAP + headerTextSpace,
-                                         legendSize.width - (_GAP + _GAP),
-                                         legendSize.height - (_GAP + headerTextSpace + labelTextSpace + _GAP));
+            paletteRect = new Rectangle(GAP,
+                                         GAP + headerTextSpace,
+                                         legendSize.width - (GAP + GAP),
+                                         legendSize.height - (GAP + headerTextSpace + labelTextSpace + GAP));
             int paletteGap = Math.max(labelWidths[0], labelWidths[n - 1]) / 2;
             palettePos1 = paletteRect.x + paletteGap;
             palettePos2 = paletteRect.x + paletteRect.width - paletteGap;
         } else {
-            paletteRect = new Rectangle(_GAP,
-                                         _GAP + headerTextSpace,
-                                         legendSize.width - (_GAP + labelTextSpace + maxLabelWidth + _GAP),
-                                         legendSize.height - (_GAP + headerTextSpace + _GAP));
-            int paletteGap = Math.max(textHeight, _SLIDER_WIDTH) / 2;
+            paletteRect = new Rectangle(GAP,
+                                         GAP + headerTextSpace,
+                                         legendSize.width - (GAP + labelTextSpace + maxLabelWidth + GAP),
+                                         legendSize.height - (GAP + headerTextSpace + GAP));
+            int paletteGap = Math.max(textHeight, SLIDER_WIDTH) / 2;
             palettePos1 = paletteRect.y + paletteGap;
             palettePos2 = paletteRect.y + paletteRect.height - paletteGap;
         }
@@ -298,8 +298,8 @@ public class ImageLegend {
         if (hasHeaderText()) {
             final FontMetrics fontMetrics = g2d.getFontMetrics();
             g2d.setPaint(foregroundColor);
-            int x0 = _GAP;
-            int y0 = _GAP + fontMetrics.getMaxAscent();
+            int x0 = GAP;
+            int y0 = GAP + fontMetrics.getMaxAscent();
             g2d.drawString(headerText, x0, y0);
         }
     }
@@ -380,9 +380,9 @@ public class ImageLegend {
             float y0;
             if (orientation == HORIZONTAL) {
                 x0 = -0.5f * labelWidths[i];
-                y0 = _LABEL_GAP + fontMetrics.getMaxAscent();
+                y0 = LABEL_GAP + fontMetrics.getMaxAscent();
             } else {
-                x0 = _LABEL_GAP;
+                x0 = LABEL_GAP;
                 y0 = fontMetrics.getMaxAscent();
             }
             g2d.setPaint(foregroundColor);
@@ -406,13 +406,13 @@ public class ImageLegend {
     private Shape createSliderShape() {
         GeneralPath path = new GeneralPath();
         if (orientation == HORIZONTAL) {
-            path.moveTo(0.0F, -0.5F * _SLIDER_HEIGHT);
-            path.lineTo(+0.5F * _SLIDER_WIDTH, +0.5F * _SLIDER_HEIGHT);
-            path.lineTo(-0.5F * _SLIDER_WIDTH, +0.5F * _SLIDER_HEIGHT);
+            path.moveTo(0.0F, -0.5F * SLIDER_HEIGHT);
+            path.lineTo(+0.5F * SLIDER_WIDTH, +0.5F * SLIDER_HEIGHT);
+            path.lineTo(-0.5F * SLIDER_WIDTH, +0.5F * SLIDER_HEIGHT);
         } else {
-            path.moveTo(-0.5F * _SLIDER_HEIGHT, 0.0F);
-            path.lineTo(+0.5F * _SLIDER_HEIGHT, +0.5F * _SLIDER_WIDTH);
-            path.lineTo(+0.5F * _SLIDER_HEIGHT, -0.5F * _SLIDER_WIDTH);
+            path.moveTo(-0.5F * SLIDER_HEIGHT, 0.0F);
+            path.lineTo(+0.5F * SLIDER_HEIGHT, +0.5F * SLIDER_WIDTH);
+            path.lineTo(+0.5F * SLIDER_HEIGHT, -0.5F * SLIDER_WIDTH);
         }
         path.closePath();
         return path;
