@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,19 +34,19 @@ public final class ObjectArray {
         _objects = new Object[max - min + 1];
     }
 
-    public final int getMinIndex() {
+    public int getMinIndex() {
         return _minIndex;
     }
 
-    public final int getMaxIndex() {
+    public int getMaxIndex() {
         return _maxIndex;
     }
 
-    public final Object getObject(int i) {
+    public Object getObject(int i) {
         return _objects[i - _minIndex];
     }
 
-    public final void setObject(int i, Object o) {
+    public void setObject(int i, Object o) {
         _objects[i - _minIndex] = o;
     }
 

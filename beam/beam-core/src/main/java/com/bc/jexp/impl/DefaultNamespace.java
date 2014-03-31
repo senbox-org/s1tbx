@@ -170,28 +170,28 @@ public final class DefaultNamespace extends NamespaceImpl {
         registerFunction(new AbstractFunction.I("min", 2) {
 
             public int evalI(final EvalEnv env, final Term[] args) {
-                return FastMath.min(args[0].evalI(env), args[1].evalI(env));
+                return Math.min(args[0].evalI(env), args[1].evalI(env));
             }
         });
 
         registerFunction(new AbstractFunction.D("min", 2) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.min(args[0].evalD(env), args[1].evalD(env));
+                return Math.min(args[0].evalD(env), args[1].evalD(env));
             }
         });
 
         registerFunction(new AbstractFunction.I("max", 2) {
 
             public int evalI(final EvalEnv env, final Term[] args) {
-                return FastMath.max(args[0].evalI(env), args[1].evalI(env));
+                return Math.max(args[0].evalI(env), args[1].evalI(env));
             }
         });
 
         registerFunction(new AbstractFunction.D("max", 2) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.max(args[0].evalD(env), args[1].evalD(env));
+                return Math.max(args[0].evalD(env), args[1].evalD(env));
             }
         });
 
@@ -203,7 +203,7 @@ public final class DefaultNamespace extends NamespaceImpl {
 
         registerFunction(new AbstractFunction.D("round", 1) {
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return FastMath.round(args[0].evalD(env));
+                return Math.round(args[0].evalD(env));
             }
         });
 
@@ -215,7 +215,7 @@ public final class DefaultNamespace extends NamespaceImpl {
 
         registerFunction(new AbstractFunction.D("rint", 1) {
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return FastMath.rint(args[0].evalD(env));
+                return Math.rint(args[0].evalD(env));
             }
         });
 
@@ -250,14 +250,14 @@ public final class DefaultNamespace extends NamespaceImpl {
         registerFunction(new AbstractFunction.D("deg", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.toDegrees(args[0].evalD(env));
+                return Math.toDegrees(args[0].evalD(env));
             }
         });
 
         registerFunction(new AbstractFunction.D("rad", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.toRadians(args[0].evalD(env));
+                return Math.toRadians(args[0].evalD(env));
             }
         });
 
