@@ -202,7 +202,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                     if (currentProduct != null) {
                         currentProduct.addProductNodeListener(this);
                     }
-                    updateTargetProductname();
+                    updateTargetProductName();
                     updateValueSets(currentProduct);
                     updateSourceProduct();
                 }
@@ -229,7 +229,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             handleProductNodeEvent();
         }
 
-        private void updateTargetProductname() {
+        private void updateTargetProductName() {
             String productName = "";
             if (currentProduct != null) {
                 productName = currentProduct.getName();
