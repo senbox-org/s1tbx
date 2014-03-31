@@ -37,10 +37,10 @@ import java.awt.geom.Point2D;
 
 public class SelectionInteractor extends FigureEditorInteractor {
 
-    private Tool selectPointTool;
-    private Tool selectRectangleTool;
-    private Tool moveSelectionTool;
-    private Tool moveHandleTool;
+    private final Tool selectPointTool = createSelectPointTool();
+    private final Tool selectRectangleTool = createSelectRectangleTool();
+    private final Tool moveSelectionTool = createMoveSelectionTool();
+    private final Tool moveHandleTool = createMoveHandleTool();
 
     protected boolean canceled;
     protected Point referencePoint;
@@ -48,15 +48,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
     private Tool tool;
 
     public SelectionInteractor() {
-        createTools();
-    }
-
-    protected void createTools() {
         tool = new NullTool();
-        selectPointTool = createSelectPointTool();
-        selectRectangleTool = createSelectRectangleTool();
-        moveSelectionTool = createMoveSelectionTool();
-        moveHandleTool = createMoveHandleTool();
     }
 
     @Override
