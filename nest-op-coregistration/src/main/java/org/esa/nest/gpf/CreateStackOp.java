@@ -35,6 +35,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.ProductInformation;
 import org.esa.nest.datamodel.Unit;
 
 import java.awt.*;
@@ -257,9 +258,7 @@ public class CreateStackOp extends Operator {
                     masterProductBands.toArray(new String[masterProductBands.size()]));
             saveSlaveProductNames(targetProduct, sourceRasterMap);
 
-            // create temporary metadata
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-            absRoot.setAttributeInt("collocated_stack", 1);
+            updateMetadata();
 
             // copy GCPs if found to master band
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
@@ -276,6 +275,25 @@ public class CreateStackOp extends Operator {
 
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void updateMetadata() {
+        final MetadataElement abstractedMetadata = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        abstractedMetadata.setAttributeInt("collocated_stack", 1);
+
+        final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
+
+        for(Product srcProduct : sourceProduct) {
+            if(srcProduct == masterProduct)
+                continue;
+
+            final MetadataElement slvInputElem = ProductInformation.getInputProducts(srcProduct);
+            final MetadataAttribute[] slvInputProductAttrbList = slvInputElem.getAttributes();
+            for(MetadataAttribute attrib : slvInputProductAttrbList) {
+                final MetadataAttribute inputAttrb = AbstractMetadata.addAbstractedAttribute(inputElem, "InputProduct", ProductData.TYPE_ASCII, "", "");
+                inputAttrb.getData().setElems(attrib.getData().getElemString());
+            }
         }
     }
 
