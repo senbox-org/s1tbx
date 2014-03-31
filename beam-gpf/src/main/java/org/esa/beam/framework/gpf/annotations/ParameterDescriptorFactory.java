@@ -58,18 +58,18 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
     public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName,
                                                                              Map<String, Object> operatorParameters) {
-        return createMapBackedOperatorPropertyContainer(operatorName, operatorParameters, new ParameterDescriptorFactory());
+        return createMapBackedOperatorPropertyContainer(operatorName, operatorParameters, null);
     }
 
     public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName,
                                                                              Map<String, Object> operatorParameters,
-                                                                             ParameterDescriptorFactory descriptorFactory) {
+                                                                             Map<String, Product> sourceProductMap) {
         OperatorSpi opSpi = getOpSpi(operatorName);
         OperatorDescriptor operatorDescriptor = opSpi.getOperatorDescriptor();
         PropertySetDescriptor propertySetDescriptor;
         try {
             propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor,
-                                                                                   descriptorFactory.sourceProductMap);
+                                                                                   sourceProductMap);
         } catch (ConversionException e) {
             throw new OperatorException("Could not create property container for operator '" + operatorName + "'");
         }
@@ -81,6 +81,10 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
     public ParameterDescriptorFactory(Map<String, Product> sourceProductMap) {
         this.sourceProductMap = sourceProductMap;
+    }
+
+    public Map<String, Product> getSourceProductMap() {
+        return sourceProductMap;
     }
 
     public static PropertyDescriptor convert(ParameterDescriptor parameterDescriptor, Map<String, Product> sourceProductMap) throws

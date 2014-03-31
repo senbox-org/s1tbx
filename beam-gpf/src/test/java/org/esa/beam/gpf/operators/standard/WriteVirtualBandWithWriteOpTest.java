@@ -15,9 +15,6 @@ import org.mockito.Mockito;
 import java.io.File;
 
 
-/**
- * @author Marco Peters
- */
 public class WriteVirtualBandWithWriteOpTest {
 
 

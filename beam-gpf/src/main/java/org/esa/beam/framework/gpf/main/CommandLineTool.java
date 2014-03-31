@@ -254,7 +254,7 @@ class CommandLineTool implements GraphProcessingObserver {
         if (operatorSpi == null) {
             throw new OperatorException(String.format("Unknown operator name '%s'.", operatorName));
         }
-        Operator operator = operatorSpi.createOperator(parameters, sourceProducts, null);
+        Operator operator = operatorSpi.createOperator(parameters, sourceProducts);
 
         // Force call to Operator.initialize()
         Product targetProduct = operator.getTargetProduct();
@@ -362,7 +362,7 @@ class CommandLineTool implements GraphProcessingObserver {
         HashMap<String, Object> parameters = new HashMap<>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
                                                                                                           parameters,
-                                                                                                          new ParameterDescriptorFactory(sourceProductMap));
+                                                                                                          sourceProductMap);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
 

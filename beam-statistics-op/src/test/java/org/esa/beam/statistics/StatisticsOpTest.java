@@ -72,7 +72,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp statisticsOp = createStatisticsOp();
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
@@ -98,7 +98,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp_WithPrecisePercentiles() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp statisticsOp = createStatisticsOp();
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
@@ -126,7 +126,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp_WithExpression() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp statisticsOp = createStatisticsOp();
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.expression = "algal_2 * PI";
         statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
@@ -153,7 +153,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp_WithValidExpression() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp statisticsOp = createStatisticsOp();
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.validPixelExpression = "algal_2 > 0.7";
@@ -197,7 +197,7 @@ public class StatisticsOpTest {
         final BandConfiguration bandConfiguration_1 = new BandConfiguration();
         bandConfiguration_1.sourceBandName = "algal_2";
 
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("outputAsciiFile", getTestFile("statisticsOutput.out"));
         parameters.put("outputShapefile", getTestFile("statisticsShapefile.shp"));
         parameters.put("doOutputAsciiFile", true);
@@ -216,7 +216,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp_WithDifferentPercentiles() throws Exception {
-        final StatisticsOp statisticsOp = new StatisticsOp();
+        final StatisticsOp statisticsOp = createStatisticsOp();
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
@@ -266,18 +266,25 @@ public class StatisticsOpTest {
         final Product product = new Product("name", "type", 20, 40);
         product.setFileLocation(file);
 
-        final ArrayList<Product> products = new ArrayList<Product>();
+        final ArrayList<Product> products = new ArrayList<>();
         products.add(product);
 
         assertTrue(StatisticsOp.isProductAlreadyOpened(products, file));
         assertFalse(StatisticsOp.isProductAlreadyOpened(products, new File("other.path")));
     }
 
+
+    private StatisticsOp createStatisticsOp() {
+        StatisticsOp statisticsOp = new StatisticsOp();
+        statisticsOp.setParameterDefaultValues();
+        return statisticsOp;
+    }
+
     private static void assertConversionException(Converter converter, String text) {
         try {
             converter.parse(text);
             fail();
-        } catch (ConversionException e) {
+        } catch (ConversionException ignored) {
         }
     }
 
@@ -310,7 +317,7 @@ public class StatisticsOpTest {
 
         @Override
         public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
-            final TreeMap<String, Number> map = new TreeMap<String, Number>();
+            final TreeMap<String, Number> map = new TreeMap<>();
             map.putAll(statistics);
             region = regionId;
             this.bandName = bandName;

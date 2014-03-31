@@ -27,6 +27,7 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
@@ -58,7 +59,6 @@ public class OperatorParameterSupport {
     private PropertySet propertySet;
     private ParameterUpdater parameterUpdater;
     private PropertySetDescriptor propertySetDescriptor;
-    private OperatorDescriptor operatorDescriptor;
     private Class<? extends Operator> operatorType;
 
     /**
@@ -118,7 +118,6 @@ public class OperatorParameterSupport {
                       ParameterUpdater parameterUpdater) {
         Assert.argument(parameterMap != null || propertySet == null, "parameterMap != null || propertySet == null");
 
-        this.operatorDescriptor = operatorDescriptor;
         this.descriptorFactory = new ParameterDescriptorFactory();
 
         if (parameterMap == null) {
@@ -132,8 +131,8 @@ public class OperatorParameterSupport {
         if (propertySet == null) {
             if (operatorDescriptor != null) {
                 String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
-                propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(opName,
-                                                                                                  this.parameterMap, descriptorFactory);
+                propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(opName, this.parameterMap,
+                                                                                                  descriptorFactory.getSourceProductMap());
                 propertySet.setDefaultValues();
             } else {
                 propertySet = PropertyContainer.createMapBacked(parameterMap, operatorType, descriptorFactory);

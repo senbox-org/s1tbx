@@ -134,6 +134,7 @@ public abstract class OperatorSpi {
         try {
             final Operator operator = getOperatorClass().newInstance();
             operator.setSpi(this);
+            operator.setParameterDefaultValues();
             return operator;
         } catch (InstantiationException | IllegalAccessException e) {
             throw new OperatorException(e);
@@ -175,7 +176,7 @@ public abstract class OperatorSpi {
                                    RenderingHints renderingHints) throws OperatorException {
         final Operator operator = createOperator();
         operator.context.setSourceProducts(sourceProducts);
-        operator.context.setParameters(parameters);
+        operator.context.setParameterMap(parameters);
         if (renderingHints != null) {
             operator.context.addRenderingHints(renderingHints);
         }

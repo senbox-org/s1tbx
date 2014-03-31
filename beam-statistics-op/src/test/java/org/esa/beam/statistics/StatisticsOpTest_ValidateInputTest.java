@@ -18,6 +18,7 @@ public class StatisticsOpTest_ValidateInputTest {
     @Before
     public void setUp() throws Exception {
         statisticsOp = new StatisticsOp();
+        statisticsOp.setParameterDefaultValues();
         statisticsOp.startDate = ProductData.UTC.parse("2010-01-31 14:45:23", "yyyy-MM-ss hh:mm:ss");
         statisticsOp.endDate = ProductData.UTC.parse("2010-01-31 14:46:23", "yyyy-MM-ss hh:mm:ss");
         statisticsOp.accuracy = 0;

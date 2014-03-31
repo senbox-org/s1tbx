@@ -16,11 +16,13 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
@@ -49,7 +51,9 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.descriptor.AnnotationOperatorDescriptor;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.PropertySetDescriptorFactory;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
@@ -114,7 +118,7 @@ public class OperatorContext {
     private Logger logger;
     private boolean cancelled;
     private boolean disposed;
-    private Map<String, Object> parameters;
+    private Map<String, Object> parameterMap;
     private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
@@ -307,30 +311,31 @@ public class OperatorContext {
 
     public Object getParameter(String name) {
         Assert.notNull(name, "name");
-        if (parameters == null) {
+        if (parameterMap == null) {
             return null;
         }
-        return parameters.get(name);
+        return parameterMap.get(name);
     }
 
     public void setParameter(String name, Object value) {
         Assert.notNull(name, "name");
         if (value != null) {
-            if (parameters == null) {
-                parameters = new HashMap<>();
-            }
-            parameters.put(name, value);
-        } else if (parameters != null) {
-            parameters.remove(name);
+            getParameterMap().put(name, value);
+        } else if (parameterMap != null) {
+            parameterMap.remove(name);
         }
     }
 
-    public Map<String, Object> getParameters() {
-        return parameters;
+    public Map<String, Object> getParameterMap() {
+        if (parameterMap == null) {
+            parameterMap = new HashMap<>();
+        }
+        return parameterMap;
     }
 
-    public void setParameters(Map<String, Object> parameters) {
-        this.parameters = new HashMap<>(parameters);
+    public void setParameterMap(Map<String, Object> parameters) {
+        getParameterMap().clear();
+        getParameterMap().putAll(parameters);
     }
 
     public RenderingHints getRenderingHints() {
@@ -397,7 +402,7 @@ public class OperatorContext {
     public void dispose() {
         if (!disposed) {
             disposed = true;
-            parameters = null;
+            parameterMap = null;
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
@@ -483,10 +488,25 @@ public class OperatorContext {
     }
 
 
-    private PropertySet getParameterSet() {
+    public PropertySet getParameterSet() {
         if (parameterSet == null) {
-            PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-            parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
+            if (operatorSpi == null) {
+                PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+                parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
+            }else {
+                OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+                PropertySetDescriptor propertySetDescriptor;
+                try {
+                    propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor, sourceProductMap);
+                } catch (ConversionException e) {
+                    throw new OperatorException(e);
+                }
+                if (operatorDescriptor instanceof AnnotationOperatorDescriptor) {
+                    parameterSet = PropertyContainer.createObjectBacked(operator, propertySetDescriptor);
+                }else{
+                    parameterSet = PropertyContainer.createMapBacked(getParameterMap(), propertySetDescriptor);
+                }
+            }
         }
         return parameterSet;
     }
@@ -1036,7 +1056,7 @@ public class OperatorContext {
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
             try {
-                configureOperator(operator, configuration);
+                configureOperator(configuration);
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
@@ -1045,27 +1065,26 @@ public class OperatorContext {
         }
     }
 
-    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration)
+    private void configureOperator(OperatorConfiguration operatorConfiguration)
             throws ValidationException, ConversionException {
-        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
-        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
-        PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(operator,
-                                                                                   parameterDescriptorFactory);
+
+        Class<? extends Operator> operatorType = getOperatorSpi().getOperatorDescriptor().getOperatorClass();
+        ParameterDescriptorFactory descriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+        PropertySetDescriptor propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
+
+        DefaultDomConverter domConverter = new DefaultDomConverter(operatorType, descriptorFactory, propertySetDescriptor);
+        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), getParameterSet());
+
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
-            Property property = propertyContainer.getProperty(reference.getParameterName());
+            Property property = getParameterSet().getProperty(reference.getParameterName());
             property.setValue(reference.getValue());
         }
     }
 
-    public void injectParameterDefaultValues() throws OperatorException {
-        getParameterSet().setDefaultValues();
-    }
-
     private void injectParameterValues() throws OperatorException {
-        if (parameters != null) {
-            for (String parameterName : parameters.keySet()) {
+        if (parameterMap != null) {
+            for (String parameterName : parameterMap.keySet()) {
                 final Property property = getParameterSet().getProperty(parameterName);
                 if (property == null) {
                     // Note: "Unknown parameter" exception commented out by Norman on 09.02.2011
@@ -1095,7 +1114,7 @@ public class OperatorContext {
                         ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
-                    Object paramValue = parameters.get(parameterName);
+                    Object paramValue = parameterMap.get(parameterName);
                     if (paramValue instanceof String && !String.class.isAssignableFrom(property.getType())) {
                         property.setValueFromText((String) paramValue);
                     } else {
