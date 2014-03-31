@@ -99,21 +99,22 @@ public abstract class ProductNode extends ExtensibleObject {
      */
     public void setName(final String name) {
         Guardian.assertNotNull("name", name);
-        String trimmedName = name.trim();
+        setNodeName(name.trim(), false);
+    }
+
+    private void setNodeName(String trimmedName, boolean silent) {
         Guardian.assertNotNullOrEmpty("name contains only spaces", trimmedName);
-        if (!ObjectUtils.equalObjects(this.name, trimmedName)) {
+        if (!ObjectUtils.equalObjects(name, trimmedName)) {
             if (!isValidNodeName(trimmedName)) {
                 throw new IllegalArgumentException("The given name '" + trimmedName + "' is not a valid node name.");
             }
-            setNodeName(trimmedName);
+            final String oldName = name;
+            name = trimmedName;
+            if (!silent) {
+                fireProductNodeChanged(PROPERTY_NAME_NAME, oldName, name);
+                setModified(true);
+            }
         }
-    }
-
-    private void setNodeName(String trimmedName) {
-        final String oldName = name;
-        name = trimmedName;
-        fireProductNodeChanged(PROPERTY_NAME_NAME, oldName, name);
-        setModified(true);
     }
 
     /**
@@ -205,8 +206,8 @@ public abstract class ProductNode extends ExtensibleObject {
                 name)) {
             return false;
         }
-        String trimedName = name.trim();
-        return trimedName.matches("[^\\\\/:*?\"<>|\\.][^\\\\/:*?\"<>|]*");
+        String trimmedName = name.trim();
+        return trimmedName.matches("[^\\\\/:*?\"<>|\\.][^\\\\/:*?\"<>|]*");
     }
 
     /**
