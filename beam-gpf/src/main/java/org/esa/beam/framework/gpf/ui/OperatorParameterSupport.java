@@ -118,7 +118,6 @@ public class OperatorParameterSupport {
                       ParameterUpdater parameterUpdater) {
         Assert.argument(parameterMap != null || propertySet == null, "parameterMap != null || propertySet == null");
 
-        OperatorDescriptor operatorDescriptor1 = operatorDescriptor;
         this.descriptorFactory = new ParameterDescriptorFactory();
 
         if (parameterMap == null) {
