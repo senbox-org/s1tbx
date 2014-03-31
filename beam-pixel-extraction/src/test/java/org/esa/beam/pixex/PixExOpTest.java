@@ -145,7 +145,7 @@ public class PixExOpTest {
         };
         int windowSize = 3;
 
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         final File outputDir = getOutputDir("testSingleProduct", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("outputFilePrefix", "pixels");
@@ -162,14 +162,11 @@ public class PixExOpTest {
 
         assertTrue("Kmz file does not exists", new File(outputDir, "pixels_coordinates.kmz").exists());
 
-        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
-        try {
+        try (PixExMeasurementReader reader = new PixExMeasurementReader(outputDir)) {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(windowSize * windowSize * sourceProducts.length * coordinates.length, measurementList.size());
             testForExistingMeasurement(measurementList, "coord1", 1, 10.5f, 9.5f, 189.5f, 79.5f);
             testForExistingMeasurement(measurementList, "coord2", 2, 20.5f, 19.5f, 199.5f, 69.5f);
-        } finally {
-            reader.close();
         }
     }
 
@@ -179,7 +176,7 @@ public class PixExOpTest {
         Coordinate[] coordinates = {new Coordinate("coord", 20.0f, 20.0f, null)};
         int windowSize = 1;
 
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         final File outputDir = getOutputDir("testSingleProduct", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
@@ -204,8 +201,7 @@ public class PixExOpTest {
 
         computeData(parameterMap, sourceProducts);
 
-        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
-        try {
+        try (PixExMeasurementReader reader = new PixExMeasurementReader(outputDir)) {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(sourceProducts.length, measurementList.size());
             assertEquals(ProductData.UTC.parse("22/08/1999", "dd/MM/yyyy").getAsDate(),
@@ -214,8 +210,6 @@ public class PixExOpTest {
                          measurementList.get(1).getTime().getAsDate());
             assertEquals(ProductData.UTC.parse("14/11/2010", "dd/MM/yyyy").getAsDate(),
                          measurementList.get(2).getTime().getAsDate());
-        } finally {
-            reader.close();
         }
     }
 
@@ -229,7 +223,7 @@ public class PixExOpTest {
         };
         int windowSize = 5;
 
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         File outputDir = getOutputDir("testTwoProductsSameType", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
@@ -245,14 +239,11 @@ public class PixExOpTest {
         };
 
         computeData(parameterMap, products);
-        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
-        try {
+        try (PixExMeasurementReader reader = new PixExMeasurementReader(outputDir)) {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());
             testForExistingMeasurement(measurementList, "coord1", 1, 10.5f, 9.5f, 189.5f, 79.5f);
             testForExistingMeasurement(measurementList, "coord2", 2, 20.5f, 19.5f, 199.5f, 69.5f);
-        } finally {
-            reader.close();
         }
     }
 
@@ -265,7 +256,7 @@ public class PixExOpTest {
         };
         int windowSize = 1;
 
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         File outputDir = getOutputDir("testTwentyProductsSameType", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
@@ -275,27 +266,24 @@ public class PixExOpTest {
 
         String[] bandNames = {"rad_1", "rad_2, radiance_3"};
 
-        List<Product> productList = new ArrayList<Product>();
+        List<Product> productList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             productList.add(createTestProduct("prod_" + i, "type", bandNames));
         }
 
         Product[] products = productList.toArray(new Product[productList.size()]);
         computeData(parameterMap, products);
-        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
-        try {
+        try (PixExMeasurementReader reader = new PixExMeasurementReader(outputDir)) {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());
             testForExistingMeasurement(measurementList, "coord1", 1, 9.5f, 10.5f, 190.5f, 80.5f);
             testForExistingMeasurement(measurementList, "coord3", 2, 0.5f, 0.5f, 180.5f, 89.5f);
-        } finally {
-            reader.close();
         }
     }
 
     @Test
     public void testTwoProductsTwoDifferentTypes() throws Exception {
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
 
         Coordinate[] coordinates = {
                 new Coordinate("coord1", 10.0f, 10.0f, null),
@@ -344,11 +332,11 @@ public class PixExOpTest {
         p2.setEndTime(ProductData.UTC.parse("01-Jan-2006 12:00:00"));
 
         final Calendar calInP1 = Calendar.getInstance();
-        calInP1.set(2005, 2, 1, 12, 30, 0);
+        calInP1.set(2005, Calendar.MARCH, 1, 12, 30, 0);
         final Calendar calInP2 = Calendar.getInstance();
-        calInP2.set(2006, 0, 1, 6, 0, 0);
+        calInP2.set(2006, Calendar.JANUARY, 1, 6, 0, 0);
         final Calendar calOutsideBoth = Calendar.getInstance();
-        calOutsideBoth.set(2010, 0, 1, 0, 0, 0);
+        calOutsideBoth.set(2010, Calendar.JANUARY, 1, 0, 0, 0);
         Coordinate[] coordinates = {
                 new Coordinate("coord1", 10.0f, 10.0f, calInP1.getTime()),
                 new Coordinate("coord2", 20.0f, 20.0f, calInP2.getTime()),
@@ -357,6 +345,7 @@ public class PixExOpTest {
 
 
         PixExOp pixEx = new PixExOp();
+        pixEx.setParameterDefaultValues();
         File outputDir = getOutputDir("testTwoProductsWithTimeConstraints", getClass());
         pixEx.setParameter("outputDir", outputDir);
         pixEx.setParameter("exportTiePoints", false);
@@ -364,17 +353,14 @@ public class PixExOpTest {
         pixEx.setParameter("coordinates", coordinates);
         pixEx.setParameter("windowSize", 1);
         pixEx.setParameter("timeDifference", "1D");
-        pixEx.setSourceProducts(new Product[]{p1, p2});
+        pixEx.setSourceProducts(p1, p2);
 
-        final PixExMeasurementReader reader = (PixExMeasurementReader) pixEx.getTargetProperty(
-                "measurements");// trigger computation
-        try {
+        try (PixExMeasurementReader reader = (PixExMeasurementReader) pixEx.getTargetProperty(
+                "measurements")) {
             final List<Measurement> measurementList = convertToList(reader);
             assertEquals(2, measurementList.size());
             testForExistingMeasurement(measurementList, "coord1", 1, 9.5f, 10.5f, 190.5f, 80.5f);
             testForExistingMeasurement(measurementList, "coord2", 2, 19.5f, 20.5f, 200.5f, 70.5f);
-        } finally {
-            reader.close();
         }
     }
 
@@ -388,7 +374,7 @@ public class PixExOpTest {
         };
         int windowSize = 1;
 
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         File outputDir = getOutputDir("testTwentyProductsWithDifferentTypes", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
@@ -396,7 +382,7 @@ public class PixExOpTest {
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
 
-        List<Product> productList = new ArrayList<Product>();
+        List<Product> productList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             productList.add(createTestProduct("prod_" + i, "type" + i, new String[]{"band" + i}));
         }
@@ -404,20 +390,17 @@ public class PixExOpTest {
         Product[] products = productList.toArray(new Product[productList.size()]);
 
         computeData(parameterMap, products);
-        final PixExMeasurementReader measurementReader = new PixExMeasurementReader(outputDir);
-        try {
+        try (PixExMeasurementReader measurementReader = new PixExMeasurementReader(outputDir)) {
             final List<Measurement> measurementList = convertToList(measurementReader);
             assertEquals(windowSize * windowSize * products.length * coordinates.length, measurementList.size());
             testForExistingMeasurement(measurementList, "coord3", 1, 2.5f, 1.5f, 181.5f, 87.5f);
             testForExistingMeasurement(measurementList, "coord4", 2, 0.5f, 0.5f, 180.5f, 89.5f);
-        } finally {
-            measurementReader.close();
         }
     }
 
     @Test(expected = OperatorException.class)
     public void testFailForEvenWindowSize() throws Exception {
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("coordinates", new Coordinate[]{new Coordinate("coord1", 10.0f, 10.0f, null)});
         parameterMap.put("windowSize", 2); // not allowed !!
 
@@ -478,7 +461,7 @@ public class PixExOpTest {
     }
 
     private List<Measurement> convertToList(Iterator<Measurement> measurementIterator) {
-        final ArrayList<Measurement> list = new ArrayList<Measurement>();
+        final ArrayList<Measurement> list = new ArrayList<>();
         while (measurementIterator.hasNext()) {
             list.add(measurementIterator.next());
         }

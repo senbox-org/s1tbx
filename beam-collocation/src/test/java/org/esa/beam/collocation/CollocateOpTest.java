@@ -16,7 +16,6 @@
 
 package org.esa.beam.collocation;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Mask;
@@ -27,15 +26,21 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.junit.Test;
 
 import java.awt.Color;
 
-public class CollocateOpTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class CollocateOpTest {
+
+    @Test
     public void testIt() {
         final Product masterProduct = createTestProduct1();
         final Product slaveProduct = createTestProduct2();
 
         CollocateOp op = new CollocateOp();
+        op.setParameterDefaultValues();
 
         // test default settings
         assertEquals("COLLOCATED", op.getTargetProductType());

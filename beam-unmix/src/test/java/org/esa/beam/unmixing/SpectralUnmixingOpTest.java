@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 public class SpectralUnmixingOpTest extends TestCase {
     public void testDefaults() {
         SpectralUnmixingOp op = new SpectralUnmixingOp();
+        op.setParameterDefaultValues();
         assertEquals("_error", op.getErrorBandNameSuffix());
         assertEquals("_abundance", op.getAbundanceBandNameSuffix());
         assertEquals(null, op.getEndmemberFile());
