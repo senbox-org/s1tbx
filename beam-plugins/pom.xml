@@ -41,6 +41,7 @@
         <module>../beam-merisl3-reader</module>
         <module>../beam-modis-reader</module>
         <module>../beam-netcdf</module>
+        <module>../seadas-reader</module>
         <module>../beam-obpg-reader</module>
         <module>../beam-opendap</module>
         <module>../beam-pconvert</module>
