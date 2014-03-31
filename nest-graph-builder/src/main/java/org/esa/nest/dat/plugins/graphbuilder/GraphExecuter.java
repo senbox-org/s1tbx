@@ -248,6 +248,7 @@ public class GraphExecuter extends Observable {
             try {
                 recreateGraphContext();
                 updateGraphNodes();
+                recreateGraphContext();
             } finally {
                 restoreProductSetReaders(savedProductSetList);
             }

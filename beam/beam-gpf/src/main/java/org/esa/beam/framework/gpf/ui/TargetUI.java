@@ -68,7 +68,6 @@ public class TargetUI extends BaseOperatorUI {
             targetProductSelector.getProductNameTextField().setText(fileName);
             targetProductSelector.getModel().setProductName(fileName);
             targetProductSelector.getModel().setFormatName(format);
-            updateParameters();
         }
     }
 
