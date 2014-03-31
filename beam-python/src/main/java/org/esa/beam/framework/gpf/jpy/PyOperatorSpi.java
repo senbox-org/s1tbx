@@ -118,17 +118,14 @@ public class PyOperatorSpi extends OperatorSpi {
         if (pythonInfoXmlFile.exists()) {
             operatorDescriptor = DefaultOperatorDescriptor.fromXml(pythonInfoXmlFile);
         } else {
-            operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, Operator.class);
+            operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, PyOperator.class);
             BeamLogManager.getSystemLogger().warning(String.format("Missing operator metadata file '%s'", pythonInfoXmlFile));
         }
 
         PyOperatorSpi operatorSpi = new PyOperatorSpi(operatorDescriptor) {
             @Override
             public Operator createOperator() throws OperatorException {
-                // todo - actually this should work, but it does not
-//                PyOperator pyOperator = (PyOperator) super.createOperator();
-                PyOperator pyOperator = new PyOperator();
-                pyOperator.setSpi(this);
+                PyOperator pyOperator = (PyOperator) super.createOperator();
                 pyOperator.setParameterDefaultValues();
                 pyOperator.setPythonModulePath(pythonModuleDir.getPath());
                 pyOperator.setPythonModuleName(pythonModuleName);
