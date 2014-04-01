@@ -33,7 +33,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 // todo - this Interactor should not be restricted to figure contexts, is the inner Tool interface the solution?
-// todo - remove dependency to com.bc.ceres.swing.RestorableEdit
 
 public class SelectionInteractor extends FigureEditorInteractor {
 
@@ -106,6 +105,22 @@ public class SelectionInteractor extends FigureEditorInteractor {
     @Override
     public void mouseMoved(MouseEvent event) {
         setCursor(event);
+    }
+
+    protected SelectPointTool createSelectPointTool() {
+        return new SelectPointTool();
+    }
+
+    protected SelectRectangleTool createSelectRectangleTool() {
+        return new SelectRectangleTool();
+    }
+
+    protected MoveSelectionTool createMoveSelectionTool() {
+        return new MoveSelectionTool();
+    }
+
+    protected MoveHandleTool createMoveHandleTool() {
+        return new MoveHandleTool();
     }
 
     private void setCursor(MouseEvent event) {
@@ -183,22 +198,6 @@ public class SelectionInteractor extends FigureEditorInteractor {
         void drag(MouseEvent event);
 
         void end(MouseEvent event);
-    }
-
-    public SelectPointTool createSelectPointTool() {
-        return new SelectPointTool();
-    }
-
-    public SelectRectangleTool createSelectRectangleTool() {
-        return new SelectRectangleTool();
-    }
-
-    public MoveSelectionTool createMoveSelectionTool() {
-        return new MoveSelectionTool();
-    }
-
-    public MoveHandleTool createMoveHandleTool() {
-        return new MoveHandleTool();
     }
 
     private static class NullTool implements Tool {

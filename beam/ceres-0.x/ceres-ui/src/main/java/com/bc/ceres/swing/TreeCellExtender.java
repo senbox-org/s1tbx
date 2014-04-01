@@ -93,7 +93,14 @@ public class TreeCellExtender {
         }
 
         TreePath path = tree.getPathForRow(row);
+        if(path == null) {
+            return;
+        }
         Rectangle rowRect = tree.getPathBounds(path);
+        if(rowRect == null) {
+            return;
+        }
+
         Rectangle viewRect;
         if (tree.getParent() instanceof JViewport) {
             viewRect = ((JViewport) tree.getParent()).getViewRect();
@@ -217,29 +224,31 @@ public class TreeCellExtender {
                 return;
             }
 
+            TreePath path = tree.getPathForRow(row);
+            if (path == null) {
+                return;
+            }
+
             Rectangle bounds = getBounds();
             Color color = g.getColor();
             g.setColor(getBackground());
             g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
             g.setColor(color);
 
-            TreePath path = tree.getPathForRow(row);
             TreeCellRenderer renderer = tree.getCellRenderer();
-            if(path != null) {
-                Component rendererComponent = renderer.getTreeCellRendererComponent(tree,
+            Component rendererComponent = renderer.getTreeCellRendererComponent(tree,
                                                                                 path.getLastPathComponent(),
                                                                                 tree.isPathSelected(path),
                                                                                 tree.isExpanded(path),
                                                                                 true, // todo - leaf ?
                                                                                 row,
                                                                                 false); // has focus ?
-                rendererComponent.setSize(1024, height);
+            rendererComponent.setSize(1024, height);
 
-                Graphics g2 = g.create(0, 0, width, height);
-                g2.translate(-offset, 0);
-                rendererComponent.paint(g2);
-                g2.dispose();
-            }
+            Graphics g2 = g.create(0, 0, width, height);
+            g2.translate(-offset, 0);
+            rendererComponent.paint(g2);
+            g2.dispose();
         }
     }
 
