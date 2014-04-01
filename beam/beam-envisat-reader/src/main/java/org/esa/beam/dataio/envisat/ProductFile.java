@@ -26,7 +26,6 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -217,8 +216,7 @@ public abstract class ProductFile {
      * @throws java.io.IOException if an I/O error occurs
      */
     public static ProductFile open(File file) throws IOException {
-        //return open(file, new FileImageInputStream(file));
-        return open(file, FileImageInputStreamExtImpl.createInputStream(file));
+        return open(file, new FileImageInputStream(file));
     }
 
     /**
@@ -1152,7 +1150,7 @@ public abstract class ProductFile {
  /*       if (!productType.endsWith("P")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
-                    "' due to missing specification for products of type '" + productType + "'");
+                                "' due to missing specification for products of type '" + productType + "'");
             productType = newType;
         }    */
     }
@@ -1185,13 +1183,11 @@ public abstract class ProductFile {
             byte[] dsdBytes = new byte[dsdSize];
             dsdArray = new DSD[numDSDs];
 
-            int total = sphSizeActual + numDSDs * dsdSize;
-            //if(total > sphSize)
-            //    return;
-            
+            if (sphSizeActual + numDSDs * dsdSize > sphSize) {
+                return;
+            }
+
             for (int i = 0; i < numDSDs; i++) {
-                if(sphSizeActual + (i * dsdSize) + dsdSize > sphSize)
-                    break;
                 System.arraycopy(sphBytesAll, sphSizeActual + i * dsdSize, dsdBytes, 0, dsdSize);
                 String dsdKey = "DSD(" + (i + 1) + ")";
                 Header dsd = HeaderParser.getInstance().parseHeader(dsdKey, dsdBytes);
@@ -1210,7 +1206,7 @@ public abstract class ProductFile {
                                       dsSize,
                                       numDsr,
                                       dsrSize);
-                //Debug.trace("ProductFile: " + dsdArray[i]);
+                Debug.trace("ProductFile: " + dsdArray[i]);
                 dsdCountValid++;
             }
         } catch (HeaderParseException e) {
@@ -1243,7 +1239,7 @@ public abstract class ProductFile {
         } else {
             gads = null;
         }
-        //Debug.trace("ProductFile: GADS = " + gads);
+        Debug.trace("ProductFile: GADS = " + gads);
     }
 
     /**
