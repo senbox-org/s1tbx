@@ -29,7 +29,7 @@ import java.io.IOException;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public final class Record {
+public class Record {
 
     /**
      * The info for this record.

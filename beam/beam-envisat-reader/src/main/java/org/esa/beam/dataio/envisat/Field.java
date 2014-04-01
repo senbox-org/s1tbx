@@ -35,7 +35,7 @@ import java.io.IOException;
  * @see org.esa.beam.dataio.envisat.FieldInfo
  * @see org.esa.beam.framework.datamodel.ProductData
  */
-public final class Field {
+public class Field {
 
     /**
      * The info for this field.
@@ -198,7 +198,7 @@ public final class Field {
      * @throws java.io.IOException if an I/O error occurs
      */
     public void readFrom(ImageInputStream dataInputStream) throws IOException {
-        _data.readFrom(dataInputStream);
+        getData().readFrom(dataInputStream);
     }
 
     /**
