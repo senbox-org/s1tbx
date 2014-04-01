@@ -16,6 +16,7 @@
 
 package com.bc.ceres.glayer.swing;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Viewport;
@@ -31,6 +32,8 @@ public class DefaultLayerCanvasModel implements LayerCanvasModel {
     }
 
     public DefaultLayerCanvasModel(Layer layer, Viewport viewport) {
+        Assert.notNull(layer, "layer");
+        Assert.notNull(viewport, "viewport");
         this.layer = layer;
         this.viewport = viewport;
     }

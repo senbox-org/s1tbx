@@ -138,7 +138,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         if (model != null) {
             model.removeChangeListener(modelChangeHandler);
         }
-        model = null;
     }
 
     /**
@@ -230,7 +229,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     @Override
     public Viewport getViewport() {
-        if(model == null) return null;
         return model.getViewport();
     }
 
@@ -417,8 +415,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
         @Override
         public Viewport getViewport() {
-            if(getModel() == null)
-                return null;
             return getModel().getViewport();
         }
 

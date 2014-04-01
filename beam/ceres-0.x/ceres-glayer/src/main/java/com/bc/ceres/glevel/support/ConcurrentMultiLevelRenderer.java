@@ -62,9 +62,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
-
-    private final static DescendingLevelsComparator descendingLevelsComparator = new DescendingLevelsComparator();
-    private final static AscendingLevelsComparator ascendingLevelsComparator = new AscendingLevelsComparator();
+    private final AscendingLevelsComparator ascendingLevelsComparator = new AscendingLevelsComparator();
+    private final DescendingLevelsComparator descendingLevelsComparator = new DescendingLevelsComparator();
 
     public ConcurrentMultiLevelRenderer() {
         scheduledTileRequests = Collections.synchronizedMap(new HashMap<TileIndex, TileRequest>(37));
@@ -493,11 +492,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 // Called from EDT.
                 @Override
                 public void run() {
-                    final Viewport vp = rendering.getViewport();
-                    if(vp != null) {
-                        final Rectangle viewRegion = getViewRegion(vp, multiLevelSource, level, tileBounds);
-                        rendering.invalidateRegion(viewRegion);
-                    }
+                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
+                    rendering.invalidateRegion(viewRegion);
                 }
             });
         }
