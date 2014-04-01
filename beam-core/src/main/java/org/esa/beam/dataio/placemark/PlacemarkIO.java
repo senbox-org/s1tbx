@@ -141,7 +141,7 @@ public class PlacemarkIO {
                     biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                     biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
                     biggestIndex = biggestIndex > latIndex ? biggestIndex : latIndex;
-                    stdColIndexes = new ArrayList<Integer>(6);
+                    stdColIndexes = new ArrayList<>(6);
                     stdColIndexes.add(INDEX_FOR_NAME, nameIndex);
                     stdColIndexes.add(INDEX_FOR_LON, lonIndex);
                     stdColIndexes.add(INDEX_FOR_LAT, latIndex);
