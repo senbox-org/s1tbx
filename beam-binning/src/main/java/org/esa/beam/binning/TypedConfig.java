@@ -44,7 +44,7 @@ public class TypedConfig {
         this.type = typeName;
     }
 
-    public PropertySet asPropertySet() {
+    private PropertySet asPropertySet() {
         if (propertySet == null) {
             propertySet = PropertyContainer.createObjectBacked(this, new ParameterDescriptorFactory());
         }

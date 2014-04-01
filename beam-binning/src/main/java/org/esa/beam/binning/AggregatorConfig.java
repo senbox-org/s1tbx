@@ -31,6 +31,6 @@ public abstract class AggregatorConfig extends TypedConfig {
         super(aggregatorName);
     }
 
-    public abstract String[] getVarNames();
+    public abstract String[] getSourceVarNames();
 
 }

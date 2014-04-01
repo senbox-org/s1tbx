@@ -37,16 +37,16 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testMetadata_P90() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", null);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "target", "c", null);
 
         assertEquals("c_sum", agg.getSpatialFeatureNames()[0]);
         assertEquals("c_p90", agg.getTemporalFeatureNames()[0]);
-        assertEquals("c_p90", agg.getOutputFeatureNames()[0]);
+        assertEquals("target_p90", agg.getOutputFeatureNames()[0]);
     }
 
     @Test
     public void testMetadata_P70() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 70);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", "c", 70);
 
         assertEquals("PERCENTILE", agg.getName());
 
@@ -63,7 +63,7 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testAggregatorPercentile() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 70);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", "c", 70);
 
         VectorImpl svec = vec(NaN);
         VectorImpl tvec = vec(NaN);
@@ -106,7 +106,7 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testAggregatorPercentileWithNaN() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 50);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "target", "c", 50);
 
         VectorImpl svec = vec(NaN);
         VectorImpl tvec = vec(NaN);
@@ -148,7 +148,7 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testAggregatorPercentileWithZeroValues() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 50);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "target", "c", 50);
 
         VectorImpl svec = vec(NaN);
         VectorImpl tvec = vec(NaN);

@@ -23,8 +23,8 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
-import static java.lang.Math.sqrt;
+import static java.lang.Float.*;
+import static java.lang.Math.*;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
 import static org.junit.Assert.*;
 
@@ -39,7 +39,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testMetadata_noSums() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, false, false);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 0.0, false, false);
 
         assertEquals("AVG", agg.getName());
 
@@ -62,7 +62,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testMetadata_withSums() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, false, true);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 0.0, false, true);
 
         assertEquals("AVG", agg.getName());
 
@@ -179,7 +179,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testAggregatorAverageWithWeightWithNaNWithOutputCounts() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 1.0, true, false);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 1.0, true, false);
 
         VectorImpl svec = vec(NaN, NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
@@ -308,7 +308,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testAggregatorAverageNoWeight_WithSum() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, false, true);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 0.0, false, true);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
@@ -355,7 +355,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testAggregatorAverageNoWeightWithNaNWithSum() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, false, true);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 0.0, false, true);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
@@ -402,7 +402,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testAggregatorAverageWithWeightWithNaNWithOutputCountsWithSum() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 1.0, true, true);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 1.0, true, true);
 
         VectorImpl svec = vec(NaN, NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
@@ -456,7 +456,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testAggregatorAverageWeightedWithSum() {
-        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", 1.0, false, true);
+        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 1.0, false, true);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);

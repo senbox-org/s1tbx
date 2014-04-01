@@ -243,7 +243,7 @@ public class SeaDASLevel3BinWriterTest {
         final VariableContextImpl variableContext = new VariableContextImpl();
         variableContext.defineVariable("test", "blah");
 
-        final BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test"));
+        final BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test", "test"));
         final BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1, null, null);
         final Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
 

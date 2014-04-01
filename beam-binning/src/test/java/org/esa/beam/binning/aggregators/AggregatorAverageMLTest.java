@@ -39,7 +39,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testMetadata_noSums() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, false);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", null, false);
 
         assertEquals("AVG_ML", agg.getName());
 
@@ -61,7 +61,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testMetadata_withSums() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, true);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", null, true);
 
         assertEquals("AVG_ML", agg.getName());
 
@@ -131,7 +131,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testAggregatorAverageML_WithSums() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, true);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", null, true);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
