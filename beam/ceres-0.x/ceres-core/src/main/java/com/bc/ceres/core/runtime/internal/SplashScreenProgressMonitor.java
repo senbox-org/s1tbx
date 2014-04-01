@@ -141,8 +141,6 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
             if (versionText == null) {
                 versionText = config.getContextProperty("version");
             }
-			versionText = "Version "+versionText;
-
             versionLabelFont = getConfiguredFont(config, CONFIG_KEY_VERSION_FONT);
             versionLabelColor = getConfiguredColor(config, CONFIG_KEY_VERSION_COLOR, taskLabelColor);
             versionLabelPos = getConfiguredPos(config, CONFIG_KEY_VERSION_POS);
