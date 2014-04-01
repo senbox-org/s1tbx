@@ -93,7 +93,14 @@ public class TreeCellExtender {
         }
 
         TreePath path = tree.getPathForRow(row);
+        if(path == null) {
+            return;
+        }
         Rectangle rowRect = tree.getPathBounds(path);
+        if(rowRect == null) {
+            return;
+        }
+
         Rectangle viewRect;
         if (tree.getParent() instanceof JViewport) {
             viewRect = ((JViewport) tree.getParent()).getViewRect();
@@ -217,13 +224,17 @@ public class TreeCellExtender {
                 return;
             }
 
+            TreePath path = tree.getPathForRow(row);
+            if (path == null) {
+                return;
+            }
+
             Rectangle bounds = getBounds();
             Color color = g.getColor();
             g.setColor(getBackground());
             g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
             g.setColor(color);
 
-            TreePath path = tree.getPathForRow(row);
             TreeCellRenderer renderer = tree.getCellRenderer();
             Component rendererComponent = renderer.getTreeCellRendererComponent(tree,
                                                                                 path.getLastPathComponent(),
