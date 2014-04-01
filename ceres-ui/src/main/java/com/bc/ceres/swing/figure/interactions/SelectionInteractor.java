@@ -33,7 +33,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 // todo - this Interactor should not be restricted to figure contexts, is the inner Tool interface the solution?
-// todo - remove dependency to com.bc.ceres.swing.RestorableEdit
 
 public class SelectionInteractor extends FigureEditorInteractor {
 
