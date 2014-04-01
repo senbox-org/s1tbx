@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 /**
-  Abstract common metadata from products to be used uniformly by all operators
+ * Abstract common metadata from products to be used uniformly by all operators
  */
 public final class AsarAbstractMetadata {
 
@@ -35,7 +35,7 @@ public final class AsarAbstractMetadata {
      * If AbstractedMetadata is modified by adding new attributes then this version number needs to be incremented
      */
     private static final String METADATA_VERSION = "5.0";
-    
+
     private final String _productType;
     private final String _version;
     private final File _file;
@@ -48,8 +48,9 @@ public final class AsarAbstractMetadata {
 
     /**
      * Abstract common metadata from products to be used uniformly by all operators
+     *
      * @param product the product created
-     * @param root the product metadata root
+     * @param root    the product metadata root
      */
     void addAbstractedMetadataHeader(Product product, MetadataElement root) {
         final MetadataElement absRoot = new MetadataElement(ABSTRACTED_METADATA_ROOT_NAME);
@@ -67,48 +68,48 @@ public final class AsarAbstractMetadata {
         }
 
         MetadataElement mppAds = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
-        if(mppAds != null) {
+        if (mppAds != null) {
             final MetadataElement ads = mppAds.getElement("MAIN_PROCESSING_PARAMS_ADS.1");
-            if(ads != null)
+            if (ads != null)
                 mppAds = ads;
         }
 
         // MPH
         addAbstractedAttribute("PRODUCT", mph.getAttributeString("PRODUCT", ""), absRoot, "Product name");
         addAbstractedAttribute("PRODUCT_TYPE", _productType, absRoot, "Product type");
-        addAbstractedAttribute("SPH_DESCRIPTOR",  sph.getAttributeString("SPH_DESCRIPTOR", ""), absRoot, "Description");
+        addAbstractedAttribute("SPH_DESCRIPTOR", sph.getAttributeString("SPH_DESCRIPTOR", ""), absRoot, "Description");
         addAbstractedAttribute("MISSION", getMission(_productType, _file), absRoot, "Satellite mission");
 
         String mode = "Stripmap";
-        if(productType.startsWith("ASA_WS"))
+        if (productType.startsWith("ASA_WS"))
             mode = "ScanSAR";
         addAbstractedAttribute("ACQUISITION_MODE", mode, absRoot, "Acquisition mode");
         addAbstractedAttribute("BEAMS", " ", absRoot, "Beams used");
-        if(waveProduct) {
-            addAbstractedAttribute("SWATH", sph.getAttributeString("SWATH_1", ""), absRoot, "Swath name");    
+        if (waveProduct) {
+            addAbstractedAttribute("SWATH", sph.getAttributeString("SWATH_1", ""), absRoot, "Swath name");
         } else {
             addAbstractedAttribute("SWATH", sph.getAttributeString("SWATH", ""), absRoot, "Swath Name");
         }
 
         addAbstractedAttribute("PROC_TIME", mph.getAttributeUTC("PROC_TIME", new ProductData.UTC(0)), absRoot,
-                                "Processed time");
+                "Processed time");
         addAbstractedAttribute("Processing_system_identifier", mph.getAttributeString("SOFTWARE_VER", ""), absRoot,
-                                "Processing system identifier");
+                "Processing system identifier");
         addAbstractedAttribute(mph, "CYCLE", absRoot, "Cycle");
         addAbstractedAttribute(mph, "REL_ORBIT", absRoot, "Track");
         addAbstractedAttribute(mph, "ABS_ORBIT", absRoot, "Orbit");
         addAbstractedAttribute("STATE_VECTOR_TIME", mph.getAttributeUTC("STATE_VECTOR_TIME", new ProductData.UTC(0)), absRoot,
-                                "Time of orbit state vector");
+                "Time of orbit state vector");
         addAbstractedAttribute("VECTOR_SOURCE", mph.getAttributeString("VECTOR_SOURCE", ""), absRoot,
-                                "State vector source");
+                "State vector source");
 
         // SPH
         addAbstractedAttribute("NUM_SLICES", mph.getAttributeInt("NUM_SLICES", 0), "", absRoot, "Number of slices");
-        if(waveProduct) {
+        if (waveProduct) {
             addAbstractedAttribute("first_line_time", sph.getAttributeUTC("first_cell_time", new ProductData.UTC(0)), absRoot,
-                                "First cell time");
+                    "First cell time");
             addAbstractedAttribute("last_line_time", sph.getAttributeUTC("last_cell_time", new ProductData.UTC(0)), absRoot,
-                                "Last cell time");
+                    "Last cell time");
             addAbstractedAttribute("first_near_lat", 0, "deg", absRoot, "");
             addAbstractedAttribute("first_near_long", 0, "deg", absRoot, "");
             addAbstractedAttribute("first_far_lat", 0, "deg", absRoot, "");
@@ -122,7 +123,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("SAMPLE_TYPE", " ", absRoot, "DETECTED or COMPLEX");
 
             String mds1_tx_rx_polar = sph.getAttributeString("tx_rx_polar", "");
-            mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/","");
+            mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/", "");
             addAbstractedAttribute("mds1_tx_rx_polar", mds1_tx_rx_polar, absRoot, "Polarization");
             addAbstractedAttribute("mds2_tx_rx_polar", "", absRoot, "Polarization");
             addAbstractedAttribute("mds3_tx_rx_polar", "", absRoot, "Polarization");
@@ -148,10 +149,10 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("SAMPLE_TYPE", sph.getAttributeString("SAMPLE_TYPE").trim(), absRoot, "DETECTED or COMPLEX");
 
             String mds1_tx_rx_polar = sph.getAttributeString("mds1_tx_rx_polar", "");
-            mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/","");
+            mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/", "");
             addAbstractedAttribute("mds1_tx_rx_polar", mds1_tx_rx_polar, absRoot, "Polarization");
             String mds2_tx_rx_polar = sph.getAttributeString("mds2_tx_rx_polar", "");
-            mds2_tx_rx_polar = mds2_tx_rx_polar.replace("/","");
+            mds2_tx_rx_polar = mds2_tx_rx_polar.replace("/", "");
             addAbstractedAttribute("mds2_tx_rx_polar", mds2_tx_rx_polar, absRoot, "Polarization");
             addAbstractedAttribute("mds3_tx_rx_polar", "", absRoot, "Polarization");
             addAbstractedAttribute("mds4_tx_rx_polar", "", absRoot, "Polarization");
@@ -164,20 +165,20 @@ public final class AsarAbstractMetadata {
         addAbstractedAttribute("range_spacing", sph.getAttributeDouble("range_spacing", 0), "m", absRoot, "Range sample spacing");
         addAbstractedAttribute("azimuth_spacing", sph.getAttributeDouble("azimuth_spacing", 0), "m", absRoot, "Azimuth sample spacing");
 
-        if(mppAds != null) {
+        if (mppAds != null) {
             addAbstractedAttribute("pulse_repetition_frequency", getPulseRepetitionFreq(mppAds), "Hz", absRoot, "PRF");
             addAbstractedAttribute("radar_frequency",
-                mppAds.getAttributeDouble("radar_freq", 0) / 1000000.0, "MHz", absRoot, "Radar frequency");
+                    mppAds.getAttributeDouble("radar_freq", 0) / 1000000.0, "MHz", absRoot, "Radar frequency");
         } else {
             addAbstractedAttribute("pulse_repetition_frequency", 0, "Hz", absRoot, "PRF");
             addAbstractedAttribute("radar_frequency", 0, "MHz", absRoot, "Radar frequency");
         }
         addAbstractedAttribute("line_time_interval", sph.getAttributeDouble("line_time_interval", 0), "s", absRoot, "");
-        addAbstractedAttribute("total_size", (int)(product.getRawStorageSize() / (1024.0f * 1024.0f)), "MB", absRoot,
-                            "Total product size");
+        addAbstractedAttribute("total_size", (int) (product.getRawStorageSize() / (1024.0f * 1024.0f)), "MB", absRoot,
+                "Total product size");
 
         //MPP
-        if(mppAds != null) {
+        if (mppAds != null) {
             addAbstractedAttribute("num_output_lines", product.getSceneRasterHeight(), "lines", absRoot, "Raster height");
             addAbstractedAttribute("num_samples_per_line", product.getSceneRasterWidth(), "samples", absRoot, "Raster width");
             addAbstractedAttribute("subset_offset_x", 0, "samples", absRoot, "X coordinate of UL corner of subset in original image");
@@ -203,9 +204,9 @@ public final class AsarAbstractMetadata {
 
             final MetadataElement gg = origRoot.getElement("GEOLOCATION_GRID_ADS");
             double slantRangeDist = 0;
-            if(gg != null) {
+            if (gg != null) {
                 final MetadataElement gg1 = gg.getElement("GEOLOCATION_GRID_ADS.1");
-                if(gg1 != null) {
+                if (gg1 != null) {
                     final double slantRangeTime = gg1.getAttributeDouble("ASAR_Geo_Grid_ADSR.sd/first_line_tie_points.slant_range_times");
                     final double halfLightSpeed = 299792458.0 / 2.0;
                     slantRangeDist = slantRangeTime * halfLightSpeed / 1000000000.0; // slantRangeTime ns to s
@@ -217,9 +218,9 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute(mppAds, "range_spread_comp_flag", absRoot, "range spread compensation applied");
             addAbstractedAttribute("replica_power_corr_flag", ProductData.TYPE_UINT8, "flag",
                     "Replica pulse power correction applied", absRoot);
-            addAbstractedAttribute("abs_calibration_flag", ProductData.TYPE_UINT8, "flag","Product calibrated", absRoot);
+            addAbstractedAttribute("abs_calibration_flag", ProductData.TYPE_UINT8, "flag", "Product calibrated", absRoot);
             addAbstractedAttribute("calibration_factor",
-                mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/calibration_factors.1.ext_cal_fact", 0), "", absRoot,
+                    mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/calibration_factors.1.ext_cal_fact", 0), "", absRoot,
                     "Calibration constant");
             addAbstractedAttribute("inc_angle_comp_flag", 0, "flag", absRoot, "incidence angle compensation applied");
             addAbstractedAttribute("ref_inc_angle", 99999.0, "", absRoot, "Reference incidence angle");
@@ -228,25 +229,25 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("rescaling_factor", 99999.0, "", absRoot, "Rescaling factor");
 
             addAbstractedAttribute("range_sampling_rate",
-                mppAds.getAttributeDouble("range_samp_rate", 0) / 1000000.0, "MHz", absRoot, "Range Sampling Rate");
+                    mppAds.getAttributeDouble("range_samp_rate", 0) / 1000000.0, "MHz", absRoot, "Range Sampling Rate");
 
 
             addAbstractedAttribute("range_bandwidth",
-                            mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/bandwidth.tot_bw_range", 0) / 1000000.0, "MHz", absRoot, "Bandwidth total in range");
+                    mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/bandwidth.tot_bw_range", 0) / 1000000.0, "MHz", absRoot, "Bandwidth total in range");
             addAbstractedAttribute("azimuth_bandwidth",
-                            mppAds.getAttributeDouble("to_bw_az", 0), "Hz", absRoot, "Bandwidth total in azimuth");
+                    mppAds.getAttributeDouble("to_bw_az", 0), "Hz", absRoot, "Bandwidth total in azimuth");
 
 
             addAbstractedAttribute("multilook_flag", ProductData.TYPE_UINT8, "flag",
                     "Product multilooked", absRoot);
-            addAbstractedAttribute("coregistered_stack", ProductData.TYPE_UINT8, "flag","Coregistration applied", absRoot);
+            addAbstractedAttribute("coregistered_stack", ProductData.TYPE_UINT8, "flag", "Coregistration applied", absRoot);
         } else {
             addAbstractedAttribute("num_output_lines", 0, "lines", absRoot, "Raster height");
             addAbstractedAttribute("num_samples_per_line", 0, "samples", absRoot, "Raster width");
             addAbstractedAttribute("subset_offset_x", 0, "samples", absRoot, "X coordinate of UL corner of subset in original image");
             addAbstractedAttribute("subset_offset_y", 0, "samples", absRoot, "Y coordinate of UL corner of subset in original image");
             addAbstractedAttribute("num_samples_per_line", 0, "", absRoot, "");
-            if(waveProduct)
+            if (waveProduct)
                 addAbstractedAttribute("srgr_flag", sph.getAttributeInt("SR_GR", 0), "flag", absRoot, "SRGR applied");
             else
                 addAbstractedAttribute("srgr_flag", 0, "", absRoot, "SRGR applied");
@@ -261,7 +262,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("lon_pixel_res", 0.0, "deg", absRoot, "pixel resolution in geocoded image");
             addAbstractedAttribute("slant_range_to_first_pixel", 0, "m", absRoot, "Slant range to 1st data sample");
 
-            if(waveProduct) {
+            if (waveProduct) {
                 addAbstractedAttribute("ant_elev_corr_flag", sph.getAttributeInt("antenna_corr", 0), "flag", absRoot,
                         "Antenna elevation applied");
             } else {
@@ -270,7 +271,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("range_spread_comp_flag", 0, "", absRoot, "range spread compensation applied");
             addAbstractedAttribute("replica_power_corr_flag", ProductData.TYPE_UINT8, "flag",
                     "Replica pulse power correction applied", absRoot);
-            addAbstractedAttribute("abs_calibration_flag", ProductData.TYPE_UINT8, "flag","Product calibrated", absRoot);
+            addAbstractedAttribute("abs_calibration_flag", ProductData.TYPE_UINT8, "flag", "Product calibrated", absRoot);
             addAbstractedAttribute("calibration_factor", 0, "", absRoot, "Calibration constant");
             addAbstractedAttribute("inc_angle_comp_flag", 0, "flag", absRoot, "incidence angle compensation applied");
             addAbstractedAttribute("ref_inc_angle", 99999.0, "", absRoot, "Reference incidence angle");
@@ -278,20 +279,20 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("ref_slant_range_exp", 99999.0, "", absRoot, "Reference slant range exponent");
             addAbstractedAttribute("rescaling_factor", 99999.0, "", absRoot, "Rescaling factor");
 
-            addAbstractedAttribute("range_sampling_rate",  0, "MHz", absRoot, "Range Sampling Rate");
+            addAbstractedAttribute("range_sampling_rate", 0, "MHz", absRoot, "Range Sampling Rate");
             addAbstractedAttribute("multilook_flag", ProductData.TYPE_UINT8, "flag", "Product multilooked", absRoot);
-            addAbstractedAttribute("coregistered_stack", ProductData.TYPE_UINT8, "flag","Coregistration applied", absRoot);
+            addAbstractedAttribute("coregistered_stack", ProductData.TYPE_UINT8, "flag", "Coregistration applied", absRoot);
         }
 
         final MetadataElement dsd = origRoot.getElement("DSD");
-        if(dsd != null) {
+        if (dsd != null) {
             final MetadataElement dsd17 = dsd.getElement("DSD.17");
-            if(dsd17 != null) {
+            if (dsd17 != null) {
                 addAbstractedAttribute("external_calibration_file",
                         dsd17.getAttributeString("FILE_NAME", ""), absRoot, "External calibration file used");
             }
             final MetadataElement dsd18 = dsd.getElement("DSD.18");
-            if(dsd18 != null) {
+            if (dsd18 != null) {
                 addAbstractedAttribute("orbit_state_vector_file",
                         dsd18.getAttributeString("FILE_NAME", ""), absRoot, "Orbit file used");
             }
@@ -301,22 +302,22 @@ public final class AsarAbstractMetadata {
 
         // add SRGR coefficients if found
         final MetadataElement srgrADS = origRoot.getElement("SR_GR_ADS");
-        if(srgrADS != null) {
+        if (srgrADS != null) {
             addSRGRCoefficients(srgrADS, absRoot);
         }
 
         // add Doppler Centroid coefficients
         final MetadataElement dopplerCentroidCoeffsADS = origRoot.getElement("DOP_CENTROID_COEFFS_ADS");
-        if(dopplerCentroidCoeffsADS != null) {
+        if (dopplerCentroidCoeffsADS != null) {
             addDopplerCentroidCoefficients(dopplerCentroidCoeffsADS, absRoot);
         }
 
         addAbstractedAttribute("abstracted_metadata_version", METADATA_VERSION, absRoot, "AbsMetadata version");
     }
-    
+
     public static String getMission(final String productType, final File file) {
-        if(productType.startsWith("SAR")) {
-            if(file.toString().endsWith("E2"))
+        if (productType.startsWith("SAR")) {
+            if (file.toString().endsWith("E2"))
                 return "ERS2";
             else
                 return "ERS1";
@@ -326,13 +327,14 @@ public final class AsarAbstractMetadata {
 
     /**
      * Adds an attribute from src to dest
-     * @param tag the name of the attribute
+     *
+     * @param tag   the name of the attribute
      * @param value the string value
-     * @param dest the destination element
-     * @param desc the description
+     * @param dest  the destination element
+     * @param desc  the description
      */
     private static void addAbstractedAttribute(String tag, String value, MetadataElement dest, String desc) {
-        if(value == null || value.isEmpty()) 
+        if (value == null || value.isEmpty())
             value = " ";
         final MetadataAttribute attribute = new MetadataAttribute(tag, ProductData.TYPE_ASCII, 1);
         attribute.getData().setElems(value);
@@ -342,10 +344,11 @@ public final class AsarAbstractMetadata {
 
     /**
      * Adds an attribute from src to dest
-     * @param tag the name of the attribute
+     *
+     * @param tag   the name of the attribute
      * @param value the UTC value
-     * @param dest the destination element
-     * @param desc the description
+     * @param dest  the destination element
+     * @param desc  the description
      */
     private static void addAbstractedAttribute(String tag, ProductData.UTC value, MetadataElement dest, String desc) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, ProductData.TYPE_UTC, 1);
@@ -357,11 +360,12 @@ public final class AsarAbstractMetadata {
 
     /**
      * Adds an attribute from src to dest
-     * @param tag the name of the attribute
+     *
+     * @param tag   the name of the attribute
      * @param value the UTC value
-     * @param unit the unit string
-     * @param dest the destination element
-     * @param desc the description
+     * @param unit  the unit string
+     * @param dest  the destination element
+     * @param desc  the description
      */
     private static void addAbstractedAttribute(String tag, int value, String unit, MetadataElement dest, String desc) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, ProductData.TYPE_INT32, 1);
@@ -373,15 +377,16 @@ public final class AsarAbstractMetadata {
 
     /**
      * Adds an attribute from src to dest
-     * @param tag the name of the attribute
+     *
+     * @param tag   the name of the attribute
      * @param value the double value
-     * @param unit the unit string
-     * @param dest the destination element
-     * @param desc the description
+     * @param unit  the unit string
+     * @param dest  the destination element
+     * @param desc  the description
      */
     private static void addAbstractedAttribute(String tag, double value, String unit, MetadataElement dest, String desc) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, ProductData.TYPE_FLOAT64, 1);
-        attribute.getData().setElems( new double[] {value} );
+        attribute.getData().setElems(new double[]{value});
         attribute.setUnit(unit);
         attribute.setDescription(desc);
         dest.addAttribute(attribute);
@@ -389,17 +394,18 @@ public final class AsarAbstractMetadata {
 
     /**
      * Adds an attribute into dest
-     * @param dest the destination element
-     * @param tag the name of the attribute
+     *
+     * @param dest     the destination element
+     * @param tag      the name of the attribute
      * @param dataType the ProductData type
-     * @param unit The unit
-     * @param desc The description
+     * @param unit     The unit
+     * @param desc     The description
      * @return MetadataAttribute
      */
     private static MetadataAttribute addAbstractedAttribute(String tag, int dataType,
-                                               String unit, String desc, MetadataElement dest) {
+                                                            String unit, String desc, MetadataElement dest) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, dataType, 1);
-        if(dataType == ProductData.TYPE_ASCII)
+        if (dataType == ProductData.TYPE_ASCII)
             attribute.getData().setElems(" ");
         attribute.setUnit(unit);
         attribute.setDescription(desc);
@@ -410,14 +416,15 @@ public final class AsarAbstractMetadata {
 
     /**
      * Adds an attribute from src to dest
-     * @param src the source element
-     * @param tag the name of the attribute
+     *
+     * @param src  the source element
+     * @param tag  the name of the attribute
      * @param dest the destination element
      * @param desc the description
      */
     private static void addAbstractedAttribute(MetadataElement src, String tag, MetadataElement dest, String desc) {
         final MetadataAttribute attrib = src.getAttribute(tag);
-        if(attrib != null) {
+        if (attrib != null) {
             MetadataAttribute copiedAttrib = attrib.createDeepClone();
             copiedAttrib.setReadOnly(false);
             copiedAttrib.setDescription(desc);
@@ -427,7 +434,7 @@ public final class AsarAbstractMetadata {
 
     private static double getPulseRepetitionFreq(MetadataElement mppAds) {
         double prf = mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters.prf_value", 0);
-        if(prf == 0)
+        if (prf == 0)
             prf = mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters_IODD_4A.prf_value", 0);
         return prf;
     }
@@ -439,26 +446,26 @@ public final class AsarAbstractMetadata {
         // get all vectors from all MPP
         final MetadataElement rootMPPAds = root.getElement("MAIN_PROCESSING_PARAMS_ADS");
         final ArrayList<MetadataElement> mppList = new ArrayList<MetadataElement>(10);
-        if(rootMPPAds != null) {
+        if (rootMPPAds != null) {
             final int numElem = rootMPPAds.getNumElements();
-            if(numElem == 0) {
+            if (numElem == 0) {
                 mppList.add(rootMPPAds);
             } else {
-                for(int i=1; i <= numElem; ++i) {
-                    final MetadataElement ads = rootMPPAds.getElement("MAIN_PROCESSING_PARAMS_ADS."+i);
-                    if(ads != null)
+                for (int i = 1; i <= numElem; ++i) {
+                    final MetadataElement ads = rootMPPAds.getElement("MAIN_PROCESSING_PARAMS_ADS." + i);
+                    if (ads != null)
                         mppList.add(ads);
                 }
             }
         }
 
-        int i=1;
-        for(MetadataElement mppAds : mppList) {
-            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.1", "orbit_vector"+ i++);
-            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.2", "orbit_vector"+ i++);
-            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.3", "orbit_vector"+ i++);
-            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.4", "orbit_vector"+ i++);
-            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.5", "orbit_vector"+ i++);
+        int i = 1;
+        for (MetadataElement mppAds : mppList) {
+            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.1", "orbit_vector" + i++);
+            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.2", "orbit_vector" + i++);
+            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.3", "orbit_vector" + i++);
+            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.4", "orbit_vector" + i++);
+            addVector(mppAds, orbitListElem, "ASAR_Main_ADSR.sd/orbit_state_vectors.5", "orbit_vector" + i++);
         }
     }
 
@@ -466,14 +473,14 @@ public final class AsarAbstractMetadata {
         ProductData.UTC utcTime;
         double xPos, yPos, zPos, xVel, yVel, zVel;
         try {
-            utcTime = mppAds.getAttributeUTC(orbitPrefix+".state_vect_time_1");
-            xPos = mppAds.getAttributeDouble(orbitPrefix+".x_pos_1") / 100.0; // 10^-2 m to m
-            yPos = mppAds.getAttributeDouble(orbitPrefix+".y_pos_1") / 100.0; // 10^-2 m to m
-            zPos = mppAds.getAttributeDouble(orbitPrefix+".z_pos_1") / 100.0; // 10^-2 m to m
-            xVel = mppAds.getAttributeDouble(orbitPrefix+".x_vel_1") / 100000.0; // 10^-5 m/s to m/s
-            yVel = mppAds.getAttributeDouble(orbitPrefix+".y_vel_1") / 100000.0; // 10^-5 m/s to m/s
-            zVel = mppAds.getAttributeDouble(orbitPrefix+".z_vel_1") / 100000.0; // 10^-5 m/s to m/s
-        } catch(Exception e) {
+            utcTime = mppAds.getAttributeUTC(orbitPrefix + ".state_vect_time_1");
+            xPos = mppAds.getAttributeDouble(orbitPrefix + ".x_pos_1") / 100.0; // 10^-2 m to m
+            yPos = mppAds.getAttributeDouble(orbitPrefix + ".y_pos_1") / 100.0; // 10^-2 m to m
+            zPos = mppAds.getAttributeDouble(orbitPrefix + ".z_pos_1") / 100.0; // 10^-2 m to m
+            xVel = mppAds.getAttributeDouble(orbitPrefix + ".x_vel_1") / 100000.0; // 10^-5 m/s to m/s
+            yVel = mppAds.getAttributeDouble(orbitPrefix + ".y_vel_1") / 100000.0; // 10^-5 m/s to m/s
+            zVel = mppAds.getAttributeDouble(orbitPrefix + ".z_vel_1") / 100000.0; // 10^-5 m/s to m/s
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
         }
@@ -494,10 +501,10 @@ public final class AsarAbstractMetadata {
         dest.addElement(srgrListElem);
 
         int listCnt = 1;
-        if(srgrAds.getNumElements() == 0) {
+        if (srgrAds.getNumElements() == 0) {
             addOneSetSRGRCoefficients(srgrAds, srgrListElem, listCnt);
         } else {
-            for(MetadataElement srgrSrc : srgrAds.getElements()) {
+            for (MetadataElement srgrSrc : srgrAds.getElements()) {
 
                 addOneSetSRGRCoefficients(srgrSrc, srgrListElem, listCnt++);
             }
@@ -515,22 +522,22 @@ public final class AsarAbstractMetadata {
             final MetadataAttribute srgrCoefAttrib = srgrSrc.getAttribute("srgr_coeff");
             final ProductData data = srgrCoefAttrib.getData();
             final int numElems = data.getNumElems();
-            for(int i=0; i < numElems; ++i) {
+            for (int i = 0; i < numElems; ++i) {
                 coefList.add(data.getElemDoubleAt(i));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
         }
 
-        final MetadataElement srgrElem = new MetadataElement("srgr_coef_list."+listCnt);
+        final MetadataElement srgrElem = new MetadataElement("srgr_coef_list." + listCnt);
         srgrListElem.addElement(srgrElem);
         addAbstractedAttribute("zero_doppler_time", utcTime, srgrElem, "");
         addAbstractedAttribute("ground_range_origin", origin, "m", srgrElem, "");
 
         int coefCnt = 1;
-        for(Double value : coefList) {
-            final MetadataElement coefElem = new MetadataElement("coefficient."+coefCnt);
+        for (Double value : coefList) {
+            final MetadataElement coefElem = new MetadataElement("coefficient." + coefCnt);
             ++coefCnt;
             srgrElem.addElement(coefElem);
             addAbstractedAttribute("srgr_coef", value, "", coefElem, "");
@@ -543,10 +550,10 @@ public final class AsarAbstractMetadata {
         dest.addElement(dopplerCentroidCoeffsListElem);
 
         int listCnt = 1;
-        if(dopplerCentroidCoeffsADS.getNumElements() == 0) {
+        if (dopplerCentroidCoeffsADS.getNumElements() == 0) {
             addOneSetDopplerCentroidCoefficients(dopplerCentroidCoeffsADS, dopplerCentroidCoeffsListElem, listCnt);
         } else {
-            for(MetadataElement dopplerCentroidSrc : dopplerCentroidCoeffsADS.getElements()) {
+            for (MetadataElement dopplerCentroidSrc : dopplerCentroidCoeffsADS.getElements()) {
 
                 addOneSetDopplerCentroidCoefficients(dopplerCentroidSrc, dopplerCentroidCoeffsListElem, listCnt++);
             }
@@ -566,22 +573,22 @@ public final class AsarAbstractMetadata {
             final MetadataAttribute dopCoefAttrib = dopplerCentroidSrc.getAttribute("dop_coef");
             final ProductData data = dopCoefAttrib.getData();
             final int numElems = data.getNumElems();
-            for(int i=0; i < numElems; ++i) {
+            for (int i = 0; i < numElems; ++i) {
                 coefList.add(data.getElemDoubleAt(i));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
         }
 
-        final MetadataElement dopElem = new MetadataElement("dop_coef_list."+listCnt);
+        final MetadataElement dopElem = new MetadataElement("dop_coef_list." + listCnt);
         dopplerCentroidCoeffsListElem.addElement(dopElem);
         addAbstractedAttribute("zero_doppler_time", utcTime, dopElem, "");
         addAbstractedAttribute("slant_range_time", origin, "ns", dopElem, "");
 
         int coefCnt = 1;
-        for(Double value : coefList) {
-            final MetadataElement coefElem = new MetadataElement("coefficient."+coefCnt);
+        for (Double value : coefList) {
+            final MetadataElement coefElem = new MetadataElement("coefficient." + coefCnt);
             ++coefCnt;
             dopElem.addElement(coefElem);
             addAbstractedAttribute("dop_coef", value, "", coefElem, "");
