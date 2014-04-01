@@ -32,7 +32,6 @@ import java.io.IOException;
  * <p/>
  *
  * @author Norman Fomferra
-
  */
 public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
 
@@ -71,7 +70,6 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     @Override
@@ -94,37 +92,25 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         String fileName = null;
-        if(input instanceof String) {
+        if (input instanceof String) {
             fileName = ((String) input).toUpperCase();
-        } else if(input instanceof File) {
+        } else if (input instanceof File) {
             fileName = ((File) input).getName().toUpperCase();
         }
-        if(fileName != null) {
-            if(fileName.endsWith(".E1") || fileName.endsWith(".E2"))
+        if (fileName != null) {
+            if (matchesExtension(fileName))
                 return DecodeQualification.INTENDED;
-            else if(!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
+            else if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
                 return DecodeQualification.UNABLE;
             return super.getDecodeQualification(input);
         }
-        /*   
-        if (super.getDecodeQualification(input) == DecodeQualification.INTENDED) {
-            if (input instanceof String) {
-                if(matchesExtension((String)input))
-                    return DecodeQualification.INTENDED;
-            } else if (input instanceof File) {
-                File file = (File)input;
-                if(matchesExtension(file.getName()))
-                    return DecodeQualification.INTENDED;
-            }
-        }
-        */
         return DecodeQualification.UNABLE;
     }
 
     private boolean matchesExtension(String filename) {
         String[] extList = getDefaultFileExtensions();
-        for(String ext: extList) {
-            if(filename.toLowerCase().endsWith(ext.toLowerCase())) {
+        for (String ext : extList) {
+            if (filename.endsWith(ext)) {
                 return true;
             }
         }
