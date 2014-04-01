@@ -41,7 +41,6 @@ import java.util.zip.ZipFile;
  * the actual reader objects.
  *
  * @author Norman Fomferra
-
  * @see org.esa.beam.dataio.envisat.EnvisatProductReader
  */
 public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
