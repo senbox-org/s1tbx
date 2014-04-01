@@ -138,7 +138,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         if (model != null) {
             model.removeChangeListener(modelChangeHandler);
         }
-        model = null;
     }
 
     /**
