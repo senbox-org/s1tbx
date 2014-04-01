@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.*;
 import static java.lang.System.arraycopy;
 
 public abstract class SeadasFileReader {
@@ -33,10 +34,10 @@ public abstract class SeadasFileReader {
     protected Map<Band, Variable> variableMap;
     protected NetcdfFile ncFile;
     protected SeadasProductReader productReader;
-    protected Map<String, String> bandInfoMap = getL2BandInfoMap();
     protected int[] start = new int[2];
     protected int[] stride = new int[2];
     protected int[] count = new int[2];
+    protected String sensor = null;
 
     protected int leadLineSkip = 0;
     protected int tailLineSkip = 0;
@@ -53,11 +54,6 @@ public abstract class SeadasFileReader {
         globalAttributes = ncFile.getGlobalAttributes();
 
     }
-
-    protected synchronized static HashMap<String, String> getL2BandInfoMap() {
-        return readTwoColumnTable("l2-band-info.csv");
-    }
-
 
     public abstract Product createProduct() throws IOException;
 
@@ -89,15 +85,15 @@ public abstract class SeadasFileReader {
             int[] newshape = {sourceHeight, sourceWidth};
 
             array = variable.read(section);
-            if (array.getRank() == 3) {
+            if (array.getRank() > 2) {
                 array = array.reshapeNoCopy(newshape);
             }
             Object storage;
 
             if (mustFlipX && !mustFlipY) {
-                storage = array.flip(0).copyTo1DJavaArray();
-            } else if (!mustFlipX && mustFlipY) {
                 storage = array.flip(1).copyTo1DJavaArray();
+            } else if (!mustFlipX && mustFlipY) {
+                storage = array.flip(0).copyTo1DJavaArray();
             } else if (mustFlipX && mustFlipY) {
                 storage = array.flip(0).flip(1).copyTo1DJavaArray();
             } else {
@@ -131,6 +127,14 @@ public abstract class SeadasFileReader {
     final static Color Cornflower = new Color(38, 115, 245);
 
     protected void addFlagsAndMasks(Product product) {
+        try {
+            sensor = product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Sensor_Name").getData().getElemString();
+        } catch (Exception ignore) {
+            try{
+                sensor = product.getMetadataRoot().getElement("Global_Attributes").getAttribute("instrument").getData().getElemString();
+            } catch(Exception ignored) {}
+        }
+
         Band QFBand = product.getBand("l2_flags");
         if (QFBand != null) {
             FlagCoding flagCoding = new FlagCoding("L2Flags");
@@ -282,26 +286,226 @@ public abstract class SeadasFileReader {
                     FailRed, 0.1));
 
         }
-        Band QFBandSST = product.getBand("qual_sst");
+        Band QFBandSST = product.getBand("flags_sst");
         if (QFBandSST != null) {
-//            FlagCoding flagCoding = new FlagCoding("SSTFlags");
-//            product.getFlagCodingGroup().add(flagCoding);
-//
-//            QFBandSST.setSampleCoding(flagCoding);
+            FlagCoding flagCoding = new FlagCoding("SST_Flags");
+            flagCoding.addFlag("ISMASKED", 0x01, "Pixel was already masked");
+            flagCoding.addFlag("BTBAD", 0x02, "Bad Brightness Temperatures");
+            flagCoding.addFlag("BTRANGE", 0x04, "Brightness Temperatures outside valid range");
+            flagCoding.addFlag("BTDIFF", 0x08, "Brightness Temperatures are too different");
+            flagCoding.addFlag("SSTRANGE", 0x10, "Computed SST outside valid range");
+            flagCoding.addFlag("SSTREFDIFF", 0x20, "Computed SST too different from reference SST");
+            flagCoding.addFlag("SST4DIFF", 0x40, "Computed SST too different from computed 4 micron SST");
+            flagCoding.addFlag("SST4VDIFF", 0x80, "Computed SST very different from computed 4 micron SST");
+//            flagCoding.addFlag("SST3DIFF", 0x40, "Computed SST too different from computed triple-window SST");
+//            flagCoding.addFlag("SST3VDIFF", 0x80, "Computed SST very different from computed triple-window SST");
+            flagCoding.addFlag("BTNONUNIF", 0x100, "Spatially Non-uniform Brightness Temperatures");
+            flagCoding.addFlag("BTVNONUNIF", 0x200, "Very Spatially Non-uniform Brightness Temperatures");
+            flagCoding.addFlag("BT4REFDIFF", 0x400, "4 micron Brightness Temperature differs from reference");
+            flagCoding.addFlag("REDNONUNIF", 0x800, "Spatially Non-uniform red band");
+            flagCoding.addFlag("HISENZ", 0x1000, "High sensor zenith angle");
+            flagCoding.addFlag("VHISENZ", 0x2000, "Very High sensor zenith angle");
+            flagCoding.addFlag("SSTREFVDIFF", 0x4000, "Computed SST very different from reference SST)");
+            flagCoding.addFlag("CLOUD", 0x8000, "Cloud Detected");
+            if (sensor.equalsIgnoreCase("AVHRR")) {
+                flagCoding.addFlag("SUNLIGHT", 0x40, "Stray sunlight detected (AVHRR)");
+                flagCoding.addFlag("ASCEND", 0x80, "AVHRR in ascending node (daytime)");
+                flagCoding.addFlag("GLINT", 0x400, "Sun glint detected (AVHRR)");
+            }
 
-            product.getMaskGroup().add(Mask.BandMathsType.create("Best", "Highest quality SST retrieval",
+            product.getFlagCodingGroup().add(flagCoding);
+            QFBandSST.setSampleCoding(flagCoding);
+
+
+            product.getMaskGroup().add(Mask.BandMathsType.create("ISMASKED", "Pixel was already masked",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.ISMASKED",
+                    LandBrown, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTBAD", "Bad Brightness Temperatures",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTBAD",
+                    FailRed, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTRANGE", "Brightness Temperatures outside valid range",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTRANGE",
+                    DeepBlue, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTDIFF", "Brightness Temperatures are too different",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTDIFF",
+                    Color.GRAY, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SSTRANGE", "Computed SST outside valid range",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SSTRANGE",
+                    BrightPink, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SSTREFDIFF", "Computed SST too different from reference SST",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SSTREFDIFF",
+                    LightCyan, 0.5));
+            if (sensor.equalsIgnoreCase("AVHRR")){
+                product.getMaskGroup().add(Mask.BandMathsType.create("SUNLIGHT", "Stray sunlight detected (AVHRR)",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(), "flags_sst.SUNLIGHT",
+                        BurntUmber, 0.5));
+                product.getMaskGroup().add(Mask.BandMathsType.create("ASCEND", "AVHRR in ascending node (daytime)",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(), "flags_sst.ASCEND",
+                        LightBrown, 0.2));
+                product.getMaskGroup().add(Mask.BandMathsType.create("GLINT", "Sun glint detected (AVHRR)",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(), "flags_sst.GLINT",
+                        Color.YELLOW, 0.5));
+
+            } else {
+                product.getMaskGroup().add(Mask.BandMathsType.create("SST4DIFF", "Computed SST too different from computed 4 micron SST",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(), "flags_sst.SST4DIFF",
+                        BurntUmber, 0.5));
+                product.getMaskGroup().add(Mask.BandMathsType.create("SST4VDIFF", "Computed SST very different from computed 4 micron SST",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(), "flags_sst.SST4VDIFF",
+                        LightBrown, 0.2));
+                product.getMaskGroup().add(Mask.BandMathsType.create("BT4REFDIFF", "4 micron Brightness Temperature differs from reference",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(), "flags_sst.BT4REFDIFF",
+                        Color.YELLOW, 0.5));
+            }
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTNONUNIF", "Spatially Non-uniform Brightness Temperatures",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTNONUNIF",
+                    Color.ORANGE, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTVNONUNIF", "Very Spatially Non-uniform Brightness Temperatures",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTVNONUNIF",
+                    Color.CYAN, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("REDNONUNIF", "Spatially Non-uniform red band",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.REDNONUNIF",
+                    Purple, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("HISENZ", "High sensor zenith angle",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.HISENZ",
+                    Cornflower, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("VHISENZ", "Very High sensor zenith angle",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.VHISENZ",
+                    LightPurple, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SSTREFVDIFF", "Computed SST very different from reference SST",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SSTREFVDIFF",
+                    Color.MAGENTA, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD", "Cloud Detected",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.CLOUD",
+                    Color.WHITE, 0.5));
+        }
+        Band QFBandSST4 = product.getBand("flags_sst4");
+        if (QFBandSST4 != null) {
+            FlagCoding flagCoding = new FlagCoding("SST4_Flags");
+            flagCoding.addFlag("ISMASKED", 0x01, "Pixel was already masked");
+            flagCoding.addFlag("BTBAD", 0x02, "Bad Brightness Temperatures");
+            flagCoding.addFlag("BTRANGE", 0x04, "Brightness Temperatures outside valid range");
+            flagCoding.addFlag("BTDIFF", 0x08, "Brightness Temperatures are too different");
+            flagCoding.addFlag("SSTRANGE", 0x10, "Computed SST outside valid range");
+            flagCoding.addFlag("SSTREFDIFF", 0x20, "Computed SST too different from reference SST");
+            flagCoding.addFlag("SST4DIFF", 0x40, "Computed SST too different from computed 4 micron SST");
+            flagCoding.addFlag("SST4VDIFF", 0x80, "Computed SST very different from computed 4 micron SST");
+//            flagCoding.addFlag("SST3DIFF", 0x40, "Computed SST too different from computed triple-window SST");
+//            flagCoding.addFlag("SST3VDIFF", 0x80, "Computed SST very different from computed triple-window SST");
+            flagCoding.addFlag("BTNONUNIF", 0x100, "Spatially Non-uniform Brightness Temperatures");
+            flagCoding.addFlag("BTVNONUNIF", 0x200, "Very Spatially Non-uniform Brightness Temperatures");
+            flagCoding.addFlag("BT4REFDIFF", 0x400, "4 micron Brightness Temperature differs from reference");
+            flagCoding.addFlag("REDNONUNIF", 0x800, "Spatially Non-uniform red band");
+            flagCoding.addFlag("HISENZ", 0x1000, "High sensor zenith angle");
+            flagCoding.addFlag("VHISENZ", 0x2000, "Very High sensor zenith angle");
+            flagCoding.addFlag("SSTREFVDIFF", 0x4000, "Computed SST very different from reference SST)");
+            flagCoding.addFlag("CLOUD", 0x8000, "Cloud Detected");
+
+            product.getFlagCodingGroup().add(flagCoding);
+            QFBandSST4.setSampleCoding(flagCoding);
+
+
+            product.getMaskGroup().add(Mask.BandMathsType.create("ISMASKED", "Pixel was already masked",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.ISMASKED",
+                    LandBrown, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTBAD", "Bad Brightness Temperatures",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTBAD",
+                    FailRed, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTRANGE", "Brightness Temperatures outside valid range",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTRANGE",
+                    DeepBlue, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTDIFF", "Brightness Temperatures are too different",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTDIFF",
+                    Color.GRAY, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SSTRANGE", "Computed SST outside valid range",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SSTRANGE",
+                    BrightPink, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SSTREFDIFF", "Computed SST too different from reference SST",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SSTREFDIFF",
+                    LightCyan, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SST4DIFF", "Computed SST too different from computed 4 micron SST",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SST4DIFF",
+                    BurntUmber, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SST4VDIFF", "Computed SST very different from computed 4 micron SST",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SST4VDIFF",
+                    LightBrown, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTNONUNIF", "Spatially Non-uniform Brightness Temperatures",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTNONUNIF",
+                    Color.ORANGE, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BTVNONUNIF", "Very Spatially Non-uniform Brightness Temperatures",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BTVNONUNIF",
+                    Color.CYAN, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("BT4REFDIFF", "4 micron Brightness Temperature differs from reference",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.BT4REFDIFF",
+                    Color.YELLOW, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("REDNONUNIF", "Spatially Non-uniform red band",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.REDNONUNIF",
+                    Purple, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("HISENZ", "High sensor zenith angle",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.HISENZ",
+                    Cornflower, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("VHISENZ", "Very High sensor zenith angle",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.VHISENZ",
+                    LightPurple, 0.0));
+            product.getMaskGroup().add(Mask.BandMathsType.create("SSTREFVDIFF", "Computed SST very different from reference SST",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.SSTREFVDIFF",
+                    Color.MAGENTA, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD", "Cloud Detected",
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(), "flags_sst.CLOUD",
+                    Color.WHITE, 0.5));
+        }
+
+        Band QFBandSSTqual = product.getBand("qual_sst");
+        if (QFBandSSTqual != null) {
+
+            product.getMaskGroup().add(Mask.BandMathsType.create("Best (SST)", "Highest quality SST retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst == 0",
                     SeadasFileReader.Cornflower, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("Good", "Good quality SST retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Good (SST)", "Good quality SST retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst == 1",
                     SeadasFileReader.LightPurple, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("Questionable", "Questionable quality SST retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Questionable (SST)", "Questionable quality SST retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst == 2",
                     SeadasFileReader.BurntUmber, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("Bad", "Bad quality SST retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Bad (SST)", "Bad quality SST retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst == 3",
                     SeadasFileReader.FailRed, 0.6));
@@ -310,29 +514,26 @@ public abstract class SeadasFileReader {
                     product.getSceneRasterHeight(), "qual_sst == 4",
                     SeadasFileReader.FailRed, 0.6));
         }
-        Band QFBandSST4 = product.getBand("qual_sst4");
-        if (QFBandSST4 != null) {
-//            FlagCoding flagCoding = new FlagCoding("SST4Flags");
-//            product.getFlagCodingGroup().add(flagCoding);
-//            QFBandSST4.setSampleCoding(flagCoding);
+        Band QFBandSSTqual4 = product.getBand("qual_sst4");
+        if (QFBandSSTqual4 != null) {
 
-            product.getMaskGroup().add(Mask.BandMathsType.create("Best", "Highest quality SST4 retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Best (SST4)", "Highest quality SST4 retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst4 == 0",
                     SeadasFileReader.Cornflower, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("Good", "Good quality SST4 retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Good (SST4)", "Good quality SST4 retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst4 == 1",
                     SeadasFileReader.LightPurple, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("Questionable", "Questionable quality SST4 retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Questionable (SST4)", "Questionable quality SST4 retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst4 == 2",
                     SeadasFileReader.BurntUmber, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("Bad", "Bad quality SST4 retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("Bad (SST4)", "Bad quality SST4 retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst4 == 3",
                     SeadasFileReader.FailRed, 0.6));
-            product.getMaskGroup().add(Mask.BandMathsType.create("No SST Retrieval", "No SST retrieval",
+            product.getMaskGroup().add(Mask.BandMathsType.create("No SST4 Retrieval", "No SST4 retrieval",
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(), "qual_sst4 == 4",
                     SeadasFileReader.FailRed, 0.6));
@@ -385,18 +586,20 @@ public abstract class SeadasFileReader {
                 final String name = variable.getShortName();
                 final int dataType = getProductDataType(variable);
                 band = new Band(name, dataType, width, height);
-                final String validExpression = bandInfoMap.get(name);
-                if (validExpression != null && !validExpression.equals("")) {
-                    band.setValidPixelExpression(validExpression);
-                }
+
                 product.addBand(band);
 
                 try {
-                    band.setNoDataValue((double) variable.findAttribute("bad_value_scaled").getNumericValue().floatValue());
+                    Attribute fillValue = variable.findAttribute("_FillValue");
+                    if (fillValue == null){
+                        fillValue = variable.findAttribute("bad_value_scaled");
+                    }
+                    band.setNoDataValue((double) fillValue.getNumericValue().floatValue());
                     band.setNoDataValueUsed(true);
                 } catch (Exception ignored) { }
 
                 final List<Attribute> list = variable.getAttributes();
+                double[] validMinMax = {0.0,0.0};
                 for (Attribute hdfAttribute : list) {
                     final String attribName = hdfAttribute.getShortName();
                     if ("units".equals(attribName)) {
@@ -407,7 +610,36 @@ public abstract class SeadasFileReader {
                         band.setScalingFactor(hdfAttribute.getNumericValue(0).doubleValue());
                     } else if ("intercept".equals(attribName)) {
                         band.setScalingOffset(hdfAttribute.getNumericValue(0).doubleValue());
+                    } else if ("scale_factor".equals(attribName)) {
+                        band.setScalingFactor(hdfAttribute.getNumericValue(0).doubleValue());
+                    } else if ("add_offset".equals(attribName)) {
+                        band.setScalingOffset(hdfAttribute.getNumericValue(0).doubleValue());
+                    } else if (attribName.startsWith("valid_")){
+                        if ("valid_min".equals(attribName)){
+                            validMinMax[0] = hdfAttribute.getNumericValue(0).doubleValue();
+                        } else if ("valid_max".equals(attribName)){
+                            validMinMax[1] = hdfAttribute.getNumericValue(0).doubleValue();
+                        } else if ("valid_range".equals(attribName)){
+                            validMinMax[0] = hdfAttribute.getNumericValue(0).doubleValue();
+                            validMinMax[1] = hdfAttribute.getNumericValue(1).doubleValue();
+                        }
                     }
+                }
+                if (validMinMax[0] != validMinMax[1]){
+                    double[] minmax = {0.0,0.0};
+                    minmax[0] = validMinMax[0];
+                    minmax[1] = validMinMax[1];
+
+                    if (band.getScalingFactor() != 1.0) {
+                        minmax[0] *= band.getScalingFactor();
+                        minmax[1] *= band.getScalingFactor();
+                    }
+                    if (band.getScalingOffset() != 0.0) {
+                        minmax[0] += band.getScalingOffset();
+                        minmax[1] += band.getScalingOffset();
+                    }
+                    String validExp = format("%s >= %.2f && %s <= %.2f", name, minmax[0], name, minmax[1]);
+                    band.setValidPixelExpression(validExp);//.format(name, validMinMax[0], name, validMinMax[1]));
                 }
             }
         }
@@ -458,12 +690,18 @@ public abstract class SeadasFileReader {
     public void addScientificMetadata(Product product) throws ProductIOException {
 
         Group group = ncFile.findGroup("Scan-Line_Attributes");
+        if (group == null){
+            group = ncFile.findGroup("scan_line_attributes");
+        }
         if (group != null) {
             final MetadataElement scanLineAttrib = getMetadataElementSave(product, "Scan_Line_Attributes");
             handleMetadataGroup(group, scanLineAttrib);
         }
 
         group = ncFile.findGroup("Sensor_Band_Parameters");
+        if (group == null){
+            group = ncFile.findGroup("sensor_band_parameters");
+        }
         if (group != null) {
             final MetadataElement sensorBandParam = getMetadataElementSave(product, "Sensor_Band_Parameters");
             handleMetadataGroup(group, sensorBandParam);
@@ -471,13 +709,17 @@ public abstract class SeadasFileReader {
     }
 
     public void addBandMetadata(Product product) throws ProductIOException {
-        Group group = ncFile.findGroup("Geophysical_Data");
+        Group group = ncFile.findGroup("geophysical_data");
+        if (group == null){
+            group = ncFile.findGroup("Geophysical_Data");
+        }
         if (productReader.getProductType() == SeadasProductReader.ProductType.Level2_Aquarius) {
             group = ncFile.findGroup("Aquarius_Data");
         }
         if (productReader.getProductType() == SeadasProductReader.ProductType.Level1B_HICO) {
             group = ncFile.findGroup("products");
         }
+
         if (group != null) {
             final MetadataElement bandAttributes = new MetadataElement("Band_Attributes");
             List<Variable> variables = group.getVariables();
@@ -500,23 +742,18 @@ public abstract class SeadasFileReader {
         }
     }
 
-    public void computeLatLonBandData(final Band latBand, final Band lonBand,
-                                      final ProductData latRawData, final ProductData lonRawData,
+    public void computeLatLonBandData(int height, int width, Band latBand, Band lonBand,
+                                      final float[] latRawData, final float[] lonRawData,
                                       final int[] colPoints) {
-        latBand.ensureRasterData();
-        lonBand.ensureRasterData();
 
-        final float[] latRawFloats = (float[]) latRawData.getElems();
-        final float[] lonRawFloats = (float[]) lonRawData.getElems();
-        final float[] latFloats = (float[]) latBand.getDataElems();
-        final float[] lonFloats = (float[]) lonBand.getDataElems();
+        float[] latFloats = new float[height*width];
+        float[] lonFloats = new float[height*width];
         final int rawWidth = colPoints.length;
-        final int width = latBand.getRasterWidth();
-        final int height = latBand.getRasterHeight();
 
         int colPointIdx = 0;
         int p1 = colPoints[colPointIdx] - 1;
         int p2 = colPoints[++colPointIdx] - 1;
+
         for (int x = 0; x < width; x++) {
             if (x == p2 && colPointIdx < rawWidth - 1) {
                 p1 = p2;
@@ -529,25 +766,16 @@ public abstract class SeadasFileReader {
                 final int rawPos2 = y * rawWidth + colPointIdx;
                 final int rawPos1 = rawPos2 - 1;
                 final int pos = y * width + x;
-                latFloats[pos] = computePixel(latRawFloats[rawPos1], latRawFloats[rawPos2], weight);
-                lonFloats[pos] = computePixel(lonRawFloats[rawPos1], lonRawFloats[rawPos2], weight);
+                latFloats[pos] = computeGeoPixel(latRawData[rawPos1], latRawData[rawPos2], weight);
+                lonFloats[pos] = computeGeoPixel(lonRawData[rawPos1], lonRawData[rawPos2], weight);
             }
         }
 
-        if (mustFlipY) {
-            reverse(latFloats);
-        }
-        if (mustFlipX) {
-            reverse(lonFloats);
-        }
-
-//        latBand.setSynthetic(true);
-//        lonBand.setSynthetic(true);
-        latBand.getSourceImage();
-        lonBand.getSourceImage();
+        latBand.setDataElems(latFloats);
+        lonBand.setDataElems(lonFloats);
     }
 
-    public float computePixel(final float a, final float b, final double weight) {
+    public float computeGeoPixel(final float a, final float b, final double weight) {
         if ((b - a) > 180) {
             final float b2 = b - 360;
             final double v = a + (b2 - a) * weight;
@@ -566,14 +794,25 @@ public abstract class SeadasFileReader {
         boolean startNodeAscending = false;
         boolean endNodeAscending = false;
         try {
-            String startAttr = getStringAttribute("Start_Node");
+            Attribute start_node = findAttribute("Start_Node");
+            if (start_node == null){
+                start_node = findAttribute("startDirection");
+            }
+            String startAttr = start_node.getStringValue();
+
             if (startAttr != null) {
                 startNodeAscending = startAttr.equalsIgnoreCase("Ascending");
             }
-            String endAttr = getStringAttribute("End_Node");
+            Attribute end_node = findAttribute("End_Node");
+            if (end_node == null){
+                end_node = findAttribute("startDirection");
+            }
+            String endAttr = end_node.getStringValue();
+
             if (endAttr != null) {
                 endNodeAscending = endAttr.equalsIgnoreCase("Ascending");
             }
+
         } catch (Exception ignored) { }
 
         return (startNodeAscending && endNodeAscending);
@@ -608,18 +847,16 @@ public abstract class SeadasFileReader {
 
     public static void reverse(float[] data) {
         final int n = data.length;
-        final int nc = n / 2;
-        for (int i1 = 0; i1 < nc; i1++) {
-            int i2 = n - 1 - i1;
-            float temp = data[i1];
-            data[i1] = data[i2];
-            data[i2] = temp;
+        for (int i = 0; i < n/2; i++) {
+            float temp = data[i];
+            data[i] = data[n - i - 1];
+            data[n - i - 1] = temp;
         }
     }
 
     public Attribute findAttribute(String name, List<Attribute> attributesList) {
         for (Attribute a : attributesList) {
-            if (name.equals(a.getShortName()))
+            if (name.equalsIgnoreCase(a.getShortName()))
                 return a;
         }
         return null;
@@ -671,17 +908,37 @@ public abstract class SeadasFileReader {
     private ProductData.UTC getUTCAttribute(String key, List<Attribute> globalAttributes) {
         Attribute attribute = findAttribute(key, globalAttributes);
         Boolean isModis = false;
+        Boolean isISO = false;
         try {
             isModis = findAttribute("MODIS_Resolution", globalAttributes).isString();
+        } catch (Exception ignored) { }
+        try {
+            isISO = findAttribute("time_coverage_start", globalAttributes).isString();
         } catch (Exception ignored) { }
 
         if (attribute != null) {
             String timeString = attribute.getStringValue().trim();
+
             final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyDDDHHmmssSSS");
+
+            final DateFormat dateFormatISO = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            // only needed as a stop-gap to handle an intermediate version of l2gen metadata
+            final DateFormat dateFormatISOnopunc = ProductData.UTC.createDateFormat("yyyyMMdd'T'HHmmss'Z'");
+
             final DateFormat dateFormatModis = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
             final DateFormat dateFormatOcts = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss.SSSSSS");
             try {
-                if (isModis) {
+                if (isISO) {
+                    Date date;
+                    try {
+                        date = dateFormatISO.parse(timeString);
+                    } catch (Exception e) {
+                        date = dateFormatISOnopunc.parse(timeString);
+                    }
+
+//                    String milliSeconds = timeString.substring(timeString.length());
+                    return ProductData.UTC.create(date, 0);
+                } else if (isModis) {
                     final Date date = dateFormatModis.parse(timeString);
                     String milliSeconds = timeString.substring(timeString.length() - 3);
                     return ProductData.UTC.create(date, Long.parseLong(milliSeconds) * 1000);
@@ -689,7 +946,7 @@ public abstract class SeadasFileReader {
                     final Date date = dateFormatOcts.parse(timeString);
                     String milliSeconds = timeString.substring(timeString.length() - 3);
                     return ProductData.UTC.create(date, Long.parseLong(milliSeconds) * 1000);
-                } else {
+                } else  {
                     final Date date = dateFormat.parse(timeString);
                     String milliSeconds = timeString.substring(timeString.length() - 3);
                     return ProductData.UTC.create(date, Long.parseLong(milliSeconds) * 1000);
@@ -822,6 +1079,7 @@ public abstract class SeadasFileReader {
         Array array;
         try {
             array = variable.read();
+
         } catch (IOException e) {
             throw new ProductIOException(e.getMessage());
         }
@@ -843,32 +1101,30 @@ public abstract class SeadasFileReader {
         final int[] shape = latitude.getShape();
         try {
             int lineCount = shape[0];
-            final int[] start = new int[]{0, 0};
-            final int[] stride = new int[]{1, 1};
-            final int[] count = new int[]{1, shape[1]};
+            final int[] start = new int[]{0,0};
+            // just grab the first and last pixel for each scan line
+            final int[] stride = new int[]{1,shape[1]-1};
+            final int[] count = new int[]{shape[0],shape[1]};
+            Section section = new Section(start, count, stride);
+            Array array;
+            synchronized (ncFile) {
+                array = latitude.read(section);
+            }
             for (int i = 0; i < lineCount; i++) {
-                start[0] = i;
-                Section section = new Section(start, count, stride);
-                Array array;
-                synchronized (ncFile) {
-                    array = latitude.read(section);
-                }
-                // todo array needs to be converted to float.
-                float val = array.getFloat(i);
-                if (skipBadNav.isBadNav(val)) {
+                int ix = i * 2;
+                float valstart = array.getFloat(ix);
+                float valend = array.getFloat(ix+1);
+                if (skipBadNav.isBadNav(valstart) || skipBadNav.isBadNav(valend)) {
                     leadLineSkip++;
                 } else {
                     break;
                 }
             }
             for (int i = lineCount; i-- > 0; ) {
-                start[0] = i;
-                Section section = new Section(start, count, stride);
-                Array array;
-                array = latitude.read(section);
-
-                float val = array.getFloat(lineCount - i);
-                if (skipBadNav.isBadNav(val)) {
+                int ix = i * 2;
+                float valstart = array.getFloat(ix);
+                float valend = array.getFloat(ix+1);
+                if (skipBadNav.isBadNav(valstart) || skipBadNav.isBadNav(valend)) {
                     tailLineSkip++;
                 } else {
                     break;

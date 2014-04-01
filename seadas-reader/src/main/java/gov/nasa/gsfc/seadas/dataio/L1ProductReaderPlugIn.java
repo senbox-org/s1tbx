@@ -57,11 +57,10 @@ public class L1ProductReaderPlugIn implements ProductReaderPlugIn {
             "OSMI Level-1A Data",
             "OSMI Level-1B",
             "OCTS Level-1A GAC Data",
-            "SeaWiFS Near Real-Time Ancillary Data",
             "SeaWiFS Level-1B",
             "SeaWiFS Level-1A Data",
     };
-    private static final Set<String> supportedProductTypeSet = new HashSet<String>(Arrays.asList(supportedProductTypes));
+    private static final Set<String> supportedProductTypeSet = new HashSet<>(Arrays.asList(supportedProductTypes));
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -89,11 +88,13 @@ public class L1ProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             ncfile = NetcdfFileOpener.open(file.getPath());
             if (ncfile != null) {
-                Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
+
+                Attribute titleAttribute = ncfile.findGlobalAttributeIgnoreCase("title");
 
                 if (titleAttribute != null) {
 
-                    final String title = titleAttribute.getStringValue();
+                    String title = titleAttribute.getStringValue();
+
                     if (title != null) {
                         if (supportedProductTypeSet.contains(title.trim())) {
                             if (DEBUG) {

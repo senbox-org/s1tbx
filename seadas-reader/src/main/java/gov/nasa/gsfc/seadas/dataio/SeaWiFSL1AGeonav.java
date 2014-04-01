@@ -408,12 +408,12 @@ public class SeaWiFSL1AGeonav {
         return ncFile.findGlobalAttribute("Pixels_per_Scan_Line").getNumericValue().intValue();
     }
 
-    public static DataType determineSeawifsDataType(NetcdfFile ncFile) {
-        DataType dataType = DataType.LAC;
+    public static SeaWiFSL1AGeonav.DataType determineSeawifsDataType(NetcdfFile ncFile) {
+        SeaWiFSL1AGeonav.DataType dataType = SeaWiFSL1AGeonav.DataType.LAC;
         Attribute dataTypeAttr = ncFile.findGlobalAttribute("Data_Type");
         Attribute numScanLinesAttr = ncFile.findGlobalAttribute("Number_of_Scan_Lines");
         if (dataTypeAttr.getStringValue().equals("GAC")) {
-            dataType = DataType.GAC;
+            dataType = SeaWiFSL1AGeonav.DataType.GAC;
         }
         return dataType;
     }

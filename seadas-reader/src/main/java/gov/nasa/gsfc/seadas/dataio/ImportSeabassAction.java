@@ -56,7 +56,7 @@ public class ImportSeabassAction extends ExecCommand {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
         try {
             featureCollection = readTrack(file, product.getGeoCoding());
-        } catch (IOException e) {
+        } catch (Exception e) {
             visatApp.showErrorDialog(TITLE, "Failed to load SeaBASS file:\n" + e.getMessage());
             return;
         }

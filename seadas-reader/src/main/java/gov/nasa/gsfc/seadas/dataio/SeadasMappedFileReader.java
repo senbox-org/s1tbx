@@ -51,11 +51,11 @@ public class SeadasMappedFileReader extends SeadasFileReader {
         float pixelX = 0.5f;
         float pixelY = 0.5f;
 
-        float easting = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Easternmost Longitude").getData().getElemDouble();
-        float westing = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Westernmost Longitude").getData().getElemDouble();
+        float easting = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Easternmost_Longitude").getData().getElemDouble();
+        float westing = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Westernmost_Longitude").getData().getElemDouble();
         float pixelSizeX = (easting - westing) / product.getSceneRasterWidth();
-        float northing = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Northernmost Latitude").getData().getElemDouble();
-        float southing = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Southernmost Latitude").getData().getElemDouble();
+        float northing = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Northernmost_Latitude").getData().getElemDouble();
+        float southing = (float) product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Southernmost_Latitude").getData().getElemDouble();
         float pixelSizeY = (northing - southing) / product.getSceneRasterHeight();
 
         try {

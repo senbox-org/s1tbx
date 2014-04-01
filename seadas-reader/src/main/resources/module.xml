@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>seadas-reader</symbolicName>
-    <version>1.4.5</version>
+    <version>1.5.5</version>
     <name>NASA OBPG Ocean Color Product Reader</name>
     <description>A reader for Ocean Color Data Products supported the NASA Ocean Biology Processing Group</description>
 
@@ -14,14 +14,29 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.4.5:<br>
-        Improved performance of the retrieval of the decode qualification.<br/>
-        Changes in 1.4:<br>
-        Include support for OCM2 and HICO L1B files<br/>
-        Improved support for VIIRS products<br/>
-        Added support for 24bit L1BRS files (Todo: display bands as TC image)<br/>
-        Implemented a bowtie correction for affected products (MODIS, VIIRS)<br/>
-        Include a vector import for SeaBASS formatted files<br/>
+        Changes in 1.5.5:<br>
+        Improved performance of getDecodeQualification()
+        Changes in 1.5.1:<br>
+        Fixed minor bug in scan line time assignment that affected L2 files with both Start Time and time_coverage_start attributes</br>
+        Minor modification to SMIReader to handle new netCDF formatted files</br>
+        Changes in 1.5:<br/>
+        Modified to support new netCDF format L2 files<br/>
+        Added support for *most* ancillary file formats distributed by OBPG<br/>
+        Changes in 1.4.3:<br/>
+        Added support for GOCI since the updated java library for netCDF fails to open the files as HDF5EOS due to
+        an error in the file format
+        Added support for reading tie-point bands in MODIS L1B (thanks to Tom Block for the modifications)
+        Changes in 1.4.2:<br/>
+        Improved flagging of invalid geolocation
+        CZCS - corrected issues with geolocation
+        HICO - corrected issues with loading several geometry fields
+             - corrected reading of flag array
+        Changes in 1.4:<br/>
+        Include support for OCM2 and HICO L1B files
+        Improved support for VIIRS products
+        Added support for 24bit L1BRS files (Todo: display bands as TC image)
+        Implemented a bowtie correction for affected products (MODIS, VIIRS)
+        Include a vector import for SeaBASS formatted files
         Changes in 1.3:<br/>
         Module development taken over by NASA GSFC, Ocean Biogeochemical Processing Group.<br/>
         Readers added for VIIRS, Aquarius, MODIS L1B and SeaDAS L1, L2, L3 and browse products.<br/>
@@ -163,6 +178,12 @@
     </extension>
 
     <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>NASA L1 True Color</name>
+            <red>Red</red>
+            <green>Green</green>
+            <blue>Blue</blue>
+        </rgbProfile>
         <rgbProfile>
             <name>NASA SeaWiFS L2</name>
             <red>Rrs_670</red>

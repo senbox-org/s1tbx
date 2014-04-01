@@ -53,7 +53,7 @@ public class L3ProductReaderPlugIn implements ProductReaderPlugIn {
             "OCM2 Level-3 Standard Mapped Image",
             "OCTS Level-3 Standard Mapped Image",
             "SeaWiFS Level-3 Standard Mapped Image",
-            "VIIRS Level-3 Standard Mapped Image",
+            "VIIRSN Level-3 Standard Mapped Image",
             "OCRVC Level-3 Standard Mapped Image",
             "Level-3 Standard Mapped Image",
             " Level-3 Standard Mapped Image",
@@ -69,7 +69,7 @@ public class L3ProductReaderPlugIn implements ProductReaderPlugIn {
             "OSMI Level-3 Binned Data",
             "OCM2 Level-3 Binned Data",
             "Level-3 Binned Data",
-            "VIIRS Level-3 Binned Data",
+            "VIIRSN Level-3 Binned Data",
             "OCRVC Level-3 Binned Data",
             "GSM bin composite",
             "GSM mapped",
@@ -102,12 +102,12 @@ public class L3ProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             ncfile = NetcdfFileOpener.open(file.getPath());
             if (ncfile != null) {
-                Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
+                Attribute titleAttribute = ncfile.findGlobalAttributeIgnoreCase("Title");
 
                 List<Variable> seadasMappedVariables = ncfile.getVariables();
                 Boolean isSeadasMapped = false;
                 try {
-                    isSeadasMapped = seadasMappedVariables.get(0).findAttribute("Projection Category").isString();
+                    isSeadasMapped = seadasMappedVariables.get(0).findAttribute("Projection_Category").isString();
                 } catch (Exception ignored) {
                 }
 

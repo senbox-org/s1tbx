@@ -40,7 +40,7 @@ public class MeasuresL3BinFileReader extends SeadasFileReader {
 
         String resolution = "9 km";
         try {
-            resolution = getStringAttribute("Bin Resolution");
+            resolution = getStringAttribute("Bin_Resolution");
         } catch (Exception ignored) {
 
         }
@@ -55,7 +55,7 @@ public class MeasuresL3BinFileReader extends SeadasFileReader {
         String [] nameparts = ncFile.getLocation().split(File.separator);
         String productName = nameparts[nameparts.length-1];
         try {
-                productName = getStringAttribute("Product Name");
+                productName = getStringAttribute("Product_Name");
         } catch (Exception ignored) {
 
         }

@@ -40,6 +40,10 @@ public class SeadasProductReader extends AbstractProductReader {
 
 
     enum ProductType {
+        ANCNRT("SeaWiFS Near Real-Time Ancillary Data"),
+        ANCCLIM("SeaWiFS Climatological Ancillary Data"),
+        Bathy("Bathymetry"),
+        BrowseFile("Browse Product"),
         Level1A_Aquarius("Aquarius Level 1A"),
         Level2_Aquarius("Aquarius Level 2"),
         Level1A_CZCS("CZCS Level 1A"),
@@ -47,16 +51,16 @@ public class SeadasProductReader extends AbstractProductReader {
         Level1A_OCTS("OCTS Level 1A"),
         Level1A_Seawifs("SeaWiFS Level 1A"),
         Level1B("Generic Level 1B"),
-        Level1B_Modis("MODIS Level 1B"),
         Level1B_HICO("HICO L1B"),
+        Level1B_Modis("MODIS Level 1B"),
         Level1B_OCM2("OCM2_L1B"),
         Level2("Level 2"),
         Level3_Bin("Level 3 Binned"),
-        SMI("Level 3 Mapped"),
-        BrowseFile("Browse Product"),
         MEaSUREs("MEaSUREs Mapped"),
         MEaSUREs_Bin("MEaSUREs Binned"),
+        OISST("Daily-OI"),
         SeadasMapped("SeaDAS Mapped"),
+        SMI("Level 3 Mapped"),
         VIIRS_IP("VIIRS IP"),
         VIIRS_SDR("VIIRS SDR"),
         VIIRS_EDR("VIIRS EDR"),
@@ -133,6 +137,10 @@ public class SeadasProductReader extends AbstractProductReader {
                     seadasFileReader = new BrowseProductReader(this);
                     break;
                 case SMI:
+                case ANCNRT:
+                case ANCCLIM:
+                case OISST:
+                case Bathy:
                 case MEaSUREs:
                     seadasFileReader = new SMIFileReader(this);
                     break;
@@ -198,7 +206,7 @@ public class SeadasProductReader extends AbstractProductReader {
     public boolean checkSeadasMapped() {
         try {
             List<Variable> seadasMappedVariables = ncfile.getVariables();
-            return seadasMappedVariables.get(0).findAttribute("Projection Category").isString();
+            return seadasMappedVariables.get(0).findAttribute("Projection_Category").isString();
         } catch (Exception e) {
             return false;
         }
@@ -248,8 +256,7 @@ public class SeadasProductReader extends AbstractProductReader {
     }
 
     public ProductType findProductType() throws ProductIOException {
-
-        Attribute titleAttr = ncfile.findGlobalAttribute("Title");
+        Attribute titleAttr = ncfile.findGlobalAttributeIgnoreCase("Title");
         String title;
         ProductType tmp;
         if (titleAttr != null) {
@@ -276,6 +283,14 @@ public class SeadasProductReader extends AbstractProductReader {
                 return ProductType.Level2;
             } else if (title.equals("SeaWiFS Level-1A Data")) {
                 return ProductType.Level1A_Seawifs;
+            } else if (title.contains("Daily-OI")) {
+                return ProductType.OISST;
+            } else if (title.contains("ETOPO")) {
+                return ProductType.Bathy;
+            } else if (title.equals("SeaWiFS Near Real-Time Ancillary Data")) {
+                return ProductType.ANCNRT;
+            } else if (title.equals("SeaWiFS Climatological Ancillary Data")) {
+                return ProductType.ANCCLIM;
             } else if (title.contains("Level-3 Standard Mapped Image")) {
                 return ProductType.SMI;
             } else if (title.contains("Level-3 Binned Data")) {
@@ -299,7 +314,7 @@ public class SeadasProductReader extends AbstractProductReader {
     }
 
     private boolean checkHicoL1B() {
-        Attribute hicol1bName = ncfile.findGlobalAttribute("metadata/FGDC/Instrument_Information/Instrument_Name");
+        Attribute hicol1bName = ncfile.findGlobalAttribute("metadata_FGDC_Instrument_Information_Instrument_Name");
         return hicol1bName != null;
     }
 

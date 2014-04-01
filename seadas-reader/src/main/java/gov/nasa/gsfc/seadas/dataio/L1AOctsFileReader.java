@@ -33,11 +33,11 @@ public class L1AOctsFileReader extends SeadasFileReader {
         Product product = new Product(productName, productType.toString(), sceneWidth, sceneHeight);
         product.setDescription(productName);
 
-        ProductData.UTC utcStart = getUTCAttribute("Start Time");
+        ProductData.UTC utcStart = getUTCAttribute("Start_Time");
         if (utcStart != null) {
             product.setStartTime(utcStart);
         }
-        ProductData.UTC utcEnd = getUTCAttribute("End Time");
+        ProductData.UTC utcEnd = getUTCAttribute("End_Time");
         if (utcEnd != null) {
             product.setEndTime(utcEnd);
         }

@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Structure;
@@ -51,7 +52,11 @@ public class L3BinFileReader extends SeadasFileReader {
         final Variable idxVariable = ncFile.getRootGroup().findGroup("Level-3_Binned_Data").findVariable("BinList");
         List<Variable> l3ProdVars = ncFile.getVariables();
         variableMap = addBands(product, idxVariable, l3ProdVars);
-
+//        try {
+//            addBandsBinMap(product);
+//        } catch (InvalidRangeException e) {
+//            e.printStackTrace();
+//        }
         if (product.getNumBands() == 0) {
             throw new ProductIOException("No bands found.");
         }
@@ -161,6 +166,109 @@ public class L3BinFileReader extends SeadasFileReader {
         }
     }
 
+    // Don't do this...it hurts.  Too much of a memory hog...
+    private void addBandsBinMap (Product product)throws IOException, InvalidRangeException {
+        String[] bandList = product.getBandNames();
+        if (rowInfo == null) {
+            rowInfo = createRowInfos();
+        }
+
+        final int height = sceneHeight;
+        final int width = sceneWidth;
+        final ISINGrid grid = this.grid;
+
+
+        // loop over lines
+        try {
+            int[] lineOffsets = new int[1];
+            int[] lineLengths = new int[1];
+            int[] stride = new int[1];
+            stride[0] = 1;
+
+
+//            for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
+            for (String name : bandList) {
+                if (name.endsWith("mean") || name.endsWith("stdev"))
+                    continue;
+                Band band = product.getBand(name);
+                ProductData buffer;
+                final Variable variable = variableMap.get(band);
+                DataType prodtype = variable.getDataType();
+                float[] fbuffer = new float[width*height];
+                short[] sbuffer = new short[width*height];
+                int [] ibuffer= new int[width*height];
+                byte [] bbuffer= new byte[width*height];
+
+                if (prodtype == DataType.FLOAT) {
+                    Arrays.fill(fbuffer, Float.NaN);
+                    buffer = ProductData.createInstance(fbuffer);
+                } else if (prodtype == DataType.SHORT) {
+                    Arrays.fill(sbuffer, (short) -999);
+                    buffer = ProductData.createInstance(sbuffer);
+                } else if (prodtype == DataType.BYTE) {
+                    Arrays.fill(bbuffer, (byte) 255);
+                    buffer = ProductData.createInstance(bbuffer);
+                } else {
+                    Arrays.fill(ibuffer, -999);
+                    buffer = ProductData.createInstance(ibuffer);
+                }
+
+                for (int y = 0; y < height; y++) {
+
+                    final int rowIndex = (height - 1) - y;
+                    final RowInfo rowInfo = this.rowInfo[rowIndex];
+                    if (rowInfo != null) {
+                        final Array bindata;
+
+                        final int lineOffset = rowInfo.offset;
+                        final int lineLength = rowInfo.length;
+
+
+                        lineOffsets[0] = lineOffset;
+                        lineLengths[0] = lineLength;
+
+                        synchronized (ncFile) {
+                            bindata = variable.read().section(lineOffsets, lineLengths, stride);//.copyTo1DJavaArray();
+                        }
+                        int lineIndex0 = 0;
+                        for (int x = 0; x < width; x++) {
+                            final double lon = x * 360.0 / width;
+                            final int binIndex = grid.getBinIndex(rowIndex, lon);
+                            int lineIndex = -1;
+                            for (int i = lineIndex0; i < lineLength; i++) {
+                                int binidx = bins[lineOffset + i];
+                                if (binidx >= binIndex) {
+                                    if (binidx == binIndex) {
+                                        lineIndex = i;
+                                    }
+                                    lineIndex0 = i;
+                                    break;
+                                }
+                            }
+
+                            if (lineIndex >= 0) {
+                                final int rasterIndex = width * y + x;
+                                final Array elem;
+                                elem = Array.factory(bindata.copyTo1DJavaArray());
+                                for (int i=0; i<elem.getSize(); i++){
+                                    if (prodtype == DataType.FLOAT) {
+
+                                        buffer.setElemFloatAt(rasterIndex, elem.getFloat(i));
+                                    } else {
+                                        buffer.setElemIntAt(rasterIndex, elem.getInt(i));
+                                    }
+    //                                System.arraycopy(bindata, lineIndex, buffer, rasterIndex, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+                band.setDataElems(buffer);
+            }
+        } catch (IOException e){
+            throw new IOException("Could not map product " + product.getName());
+        }
+    }
 
     /////////////////////////////////////////////////////////////////////////
     // private helpers
@@ -261,7 +369,7 @@ public class L3BinFileReader extends SeadasFileReader {
         bandToVariableMap.put(addBand(product, "nscenes", ProductData.TYPE_UINT16), binListStruc.select("nscenes").findVariable("nscenes"));
 //        ncFile.getRootGroup().findGroup("Level-3 Binned Data").findVariable("BinList");
         if (ncFile.getRootGroup().findGroup("Level-3_Binned_Data").findVariable("qual_l3") != null){
-            bandToVariableMap.put(addBand(product, "qual_l3", ProductData.TYPE_UINT8), ncFile.getRootGroup().findGroup("Level-3 Binned Data").findVariable("qual_l3"));
+            bandToVariableMap.put(addBand(product, "qual_l3", ProductData.TYPE_UINT8), ncFile.getRootGroup().findGroup("Level-3_Binned_Data").findVariable("qual_l3"));
         }
         String groupnames = "";
         for (Variable l3Var : l3ProdVars) {
@@ -271,7 +379,7 @@ public class L3BinFileReader extends SeadasFileReader {
 
             if (!varName.contains("Bin") && (!varName.startsWith("qual")) &&
                     (!varName.equalsIgnoreCase("SEAGrid")) &&
-                    (!varName.equalsIgnoreCase("Input Files"))) {
+                    (!varName.equalsIgnoreCase("Input_Files"))) {
                 final Structure binStruc = (Structure) l3Var;
                 if (groupnames.length() == 0) {
                     groupnames = varName;

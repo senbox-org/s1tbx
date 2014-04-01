@@ -4,9 +4,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.*;
 import ucar.ma2.Array;
+import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
+import ucar.nc2.Attribute;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,14 +26,35 @@ public class L2FileReader extends SeadasFileReader {
     @Override
     public Product createProduct() throws ProductIOException {
 
-        int sceneWidth = getIntAttribute("Pixels_per_Scan_Line");
-        int sceneHeight = getIntAttribute("Number_of_Scan_Lines");
+        int sceneHeight = 0;
+        int sceneWidth = 0;
+
+        List<Dimension> dims = ncFile.getDimensions();
+        for (Dimension d: dims){
+            if (d.getShortName().equalsIgnoreCase("Number_of_Scan_Lines")){
+                sceneHeight = d.getLength();
+            }
+            if (d.getShortName().equalsIgnoreCase("Pixels_per_Scan_Line")){
+                sceneWidth = d.getLength();
+            }
+        }
+        if (sceneWidth == 0){
+            sceneWidth = getIntAttribute("Pixels_per_Scan_Line");
+        }
+        if (sceneHeight == 0){
+            sceneHeight = getIntAttribute("Number_of_Scan_Lines");
+        }
         try {
             String navGroup = "Navigation_Data";
             final String latitude = "latitude";
             if (ncFile.findGroup(navGroup) == null) {
                 if (ncFile.findGroup("Navigation") != null) {
                     navGroup = "Navigation";
+                }
+            }
+            if (ncFile.findGroup(navGroup) == null) {
+                if (ncFile.findGroup("navigation_data") != null) {
+                    navGroup = "navigation_data";
                 }
             }
             final Variable variable = ncFile.findVariable(navGroup + "/" + latitude);
@@ -53,7 +77,18 @@ public class L2FileReader extends SeadasFileReader {
         Product product = new Product(productName, productType.toString(), sceneWidth, sceneHeight);
         product.setDescription(productName);
 
-        ProductData.UTC utcStart = getUTCAttribute("Start_Time");
+        Attribute startTime = findAttribute("time_coverage_start");
+        ProductData.UTC utcStart = getUTCAttribute("time_coverage_start");
+        ProductData.UTC utcEnd = getUTCAttribute("time_coverage_end");
+        if (startTime == null) {
+            utcStart = getUTCAttribute("Start_Time");
+            utcEnd = getUTCAttribute("End_Time");
+        }
+        // only needed as a stop-gap to handle an intermediate version of l2gen metadata
+        if (utcEnd == null){
+            utcEnd = getUTCAttribute("time_coverage_stop");
+        }
+
         if (utcStart != null) {
             if (mustFlipY){
                 product.setEndTime(utcStart);
@@ -61,7 +96,7 @@ public class L2FileReader extends SeadasFileReader {
                 product.setStartTime(utcStart);
             }
         }
-        ProductData.UTC utcEnd = getUTCAttribute("End_Time");
+
         if (utcEnd != null) {
             if (mustFlipY) {
                 product.setStartTime(utcEnd);
@@ -94,8 +129,14 @@ public class L2FileReader extends SeadasFileReader {
         String sensor = null;
         try {
             sensor = product.getMetadataRoot().getElement("Global_Attributes").getAttribute("Sensor_Name").getData().getElemString();
+        } catch (Exception ignore) {
+            try{
+                sensor = product.getMetadataRoot().getElement("Global_Attributes").getAttribute("instrument").getData().getElemString();
+            } catch(Exception ignored) {}
+        }
+        try {
             res = product.getMetadataRoot().getElement("Input_Parameters").getAttribute("RESOLUTION").getData().getElemString();
-        } catch(Exception e) {}
+        } catch (Exception ignored) {}
 
         if(sensor != null) {
             sensor = sensor.toLowerCase();
@@ -194,7 +235,7 @@ public class L2FileReader extends SeadasFileReader {
     }
 
     public void addPixelGeocoding(final Product product) throws ProductIOException {
-        String navGroup = "Navigation_Data";
+        String navGroup = "navigation_data";
         final String longitude = "longitude";
         final String latitude = "latitude";
         final String cntlPoints = "cntl_pt_cols";
@@ -210,16 +251,42 @@ public class L2FileReader extends SeadasFileReader {
             lonBand.setNoDataValueUsed(true);
         } else {
             if (ncFile.findGroup(navGroup) == null) {
-                if (ncFile.findGroup("Navigation") != null) {
-                    navGroup = "Navigation";
+                if (ncFile.findGroup("Navigation_Data") != null) {
+                    navGroup = "Navigation_Data";
+                } else {
+                    if (ncFile.findGroup("Navigation") != null) {
+                        navGroup = "Navigation";
+                    }
                 }
             }
             Variable latVar = ncFile.findVariable(navGroup + "/" + latitude);
             Variable lonVar = ncFile.findVariable(navGroup + "/" + longitude);
             Variable cntlPointVar = ncFile.findVariable(navGroup + "/" + cntlPoints);
             if (latVar != null && lonVar != null && cntlPointVar != null) {
-                final ProductData lonRawData = readData(lonVar);
-                final ProductData latRawData = readData(latVar);
+                Array lonRaw;
+                Array latRaw;
+                float[] latRawData;
+                float[] lonRawData;
+                try {
+                    lonRaw = lonVar.read();
+                    latRaw = latVar.read();
+                    if (mustFlipX && !mustFlipY) {
+                        latRawData= (float[]) latRaw.flip(1).copyTo1DJavaArray();
+                        lonRawData= (float[]) lonRaw.flip(1).copyTo1DJavaArray();
+                    } else if (!mustFlipX && mustFlipY) {
+                        latRawData= (float[]) latRaw.flip(0).copyTo1DJavaArray();
+                        lonRawData= (float[]) lonRaw.flip(0).copyTo1DJavaArray();
+                    } else if (mustFlipX && mustFlipY) {
+                        latRawData= (float[]) latRaw.flip(0).flip(1).copyTo1DJavaArray();
+                        lonRawData= (float[]) lonRaw.flip(0).flip(1).copyTo1DJavaArray();
+                    } else {
+                        latRawData= (float[]) latRaw.copyTo1DJavaArray();
+                        lonRawData= (float[]) lonRaw.copyTo1DJavaArray();
+                    }
+                } catch (IOException e) {
+                    throw new ProductIOException(e.getMessage());
+                }
+
 
                 latBand = product.addBand(latVar.getShortName(), ProductData.TYPE_FLOAT32);
                 lonBand = product.addBand(lonVar.getShortName(), ProductData.TYPE_FLOAT32);
@@ -232,14 +299,16 @@ public class L2FileReader extends SeadasFileReader {
                 try {
                     cntArray = cntlPointVar.read();
                     int[] colPoints = (int[]) cntArray.getStorage();
-                    computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints);
+                    computeLatLonBandData(product.getSceneRasterHeight(),product.getSceneRasterWidth(),latBand, lonBand,
+                            latRawData, lonRawData, colPoints);
+
                 } catch (IOException e) {
                    throw new ProductIOException(e.getMessage());
                 }
             }
         }
         try {
-            if (latBand != null && lonBand != null) {
+            if (latBand != null) {
                 product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 5, ProgressMonitor.NULL));
             }
         } catch (IOException e) {

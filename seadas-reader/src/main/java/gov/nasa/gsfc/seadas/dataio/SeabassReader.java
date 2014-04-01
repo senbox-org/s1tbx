@@ -23,7 +23,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -65,6 +65,9 @@ public class SeabassReader extends LineNumberReader {
         String line;
         int pointIndex = 0;
         while ((line = readLine()) != null) {
+            line = line.trim();
+            if(line.isEmpty())
+                continue;
             SimpleFeature feature = createFeature(featureType, pointIndex, line);
             if (feature != null) {
                 featureCollection.add(feature);
@@ -240,7 +243,21 @@ public class SeabassReader extends LineNumberReader {
         for (int i = 0; i < record.length; i++) {
             if (i != latIndex && i != lonIndex) {
                 ColumnInfo info = columnInfos.get(i);
-                fb.add(info.convertData(record[i]));
+                try {
+                    fb.add(info.convertData(record[i]));
+                } catch (Exception e) {
+                    throw new IOException("Could not convert value \""
+                            + record[i]
+                            + "\"\nExpecting a "
+                            + info.getDataClass().getCanonicalName()
+                            + "\nline="
+                            + Integer.toString(getLineNumber())
+                            + ", column="
+                            + Integer.toString(i)
+                            + "("
+                            + info.getName()
+                            + ")");
+                }
             }
         }
         return fb.buildFeature(String.format("ID%08d", pointIndex));
@@ -288,6 +305,10 @@ public class SeabassReader extends LineNumberReader {
                 return String.class;
             } else if (name1.equals("time")) {
                 // todo: figure what to do about the time field
+                // return Date.class;
+                return String.class;
+            } else if (name1.equals("date")) {
+                // todo: figure what to do about the date field
                 // return Date.class;
                 return String.class;
             }

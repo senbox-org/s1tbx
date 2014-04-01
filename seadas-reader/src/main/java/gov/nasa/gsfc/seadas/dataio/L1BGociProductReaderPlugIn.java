@@ -15,45 +15,33 @@
  */
 package gov.nasa.gsfc.seadas.dataio;
 
+import org.esa.beam.dataio.netcdf.GenericNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.iosp.hdf5.H5iosp;
+import ucar.nc2.util.DebugFlags;
+import ucar.nc2.util.DebugFlagsImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
-public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
+public class L1BGociProductReaderPlugIn extends GenericNetCdfReaderPlugIn {
 
     // Set to "true" to output debugging information.
     // Don't forget to setback to "false" in production code!
     //
     private static final boolean DEBUG = false;
 
-    private static final String DEFAULT_FILE_EXTENSION = ".h5";
+    private static final String DEFAULT_FILE_EXTENSION = ".he5";
 
-    private static final String AQUARIUS_L1A_EXTENSION = ".L1A_SCI";
-    private static final String AQUARIUS_L2_EXTENSION = ".L2_SCI_V1.3";
-    private static final String AQUARIUS_L3_EXTENSION = ".main";
+    public static final String READER_DESCRIPTION = "GOCI L1B Products";
+    public static final String FORMAT_NAME = "GOCI-L1B";
 
-    public static final String READER_DESCRIPTION = "Aquarius Products";
-    public static final String FORMAT_NAME = "Aquarius";
-
-    private static final String[] supportedProductTypes = {
-//            "Aquarius Level 1A Data",
-            "Aquarius Level 2 Data",
-            "Aquarius Level 3 Binned Data",
-            "Aquarius Level-3 Binned Data"
-
-    };
-    private static final Set<String> supportedProductTypeSet = new HashSet<String>(Arrays.asList(supportedProductTypes));
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -78,29 +66,31 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
         NetcdfFile ncfile = null;
+        H5iosp.setDebugFlags(new DebugFlagsImpl("HdfEos/turnOff"));
+
         try {
             ncfile = NetcdfFileOpener.open(file.getPath());
             if (ncfile != null) {
-                Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
-                if (titleAttribute != null) {
+                Attribute scene_title = ncfile.findGlobalAttribute("HDFEOS_POINTS_Scene_Header_Scene_Title");
 
-                    final String title = titleAttribute.getStringValue();
-                    if (title != null) {
-                        if (supportedProductTypeSet.contains(title.trim())) {
-                            if (DEBUG) {
-                                System.out.println(file);
-                            }
-                            ncfile.close();
-                            return DecodeQualification.INTENDED;
-                        } else {
-                            if (DEBUG) {
-                                System.out.println("# Unrecognized attribute Title=[" + title + "]: " + file);
-                            }
+                if (scene_title != null) {
+                    if (scene_title.toString().contains("GOCI Level-1B Data")) {
+                        if (DEBUG) {
+                            System.out.println(file);
+                        }
+                        ncfile.close();
+                        DebugFlags debugFlags = new DebugFlagsImpl("HdfEos/turnOff");
+                        debugFlags.set("HdfEos/turnOff",false);
+                        H5iosp.setDebugFlags(debugFlags);
+                        return DecodeQualification.INTENDED;
+                    } else {
+                        if (DEBUG) {
+                            System.out.println("# Unrecognized scene title =[" + scene_title + "]: " + file);
                         }
                     }
                 } else {
                     if (DEBUG) {
-                        System.out.println("# Missing attribute 'Title': " + file);
+                        System.out.println("# Missing scene title attribute': " + file);
                     }
                 }
             } else {
@@ -113,6 +103,9 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
                 System.out.println("# I/O exception caught: " + file);
             }
         } finally {
+            DebugFlags debugFlags = new DebugFlagsImpl("HdfEos/turnOff");
+            debugFlags.set("HdfEos/turnOff",false);
+            H5iosp.setDebugFlags(debugFlags);
             if (ncfile != null) {
                 try {
                     ncfile.close();
@@ -144,7 +137,7 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
      */
     @Override
     public ProductReader createReaderInstance() {
-        return new SeadasProductReader(this);
+        return new L1BGociFileReader(this);
     }
 
     @Override
@@ -169,10 +162,7 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
     public String[] getDefaultFileExtensions() {
         // todo: return regular expression to clean up the extensions.
         return new String[]{
-                DEFAULT_FILE_EXTENSION,
-                AQUARIUS_L1A_EXTENSION,
-                AQUARIUS_L2_EXTENSION,
-                AQUARIUS_L3_EXTENSION
+                DEFAULT_FILE_EXTENSION
         };
     }
 
@@ -199,4 +189,5 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
     public String[] getFormatNames() {
         return new String[]{FORMAT_NAME};
     }
+
 }

@@ -30,28 +30,25 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
+public class AncillaryProductReaderPlugIn implements ProductReaderPlugIn {
 
     // Set to "true" to output debugging information.
     // Don't forget to setback to "false" in production code!
     //
     private static final boolean DEBUG = false;
 
-    private static final String DEFAULT_FILE_EXTENSION = ".h5";
-
-    private static final String AQUARIUS_L1A_EXTENSION = ".L1A_SCI";
-    private static final String AQUARIUS_L2_EXTENSION = ".L2_SCI_V1.3";
-    private static final String AQUARIUS_L3_EXTENSION = ".main";
-
-    public static final String READER_DESCRIPTION = "Aquarius Products";
-    public static final String FORMAT_NAME = "Aquarius";
+    private static final String DEFAULT_FILE_EXTENSION = ".hdf";
+    private static final String DEFAULT_FILE_EXTENSION_NETCDF = ".nc";
+    private static final String DEFAULT_FILE_EXTENSION_MET = ".MET";
+    private static final String DEFAULT_FILE_EXTENSION_OZONE = ".OZONE";
+    public static final String READER_DESCRIPTION = "SeaDAS-Supported Ancillary Products";
+    public static final String FORMAT_NAME = "SeaDAS-ANC";
 
     private static final String[] supportedProductTypes = {
-//            "Aquarius Level 1A Data",
-            "Aquarius Level 2 Data",
-            "Aquarius Level 3 Binned Data",
-            "Aquarius Level-3 Binned Data"
-
+            "SeaWiFS Near Real-Time Ancillary Data",
+            "SeaWiFS Climatological Ancillary Data",
+            "Daily-OI",
+            "ETOPO1 Ice Surface Global Relief Model",
     };
     private static final Set<String> supportedProductTypeSet = new HashSet<String>(Arrays.asList(supportedProductTypes));
 
@@ -61,7 +58,7 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
      */
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        final File file = SeadasProductReader.getInputFile(input);
+        final File file = getInputFile(input);
         if (file == null) {
             return DecodeQualification.UNABLE;
         }
@@ -81,23 +78,27 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             ncfile = NetcdfFileOpener.open(file.getPath());
             if (ncfile != null) {
-                Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
+
+                Attribute titleAttribute = ncfile.findGlobalAttributeIgnoreCase("title");
+
                 if (titleAttribute != null) {
 
-                    final String title = titleAttribute.getStringValue();
-                    if (title != null) {
-                        if (supportedProductTypeSet.contains(title.trim())) {
-                            if (DEBUG) {
-                                System.out.println(file);
-                            }
-                            ncfile.close();
-                            return DecodeQualification.INTENDED;
-                        } else {
-                            if (DEBUG) {
-                                System.out.println("# Unrecognized attribute Title=[" + title + "]: " + file);
-                            }
+                    String title = titleAttribute.getStringValue();
+                    if (title.contains("Daily-OI")) {
+                        title = "Daily-OI";
+                    }
+                    if (supportedProductTypeSet.contains(title.trim())) {
+                        if (DEBUG) {
+                            System.out.println(file);
+                        }
+                        ncfile.close();
+                        return DecodeQualification.INTENDED;
+                    } else {
+                        if (DEBUG) {
+                            System.out.println("# Unrecognized attribute Title=[" + title + "]: " + file);
                         }
                     }
+
                 } else {
                     if (DEBUG) {
                         System.out.println("# Missing attribute 'Title': " + file);
@@ -170,9 +171,9 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
         // todo: return regular expression to clean up the extensions.
         return new String[]{
                 DEFAULT_FILE_EXTENSION,
-                AQUARIUS_L1A_EXTENSION,
-                AQUARIUS_L2_EXTENSION,
-                AQUARIUS_L3_EXTENSION
+                DEFAULT_FILE_EXTENSION_NETCDF,
+                DEFAULT_FILE_EXTENSION_MET,
+                DEFAULT_FILE_EXTENSION_OZONE,
         };
     }
 
@@ -199,4 +200,18 @@ public class AquariusProductReaderPlugIn implements ProductReaderPlugIn {
     public String[] getFormatNames() {
         return new String[]{FORMAT_NAME};
     }
+
+    public File getInputFile(Object input) {
+        File inputFile;
+        if (input instanceof File) {
+            inputFile = (File) input;
+        } else if (input instanceof String) {
+            inputFile = new File((String) input);
+        } else {
+            return null;
+        }
+        return inputFile;
+    }
+
+
 }

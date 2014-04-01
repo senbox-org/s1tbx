@@ -53,6 +53,7 @@ public class L2ProductReaderPlugIn implements ProductReaderPlugIn {
     public static final String FORMAT_NAME = "SeaDAS-L2";
 
     private static final String[] supportedProductTypes = {
+            "AVHRR Level-2 Data",
             "CZCS Level-2 Data",
             "HMODISA Level-2 Data",
             "HMODIST Level-2 Data",
@@ -67,6 +68,8 @@ public class L2ProductReaderPlugIn implements ProductReaderPlugIn {
             "OCM2 Level-2 Data",
             "OCM Level-2 Data",
             "HICO Level-2 Data",
+            "GOCI Level-2 Data",
+            "OLI Level-2 Data",
     };
     private static final Set<String> supportedProductTypeSet = new HashSet<String>(Arrays.asList(supportedProductTypes));
 
@@ -96,7 +99,8 @@ public class L2ProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             ncfile = NetcdfFileOpener.open(file.getPath());
             if (ncfile != null) {
-                Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
+                String titleattr = "title";
+                Attribute titleAttribute = ncfile.findGlobalAttributeIgnoreCase(titleattr);
 
                 if (titleAttribute != null) {
 
