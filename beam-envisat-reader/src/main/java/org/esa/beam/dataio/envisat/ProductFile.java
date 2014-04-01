@@ -153,6 +153,10 @@ public abstract class ProductFile {
      */
     private BandLineReader[] bandLineReaders;
 
+    /**
+     * A bandName --> bandReader map for the geophysical bands contained in this product.
+     */
+    private Map<Band, BandLineReader> bandLineReaderMap;
     private String _productDescription;
 
     private final boolean lineInterleaved;
@@ -549,8 +553,14 @@ public abstract class ProductFile {
      * @return the DSD for the dataset with the specified name or <code>null</code> if the DSD does not exist
      */
     public DSD getDSD(String datasetName) {
-        int index = getDSDIndex(datasetName);
-        return index >= 0 ? getDSDAt(index) : null;
+        final String dsdName = DDDB.getInstance().getDSDName(getDddbProductType(), datasetName);
+
+        for (DSD theDSD : dsdArray) {
+            if (theDSD.getDatasetName().equalsIgnoreCase(dsdName)) {
+                return theDSD;
+            }
+        }
+        return null;
     }
 
     /**
@@ -568,7 +578,8 @@ public abstract class ProductFile {
         // to the product-internal DSD name
         final String dsdName = DDDB.getInstance().getDSDName(getDddbProductType(), datasetName);
 
-        for (int i = 0; i < getNumDSDs(); i++) {
+        final int numDSDs = getNumDSDs();
+        for (int i = 0; i < numDSDs; i++) {
             if (getDSDAt(i).getDatasetName().equalsIgnoreCase(dsdName)) {
                 return i;
             }
@@ -591,7 +602,7 @@ public abstract class ProductFile {
             int n = 0;
             for (int i = 0; i < getNumDSDs(); i++) {
                 DSD dsd = getDSDAt(i);
-                if (dsd.getDatasetType() == datasetType && !dsd.isDatasetEmpty()) {
+                if (dsd != null && dsd.getDatasetType() == datasetType && !dsd.isDatasetEmpty()) {
                     if (dsds != null) {
                         dsds[n] = dsd;
                     }
@@ -797,6 +808,29 @@ public abstract class ProductFile {
 
     protected BandLineReader[] createBandLineReaders() {
         return DDDB.getInstance().getBandLineReaders(this);
+    }
+
+    /**
+     * Gets a reader for the geophysical band.
+     *
+     * @param band the band
+     * @return the geophysical band reader, or <code>null</code> if this product doesn't support reading band data or if
+     *         the a band with the given name was not found
+     */
+    public synchronized BandLineReader getBandLineReader(final Band band) {
+        if (bandLineReaderMap == null) {
+            bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
+            BandLineReader[] bandLineReaders = getBandLineReaders();
+            final Product product = band.getProduct();
+            for (BandLineReader bandLineReader : bandLineReaders) {
+                final String bandName = bandLineReader.getBandName();
+                final Band key = product.getBand(bandName);
+                if (key != null) {
+                    bandLineReaderMap.put(key, bandLineReader);
+                }
+            }
+        }
+        return bandLineReaderMap.get(band);
     }
 
     /**
@@ -1098,7 +1132,7 @@ public abstract class ProductFile {
             try {
                 sensingStart = mph.getParamDate(KEY_SENSING_START);
             } catch (HeaderParseException e) {
-                getLogger().warning("failed to parse header parameter 'SENSING_START': " + e.getMessage());
+                getLogger().warning("failed to parse header parameter 'SENSING_START': " + e.getMessage()+file.getAbsolutePath());
             }
             try {
                 sensingStop = mph.getParamDate(KEY_SENSING_STOP);
@@ -1110,12 +1144,15 @@ public abstract class ProductFile {
         }
 
         productType = productId.substring(0, EnvisatConstants.PRODUCT_TYPE_STRLEN).toUpperCase();
+        if(productType != null && productType.endsWith("C")) {
+            productType = productType.substring(0, productType.length()-1) + "P";
+        }
         if (!productType.endsWith("P")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
                                 "' due to missing specification for products of type '" + productType + "'");
             productType = newType;
-        }
+        }    
     }
 
     /**
@@ -1233,6 +1270,10 @@ public abstract class ProductFile {
             productType = magicString.substring(EnvisatConstants.MAGIC_STRING.length());
         }
         //}
+
+        if(productType != null && productType.endsWith("C")) {
+            productType = productType.substring(0, productType.length()-1) + "P";
+        }
 
         return productType;
     }
