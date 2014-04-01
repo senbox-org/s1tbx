@@ -32,7 +32,6 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -150,10 +149,7 @@ class BinningVariablesPanel extends JPanel {
 
         final JTextField targetHeightTextField = new IntegerTextField(BinningFormModel.DEFAULT_NUM_ROWS);
 
-<<<<<<< HEAD
         JLabel resolutionLabel = new JLabel("Spatial resolution (km/px):");
-=======
->>>>>>> minor stuff
         final String defaultResolution = getString(computeResolution(BinningFormModel.DEFAULT_NUM_ROWS));
         final JTextField resolutionTextField = new DoubleTextField(defaultResolution);
         JButton resolutionButton = new JButton("default");
@@ -179,11 +175,7 @@ class BinningVariablesPanel extends JPanel {
                 }
         );
 
-<<<<<<< HEAD
         final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
-=======
-        final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, numPixelsTextField);
->>>>>>> minor stuff
         resolutionTextField.addFocusListener(listener);
         resolutionTextField.addActionListener(listener);
         resolutionButton.addActionListener(new ActionListener() {
@@ -194,22 +186,10 @@ class BinningVariablesPanel extends JPanel {
             }
         });
 
-<<<<<<< HEAD
         validPixelExpressionLabel.setToolTipText("Only those pixels matching this expression are considered");
         targetHeightLabel.setToolTipText("<html>The height of the <b>maximum</b> target grid in pixels</html>");
         resolutionLabel.setToolTipText("The spatial resolution, directly depending on #rows");
         supersamplingLabel.setToolTipText("Every input pixel is subdivided into n x n subpixels in order to reduce or avoid Moiré effect");
-=======
-        final JComponent validPixelExpressionToolTip = new JLabel(UIUtils.loadImageIcon("icons/Help16.gif"));
-        final JComponent numPixelsToolTip = new JLabel(UIUtils.loadImageIcon("icons/Help16.gif"));
-        final JComponent resolutionToolTip = new JLabel(UIUtils.loadImageIcon("icons/Help16.gif"));
-        final JComponent supersamplingToolTip = new JLabel(UIUtils.loadImageIcon("icons/Help16.gif"));
-
-        validPixelExpressionToolTip.setToolTipText("Only those pixels matching this expression are considered");
-        numPixelsToolTip.setToolTipText("<html>The height of the <b>maximum</b> target grid in pixels</html>");
-        resolutionToolTip.setToolTipText("The spatial resolution, directly depending on #Pixels");
-        supersamplingToolTip.setToolTipText("Every input pixel is subdivided into n x n subpixels in order to reduce or avoid Moiré effect");
->>>>>>> minor stuff
 
         TableLayout layout = new TableLayout(3);
         layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);

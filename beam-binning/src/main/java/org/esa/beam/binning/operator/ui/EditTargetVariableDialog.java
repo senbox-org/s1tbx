@@ -101,7 +101,7 @@ public class EditTargetVariableDialog extends ModalDialog {
 
     TargetVariableSpec getSpec() {
         TargetVariableSpec targetVariableSpec = new TargetVariableSpec();
-        targetVariableSpec.targetPrefix = targetPrefix.getText();
+        targetVariableSpec.targetName = targetPrefix.getText();
         targetVariableSpec.aggregatorProperties = aggregatorProperties;
         targetVariableSpec.aggregationString = createAggregationString();
         targetVariableSpec.source = createSource();
@@ -228,7 +228,7 @@ public class EditTargetVariableDialog extends ModalDialog {
         if (originalTargetVariableSpec == null) {
             return;
         }
-        targetPrefix.setText(originalTargetVariableSpec.targetPrefix);
+        targetPrefix.setText(originalTargetVariableSpec.targetName);
         setSourceType(originalTargetVariableSpec.source.type);
         if (sourceType.getValue() == TargetVariableSpec.Source.RASTER_SOURCE_TYPE) {
             dataSource.setText(originalTargetVariableSpec.source.bandName);
@@ -280,7 +280,6 @@ public class EditTargetVariableDialog extends ModalDialog {
     private JPanel getPropertyPane(JComboBox<AggregatorDescriptor> aggregatorsComboBox) {
         AggregatorDescriptor selectedAggregatorDescriptor = (AggregatorDescriptor) aggregatorsComboBox.getSelectedItem();
         AggregatorConfig aggregatorConfig = selectedAggregatorDescriptor.createConfig();
-//        aggregatorProperties = PropertyContainer.createObjectBacked(aggregatorConfig);
         aggregatorProperties = PropertyContainer.createForFields(aggregatorConfig.getClass(),
                                                                  new ParameterDescriptorFactory(),
                                                                  new MyPropertyAccessorFactory(aggregatorConfig), true);

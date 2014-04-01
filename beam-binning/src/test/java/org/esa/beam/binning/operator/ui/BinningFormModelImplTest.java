@@ -51,7 +51,7 @@ public class BinningFormModelImplTest {
         assertArrayEquals(new TargetVariableSpec[0], binningFormModel.getTargetVariableSpecs());
 
         final TargetVariableSpec spec = new TargetVariableSpec();
-        spec.targetPrefix = "prefix";
+        spec.targetName = "prefix";
         TargetVariableSpec.Source source = new TargetVariableSpec.Source();
         source.type = 1;
         source.bandName = "testBand";
