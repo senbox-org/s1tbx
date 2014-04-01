@@ -16,9 +16,9 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -82,7 +82,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
-        return "ENVISAT products";
+        return "ENVISAT MERIS, AATSR and ASAR products";
     }
 
     /**
@@ -105,10 +105,10 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
             }
         } else if (input instanceof File) {
             final File inputFile = (File) input;
-            final String fileName = inputFile.getName().toUpperCase(); //NESTMOD
-            if(fileName.endsWith(".N1"))
+            final String fileName = inputFile.getName().toUpperCase();
+            if (fileName.endsWith(".N1"))
                 return DecodeQualification.INTENDED;
-            if(!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
+            if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
                 return DecodeQualification.UNABLE;
 
             if (ProductFile.getProductType(inputFile) != null) {
@@ -173,7 +173,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @param file the compressed file
      * @return the input stream
-     * @throws java.io.IOException if an I/O error occured
+     * @throws java.io.IOException if an I/O error occurred
      */
     static InputStream getInflaterInputStream(File file) throws IOException {
         if (file.getName().endsWith(".gz") && !file.getName().endsWith(".tar.gz")) {
