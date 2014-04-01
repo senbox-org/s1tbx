@@ -15,7 +15,6 @@
  */
 package com.bc.util;
 
-import org.apache.commons.math.util.FastMath;
 
 import java.util.Arrays;
 
@@ -59,8 +58,8 @@ public final class ObjectArray {
     }
 
     public void set(ObjectArray array) {
-        final int start = FastMath.max(_minIndex, array.getMinIndex());
-        final int end = FastMath.min(_maxIndex, array.getMaxIndex());
+        final int start = Math.max(_minIndex, array.getMinIndex());
+        final int end = Math.min(_maxIndex, array.getMaxIndex());
 
         if (end < start) {
             return;
