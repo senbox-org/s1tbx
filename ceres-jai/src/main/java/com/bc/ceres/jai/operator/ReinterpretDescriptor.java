@@ -59,9 +59,14 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
     public static final ScalingType LINEAR = new ScalingType("LINEAR", 0);
     /**
      * Exponential scaling type: source samples are scaled linearly
-     * and then exponentiated with base 10.
+     * and then raised to the power of 10.
      */
     public static final ScalingType EXPONENTIAL = new ScalingType("EXPONENTIAL", 1);
+    /**
+     * Logarithmic scaling type: source samples are scaled linearly
+     * and then their logarithms to the basis of 10 are computed.
+     */
+    public static final ScalingType LOGARITHMIC = new ScalingType("LOGARITHMIC", 2);
 
     private static final String[][] RESOURCES = {
             {"GlobalName", "Reinterpret"},
@@ -156,7 +161,7 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
      */
     public static int getTargetDataType(int sourceDataType, double factor, double offset, ScalingType scalingType,
                                         InterpretationType interpretationType) {
-        final boolean rescale = scalingType == EXPONENTIAL || factor != 1.0 || offset != 0.0;
+        final boolean rescale = scalingType != LINEAR || factor != 1.0 || offset != 0.0;
         if (rescale) {
             switch (sourceDataType) {
                 case DataBuffer.TYPE_BYTE:
