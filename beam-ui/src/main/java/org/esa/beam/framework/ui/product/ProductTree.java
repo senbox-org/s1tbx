@@ -100,8 +100,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         final PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         addMouseListener(popupMenuHandler);
         addKeyListener(popupMenuHandler);
-        activeProductNodes = new HashSet<ProductNode>();
-        openedProductNodes = new HashMap<ProductNode, Integer>();
+        activeProductNodes = new HashSet<>();
+        openedProductNodes = new HashMap<>();
         productManagerListener = new ProductManagerListener();
         productTreeModelListener = new ProductTreeModelListener(this);
 
@@ -248,7 +248,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     public void addProductTreeListener(ProductTreeListener listener) {
         if (listener != null) {
             if (productTreeListenerList == null) {
-                productTreeListenerList = new ArrayList<ProductTreeListener>();
+                productTreeListenerList = new ArrayList<>();
             }
             productTreeListenerList.add(listener);
         }
@@ -285,8 +285,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             if (selRow >= 0) {
                 int clickCount = event.getClickCount();
                 TreePath selPath = getPathForLocation(event.getX(), event.getY());
-                AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
-                fireNodeSelected(node.getContent(), clickCount);
+                if (selPath != null) {
+                    AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
+                    fireNodeSelected(node.getContent(), clickCount);
+                }
             }
         }
     }
@@ -589,8 +591,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             TreePath treePath = getModel().getTreePath(event.getProduct());
             expandPath(treePath);
             Rectangle bounds = getPathBounds(treePath);
-            bounds.setRect(0, bounds.y, bounds.width, bounds.height);
-            scrollRectToVisible(bounds);
+            if (bounds != null) {
+                bounds.setRect(0, bounds.y, bounds.width, bounds.height);
+                scrollRectToVisible(bounds);
+            }
         }
 
         @Override
@@ -697,8 +701,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         }
                     }
                 }
-            } catch (UnsupportedFlavorException ignored) {
-            } catch (IOException ignored) {
+            } catch (UnsupportedFlavorException | IOException ignored) {
                 // This can happen if the transferred object is not a real file on disk
                 // but a virtual file (e.g. email from Thunderbird or Outlook), see
                 // http://bugs.sun.com/view_bug.do?bug_id=6242241
@@ -719,7 +722,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
 
         private List<File> textURIListToFileList(String data) {
-            List<File> list = new ArrayList<File>(1);
+            List<File> list = new ArrayList<>(1);
             StringTokenizer st = new StringTokenizer(data, "\r\n");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
@@ -729,10 +732,11 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 }
                 try {
                     list.add(new File(new URI(token)));
-                } catch (java.net.URISyntaxException ignore) {
+                } catch (java.net.URISyntaxException | IllegalArgumentException ignore) {
                     // malformed URI
-                } catch (IllegalArgumentException ignore) {
+                    // or
                     // the URI is not a valid 'file:' URI
+
                 }
             }
             return list;
