@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>Aatsr.SST Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;Aatsr.SST Operator</td>
+        <td class="header" align="right">
+           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>Aatsr.SST Operator Description</h1>
+<h2>Overview</h2>
+<table>
+  <tr><td><b>Name:</b></td><td><code>Aatsr.SST</code></td></tr>
+  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.aatsr.sst.AatsrSstOp</code></td></tr>
+  <tr><td><b>Purpose:</b></td><td>Computes sea surface temperature (SST) from (A)ATSR products.</td></tr>
+  <tr><td><b>Version:</b></td><td>2.0</td></tr>
+</table>
+<h2>Description</h2>
+An operator for computing sea surface temperature from (A)ATSR products.
+<h2>Sources</h2>
+<table>
+<tr>
+  <th>Name</th>
+  <th>Description</th>
+</tr>
+<tr>
+  <td><code>sourceProduct</code></td>
+  <td>The path of the (A)ATSR source product</td>
+</tr>
+</table>
+<h2>Parameters</h2>
+<table>
+<tr>
+  <th>Name</th>
+  <th>Data Type</th>
+  <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
+</tr>
+<tr>
+  <td><code>dual</code></td>
+  <td><code>boolean</code></td>
+  <td><code>true</code></td>
+  <td>Enables/disables generation of the dual-view SST</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>dualCoefficientsFile</code></td>
+  <td><code>Files</code></td>
+  <td><code>AVERAGE_POLAR_DUAL_VIEW</code></td>
+  <td>Coefficient file for the dual-view SST</td>
+  <td>value set: [AVERAGE_POLAR_DUAL_VIEW, AVERAGE_TEMPERATE_DUAL_VIEW, AVERAGE_TROPICAL_DUAL_VIEW, GRIDDED_POLAR_DUAL_VIEW, GRIDDED_TEMPERATE_DUAL_VIEW, GRIDDED_TROPICAL_DUAL_VIEW, GRIDDED_DUAL_VIEW_IPF]</td>
+</tr>
+<tr>
+  <td><code>dualMaskExpression</code></td>
+  <td><code>String</code></td>
+  <td><code>!cloud_flags_nadir.LAND and !cloud_flags_nadir.CLOUDY and !cloud_flags_nadir.SUN_GLINT and !cloud_flags_fward.LAND and !cloud_flags_fward.CLOUDY and !cloud_flags_fward.SUN_GLINT</code></td>
+  <td>ROI-mask used for the dual-view SST</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>nadir</code></td>
+  <td><code>boolean</code></td>
+  <td><code>true</code></td>
+  <td>Enables/disables generation of the nadir-view SST</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>nadirCoefficientsFile</code></td>
+  <td><code>Files</code></td>
+  <td><code>AVERAGE_POLAR_SINGLE_VIEW</code></td>
+  <td>Coefficient file for the nadir-view SST</td>
+  <td>value set: [AVERAGE_POLAR_SINGLE_VIEW, AVERAGE_TEMPERATE_SINGLE_VIEW, AVERAGE_TROPICAL_SINGLE_VIEW, GRIDDED_POLAR_SINGLE_VIEW, GRIDDED_TEMPERATE_SINGLE_VIEW, GRIDDED_TROPICAL_SINGLE_VIEW]</td>
+</tr>
+<tr>
+  <td><code>nadirMaskExpression</code></td>
+  <td><code>String</code></td>
+  <td><code>!cloud_flags_nadir.LAND and !cloud_flags_nadir.CLOUDY and !cloud_flags_nadir.SUN_GLINT</code></td>
+  <td>ROI-mask used for the nadir-view SST</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>invalidSstValue</code></td>
+  <td><code>float</code></td>
+  <td><code>-999.0f</code></td>
+  <td>Value used to fill invalid SST pixels</td>
+  <td></td>
+</tr>
+</table>
+<hr/>
+</body>
+</html>

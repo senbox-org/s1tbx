@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>FlhMci Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;FlhMci Operator</td>
+        <td class="header" align="right">
+           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>FlhMci Operator Description</h1>
+<h2>Overview</h2>
+<table>
+  <tr><td><b>Name:</b></td><td><code>FlhMci</code></td></tr>
+  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.processor.flh_mci.FlhMciOp</code></td></tr>
+  <tr><td><b>Purpose:</b></td><td>Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).</td></tr>
+  <tr><td><b>Version:</b></td><td>2.0</td></tr>
+</table>
+<h2>Description</h2>
+An operator for computing fluorescence line height (FLH) or maximum chlorophyll index (MCI).
+<h2>Sources</h2>
+<table>
+<tr>
+  <th>Name</th>
+  <th>Description</th>
+</tr>
+<tr>
+  <td><code>sourceProduct</code></td>
+  <td></td>
+</tr>
+</table>
+<h2>Parameters</h2>
+<table>
+<tr>
+  <th>Name</th>
+  <th>Data Type</th>
+  <th>Default</th>
+  <th>Description</th>
+  <th>Constraints</th>
+</tr>
+<tr>
+  <td><code>lowerBaselineBandName</code></td>
+  <td><code>String</code></td>
+  <td><code></code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>upperBaselineBandName</code></td>
+  <td><code>String</code></td>
+  <td><code></code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>signalBandName</code></td>
+  <td><code>String</code></td>
+  <td><code></code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>lineHeightBandName</code></td>
+  <td><code>String</code></td>
+  <td><code></code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>slope</code></td>
+  <td><code>boolean</code></td>
+  <td><code>true</code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>slopeBandName</code></td>
+  <td><code>String</code></td>
+  <td><code></code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>maskExpression</code></td>
+  <td><code>String</code></td>
+  <td><code></code></td>
+  <td>A ROI-mask expression used to identify pixels of interest</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>cloudCorrectionFactor</code></td>
+  <td><code>float</code></td>
+  <td><code>1.005</code></td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>invalidFlhMciValue</code></td>
+  <td><code>float</code></td>
+  <td><code>0.0</code></td>
+  <td>Value used to fill invalid FLH/MCI pixels</td>
+  <td></td>
+</tr>
+</table>
+<hr/>
+</body>
+</html>
