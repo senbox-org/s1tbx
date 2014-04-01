@@ -51,7 +51,7 @@ This operator is used to create either spatial and/or spectral subsets of a data
   <td><code>Rectangle</code></td>
   <td><code></code></td>
   <td>The subset region in pixel coordinates.
-If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.</td>
+If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.</td>
   <td></td>
 </tr>
 <tr>
@@ -61,7 +61,7 @@ If not given, the entire scene is used. Either 'region' or 'geoRegion must be gi
   <td>The subset region in geographical coordinates using WKT-format,
 e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))
 (make sure to quote the option due to spaces in <geometry>).
-If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.</td>
+If not given, the entire scene is used.</td>
   <td></td>
 </tr>
 <tr>
