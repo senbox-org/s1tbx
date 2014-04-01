@@ -108,6 +108,22 @@ public class SelectionInteractor extends FigureEditorInteractor {
         setCursor(event);
     }
 
+    protected SelectPointTool createSelectPointTool() {
+        return new SelectPointTool();
+    }
+
+    protected SelectRectangleTool createSelectRectangleTool() {
+        return new SelectRectangleTool();
+    }
+
+    protected MoveSelectionTool createMoveSelectionTool() {
+        return new MoveSelectionTool();
+    }
+
+    protected MoveHandleTool createMoveHandleTool() {
+        return new MoveHandleTool();
+    }
+
     private void setCursor(MouseEvent event) {
         Cursor cursor = null;
         Handle handle = findHandle(event);
@@ -183,22 +199,6 @@ public class SelectionInteractor extends FigureEditorInteractor {
         void drag(MouseEvent event);
 
         void end(MouseEvent event);
-    }
-
-    public SelectPointTool createSelectPointTool() {
-        return new SelectPointTool();
-    }
-
-    public SelectRectangleTool createSelectRectangleTool() {
-        return new SelectRectangleTool();
-    }
-
-    public MoveSelectionTool createMoveSelectionTool() {
-        return new MoveSelectionTool();
-    }
-
-    public MoveHandleTool createMoveHandleTool() {
-        return new MoveHandleTool();
     }
 
     private static class NullTool implements Tool {
