@@ -595,8 +595,8 @@ public final class EnvisatProductReader extends AbstractProductReader {
     }
 
     private void addDatasetAnnotationsToProduct(final Product product) throws IOException {
-        //Debug.assertNotNull(productFile);
-        //Debug.assertNotNull(product);
+        Debug.assertNotNull(productFile);
+        Debug.assertNotNull(product);
         final MetadataElement metaRoot = getOriginalProductMetadata(product);
         final String[] datasetNames = productFile.getValidDatasetNames();
         for (String datasetName : datasetNames) {
@@ -828,18 +828,18 @@ private TiePointGrid createTiePointGrid(final BandLineReader bandLineReader,
     }
 
     private MetadataElement createDatasetTable(String name, RecordReader recordReader) throws IOException {
-        //Debug.assertTrue(productFile != null);
-        //Debug.assertTrue(name != null);
-        //Debug.assertTrue(recordReader != null);
+        Debug.assertTrue(productFile != null);
+        Debug.assertTrue(name != null);
+        Debug.assertTrue(recordReader != null);
 
         final Record record = recordReader.readRecord();
         return createMetadataGroup(name, record);
     }
 
     private MetadataElement createMetadataTableGroup(String name, RecordReader recordReader) throws IOException {
-        //Debug.assertTrue(productFile != null);
-        //Debug.assertTrue(name != null);
-        //Debug.assertTrue(recordReader != null);
+        Debug.assertTrue(productFile != null);
+        Debug.assertTrue(name != null);
+        Debug.assertTrue(recordReader != null);
 
         final MetadataElement metadataTableGroup = new MetadataElement(name);
         final StringBuffer sb = new StringBuffer(16);
@@ -857,8 +857,8 @@ private TiePointGrid createTiePointGrid(final BandLineReader bandLineReader,
     }
 
     static MetadataElement createMetadataGroup(String name, Record record) {
-        //Debug.assertNotNullOrEmpty(name);
-        //Debug.assertNotNull(record);
+        Debug.assertNotNullOrEmpty(name);
+        Debug.assertNotNull(record);
 
         final MetadataElement metadataGroup = new MetadataElement(name);
         final int numRecords = record.getNumFields();
