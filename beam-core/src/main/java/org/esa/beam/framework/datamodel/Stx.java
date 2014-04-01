@@ -262,11 +262,16 @@ public class Stx {
         return logHistogram ? LOG10_SCALING : Scaling.IDENTITY;
     }
 
+    /**
+     * Used for histogram scaling only.
+     */
     static final class Log10Scaling implements Scaling {
+
+        private static final double LN10 = Math.log(10.0);
 
         @Override
         public double scale(double value) {
-            // This is mathematical nonsense, but we want to consider every pixel in the distribution (nf)
+            // This is mathematical nonsense, but this way even negative and zero pixels can contribute to the log-distribution (nf)
             if (value <= 1.0E-9) {
                 return -9.0;
             }
@@ -275,7 +280,8 @@ public class Stx {
 
         @Override
         public double scaleInverse(double value) {
-            return Math.pow(10.0, value);
+            // ca. 2x faster than pow(10, value)
+            return Math.exp(LN10 * value);
         }
     }
 }
