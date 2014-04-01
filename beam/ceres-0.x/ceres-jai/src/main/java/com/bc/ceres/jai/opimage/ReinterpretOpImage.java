@@ -34,7 +34,9 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
-import static com.bc.ceres.jai.operator.ReinterpretDescriptor.*;
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.EXPONENTIAL;
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.LINEAR;
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.LOGARITHMIC;
 
 
 public final class ReinterpretOpImage extends PointOpImage {
@@ -45,6 +47,7 @@ public final class ReinterpretOpImage extends PointOpImage {
     private final double offset;
     private final ScalingType scalingType;
     private final InterpretationType interpretationType;
+    private final ScalingTransform scalingTransform;
 
     static RenderedImage create(RenderedImage source, double factor, double offset, ScalingType scalingType,
                                 InterpretationType interpretationType, Map<Object, Object> config) {
@@ -73,10 +76,11 @@ public final class ReinterpretOpImage extends PointOpImage {
                                double factor, double offset, ScalingType scalingType,
                                InterpretationType interpretationType) {
         super(source, imageLayout, config, true);
-        this.factor = scalingType == EXPONENTIAL ? LOG10 * factor : factor;
-        this.offset = scalingType == EXPONENTIAL ? LOG10 * offset : offset;
+        this.factor = factor;
+        this.offset = offset;
         this.scalingType = scalingType;
         this.interpretationType = interpretationType;
+        this.scalingTransform = scalingType == EXPONENTIAL ? new Pow10() : scalingType == LOGARITHMIC ? new Log10() : null;
         // set flag to permit in-place operation.
         permitInPlaceOperation();
     }
@@ -245,7 +249,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -255,7 +260,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset] & 0xFF;
-                    targetData[targetPixelOffset] = (float) Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = (float) st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -296,7 +301,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -306,7 +312,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset];
-                    targetData[targetPixelOffset] = (float) Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = (float) st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -347,7 +353,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -357,7 +364,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset] & 0xFFFF;
-                    targetData[targetPixelOffset] = (float) Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = (float) st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -398,7 +405,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -408,7 +416,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset];
-                    targetData[targetPixelOffset] = (float) Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = (float) st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -448,7 +456,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -458,7 +467,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset];
-                    targetData[targetPixelOffset] = Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -499,7 +508,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -509,7 +519,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset] & 0xFFFFFFFFL;
-                    targetData[targetPixelOffset] = Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -550,7 +560,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -560,7 +571,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final float v = sourceData[sourcePixelOffset];
-                    targetData[targetPixelOffset] = (float) Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = (float) st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -601,7 +612,8 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == EXPONENTIAL) {
+        if (scalingTransform != null) {
+            ScalingTransform st = this.scalingTransform;
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -611,7 +623,7 @@ public final class ReinterpretOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset];
-                    targetData[targetPixelOffset] = Math.exp(factor * v + offset);
+                    targetData[targetPixelOffset] = st.transform(factor * v + offset);
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
@@ -648,4 +660,28 @@ public final class ReinterpretOpImage extends PointOpImage {
         return imageLayout;
     }
 
+    /**
+     * Implementation code of this interface shall be easily in-lined by the compiler.
+     */
+    private interface ScalingTransform {
+        double transform(double x);
+    }
+
+    private final class Pow10 implements ScalingTransform {
+        public double transform(double x) {
+            // exp(LOG10*x) is ~500 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            return Math.exp(LOG10 * x);
+            // pow(10,x) is ~700 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            //return Math.pow(10, x);
+        }
+    }
+
+    private final class Log10 implements ScalingTransform {
+        public double transform(double x) {
+            // log10(x) is slightly below 300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            return Math.log10(x);
+            // log(x)/LOG10 is slightly above 300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            //return Math.log(x) / LOG10;
+        }
+    }
 }
