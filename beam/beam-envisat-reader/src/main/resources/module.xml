@@ -29,6 +29,10 @@
 
 
     <changelog><![CDATA[
+       <p>Changes from version 1.5.1 to 1.5.2:<br/>
+       [BEAM-1414] Incorrect valid-pixel mask for ATSR SST bands<br/>
+       <p>Changes from version 1.5 to 1.5.1:<br/>
+       Adapted to new Maven-architecture<br>
        <p>Changes from version 1.4 to 1.5:<br/>
        [BEAM-1364] Inaccurate AATSR geo-location<br/>
        [BEAM-1343] For AATSR NR products, all land pixels should be visible in the LST band<br/>
@@ -129,6 +133,34 @@
 
     <extension point="beam-core:rgbProfiles">
         <rgbProfile>
+            <name>MERIS L1b - Tristimulus</name>
+            <red>log(1.0 + 0.35 * radiance_2 + 0.60 * radiance_5 + radiance_6 + 0.13 * radiance_7)</red>
+            <green>log(1.0 + 0.21 * radiance_3 + 0.50 * radiance_4 + radiance_5 + 0.38 * radiance_6)</green>
+            <blue>log(1.0 + 0.21 * radiance_1 + 1.75 * radiance_2 + 0.47 * radiance_3 + 0.16 * radiance_4)</blue>
+            <pattern>
+                <productType>MER_*_1*</productType>
+                <productName>MER_*_1*</productName>
+                <productDescription/>
+            </pattern>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L2 - Tristimulus</name>
+            <red>log(0.05 + 0.35 * reflec_2 + 0.60 * reflec_5 + reflec_6 + 0.13 * reflec_7)</red>
+            <green>log(0.05 + 0.21 * reflec_3 + 0.50 * reflec_4 + reflec_5 + 0.38 * reflec_6)</green>
+            <blue>log(0.05 + 0.21 * reflec_1 + 1.75 * reflec_2 + 0.47 * reflec_3 + 0.16 * reflec_4)</blue>
+            <pattern>
+                <productType>MER_*_2*</productType>
+                <productName>MER_*_2*</productName>
+                <productDescription/>
+            </pattern>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L2 - 13,5,1</name>
+            <red>reflec_13</red>
+            <green>reflec_5</green>
+            <blue>reflec_1</blue>
+        </rgbProfile>
+        <rgbProfile>
             <name>AATSR L1b - Forward, Day</name>
             <red>reflec_fward_0870</red>
             <green>reflec_fward_0670</green>
@@ -152,25 +184,6 @@
             <green>radiance_5</green>
             <blue>radiance_1</blue>
         </rgbProfile>
-        <rgbProfile>
-            <name>MERIS L1b - Tristimulus</name>
-            <red>log(1.0 + 0.35 * radiance_2 + 0.60 * radiance_5 + radiance_6 + 0.13 * radiance_7)</red>
-            <green>log(1.0 + 0.21 * radiance_3 + 0.50 * radiance_4 + radiance_5 + 0.38 * radiance_6)</green>
-            <blue>log(1.0 + 0.21 * radiance_1 + 1.75 * radiance_2 + 0.47 * radiance_3 + 0.16 * radiance_4)</blue>
-        </rgbProfile>
-        <rgbProfile>
-            <name>MERIS L2 - 13,5,1</name>
-            <red>reflec_13</red>
-            <green>reflec_5</green>
-            <blue>reflec_1</blue>
-        </rgbProfile>
-        <rgbProfile>
-            <name>MERIS L2 - Tristimulus</name>
-            <red>log(0.05 + 0.35 * reflec_2 + 0.60 * reflec_5 + reflec_6 + 0.13 * reflec_7)</red>
-            <green>log(0.05 + 0.21 * reflec_3 + 0.50 * reflec_4 + reflec_5 + 0.38 * reflec_6)</green>
-            <blue>log(0.05 + 0.21 * reflec_1 + 1.75 * reflec_2 + 0.47 * reflec_3 + 0.16 * reflec_4)</blue>
-        </rgbProfile>
-
     </extension>
 
 
