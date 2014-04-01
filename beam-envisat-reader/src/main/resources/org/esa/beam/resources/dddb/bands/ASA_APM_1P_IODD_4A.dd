@@ -19,6 +19,7 @@ ASA_APM_1P|ASAR Alternating Polarization Medium Resolution Image
 #
 #1                |2                             |3   |4     |5|6           |7  |8      |9|10                                |11 |12
 #-----------------|------------------------------|----|------|-|------------|---|-------|-|----------------------------------|---|----------------------------------------------------
+samples  		  |GEOLOCATION_GRID_ADS.6        |*   |ULong |*|Linear_Scale|0.0|1.0    |*|*                                 |pixel |range sample
 slant_range_time  |GEOLOCATION_GRID_ADS.7        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |ns |2 way slant range time
 incident_angle    |GEOLOCATION_GRID_ADS.8        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |deg|Incident angle
 latitude          |GEOLOCATION_GRID_ADS.9        |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Latitude of the tie points (WGS-84), positive N

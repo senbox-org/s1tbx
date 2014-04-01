@@ -19,4 +19,4 @@ ASA_WVW_2P|ASAR ocean wave spectra product
 #
 #1                |2                             |3   |4     |5|6           |7  |8      |9|10                                |11 |12
 #-----------------|------------------------------|----|------|-|------------|---|-------|-|----------------------------------|---|----------------------------------------------------
-Wave_Spectra      |OCEAN_WAVE_SPECTRA_MDS.29     |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |amplitude  |Ocean Wave Spectra
+Wave_Spectra      |OCEAN_WAVE_SPECTRA_MDS.31     |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |amplitude  |Ocean Wave Spectra
