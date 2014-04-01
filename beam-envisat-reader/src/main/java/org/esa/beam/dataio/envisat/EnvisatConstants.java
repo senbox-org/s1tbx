@@ -132,8 +132,8 @@ public interface EnvisatConstants {
      * Number of localisation tie points in across track direction for the ASAR grid.
      */
     int ASAR_LOC_TIE_POINT_GRID_WIDTH = 11;
-    float ASAR_LOC_TIE_POINT_OFFSET_X = 0.0f;
-    float ASAR_LOC_TIE_POINT_OFFSET_Y = 0.0f;
+    float ASAR_LOC_TIE_POINT_OFFSET_X = 0.5f;
+    float ASAR_LOC_TIE_POINT_OFFSET_Y = 0.5f;
 
     /**
      * The date format used in MPHs and SPHs. The value is <code>&quot;dd-MMM-yyyy HH:mm:ss.S&quot;</code>.
