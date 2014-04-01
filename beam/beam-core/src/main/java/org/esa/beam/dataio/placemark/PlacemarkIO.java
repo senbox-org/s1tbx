@@ -82,10 +82,11 @@ public class PlacemarkIO {
     private static final int INDEX_FOR_DATETIME = 5;
 
     private static final String LABEL_COL_NAME = "Label";
-    private static final String LON_COL_NAME = "Lon";
-    private static final String LAT_COL_NAME = "Lat";
+    // same columns allowed as in VectorDataNodeReader
+    private static final String[] LON_COL_NAMES = {"Lon", "long", "longitude", "lon_IS"};
+    private static final String[] LAT_COL_NAMES = {"Lat", "latitude", "lat_IS"};
     private static final String NAME_COL_NAME = "Name";
-    private static final String DESC_COL_NAME = "Desc";
+    private static final String[] DESC_COL_NAMES = {"Desc", "Description"};
     private static final String DATETIME_COL_NAME = "DateTime";
 
     private static final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
@@ -128,12 +129,12 @@ public class PlacemarkIO {
                 }
                 String[] strings = StringUtils.toStringArray(line, "\t");
                 if (stdColIndexes == null) {
-                    int nameIndex = StringUtils.indexOf(strings, NAME_COL_NAME);
-                    int lonIndex = StringUtils.indexOf(strings, LON_COL_NAME);
-                    int latIndex = StringUtils.indexOf(strings, LAT_COL_NAME);
-                    int descIndex = StringUtils.indexOf(strings, DESC_COL_NAME);
-                    int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
-                    int dateTimeIndex = StringUtils.indexOf(strings, DATETIME_COL_NAME);
+                    int nameIndex = findColumnIndex(strings, NAME_COL_NAME);
+                    int lonIndex = findColumnIndex(strings, LON_COL_NAMES);
+                    int latIndex = findColumnIndex(strings, LAT_COL_NAMES);
+                    int descIndex = findColumnIndex(strings, DESC_COL_NAMES);
+                    int labelIndex = findColumnIndex(strings, LABEL_COL_NAME);
+                    int dateTimeIndex = findColumnIndex(strings, DATETIME_COL_NAME);
                     if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                         throw new IOException("Invalid placemark file format:\n" +
                                               "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
@@ -141,7 +142,7 @@ public class PlacemarkIO {
                     biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                     biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
                     biggestIndex = biggestIndex > latIndex ? biggestIndex : latIndex;
-                    stdColIndexes = new ArrayList<Integer>(6);
+                    stdColIndexes = new ArrayList<>(6);
                     stdColIndexes.add(INDEX_FOR_NAME, nameIndex);
                     stdColIndexes.add(INDEX_FOR_LON, lonIndex);
                     stdColIndexes.add(INDEX_FOR_LAT, latIndex);
@@ -202,6 +203,17 @@ public class PlacemarkIO {
         }
 
         return placemarks;
+    }
+
+    static int findColumnIndex(String[] strings, String... colNames) {
+        int index = -1;
+        for (String colName : colNames) {
+            index = StringUtils.indexOfIgnoreCase(strings, colName);
+            if(index != -1) {
+                break;
+            }
+        }
+        return index;
     }
 
     private static List<Placemark> readPlacemarksFromXMLFile(Reader reader, GeoCoding geoCoding,
@@ -299,7 +311,7 @@ public class PlacemarkIO {
             sb.append(name);
         }
         sb.append("\t");
-        sb.append(DESC_COL_NAME);
+        sb.append(DESC_COL_NAMES[0]);
         for (String additionalColumnName : additionalColumnNames) {
             sb.append("\t");
             sb.append(additionalColumnName);
