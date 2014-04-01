@@ -58,6 +58,18 @@ public class PlacemarkIOTest {
         testReadMinimalPlacemarkTextFile(PinDescriptor.getInstance());
     }
 
+
+    @Test
+    public void testFindColumnIndex() throws Exception {
+        assertEquals(1, PlacemarkIO.findColumnIndex(new String[]{"col1", "cOL2", "CoL3"}, "cOL2"));
+        assertEquals(1, PlacemarkIO.findColumnIndex(new String[]{"col1", "cOL2", "CoL3"}, "col2"));
+        assertEquals(-1, PlacemarkIO.findColumnIndex(new String[]{"col1", "cOL2", "CoL3"}, "abc"));
+
+        assertEquals(0, PlacemarkIO.findColumnIndex(new String[]{"col1", "cOL2", "CoL3"}, "abc", "xyz", "COL1"));
+        assertEquals(1, PlacemarkIO.findColumnIndex(new String[]{"col1", "cOL2", "CoL3"}, "COL2", "col2"));
+
+    }
+
     @Test
     public void testReadWritePlacemarksTextFileWithAdditionalData() throws Exception {
         StringWriter writer = new StringWriter(WRITER_INITIAL_SIZE);
