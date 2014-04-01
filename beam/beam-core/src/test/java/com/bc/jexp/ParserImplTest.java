@@ -330,6 +330,17 @@ public class ParserImplTest {
         assertEquals(Math.sqrt(d1 * d1 + d2 * d2 + d3 * d3), term.evalD(env), 1.e-10);
     }
 
+    @Test
+    public void testConditional() throws ParseException {
+        Term term = parser.parse("IF 5 > 4 THEN 1 ELSE 0");
+        assertNotNull(term);
+        assertNotNull(term.getChildren());
+        int i = term.getChildren().length;
+        assertEquals(3, i);
+
+        assertEquals(1, term.evalI(env));
+    }
+
     int ix;
     double dx;
 
