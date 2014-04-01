@@ -951,7 +951,7 @@ public class DDDB {
 
     static URL getDatabaseResource(String resourcePath) throws DDDBException {
         String databasePath = DB_DIR_PATH + '/' + resourcePath;
-        //Debug.trace("DDDB: searching for resource file '" + databasePath + "'"); /*I18N*/
+        Debug.trace("DDDB: searching for resource file '" + databasePath + "'"); /*I18N*/
 
         URL url = resourceMap.get(databasePath);
         if(url == null) {
