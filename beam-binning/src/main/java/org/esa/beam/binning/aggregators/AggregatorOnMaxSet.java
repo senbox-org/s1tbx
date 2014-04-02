@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.AbstractAggregator;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -27,6 +26,7 @@ import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WritableVector;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -38,8 +38,8 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
     private final int[] varIndexes;
     private int numFeatures;
 
-    public AggregatorOnMaxSet(VariableContext varCtx, String... varNames) {
-        super(Descriptor.NAME, createFeatureNames(varNames));
+    public AggregatorOnMaxSet(VariableContext varCtx, String targetName, String... varNames) {
+        super(Descriptor.NAME, createFeatureNames(varNames), createFeatureNames(varNames), createOutputFeatureNames(targetName, varNames));
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
         }
@@ -101,7 +101,11 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
     @Override
     public void computeOutput(Vector temporalVector, WritableVector outputVector) {
         for (int i = 0; i < numFeatures + 1; i++) {
-            outputVector.set(i, temporalVector.get(i));
+            float value = temporalVector.get(i);
+            if (Float.isInfinite(value)) {
+                value = Float.NaN;
+            }
+            outputVector.set(i, value);
         }
     }
 
@@ -122,24 +126,40 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         if (varNames.length == 0) {
             throw new IllegalArgumentException("varNames.length == 0");
         }
+        return createOutputFeatureNames(varNames[0], varNames);
+    }
+
+    private static String[] createOutputFeatureNames(String targetName, String[] varNames) {
+        if (StringUtils.isNullOrEmpty(targetName)) {
+            throw new IllegalArgumentException("targetName must not be empty");
+        }
         String[] featureNames = new String[varNames.length + 1];
-        featureNames[0] = varNames[0] + "_max";
-        featureNames[1] = varNames[0] + "_mjd";
+        featureNames[0] = targetName + "_max";
+        featureNames[1] = targetName + "_mjd";
         System.arraycopy(varNames, 1, featureNames, 2, varNames.length - 1);
         return featureNames;
     }
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter
+        @Parameter(notNull = true)
         String[] varNames;
+
+        @Parameter(notEmpty = true, notNull = false)
+        String targetName;
 
         public Config() {
             super(Descriptor.NAME);
         }
 
+        public Config(String targetName, String... varNames) {
+            super(Descriptor.NAME);
+            this.targetName = targetName;
+            this.varNames = varNames;
+        }
+
         @Override
-        public String[] getVarNames() {
+        public String[] getSourceVarNames() {
             return varNames;
         }
     }
@@ -161,8 +181,13 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-            PropertySet propertySet = aggregatorConfig.asPropertySet();
-            return new AggregatorOnMaxSet(varCtx, (String[]) propertySet.getValue("varNames"));
+            Config config = (Config) aggregatorConfig;
+            String targetVarName = config.targetName;
+            String[] sourceVarNames = config.varNames;
+            if (targetVarName == null && sourceVarNames.length > 0) {
+                targetVarName = sourceVarNames[0];
+            }
+            return new AggregatorOnMaxSet(varCtx, targetVarName, sourceVarNames);
         }
     }
 }

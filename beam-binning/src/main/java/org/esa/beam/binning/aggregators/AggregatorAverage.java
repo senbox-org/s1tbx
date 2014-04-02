@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.AbstractAggregator;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -43,16 +42,16 @@ public final class AggregatorAverage extends AbstractAggregator {
     private final boolean outputSums;
 
     public AggregatorAverage(VariableContext varCtx, String varName, Double weightCoeff) {
-        this(varCtx, varName, weightCoeff != null ? weightCoeff : 0.0, false, false);
+        this(varCtx, varName, varName, weightCoeff != null ? weightCoeff : 0.0, false, false);
     }
 
-    public AggregatorAverage(VariableContext varCtx, String varName, double weightCoeff, boolean outputCounts, boolean outputSums) {
+    public AggregatorAverage(VariableContext varCtx, String targetName, String varName, double weightCoeff, boolean outputCounts, boolean outputSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq", outputCounts ? "counts" : null),
               createFeatureNames(varName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null),
               outputSums ?
-                      createFeatureNames(varName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null) :
-                      createFeatureNames(varName, "mean", "sigma", outputCounts ? "counts" : null));
+                      createFeatureNames(targetName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null) :
+                      createFeatureNames(targetName, "mean", "sigma", outputCounts ? "counts" : null));
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
         }
@@ -209,21 +208,23 @@ public final class AggregatorAverage extends AbstractAggregator {
 
         @Parameter(notEmpty = true, notNull = true)
         String varName;
-        @Parameter
+        @Parameter(notEmpty = true, notNull = false)
+        public String targetName;
+        @Parameter(defaultValue = "0.0")
         Double weightCoeff;
         @Parameter
         Boolean outputCounts;
         @Parameter
         Boolean outputSums;
 
-
         public Config() {
-            this(null, null, null, null);
+            this(null, null, null, null, null);
         }
 
-        public Config(String varName, Double weightCoeff, Boolean outputCounts, Boolean outputSums) {
+        public Config(String varName, String targetName, Double weightCoeff, Boolean outputCounts, Boolean outputSums) {
             super(Descriptor.NAME);
             this.varName = varName;
+            this.targetName = targetName;
             this.weightCoeff = weightCoeff;
             this.outputCounts = outputCounts;
             this.outputSums = outputSums;
@@ -234,7 +235,7 @@ public final class AggregatorAverage extends AbstractAggregator {
         }
 
         @Override
-        public String[] getVarNames() {
+        public String[] getSourceVarNames() {
             return new String[]{varName};
         }
     }
@@ -250,15 +251,12 @@ public final class AggregatorAverage extends AbstractAggregator {
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-            PropertySet propertySet = aggregatorConfig.asPropertySet();
-            Double weightCoeff = propertySet.getValue("weightCoeff");
-            Boolean outputCounts = propertySet.getValue("outputCounts");
-            Boolean outputSums = propertySet.getValue("outputSums");
-            return new AggregatorAverage(varCtx,
-                                         (String) propertySet.getValue("varName"),
-                                         weightCoeff != null ? weightCoeff : 0.0,
-                                         outputCounts != null ? outputCounts : false,
-                                         outputSums != null ? outputSums : false);
+            Config config = (Config) aggregatorConfig;
+            String targetName = config.targetName != null ? config.targetName : config.varName;
+            double weightCoeff = config.weightCoeff != null ? config.weightCoeff : 0.0;
+            boolean outputCounts = config.outputCounts != null ? config.outputCounts : false;
+            boolean outputSums = config.outputSums != null ? config.outputSums : false;
+            return new AggregatorAverage(varCtx, targetName, config.varName, weightCoeff, outputCounts, outputSums);
         }
 
         @Override

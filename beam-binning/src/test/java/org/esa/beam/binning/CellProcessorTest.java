@@ -30,8 +30,7 @@ public class CellProcessorTest {
     @Test
     public void testBinningWithoutPostProcessor() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A");
-        BinManager bman = new BinManager(variableContext,
-                new AggregatorMinMax(variableContext, "A"));
+        BinManager bman = new BinManager(variableContext, new AggregatorMinMax(variableContext, "A", "out"));
 
         TemporalBin tbin = doBinning(bman);
         assertEquals(2, tbin.getFeatureValues().length);
@@ -41,14 +40,14 @@ public class CellProcessorTest {
         assertEquals(0.2f, resultVector.get(0), 1e-4);
         assertEquals(0.6f, resultVector.get(1), 1e-4);
 
-        assertArrayEquals(new String[]{"A_min", "A_max"}, bman.getResultFeatureNames());
+        assertArrayEquals(new String[]{"out_min", "out_max"}, bman.getResultFeatureNames());
     }
 
     @Test
     public void testBinningWithPostProcessor() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A");
-        AggregatorMinMax aggregator = new AggregatorMinMax(variableContext, "A");
-        FeatureSelection.Config ppSelection = new FeatureSelection.Config("A_max");
+        AggregatorMinMax aggregator = new AggregatorMinMax(variableContext, "A", "out");
+        FeatureSelection.Config ppSelection = new FeatureSelection.Config("out_max");
         BinManager bman = new BinManager(variableContext, ppSelection, aggregator);
 
         TemporalBin tbin = doBinning(bman);
@@ -66,7 +65,7 @@ public class CellProcessorTest {
         assertEquals(1, resultVector.size());
         assertEquals(0.6f, resultVector.get(0), 1e-4);
 
-        assertArrayEquals(new String[]{"A_max"}, bman.getResultFeatureNames());
+        assertArrayEquals(new String[]{"out_max"}, bman.getResultFeatureNames());
     }
 
     private TemporalBin doBinning(BinManager bman) {

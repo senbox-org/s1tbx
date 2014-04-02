@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.AbstractAggregator;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -40,8 +39,8 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
     private final int[] setIndexes;
     private int numFeatures;
 
-    public AggregatorOnMaxSetWithMask(VariableContext varCtx, String onMaxName, String maskName, String... setNames) {
-        super(Descriptor.NAME, createFeatures(onMaxName, setNames));
+    public AggregatorOnMaxSetWithMask(VariableContext varCtx, String targetName, String onMaxName, String maskName, String... setNames) {
+        super(Descriptor.NAME, createFeatures(onMaxName, setNames), createFeatures(onMaxName, setNames), createFeatures(targetName, setNames));
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
         }
@@ -126,7 +125,11 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
         final float counterValue = temporalVector.get(2);
         if (counterValue > 0) {
             for (int i = 0; i < numFeatures; i++) {
-                outputVector.set(i, temporalVector.get(i));
+                float value = temporalVector.get(i);
+                if (Float.isInfinite(value)) {
+                    value = Float.NaN;
+                }
+                outputVector.set(i, value);
             }
         } else {
             for (int i = 0; i < numFeatures; i++) {
@@ -165,6 +168,8 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
         @Parameter
         String maskName;
         @Parameter
+        String targetName;
+        @Parameter
         String[] setNames;
 
         public Config() {
@@ -172,7 +177,7 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
         }
 
         @Override
-        public String[] getVarNames() {
+        public String[] getSourceVarNames() {
             int varNameLength = 2;
             if (setNames != null) {
                 varNameLength += setNames.length;
@@ -204,14 +209,11 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-            PropertySet propertySet = aggregatorConfig.asPropertySet();
-            String onMaxName = propertySet.getValue("onMaxName");
-            String maskName = propertySet.getValue("maskName");
-            String[] setNames = propertySet.getValue("setNames");
-            if (setNames == null) {
-                return new AggregatorOnMaxSetWithMask(varCtx, onMaxName, maskName);
+            Config config = (Config) aggregatorConfig;
+            if (config.setNames == null) {
+                return new AggregatorOnMaxSetWithMask(varCtx, config.targetName, config.onMaxName, config.maskName);
             } else {
-                return new AggregatorOnMaxSetWithMask(varCtx, onMaxName, maskName, setNames);
+                return new AggregatorOnMaxSetWithMask(varCtx, config.targetName, config.onMaxName, config.maskName, config.setNames);
             }
         }
     }

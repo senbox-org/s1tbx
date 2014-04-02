@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.AbstractAggregator;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -37,8 +36,8 @@ public class AggregatorMinMax extends AbstractAggregator {
 
     private final int varIndex;
 
-    public AggregatorMinMax(VariableContext varCtx, String varName) {
-        super(Descriptor.NAME, createFeatureNames(varName, "min", "max"));
+    public AggregatorMinMax(VariableContext varCtx, String varName, String targetVarName) {
+        super(Descriptor.NAME, createFeatureNames(varName, "min", "max"), createFeatureNames(varName, "min", "max"), createFeatureNames(targetVarName, "min", "max"));
 
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
@@ -102,15 +101,24 @@ public class AggregatorMinMax extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter
+        @Parameter(notEmpty = true, notNull = true)
         String varName;
 
+        @Parameter(notEmpty = true, notNull = false)
+        String targetName;
+
         public Config() {
+            this(null, null);
+        }
+
+        public Config(String targetName, String varName) {
             super(Descriptor.NAME);
+            this.targetName = targetName;
+            this.varName = varName;
         }
 
         @Override
-        public String[] getVarNames() {
+        public String[] getSourceVarNames() {
             return new String[]{varName};
         }
     }
@@ -126,9 +134,9 @@ public class AggregatorMinMax extends AbstractAggregator {
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-            PropertySet propertySet = aggregatorConfig.asPropertySet();
-            return new AggregatorMinMax(varCtx,
-                                        (String) propertySet.getValue("varName"));
+            Config config = (Config) aggregatorConfig;
+            String targetName = config.targetName != null ? config.targetName : config.varName;
+            return new AggregatorMinMax(varCtx, config.varName, targetName);
         }
 
         @Override

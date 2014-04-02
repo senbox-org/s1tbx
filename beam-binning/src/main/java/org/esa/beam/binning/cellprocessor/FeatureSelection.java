@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.cellprocessor;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.CellProcessor;
 import org.esa.beam.binning.CellProcessorConfig;
 import org.esa.beam.binning.CellProcessorDescriptor;
@@ -95,8 +94,8 @@ public class FeatureSelection extends CellProcessor {
 
         @Override
         public CellProcessor createCellProcessor(VariableContext varCtx, CellProcessorConfig cellProcessorConfig) {
-            PropertySet propertySet = cellProcessorConfig.asPropertySet();
-            return new FeatureSelection(varCtx, (String[]) propertySet.getValue("varNames"));
+            Config config = (Config) cellProcessorConfig;
+            return new FeatureSelection(varCtx, config.varNames);
         }
 
         @Override

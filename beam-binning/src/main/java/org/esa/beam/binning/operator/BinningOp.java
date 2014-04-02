@@ -606,10 +606,12 @@ public class BinningOp extends Operator implements Output {
         final CellProcessorChain cellChain = new CellProcessorChain(binningContext);
         final TemporalBinList temporalBins = new TemporalBinList((int) numberOfBins);
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
-        double binCounter = 0;
+        int binCounter = 0;
+        int percentCounter = 0;
         long hundredthOfNumBins = numberOfBins / 100;
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
-            binCounter++;
+            binCounter += spatialBinList.size();
+
             SpatialBin spatialBin = spatialBinList.get(0);
             long spatialBinIndex = spatialBin.getIndex();
             TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
@@ -618,8 +620,9 @@ public class BinningOp extends Operator implements Output {
             temporalBin = cellChain.process(temporalBin);
 
             temporalBins.add(temporalBin);
-            if (binCounter % hundredthOfNumBins == 0) {
-                getLogger().info(String.format("Finished %d%% of temporal bins", (int) (binCounter * 100 / numberOfBins)));
+            if (binCounter >= hundredthOfNumBins) {
+                binCounter = 0;
+                getLogger().info(String.format("Finished %d%% of temporal bins", ++percentCounter));
             }
         }
         stopWatch.stop();
