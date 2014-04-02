@@ -122,13 +122,6 @@
                 <artifactId>netcdf</artifactId>
                 <version>${netcdf.version}</version>
             </dependency>
-            <!-- for supporting BUFR format
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>bufr</artifactId>
-                <version>${netcdf.version}</version>
-            </dependency>
-            -->
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
