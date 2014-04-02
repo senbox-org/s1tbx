@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
@@ -141,7 +142,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, '_' +pol);
             } else {                
                 final Band band = createBand(product, "Amplitude_" + pol, Unit.AMPLITUDE, imageFile);
-                ReaderUtils.createVirtualIntensityBand(product, band, '_' +pol);
+                SARReader.createVirtualIntensityBand(product, band, '_' + pol);
             }
         }
 

@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 
@@ -32,7 +33,7 @@ import java.io.IOException;
  * The product reader for Radarsat products.
  *
  */
-public abstract class CEOSProductReader extends AbstractProductReader {
+public abstract class CEOSProductReader extends SARReader {
 
     protected CEOSProductDirectory _dataDir = null;
 
@@ -85,6 +86,7 @@ public abstract class CEOSProductReader extends AbstractProductReader {
             _dataDir.readProductDirectory();
             product = _dataDir.createProduct();
             product.setFileLocation(fileFromInput);
+            setQuicklookBandName(product);
         } catch (Exception e) {
             Debug.trace(e.toString());
             final IOException ioException = new IOException(e.getMessage());

@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
@@ -43,7 +44,7 @@ import java.io.IOException;
  * The product reader for Radarsat2 products.
  *
  */
-public class Radarsat2ProductReader extends AbstractProductReader {
+public class Radarsat2ProductReader extends SARReader {
 
     protected Radarsat2ProductDirectory dataDir = null;
 
@@ -109,6 +110,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
             product.setModified(false);
+            setQuicklookBandName(product);
 
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");

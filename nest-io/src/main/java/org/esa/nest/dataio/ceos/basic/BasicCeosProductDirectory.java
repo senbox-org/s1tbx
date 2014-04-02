@@ -22,6 +22,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
@@ -113,7 +114,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                     ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, "_"+index);
                 } else {
                     final Band band = createBand(product, "Amplitude_" + index, Unit.AMPLITUDE, imageFile);
-                    ReaderUtils.createVirtualIntensityBand(product, band, "_"+index);
+                    SARReader.createVirtualIntensityBand(product, band, "_" + index);
                 }
                 ++index;
             }
@@ -126,7 +127,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                 ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, "");
             } else {
                 final Band band = createBand(product, "Amplitude", Unit.AMPLITUDE, imageFile);
-                ReaderUtils.createVirtualIntensityBand(product, band, "");
+                SARReader.createVirtualIntensityBand(product, band, "");
             }
         }
 
@@ -348,7 +349,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, Integer.parseInt(absOrbit));
             }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                    ReaderUtils.findPolarizationInBandName(
+                    SARReader.findPolarizationInBandName(
                             sceneRec.getAttributeString("Sensor ID and mode of operation for this channel")));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,

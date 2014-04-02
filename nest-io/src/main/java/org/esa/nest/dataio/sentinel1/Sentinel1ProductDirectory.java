@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -133,7 +134,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                         bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
-                        ReaderUtils.createVirtualIntensityBand(product, band, '_'+suffix);
+                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
 
                         // add tiepointgrids and geocoding for band
                         addTiePointGrids(band, imgName, tpgPrefix);

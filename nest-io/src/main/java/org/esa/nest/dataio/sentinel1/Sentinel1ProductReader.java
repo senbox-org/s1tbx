@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
@@ -39,7 +40,7 @@ import java.io.IOException;
  * The product reader for Sentinel1 products.
  *
  */
-public class Sentinel1ProductReader extends AbstractProductReader {
+public class Sentinel1ProductReader extends SARReader {
 
     protected Sentinel1ProductDirectory dataDir = null;
 
@@ -93,6 +94,7 @@ public class Sentinel1ProductReader extends AbstractProductReader {
             product.getGcpGroup();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
+            setQuicklookBandName(product);
             product.setModified(false);
         } catch (Exception e) {
             Debug.trace(e.toString());

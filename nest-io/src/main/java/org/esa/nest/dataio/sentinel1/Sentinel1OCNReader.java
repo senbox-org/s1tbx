@@ -23,6 +23,7 @@ import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.NcRasterDim;
 import org.esa.nest.dataio.netcdf.NetCDFUtils;
 import org.esa.nest.datamodel.Unit;
@@ -147,7 +148,7 @@ public class Sentinel1OCNReader {
                 band.setUnit(Unit.AMPLITUDE);
                 product.addBand(band);
            //     bandMap.put(band, variable);
-                ReaderUtils.createVirtualIntensityBand(product, band, cntStr);
+                SARReader.createVirtualIntensityBand(product, band, cntStr);
           //  }
         }
     }

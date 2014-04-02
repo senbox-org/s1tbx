@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.generic.GenericReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -48,7 +49,7 @@ import java.util.Arrays;
  * The product reader for TerraSarX products.
  *
  */
-public class TerraSarXProductReader extends AbstractProductReader {
+public class TerraSarXProductReader extends SARReader {
 
     private TerraSarXProductDirectory dataDir = null;
 
@@ -101,6 +102,7 @@ public class TerraSarXProductReader extends AbstractProductReader {
             product = dataDir.createProduct();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
+            setQuicklookBandName(product);
             /*if(dataDir.isComplex()) {
                 product = product.createFlippedProduct(ProductFlipper.FLIP_HORIZONTAL, product.getName(), product.getDescription());
                 product.setFileLocation(fileFromInput);

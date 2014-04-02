@@ -18,6 +18,7 @@ package org.esa.nest.dataio.radarsat2;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.SystemUtils;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -101,8 +102,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
 
-                        ReaderUtils.createVirtualIntensityBand(product, band,
-                                    '_'+polarizationMap.get(imgName));
+                        SARReader.createVirtualIntensityBand(product, band,
+                                '_' + polarizationMap.get(imgName));
                     }
                 }
             }

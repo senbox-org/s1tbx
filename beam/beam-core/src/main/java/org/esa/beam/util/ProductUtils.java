@@ -2220,14 +2220,6 @@ public class ProductUtils {
             return null;
         }
 
-        // SAR imagery 		//NESTMOD
-        for (Band band : bands) {
-            String unit = band.getUnit();
-            if(unit != null && (unit.contains("intensity") || unit.contains("amplitude"))) {
-                return band.getName();
-            }
-        }
-
         // Step 1: Find the band with a max. wavelength > 1000 nm
         //
         double wavelengthMax = 0.0;

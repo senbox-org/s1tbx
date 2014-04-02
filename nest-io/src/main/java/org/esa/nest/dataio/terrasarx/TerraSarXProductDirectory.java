@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -745,12 +746,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             for(int i=0; i < img.getNumImages(); ++i) {
 
                 for(int b=0; b < img.getNumBands(); ++b) {
-                    final String pol = ReaderUtils.findPolarizationInBandName(img.getName());
+                    final String pol = SARReader.findPolarizationInBandName(img.getName());
                     final Band band = new Band("Amplitude_"+pol, img.getDataType(), width, height);
                     band.setUnit(Unit.AMPLITUDE);
                     product.addBand(band);
 
-                    ReaderUtils.createVirtualIntensityBand(product, band, '_'+pol);
+                    SARReader.createVirtualIntensityBand(product, band, '_'+pol);
 
                     bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
                 }
@@ -768,7 +769,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             for (final File file : cosarFileList) {
 
                 final String fileName = file.getName().toUpperCase();
-                final String pol = ReaderUtils.findPolarizationInBandName(fileName);
+                final String pol = SARReader.findPolarizationInBandName(fileName);
                 if(!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
                     extraInfo = fileName.substring(polIndex+2, fileName.indexOf(".", polIndex+3));
@@ -798,7 +799,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private boolean arePolarizationsUnique() {
         final List<String> pols = new ArrayList<String>();
         for (final File file : cosarFileList) {
-            pols.add(ReaderUtils.findPolarizationInBandName(file.getName()));
+            pols.add(SARReader.findPolarizationInBandName(file.getName()));
         }
         for(int i=0; i < pols.size(); ++i) {
             for(int j=i+1; j < pols.size(); ++j) {

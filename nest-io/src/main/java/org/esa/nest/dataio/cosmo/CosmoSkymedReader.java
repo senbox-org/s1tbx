@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.*;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.AbstractMetadataIO;
@@ -46,7 +47,7 @@ import java.util.Map;
 /**
  * The product reader for CosmoSkymed products.
  */
-public class CosmoSkymedReader extends AbstractProductReader {
+public class CosmoSkymedReader extends SARReader {
 
     private NetcdfFile netcdfFile = null;
     private Product product = null;
@@ -133,6 +134,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         addFirstLastLineTimes(rasterHeight);
         addSRGRCoefficients();
         addDopplerCentroidCoefficients();
+        setQuicklookBandName(product);
 
         product.getGcpGroup();
         product.setModified(false);
@@ -554,7 +556,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 band.setUnit(Unit.AMPLITUDE);
                 product.addBand(band);
                 bandMap.put(band, variable);
-                ReaderUtils.createVirtualIntensityBand(product, band, cntStr);
+                createVirtualIntensityBand(product, band, cntStr);
             }
         }
     }

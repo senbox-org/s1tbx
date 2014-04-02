@@ -34,8 +34,6 @@ import java.util.Arrays;
  */
 public final class ReaderUtils {
 
-    private static String[] elemsToKeep = { "Abstracted_Metadata", "MAIN_PROCESSING_PARAMS_ADS", "DSD", "SPH", "lutSigma" };
-    
     public static void createVirtualPhaseBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
         final String expression = "atan2("+bandQ.getName()+ ',' +bandI.getName()+ ')';
 
@@ -66,20 +64,6 @@ public final class ReaderUtils {
 
         // set as band to use for quicklook
         product.setQuicklookBandName(virtBand.getName());
-    }
-
-    public static void createVirtualIntensityBand(final Product product, final Band band, final String countStr) {
-        final String expression = band.getName() + " * " + band.getName();
-
-        final VirtualBand virtBand = new VirtualBand("Intensity" + countStr,
-                ProductData.TYPE_FLOAT32,
-                band.getSceneRasterWidth(),
-                band.getSceneRasterHeight(),
-                expression);
-        virtBand.setUnit(Unit.INTENSITY);
-        virtBand.setDescription("Intensity from complex data");
-        virtBand.setNoDataValueUsed(true);
-        product.addBand(virtBand);
     }
 
     /**
@@ -264,47 +248,6 @@ public final class ReaderUtils {
             }
         }
         return validName.toString();
-    }
-
-    public static String findPolarizationInBandName(final String bandName) {
-
-        final String id = bandName.toUpperCase();
-        if(id.contains("HH") || id.contains("H/H") || id.contains("H-H"))
-            return "HH";
-        else if(id.contains("VV") || id.contains("V/V") || id.contains("V-V"))
-            return "VV";
-        else if(id.contains("HV") || id.contains("H/V") || id.contains("H-V"))
-            return "HV";
-        else if(id.contains("VH") || id.contains("V/H") || id.contains("V-H"))
-            return "VH";
-
-        return null;
-    }
-
-    public static void discardUnusedMetadata(final Product product) {
-        final String dicardUnusedMetadata = RuntimeContext.getModuleContext().getRuntimeConfig().
-                                                    getContextProperty("discard.unused.metadata");
-        if(dicardUnusedMetadata.equalsIgnoreCase("true")) {
-            removeUnusedMetadata(AbstractMetadata.getOriginalProductMetadata(product));
-        }
-    }
-
-    private static void removeUnusedMetadata(final MetadataElement root) {
-        final MetadataElement[] elems = root.getElements();
-        for(MetadataElement elem : elems) {
-            final String name = elem.getName();
-            boolean keep = false;
-            for(String toKeep : elemsToKeep) {
-                if(name.equals(toKeep)) {
-                    keep = true;
-                    break;
-                }
-            }
-            if(!keep) {
-                root.removeElement(elem);
-                elem.dispose();
-            }
-        }
     }
 
     public static String findExtensionForFormat(final String formatName) {
