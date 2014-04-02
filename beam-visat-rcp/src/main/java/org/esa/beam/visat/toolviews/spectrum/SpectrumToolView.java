@@ -16,35 +16,6 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.glevel.MultiLevelModel;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Placemark;
@@ -100,6 +71,36 @@ import org.jfree.ui.HorizontalAlignment;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A window which displays product allSpectra.
@@ -586,7 +587,7 @@ public class SpectrumToolView extends AbstractToolView {
                 }
                 int symbolIndex = SpectrumShapeProvider.getValidIndex(i, false);
                 DisplayableSpectrum defaultSpectrum =
-                        new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME, symbolIndex);
+                        new DisplayableSpectrum(DisplayableSpectrum.REMAINING_BANDS_NAME, symbolIndex);
                 defaultSpectrum.setSelected(selectedSpectrumIndex == -1);
                 spectra[spectra.length - 1] = defaultSpectrum;
                 final SpectrumBand[] availableSpectralBands = getAvailableSpectralBands();
@@ -603,6 +604,7 @@ public class SpectrumToolView extends AbstractToolView {
                 spectra = new DisplayableSpectrum[1];
                 spectra[0] = new DisplayableSpectrum(
                         DisplayableSpectrum.DEFAULT_SPECTRUM_NAME, getAvailableSpectralBands(), 1);
+                spectra[0].setLineStyle(SpectrumStrokeProvider.getStroke(0));
             }
         }
         productToAllSpectraMap.put(currentProduct, spectra);

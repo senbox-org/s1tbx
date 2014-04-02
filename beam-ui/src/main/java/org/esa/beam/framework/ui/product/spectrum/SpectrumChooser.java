@@ -12,17 +12,13 @@ import com.jidesoft.grid.TableModelWrapperUtils;
 import com.jidesoft.grid.TreeLikeHierarchicalPanel;
 import com.jidesoft.grid.TristateCheckBoxCellEditor;
 import com.jidesoft.swing.TristateCheckBox;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.Window;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.ui.DecimalTableCellRenderer;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.product.LoadSaveRasterDataNodesConfigurationsComponent;
+import org.esa.beam.framework.ui.product.LoadSaveRasterDataNodesConfigurationsProvider;
+import org.esa.beam.util.ArrayUtils;
+
 import javax.swing.AbstractButton;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
@@ -42,12 +38,17 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.ui.DecimalTableCellRenderer;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.product.LoadSaveRasterDataNodesConfigurationsComponent;
-import org.esa.beam.framework.ui.product.LoadSaveRasterDataNodesConfigurationsProvider;
-import org.esa.beam.util.ArrayUtils;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Window;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNodesConfigurationsComponent {
 
@@ -272,7 +273,7 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
 
         private void addRow(DisplayableSpectrum spectrum) {
             ImageIcon strokeIcon;
-            if (spectrum.isDefaultSpectrum()) {
+            if (spectrum.isRemainingBandsSpectrum()) {
                 strokeIcon = new ImageIcon();
             } else {
                 strokeIcon = SpectrumStrokeProvider.getStrokeIcon(spectrum.getLineStyle());
@@ -305,7 +306,7 @@ public class SpectrumChooser extends ModalDialog implements LoadSaveRasterDataNo
 
         @Override
         public boolean isCellEditable(int row, int column) {
-            return !(column == spectrumStrokeIndex && spectra[row].isDefaultSpectrum()) && column != spectrumNameIndex
+            return !(column == spectrumStrokeIndex && spectra[row].isRemainingBandsSpectrum()) && column != spectrumNameIndex
                     && column != spectrumUnitIndex &&
                     !(column == spectrumShapeSizeIndex && getValueAt(row, spectrumShapeSizeIndex).toString().equals(""));
         }

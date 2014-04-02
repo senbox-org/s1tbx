@@ -21,7 +21,7 @@ public class DisplayableSpectrumTest extends TestCase {
                 displayableSpectrum.getScaledShape());
         assertEquals(1, displayableSpectrum.getSymbolIndex());
         assertEquals(true, displayableSpectrum.isSelected());
-        assertEquals(false, displayableSpectrum.isDefaultSpectrum());
+        assertEquals(false, displayableSpectrum.isRemainingBandsSpectrum());
         assertEquals(false, displayableSpectrum.hasBands());
         assertEquals(0, displayableSpectrum.getSpectralBands().length);
         assertEquals(0, displayableSpectrum.getSelectedBands().length);

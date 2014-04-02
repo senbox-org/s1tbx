@@ -1,18 +1,19 @@
 package org.esa.beam.framework.ui.product.spectrum;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.framework.datamodel.Band;
+
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
-import org.esa.beam.framework.datamodel.Band;
 
 public class DisplayableSpectrum implements Spectrum {
 
     public final static String NO_UNIT = "";
     public final static String MIXED_UNITS = "mixed units";
     public final static String DEFAULT_SPECTRUM_NAME = "Bands";
-    public final static String ALTERNATIVE_DEFAULT_SPECTRUM_NAME = "Other";
+    public final static String REMAINING_BANDS_NAME = "Other";
 
     private List<SpectrumBand> bands;
     private String name;
@@ -52,8 +53,8 @@ public class DisplayableSpectrum implements Spectrum {
 
     }
 
-    public boolean isDefaultSpectrum() {
-        return name.equals(DEFAULT_SPECTRUM_NAME) || name.equals(ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+    public boolean isRemainingBandsSpectrum() {
+        return name.equals(REMAINING_BANDS_NAME);
     }
 
     public boolean hasBands() {
@@ -104,7 +105,7 @@ public class DisplayableSpectrum implements Spectrum {
     }
 
     public Stroke getLineStyle() {
-        if (isDefaultSpectrum()) {
+        if (isRemainingBandsSpectrum()) {
             return SpectrumStrokeProvider.EMPTY_STROKE;
         }
         return lineStyle;
