@@ -111,7 +111,7 @@ public class StitchOp extends Operator {
                 sourceImageWidth,
                 sourceImageHeight);
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         final int numSrcBands = sourceProduct.getNumBands();
         for (int i = 0; i < numSrcBands; ++i) {

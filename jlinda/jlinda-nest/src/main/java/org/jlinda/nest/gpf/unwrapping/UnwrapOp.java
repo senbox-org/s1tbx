@@ -12,6 +12,7 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
@@ -216,7 +217,7 @@ public class UnwrapOp extends Operator {
         }
 
         targetProduct.setPreferredTileSize(tileWidth, tileHeight);
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
     }
 

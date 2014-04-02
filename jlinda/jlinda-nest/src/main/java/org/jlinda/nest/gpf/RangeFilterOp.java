@@ -255,7 +255,7 @@ public class RangeFilterOp extends Operator {
 //        targetProduct.setPreferredTileSize(1024, 128);
 
         // copy product nodes
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (String key : targetMap.keySet()) {
 

@@ -13,6 +13,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
@@ -186,7 +187,7 @@ public class DInSAROp extends Operator {
                 defoProduct.getSceneRasterWidth(),
                 defoProduct.getSceneRasterHeight());
 
-        OperatorUtils.copyProductNodes(defoProduct, targetProduct);
+        ProductUtils.copyProductNodes(defoProduct, targetProduct);
 
         for (final Band band : targetProduct.getBands()) {
             targetProduct.removeBand(band);

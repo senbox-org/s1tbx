@@ -78,7 +78,7 @@ public class SnaphuImportOp extends Operator {
                     masterProduct.getSceneRasterWidth(),
                     masterProduct.getSceneRasterHeight());
 
-            OperatorUtils.copyProductNodes(masterProduct, targetProduct);
+            ProductUtils.copyProductNodes(masterProduct, targetProduct);
 
             // add target bands to the target
             Band[] bands;

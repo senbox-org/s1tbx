@@ -72,7 +72,7 @@ public class SnaphuExportOp extends Operator {
                     sourceProduct.getSceneRasterWidth(),
                     sourceProduct.getSceneRasterHeight());
 
-            OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             // work only if at least 2 bands
             if (sourceBandNames.length == 2) {

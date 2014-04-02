@@ -14,6 +14,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
@@ -260,7 +261,7 @@ public final class SimulateAmplitudeOp extends Operator {
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (final Band band : targetProduct.getBands()) {
             targetProduct.removeBand(band);

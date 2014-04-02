@@ -205,7 +205,7 @@ public class GenericInSAROp extends Operator {
         // targetProduct.setPreferredTileSize(512, 512);
 
         // copy product nodes
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (String key : ifgMap.keySet()) {
 

@@ -291,7 +291,7 @@ public class CrossResamplingOp extends Operator {
                 targetImageWidth, 
                 targetImageHeight);
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (final Band band : targetProduct.getBands()) {
             targetProduct.removeBand(band);

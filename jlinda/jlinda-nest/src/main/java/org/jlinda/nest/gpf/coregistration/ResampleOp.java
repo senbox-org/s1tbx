@@ -274,7 +274,7 @@ public class ResampleOp extends Operator {
         }
 
         // coregistrated image should have the same geo-coding as the master image
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
         updateTargetProductMetadata();
     }
 

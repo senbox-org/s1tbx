@@ -269,7 +269,7 @@ public class AzimuthFilterOp extends Operator {
         productSizeY = sourceProduct.getSceneRasterHeight();
 
         // copy product nodes
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (String key : targetMap.keySet()) {
 

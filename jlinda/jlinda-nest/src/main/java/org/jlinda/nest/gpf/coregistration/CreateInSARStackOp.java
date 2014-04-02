@@ -152,7 +152,7 @@ public class CreateInSARStackOp extends Operator {
                     masterProduct.getSceneRasterWidth(),
                     masterProduct.getSceneRasterHeight());
 
-            OperatorUtils.copyProductNodes(masterProduct, targetProduct);
+            ProductUtils.copyProductNodes(masterProduct, targetProduct);
 
             if(appendToMaster) {
                 // add all master bands

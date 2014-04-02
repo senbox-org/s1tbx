@@ -176,7 +176,7 @@ public class CplxIfgOp extends Operator {
 
         }
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 //        targetProduct.setPreferredTileSize(sourceProduct.getSceneRasterWidth(), 2000);
 
     }
