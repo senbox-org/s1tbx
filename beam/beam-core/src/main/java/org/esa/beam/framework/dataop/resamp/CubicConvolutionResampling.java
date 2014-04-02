@@ -42,26 +42,6 @@ final class CubicConvolutionResampling implements Resampling {
 
         index.i0 = i0;
         index.j0 = j0;
-        /*
-        float di = x - i0;
-        float dj = y - j0;
-
-        final int iMax = width - 1;
-        final int jMax = height - 1;
-
-        index.i[0] = Index.crop(i0 - 1, iMax);
-        index.i[1] = Index.crop(i0, iMax);
-        index.i[2] = Index.crop(i0 + 1, iMax);
-        index.i[3] = Index.crop(i0 + 2, iMax);
-
-        index.j[0] = Index.crop(j0 - 1, jMax);
-        index.j[1] = Index.crop(j0, jMax);
-        index.j[2] = Index.crop(j0 + 1, jMax);
-        index.j[3] = Index.crop(j0 + 2, jMax);
-
-        index.ki[0] = di;
-        index.kj[0] = dj;
-        */
 
         final double di = x - (i0 + 0.5);
         final double dj = y - (j0 + 0.5);
