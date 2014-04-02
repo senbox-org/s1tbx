@@ -1,5 +1,6 @@
 package gov.nasa.gsfc.seadas.dataio;
 
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.*;
 import ucar.ma2.Array;
@@ -290,7 +291,7 @@ public class ViirsXDRFileReader extends SeadasFileReader {
                         return;
                     }
                 }
-                geofile = NetcdfFile.open(geocheck.getPath());
+                geofile = NetcdfFileOpener.open(geocheck.getPath());
                 List<Group> navGroups = geofile.findGroup("All_Data").getGroups();
                 for (Group ng : navGroups) {
                     if (ng.getShortName().contains("GEO")){

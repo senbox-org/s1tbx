@@ -16,6 +16,7 @@
 package gov.nasa.gsfc.seadas.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -98,7 +99,7 @@ public class SeadasProductReader extends AbstractProductReader {
             final File inFile = getInputFile(getInput());
             final String path = inFile.getPath();
 
-            ncfile = NetcdfFile.open(path);
+            ncfile = NetcdfFileOpener.open(path);
             productType = findProductType();
 
             switch (productType) {

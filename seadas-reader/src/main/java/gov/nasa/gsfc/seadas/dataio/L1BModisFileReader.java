@@ -1,6 +1,7 @@
 package gov.nasa.gsfc.seadas.dataio;
 
 import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosUtils;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -300,7 +301,7 @@ public class L1BModisFileReader extends SeadasFileReader {
                     cntl_lat_ix = 1;
                     cntl_lon_ix = 1;
                     offsetY = 0f;
-                    geoNcFile = open(geocheck.getPath());
+                    geoNcFile = NetcdfFileOpener.open(geocheck.getPath());
                 }
             }
 
