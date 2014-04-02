@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,6 @@ package org.esa.beam.framework.dataop.resamp;
  *
  * @author Norman Fomferra
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision$ $Date$
  */
 public interface Resampling {
 
@@ -37,6 +36,14 @@ public interface Resampling {
      * The cubic convolution resampling method.
      */
     Resampling CUBIC_CONVOLUTION = new CubicConvolutionResampling();
+    /**
+     * The bisinc interpolation resampling method.
+     */
+    Resampling BISINC_INTERPOLATION = new BiSincInterpolationResampling();
+    /**
+     * The bicubic spline interpolation resampling method.
+     */
+    Resampling BICUBIC_INTERPOLATION = new BiCubicInterpolationResampling();
 
     /**
      * Gets a unique identifier for this resampling method, e.g. "BILINEAR_INTERPOLATION".
@@ -61,7 +68,7 @@ public interface Resampling {
      * @param height the raster's height
      * @param index  the index object to which the results are to be assigned
      */
-    void computeIndex(float x, float y, int width, int height, Index index);
+    void computeIndex(double x, double y, int width, int height, Index index);
 
     /**
      * Performs the actual resampling operation.
@@ -70,12 +77,10 @@ public interface Resampling {
      *
      * @param raster the raster
      * @param index  the index, must be computed using the {@link #computeIndex} method
-     *
      * @return either the re-sampled sample value or {@link Float#NaN}.
-     *
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
-    float resample(Raster raster, Index index) throws Exception;
+    double resample(Raster raster, Index index) throws Exception;
 
     /**
      * A raster is a rectangular grid which provides sample values at a given raster position x,y.
@@ -101,32 +106,31 @@ public interface Resampling {
          *
          * @param x the pixel's X-coordinate
          * @param y the pixel's Y-coordinate
-         *
-         * @return the sample value or {@link Float#NaN} if data is missing at the given raster position
-         *
+         *          the sample value or {@link Double#NaN} if data is missing at the given raster position
+         * @return false if one value is Double#NaN
          * @throws Exception if a non-runtime error occurs, e.g I/O error
          */
-        float getSample(int x, int y) throws Exception;
+        boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception;
     }
 
     /**
      * An index is used to provide resampling information at a given raster position x,y.
      */
-    class Index {
+    final class Index {
 
-        //used as archieve to recompute the index for an other resampling method
-        public float x;
-        public float y;
+        //used as archive to recompute the index for an other resampling method
+        public double x;
+        public double y;
         public int width;
         public int height;
 
         // the index fields
-        public int i0;
-        public int j0;
-        public final int[] i;
-        public final int[] j;
-        public final float[] ki;
-        public final float[] kj;
+        public double i0;
+        public double j0;
+        public final double[] i;
+        public final double[] j;
+        public final double[] ki;
+        public final double[] kj;
 
         /**
          * Creates a new index.
@@ -135,13 +139,13 @@ public interface Resampling {
          * @param n the maximum number of polynomial coefficients required to perform a resampling
          */
         public Index(int m, int n) {
-            i = new int[m];
-            j = new int[m];
-            ki = new float[n];
-            kj = new float[n];
+            i = new double[m];
+            j = new double[m];
+            ki = new double[n];
+            kj = new double[n];
         }
 
-        public static int crop(int i, int max) {
+        public static double crop(double i, double max) {
             return (i < 0) ? 0 : (i > max) ? max : i;
         }
     }

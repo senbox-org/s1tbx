@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,8 +16,7 @@
 
 package org.esa.beam.framework.dataop.resamp;
 
-
-final class BilinearInterpolationResampling implements Resampling {
+public final class BilinearInterpolationResampling implements Resampling {
 
     public String getName() {
         return "BILINEAR_INTERPOLATION";
@@ -27,8 +26,8 @@ final class BilinearInterpolationResampling implements Resampling {
         return new Index(2, 1);
     }
 
-    public final void computeIndex(final float x,
-                                   final float y,
+    public final void computeIndex(final double x,
+                                   final double y,
                                    final int width,
                                    final int height,
                                    final Index index) {
@@ -40,59 +39,56 @@ final class BilinearInterpolationResampling implements Resampling {
         final int i0 = (int) Math.floor(x);
         final int j0 = (int) Math.floor(y);
 
-        final float di = x - (i0 + .5f);
-        final float dj = y - (j0 + .5f);
+        final double di = x - (i0 + 0.5);
+        final double dj = y - (j0 + 0.5);
 
         index.i0 = i0;
         index.j0 = j0;
 
         final int iMax = width - 1;
         if (di >= 0) {
-            index.i[0] = Index.crop(i0 + 0, iMax);
-            index.i[1] = Index.crop(i0 + 1, iMax);
+            final int i1 = i0 + 1;
+            index.i[0] = (i0 < 0) ? 0 : (i0 > iMax) ? iMax : i0;
+            index.i[1] = (i1 < 0) ? 0 : (i1 > iMax) ? iMax : i1;
             index.ki[0] = di;
         } else {
-            index.i[0] = Index.crop(i0 - 1, iMax);
-            index.i[1] = Index.crop(i0 + 0, iMax);
+            final int i1 = i0 - 1;
+            index.i[0] = (i1 < 0) ? 0 : (i1 > iMax) ? iMax : i1;
+            index.i[1] = (i0 < 0) ? 0 : (i0 > iMax) ? iMax : i0;
             index.ki[0] = di + 1;
         }
 
         final int jMax = height - 1;
         if (dj >= 0) {
-            index.j[0] = Index.crop(j0 + 0, jMax);
-            index.j[1] = Index.crop(j0 + 1, jMax);
+            final int j1 = j0 + 1;
+            index.j[0] = (j0 < 0) ? 0 : (j0 > jMax) ? jMax : j0;
+            index.j[1] = (j1 < 0) ? 0 : (j1 > jMax) ? jMax : j1;
             index.kj[0] = dj;
         } else {
-            index.j[0] = Index.crop(j0 - 1, jMax);
-            index.j[1] = Index.crop(j0 + 0, jMax);
+            final int j1 = j0 - 1;
+            index.j[0] = (j1 < 0) ? 0 : (j1 > jMax) ? jMax : j1;
+            index.j[1] = (j0 < 0) ? 0 : (j0 > jMax) ? jMax : j0;
             index.kj[0] = dj + 1;
         }
     }
 
-    public final float resample(final Raster raster,
-                                final Index index) throws Exception {
+    public final double resample(final Raster raster, final Index index) throws Exception {
 
-        final int i1 = index.i[0];
-        final int i2 = index.i[1];
-        final int j1 = index.j[0];
-        final int j2 = index.j[1];
+        final int[] x = new int[]{(int) index.i[0], (int) index.i[1]};
+        final int[] y = new int[]{(int) index.j[0], (int) index.j[1]};
+        final double[][] samples = new double[2][2];
 
-        final float ki = index.ki[0];
-        final float kj = index.kj[0];
-
-        final float z11 = raster.getSample(i1, j1);
-        final float z12 = raster.getSample(i2, j1);
-        final float z21 = raster.getSample(i1, j2);
-        final float z22 = raster.getSample(i2, j2);
-
-        if (Float.isNaN(z11) || Float.isNaN(z12) || Float.isNaN(z21) || Float.isNaN(z22)) {
-            return raster.getSample(index.i0, index.j0);
+        if (!raster.getSamples(x, y, samples)) {
+            return samples[0][0];
         }
 
-        return z11 * (1f - ki) * (1f - kj) +
-                z12 * ki * (1f - kj) +
-                z21 * (1f - ki) * kj +
-                z22 * ki * kj;
+        final double ki = index.ki[0];
+        final double kj = index.kj[0];
+
+        return samples[0][0] * (1f - ki) * (1f - kj) +
+                samples[0][1] * ki * (1f - kj) +
+                samples[1][0] * (1f - ki) * kj +
+                samples[1][1] * ki * kj;
     }
 
     @Override
