@@ -16,7 +16,6 @@
 package org.esa.beam.util;
 
 import org.jdom.Element;
-import org.jdom.IllegalDataException;
 import org.jdom.Text;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -180,12 +179,7 @@ public class XmlWriter {
 
     private static String encode(String text) {
         if (text != null) {
-            try {
             text = _xmlOutputter.outputString(new Text(text.trim()));
-            } catch (IllegalDataException e) {
-                // send back empty string
-                text = _xmlOutputter.outputString(new Text(""));
-            }
         }
         return text;
     }
