@@ -368,7 +368,7 @@ public class CollocateOp extends Operator {
                                                     sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             double sample;
                             if (resampling == Resampling.NEAREST_NEIGHBOUR) {
-                                sample = sourceTile.getSampleDouble(resamplingIndex.i0, resamplingIndex.j0);
+                                sample = sourceTile.getSampleDouble((int)resamplingIndex.i0, (int)resamplingIndex.j0);
                             } else {
                                 try {
                                     sample = resampling.resample(resamplingRaster, resamplingIndex);
@@ -514,14 +514,17 @@ public class CollocateOp extends Operator {
             return tile.getHeight();
         }
 
-        public final float getSample(int x, int y) throws Exception {
-            final double sample = tile.getSampleDouble(x, y);
-
-            if (isNoDataValue(sample)) {
-                return Float.NaN;
+        public boolean getSamples(int[] x, int[] y, double[][] samples) {
+            boolean allValid = true;
+            for (int i = 0; i < y.length; i++) {
+                for (int j = 0; j < x.length; j++) {
+                    samples[i][j] = tile.getSampleDouble(x[j], y[i]);
+                    if (isNoDataValue(samples[i][j])) {
+                        allValid = false;
+                    }
+                }
             }
-
-            return (float) sample;
+            return allValid;
         }
 
         private boolean isNoDataValue(double sample) {
