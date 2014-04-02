@@ -84,7 +84,7 @@ public final class Tokenizer {
      * The keywords regognized by this tokenizer.
      */
     private final static String[] keywords = new String[]{
-            "and", "or", "not", "true", "false"
+            "and", "or", "not", "true", "false", "if", "then", "else",
     };
 
     /**
@@ -295,10 +295,8 @@ public final class Tokenizer {
                 return false;
             }
         }
-        if (name.charAt(0) == '\'' && name.charAt(name.length() - 1) == '\'') {
-            return true;
-        }
-        return name.matches("[a-z_$A-Z][a-z_$A-Z0-9\\.]*");
+        return name.charAt(0) == '\'' && name.charAt(name.length() - 1) == '\''
+               || name.matches("[a-z_$A-Z][a-z_$A-Z0-9\\.]*");
     }
 
     /**

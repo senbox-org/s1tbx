@@ -201,6 +201,31 @@ public final class ParserImpl implements Parser {
      * @throws ParseException if a parse error occurs
      */
     private Term parseConditional(final boolean required) throws ParseException {
+        tokenizer.next();
+        if (isKeyword("if")) {
+            Term t1 = parseTerm(true);
+            tokenizer.next();
+            if (isKeyword("then")) {
+                Term t2 = parseTerm(true);
+                tokenizer.next();
+                if (isKeyword("else")) {
+                    if (isTypeChecking() && !t1.isB()) {
+                        reportError("Boolean operand expected after 'if' in conditional term.");
+                    }
+                    Term t3 = parseTerm(true);
+                    return createConditionTerm(t1, t2, t3);
+                } else {
+                    tokenizer.pushBack();
+                    reportError("Missing 'else' in a conditional 'if' term.");
+                }
+            } else {
+                tokenizer.pushBack();
+                reportError("Missing 'then' in a conditional 'if' term.");
+            }
+        } else {
+            tokenizer.pushBack();
+        }
+
         Term t1 = parseLogicalOr(required);
         int tt = tokenizer.next();
         if (tt == '?') {
@@ -208,20 +233,10 @@ public final class ParserImpl implements Parser {
             tt = tokenizer.next();
             if (tt == ':') {
                 if (isTypeChecking() && !t1.isB()) {
-                    reportError("Boolean operand expected before '?' in conditional '?:' term.");
+                    reportError("Boolean operand expected before '?' in conditional term.");
                 }
                 Term t3 = parseTerm(true);
-                if (t2.isB() && t3.isB()) {
-                    t1 = new Term.Cond(Term.TYPE_B, t1, t2, t3);
-                } else if ((t2.isD() && t3.isN() || t2.isN() && t3.isD())) {
-                    t1 = new Term.Cond(Term.TYPE_D, t1, t2, t3);
-                } else if ((t2.isI() && t3.isI())) {
-                    t1 = new Term.Cond(Term.TYPE_I, t1, t2, t3);
-                } else if (!isTypeChecking()) {
-                    t1 = new Term.Cond(Term.TYPE_D, t1, t2, t3);
-                } else {
-                    reportError("Boolean or numeric operands expected in conditional '?:' term.");
-                }
+                t1 = createConditionTerm(t1, t2, t3);
             } else {
                 tokenizer.pushBack();
                 reportError("Missing ':' part of conditional '?:' term.");
@@ -942,6 +957,22 @@ public final class ParserImpl implements Parser {
             return "?";
         }
     }
+
+    private Term createConditionTerm(Term t1, Term t2, Term t3) throws ParseException {
+        if (t2.isB() && t3.isB()) {
+            return new Term.Cond(Term.TYPE_B, t1, t2, t3);
+        } else if ((t2.isD() && t3.isN() || t2.isN() && t3.isD())) {
+            return new Term.Cond(Term.TYPE_D, t1, t2, t3);
+        } else if ((t2.isI() && t3.isI())) {
+            return new Term.Cond(Term.TYPE_I, t1, t2, t3);
+        } else if (!isTypeChecking()) {
+            return new Term.Cond(Term.TYPE_D, t1, t2, t3);
+        } else {
+            reportError("Boolean or numeric operands expected in conditional term.");
+            return null;
+        }
+    }
+
 }
 
 
