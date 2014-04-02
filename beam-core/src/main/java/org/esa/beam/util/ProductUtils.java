@@ -1130,6 +1130,23 @@ public class ProductUtils {
     }
 
     /**
+     * Copies the index codings from the source product to the target.
+     *
+     * @param source the source product
+     * @param target the target product
+     */
+    public static void copyIndexCodings(Product source, Product target) {
+        Guardian.assertNotNull("source", source);
+        Guardian.assertNotNull("target", target);
+
+        int numCodings = source.getIndexCodingGroup().getNodeCount();
+        for (int n = 0; n < numCodings; n++) {
+            IndexCoding sourceFlagCoding = source.getIndexCodingGroup().get(n);
+            copyIndexCoding(sourceFlagCoding, target);
+        }
+    }
+
+    /**
      * Copies the given source index coding to the target product
      * If it exists already, the method simply returns the existing instance.
      *
@@ -1404,6 +1421,8 @@ public class ProductUtils {
                 IndexCoding srcIndexCoding = sourceBand.getIndexCoding();
                 copyIndexCoding(srcIndexCoding, targetProduct);
                 targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
+
+                targetBand.setImageInfo((ImageInfo)sourceBand.getImageInfo().clone());
             }
         }
     }
@@ -2486,7 +2505,7 @@ public class ProductUtils {
         }
     }
 
-    static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
+    public static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
         final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
         final ArrayList<GeneralPath> pathList = new ArrayList<GeneralPath>(16);
 
