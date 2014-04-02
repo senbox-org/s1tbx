@@ -129,23 +129,6 @@ public class PixelGeoCodingTest {
         assertEquals(geoCoding1, geoCoding2);
         assertFalse(geoCoding1.equals(geoCoding3));
     }
-    public void testGetPixelPos() throws IOException {
-        Product product = createProduct();
-        TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
-        PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                           product.getBand("lonBand"), null, 2, ProgressMonitor.NULL);
-        product.setGeoCoding(pixelGeoCoding);
-        TiePointGrid latGrid = tiePointGeoCoding.getLatGrid();
-        TiePointGrid lonGrid = tiePointGeoCoding.getLonGrid();
-        GeoPos gp = new GeoPos(latGrid.getTiePoints()[0], lonGrid.getTiePoints()[0]);
-        PixelPos pixelPos = pixelGeoCoding.getPixelPos(gp, null);
-        assertEquals(new PixelPos(0.5f, 0.5f), pixelPos);
-        System.out.println("----");
-        gp = new GeoPos((latGrid.getTiePoints()[0] + latGrid.getTiePoints()[1]) / 2 ,
-                               (lonGrid.getTiePoints()[0] + lonGrid.getTiePoints()[1]) / 2 );
-         pixelPos = pixelGeoCoding.getPixelPos(gp, null);
-         assertEquals(new PixelPos(2.5f, 0.5f), pixelPos);
-    }
 
     @Test
     public void testGetPixelPos() throws IOException {
