@@ -161,7 +161,7 @@ public class TimeSeriesReaderOp extends Operator {
                         masterProduct.getSceneRasterWidth(),
                         masterProduct.getSceneRasterHeight());
 
-                OperatorUtils.copyProductNodes(masterProduct, targetProduct);
+                ProductUtils.copyProductNodes(masterProduct, targetProduct);
             } else if(extent.equals(MIN_EXTENT)) {
                 determinMinExtents();
             } else {

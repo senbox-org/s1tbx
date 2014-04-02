@@ -317,7 +317,7 @@ public final class GLCMOp extends Operator {
 
         addSelectedBands();
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
     }
 
     /**

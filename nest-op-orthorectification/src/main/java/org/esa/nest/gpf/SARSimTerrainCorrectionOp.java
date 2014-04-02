@@ -488,10 +488,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
         targetProduct.setDescription(sourceProduct.getDescription());
 
         try {
-            OperatorUtils.copyIndexCodings(sourceProduct, targetProduct);
+            ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
         } catch(Exception e) {
             if(!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
-                throw new OperatorException("Use Nearest Neighbour with Classificaitons: "+e.getMessage());
+                throw new OperatorException("Use Nearest Neighbour with Classifications: "+e.getMessage());
             }
         }
 

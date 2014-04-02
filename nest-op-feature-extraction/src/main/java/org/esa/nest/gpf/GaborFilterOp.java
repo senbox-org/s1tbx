@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class GaborFilterOp extends Operator {
             OperatorUtils.addSelectedBands(
                     sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, true);
 
-            OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             // update the metadata with the affect of the processing
             updateTargetProductMetadata();

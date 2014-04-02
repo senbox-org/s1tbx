@@ -168,7 +168,7 @@ public class DataAnalysisOp extends Operator {
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for(Band band : sourceProduct.getBands()) {
             ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);

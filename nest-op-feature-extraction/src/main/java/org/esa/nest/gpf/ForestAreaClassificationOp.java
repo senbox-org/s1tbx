@@ -128,7 +128,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
         addSelectedBands();
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
     }
 
     /**

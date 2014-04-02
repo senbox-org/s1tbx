@@ -269,7 +269,7 @@ public final class GeoCorrectionOp1 extends Operator {
 
         addSelectedBands();
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
 

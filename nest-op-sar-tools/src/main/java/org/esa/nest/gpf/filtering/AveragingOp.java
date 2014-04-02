@@ -84,7 +84,7 @@ public class AveragingOp extends Operator {
                                         sourceProduct.getSceneRasterWidth(),
                                         sourceProduct.getSceneRasterHeight());
 
-            OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             final Band[] sourceBands;
             if(allbands) {

@@ -228,7 +228,7 @@ public final class ApplyOrbitFileOp extends Operator {
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for(Band srcBand : sourceProduct.getBands()) {
             if(srcBand instanceof VirtualBand) {

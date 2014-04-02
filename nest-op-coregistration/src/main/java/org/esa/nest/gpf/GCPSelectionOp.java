@@ -288,7 +288,7 @@ public class GCPSelectionOp extends Operator {
                                     sourceImageWidth,
                                     sourceImageHeight);
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 

@@ -113,7 +113,7 @@ public final class MergeSlicesOp extends Operator {
             targetProduct.addBand(newBand);
         }
 
-        OperatorUtils.copyProductNodes(srcProduct0, targetProduct);
+        ProductUtils.copyProductNodes(srcProduct0, targetProduct);
     }
 
     private void updateTargetProductMetadata() {

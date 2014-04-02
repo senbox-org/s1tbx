@@ -120,7 +120,7 @@ public final class CreateElevationOp extends Operator {
                                     sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for(Band band : sourceProduct.getBands()) {
             if(band.getName().equalsIgnoreCase(elevationBandName))

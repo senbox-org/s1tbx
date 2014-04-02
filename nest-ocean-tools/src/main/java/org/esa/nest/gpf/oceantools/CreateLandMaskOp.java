@@ -91,7 +91,7 @@ public class CreateLandMaskOp extends Operator {
             targetProduct = new Product(sourceProduct.getName(), sourceProduct.getProductType(),
                     sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
 
-            OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             addSelectedBands();
 

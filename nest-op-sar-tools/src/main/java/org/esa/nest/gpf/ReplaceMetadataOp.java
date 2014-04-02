@@ -90,7 +90,7 @@ public class ReplaceMetadataOp extends Operator {
                 targetBand.setSourceImage(srcBand.getSourceImage());
             }
 
-            OperatorUtils.copyProductNodes(slaveProduct, targetProduct);
+            ProductUtils.copyProductNodes(slaveProduct, targetProduct);
 
             final MetadataElement absRootMst = AbstractMetadata.getAbstractedMetadata(masterProduct);
             final int isPolsar = absRootMst.getAttributeInt(AbstractMetadata.polsarData, 0);

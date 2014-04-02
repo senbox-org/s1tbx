@@ -205,41 +205,6 @@ public final class OperatorUtils {
         return null;
     }
 
-    public static void copyProductNodes(final Product sourceProduct, final Product targetProduct) {
-        ProductUtils.copyMetadata(sourceProduct, targetProduct);
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        ProductUtils.copyMasks(sourceProduct, targetProduct);
-        ProductUtils.copyVectorData(sourceProduct, targetProduct);
-        targetProduct.setStartTime(sourceProduct.getStartTime());
-        targetProduct.setEndTime(sourceProduct.getEndTime());
-        targetProduct.setDescription(sourceProduct.getDescription());
-
-        copyIndexCodings(sourceProduct, targetProduct);
-    }
-
-    public static void copyIndexCodings(final Product sourceProduct, final Product targetProduct) {
-        ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        if(targetProduct.getIndexCodingGroup().getNodeCount() > 0) {
-            final Band[] srcBands = sourceProduct.getBands();
-            final Band[] trgBands = targetProduct.getBands();
-
-            for (Band trgBand : trgBands) {
-                for (Band srcBand : srcBands) {
-                    if (srcBand.getName().equals(trgBand.getName()) &&
-                            srcBand.getSampleCoding() != null) {
-                        final String srcSampleCoding = srcBand.getSampleCoding().getName();
-                        final IndexCoding trgIndexCoding = targetProduct.getIndexCodingGroup().get(srcSampleCoding);
-                        if (trgIndexCoding != null) {
-                            trgBand.setSampleCoding(trgIndexCoding);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public static void copyVirtualBand(final Product product, final VirtualBand srcBand, final String name) {
 
         final VirtualBand virtBand = new VirtualBand(name,
@@ -320,10 +285,10 @@ public final class OperatorUtils {
                                         sourceProducts[0].getSceneRasterWidth(),
                                         sourceProducts[0].getSceneRasterHeight());
 
-        copyProductNodes(sourceProducts[0], targetProduct);
+        ProductUtils.copyProductNodes(sourceProducts[0], targetProduct);
         for(Product prod : sourceProducts) {
             for(Band band : prod.getBands()) {
-                ProductUtils.copyBand(band.getName(), prod, band.getName(), targetProduct);
+                ProductUtils.copyBand(band.getName(), prod, band.getName(), targetProduct, false);
             }
         }
         return targetProduct;

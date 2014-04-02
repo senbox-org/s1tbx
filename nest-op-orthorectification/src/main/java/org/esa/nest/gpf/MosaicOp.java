@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
@@ -176,7 +177,7 @@ public class MosaicOp extends Operator {
             if(sourceProduct[0].getIndexCodingGroup().getNodeCount() > 0 &&
                     sourceProduct[0].getIndexCodingGroup().get(0) != null) {
                 try {
-                    OperatorUtils.copyIndexCodings(sourceProduct[0], targetProduct);
+                    ProductUtils.copyIndexCodings(sourceProduct[0], targetProduct);
                 } catch(Exception e) {
                     if(!resamplingMethod.equals(Resampling.NEAREST_NEIGHBOUR)) {
                         throw new OperatorException("Use Nearest Neighbour with Classificaitons: "+e.getMessage());

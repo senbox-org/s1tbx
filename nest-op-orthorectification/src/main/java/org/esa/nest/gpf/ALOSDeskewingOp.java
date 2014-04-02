@@ -203,7 +203,7 @@ public class ALOSDeskewingOp extends Operator {
         OperatorUtils.addSelectedBands(
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, false);
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for(Band srcBand : sourceProduct.getBands()) {
             if(srcBand instanceof VirtualBand) {

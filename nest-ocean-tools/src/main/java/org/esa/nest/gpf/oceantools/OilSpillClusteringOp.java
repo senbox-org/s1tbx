@@ -106,7 +106,7 @@ public class OilSpillClusteringOp extends Operator {
                                     sourceImageWidth,
                                     sourceImageHeight);
 
-        OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         addSelectedBands();
     }
