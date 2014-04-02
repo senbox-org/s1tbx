@@ -227,11 +227,23 @@ public class SpectrumToolView extends AbstractToolView {
 
     }
 
-    protected void updateSpectra(int pixelX, int pixelY, int level, boolean adjustAxes) {
-        maybeShowTip();
+    void setPrepareForUpdateMessage() {
+        chartHandler.setCollectingSpectralInformationMessage();
+    }
+
+    void updateData(int pixelX, int pixelY, int level) {
         chartHandler.setPosition(pixelX, pixelY);
         chartHandler.setLevel(level);
+        chartHandler.updateData();
+    }
+
+    void updateChart(boolean adjustAxes) {
         chartHandler.setAutomaticRangeAdjustments(adjustAxes);
+        updateChart();
+    }
+
+    void updateChart() {
+        maybeShowTip();
         chartHandler.updateChart();
         chartPanel.repaint();
     }
@@ -516,9 +528,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private void selectSpectralBands() {
         final DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(getCurrentProduct());
-//                todo set real help
-        final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra,
-                getDescriptor().getHelpId());
+        final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra);
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
             final DisplayableSpectrum[] spectra = spectrumChooser.getSpectra();
             productToAllSpectraMap.put(currentProduct, spectra);
@@ -538,6 +548,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void recreateChart() {
+        chartHandler.updateData();
         chartHandler.updateChart();
         chartPanel.repaint();
         updateUIState();
@@ -667,8 +678,8 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    void removeCursorSpectra() {
-        chartHandler.removeCursorSpectra();
+    void removeCursorSpectraFromDataset() {
+        chartHandler.removeCursorSpectraFromDataset();
     }
 
     boolean hasDiagram() {
@@ -765,7 +776,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private void setPosition(int pixelX, int pixelY) {
-            chartUpdater.setPositionAndLevel(pixelX, pixelY);
+            chartUpdater.setPosition(pixelX, pixelY);
         }
 
         private void setLevel(int level) {
@@ -773,20 +784,26 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private void updateChart() {
-            List<DisplayableSpectrum> spectra = getSelectedSpectra();
-            if (spectra.isEmpty()) {
+            if (chartUpdater.isDatasetEmpty()) {
                 setEmptyPlot();
                 return;
             }
-            setPlotMessage(MESSAGE_COLLECTING_SPECTRAL_INFORMATION);
+            List<DisplayableSpectrum> spectra = getSelectedSpectra();
             chartUpdater.updateChart(chart, spectra);
             chart.getXYPlot().clearAnnotations();
+        }
+
+        private void updateData() {
+            List<DisplayableSpectrum> spectra = getSelectedSpectra();
+            chartUpdater.updateData(chart, spectra);
         }
 
         private void setEmptyPlot() {
             chart.getXYPlot().setDataset(null);
             if (getCurrentProduct() == null) {
                 setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
+            } else if (!chartUpdater.hasValidCursorPosition()) {
+                return;
             } else if (getAllSpectra().length == 0) {
                 setPlotMessage(MESSAGE_NO_SPECTRA_SELECTED);
             } else {
@@ -827,9 +844,12 @@ public class SpectrumToolView extends AbstractToolView {
             return chartUpdater.hasValidCursorPosition();
         }
 
-        public void removeCursorSpectra() {
-            chartUpdater.removeCursorSpectra();
-            updateChart();
+        public void removeCursorSpectraFromDataset() {
+            chartUpdater.removeCursorSpectraFromDataset();
+        }
+
+        public void setCollectingSpectralInformationMessage() {
+            setPlotMessage(MESSAGE_COLLECTING_SPECTRAL_INFORMATION);
         }
     }
 
@@ -844,6 +864,7 @@ public class SpectrumToolView extends AbstractToolView {
         private int pixelY;
         private int level;
         private Range[] plotBounds;
+        private XYSeriesCollection dataset;
 
         private ChartUpdater() {
             pinToEnergies = new HashMap<Placemark, Map<Band, Double>>();
@@ -860,13 +881,13 @@ public class SpectrumToolView extends AbstractToolView {
             this.level = level;
         }
 
-        private void setPositionAndLevel(int pixelX, int pixelY) {
+        private void setPosition(int pixelX, int pixelY) {
             this.pixelX = pixelX;
             this.pixelY = pixelY;
         }
 
-        private void updateChart(JFreeChart chart, List<DisplayableSpectrum> spectra) {
-            final XYSeriesCollection dataset = new XYSeriesCollection();
+        private void updateData(JFreeChart chart, List<DisplayableSpectrum> spectra) {
+            dataset = new XYSeriesCollection();
             if (level >= 0) {
                 fillDatasetWithPinSeries(spectra, dataset, chart);
                 // todo - not yet implemented for 4.1 but planned for 5.0 (tf - 5.3.2014)
@@ -875,6 +896,9 @@ public class SpectrumToolView extends AbstractToolView {
                     fillDatasetWithCursorSeries(spectra, dataset, chart);
                 }
             }
+        }
+
+        private void updateChart(JFreeChart chart, List<DisplayableSpectrum> spectra) {
             final XYPlot plot = chart.getXYPlot();
             if (!chartHandler.isAutomaticDomainAdjustmentSet() && !domainAxisAdjustmentIsFrozen) {
                 isCodeInducedAxisChange = true;
@@ -1070,10 +1094,23 @@ public class SpectrumToolView extends AbstractToolView {
             return pixelX > Integer.MIN_VALUE && pixelY > Integer.MIN_VALUE;
         }
 
-        public void removeCursorSpectra() {
-            pixelX = Integer.MIN_VALUE;
-            pixelY = Integer.MIN_VALUE;
+        void removeCursorSpectraFromDataset() {
+            if (hasValidCursorPosition()) {
+                pixelX = Integer.MIN_VALUE;
+                pixelY = Integer.MIN_VALUE;
+                int numberOfSelectedSpectra = getSelectedSpectra().size();
+                int numberOfPins = getDisplayedPins().length;
+                int numberOfDisplayedGraphs = numberOfPins * numberOfSelectedSpectra;
+                while (dataset.getSeriesCount() > numberOfDisplayedGraphs) {
+                    dataset.removeSeries(dataset.getSeriesCount() - 1);
+                }
+            }
         }
+
+        public boolean isDatasetEmpty() {
+            return dataset == null || dataset.getSeriesCount() == 0;
+        }
+
     }
 
     private class SpectrumLegendItemSource implements LegendItemSource {

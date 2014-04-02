@@ -17,8 +17,8 @@ public class BinManagerTest {
         BinManager binManager = new BinManager(variableContext,
                 new AggregatorAverage(variableContext, "c", null),
                 new AggregatorAverageML(variableContext, "b", null),
-                new AggregatorMinMax(variableContext, "a"),
-                new AggregatorOnMaxSet(variableContext, "c", "a", "b"));
+                new AggregatorMinMax(variableContext, "a", "a"),
+                new AggregatorOnMaxSet(variableContext, "c", "c", "a", "b"));
 
         assertEquals(4, binManager.getAggregatorCount());
 
@@ -66,15 +66,28 @@ public class BinManagerTest {
     @Test
     public void testGetResultFeatureNames_withPostProcessor() {
         final VariableContext variableContext = createVariableContext();
-        final FeatureSelection.Config ppSelection = new FeatureSelection.Config("e_min");
+        final FeatureSelection.Config ppSelection = new FeatureSelection.Config("out_min");
 
         final BinManager binManager = new BinManager(variableContext,
                 ppSelection,
-                new AggregatorMinMax(variableContext, "e"));
+                new AggregatorMinMax(variableContext, "e", "out"));
 
         final String[] resultFeatureNames = binManager.getResultFeatureNames();
         assertEquals(1, resultFeatureNames.length);
-        assertEquals("e_min", resultFeatureNames[0]);
+        assertEquals("out_min", resultFeatureNames[0]);
+    }
+
+    @Test
+    public void testGetResultFeatureCount_withPostProcessor_targetName() {
+        final VariableContext variableContext = createVariableContext();
+        final FeatureSelection.Config ppSelection = new FeatureSelection.Config("out_max");
+
+        final BinManager binManager = new BinManager(variableContext,
+                ppSelection,
+                new AggregatorMinMax(variableContext, "f", "out"));
+
+        final int featureCount = binManager.getResultFeatureCount();
+        assertEquals(1, featureCount);
     }
 
     @Test
@@ -84,7 +97,7 @@ public class BinManagerTest {
 
         final BinManager binManager = new BinManager(variableContext,
                 ppSelection,
-                new AggregatorMinMax(variableContext, "f"));
+                new AggregatorMinMax(variableContext, "f", "f"));
 
         final int featureCount = binManager.getResultFeatureCount();
         assertEquals(1, featureCount);

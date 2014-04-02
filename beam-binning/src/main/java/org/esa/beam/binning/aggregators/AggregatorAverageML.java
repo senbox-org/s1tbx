@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.AbstractAggregator;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -45,16 +44,16 @@ public class AggregatorAverageML extends AbstractAggregator {
     private final boolean outputSums;
 
     public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff) {
-        this(ctx, varName, weightCoeff, false);
+        this(ctx, varName, varName, weightCoeff, false);
     }
 
-    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, boolean outputSums) {
+    public AggregatorAverageML(VariableContext ctx, String targetName, String varName, Double weightCoeff, boolean outputSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq"),
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
               outputSums ?
-                      createFeatureNames(varName, "sum", "sum_sq", "weights") :
-                      createFeatureNames(varName, "mean", "sigma", "median", "mode"));
+                      createFeatureNames(targetName, "sum", "sum_sq", "weights") :
+                      createFeatureNames(targetName, "mean", "sigma", "median", "mode"));
         this.outputSums = outputSums;
         this.varIndex = ctx.getVariableIndex(varName);
         this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.5);
@@ -141,16 +140,26 @@ public class AggregatorAverageML extends AbstractAggregator {
         @Parameter
         String varName;
         @Parameter
+        String targetName;
+        @Parameter
         Double weightCoeff;
         @Parameter
         Boolean outputSums;
 
         public Config() {
+            this(null, null, 0.0, false);
+        }
+
+        public Config(String varName, String targetName, double weightCoeff, boolean outputSums) {
             super(Descriptor.NAME);
+            this.varName = varName;
+            this.targetName = targetName;
+            this.weightCoeff = weightCoeff;
+            this.outputSums = outputSums;
         }
 
         @Override
-        public String[] getVarNames() {
+        public String[] getSourceVarNames() {
             return new String[]{varName};
         }
     }
@@ -171,12 +180,11 @@ public class AggregatorAverageML extends AbstractAggregator {
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-            PropertySet propertySet = aggregatorConfig.asPropertySet();
-            Boolean outputSums = propertySet.getValue("outputSums");
-            return new AggregatorAverageML(varCtx,
-                                           (String) propertySet.getValue("varName"),
-                                           (Double) propertySet.getValue("weightCoeff"),
-                                           outputSums != null ? outputSums : false);
+            Config config = ((Config) aggregatorConfig);
+
+            boolean outputSums = config.outputSums != null ? config.outputSums : false;
+            String targetName = config.targetName != null ? config.targetName : config.varName;
+            return new AggregatorAverageML(varCtx, targetName, config.varName, config.weightCoeff, outputSums);
         }
     }
 }

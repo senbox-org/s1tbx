@@ -77,6 +77,7 @@
     <mapID target="showNavigationWnd" url="visat/NavigationWindow.html"/>
     <mapID target="showColorManipulationWnd" url="visat/ColorManipulationWindow.html"/>
     <mapID target="showSpectrumWnd" url="visat/SpectrumWindow.html"/>
+    <mapID target="spectrumChooser" url="visat/SpectrumChooser.html"/>
     <mapID target="showWorldMapWnd" url="visat/WorldMap.html"/>
     <mapID target="showGcpManagerWnd" url="visat/GcpManagement.html"/>
     <mapID target="showPinManagerWnd" url="visat/PinManagement.html"/>

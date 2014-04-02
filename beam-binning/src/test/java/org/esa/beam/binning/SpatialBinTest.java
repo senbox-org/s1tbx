@@ -39,9 +39,9 @@ public class SpatialBinTest {
     public void testBinAggregationAndIO() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A", "B", "C");
         BinManager bman = new BinManager(variableContext,
-                                         new AggregatorMinMax(variableContext, "A"),
-                                         new AggregatorAverage(variableContext, "B", null),
-                                         new AggregatorAverageML(variableContext, "C", null));
+                                         new AggregatorMinMax(variableContext, "A", "A"),
+                                         new AggregatorAverage(variableContext, "B", "B", 0.0, false, false),
+                                         new AggregatorAverageML(variableContext, "C", "C", null, false));
 
         SpatialBin bin = bman.createSpatialBin(0);
 

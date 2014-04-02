@@ -263,7 +263,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             detectorIndex = sourceSamples[detectorIndexSampleIndex].getInt();
         }
         double value = sourceRadiance.getDouble();
-        if (doCalibration && detectorIndex != -1 && value < sourceRadiance.getNode().scale(RAW_SATURATION_THRESHOLD)) {
+        boolean isValidDetectorIndex = detectorIndex >= 0;
+        if (doCalibration && isValidDetectorIndex && value < sourceRadiance.getNode().scale(RAW_SATURATION_THRESHOLD)) {
             value = calibrationAlgorithm.calibrate(bandIndex, detectorIndex, value);
         }
         if (doSmile) {
@@ -283,7 +284,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             final float sunZenithSample = sourceSamples[sunZenithAngleSampleIndex].getFloat();
             value = RsMathUtils.radianceToReflectance((float) value, sunZenithSample, solarFlux);
         }
-        if (doEqualization && detectorIndex != -1) {
+        if (doEqualization && isValidDetectorIndex) {
             value = equalizationAlgorithm.performEqualization(value, bandIndex, detectorIndex);
         }
         targetSample.set(value);

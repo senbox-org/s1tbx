@@ -18,8 +18,9 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.Guardian;
@@ -27,7 +28,6 @@ import org.esa.beam.util.Guardian;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class GPF {
      * both width and height positive.
      */
     public static final RenderingHints.Key KEY_TILE_SIZE =
-            new RenderingKey<Dimension>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
+            new RenderingKey<>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
                 @Override
                 public boolean isValid(Dimension val) {
                     return val.width > 0 && val.height > 0;
@@ -217,28 +217,28 @@ public class GPF {
                                         RenderingHints renderingHints) throws OperatorException {
         Map<String, Product> sourceProductMap = NO_SOURCES;
         if (sourceProducts.length > 0) {
-            sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
             if (operatorSpi == null) {
                 throw new OperatorException(
                         String.format("Unknown operator '%s'. Note that operator aliases are case sensitive.",
                                       operatorName));
             }
-            Field[] declaredFields = operatorSpi.getOperatorClass().getDeclaredFields();
-            for (Field declaredField : declaredFields) {
-                SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
-                if (sourceProductAnnotation != null) {
-                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME, sourceProducts[0]);
-                }
-                SourceProducts sourceProductsAnnotation = declaredField.getAnnotation(SourceProducts.class);
-                if (sourceProductsAnnotation != null) {
-                    for (int i = 0; i < sourceProducts.length; i++) {
-                        Product sourceProduct = sourceProducts[i];
-                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + "." + (i + 1), sourceProduct);
-                        // kept for backward compatibility
-                        // since BEAM 4.9 the pattern above is preferred
-                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
-                    }
+
+            sourceProductMap = new HashMap<>(sourceProducts.length * 3);
+            OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+            SourceProductDescriptor[] sourceProductDescriptors = operatorDescriptor.getSourceProductDescriptors();
+            if(sourceProductDescriptors.length > 0) {
+                sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME, sourceProducts[0]);
+            }
+
+            SourceProductsDescriptor sourceProductsDescriptor = operatorDescriptor.getSourceProductsDescriptor();
+            if(sourceProductsDescriptor != null) {
+                for (int i = 0; i < sourceProducts.length; i++) {
+                    Product sourceProduct = sourceProducts[i];
+                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + "." + (i + 1), sourceProduct);
+                    // kept for backward compatibility
+                    // since BEAM 4.9 the pattern above is preferred
+                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
                 }
             }
         }
@@ -408,15 +408,6 @@ public class GPF {
 
         private final Class<T> objectClass;
         private final Validator<T> validator;
-
-        RenderingKey(int privateKey, Class<T> objectClass) {
-            this(privateKey, objectClass, new Validator<T>() {
-                @Override
-                public boolean isValid(T val) {
-                    return true;
-                }
-            });
-        }
 
         RenderingKey(int privateKey, Class<T> objectClass, Validator<T> validator) {
             super(privateKey);

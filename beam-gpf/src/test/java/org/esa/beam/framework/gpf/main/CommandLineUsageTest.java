@@ -43,7 +43,7 @@ public class CommandLineUsageTest {
     }
 
     @Test
-    public void testConvertSourceProductFieldToDom() throws NoSuchFieldException {
+    public void testOperatorUsageText() throws NoSuchFieldException {
         String usageText = CommandLineUsage.getUsageTextForOperator("FooOp");
         Assert.assertEquals("Usage:\n" +
                             "  gpt FooOp [options] \n" +
@@ -104,6 +104,10 @@ public class CommandLineUsageTest {
 
         @Parameter
         Bar bar;
+
+        @Parameter
+        @Deprecated
+        float baz;
 
         @Override
         public void initialize() throws OperatorException {

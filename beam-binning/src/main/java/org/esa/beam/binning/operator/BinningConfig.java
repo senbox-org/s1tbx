@@ -305,7 +305,7 @@ public class BinningConfig {
         //
         if (aggregatorConfigs != null) {
             for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
-                String[] varNames = aggregatorConfig.getVarNames();
+                String[] varNames = aggregatorConfig.getSourceVarNames();
                 for (String varName : varNames) {
                     variableContext.defineVariable(varName);
                 }

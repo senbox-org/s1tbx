@@ -118,14 +118,15 @@ public class PyOperatorSpi extends OperatorSpi {
         if (pythonInfoXmlFile.exists()) {
             operatorDescriptor = DefaultOperatorDescriptor.fromXml(pythonInfoXmlFile);
         } else {
-            operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, Operator.class);
+            operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, PyOperator.class);
             BeamLogManager.getSystemLogger().warning(String.format("Missing operator metadata file '%s'", pythonInfoXmlFile));
         }
 
         PyOperatorSpi operatorSpi = new PyOperatorSpi(operatorDescriptor) {
             @Override
             public Operator createOperator() throws OperatorException {
-                PyOperator pyOperator = new PyOperator();
+                PyOperator pyOperator = (PyOperator) super.createOperator();
+                pyOperator.setParameterDefaultValues();
                 pyOperator.setPythonModulePath(pythonModuleDir.getPath());
                 pyOperator.setPythonModuleName(pythonModuleName);
                 pyOperator.setPythonClassName(pythonClassName);
@@ -133,7 +134,8 @@ public class PyOperatorSpi extends OperatorSpi {
             }
         };
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi);
+        String operatorName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorName, operatorSpi);
         BeamLogManager.getSystemLogger().info(String.format("Python operator '%s' registered (class '%s' in file '%s')",
                                                             pythonModuleName, pythonClassName, pythonModuleFile));
     }

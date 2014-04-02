@@ -30,7 +30,7 @@
 
     <artifactId>beam-merisl3-reader</artifactId>
     <name>BEAM MERIS Level-3 Product Reader</name>
-    <version>1.2.2.${beam.version}</version>
+    <version>1.2.3.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

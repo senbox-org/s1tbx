@@ -40,17 +40,18 @@ class CollocationDialog extends SingleTargetProductDialog {
 
     public CollocationDialog(AppContext appContext) {
         super(appContext, "Collocation", ID_APPLY_CLOSE, HELP_ID);
+        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(CollocateOp.Spi.class.getName());
 
-        parameterSupport = new OperatorParameterSupport(CollocateOp.class);
+        parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor());
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                     CollocateOp.class,
+                                                     operatorSpi.getOperatorDescriptor(),
                                                      parameterSupport,
                                                      appContext,
                                                      HELP_ID);
 
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
-        form = new CollocationForm(parameterSupport.getPopertySet(), getTargetProductSelector(), appContext);
+        form = new CollocationForm(parameterSupport.getPropertySet(), getTargetProductSelector(), appContext);
 
     }
 

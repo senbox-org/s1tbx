@@ -17,6 +17,7 @@
 package org.esa.beam.visat.actions.masktools;
 
 import com.bc.ceres.core.Assert;
+import com.bc.jexp.ParseException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.SingleValueConverter;
 import org.esa.beam.framework.datamodel.Band;
@@ -26,7 +27,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,7 +53,7 @@ public class MagicWandModel implements Cloneable {
         DERIVATIVE,
     }
 
-    public enum BandAccumulation {
+    public enum PixelTest {
         DISTANCE,
         AVERAGE,
         LIMITS,
@@ -65,7 +66,7 @@ public class MagicWandModel implements Cloneable {
     private double maxTolerance;
     private ArrayList<String> bandNames;
     private SpectrumTransform spectrumTransform;
-    private BandAccumulation bandAccumulation;
+    private PixelTest pixelTest;
     private boolean normalize;
     private PickMode pickMode;
     private ArrayList<double[]> plusSpectra;
@@ -75,7 +76,7 @@ public class MagicWandModel implements Cloneable {
 
     public MagicWandModel() {
         pickMode = PickMode.SINGLE;
-        bandAccumulation = BandAccumulation.DISTANCE;
+        pixelTest = PixelTest.DISTANCE;
         spectrumTransform = SpectrumTransform.IDENTITY;
         bandNames = new ArrayList<>();
         plusSpectra = new ArrayList<>();
@@ -122,8 +123,8 @@ public class MagicWandModel implements Cloneable {
         }
     }
 
-    public void set(MagicWandModel other) {
-        bandAccumulation = other.bandAccumulation;
+    public void assign(MagicWandModel other) {
+        pixelTest = other.pixelTest;
         spectrumTransform = other.spectrumTransform;
         pickMode = other.pickMode;
         tolerance = other.tolerance;
@@ -135,15 +136,15 @@ public class MagicWandModel implements Cloneable {
         fireModelChanged(true);
     }
 
-    int getSpectraCount() {
+    int getSpectrumCount() {
         return plusSpectra.size() + minusSpectra.size();
     }
 
-    int getPlusSpectraCount() {
+    int getPlusSpectrumCount() {
         return plusSpectra.size();
     }
 
-    int getMinusSpectraCount() {
+    int getMinusSpectrumCount() {
         return minusSpectra.size();
     }
 
@@ -195,12 +196,12 @@ public class MagicWandModel implements Cloneable {
         fireModelChanged(false);
     }
 
-    public BandAccumulation getBandAccumulation() {
-        return bandAccumulation;
+    public PixelTest getPixelTest() {
+        return pixelTest;
     }
 
-    public void setBandAccumulation(BandAccumulation bandAccumulation) {
-        this.bandAccumulation = bandAccumulation;
+    public void setPixelTest(PixelTest pixelTest) {
+        this.pixelTest = pixelTest;
         fireModelChanged(false);
     }
 
@@ -282,6 +283,18 @@ public class MagicWandModel implements Cloneable {
     }
 
     static void setMagicWandMask(Product product, String expression) {
+
+        String validMaskExpression;
+        try {
+            validMaskExpression = BandArithmetic.getValidMaskExpression(expression, new Product[]{product}, 0, null);
+        } catch (ParseException e) {
+            validMaskExpression = null;
+        }
+
+        if (validMaskExpression != null) {
+            expression = "(" + validMaskExpression + ") && (" + expression + ")";
+        }
+
         final Mask magicWandMask = product.getMaskGroup().get(MAGIC_WAND_MASK_NAME);
         if (magicWandMask != null) {
             magicWandMask.getImageConfig().setValue("expression", expression);
@@ -295,17 +308,17 @@ public class MagicWandModel implements Cloneable {
     String createMaskExpression() {
         final String plusPart;
         final String minusPart;
-        if (getBandAccumulation() == BandAccumulation.DISTANCE) {
+        if (getPixelTest() == PixelTest.DISTANCE) {
             plusPart = getDistancePart(bandNames, spectrumTransform, plusSpectra, tolerance, normalize);
             minusPart = getDistancePart(bandNames, spectrumTransform, minusSpectra, tolerance, normalize);
-        } else if (getBandAccumulation() == BandAccumulation.AVERAGE) {
+        } else if (getPixelTest() == PixelTest.AVERAGE) {
             plusPart = getAveragePart(bandNames, spectrumTransform, plusSpectra, tolerance, normalize);
             minusPart = getAveragePart(bandNames, spectrumTransform, minusSpectra, tolerance, normalize);
-        } else if (getBandAccumulation() == BandAccumulation.LIMITS) {
+        } else if (getPixelTest() == PixelTest.LIMITS) {
             plusPart = getLimitsPart(bandNames, spectrumTransform, plusSpectra, tolerance, normalize);
             minusPart = getLimitsPart(bandNames, spectrumTransform, minusSpectra, tolerance, normalize);
         } else {
-            throw new IllegalStateException("Unhandled method " + getBandAccumulation());
+            throw new IllegalStateException("Unhandled method " + getPixelTest());
         }
         if (plusPart != null && minusPart != null) {
             return String.format("(%s) && !(%s)", plusPart, minusPart);
@@ -482,7 +495,7 @@ public class MagicWandModel implements Cloneable {
         if (Double.compare(that.minTolerance, minTolerance) != 0) return false;
         if (normalize != that.normalize) return false;
         if (Double.compare(that.tolerance, tolerance) != 0) return false;
-        if (bandAccumulation != that.bandAccumulation) return false;
+        if (pixelTest != that.pixelTest) return false;
         if (pickMode != that.pickMode) return false;
         if (spectrumTransform != that.spectrumTransform) return false;
         if (!ObjectUtils.equalObjects(bandNames, that.bandNames)) return false;
@@ -498,7 +511,7 @@ public class MagicWandModel implements Cloneable {
         long temp;
         result = pickMode.hashCode();
         result = 31 * result + spectrumTransform.hashCode();
-        result = 31 * result + bandAccumulation.hashCode();
+        result = 31 * result + pixelTest.hashCode();
         result = 31 * result + plusSpectra.hashCode();
         result = 31 * result + minusSpectra.hashCode();
         result = 31 * result + bandNames.hashCode();

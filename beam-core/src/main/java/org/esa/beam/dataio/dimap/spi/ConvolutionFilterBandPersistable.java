@@ -16,11 +16,7 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
-import org.esa.beam.framework.datamodel.Kernel;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
 import org.jdom.Element;
 
@@ -38,17 +34,12 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
     public Object createObjectFromXml(Element element, Product product) {
         final Element filterInfo = element.getChild(DimapProductConstants.TAG_FILTER_BAND_INFO);
         final Element kernelInfo = filterInfo.getChild(DimapProductConstants.TAG_FILTER_KERNEL);
-        final String kernelDataString = kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_DATA);
-        final double[] kernelData = StringUtils.toDoubleArray(kernelDataString, ",");
-        final Kernel kernel = new Kernel(
-                Integer.parseInt(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_WIDTH)),
-                Integer.parseInt(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_HEIGHT)),
-                Double.parseDouble(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_FACTOR)),
-                kernelData);
+        final Kernel kernel = convertElementToKernel(kernelInfo);
         final String sourceName = filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SOURCE);
         final String bandName = element.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
         final RasterDataNode sourceNode = product.getRasterDataNode(sourceName);
-        final ConvolutionFilterBand cfb = new ConvolutionFilterBand(bandName, sourceNode,kernel);
+        // todo - read iterationCount
+        final ConvolutionFilterBand cfb = new ConvolutionFilterBand(bandName, sourceNode, kernel, 1);
         cfb.setDescription(element.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION));
         cfb.setUnit(element.getChildTextTrim(DimapProductConstants.TAG_PHYSICAL_UNIT));
         cfb.setSolarFlux(Float.parseFloat(element.getChildTextTrim(DimapProductConstants.TAG_SOLAR_FLUX)));
@@ -57,8 +48,7 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         cfb.setScalingFactor(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_FACTOR)));
         cfb.setScalingOffset(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_OFFSET)));
         cfb.setLog10Scaled(Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_LOG_10)));
-        cfb.setNoDataValueUsed(
-                Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
+        cfb.setNoDataValueUsed(Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
         cfb.setNoDataValue(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE)));
 
         return cfb;
@@ -67,7 +57,7 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
     @Override
     public Element createXmlFromObject(Object object) {
         final ConvolutionFilterBand cfb = (ConvolutionFilterBand) object;
-        final List<Element> contentList = new ArrayList<Element>();
+        final List<Element> contentList = new ArrayList<>();
         contentList.add(createElement(DimapProductConstants.TAG_BAND_INDEX, String.valueOf(cfb.getProduct().getBandIndex(cfb.getName()))));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_NAME, cfb.getName()));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_DESCRIPTION, cfb.getDescription()));
@@ -82,18 +72,9 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE_USED, String.valueOf(cfb.isNoDataValueUsed())));
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, String.valueOf(cfb.getNoDataValue())));
 
-        final List<Element> filterBandInfoList = new ArrayList<Element>();
+        final List<Element> filterBandInfoList = new ArrayList<>();
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, cfb.getSource().getName()));
-
-        final List<Element> filterKernelList = new ArrayList<Element>();
-        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_WIDTH, String.valueOf(cfb.getKernel().getWidth())));
-        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_HEIGHT, String.valueOf(cfb.getKernel().getHeight())));
-        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_FACTOR, String.valueOf(cfb.getKernel().getFactor())));
-        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_DATA, StringUtils.arrayToCsv(cfb.getKernel().getKernelData(null))));
-
-        final Element filterKernel = new Element(DimapProductConstants.TAG_FILTER_KERNEL);
-        filterKernel.addContent(filterKernelList);
-        filterBandInfoList.add(filterKernel);
+        filterBandInfoList.add(convertKernelToElement(cfb.getKernel()));
 
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
         filterBandInfo.setAttribute("bandType", "ConvolutionFilterBand");
@@ -104,6 +85,64 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         root.setContent(contentList);
         return root;
 
+    }
+
+    static Kernel convertElementToKernel(Element kernelInfo) {
+        final String kernelDataString = kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_DATA);
+        final double[] data = StringUtils.toDoubleArray(kernelDataString, ",");
+
+        int width = Integer.parseInt(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_WIDTH));
+        int height = Integer.parseInt(kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_HEIGHT));
+
+        String xOriginText = kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_X_ORIGIN);
+        int xOrigin = (width - 1) / 2;
+        if (xOriginText != null) {
+            xOrigin = Integer.parseInt(xOriginText);
+        }
+
+        String yOriginText = kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_Y_ORIGIN);
+        int yOrigin = (height - 1) / 2;
+        if (yOriginText != null) {
+            yOrigin = Integer.parseInt(yOriginText);
+        }
+
+        String factorText = kernelInfo.getChildTextTrim(DimapProductConstants.TAG_KERNEL_FACTOR);
+        double factor = 1;
+        if (factorText != null) {
+            factor = Double.parseDouble(factorText);
+        }
+
+        return new Kernel(width, height, xOrigin, yOrigin, factor, data);
+    }
+
+
+    static Element convertKernelToElement(Kernel kernel) {
+        final List<Element> filterKernelList = new ArrayList<>();
+        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_WIDTH, String.valueOf(kernel.getWidth())));
+        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_HEIGHT, String.valueOf(kernel.getHeight())));
+        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_X_ORIGIN, String.valueOf(kernel.getXOrigin())));
+        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_Y_ORIGIN, String.valueOf(kernel.getYOrigin())));
+        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_FACTOR, String.valueOf(kernel.getFactor())));
+        filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_DATA, toCsv(kernel.getKernelData(null))));
+        final Element filterKernel = new Element(DimapProductConstants.TAG_FILTER_KERNEL);
+        filterKernel.addContent(filterKernelList);
+        return filterKernel;
+    }
+
+    static String toCsv(double[] data) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            double v = data[i];
+            if (i > 0) {
+                sb.append(',');
+            }
+            if (v == (int) v) {
+                sb.append((int) v);
+            } else {
+                sb.append(v);
+            }
+        }
+        return sb.toString();
     }
 
     private static Element createElement(String tagName, String text) {

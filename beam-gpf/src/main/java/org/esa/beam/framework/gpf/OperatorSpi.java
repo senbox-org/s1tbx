@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * <p>The SPI is both a descriptor for the operator type and a factory for new {@link Operator} instances.
  * <p>An SPI is required for your operator if you want to make it accessible via an alias name in
  * the various {@link GPF}{@code .create} methods or within GPF Graph XML code.</p>
- * <p>SPI are registered either programmatically using the
+ * <p>SPI are registered either pragmatically using the
  * {@link org.esa.beam.framework.gpf.GPF#getOperatorSpiRegistry() OperatorSpiRegistry} or
  * automatically via standard Java services lookup mechanism. For the services approach, place a
  * file {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}
@@ -134,6 +134,7 @@ public abstract class OperatorSpi {
         try {
             final Operator operator = getOperatorClass().newInstance();
             operator.setSpi(this);
+            operator.setParameterDefaultValues();
             return operator;
         } catch (InstantiationException | IllegalAccessException e) {
             throw new OperatorException(e);
@@ -175,7 +176,7 @@ public abstract class OperatorSpi {
                                    RenderingHints renderingHints) throws OperatorException {
         final Operator operator = createOperator();
         operator.context.setSourceProducts(sourceProducts);
-        operator.context.setParameters(parameters);
+        operator.context.setParameterMap(parameters);
         if (renderingHints != null) {
             operator.context.addRenderingHints(renderingHints);
         }
@@ -199,7 +200,7 @@ public abstract class OperatorSpi {
      * <p/>
      * Shorthand for {@code getOperatorDescriptor().getAlias()}.
      *
-     * @return The alias name of the (@link Operator).
+     * @return The alias name of the (@link Operator), or {@code null} if not declared.
      */
     public final String getOperatorAlias() {
         if (operatorAlias != null && !operatorAlias.isEmpty()) {
@@ -299,6 +300,11 @@ public abstract class OperatorSpi {
 
         @Override
         public boolean isInternal() {
+            return false;
+        }
+
+        @Override
+        public boolean isSuppressWrite() {
             return false;
         }
 

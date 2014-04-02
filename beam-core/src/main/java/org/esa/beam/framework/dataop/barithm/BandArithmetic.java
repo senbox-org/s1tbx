@@ -17,9 +17,29 @@ package org.esa.beam.framework.dataop.barithm;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.*;
-import com.bc.jexp.impl.*;
-import org.esa.beam.framework.datamodel.*;
+import com.bc.jexp.EvalEnv;
+import com.bc.jexp.EvalException;
+import com.bc.jexp.Function;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.impl.AbstractSymbol;
+import com.bc.jexp.impl.DefaultNamespace;
+import com.bc.jexp.impl.NamespaceImpl;
+import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.Tokenizer;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Scaling;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Guardian;
 
 import java.io.IOException;
@@ -52,7 +72,7 @@ public class BandArithmetic {
 
     private static final WritableNamespace DEFAULT_NAMESPACE = new DefaultNamespace();
 
-    private static final List<NamespaceExtender> _namespaceExtenderList = new ArrayList<NamespaceExtender>();
+    private static final List<NamespaceExtender> _namespaceExtenderList = new ArrayList<>();
 
     static {
         MoreFuncs.registerExtraFunctions();
@@ -278,7 +298,7 @@ public class BandArithmetic {
             return rasters[0].getValidMaskExpression();
         }
 
-        final List<String> vmes = new ArrayList<String>(rasters.length);
+        final List<String> vmes = new ArrayList<>(rasters.length);
         for (RasterDataNode raster : rasters) {
             String vme = raster.getValidMaskExpression();
             if (vme != null) {
@@ -291,6 +311,10 @@ public class BandArithmetic {
                     vmes.add(vme);
                 }
             }
+        }
+
+        if (vmes.isEmpty()) {
+            return validMaskExpression;
         }
 
         final StringBuilder sb = new StringBuilder();
@@ -382,8 +406,8 @@ public class BandArithmetic {
      * @return the array of raster data nodes, never <code>null</code> but may be empty
      */
     public static RasterDataNode[] getRefRasters(RasterDataSymbol[] rasterDataSymbols) {
-        Set<RasterDataNode> set = new HashSet<RasterDataNode>(rasterDataSymbols.length * 2);
-        List<RasterDataNode> list = new ArrayList<RasterDataNode>(rasterDataSymbols.length);
+        Set<RasterDataNode> set = new HashSet<>(rasterDataSymbols.length * 2);
+        List<RasterDataNode> list = new ArrayList<>(rasterDataSymbols.length);
         for (RasterDataSymbol symbol : rasterDataSymbols) {
             RasterDataNode raster = symbol.getRaster();
             if (!set.contains(raster)) {
@@ -412,8 +436,8 @@ public class BandArithmetic {
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term[] terms) {
-        List<RasterDataSymbol> list = new ArrayList<RasterDataSymbol>();
-        Set<RasterDataSymbol> set = new HashSet<RasterDataSymbol>();
+        List<RasterDataSymbol> list = new ArrayList<>();
+        Set<RasterDataSymbol> set = new HashSet<>();
         for (final Term term : terms) {
             if (term != null) {
                 collectRefRasterDataSymbols(term, list, set);

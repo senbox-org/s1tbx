@@ -82,10 +82,11 @@ public class PlacemarkIO {
     private static final int INDEX_FOR_DATETIME = 5;
 
     private static final String LABEL_COL_NAME = "Label";
-    private static final String LON_COL_NAME = "Lon";
-    private static final String LAT_COL_NAME = "Lat";
+    // same columns allowed as in VectorDataNodeReader
+    private static final String[] LON_COL_NAMES = {"Lon", "long", "longitude", "lon_IS"};
+    private static final String[] LAT_COL_NAMES = {"Lat", "latitude", "lat_IS"};
     private static final String NAME_COL_NAME = "Name";
-    private static final String DESC_COL_NAME = "Desc";
+    private static final String[] DESC_COL_NAMES = {"Desc", "Description"};
     private static final String DATETIME_COL_NAME = "DateTime";
 
     private static final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
@@ -98,8 +99,7 @@ public class PlacemarkIO {
     public static List<Placemark> readPlacemarks(Reader reader, GeoCoding geoCoding,
                                                  PlacemarkDescriptor placemarkDescriptor) throws IOException {
         final char[] magicBytes = new char[5];
-        PushbackReader inputReader = new PushbackReader(reader, magicBytes.length);
-        try {
+        try (PushbackReader inputReader = new PushbackReader(reader, magicBytes.length)) {
             inputReader.read(magicBytes);
             inputReader.unread(magicBytes);
             if (XmlWriter.XML_HEADER_LINE.startsWith(new String(magicBytes))) {
@@ -107,17 +107,14 @@ public class PlacemarkIO {
             } else {
                 return readPlacemarksFromFlatFile(inputReader, geoCoding, placemarkDescriptor);
             }
-        } finally {
-            inputReader.close();
         }
     }
 
     private static List<Placemark> readPlacemarksFromFlatFile(Reader reader, GeoCoding geoCoding,
                                                               PlacemarkDescriptor placemarkDescriptor) throws
             IOException {
-        ArrayList<Placemark> placemarks = new ArrayList<Placemark>();
-        BufferedReader lineReader = new BufferedReader(reader);
-        try {
+        ArrayList<Placemark> placemarks = new ArrayList<>();
+        try (BufferedReader lineReader = new BufferedReader(reader)) {
             int row = 0;
             List<Integer> stdColIndexes = null;
             int biggestIndex = 0;
@@ -132,20 +129,20 @@ public class PlacemarkIO {
                 }
                 String[] strings = StringUtils.toStringArray(line, "\t");
                 if (stdColIndexes == null) {
-                    int nameIndex = StringUtils.indexOf(strings, NAME_COL_NAME);
-                    int lonIndex = StringUtils.indexOf(strings, LON_COL_NAME);
-                    int latIndex = StringUtils.indexOf(strings, LAT_COL_NAME);
-                    int descIndex = StringUtils.indexOf(strings, DESC_COL_NAME);
-                    int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
-                    int dateTimeIndex = StringUtils.indexOf(strings, DATETIME_COL_NAME);
+                    int nameIndex = findColumnIndex(strings, NAME_COL_NAME);
+                    int lonIndex = findColumnIndex(strings, LON_COL_NAMES);
+                    int latIndex = findColumnIndex(strings, LAT_COL_NAMES);
+                    int descIndex = findColumnIndex(strings, DESC_COL_NAMES);
+                    int labelIndex = findColumnIndex(strings, LABEL_COL_NAME);
+                    int dateTimeIndex = findColumnIndex(strings, DATETIME_COL_NAME);
                     if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                         throw new IOException("Invalid placemark file format:\n" +
-                                                      "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
+                                              "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
                     }
                     biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                     biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
                     biggestIndex = biggestIndex > latIndex ? biggestIndex : latIndex;
-                    stdColIndexes = new ArrayList<Integer>(6);
+                    stdColIndexes = new ArrayList<>(6);
                     stdColIndexes.add(INDEX_FOR_NAME, nameIndex);
                     stdColIndexes.add(INDEX_FOR_LON, lonIndex);
                     stdColIndexes.add(INDEX_FOR_LAT, latIndex);
@@ -162,14 +159,14 @@ public class PlacemarkIO {
                             lon = Float.parseFloat(strings[stdColIndexes.get(INDEX_FOR_LON)]);
                         } catch (NumberFormatException ignored) {
                             throw new IOException("Invalid placemark file format:\n" +
-                                                          "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
+                                                  "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                         }
                         float lat;
                         try {
                             lat = Float.parseFloat(strings[stdColIndexes.get(INDEX_FOR_LAT)]);
                         } catch (NumberFormatException ignored) {
                             throw new IOException("Invalid placemark file format:\n" +
-                                                          "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
+                                                  "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                         }
                         String label = name;
                         final Integer labelIndex = stdColIndexes.get(INDEX_FOR_LABEL);
@@ -199,15 +196,24 @@ public class PlacemarkIO {
                         placemarks.add(placemark);
                     } else {
                         throw new IOException("Invalid placemark file format:\n" +
-                                                      "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
+                                              "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
                     }
                 }
             }
-        } finally {
-            lineReader.close();
         }
 
         return placemarks;
+    }
+
+    static int findColumnIndex(String[] strings, String... colNames) {
+        int index = -1;
+        for (String colName : colNames) {
+            index = StringUtils.indexOfIgnoreCase(strings, colName);
+            if(index != -1) {
+                break;
+            }
+        }
+        return index;
     }
 
     private static List<Placemark> readPlacemarksFromXMLFile(Reader reader, GeoCoding geoCoding,
@@ -224,7 +230,7 @@ public class PlacemarkIO {
                 // support for old pin XML format (.pnx)
                 children = rootElement.getChildren(DimapProductConstants.TAG_PIN);
             }
-            final ArrayList<Placemark> placemarks = new ArrayList<Placemark>(children.size());
+            final ArrayList<Placemark> placemarks = new ArrayList<>(children.size());
             for (Object child : children) {
                 final Element element = (Element) child;
                 try {
@@ -234,13 +240,7 @@ public class PlacemarkIO {
                 }
             }
             return placemarks;
-        } catch (FactoryConfigurationError e) {
-            throw new IOException(e.toString(), e);
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e.toString(), e);
-        } catch (SAXException e) {
-            throw new IOException(e.toString(), e);
-        } catch (IOException e) {
+        } catch (FactoryConfigurationError | ParserConfigurationException | SAXException | IOException e) {
             throw new IOException(e.toString(), e);
         }
     }
@@ -251,8 +251,7 @@ public class PlacemarkIO {
                                                          String[] standardColumnNames, String[] additionalColumnNames) {
         int columnCountMin = standardColumnNames.length;
         int columnCount = columnCountMin + additionalColumnNames.length;
-        final PrintWriter pw = new PrintWriter(writer);
-        try {
+        try (PrintWriter pw = new PrintWriter(writer)) {
             // Write file header
             pw.println("# BEAM " + roleLabel + " export table");
             pw.println("#");
@@ -276,8 +275,6 @@ public class PlacemarkIO {
                 Object[] values = valueList.get(i);
                 pw.println(getDataLine(placemark, values, columnCountMin, columnCount));
             }
-        } finally {
-            pw.close();
         }
     }
 
@@ -314,7 +311,7 @@ public class PlacemarkIO {
             sb.append(name);
         }
         sb.append("\t");
-        sb.append(DESC_COL_NAME);
+        sb.append(DESC_COL_NAMES[0]);
         for (String additionalColumnName : additionalColumnNames) {
             sb.append("\t");
             sb.append(additionalColumnName);
@@ -326,7 +323,7 @@ public class PlacemarkIO {
         StringBuilder sb = new StringBuilder();
 
         sb.append("# Wavelength:"); // --> Name
-        for (String standardColumnName : standardColumnNames) {
+        for (String ignored : standardColumnNames) {
             sb.append("\t");
         }
         sb.append("\t"); // --> Desc
@@ -475,8 +472,6 @@ public class PlacemarkIO {
             if (colorElem != null) {
                 try {
                     return DimapProductHelpers.createColor(colorElem);
-                } catch (NumberFormatException e) {
-                    Debug.trace(e);
                 } catch (IllegalArgumentException e) {
                     Debug.trace(e);
                 }

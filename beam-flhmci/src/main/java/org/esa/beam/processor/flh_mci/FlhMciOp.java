@@ -36,6 +36,7 @@ import org.esa.beam.framework.ui.BooleanExpressionConverter;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 
 import javax.media.jai.OpImage;
 import java.awt.image.Raster;
@@ -178,6 +179,7 @@ public class FlhMciOp extends PixelOperator {
     @Override
     protected void prepareInputs() throws OperatorException {
         super.prepareInputs();
+        validateParameters();
 
         final float lambda1 = getWavelength(lowerBaselineBandName);
         final float lambda2 = getWavelength(signalBandName);
@@ -189,6 +191,21 @@ public class FlhMciOp extends PixelOperator {
 
         if (maskExpression != null && !maskExpression.isEmpty()) {
             maskOpImage = VirtualBandOpImage.createMask(maskExpression, sourceProduct, ResolutionLevel.MAXRES);
+        }
+    }
+
+    private void validateParameters() throws OperatorException{
+        assertParameterBandNameValid(lowerBaselineBandName, "lowerBaselineBandName");
+        assertParameterBandNameValid(signalBandName, "signalBandName");
+        assertParameterBandNameValid(upperBaselineBandName, "upperBaselineBandName");
+        if (slope) {
+            assertParameterBandNameValid(slopeBandName, "slopeBandName");
+        }
+    }
+
+    private void assertParameterBandNameValid(String parameterValue, String parameterName) {
+        if(StringUtils.isNullOrEmpty(parameterValue)) {
+            throw new OperatorException(String.format("Parameter '%s' not specified", parameterName));
         }
     }
 

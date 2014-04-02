@@ -38,8 +38,8 @@ public interface ParameterUpdater {
     void handleParameterSaveRequest(Map<String,Object> parameterMap) throws ValidationException, ConversionException;
 
     /**
-     * Called after the parameter ap has been loaded. The implementer
-     * should update his internal model from the given map.
+     * Called after the parameter map has been loaded. Implementers
+     * should update internal model from the given map.
      *
      * @param parameterMap The parameter map
      */

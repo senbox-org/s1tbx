@@ -26,9 +26,22 @@ public interface OperatorDescriptor extends ElementDescriptor {
 
     /**
      * @return If {@code true}, this operator is considered for internal use only and thus
-     * may not be exposed in user interfaces.
+     * may not be exposed in user interfaces. The default is {@code false}.
      */
     boolean isInternal();
+
+    // todo - rename before beam 5 rel
+    /**
+     * @return If {@code true}, the framework will not automatically write the target product of this
+     * operator. Usually, the framework writes the target products of single operators or processing graphs
+     * when executed from the GPT commandline operator's GUI. The default is {@code false}.
+     * <p/>
+     * Setting this property may be useful if your operator does not generate a new target
+     * {@link org.esa.beam.framework.datamodel.Product Product} and/or if it
+     * does its own writing of non-{@link org.esa.beam.framework.datamodel.Product Product}
+     * targets to external files in any format.
+     */
+    boolean isSuppressWrite();
 
     /**
      * @return A concrete, non-abstract operator class.

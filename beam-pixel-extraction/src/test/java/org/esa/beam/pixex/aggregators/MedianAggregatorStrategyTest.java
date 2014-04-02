@@ -56,18 +56,20 @@ public class MedianAggregatorStrategyTest {
 
         final DefaultRecord record = new DefaultRecord(numbers);
 
-        assertEquals(1, strategy.getValues(record, 0).length);
+        assertEquals(2, strategy.getValues(record, 0).length);
         assertEquals(3.5F, strategy.getValues(record, 0)[0].doubleValue(), 0.0001);
+        assertEquals(6, strategy.getValues(record, 0)[1].intValue());
     }
 
     @Test
     public void testGetValueCount() throws Exception {
-        assertEquals(1, strategy.getValueCount());
+        assertEquals(2, strategy.getValueCount());
     }
 
     @Test
     public void testGetSuffixes() throws Exception {
-        assertEquals(1, strategy.getSuffixes().length);
+        assertEquals(2, strategy.getSuffixes().length);
         assertEquals("median", strategy.getSuffixes()[0]);
+        assertEquals(AbstractAggregatorStrategy.NUM_PIXELS_SUFFIX, strategy.getSuffixes()[1]);
     }
 }

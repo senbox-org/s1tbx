@@ -432,7 +432,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     private List<Placemark> getSelectedPlacemarks() {
-        List<Placemark> placemarkList = new ArrayList<Placemark>();
+        List<Placemark> placemarkList = new ArrayList<>();
         int[] sortedRowIndexes = placemarkTable.getSelectedRows();
         if (sortedRowIndexes != null) {
             for (int rowIndex : sortedRowIndexes) {
@@ -738,8 +738,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             additionalColumnNames[i] = placemarkTableModel.getColumnName(columnCountMin + i);
         }
 
-        List<Placemark> placemarkList = new ArrayList<Placemark>();
-        List<Object[]> valueList = new ArrayList<Object[]>();
+        List<Placemark> placemarkList = new ArrayList<>();
+        List<Object[]> valueList = new ArrayList<>();
         for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
             ListSelectionModel selectionModel = placemarkTable.getSelectionModel();
             if (selectionModel.isSelectionEmpty() || selectionModel.isSelectedIndex(sortedRow)) {
@@ -996,7 +996,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             try {
                 synchronizingPlacemarkSelectedState = true;
                 Placemark[] placemarks = placemarkTableModel.getPlacemarks();
-                ArrayList<Placemark> selectedPlacemarks = new ArrayList<Placemark>();
+                ArrayList<Placemark> selectedPlacemarks = new ArrayList<>();
                 for (int i = 0; i < placemarks.length; i++) {
                     Placemark placemark = placemarks[i];
                     int sortedIndex = placemarkTable.getSortedRowAt(i);

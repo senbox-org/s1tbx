@@ -46,7 +46,7 @@ public class OperatorMenuTest {
     public void testOperatorDescription() throws Exception {
         DefaultAppContext appContext = new DefaultAppContext("test");
 
-        final OperatorMenu support = new OperatorMenu(null, OperatorParameterSupportTest.TestOp.class, null, appContext, "");
+        final OperatorMenu support = new OperatorMenu(null, testOpSpi.getOperatorDescriptor(), null, appContext, "");
 
         assertEquals("Tester", support.getOperatorName());
 

@@ -21,7 +21,7 @@ public class AggregatorOnMaxSetTest {
 
     @Test
     public void testMetadata() {
-        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "c", "a", "b");
+        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "Out", "c", "a", "b");
 
         assertEquals("ON_MAX_SET", agg.getName());
 
@@ -38,8 +38,8 @@ public class AggregatorOnMaxSetTest {
         assertEquals("b", agg.getTemporalFeatureNames()[3]);
 
         assertEquals(4, agg.getOutputFeatureNames().length);
-        assertEquals("c_max", agg.getOutputFeatureNames()[0]);
-        assertEquals("c_mjd", agg.getOutputFeatureNames()[1]);
+        assertEquals("Out_max", agg.getOutputFeatureNames()[0]);
+        assertEquals("Out_mjd", agg.getOutputFeatureNames()[1]);
         assertEquals("a", agg.getOutputFeatureNames()[2]);
         assertEquals("b", agg.getOutputFeatureNames()[3]);
 
@@ -47,7 +47,7 @@ public class AggregatorOnMaxSetTest {
 
     @Test
     public void testAggregatorOnMaxSet() {
-        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "c", "a", "b");
+        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "Out", "c", "a", "b");
 
         VectorImpl svec = vec(NaN, NaN, NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
@@ -93,4 +93,50 @@ public class AggregatorOnMaxSetTest {
         assertEquals(0.6f, out.get(2), 1e-5f);
         assertEquals(7.1f, out.get(3), 1e-5f);
     }
+
+    @Test
+    public void testAggregatorOnMaxSet_AllNaN() {
+        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "Out", "c", "a", "b");
+
+        VectorImpl svec = vec(NaN, NaN, NaN, NaN);
+        VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN, NaN);
+
+        agg.initSpatial(ctx, svec);
+        assertEquals(Float.NEGATIVE_INFINITY, svec.get(0), 0.0f);
+        assertEquals(NaN, svec.get(1), 0.0f);
+        assertEquals(NaN, svec.get(2), 0.0f);
+        assertEquals(NaN, svec.get(3), 0.0f);
+
+        agg.aggregateSpatial(ctx, obs(4, 7.3f, 0.5f, Float.NaN), svec);
+        assertEquals(Float.NEGATIVE_INFINITY, svec.get(0), 0.0f);
+        assertEquals(NaN, svec.get(1), 0.0f);
+        assertEquals(NaN, svec.get(2), 0.0f);
+        assertEquals(NaN, svec.get(3), 0.0f);
+
+        agg.completeSpatial(ctx, 3, svec);
+        assertEquals(Float.NEGATIVE_INFINITY, svec.get(0), 0.0f);
+        assertEquals(NaN, svec.get(1), 0.0f);
+        assertEquals(NaN, svec.get(2), 0.0f);
+        assertEquals(NaN, svec.get(3), 0.0f);
+
+        agg.initTemporal(ctx, tvec);
+        assertEquals(Float.NEGATIVE_INFINITY, tvec.get(0), 0.0f);
+        assertEquals(NaN, tvec.get(1), 0.0f);
+        assertEquals(NaN, tvec.get(2), 0.0f);
+        assertEquals(NaN, tvec.get(3), 0.0f);
+
+        agg.aggregateTemporal(ctx, vec(Float.NaN, 4, 0.2f, 9.7f), 3, tvec);
+        assertEquals(Float.NEGATIVE_INFINITY, tvec.get(0), 0.0f);
+        assertEquals(NaN, tvec.get(1), 0.0f);
+        assertEquals(NaN, tvec.get(2), 0.0f);
+        assertEquals(NaN, tvec.get(3), 0.0f);
+
+        agg.computeOutput(tvec, out);
+        assertEquals(NaN, out.get(0), 0.0f);
+        assertEquals(NaN, out.get(1), 0.0f);
+        assertEquals(NaN, out.get(2), 0.0f);
+        assertEquals(NaN, out.get(3), 0.0f);
+    }
+
 }

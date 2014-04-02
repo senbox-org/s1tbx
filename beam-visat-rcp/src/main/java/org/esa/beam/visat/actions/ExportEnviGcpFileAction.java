@@ -48,7 +48,7 @@ public class ExportEnviGcpFileAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        exportGroundContolPoints();
+        exportGroundControlPoints();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class ExportEnviGcpFileAction extends ExecCommand {
         setEnabled(VisatApp.getApp().getSelectedProduct() != null);
     }
 
-    private void exportGroundContolPoints() {
+    private void exportGroundControlPoints() {
         VisatApp visatApp = VisatApp.getApp();
         final Product product = visatApp.getSelectedProduct();
         if (product == null) {
@@ -91,8 +91,7 @@ public class ExportEnviGcpFileAction extends ExecCommand {
             writer.write(createLineString("; ENVI Registration GCP File"));
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
-            final int resolution = visatApp.getPreferences().getPropertyInt("gcp.resolution",
-                                                                            new Integer(112)).intValue();
+            final int resolution = visatApp.getPreferences().getPropertyInt("gcp.resolution", new Integer(112));
             final int gcpWidth = Math.max(width / resolution + 1, 2); //2 minimum
             final int gcpHeight = Math.max(height / resolution + 1, 2);//2 minimum
             final float xMultiplier = 1f * (width - 1) / (gcpWidth - 1);
@@ -114,8 +113,6 @@ public class ExportEnviGcpFileAction extends ExecCommand {
                                                   pixelPos.y + 1));
                 }
             }
-            writer.close();
-            writer = null;
         } catch (IOException e) {
             visatApp.showErrorDialog("Export ENVI Ground Control Points",
                                      "An I/O error occurred:\n" + e.getMessage());

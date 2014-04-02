@@ -25,6 +25,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.opengis.feature.type.AttributeDescriptor;
 
@@ -42,7 +43,6 @@ public class CsvProductReader extends AbstractProductReader {
 
     private static final String PROPERTY_NAME_SCENE_RASTER_WIDTH = "sceneRasterWidth";
 
-    private CsvSource source;
     private CsvSourceParser parser;
 
     /**
@@ -66,7 +66,7 @@ public class CsvProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         parser = CsvFile.createCsvSourceParser(getInput().toString());
-        source = parser.parseMetadata();
+        CsvSource source = parser.parseMetadata();
         String sceneRasterWidthProperty = source.getProperties().get(PROPERTY_NAME_SCENE_RASTER_WIDTH);
         final int sceneRasterWidth;
         final int sceneRasterHeight;
@@ -87,7 +87,8 @@ public class CsvProductReader extends AbstractProductReader {
 
         // todo - get name and type from properties, if existing
 
-        final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, sceneRasterHeight);
+        String productName = StringUtils.createValidName(getInput().toString(), null, '_');
+        final Product product = new Product(productName, "CSV", sceneRasterWidth, sceneRasterHeight);
         product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             if (isAccessibleBandType(descriptor.getType().getBinding())) {

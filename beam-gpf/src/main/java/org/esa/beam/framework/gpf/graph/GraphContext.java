@@ -79,14 +79,14 @@ public class GraphContext {
         this.graph = graph;
         this.logger = BeamLogManager.getSystemLogger();
 
-        outputNodeContextList = new ArrayList<NodeContext>(graph.getNodeCount() / 2);
+        outputNodeContextList = new ArrayList<>(graph.getNodeCount() / 2);
 
-        nodeContextMap = new HashMap<Node, NodeContext>(graph.getNodeCount() * 2);
+        nodeContextMap = new HashMap<>(graph.getNodeCount() * 2);
         for (Node node : graph.getNodes()) {
             nodeContextMap.put(node, new NodeContext(this, node));
         }
 
-        initNodeContextDeque = new ArrayDeque<NodeContext>(graph.getNodeCount());
+        initNodeContextDeque = new ArrayDeque<>(graph.getNodeCount());
         initNodeDependencies();
         initOutput(graphOp);
     }
@@ -127,7 +127,7 @@ public class GraphContext {
             return null;
         }
         DomElement resolvedElement = new XppDomElement(domElement.getName());
-        Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
+        Set<OperatorConfiguration.Reference> references = new HashSet<>(17);
         DomElement[] children = domElement.getChildren();
 
         for (DomElement child : children) {

@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.aggregators;
 
-import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.AbstractAggregator;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -45,15 +44,15 @@ public class AggregatorPercentile extends AbstractAggregator {
     private final String mlName;
     private final String icName;
 
-    public AggregatorPercentile(VariableContext varCtx, String varName, Integer percentage) {
-        this(getVarIndex(varCtx, varName), varName, getEffectivePercentage(percentage));
+    public AggregatorPercentile(VariableContext varCtx, String targetName, String varName, Integer percentage) {
+        this(getVarIndex(varCtx, varName), targetName, varName, getEffectivePercentage(percentage));
     }
 
-    private AggregatorPercentile(int varIndex, String varName, int percentage) {
+    private AggregatorPercentile(int varIndex, String targetName, String varName, int percentage) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum"),
               createFeatureNames(varName, "p" + percentage),
-              createFeatureNames(varName, "p" + percentage));
+              createFeatureNames(targetName, "p" + percentage));
 
         if (varName == null) {
             throw new NullPointerException("varName");
@@ -174,13 +173,22 @@ public class AggregatorPercentile extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter
+        @Parameter(notNull = true)
         String varName;
-        @Parameter
+        @Parameter(notNull = false, notEmpty = true)
+        String targetName;
+        @Parameter(defaultValue = "90")
         Integer percentage;
 
         public Config() {
+            this(null, null, 90);
+        }
+
+        public Config(String targetName, String varName, int percentage) {
             super(Descriptor.NAME);
+            this.targetName = targetName;
+            this.varName = varName;
+            this.percentage = percentage;
         }
 
         public void setVarName(String varName) {
@@ -192,7 +200,7 @@ public class AggregatorPercentile extends AbstractAggregator {
         }
 
         @Override
-        public String[] getVarNames() {
+        public String[] getSourceVarNames() {
             return new String[]{varName};
         }
     }
@@ -226,10 +234,10 @@ public class AggregatorPercentile extends AbstractAggregator {
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-            PropertySet propertySet = aggregatorConfig.asPropertySet();
-            return new AggregatorPercentile(varCtx,
-                                            (String) propertySet.getValue("varName"),
-                                            (Integer) propertySet.getValue("percentage"));
+            Config config = (Config) aggregatorConfig;
+            String targetName = config.targetName != null ? config.targetName : config.varName;
+
+            return new AggregatorPercentile(varCtx, targetName, config.varName, config.percentage);
         }
     }
 }

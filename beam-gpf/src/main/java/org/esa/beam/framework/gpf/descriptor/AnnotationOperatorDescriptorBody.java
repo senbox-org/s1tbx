@@ -86,7 +86,8 @@ public class AnnotationOperatorDescriptorBody {
                 if (parameterDescriptors == null) {
                     parameterDescriptors = new ArrayList<>();
                 }
-                parameterDescriptors.add(new AnnotationParameterDescriptor(fieldName, fieldType, parameterAnnotation));
+                boolean isDeprecated = declaredField.getAnnotation(Deprecated.class) != null;
+                parameterDescriptors.add(new AnnotationParameterDescriptor(fieldName, fieldType, isDeprecated, parameterAnnotation));
                 continue;
             }
 

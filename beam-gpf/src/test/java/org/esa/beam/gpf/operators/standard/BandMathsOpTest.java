@@ -321,9 +321,9 @@ public class BandMathsOpTest {
 
         InputStreamReader inputStreamReader = new InputStreamReader(getClass().getResourceAsStream("BandMathsOpParameters.xml"));
         String expectedXML = FileUtils.readText(inputStreamReader).trim();
-        DefaultDomElement bibo = new DefaultDomElement("bibo");
-        domConverter.convertValueToDom(parameterSet, bibo);
-        assertEquals(expectedXML, bibo.toXml().trim());
+        DefaultDomElement parameters = new DefaultDomElement("parameters");
+        domConverter.convertValueToDom(parameterSet, parameters);
+        assertEquals(expectedXML, parameters.toXml().trim());
     }
 
     private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit) {

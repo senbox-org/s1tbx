@@ -45,8 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
-
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
@@ -56,7 +54,7 @@ import java.util.List;
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 
     private final String operatorName;
-    private final OperatorSpi operatorSpi;
+    private final OperatorDescriptor operatorDescriptor;
     private DefaultIOParametersPanel ioParametersPanel;
     private final OperatorParameterSupport parameterSupport;
     private final BindingContext bindingContext;
@@ -75,22 +73,22 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.operatorName = operatorName;
         targetProductNameSuffix = "";
 
-        operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+        OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalArgumentException("No SPI found for operator name '" + operatorName + "'");
         }
 
-        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        operatorDescriptor = operatorSpi.getOperatorDescriptor();
         ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorDescriptor, getTargetProductSelector());
 
-        parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass());
+        parameterSupport = new OperatorParameterSupport(operatorDescriptor);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
-        final PropertySet propertyContainer = parameterSupport.getPopertySet();
-        bindingContext = new BindingContext(propertyContainer);
+        final PropertySet propertySet = parameterSupport.getPropertySet();
+        bindingContext = new BindingContext(propertySet);
 
-        if (propertyContainer.getProperties().length > 0) {
+        if (propertySet.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
-                Property[] properties = propertyContainer.getProperties();
+                Property[] properties = propertySet.getProperties();
                 List<PropertyDescriptor> rdnTypeProperties = new ArrayList<>(properties.length);
                 for (Property property : properties) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
@@ -162,7 +160,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
     private OperatorMenu createDefaultMenuBar() {
         return new OperatorMenu(getJDialog(),
-                                operatorSpi.getOperatorClass(),
+                                operatorDescriptor,
                                 parameterSupport,
                                 getAppContext(),
                                 getHelpID());
@@ -204,7 +202,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                     if (currentProduct != null) {
                         currentProduct.addProductNodeListener(this);
                     }
-                    updateTargetProductname();
+                    updateTargetProductName();
                     updateValueSets(currentProduct);
                     updateSourceProduct();
                 }
@@ -231,7 +229,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             handleProductNodeEvent();
         }
 
-        private void updateTargetProductname() {
+        private void updateTargetProductName() {
             String productName = "";
             if (currentProduct != null) {
                 productName = currentProduct.getName();
@@ -258,6 +256,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (product != null) {
             Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
             if (object != null) {
+                @SuppressWarnings("unchecked")
                 Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
                 boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() &&
                         !propertyDescriptor.getType().isArray();

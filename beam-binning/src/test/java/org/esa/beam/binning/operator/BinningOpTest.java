@@ -22,6 +22,7 @@ import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -32,6 +33,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,8 +45,10 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import static java.lang.Math.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -86,7 +90,7 @@ public class BinningOpTest {
 
     @Test
     public void testMetadataGeneration() throws Exception {
-        BinningOp binningOp = new BinningOp();
+        BinningOp binningOp = createBinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, 0.1F),
                                     createSourceProduct(2, 0.2F),
@@ -135,7 +139,7 @@ public class BinningOpTest {
 
     @Test
     public void testInvalidDates() throws Exception {
-        final BinningOp binningOp = new BinningOp();
+        final BinningOp binningOp = createBinningOp();
         binningOp.setStartDate("2010-01-01");
         binningOp.setEndDate("2009-01-01");
         try {
@@ -155,7 +159,7 @@ public class BinningOpTest {
 
         float obs1 = 0.2F;
 
-        final BinningOp binningOp = new BinningOp();
+        final BinningOp binningOp = createBinningOp();
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setSourceProducts(createSourceProduct(1, obs1));
@@ -179,7 +183,7 @@ public class BinningOpTest {
 
         float obs1 = 0.2F;
 
-        final BinningOp binningOp = new BinningOp();
+        final BinningOp binningOp = createBinningOp();
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setSourceProducts(createSourceProduct(1, obs1));
@@ -212,7 +216,7 @@ public class BinningOpTest {
         float obs4 = 0.8F;
         float obs5 = 1.0F;
 
-        final BinningOp binningOp = new BinningOp();
+        final BinningOp binningOp = createBinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
                                     createSourceProduct(2, obs2),
@@ -256,7 +260,7 @@ public class BinningOpTest {
         float obs4 = 0.8F;
         float obs5 = 1.0F;
 
-        final BinningOp binningOp = new BinningOp();
+        final BinningOp binningOp = createBinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
                                     createSourceProduct(2, obs2),
@@ -565,13 +569,14 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testCreateAllProductsFilter() throws Exception {
-        BinningOp binningOp = new BinningOp();
+    public void testCreateGeoCodingProductFilter() throws Exception {
+        BinningOp binningOp = createBinningOp();
         binningOp.useSpatialDataDay = false;
         binningOp.startDate = null;
         binningOp.endDate = null;
 
-        assertSame(ProductFilter.ALL, BinningOp.createSourceProductFilter(null, null, null, null));
+        final ProductFilter allProductsFilter = BinningOp.createSourceProductFilter(null, null, null, null);
+        assertThat(allProductsFilter, is(instanceOf(GeoCodingProductFilter.class)));
     }
 
     @Test
@@ -587,7 +592,7 @@ public class BinningOpTest {
 
         Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.SUBSEQUENT_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
 
-        BinningOp binningOp = new BinningOp();
+        BinningOp binningOp = createBinningOp();
         binningOp.useSpatialDataDay = true;
         ProductFilter filter = BinningOp.createSourceProductFilter(dataPeriod, null, null, null);
 
@@ -624,7 +629,7 @@ public class BinningOpTest {
 
         float obs1 = 0.2F;
 
-        final BinningOp binningOp = new BinningOp();
+        final BinningOp binningOp = createBinningOp();
 
         final JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
 
@@ -664,6 +669,12 @@ public class BinningOpTest {
 
         binningConfig.setVariableConfigs(new VariableConfig());
         assertFalse(BinningOp.hasNoVariableConfigs(binningConfig));
+    }
+
+    private BinningOp createBinningOp() {
+        BinningOp binningOp = new BinningOp();
+        binningOp.setParameterDefaultValues();
+        return binningOp;
     }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2,

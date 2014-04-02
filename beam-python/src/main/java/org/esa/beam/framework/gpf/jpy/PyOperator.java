@@ -26,15 +26,9 @@ import java.util.Map;
 @OperatorMetadata(alias = "PyOp",
                   description = "Uses Python code to process data products",
                   version = "0.5",
-                  authors = "N. Fomferra")
+                  authors = "N. Fomferra",
+                  internal = true)
 public class PyOperator extends Operator {
-
-    // todo - remove this later
-    @SourceProduct(description = "The (currently) single source product.")
-    private Product sourceProduct;
-
-    //@Parameter
-    //Map<String, Object> parameters;
 
     @Parameter(description = "Path to the Python module(s). Can be either an absolute path or relative to the current working directory.", defaultValue = ".")
     private String pythonModulePath;
@@ -87,7 +81,7 @@ public class PyOperator extends Operator {
 
         //PyLib.Diag.setFlags(PyLib.Diag.F_JVM);
 
-        PyLib.startPython(null);
+        PyLib.startPython();
 
         if (pythonModulePath != null && !pythonModulePath.isEmpty()) {
             PyModule pySysModule = PyModule.importModule("sys");

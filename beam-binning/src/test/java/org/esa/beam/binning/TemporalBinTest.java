@@ -39,7 +39,7 @@ public class TemporalBinTest {
     public void testBinAggregationAndIO() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A", "B", "C");
         BinManager bman = new BinManager(variableContext,
-                                         new AggregatorMinMax(variableContext, "A"),
+                                         new AggregatorMinMax(variableContext, "A", "out"),
                                          new AggregatorAverage(variableContext, "B", null),
                                          new AggregatorAverageML(variableContext, "C", null));
 

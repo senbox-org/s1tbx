@@ -25,8 +25,8 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
-import static junit.framework.Assert.*;
 import static org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm.*;
+import static org.junit.Assert.*;
 
 public class EqualizationAlgorithmTest {
 
@@ -110,4 +110,21 @@ public class EqualizationAlgorithmTest {
         assertEquals(2452365, EqualizationAlgorithm.toJulianDay(2002, 3, 1));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testExceptionSpectralIndexToSmall() throws Exception {
+        EqualizationAlgorithm algorithm = new EqualizationAlgorithm(new ProductData.UTC(), new EqualizationLUT(new Reader[0]));
+        algorithm.performEqualization(0.0, -1, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExceptionSpectralIndexToBig() throws Exception {
+        EqualizationAlgorithm algorithm = new EqualizationAlgorithm(new ProductData.UTC(), new EqualizationLUT(new Reader[0]));
+        algorithm.performEqualization(0.0, 15, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExceptionDetectorIndexToSmall() throws Exception {
+        EqualizationAlgorithm algorithm = new EqualizationAlgorithm(new ProductData.UTC(), new EqualizationLUT(new Reader[0]));
+        algorithm.performEqualization(0.0, 15, -1);
+    }
 }

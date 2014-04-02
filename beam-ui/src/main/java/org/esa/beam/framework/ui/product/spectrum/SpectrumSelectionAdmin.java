@@ -1,7 +1,6 @@
 package org.esa.beam.framework.ui.product.spectrum;
 
 import com.jidesoft.swing.TristateCheckBox;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +58,11 @@ public class SpectrumSelectionAdmin {
     }
 
     void setBandSelected(int row, int bandRow, boolean selected) {
-        updateBandSelections(row, bandRow, selected);
-        updateNumberOfSelectedBands(selected, row);
-        evaluateState(row);
+        if (isBandSelected(row, bandRow) != selected) {
+            updateBandSelections(row, bandRow, selected);
+            updateNumberOfSelectedBands(selected, row);
+            evaluateState(row);
+        }
     }
 
     private void updateBandSelections(int row, int bandRow, boolean selected) {

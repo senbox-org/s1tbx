@@ -18,11 +18,7 @@ package org.esa.beam.dataio.dimap.spi;
 
 import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
-import org.esa.beam.framework.datamodel.GeneralFilterBand;
-import org.esa.beam.framework.datamodel.Kernel;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -43,15 +39,14 @@ public class DimapPersistenceTest extends TestCase {
     }
 
     public void testGetPersistabelByObject() {
-        final GeneralFilterBand gfb = new GeneralFilterBand("test1", new Band("b", ProductData.TYPE_UINT16, 2, 2), GeneralFilterBand.OpType.MAX, 1
-        );
+        final GeneralFilterBand gfb = new GeneralFilterBand("test1", new Band("b", ProductData.TYPE_UINT16, 2, 2), GeneralFilterBand.OpType.MAX, new Kernel(1,1,new double[1]), 1);
         final DimapPersistable gfbPersistable = DimapPersistence.getPersistable(gfb);
         assertNotNull(gfbPersistable);
         assertTrue(gfbPersistable instanceof GeneralFilterBandPersistable);
 
         final ConvolutionFilterBand cfb = new ConvolutionFilterBand("test2",
                                                                     new Band("b", ProductData.TYPE_INT8, 3, 3),
-                                                                    new Kernel(2, 2, new double[4]));
+                                                                    new Kernel(2, 2, new double[4]), 1);
         final DimapPersistable cfbPersistable = DimapPersistence.getPersistable(cfb);
         assertNotNull(cfbPersistable);
         assertTrue(cfbPersistable instanceof ConvolutionFilterBandPersistable);

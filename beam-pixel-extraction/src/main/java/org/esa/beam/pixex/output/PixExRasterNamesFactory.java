@@ -22,7 +22,7 @@ public class PixExRasterNamesFactory implements RasterNamesFactory {
         this.exportBands = exportBands;
         this.exportTiePoints = exportTiePoints;
         this.exportMasks = exportMasks;
-        this.rasterNamesMap = new HashMap<String, String[]>(37);
+        this.rasterNamesMap = new HashMap<>(37);
         this.aggregatorStrategy = aggregatorStrategy;
     }
 
@@ -45,7 +45,7 @@ public class PixExRasterNamesFactory implements RasterNamesFactory {
 
 
     private String[] extractRasterNames(Product product, AggregatorStrategy strategy) {
-        final List<String> allNamesList = new ArrayList<String>();
+        final List<String> allNamesList = new ArrayList<>();
         if (exportBands) {
             Collections.addAll(allNamesList, product.getBandNames());
         }

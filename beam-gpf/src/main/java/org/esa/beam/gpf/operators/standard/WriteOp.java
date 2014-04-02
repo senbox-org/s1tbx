@@ -135,6 +135,7 @@ public class WriteOp extends Operator implements Output {
     private boolean incremental = false;
 
     public WriteOp() {
+        setParameterDefaultValues();
         setRequiresAllBands(true);
     }
 

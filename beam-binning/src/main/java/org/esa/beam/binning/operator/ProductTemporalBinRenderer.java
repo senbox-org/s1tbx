@@ -78,6 +78,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         CrsGeoCoding geoCoding = createMapGeoCoding(outputRegion, pixelSize);
 
         product = new Product(outputFile.getName(), "BINNED-L3", outputRegion.width, outputRegion.height);
+        product.setPreferredTileSize(64, 64);
         product.setGeoCoding(geoCoding);
         product.setStartTime(startTime);
         product.setEndTime(endTime);

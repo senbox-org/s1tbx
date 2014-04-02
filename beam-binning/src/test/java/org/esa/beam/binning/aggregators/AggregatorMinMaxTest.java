@@ -37,7 +37,7 @@ public class AggregatorMinMaxTest {
 
     @Test
     public void testMetadata() {
-        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a");
+        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a", "Out");
 
         assertEquals("MIN_MAX", agg.getName());
 
@@ -50,13 +50,13 @@ public class AggregatorMinMaxTest {
         assertEquals("a_max", agg.getTemporalFeatureNames()[1]);
 
         assertEquals(2, agg.getOutputFeatureNames().length);
-        assertEquals("a_min", agg.getOutputFeatureNames()[0]);
-        assertEquals("a_max", agg.getOutputFeatureNames()[1]);
+        assertEquals("Out_min", agg.getOutputFeatureNames()[0]);
+        assertEquals("Out_max", agg.getOutputFeatureNames()[1]);
     }
 
     @Test
     public void tesAggregatorMinMax() {
-        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a");
+        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a", "Out");
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN);

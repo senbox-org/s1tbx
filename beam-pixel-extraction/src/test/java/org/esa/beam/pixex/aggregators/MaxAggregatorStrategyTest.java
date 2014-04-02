@@ -25,13 +25,15 @@ public class MaxAggregatorStrategyTest {
 
         final DefaultRecord defaultRecord = new DefaultRecord(numbers);
 
-        assertEquals(1, maxStrategy.getValueCount());
+        assertEquals(2, maxStrategy.getValueCount());
         final Number[] firstBandValues = maxStrategy.getValues(defaultRecord, 0);
         final Number[] secondBandValues = maxStrategy.getValues(defaultRecord, 1);
 
-        assertEquals(1, firstBandValues.length);
-        assertEquals(1, secondBandValues.length);
+        assertEquals(2, firstBandValues.length);
+        assertEquals(2, secondBandValues.length);
         assertEquals(6F, firstBandValues[0].doubleValue(), 0.0001);
         assertEquals(7F, secondBandValues[0].doubleValue(), 0.0001);
+        assertEquals(6, firstBandValues[1].intValue());
+        assertEquals(6, secondBandValues[1].intValue());
     }
 }

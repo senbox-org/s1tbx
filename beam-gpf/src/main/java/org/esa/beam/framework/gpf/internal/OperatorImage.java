@@ -18,7 +18,9 @@ package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.jai.ImageManager;
 
 import javax.media.jai.ImageLayout;
@@ -92,7 +94,8 @@ public class OperatorImage extends SourcelessOpImage {
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append("[");
-        sb.append(operatorContext.getOperatorSpi().getOperatorAlias());
+        OperatorDescriptor operatorDescriptor = operatorContext.getOperatorSpi().getOperatorDescriptor();
+        sb.append(operatorDescriptor.getAlias());
         sb.append(",");
         if (targetBand != null) {
             sb.append(targetBand.getName());

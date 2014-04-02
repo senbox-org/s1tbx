@@ -18,14 +18,16 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     private final String name;
     private final Class<?> dataType;
     private final Parameter annotation;
+    private final boolean isDeprecated;
 
-    public AnnotationParameterDescriptor(String name, Class<?> dataType, Parameter annotation) {
+    public AnnotationParameterDescriptor(String name, Class<?> dataType, boolean isDeprecated, Parameter annotation) {
         Assert.notNull(name, "name");
         Assert.notNull(dataType, "dataType");
         Assert.notNull(annotation, "annotation");
         this.annotation = annotation;
         this.name = name;
         this.dataType = dataType;
+        this.isDeprecated = isDeprecated;
     }
 
     @Override
@@ -105,6 +107,11 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     @Override
     public boolean isNotEmpty() {
         return annotation.notEmpty();
+    }
+
+    @Override
+    public boolean isDeprecated() {
+        return isDeprecated;
     }
 
     @Override

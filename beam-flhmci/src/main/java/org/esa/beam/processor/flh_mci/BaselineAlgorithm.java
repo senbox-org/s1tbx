@@ -83,11 +83,28 @@ public final class BaselineAlgorithm {
         cloudCorrectionFactor = factor;
     }
 
-    final double computeLineHeight(double lower, double upper, double peak) {
+    /**
+     * Computes the baseline height algorithm.
+     *
+     * @param lower lower baseline wavelength radiance
+     * @param upper upper baseline wavelength radiance
+     * @param peak  the signal wavelength radiance
+     *
+     * @return the line height
+     */
+    public final double computeLineHeight(double lower, double upper, double peak) {
         return peak - cloudCorrectionFactor * (lower + (upper - lower) * lambdaFactor);
     }
 
-    final double computeSlope(double lower, double upper) {
+    /**
+     * Computes the baseline slope
+     *
+     * @param lower lower baseline wavelength radiance
+     * @param upper upper baseline wavelength radiance
+     *
+     * @return the slope
+     */
+    public final double computeSlope(double lower, double upper) {
         return (upper - lower) * inverseDelta;
     }
 }

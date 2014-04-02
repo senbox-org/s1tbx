@@ -22,6 +22,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
@@ -72,16 +73,17 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
         button.setText("Extract");
         button.setMnemonic('E');
 
-        parameterMap = new HashMap<String, Object>();
+        parameterMap = new HashMap<>();
+        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(PixExOp.Spi.class.getName());
+
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
 
-        final Class<PixExOp> operatorClass = PixExOp.class;
-        final OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorClass,
+        final OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(),
                                                                                        propertyContainer,
                                                                                        parameterMap,
                                                                                        this);
         final OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                           operatorClass,
+                                                           operatorSpi.getOperatorDescriptor(),
                                                            parameterSupport,
                                                            appContext,
                                                            HELP_ID_JAVA_HELP);
@@ -135,7 +137,7 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
                     continue;
                 }
                 try {
-                    final TreeSet<File> fileSet = new TreeSet<File>();
+                    final TreeSet<File> fileSet = new TreeSet<>();
                     WildcardMatcher.glob(inputPath, fileSet);
                     for (File file : fileSet) {
                         final Product product = ProductIO.readProduct(file);

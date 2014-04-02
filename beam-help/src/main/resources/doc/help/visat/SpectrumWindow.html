@@ -34,25 +34,27 @@
 
 <p>
     If you have opened a data product which contains spectral bands, you can use the spectrum view
-    to inspect the spectrum for a given pixel position. <br>
+    to inspect the spectra for a given pixel position. <br>
     A click on the
     <img src="images/icons/Spectrum24.gif" alt="Spectrum" border="0">
     icon in the <a href="Toolbars.html">main toolbar</a> or selecting &quot;Spectrum&quot;
     from the <a href="ToolWindows.html">View --> Tool Windows </a> menu opens a view which will look similar to this one:
 </p>
 
-<p align="center"><img src="images/SpectrumWindow.jpg"></p>
+<p align="center"><img src="images/SpectrumWindow.png"></p>
 
 <p>
-    If you now move the mouse cursor over an image view, the spectrum will immediately display the spectrum
-    for the current pixel position. Note that the spectrum view can only display the
-    intensities of <i>spectral</i> bands. The spectrum view will remain empty for products without any
-    spectral bands.
+    If you now move the mouse cursor over an image view, the spectrum view will display the spectra
+    for the current pixel position.
+    Note that the spectrum view can only display the intensities of <i>spectral</i> bands.
+    The spectrum view will remain empty for products without any spectral bands.
+    By clicking <img src="images/icons/Filter24.gif"> you open the <a href="SpectrumChooser.html">Spectrum Chooser</a>
+    which allows you to define which spectra or bands to show.
 </p>
 
 <p>
     You can click &amp; drag the mouse in the diagram in order to display the value of the selected spectrum graph
-    at the current cursor position (see screenshot above).
+    at a pin position (see screenshot above).
 </p>
 
 <p>
@@ -66,12 +68,56 @@
     again.
 </p>
 
+<h4>Context Menu</h4>
+
+<p>A click with the right mouse button on the diagram brings up a context menu
+    which consists of the following menu items:</p>
+<ul>
+    <li><b>Properties...</b><br>
+        Edit several properties (colors, axes, etc.) of the diagram.<br>
+        Use this menu to set the axis' ranges to fixed values.
+    </li>
+    <li><b>Copy</b><br>
+        Copies the diagram as image into the clipboard. <br>
+    </li>
+    <li><b>Save As...</b><br>
+        Save the diagram as image (PNG). <br>
+    </li>
+    <li><b>Print...</b><br>
+        Print the diagram.<br>
+    </li>
+    <li><b>Zoom In</b><br>
+        <ul>
+            <li>Both Axes - Zoom in on both axes.</li>
+            <li>Domain Axes - Zoom in only on the domain axis.</li>
+            <li>Range Axes - Zoom in only on the range axis.</li>
+        </ul>
+    </li>
+    <li><b>Zoom Out</b><br>
+        <ul>
+            <li>Both Axes - Zoom out on both axes.</li>
+            <li>Domain Axes - Zoom out only on the domain axis.</li>
+            <li>Range Axes - Zoom out only on the range axis.</li>
+        </ul>
+    </li>
+    <li><b>Auto Range</b><br>
+        <ul>
+            <li>Both Axes - Adjusts both axes to the full data range.<br>
+                This is similar to holding the <code>SHIFT</code> key pressed.
+            </li>
+            <li>Domain Axes - Adjusts the domain axis to the full data range.</li>
+            <li>Range Axes - Adjusts the range axis to the full data range.</li>
+        </ul>
+    </li>
+</ul>
+
 <p>In the following the tool buttons of the spectrum view are explained.<br><br>
 
 <table cellpadding=2 cellspacing=0 border=0>
     <tr>
         <td><img src="images/icons/Filter24.gif"></td>
-        <td>The filter allows you to select/deselect the bands considered in the diagram.</td>
+        <td>Opens the <a href="SpectrumChooser.html">Spectrum Chooser</a>, which allows you to choose which spectra
+        and bands to display and to alter their appearance.</td>
     </tr>
     <tr>
         <td><img src="images/icons/CursorSpectrum24.gif"></td>

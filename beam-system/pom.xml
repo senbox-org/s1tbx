@@ -119,6 +119,7 @@
                 <groupId>org.jpy</groupId>
                 <artifactId>jpy</artifactId>
                 <version>${jpy.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->

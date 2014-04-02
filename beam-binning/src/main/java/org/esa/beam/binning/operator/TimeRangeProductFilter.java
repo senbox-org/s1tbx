@@ -30,32 +30,28 @@ package org.esa.beam.binning.operator;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductFilter;
 
-class TimeRangeProductFilter implements ProductFilter {
+class TimeRangeProductFilter extends BinningProductFilter {
 
     private final ProductData.UTC startTime;
     private final ProductData.UTC endTime;
 
-    TimeRangeProductFilter(ProductData.UTC startTime, ProductData.UTC endTime) {
+    TimeRangeProductFilter(BinningProductFilter parent, ProductData.UTC startTime, ProductData.UTC endTime) {
+        setParent(parent);
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
     @Override
-    public boolean accept(Product sourceProduct) {
-        final ProductData.UTC productStartTime = sourceProduct.getStartTime();
-        final ProductData.UTC productEndTime = sourceProduct.getEndTime();
+    protected boolean acceptForBinning(Product product) {
+        final ProductData.UTC productStartTime = product.getStartTime();
+        final ProductData.UTC productEndTime = product.getEndTime();
         final boolean hasStartTime = productStartTime != null;
         final boolean hasEndTime = productEndTime != null;
-        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
-        if (geoCoding == null || !geoCoding.canGetGeoPos()) {
-            return false;
-        } else if (startTime != null && hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                   && endTime != null && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+        if (startTime != null && hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
+            && endTime != null && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
             return true;
         } else if (!hasStartTime && !hasEndTime) {
             return true;
@@ -63,8 +59,8 @@ class TimeRangeProductFilter implements ProductFilter {
             return true;
         } else if (!hasStartTime && endTime != null && productEndTime.getAsDate().before(endTime.getAsDate())) {
             return true;
-        } else {
-            return false;
         }
+        setReason("Does not match the time range.");
+        return false;
     }
 }

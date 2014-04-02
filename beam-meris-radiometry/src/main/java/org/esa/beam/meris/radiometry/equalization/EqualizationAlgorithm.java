@@ -16,6 +16,7 @@
 
 package org.esa.beam.meris.radiometry.equalization;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -73,8 +74,12 @@ public class EqualizationAlgorithm {
      * @param detectorIndex the index of the detector the value is from
      *
      * @return the equalized value
+     *
+     * @throws IllegalArgumentException if {@code spectralIndex < 0 || spectralIndex > 14} or {@code detectorIndex < 0}
      */
     public double performEqualization(double value, int spectralIndex, int detectorIndex) {
+        Assert.argument(spectralIndex >= 0 && spectralIndex <= 14, "spectralIndex < 0 && spectralIndex > 14");
+        Assert.argument(detectorIndex >= 0, "detectorIndex < 0");
         final double[] coefficients = equalizationLUT.getCoefficients(spectralIndex, detectorIndex);
         double cEq = coefficients[0] +
                      coefficients[1] * julianDate +
@@ -167,7 +172,7 @@ public class EqualizationAlgorithm {
     private static List<Reader> getCoefficientsReaders(int reprocessingVersion, boolean fullResolution) {
         final String coefFilePattern = "Equalization_coefficient_band_%02d_reprocessing_r%d_%s.txt";
         final int bandCount = 15;
-        List<Reader> readerList = new ArrayList<Reader>();
+        List<Reader> readerList = new ArrayList<>();
         for (int i = 1; i <= bandCount; i++) {
             final InputStream stream = EqualizationLUT.class.getResourceAsStream(
                     String.format(coefFilePattern, i, reprocessingVersion, fullResolution ? "FR" : "RR"));

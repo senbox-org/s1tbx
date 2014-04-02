@@ -19,7 +19,6 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
-import com.bc.ceres.core.ServiceRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -41,11 +40,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 class CommandLineUsage {
@@ -55,16 +54,15 @@ class CommandLineUsage {
         String usagePattern = getUsagePattern();
 
         OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        ServiceRegistry<OperatorSpi> serviceRegistry = registry.getServiceRegistry();
-        Set<OperatorSpi> spiSet = serviceRegistry.getServices();
-        ArrayList<DocElement> docElementList = new ArrayList<>(spiSet.size());
-        for (OperatorSpi operatorSpi : spiSet) {
-            OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-            String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
-            if (!operatorDescriptor.isInternal()) {
+        ArrayList<OperatorSpi> spiList = new ArrayList<>(registry.getOperatorSpis());
+        ArrayList<DocElement> docElementList = new ArrayList<>(spiList.size());
+        for (OperatorSpi operatorSpi : spiList) {
+            String opName = getOperatorUIName(operatorSpi);
+            if (!operatorSpi.getOperatorDescriptor().isInternal()) {
                 final String descriptionLine;
-                if (operatorDescriptor.getDescription() != null) {
-                    descriptionLine = operatorDescriptor.getDescription();
+                String description = operatorSpi.getOperatorDescriptor().getDescription();
+                if (description != null) {
+                    descriptionLine = description;
                 } else {
                     descriptionLine = "No description available.";
                 }
@@ -72,7 +70,9 @@ class CommandLineUsage {
             }
         }
         StringBuilder opListText = new StringBuilder(1024);
+        sortAlphabetically(docElementList);
         appendDocElementList(opListText, docElementList);
+
         return MessageFormat.format(usagePattern,
                                     CommandLineTool.TOOL_NAME,
                                     CommandLineArgs.DEFAULT_TARGET_FILEPATH,
@@ -80,6 +80,11 @@ class CommandLineUsage {
                                     CommandLineArgs.DEFAULT_TILE_CACHE_SIZE_IN_M,
                                     CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM,
                                     opListText.toString());
+    }
+
+    private static String getOperatorUIName(OperatorSpi operatorSpi) {
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        return operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
     }
 
     private static String getUsagePattern() {
@@ -118,8 +123,8 @@ class CommandLineUsage {
         if (header != null) {
             usageText.append("Usage:\n");
             usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, path));
-            ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
-            ArrayList<DocElement> paramDocElementList = createParamDocuElementList(header.getParameters());
+            ArrayList<DocElement> sourceDocElementList = createSourceDocElementList(header.getSources());
+            ArrayList<DocElement> paramDocElementList = createParamDocElementList(header.getParameters());
 
             if (!sourceDocElementList.isEmpty()) {
                 usageText.append("\nSource Options:\n");
@@ -134,31 +139,30 @@ class CommandLineUsage {
         return usageText.toString();
     }
 
-    private static ArrayList<DocElement> createSourceDocuElementList(List<HeaderSource> sources) {
+    private static ArrayList<DocElement> createSourceDocElementList(List<HeaderSource> sources) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         for (HeaderSource headerSource : sources) {
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", headerSource.getName());
-            final ArrayList<String> descriptionLines = createSourceDecriptionLines(headerSource);
+            final ArrayList<String> descriptionLines = createSourceDescriptionLines(headerSource);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
-
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createParamDocuElementList(List<HeaderParameter> parameterList) {
+    private static ArrayList<DocElement> createParamDocElementList(List<HeaderParameter> parameterList) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
-
         for (HeaderParameter parameter : parameterList) {
             String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", parameter.getName(), parameter.getType());
             final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
             docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
-
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
     private static ArrayList<String> createParamDescriptionLines(HeaderParameter parameter) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        final ArrayList<String> descriptionLines = new ArrayList<>();
         final String description = parameter.getDescription();
 
         if (!(description == null || description.isEmpty())) {
@@ -202,7 +206,7 @@ class CommandLineUsage {
         return descriptionLines;
     }
 
-    private static ArrayList<String> createSourceDecriptionLines(HeaderSource headerSource) {
+    private static ArrayList<String> createSourceDescriptionLines(HeaderSource headerSource) {
         final ArrayList<String> descriptionLines = new ArrayList<>();
 
         final String description = headerSource.getDescription();
@@ -230,9 +234,9 @@ class CommandLineUsage {
         StringBuilder usageText = new StringBuilder(1024);
         usageText.append("Usage:\n");
         usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, operatorName));
-        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorDescriptor);
-        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorDescriptor);
-        ArrayList<DocElement> propertyDocElementList = createPropertyDocuElementList(operatorDescriptor);
+        ArrayList<DocElement> sourceDocElementList = createSourceDocElementList(operatorDescriptor);
+        ArrayList<DocElement> paramDocElementList = createParamDocElementList(operatorDescriptor);
+        ArrayList<DocElement> propertyDocElementList = createPropertyDocElementList(operatorDescriptor);
         final SourceProductsDescriptor productsDescriptor = operatorDescriptor.getSourceProductsDescriptor();
         if (productsDescriptor != null) {
             appendSourceFiles(usageText, productsDescriptor);
@@ -285,22 +289,33 @@ class CommandLineUsage {
         }
     }
 
-    private static ArrayList<DocElement> createParamDocuElementList(OperatorDescriptor operatorDescriptor) {
+    private static ArrayList<DocElement> createParamDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         ParameterDescriptor[] parameterDescriptors = operatorDescriptor.getParameterDescriptors();
         for (ParameterDescriptor parameter: parameterDescriptors) {
-            if (isConverterAvailable(parameter)) {
+            if (isConverterAvailable(parameter) && !parameter.isDeprecated()) {
                 String paramSyntax = String.format("  -P%s=<%s>", getName(parameter), getTypeName(parameter.getDataType()));
                 final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
                 docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
             }
         }
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createPropertyDocuElementList(OperatorDescriptor operatorDescriptor) {
+    private static ArrayList<DocElement> createPropertyDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         TargetPropertyDescriptor[] targetPropertyDescriptors = operatorDescriptor.getTargetPropertyDescriptors();
+        // The sorting of the properties needs to be treated special, compared to the other DocElements.
+        // It would be sorted by the Type name instead of the name of the property
+        List<TargetPropertyDescriptor> targetPropertyDescriptorList = Arrays.asList(targetPropertyDescriptors);
+        Collections.sort(targetPropertyDescriptorList, new Comparator<TargetPropertyDescriptor>() {
+                             @Override
+                             public int compare(TargetPropertyDescriptor tpd1, TargetPropertyDescriptor tpd2) {
+                                 return getName(tpd1).compareToIgnoreCase(getName(tpd2));
+                             }
+                         }
+                         );
         for (TargetPropertyDescriptor property : targetPropertyDescriptors) {
             String propertySyntax = MessageFormat.format("{0} {1}", property.getDataType().getSimpleName(), getName(property));
             final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(property);
@@ -309,19 +324,20 @@ class CommandLineUsage {
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createSourceDocuElementList(OperatorDescriptor operatorDescriptor) {
+    private static ArrayList<DocElement> createSourceDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         SourceProductDescriptor[] sourceProductDescriptors = operatorDescriptor.getSourceProductDescriptors();
         for (SourceProductDescriptor sourceProduct : sourceProductDescriptors) {
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", getName(sourceProduct));
-            final ArrayList<String> descriptionLines = createSourceDecriptionLines(sourceProduct);
+            final ArrayList<String> descriptionLines = createSourceDescriptionLines(sourceProduct);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
+        sortAlphabetically(docElementList);
         return docElementList;
     }
 
     private static ArrayList<String> createParamDescriptionLines(ParameterDescriptor parameter) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        final ArrayList<String> descriptionLines = new ArrayList<>();
         if (parameter.getDescription() != null) {
             descriptionLines.add(parameter.getDescription());
         } else {
@@ -356,8 +372,8 @@ class CommandLineUsage {
         return descriptionLines;
     }
 
-    private static ArrayList<String> createSourceDecriptionLines(SourceProductDescriptor sourceProduct) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+    private static ArrayList<String> createSourceDescriptionLines(SourceProductDescriptor sourceProduct) {
+        final ArrayList<String> descriptionLines = new ArrayList<>();
         if (sourceProduct.getDescription() != null) {
             descriptionLines.add(sourceProduct.getDescription());
         } else {
@@ -390,8 +406,6 @@ class CommandLineUsage {
             maxLength = Math.max(maxLength, docElement.syntax.length());
         }
 
-        sortAlphabetically(docElementList);
-
         for (DocElement docElement : docElementList) {
             usageText.append(docElement.syntax);
             if (docElement.descriptionLines.length > 0) {
@@ -421,7 +435,7 @@ class CommandLineUsage {
         Collections.sort(docElementList, new Comparator<DocElement>() {
             @Override
             public int compare(DocElement element1, DocElement element2) {
-                return element1.syntax.compareTo(element2.syntax);
+                return element1.syntax.compareToIgnoreCase(element2.syntax);
             }
         });
     }
@@ -447,7 +461,9 @@ class CommandLineUsage {
         }
         DomElement parametersElem = nodeElem.createChild("parameters");
         for (ParameterDescriptor parameter : operatorDescriptor.getParameterDescriptors()) {
-            convertParameterFieldToDom(parameter, parametersElem);
+            if (!parameter.isDeprecated()) {
+                convertParameterFieldToDom(parameter, parametersElem);
+            }
         }
 
         final StringTokenizer st = new StringTokenizer(graphElem.toXml().replace('\r', ' '), "\n");

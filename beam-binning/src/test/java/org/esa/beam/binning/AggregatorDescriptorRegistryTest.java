@@ -18,7 +18,7 @@ public class AggregatorDescriptorRegistryTest {
     @Test
     public void testDefaultAggregatorIsRegistered_Average() {
         AggregatorDescriptor descriptor = assertRegistered("AVG");
-        Aggregator aggregator = descriptor.createAggregator(ctx, new AggConf("x", 0.2, -999.9F));
+        Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorAverage.Config("x", "target", 0.2, false, false));
         assertNotNull(aggregator);
         assertEquals(AggregatorAverage.class, aggregator.getClass());
     }
@@ -26,7 +26,7 @@ public class AggregatorDescriptorRegistryTest {
     @Test
     public void testDefaultAggregatorIsRegistered_AverageML() {
         AggregatorDescriptor descriptor = assertRegistered("AVG_ML");
-        Aggregator aggregator = descriptor.createAggregator(ctx, new AggConf("x", 0.2, -999.9F));
+        Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorAverageML.Config("x", "targetName", 0.2, false));
         assertNotNull(aggregator);
         assertEquals(AggregatorAverageML.class, aggregator.getClass());
     }
@@ -34,7 +34,7 @@ public class AggregatorDescriptorRegistryTest {
     @Test
     public void testDefaultAggregatorIsRegistered_MinMax() {
         AggregatorDescriptor descriptor = assertRegistered("MIN_MAX");
-        Aggregator aggregator = descriptor.createAggregator(ctx, new AggConf("x", 0.2, -999.9F));
+        Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorMinMax.Config("x", "y"));
         assertNotNull(aggregator);
         assertEquals(AggregatorMinMax.class, aggregator.getClass());
     }
@@ -42,7 +42,7 @@ public class AggregatorDescriptorRegistryTest {
     @Test
     public void testDefaultAggregatorIsRegistered_Percentile() {
         AggregatorDescriptor descriptor = assertRegistered("PERCENTILE");
-        Aggregator aggregator = descriptor.createAggregator(ctx, new AggConf("x", 75, -1.0F));
+        Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorPercentile.Config("x", "y", 75));
         assertNotNull(aggregator);
         assertEquals(AggregatorPercentile.class, aggregator.getClass());
     }
@@ -50,7 +50,8 @@ public class AggregatorDescriptorRegistryTest {
     @Test
     public void testDefaultAggregatorIsRegistered_OnMaxSet() {
         AggregatorDescriptor descriptor = assertRegistered("ON_MAX_SET");
-        Aggregator aggregator = descriptor.createAggregator(ctx, new AggConf("x", "y", "z"));
+        AggregatorOnMaxSet.Config config = new AggregatorOnMaxSet.Config("target", "x", "y", "z");
+        Aggregator aggregator = descriptor.createAggregator(ctx, config);
         assertNotNull(aggregator);
         assertEquals(AggregatorOnMaxSet.class, aggregator.getClass());
     }
@@ -70,34 +71,4 @@ public class AggregatorDescriptorRegistryTest {
         return descriptor;
     }
 
-
-    public static final class AggConf extends AggregatorConfig {
-
-        public String varName;
-        public String[] varNames;
-        public int percentage = -1;
-        public double weightCoeff = -1;
-        public float fillValue;
-
-        public AggConf(String varName, double weightCoeff, float fillValue) {
-            this.varName = varName;
-            this.weightCoeff = weightCoeff;
-            this.fillValue = fillValue;
-        }
-
-        public AggConf(String... varNames) {
-            this.varNames = varNames;
-        }
-
-        public AggConf(String varName, int percentage, float fillValue) {
-            this.varName = varName;
-            this.percentage = percentage;
-            this.fillValue = fillValue;
-        }
-
-        @Override
-        public String[] getVarNames() {
-            return varNames != null ? varNames : new String[]{varName};
-        }
-    }
 }

@@ -30,18 +30,15 @@ class EqualizationLUT {
     private List<Map<Integer, double[]>> coefficientsMapList;
 
     EqualizationLUT(Reader[] bandCoefficientReaders) throws IOException {
-        coefficientsMapList = new ArrayList<Map<Integer, double[]>>(bandCoefficientReaders.length);
+        coefficientsMapList = new ArrayList<>(bandCoefficientReaders.length);
         for (Reader bandCoefficientReader : bandCoefficientReaders) {
-            final HashMap<Integer, double[]> coefMap = new HashMap<Integer, double[]>();
-            final CsvReader csvReader = new CsvReader(bandCoefficientReader, new char[]{' '});
-            try {
+            final HashMap<Integer, double[]> coefMap = new HashMap<>();
+            try (CsvReader csvReader = new CsvReader(bandCoefficientReader, new char[]{' '})) {
                 double[] coefs = csvReader.readDoubleRecord();
                 while (coefs != null) {
                     coefMap.put(csvReader.getLineNumber() - 1, coefs);
                     coefs = csvReader.readDoubleRecord();
                 }
-            } finally {
-                csvReader.close();
             }
             coefficientsMapList.add(coefMap);
 

@@ -309,12 +309,13 @@ public final class DimapProductConstants {
     public static final String TAG_FILTER_KERNEL = "Filter_Kernel";
     public static final String TAG_FILTER_OP_TYPE = "FILTER_OP_TYPE";
     public static final String TAG_FILTER_SUB_WINDOW_SIZE = "FILTER_SUB_WINDOW_SIZE";
-    public static final String TAG_FILTER_STRUCTURING_ELEMENT = "FILTER_STRUCTURING_ELEMENT";
     public static final String TAG_FILTER_OPERATOR_CLASS_NAME = "FILTER_OPERATOR_CLASS_NAME";
 
     // Kernel support
     public static final String TAG_KERNEL_HEIGHT = "KERNEL_HEIGHT";
     public static final String TAG_KERNEL_WIDTH = "KERNEL_WIDTH";
+    public static final String TAG_KERNEL_X_ORIGIN = "KERNEL_X_ORIGIN"; // new in 1.2
+    public static final String TAG_KERNEL_Y_ORIGIN = "KERNEL_Y_ORIGIN"; // new in 1.2
     public static final String TAG_KERNEL_FACTOR = "KERNEL_FACTOR";
     public static final String TAG_KERNEL_DATA = "KERNEL_DATA";
 

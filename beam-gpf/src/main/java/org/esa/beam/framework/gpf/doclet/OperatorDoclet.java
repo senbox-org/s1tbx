@@ -21,23 +21,18 @@ import com.sun.javadoc.DocErrorReporter;
 import com.sun.javadoc.Doclet;
 import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.RootDoc;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
 // This Main must be started with ceres launcher. Otherwise not all dependencies are on the classpath.
 
 
 /**
  * A doclet which scans the classpath for GPF operators and creates
- * associated documentation derived from an operator's annotations
- * <ol>
- * <li>{@link org.esa.beam.framework.gpf.annotations.OperatorMetadata OperatorMetadata}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.SourceProduct SourceProduct}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.SourceProducts SourceProducts}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct}</li>
- * <li>{@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}</li>
- * </ol>
- * <p/>
+ * associated documentation from the {@link OperatorDescriptor} retrieved via the {@link OperatorSpi}.
  * <p/>
  * This Doclet can be called on Windows from the command line
  * by the following instruction.
@@ -141,19 +136,16 @@ public class OperatorDoclet extends Doclet {
             if (classDoc.subclassOf(root.classNamed(Operator.class.getName()))) {
                 try {
                     System.out.println("Processing " + classDoc.typeName() + "...");
-                    // Class<? extends Operator> type = (Class<? extends Operator>) Class.forName(classDoc.qualifiedTypeName());
-                    Class<? extends Operator> type = (Class<? extends Operator>) Thread.currentThread().getContextClassLoader().loadClass(
-                            classDoc.qualifiedTypeName());
-                    OperatorMetadata annotation = type.getAnnotation(OperatorMetadata.class);
-                    if (annotation != null) {
-                        if (!annotation.internal()) {
-                            OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, annotation);
-                            operatorHandler.processOperator(operatorDesc);
-                        } else {
-                            System.err.println("Warning: Skipping " + classDoc.typeName() + " because it is internal.");
-                        }
+                    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                    Class<? extends Operator> type = (Class<? extends Operator>) contextClassLoader.loadClass(classDoc.qualifiedTypeName());
+                    OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+                    OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(OperatorSpi.getOperatorAlias(type));
+                    OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+                    if (!operatorDescriptor.isInternal()) {
+                        OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, operatorDescriptor);
+                        operatorHandler.processOperator(operatorDesc);
                     } else {
-                        System.err.println("Warning: Skipping " + classDoc.typeName() + " because it has no metadata.");
+                        System.err.println("Warning: Skipping " + classDoc.typeName() + " because it is internal.");
                     }
                 } catch (Throwable e) {
                     System.err.println("Error: " + classDoc.typeName() + ": " + e.getMessage());

@@ -81,7 +81,7 @@ public class ConvolutionFilterBandPersistableSpiTest extends TestCase {
     public void testCanPersist() {
         final Band source = new Band("b", ProductData.TYPE_INT8, 2, 2);
         final ConvolutionFilterBand cfb = new ConvolutionFilterBand("test", source,
-                                                                    new Kernel(2, 2, new double[]{0, 1, 2, 3}));
+                                                                    new Kernel(2, 2, new double[]{0, 1, 2, 3}), 1);
 
         assertTrue(_persistableSpi.canPersist(cfb));
 

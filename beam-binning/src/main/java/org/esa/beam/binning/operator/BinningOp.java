@@ -36,7 +36,6 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -44,6 +43,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.esa.beam.util.ProductUtils;
@@ -206,7 +206,7 @@ public class BinningOp extends Operator implements Output {
     private Product writtenProduct;
 
     public BinningOp() throws OperatorException {
-        addedBands = new HashMap<Product, List<Band>>();
+        addedBands = new HashMap<>();
     }
 
     public Geometry getRegion() {
@@ -265,8 +265,7 @@ public class BinningOp extends Operator implements Output {
      * Processes all source products and writes the output file.
      * The target product represents the written output file
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If a processing error occurs.
+     * @throws org.esa.beam.framework.gpf.OperatorException If a processing error occurs.
      */
     @Override
     public void initialize() throws OperatorException {
@@ -289,13 +288,13 @@ public class BinningOp extends Operator implements Output {
 
         binningContext = binningConfig.createBinningContext(region);
 
-        ProductFilter productFilter = createSourceProductFilter(useSpatialDataDay ? binningContext.getDataPeriod() : null,
+        BinningProductFilter productFilter = createSourceProductFilter(useSpatialDataDay ? binningContext.getDataPeriod() : null,
                                                                 startDateUtc,
                                                                 endDateUtc,
                                                                 region);
 
-        metadataProperties = new TreeMap<String, String>();
-        sourceProductNames = new ArrayList<String>();
+        metadataProperties = new TreeMap<>();
+        sourceProductNames = new ArrayList<>();
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
@@ -388,13 +387,13 @@ public class BinningOp extends Operator implements Output {
         return binningConfig.getVariableConfigs() == null || binningConfig.getVariableConfigs().length == 0;
     }
 
-    static ProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime, Geometry region) {
-        ProductFilter productFilter = ProductFilter.ALL;
+    static BinningProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime, Geometry region) {
+        BinningProductFilter productFilter = new GeoCodingProductFilter();
 
         if (dataPeriod != null) {
-            productFilter = new SpatialDataDaySourceProductFilter(dataPeriod);
+            productFilter = new SpatialDataDaySourceProductFilter(productFilter, dataPeriod);
         } else if (startTime != null || endTime != null) {
-            productFilter = new TimeRangeProductFilter(startTime, endTime);
+            productFilter = new TimeRangeProductFilter(productFilter, startTime, endTime);
         }
 
         if (region != null) {
@@ -454,11 +453,8 @@ public class BinningOp extends Operator implements Output {
         String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
         try {
             getLogger().info(String.format("Writing metadata file '%s'...", outputName));
-            Writer writer = new FileWriter(outputName);
-            try {
+            try (Writer writer = new FileWriter(outputName)) {
                 ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
-            } finally {
-                writer.close();
             }
         } catch (Exception e) {
             String msgPattern = "Failed to generate metadata file from template '%s': %s";
@@ -471,11 +467,11 @@ public class BinningOp extends Operator implements Output {
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
 
         File outputFile = new File(formatterConfig.getOutputFile());
-        Class<? extends Operator> operatorClass = getSpi().getOperatorClass();
+        OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
         metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(outputFile));
-        metadataProperties.put("software_qualified_name", operatorClass.getName());
-        metadataProperties.put("software_name", operatorClass.getAnnotation(OperatorMetadata.class).alias());
-        metadataProperties.put("software_version", operatorClass.getAnnotation(OperatorMetadata.class).version());
+        metadataProperties.put("software_qualified_name", operatorDescriptor.getName());
+        metadataProperties.put("software_name", operatorDescriptor.getAlias());
+        metadataProperties.put("software_version", operatorDescriptor.getVersion());
         metadataProperties.put("processing_time", dateFormat.format(new Date()));
         metadataProperties.put("source_products", StringUtils.join(sourceProductNames, ","));
 
@@ -485,15 +481,12 @@ public class BinningOp extends Operator implements Output {
             } else {
                 try {
                     getLogger().info(String.format("Reading metadata properties file '%s'...", metadataPropertiesFile));
-                    final FileReader reader = new FileReader(metadataPropertiesFile);
-                    try {
+                    try (FileReader reader = new FileReader(metadataPropertiesFile)) {
                         final Properties properties = new Properties();
                         properties.load(reader);
                         for (String name : properties.stringPropertyNames()) {
                             metadataProperties.put(name, properties.getProperty(name));
                         }
-                    } finally {
-                        reader.close();
                     }
                 } catch (IOException e) {
                     String msgPattern = "Failed to load metadata properties file '%s': %s";
@@ -521,7 +514,7 @@ public class BinningOp extends Operator implements Output {
         return targetProduct;
     }
 
-    private SpatialBinCollection doSpatialBinning(ProductFilter productFilter) throws IOException {
+    private SpatialBinCollection doSpatialBinning(BinningProductFilter productFilter) throws IOException {
         SpatialBinCollector spatialBinCollector = new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
@@ -530,11 +523,12 @@ public class BinningOp extends Operator implements Output {
                     processSource(sourceProduct, spatialBinner);
                 } else {
                     getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
+                    getLogger().warning("              reason: " + productFilter.getReason());
                 }
             }
         }
         if (sourceProductPaths != null) {
-            SortedSet<File> fileSet = new TreeSet<File>();
+            SortedSet<File> fileSet = new TreeSet<>();
             for (String filePattern : sourceProductPaths) {
                 WildcardMatcher.glob(filePattern, fileSet);
             }
@@ -554,6 +548,7 @@ public class BinningOp extends Operator implements Output {
                             processSource(sourceProduct, spatialBinner);
                         } else {
                             getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
+                            getLogger().warning("              reason: " + productFilter.getReason());
                         }
                     } finally {
                         sourceProduct.dispose();
@@ -592,7 +587,7 @@ public class BinningOp extends Operator implements Output {
                                                                 ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                productName, numObs, stopWatch));
+                                       productName, numObs, stopWatch));
 
         if (region == null && regionArea != null) {
             for (GeneralPath generalPath : ProductUtils.createGeoBoundaryPaths(sourceProduct)) {
@@ -611,10 +606,12 @@ public class BinningOp extends Operator implements Output {
         final CellProcessorChain cellChain = new CellProcessorChain(binningContext);
         final TemporalBinList temporalBins = new TemporalBinList((int) numberOfBins);
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
-        double binCounter = 0;
+        int binCounter = 0;
+        int percentCounter = 0;
         long hundredthOfNumBins = numberOfBins / 100;
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
-            binCounter++;
+            binCounter += spatialBinList.size();
+
             SpatialBin spatialBin = spatialBinList.get(0);
             long spatialBinIndex = spatialBin.getIndex();
             TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
@@ -623,8 +620,9 @@ public class BinningOp extends Operator implements Output {
             temporalBin = cellChain.process(temporalBin);
 
             temporalBins.add(temporalBin);
-            if (binCounter % hundredthOfNumBins == 0) {
-                getLogger().info(String.format("Finished %d%% of temporal bins", (int) (binCounter * 100 / numberOfBins)));
+            if (binCounter >= hundredthOfNumBins) {
+                binCounter = 0;
+                getLogger().info(String.format("Finished %d%% of temporal bins", ++percentCounter));
             }
         }
         stopWatch.stop();
@@ -634,7 +632,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-            Exception {
+                                                                                                                  Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 

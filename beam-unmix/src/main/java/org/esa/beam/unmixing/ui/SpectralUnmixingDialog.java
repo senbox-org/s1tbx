@@ -59,10 +59,12 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
             }
         };
 
-        parameterSupport = new OperatorParameterSupport(SpectralUnmixingOp.class, null, null, parameterUpdater);
-        form = new SpectralUnmixingForm(appContext, parameterSupport.getPopertySet(), getTargetProductSelector());
+        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(SpectralUnmixingOp.Spi.class.getName());
+
+        parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(), null, null, parameterUpdater);
+        form = new SpectralUnmixingForm(appContext, parameterSupport.getPropertySet(), getTargetProductSelector());
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                     SpectralUnmixingOp.class,
+                                                     operatorSpi.getOperatorDescriptor(),
                                                      parameterSupport,
                                                      appContext,
                                                      HELP_ID);
