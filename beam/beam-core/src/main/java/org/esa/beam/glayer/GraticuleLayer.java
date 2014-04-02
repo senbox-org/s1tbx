@@ -39,7 +39,7 @@ import java.beans.PropertyChangeEvent;
 
 /**
  * @author Marco Zuehlke
-
+ * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
 public class GraticuleLayer extends Layer {
@@ -63,7 +63,7 @@ public class GraticuleLayer extends Layer {
         productNodeHandler = new ProductNodeHandler();
         raster.getProduct().addProductNodeListener(productNodeHandler);
 
-        setTransparency(0.2);
+        setTransparency(0.5);
 
     }
 

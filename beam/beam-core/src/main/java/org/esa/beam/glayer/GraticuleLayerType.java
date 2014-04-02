@@ -53,9 +53,9 @@ public class GraticuleLayerType extends LayerType {
     public static final double DEFAULT_RES_LON = 1.0;
     public static final Color DEFAULT_LINE_COLOR = new Color(204, 204, 255);
     public static final double DEFAULT_LINE_TRANSPARENCY = 0.0;
-    public static final double DEFAULT_LINE_WIDTH = 2.0;
+    public static final double DEFAULT_LINE_WIDTH = 0.5;
     public static final boolean DEFAULT_TEXT_ENABLED = true;
-    public static final Font DEFAULT_TEXT_FONT = new Font("SansSerif", Font.ITALIC, 18);
+    public static final Font DEFAULT_TEXT_FONT = new Font("SansSerif", Font.ITALIC, 12);
     public static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
     public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
     public static final double DEFAULT_TEXT_BG_TRANSPARENCY = 0.7;
