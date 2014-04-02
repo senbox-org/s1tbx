@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -60,12 +60,12 @@ public class BilinearInterpolationResamplingTest extends TestCase {
     }
 
     private void testIndexAndSample(final Resampling.Index index,
-                      float x, float y,
-                      double i1Exp, double i2Exp,
-                      double j1Exp, double j2Exp,
-                      float kiExp,
-                      float kjExp,
-                      float sampleExp) throws Exception {
+                                    float x, float y,
+                                    double i1Exp, double i2Exp,
+                                    double j1Exp, double j2Exp,
+                                    float kiExp,
+                                    float kjExp,
+                                    float sampleExp) throws Exception {
         resampling.computeIndex(x, y, raster.getWidth(), raster.getHeight(), index);
         assertEquals(i1Exp, index.i[0]);
         assertEquals(i2Exp, index.i[1]);

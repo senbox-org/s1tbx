@@ -129,7 +129,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         final VersionChecker versionChecker = new VersionChecker();
         String localVersion = "VERSION "+System.getProperty(ResourceUtils.getContextID()+".version");
         localVersion = localVersion.replace("beta", "").trim();
-        versionChecker.selLocalVersion(localVersion);
+        versionChecker.setLocalVersion(localVersion);
         versionChecker.setRemoteVersionUrlString(remoteVersionUrl);
         remoteVersionStr = versionChecker.getRemoteVersion();
         return versionChecker.compareVersions();

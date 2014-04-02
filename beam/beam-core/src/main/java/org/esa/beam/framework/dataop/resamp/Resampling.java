@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,6 @@ package org.esa.beam.framework.dataop.resamp;
  *
  * @author Norman Fomferra
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
-
  */
 public interface Resampling {
 
@@ -78,9 +77,7 @@ public interface Resampling {
      *
      * @param raster the raster
      * @param index  the index, must be computed using the {@link #computeIndex} method
-     *
      * @return either the re-sampled sample value or {@link Float#NaN}.
-     *
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
     double resample(Raster raster, Index index) throws Exception;
@@ -109,13 +106,10 @@ public interface Resampling {
          *
          * @param x the pixel's X-coordinate
          * @param y the pixel's Y-coordinate
-         * the sample value or {@link Double#NaN} if data is missing at the given raster position
+         *          the sample value or {@link Double#NaN} if data is missing at the given raster position
          * @return false if one value is Double#NaN
-         *
          * @throws Exception if a non-runtime error occurs, e.g I/O error
          */
-//        float getSample(double x, double y) throws Exception;
-
         boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception;
     }
 
@@ -124,7 +118,7 @@ public interface Resampling {
      */
     final class Index {
 
-        //used as archieve to recompute the index for an other resampling method
+        //used as archive to recompute the index for an other resampling method
         public double x;
         public double y;
         public int width;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,22 +19,22 @@ package org.esa.beam.framework.dataop.resamp;
 final class BiCubicInterpolationResampling implements Resampling {
 
     private final static float[][] invA = {
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {-3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {2, -2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, -3, 3, 0, 0, -2, -1, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 0, 0, 1, 1, 0, 0},
-                {-3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0},
-                {9, -9, -9, 9, 6, 3, -6, -3, 6, -6, 3, -3, 4, 2, 2, 1},
-                {-6, 6, 6, -6, -3, -3, 3, 3, -4, 4, -2, 2, -2, -2, -1, -1},
-                {2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0},
-                {-6, 6, 6, -6, -4, -2, 4, 2, -3, 3, -3, 3, -2, -1, -2, -1},
-                {4, -4, -4, 4, 2, 2, -2, -2, 2, -2, 2, -2, 1, 1, 1, 1}};
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {-3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {2, -2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, -3, 3, 0, 0, -2, -1, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 0, 0, 1, 1, 0, 0},
+            {-3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0},
+            {9, -9, -9, 9, 6, 3, -6, -3, 6, -6, 3, -3, 4, 2, 2, 1},
+            {-6, 6, 6, -6, -3, -3, 3, 3, -4, 4, -2, 2, -2, -2, -1, -1},
+            {2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0},
+            {-6, 6, 6, -6, -4, -2, 4, 2, -3, 3, -3, 3, -2, -1, -2, -1},
+            {4, -4, -4, 4, 2, 2, -2, -2, 2, -2, 2, -2, 1, 1, 1, 1}};
 
     public String getName() {
         return "BICUBIC_INTERPOLATION";
@@ -68,60 +68,41 @@ final class BiCubicInterpolationResampling implements Resampling {
 
         if (di >= 0) {
             final int i1 = i0 + 1;
-            index.i[0] = (i0 < 0) ? 0 : (i0 > iMax) ? iMax : i0; //Index.crop(i0, iMax);
-            index.i[1] = (i1 < 0) ? 0 : (i1 > iMax) ? iMax : i1; //Index.crop(i0 + 1, iMax);
+            index.i[0] = (i0 < 0) ? 0 : (i0 > iMax) ? iMax : i0;
+            index.i[1] = (i1 < 0) ? 0 : (i1 > iMax) ? iMax : i1;
             index.ki[0] = di;
         } else {
             final int i1 = i0 - 1;
-            index.i[0] = (i1 < 0) ? 0 : (i1 > iMax) ? iMax : i1; //Index.crop(i0 - 1, iMax);
-            index.i[1] = (i0 < 0) ? 0 : (i0 > iMax) ? iMax : i0; //Index.crop(i0, iMax);
+            index.i[0] = (i1 < 0) ? 0 : (i1 > iMax) ? iMax : i1;
+            index.i[1] = (i0 < 0) ? 0 : (i0 > iMax) ? iMax : i0;
             index.ki[0] = di + 1;
         }
 
         if (dj >= 0) {
             final int j1 = j0 + 1;
-            index.j[0] = (j0 < 0) ? 0 : (j0 > jMax) ? jMax : j0; //Index.crop(j0, jMax);
-            index.j[1] = (j1 < 0) ? 0 : (j1 > jMax) ? jMax : j1; //Index.crop(j0 + 1, jMax);
+            index.j[0] = (j0 < 0) ? 0 : (j0 > jMax) ? jMax : j0;
+            index.j[1] = (j1 < 0) ? 0 : (j1 > jMax) ? jMax : j1;
             index.kj[0] = dj;
         } else {
             final int j1 = j0 - 1;
-            index.j[0] = (j1 < 0) ? 0 : (j1 > jMax) ? jMax : j1; //Index.crop(j0 - 1, jMax);
-            index.j[1] = (j0 < 0) ? 0 : (j0 > jMax) ? jMax : j0; //Index.crop(j0, jMax);
+            index.j[0] = (j1 < 0) ? 0 : (j1 > jMax) ? jMax : j1;
+            index.j[1] = (j0 < 0) ? 0 : (j0 > jMax) ? jMax : j0;
             index.kj[0] = dj + 1;
         }
-
-        /*
-        final float di = x - i0;
-        final float dj = y - j0;
-
-        index.i0 = i0;
-        index.j0 = j0;
-
-        final int iMax = width - 1;
-        final int jMax = height - 1;
-
-        index.i[0] = Index.crop(i0, iMax);
-        index.i[1] = Index.crop(i0 + 1, iMax);
-        index.ki[0] = di;
-
-        index.j[0] = Index.crop(j0, jMax);
-        index.j[1] = Index.crop(j0 + 1, jMax);
-        index.kj[0] = dj;
-        */
     }
 
     public final double resample(final Raster raster,
-                                final Index index) throws Exception {
+                                 final Index index) throws Exception {
 
         final int[] x = new int[4];
         final int[] y = new int[4];
         final double[][] samples = new double[4][4];
 
         for (int i = 0; i < 4; i++) {
-            x[i] = (int)Index.crop(index.i[0] - 1 + i, index.width-1);
-            y[i] = (int)Index.crop(index.j[0] - 1 + i, index.height-1);
+            x[i] = (int) Index.crop(index.i[0] - 1 + i, index.width - 1);
+            y[i] = (int) Index.crop(index.j[0] - 1 + i, index.height - 1);
         }
-        if(!raster.getSamples(x, y, samples)) {
+        if (!raster.getSamples(x, y, samples)) {
             if (Double.isNaN(samples[1][1])) {
                 return samples[1][1];
             }
@@ -161,34 +142,22 @@ final class BiCubicInterpolationResampling implements Resampling {
         return bcuint(z, z1, z2, z12, index.ki[0], index.kj[0]);
     }
 
-	private static double bcuint(final double z[], final double z1[], final double z2[],
-                         final double z12[], final double t, final double u) {
+    private static double bcuint(final double z[], final double z1[], final double z2[],
+                                 final double z12[], final double t, final double u) {
 
         // alpha = [a00 a10 a20 a30 a01 a11 a21 a31 a02 a12 a22 a32 a03 a13 a23 a33]
-		final double[][] a = new double[4][4];
-		bcucof(z, z1, z2, z12, a);
+        final double[][] a = new double[4][4];
+        bcucof(z, z1, z2, z12, a);
 
         double ansy = 0.0f;
-		for (int i = 3; i >= 0; i--) {
-			ansy = t*ansy + ((a[i][3]*u + a[i][2])*u + a[i][1])*u + a[i][0];
-		}
+        for (int i = 3; i >= 0; i--) {
+            ansy = t * ansy + ((a[i][3] * u + a[i][2]) * u + a[i][1]) * u + a[i][0];
+        }
 
-        // todo v is not used?? check with Jun
-        /*
-        float t2 = t*t;
-        float t3 = t2*t;
-        float u2 = u*u;
-        float u3 = u2*u;
+        return ansy;
+    }
 
-        float v = a[0][0] + a[0][1]*u + a[0][2]*u2 + a[0][3]*u3 +
-                  a[1][0]*t + a[1][1]*t*u + a[1][2]*t*u2 + a[1][3]*t*u3 +
-                  a[2][0]*t2 + a[2][1]*t2*u + a[2][2]*t2*u2 + a[2][3]*t2*u3 +
-                  a[3][0]*t3 + a[3][1]*t3*u + a[3][2]*t3*u2 + a[3][3]*t3*u3;
-        */
-		return ansy;
-	}
-
-	private static void bcucof(final double z[], final double z1[], final double z2[], final double z12[],
+    private static void bcucof(final double z[], final double z1[], final double z2[], final double z12[],
                                final double[][] a) {
 
         // x = [f(0,0) f(1,0) f(0,1) f(1,1) fx(0,0) fx(1,0) fx(0,1) fx(1,1) fy(0,0) fy(1,0) fy(0,1) fy(1,1) fxy(0,0) fxy(1,0) fxy(0,1) fxy(1,1)]
@@ -198,27 +167,27 @@ final class BiCubicInterpolationResampling implements Resampling {
         final double[] x = new double[16];
         for (int i = 0; i < 4; i++) {
             x[i] = z[i];
-            x[i+4] = z1[i];
-            x[i+8] = z2[i];
-            x[i+12] = z12[i];
+            x[i + 4] = z1[i];
+            x[i + 8] = z2[i];
+            x[i + 12] = z12[i];
         }
 
-		final double[] cl = new double[16];
-		for (int i = 0; i < 16; i++) {
+        final double[] cl = new double[16];
+        for (int i = 0; i < 16; i++) {
             double xx = 0.0;
-			for (int k = 0; k < 16; k++) {
-                xx += invA[i][k]*x[k];
-			}
-			cl[i] = xx;
-		}
-		
-		int l = 0;
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				a[j][i] = cl[l++];
-			}
-		}
-	}
+            for (int k = 0; k < 16; k++) {
+                xx += invA[i][k] * x[k];
+            }
+            cl[i] = xx;
+        }
+
+        int l = 0;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                a[j][i] = cl[l++];
+            }
+        }
+    }
 
     public static void replaceNaNWithMean(final double[][] samples) {
         double mean = 0.0;

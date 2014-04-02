@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -78,17 +78,17 @@ final class CubicConvolutionResampling implements Resampling {
     }
 
     public final double resample(final Raster raster,
-                                final Index index) throws Exception {
+                                 final Index index) throws Exception {
 
         final int[] x = new int[4];
         final int[] y = new int[4];
         final double[][] samples = new double[4][4];
 
         for (int i = 0; i < 4; i++) {
-            x[i] = (int)index.i[i];
-            y[i] = (int)index.j[i];
+            x[i] = (int) index.i[i];
+            y[i] = (int) index.j[i];
         }
-        if(!raster.getSamples(x, y, samples)) {
+        if (!raster.getSamples(x, y, samples)) {
             if (Double.isNaN(samples[1][1])) {
                 return samples[1][1];
             }
@@ -114,32 +114,32 @@ final class CubicConvolutionResampling implements Resampling {
 
         final double muX = index.ki[0];
         final double muY = index.kj[0];
-        final double muX2 = muX*muX;
-        final double muX3 = muX2*muX;
+        final double muX2 = muX * muX;
+        final double muX3 = muX2 * muX;
 
-        final double c0 = 0.5*(-muX + 2*muX2 - muX3);
-        final double c1 = 0.5*(2 - 5*muX2 + 3*muX3);
-        final double c2 = 0.5*(muX + 4*muX2 - 3*muX3);
-        final double c3 = 0.5*(-muX2 + muX3);
+        final double c0 = 0.5 * (-muX + 2 * muX2 - muX3);
+        final double c1 = 0.5 * (2 - 5 * muX2 + 3 * muX3);
+        final double c2 = 0.5 * (muX + 4 * muX2 - 3 * muX3);
+        final double c3 = 0.5 * (-muX2 + muX3);
         final double sum = c0 + c1 + c2 + c3;
 
-        final double tmpV0 = (c0*samples[0][0] + c1*samples[0][1] + c2*samples[0][2] + c3*samples[0][3]) / sum;
-        final double tmpV1 = (c0*samples[1][0] + c1*samples[1][1] + c2*samples[1][2] + c3*samples[1][3]) / sum;
-        final double tmpV2 = (c0*samples[2][0] + c1*samples[2][1] + c2*samples[2][2] + c3*samples[2][3]) / sum;
-        final double tmpV3 = (c0*samples[3][0] + c1*samples[3][1] + c2*samples[3][2] + c3*samples[3][3]) / sum;
-        return interpolationCubic(tmpV0, tmpV1, tmpV2, tmpV3, muY, muY*muY, muY*muY*muY);
+        final double tmpV0 = (c0 * samples[0][0] + c1 * samples[0][1] + c2 * samples[0][2] + c3 * samples[0][3]) / sum;
+        final double tmpV1 = (c0 * samples[1][0] + c1 * samples[1][1] + c2 * samples[1][2] + c3 * samples[1][3]) / sum;
+        final double tmpV2 = (c0 * samples[2][0] + c1 * samples[2][1] + c2 * samples[2][2] + c3 * samples[2][3]) / sum;
+        final double tmpV3 = (c0 * samples[3][0] + c1 * samples[3][1] + c2 * samples[3][2] + c3 * samples[3][3]) / sum;
+        return interpolationCubic(tmpV0, tmpV1, tmpV2, tmpV3, muY, muY * muY, muY * muY * muY);
     }
 
     private static double interpolationCubic(
             final double y0, final double y1, final double y2, final double y3,
             final double t, final double t2, final double t3) {
 
-        final double c0 = 0.5*(-t + 2*t2 - t3);
-        final double c1 = 0.5*(2 - 5*t2 + 3*t3);
-        final double c2 = 0.5*(t + 4*t2 - 3*t3);
-        final double c3 = 0.5*(-t2 + t3);
+        final double c0 = 0.5 * (-t + 2 * t2 - t3);
+        final double c1 = 0.5 * (2 - 5 * t2 + 3 * t3);
+        final double c2 = 0.5 * (t + 4 * t2 - 3 * t3);
+        final double c3 = 0.5 * (-t2 + t3);
         final double sum = c0 + c1 + c2 + c3;
-        return (c0*y0 + c1*y1 + c2*y2 + c3*y3)/sum;
+        return (c0 * y0 + c1 * y1 + c2 * y2 + c3 * y3) / sum;
     }
 
     @Override

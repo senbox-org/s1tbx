@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,11 +17,10 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
-
 /**
  * This class implements the Nearest Neighbour resampling method.
+ *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
-
  */
 final class NearestNeighbourResampling implements Resampling {
 
@@ -47,10 +46,10 @@ final class NearestNeighbourResampling implements Resampling {
     }
 
     public final double resample(final Raster raster,
-                                final Index index) throws Exception {
+                                 final Index index) throws Exception {
 
-        final int[] x = {(int)index.i0};
-        final int[] y = {(int)index.j0};
+        final int[] x = {(int) index.i0};
+        final int[] y = {(int) index.j0};
         final double[][] samples = new double[1][1];
         raster.getSamples(x, y, samples);
 
