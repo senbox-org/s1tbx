@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 public class BicubicInterpolationResamplingTest extends TestCase {
 
-    final Resampling resampling = Resampling.CUBIC_CONVOLUTION;
+    final Resampling resampling = Resampling.BICUBIC_INTERPOLATION;
     final TestRaster raster = new TestRaster();
 
     public void testCreateIndex() {
@@ -32,8 +32,8 @@ public class BicubicInterpolationResamplingTest extends TestCase {
         assertNotNull(index.j);
         assertNotNull(index.ki);
         assertNotNull(index.kj);
-        assertEquals(4, index.i.length);
-        assertEquals(4, index.j.length);
+        assertEquals(2, index.i.length);
+        assertEquals(2, index.j.length);
         assertEquals(1, index.ki.length);
         assertEquals(1, index.kj.length);
     }
@@ -44,43 +44,32 @@ public class BicubicInterpolationResamplingTest extends TestCase {
         testIndexAndSample(
                 index,
                 2.2f, 2.3f,
-                0.0, 1.0, 2.0, 3.0,
-                0.0, 1.0, 2.0, 3.0,
-                0.7f, 0.363f, 0.847f, -0.147f,
-                0.8f, 0.232f, 0.928f, -0.128f,
+                1.0, 2.0,
+                1.0, 2.0,
+                0.7f,
+                0.8f,
                 25.0616f);
     }
 
     private void testIndexAndSample(
             final Resampling.Index index,
             float x, float y,
-            double i1Exp, double i2Exp, double i3Exp, double i4Exp,
-            double j1Exp, double j2Exp, double j3Exp, double j4Exp,
-            float ki1Exp, float ki2Exp, float ki3Exp, float ki4Exp,
-            float kj1Exp, float kj2Exp, float kj3Exp, float kj4Exp,
+            double i1Exp, double i2Exp,
+            double j1Exp, double j2Exp,
+            float ki1Exp,
+            float kj1Exp,
             float sampleExp) throws Exception {
 
         resampling.computeIndex(x, y, raster.getWidth(), raster.getHeight(), index);
 
         assertEquals(i1Exp, index.i[0]);
         assertEquals(i2Exp, index.i[1]);
-        assertEquals(i3Exp, index.i[2]);
-        assertEquals(i4Exp, index.i[3]);
 
         assertEquals(j1Exp, index.j[0]);
         assertEquals(j2Exp, index.j[1]);
-        assertEquals(j3Exp, index.j[2]);
-        assertEquals(j4Exp, index.j[3]);
 
         assertEquals(ki1Exp, index.ki[0], 1e-5f);
-//        assertEquals(ki2Exp, index.ki[1], 1e-5f);
-//        assertEquals(ki3Exp, index.ki[2], 1e-5f);
-//        assertEquals(ki4Exp, index.ki[3], 1e-5f);
-
         assertEquals(kj1Exp, index.kj[0], 1e-5f);
-//        assertEquals(kj2Exp, index.kj[1], 1e-5f);
-//        assertEquals(kj3Exp, index.kj[2], 1e-5f);
-//        assertEquals(kj4Exp, index.kj[3], 1e-5f);
 
         double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
