@@ -190,7 +190,6 @@
 		<module>nest-src</module>
 		<module>nest-world-wind-view</module>
 		
-		<module>nest-io-sentinel1</module>
 		<module>nest-op-sentinel1</module>
 		
 		<module>beam/esa-pfa</module>
