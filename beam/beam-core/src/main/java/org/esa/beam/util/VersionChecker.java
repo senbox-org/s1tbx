@@ -59,7 +59,7 @@ public class VersionChecker {
         this.localVersionFile = localVersionFile;
     }
 
-    public void selLocalVersion(final String ver) {
+    public void setLocalVersion(final String ver) {
         localVersionStr = ver;
     }
 
@@ -97,7 +97,7 @@ public class VersionChecker {
         }
     }
 
-    private String getVersion(final URL url) throws IOException {
+    private static String getVersion(final URL url) throws IOException {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
         final String line;
         try {
