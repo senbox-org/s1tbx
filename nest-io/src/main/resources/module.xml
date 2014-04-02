@@ -244,6 +244,16 @@
             <helpId>importCosmoSkymed</helpId>
         </action>
 
+        <action>
+            <id>importS1Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>SENTINEL-1</formatName>
+            <shortDescr>Import a SENTINEL-1 product</shortDescr>
+            <description>Import a SENTINEL-1 product</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importS1Product</helpId>
+        </action>
+
         <!--action>
             <id>importNetCDF</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
