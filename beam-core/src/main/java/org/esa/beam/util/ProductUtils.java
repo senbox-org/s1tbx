@@ -1485,6 +1485,25 @@ public class ProductUtils {
         targetBand.setSolarFlux(sourceBand.getSolarFlux());
     }
 
+    /**
+     * Copies all properties from source product to the target product.
+     *
+     * @param sourceProduct the source product
+     * @param targetProduct the target product
+     *
+     */
+    public static void copyProductNodes(final Product sourceProduct, final Product targetProduct) {
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        targetProduct.setDescription(sourceProduct.getDescription());
+    }
 
     /**
      * Copies the geocoding from the source product to target product.
