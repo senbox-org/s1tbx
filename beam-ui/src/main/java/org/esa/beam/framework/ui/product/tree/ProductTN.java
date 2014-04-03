@@ -71,7 +71,7 @@ class ProductTN extends AbstractTN {
                 }
             }
         }
-        if (hasVectorData(product)) {
+        if (mustShowVectorData(product)) {
             childIndex++;
             if (childIndex == index) {
                 return new ProductNodeTN(ProductTN.VECTOR_DATA, this.product.getVectorDataGroup(), this);
@@ -153,7 +153,7 @@ class ProductTN extends AbstractTN {
         if (hasTiePoints(product)) {
             childCount++;
         }
-        if (hasVectorData(product)) {
+        if (mustShowVectorData(product)) {
             childCount++;
         }
         if (hasBands(product)) {
@@ -190,7 +190,7 @@ class ProductTN extends AbstractTN {
                 return childIndex;
             }
         }
-        if (hasVectorData(product)) {
+        if (mustShowVectorData(product)) {
             childIndex++;
             if (child.getName().equals(VECTOR_DATA)) {
                 return childIndex;
@@ -213,11 +213,19 @@ class ProductTN extends AbstractTN {
         return product.getTiePointGridGroup().getNodeCount() > 0;
     }
 
-    private boolean hasVectorData(Product product) {
+    private boolean mustShowVectorData(Product product) {
+
         final ProductNodeGroup<VectorDataNode> vectorNodeGroup = product.getVectorDataGroup();
+        VectorDataNode gcpVectorDataNode = product.getGcpGroup().getVectorDataNode();
+        VectorDataNode pinVectorDataNode = product.getPinGroup().getVectorDataNode();
         for (int i = 0; i < vectorNodeGroup.getNodeCount(); i++) {
             final VectorDataNode vectorDataNode = vectorNodeGroup.get(i);
-            if (!vectorDataNode.getFeatureCollection().isEmpty()) {
+            boolean isPinOrGcpNode = vectorDataNode.equals(gcpVectorDataNode) || vectorDataNode.equals(pinVectorDataNode);
+            if (isPinOrGcpNode) {
+                if(vectorDataNode.getPlacemarkGroup().getNodeCount() > 0) {
+                    return true;
+                }
+            } else {
                 return true;
             }
         }
