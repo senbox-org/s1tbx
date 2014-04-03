@@ -125,14 +125,14 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
             progressMonitor.worked(5); // = 5%
 
             progressMonitor.setSubTaskName("Resolving modules");
-            resolveModules(SubProgressMonitor.create(progressMonitor, 10));  // = 15%
+            resolveModules(SubProgressMonitor.create(progressMonitor, 5));  // = 15%
 
             progressMonitor.setSubTaskName("Starting modules");
-            startModules(SubProgressMonitor.create(progressMonitor, 30)); // = 70%
+            startModules(SubProgressMonitor.create(progressMonitor, 55)); // = 70%
             registerShutdownHook();
 
             progressMonitor.setSubTaskName("Running application");
-            runApplication(SubProgressMonitor.create(progressMonitor, 50)); // = 100%
+            runApplication(SubProgressMonitor.create(progressMonitor, 30)); // = 100%
         } finally {
             progressMonitor.done();
         }
