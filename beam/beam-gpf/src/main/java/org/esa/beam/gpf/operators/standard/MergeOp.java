@@ -79,6 +79,10 @@ public class MergeOp extends Operator {
                description = "Defines nodes to be excluded from the target product (not supported in version 1.0).")
     private NodeDescriptor[] excludes;
 
+    @Parameter(defaultValue = "1.0E-5f",
+               description = "Defines the maximum lat/lon error in degree between the products.")
+    private float geographicError;
+
     @Override
     public void initialize() throws OperatorException {
         targetProduct = masterProduct;
@@ -167,7 +171,7 @@ public class MergeOp extends Operator {
 
     private void validateSourceProducts() {
         for (Product sourceProduct : getSourceProducts()) {
-            if (!targetProduct.isCompatibleProduct(sourceProduct, 1.0E-5f)) {
+            if (!targetProduct.isCompatibleProduct(sourceProduct, geographicError)) {
                 throw new OperatorException(String.format("Product [%s] is not compatible to master product.",
                                                           getSourceProductId(sourceProduct)));
             }
