@@ -15,10 +15,13 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class AbstractBand_EnsureMinLengthArray_Test extends TestCase {
+import static org.junit.Assert.*;
 
+public class AbstractBand_EnsureMinLengthArray_Test {
+
+    @Test
     public void testEnsureMinLengthArray_ArrayIsNull() {
         final int[] ints = AbstractBand.ensureMinLengthArray((int[]) null, 4);
         assertNotNull(ints);
@@ -33,6 +36,7 @@ public class AbstractBand_EnsureMinLengthArray_Test extends TestCase {
         assertEquals(4, doubles.length);
     }
 
+    @Test
     public void testEnsureMinLengthArray_LengthIsEqual() {
         final int[] intsGiven = new int[4];
         final int[] intsReturned = AbstractBand.ensureMinLengthArray(intsGiven, 4);
@@ -47,6 +51,7 @@ public class AbstractBand_EnsureMinLengthArray_Test extends TestCase {
         assertSame(doublesGiven, doublesReturned);
     }
 
+    @Test
     public void testEnsureMinLengthArray_LengthIsBigger() {
         final int[] intsGiven = new int[6];
         final int[] intsReturned = AbstractBand.ensureMinLengthArray(intsGiven, 4);
@@ -61,11 +66,13 @@ public class AbstractBand_EnsureMinLengthArray_Test extends TestCase {
         assertSame(doublesGiven, doublesReturned);
     }
 
+    @Test
     public void testEnsureMinLengthArray_IllegalSize() {
         try {
             AbstractBand.ensureMinLengthArray(new int[3], 4);
             fail();
-        } catch (IllegalArgumentException expected) {
+        } catch (IllegalArgumentException ignore) {
+            // expected
         } catch (Exception e) {
             fail("IllegalArgumentException expected");
         }
@@ -73,7 +80,8 @@ public class AbstractBand_EnsureMinLengthArray_Test extends TestCase {
         try {
             AbstractBand.ensureMinLengthArray(new float[3], 4);
             fail();
-        } catch (IllegalArgumentException expected) {
+        } catch (IllegalArgumentException ignore) {
+            // expected
         } catch (Exception e) {
             fail("IllegalArgumentException expected");
         }
@@ -81,7 +89,8 @@ public class AbstractBand_EnsureMinLengthArray_Test extends TestCase {
         try {
             AbstractBand.ensureMinLengthArray(new double[3], 4);
             fail();
-        } catch (IllegalArgumentException expected) {
+        } catch (IllegalArgumentException ignore) {
+            // expected
         } catch (Exception e) {
             fail("IllegalArgumentException expected");
         }
