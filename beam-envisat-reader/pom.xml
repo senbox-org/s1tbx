@@ -28,7 +28,7 @@
 
     <artifactId>beam-envisat-reader</artifactId>
     <name>BEAM Envisat Product Reader</name>
-    <version>1.5.2.${beam.version}</version>
+    <version>1.5.3.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>
