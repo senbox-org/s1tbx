@@ -17,22 +17,23 @@ package com.bc.util;
 
 public class CachingObjectArray {
 
-    private ObjectFactory _objectFactory;
-    private ObjectArray _objectArray;
+    private ObjectFactory objectFactory;
+    private ObjectArray objectArray;
+    private int minIndex, maxIndex;
 
     public CachingObjectArray(ObjectFactory objectFactory) {
         if (objectFactory == null) {
             throw new IllegalArgumentException("objectFactory == null");
         }
-        _objectFactory = objectFactory;
+        this.objectFactory = objectFactory;
     }
 
     public ObjectFactory getObjectFactory() {
-        return _objectFactory;
+        return objectFactory;
     }
 
     public void setObjectFactory(ObjectFactory objectFactory) {
-        _objectFactory = objectFactory;
+        this.objectFactory = objectFactory;
     }
 
     public void setCachedRange(int indexMin, int indexMax) {
@@ -40,35 +41,38 @@ public class CachingObjectArray {
             throw new IllegalArgumentException("indexMin < indexMax");
         }
         final ObjectArray objectArray = new ObjectArray(indexMin, indexMax);
-        final ObjectArray objectArrayOld = _objectArray;
+        final ObjectArray objectArrayOld = this.objectArray;
         if (objectArrayOld != null) {
             objectArray.set(objectArrayOld);
             objectArrayOld.clear();
         }
-        _objectArray = objectArray;
+        this.objectArray = objectArray;
+        minIndex = this.objectArray.getMinIndex();
+        maxIndex = this.objectArray.getMaxIndex();
     }
 
-    public Object getObject(int index) throws Exception {
-        Object object;
-        if (index < _objectArray.getMinIndex() || index > _objectArray.getMaxIndex()) {
-            object = createObject(index);
-        } else {
-            object = _objectArray.getObject(index);
-            if (object == null) {
-                object = createObject(index);
-                _objectArray.setObject(index, object);
-            }
+    public final Object getObject(final int index) throws Exception {
+        if (index < minIndex || index > maxIndex) {
+            return objectFactory.createObject(index);
+        }
+        Object object = objectArray.getObject(index);
+        if (object == null) {
+            object = objectFactory.createObject(index);
+            objectArray.setObject(index, object);
         }
         return object;
     }
 
-    private Object createObject(int index) throws Exception {
-        return _objectFactory.createObject(index);
+    public final void setObject(final int index, final Object o) {
+        final Object object = objectArray.getObject(index);
+        if (object == null) {
+            objectArray.setObject(index, o);
+        }
     }
 
     public void clear() {
-        if (_objectArray != null) {
-            _objectArray.clear();
+        if (objectArray != null) {
+            objectArray.clear();
         }
     }
 
