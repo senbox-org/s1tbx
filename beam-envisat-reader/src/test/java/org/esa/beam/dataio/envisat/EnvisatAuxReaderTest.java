@@ -66,7 +66,7 @@ public class EnvisatAuxReaderTest {
     }
 
     // Both test fail with
-    // IllegalFileFormatException: no valid gloabal annotation datasets found in this ASAR product
+    // IllegalFileFormatException: no valid global annotation datasets found in this ASAR product
 //    @Test
 //    public void testERS1() throws IOException {
 //        EnvisatAuxReader reader = new EnvisatAuxReader();
