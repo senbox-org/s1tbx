@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -103,6 +104,10 @@ public class L3ProductReaderPlugIn implements ProductReaderPlugIn {
             ncfile = NetcdfFileOpener.open(file.getPath());
             if (ncfile != null) {
                 Attribute titleAttribute = ncfile.findGlobalAttributeIgnoreCase("Title");
+
+                if (ncfile.findGroup("Level-3_Binned_Data") == null) {
+                    return DecodeQualification.UNABLE;
+                }
 
                 List<Variable> seadasMappedVariables = ncfile.getVariables();
                 Boolean isSeadasMapped = false;
