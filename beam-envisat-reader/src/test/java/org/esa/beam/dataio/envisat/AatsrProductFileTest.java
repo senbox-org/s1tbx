@@ -16,10 +16,13 @@
 
 package org.esa.beam.dataio.envisat;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class AatsrProductFileTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class AatsrProductFileTest {
+
+    @Test
     public void testCalculateSceneRasterHeight_MDS_DSD_matches() {
         final int numRecords_1 = 109;
         final int numRecords_2 = 1865;
@@ -33,6 +36,7 @@ public class AatsrProductFileTest extends TestCase {
         assertEquals(numLines_2, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_2));
     }
 
+    @Test
     public void testCalculateSceneRasterHeight_MDS_DSD_lessLines() {
         final int numRecords_1 = 109;
         final int numRecords_2 = 1865;
@@ -46,6 +50,7 @@ public class AatsrProductFileTest extends TestCase {
         assertEquals(numLines_2, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_2 - 24));
     }
 
+    @Test
     public void testCalculateSceneRasterHeight_MDS_DSD_moreLines() {
         final int numRecords_1 = 109;
         final int numRecords_2 = 1865;
