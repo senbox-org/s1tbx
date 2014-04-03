@@ -86,7 +86,7 @@ public class SingleTileOperator extends Operator {
             addSelectedBands();
 
             // copy or create product nodes for metadata, tiepoint grids, geocoding, start/end times, etc.
-            OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             // update the metadata with the affect of the processing
             updateTargetProductMetadata();
