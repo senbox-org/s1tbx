@@ -136,9 +136,9 @@ public class ProductTreeModelTest {
         final VectorDataNode vec1 = new VectorDataNode("v1", PlainFeatureFactory.createDefaultFeatureType());
         product.getVectorDataGroup().add(vec1);
         assertEquals(2, treeModel.getChildCount(productTN));
-        // When we remove "pin1", "Vector Data" goes away, because "Pins" is now empty
+        // When we remove "pin1", "Vector Data" stays away, because "Pins" is now empty but there is still "vec1"
         product.getPinGroup().remove(pin1);
-        assertEquals(1, treeModel.getChildCount(productTN));
+        assertEquals(2, treeModel.getChildCount(productTN));
         // Removing "vec1" should not change current state
         product.getVectorDataGroup().remove(vec1);
         assertEquals(1, treeModel.getChildCount(productTN));
