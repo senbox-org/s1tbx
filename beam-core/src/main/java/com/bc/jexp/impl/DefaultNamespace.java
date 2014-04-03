@@ -20,6 +20,7 @@ import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.Term;
+import org.apache.commons.math.util.FastMath;
 
 /**
  * A default namespace which includes the constants PI, E and NaN as well as most of the functions from
@@ -78,37 +79,37 @@ public final class DefaultNamespace extends NamespaceImpl {
         registerFunction(new AbstractFunction.D("sin", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.sin(args[0].evalD(env));
+                return FastMath.sin(args[0].evalD(env));
             }
         });
         registerFunction(new AbstractFunction.D("cos", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.cos(args[0].evalD(env));
+                return FastMath.cos(args[0].evalD(env));
             }
         });
         registerFunction(new AbstractFunction.D("tan", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.tan(args[0].evalD(env));
+                return FastMath.tan(args[0].evalD(env));
             }
         });
         registerFunction(new AbstractFunction.D("asin", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.asin(args[0].evalD(env));
+                return FastMath.asin(args[0].evalD(env));
             }
         });
         registerFunction(new AbstractFunction.D("acos", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.acos(args[0].evalD(env));
+                return FastMath.acos(args[0].evalD(env));
             }
         });
         registerFunction(new AbstractFunction.D("atan", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.atan(args[0].evalD(env));
+                return FastMath.atan(args[0].evalD(env));
             }
         });
         registerFunction(new AbstractFunction.D("atan2", 2) {
@@ -133,14 +134,14 @@ public final class DefaultNamespace extends NamespaceImpl {
         registerFunction(new AbstractFunction.D("exp", 1) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.exp(args[0].evalD(env));
+                return FastMath.exp(args[0].evalD(env));
             }
         });
 
         registerFunction(new AbstractFunction.D("exp10", 1) {
 
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.pow(10.0, args[0].evalD(env));
+                return FastMath.pow(10.0, args[0].evalD(env));
             }
         });
 
@@ -162,7 +163,7 @@ public final class DefaultNamespace extends NamespaceImpl {
         registerFunction(new AbstractFunction.D("pow", 2) {
 
             public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.pow(args[0].evalD(env), args[1].evalD(env));
+                return FastMath.pow(args[0].evalD(env), args[1].evalD(env));
             }
         });
 
