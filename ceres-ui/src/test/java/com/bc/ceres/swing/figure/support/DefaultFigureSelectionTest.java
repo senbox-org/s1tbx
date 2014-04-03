@@ -19,12 +19,15 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.TestFigure;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.awt.Rectangle;
 
-public class DefaultFigureSelectionTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class DefaultFigureSelectionTest {
+
+    @Test
     public void testThatFigureSelectionCannotBeSelected() {
         FigureSelection figureSelection = new DefaultFigureSelection();
         assertEquals(false, figureSelection.isSelectable());
@@ -33,6 +36,7 @@ public class DefaultFigureSelectionTest extends TestCase {
         assertEquals(false, figureSelection.isSelected());
     }
 
+    @Test
     public void testThatNonSelectableFiguresAreNotSelected() {
         FigureSelection figureSelection = new DefaultFigureSelection();
         TestFigure f1 = new TestFigure(true);
@@ -67,6 +71,7 @@ public class DefaultFigureSelectionTest extends TestCase {
         assertSame(false, f4.isSelected());
     }
 
+    @Test
     public void testPropagateSelectionState() {
         Figure figure = new DefaultShapeFigure(new Rectangle(0, 0, 10, 10), Figure.Rank.AREA, new DefaultFigureStyle());
 
