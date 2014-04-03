@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -94,6 +93,7 @@ public class GraphProcessor {
      * processing steps of the currently running processing graph.
      *
      * @param processingObserver the observer
+     *
      * @see GraphProcessingObserver
      */
     public void addObserver(GraphProcessingObserver processingObserver) {
@@ -110,13 +110,13 @@ public class GraphProcessor {
     }
 
     /**
-     * Executes the graph given by {@link GraphContext}.
-     * New graph context are created using the
-     * {@link GraphContext#create(Graph)} method.
+     * Executes the graph using a new default {@link GraphContext}.
      *
      * @param graph the {@link Graph}
      * @param pm    a progress monitor. Can be used to signal progress.
+     *
      * @throws GraphException if any error occurs during execution
+     * @see GraphProcessor#executeGraph(GraphContext, com.bc.ceres.core.ProgressMonitor)
      */
     public void executeGraph(Graph graph, ProgressMonitor pm) throws GraphException {
         GraphContext graphContext;
@@ -132,11 +132,10 @@ public class GraphProcessor {
 
     /**
      * Executes the graph given by {@link GraphContext}.
-     * New graph context are created using the
-     * {@link GraphContext#create(Graph)} method.
      *
      * @param graphContext the {@link GraphContext} to execute
      * @param pm           a progress monitor. Can be used to signal progress.
+     *
      * @return the output products of the executed graph
      */
     public Product[] executeGraph(GraphContext graphContext, ProgressMonitor pm) {
@@ -152,8 +151,8 @@ public class GraphProcessor {
 
             @Override
             public int compare(Dimension d1, Dimension d2) {
-                Long area1 = Long.valueOf(d1.width * d1.height);
-                Long area2 = Long.valueOf(d2.width * d2.height);
+                Long area1 = (long) (d1.width * d1.height);
+                Long area2 = (long) (d2.width * d2.height);
                 return area1.compareTo(area2);
             }
         });
@@ -173,7 +172,7 @@ public class GraphProcessor {
         final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
 
         try {
-            pm.beginTask("", numPmTicks);
+            pm.beginTask("Computing raster data...", numPmTicks);
             for (Dimension dimension : dimList) {
                 List<NodeContext> nodeContextList = tileDimMap.get(dimension);
                 final int numXTiles = dimension.width;
@@ -201,7 +200,8 @@ public class GraphProcessor {
                                 for (Band band : targetProduct.getBands()) {
                                     PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
-                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
+                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners,
+                                                             parallelism);
                                         break;
                                     }
                                 }
@@ -212,7 +212,8 @@ public class GraphProcessor {
                                     PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image == null) {
                                         if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
-                                            forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
+                                            forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore,
+                                                                 tileScheduler, listeners, parallelism);
                                         }
                                     }
                                 }
@@ -223,9 +224,11 @@ public class GraphProcessor {
                                 for (Band band : targetProduct.getBands()) {
                                     PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
-                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
+                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners,
+                                                             parallelism);
                                     } else if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
-                                        forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
+                                        forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore,
+                                                             tileScheduler, listeners, parallelism);
                                     }
                                 }
                             }
@@ -278,7 +281,8 @@ public class GraphProcessor {
     }
 
     private void forceTileComputation(PlanarImage image, int tileX, int tileY, Semaphore semaphore,
-                                      TileScheduler tileScheduler, TileComputationListener[] listeners, int parallelism) {
+                                      TileScheduler tileScheduler, TileComputationListener[] listeners,
+                                      int parallelism) {
         Point[] points = new Point[]{new Point(tileX, tileY)};
         acquirePermits(semaphore, 1);
         if (error != null) {
@@ -376,21 +380,6 @@ public class GraphProcessor {
             }
             return false;
         }
-    }
-
-    //////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * Executes the given {@link GraphContext}.
-     *
-     * @param graphContext the {@link GraphContext} to execute
-     * @param pm           a progress monitor. Can be used to signal progress.
-     * @deprecated since BEAM 4.9, use {@link #executeGraph(GraphContext, com.bc.ceres.core.ProgressMonitor)}  instead
-     */
-    @Deprecated
-    public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
-        executeGraph(graphContext, pm);
     }
 
 }
