@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -315,7 +315,9 @@ public class BinningConfig {
         return variableContext;
     }
 
-    private static DataPeriod createDataPeriod(String startDate, Integer periodDuration, Double minDataHour) {
+
+    // used on Calvalus
+    public static DataPeriod createDataPeriod(String startDate, Integer periodDuration, Double minDataHour) {
         if (startDate != null) {
             final ProductData.UTC startUtc;
             try {
