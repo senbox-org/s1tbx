@@ -21,17 +21,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
 
 public class EnvisatOrbitReader extends EnvisatAuxReader {
-
-    static class DateComparator implements Comparator<Date>
-    {
-        public int compare(Date d1, Date d2) {
-            return d1.compareTo(d2);
-        }
-    }
 
     private OrbitVector[] dataRecords = null;
     private double[] recordTimes = null;
@@ -48,8 +40,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
             final Record orbitRecord = dorisProdFile.readOrbitData();
 
             OrbitVector orb = null;
-            final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.SSSSSS");
-            final ArrayList<OrbitVector> orbitVectorList = new ArrayList<OrbitVector>();
+            final ArrayList<OrbitVector> orbitVectorList = new ArrayList<>();
 
             final int numFields = orbitRecord.getNumFields();
             for (int i = 0; i < numFields; ++i) {
@@ -240,25 +231,6 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
                    w3*dataRecords[n3].zVel;
         */
         return orb;
-    }
-
-    /**
-     * Weight function for cubic interpolation.
-     * @param x The variable
-     * @return The weight
-     */
-    private static double w(final double x) {
-
-        final double a = -0.5;
-        final double absX = Math.abs(x);
-        final double absX2 = absX*absX;
-        if (absX >= 0.0 && absX < 1.0) {
-            return (a + 2.0)*absX2*absX - (a + 3.0)*absX2 + 1.0;
-        } else if (absX >= 1.0 && absX < 2) {
-            return a*absX2*absX - 5.0*a*absX2 +8.0*a*absX - 4.0*a;
-        } else {
-            return 0.0;
-        }
     }
 
     /**

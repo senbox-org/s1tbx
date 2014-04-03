@@ -156,7 +156,7 @@ public abstract class ProductFile {
     /**
      * A bandName --> bandReader map for the geophysical bands contained in this product.
      */
-    private Map<Band, BandLineReader> _bandLineReaderMap;
+    private Map<Band, BandLineReader> bandLineReaderMap;
     private String _productDescription;
 
     private final boolean lineInterleaved;
@@ -818,19 +818,19 @@ public abstract class ProductFile {
      *         the a band with the given name was not found
      */
     public synchronized BandLineReader getBandLineReader(final Band band) {
-        if (_bandLineReaderMap == null) {
-            _bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
+        if (bandLineReaderMap == null) {
+            bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
             BandLineReader[] bandLineReaders = getBandLineReaders();
             final Product product = band.getProduct();
             for (BandLineReader bandLineReader : bandLineReaders) {
                 final String bandName = bandLineReader.getBandName();
                 final Band key = product.getBand(bandName);
                 if (key != null) {
-                    _bandLineReaderMap.put(key, bandLineReader);
+                    bandLineReaderMap.put(key, bandLineReader);
                 }
             }
         }
-        return _bandLineReaderMap.get(band);
+        return bandLineReaderMap.get(band);
     }
 
     /**
@@ -1147,12 +1147,12 @@ public abstract class ProductFile {
         if(productType != null && productType.endsWith("C")) {
             productType = productType.substring(0, productType.length()-1) + "P";
         }
- /*       if (!productType.endsWith("P")) {
+        if (!productType.endsWith("P")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
                                 "' due to missing specification for products of type '" + productType + "'");
             productType = newType;
-        }    */
+        }    
     }
 
     /**

@@ -105,7 +105,7 @@ public class AsarXCAProductFile extends ForwardingProductFile {
 
         DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION);
         if (mdsDsds.length == 0) {
-            throw new IllegalFileFormatException("no valid gloabal annotation datasets found in this ASAR product");
+            throw new IllegalFileFormatException("no valid global annotation datasets found in this ASAR product");
         }
 
         setIODDVersion();

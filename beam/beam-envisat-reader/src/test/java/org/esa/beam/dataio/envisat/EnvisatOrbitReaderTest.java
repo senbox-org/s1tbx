@@ -16,40 +16,37 @@
 
 package org.esa.beam.dataio.envisat;
 
-import junit.framework.TestCase;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
-import org.esa.beam.framework.datamodel.ProductData;
+import static org.junit.Assert.*;
 
 /**
  * EnvisatAuxReader Tester.
  *
  * @author lveci
  */
-public class EnvisatOrbitReaderTest extends TestCase {
+public class EnvisatOrbitReaderTest {
 
     private final static String doris_por_orbit =
             "org/esa/beam/resources/testdata/DOR_POR_AXVF-P20080404_014700_20080401_215527_20080403_002327";
     private final static String doris_vor_orbit =
             "org/esa/beam/resources/testdata/DOR_VOR_AXVF-P20080331_075200_20080301_215527_20080303_002327";
 
-    public EnvisatOrbitReaderTest(String name) {
-        super(name);
-    }
-
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
-        super.tearDown();
     }
 
+    @Test
     public void testPOROrbitFiles() throws IOException {
 
         final File orbFile = EnvisatAuxReader.getFile(doris_por_orbit);
@@ -64,14 +61,15 @@ public class EnvisatOrbitReaderTest extends TestCase {
 
         ProductData.UTC utc = new ProductData.UTC(orb.utcTime);
         assertEquals("01-APR-2008 21:55:27.000000", utc.format());
-        assertEquals(-3300453.451, orb.xPos);
-        assertEquals(881817.654, orb.yPos);
-        assertEquals(-6304026.222, orb.zPos);
-        assertEquals(6673.625193, orb.xVel);
-        assertEquals(880.089573, orb.yVel);
-        assertEquals(-3372.728885, orb.zVel);
+        assertEquals(-3300453.451, orb.xPos, 1.0e-8);
+        assertEquals(881817.654, orb.yPos, 1.0e-8);
+        assertEquals(-6304026.222, orb.zPos, 1.0e-8);
+        assertEquals(6673.625193, orb.xVel, 1.0e-8);
+        assertEquals(880.089573, orb.yVel, 1.0e-8);
+        assertEquals(-3372.728885, orb.zVel, 1.0e-8);
     }
 
+    @Test
     public void testVOROrbitFiles() throws IOException {
 
         final File orbFile = EnvisatAuxReader.getFile(doris_vor_orbit);
@@ -86,15 +84,16 @@ public class EnvisatOrbitReaderTest extends TestCase {
 
         ProductData.UTC utc = new ProductData.UTC(orb.utcTime);
         assertEquals("01-MAR-2008 21:55:27.000000", utc.format());
-        assertEquals(6494931.106, orb.xPos);
-        assertEquals(578715.148, orb.yPos);
-        assertEquals(-2977719.455, orb.zPos);
-        assertEquals(3188.730641, orb.xVel);
-        assertEquals(-1416.295158, orb.yVel);
-        assertEquals(6692.698996, orb.zVel);
+        assertEquals(6494931.106, orb.xPos, 1.0e-8);
+        assertEquals(578715.148, orb.yPos, 1.0e-8);
+        assertEquals(-2977719.455, orb.zPos, 1.0e-8);
+        assertEquals(3188.730641, orb.xVel, 1.0e-8);
+        assertEquals(-1416.295158, orb.yVel, 1.0e-8);
+        assertEquals(6692.698996, orb.zVel, 1.0e-8);
     }
 
-    public void testCubicInterpolation() throws Exception {
+    @Test
+    public void testInterpolation() throws Exception {
 
         final File orbFile = EnvisatAuxReader.getFile(doris_vor_orbit);
         if (!orbFile.exists())
@@ -117,12 +116,12 @@ public class EnvisatOrbitReaderTest extends TestCase {
         System.out.println("orb.yVel = " + orb.yVel);
         System.out.println("orb.zVel = " + orb.zVel);
         */
-        assertEquals(6782118.314438924, orb.xPos);
-        assertEquals(429045.3202724487, orb.yPos);
-        assertEquals(-2279528.4549769447, orb.zPos);
-        assertEquals(2436.6465715695913, orb.xVel);
-        assertEquals(-1513.6427516392862, orb.yVel);
-        assertEquals(6984.0148269792735, orb.zVel);
+        assertEquals(6782111.692571748, orb.xPos, 1.0e-8);
+        assertEquals(429053.84925767, orb.yPos, 1.0e-8);
+        assertEquals(-2279551.9462241037, orb.zPos, 1.0e-8);
+        assertEquals(2436.6730959241404, orb.xVel, 1.0e-8);
+        assertEquals(-1513.6396683722035, orb.yVel, 1.0e-8);
+        assertEquals(6984.008122409866, orb.zVel, 1.0e-8);
     }
 
     static EnvisatOrbitReader.OrbitVector getOrbitData(final EnvisatOrbitReader reader) throws IOException {
