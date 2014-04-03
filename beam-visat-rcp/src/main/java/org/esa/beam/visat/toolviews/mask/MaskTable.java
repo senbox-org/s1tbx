@@ -176,7 +176,7 @@ class MaskTable extends JTable {
             comboBox.setColorValueVisible(true);
             comboBox.setColorIconVisible(true);
             comboBox.setInvalidValueAllowed(false);
-            comboBox.setAllowDefaultColor(true);
+            comboBox.setAllowDefaultColor(false);
             comboBox.setAllowMoreColors(true);
             return comboBox;
         }
