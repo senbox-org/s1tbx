@@ -21,9 +21,17 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class EnvisatOrbitReader extends EnvisatAuxReader {
+
+    static class DateComparator implements Comparator<Date>
+    {
+        public int compare(Date d1, Date d2) {
+            return d1.compareTo(d2);
+        }
+    }
 
     private OrbitVector[] dataRecords = null;
     private double[] recordTimes = null;
@@ -40,7 +48,8 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
             final Record orbitRecord = dorisProdFile.readOrbitData();
 
             OrbitVector orb = null;
-            final ArrayList<OrbitVector> orbitVectorList = new ArrayList<>();
+            final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.SSSSSS");
+            final ArrayList<OrbitVector> orbitVectorList = new ArrayList<OrbitVector>();
 
             final int numFields = orbitRecord.getNumFields();
             for (int i = 0; i < numFields; ++i) {
@@ -134,6 +143,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         final int n7 = itRel + 7;
         final int n8 = itRel + 8;
 
+        // TODO: Verify validity of check for incorrect UTC time in parsing orbit
         // ....I'm not sure that this check is very smart, and that it would pick up not fully overlapping arc
         if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0 || n4 < 0 || n5 > nRecords || n6 > nRecords || n7 > nRecords || n8 > nRecords) {
             throw new Exception("Incorrect UTC time");
@@ -182,9 +192,100 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         orb.xVel = lagrangeEightOrderInterpolation(xVelArray, ref);
         orb.yVel = lagrangeEightOrderInterpolation(yVelArray, ref);
         orb.zVel = lagrangeEightOrderInterpolation(zVelArray, ref);
+        /*
+        final double dt = (utc - recordTimes[n1]) / (recordTimes[n2] - recordTimes[n1]);
+        final double w0 = w(dt + 1.0);
+        final double w1 = w(dt);
+        final double w2 = w(1.0 - dt);
+        final double w3 = w(2.0 - dt);
 
+        final OrbitVector orb = new OrbitVector();
+        orb.utcTime = utc;
+        orb.absOrbit = dataRecords[n1].absOrbit;
+        orb.qualFlags = dataRecords[n1].qualFlags;
+
+        orb.delta_ut1 = w0*dataRecords[n0].delta_ut1 +
+                        w1*dataRecords[n1].delta_ut1 +
+                        w2*dataRecords[n2].delta_ut1 +
+                        w3*dataRecords[n3].delta_ut1;
+
+        orb.xPos = w0*dataRecords[n0].xPos +
+                   w1*dataRecords[n1].xPos +
+                   w2*dataRecords[n2].xPos +
+                   w3*dataRecords[n3].xPos;
+
+        orb.yPos = w0*dataRecords[n0].yPos +
+                   w1*dataRecords[n1].yPos +
+                   w2*dataRecords[n2].yPos +
+                   w3*dataRecords[n3].yPos;
+
+        orb.zPos = w0*dataRecords[n0].zPos +
+                   w1*dataRecords[n1].zPos +
+                   w2*dataRecords[n2].zPos +
+                   w3*dataRecords[n3].zPos;
+
+        orb.xVel = w0*dataRecords[n0].xVel +
+                   w1*dataRecords[n1].xVel +
+                   w2*dataRecords[n2].xVel +
+                   w3*dataRecords[n3].xVel;
+
+        orb.yVel = w0*dataRecords[n0].yVel +
+                   w1*dataRecords[n1].yVel +
+                   w2*dataRecords[n2].yVel +
+                   w3*dataRecords[n3].yVel;
+
+        orb.zVel = w0*dataRecords[n0].zVel +
+                   w1*dataRecords[n1].zVel +
+                   w2*dataRecords[n2].zVel +
+                   w3*dataRecords[n3].zVel;
+        */
         return orb;
+    }
 
+    /**
+     * Weight function for cubic interpolation.
+     * @param x The variable
+     * @return The weight
+     */
+    private static double w(final double x) {
+
+        final double a = -0.5;
+        final double absX = Math.abs(x);
+        final double absX2 = absX*absX;
+        if (absX >= 0.0 && absX < 1.0) {
+            return (a + 2.0)*absX2*absX - (a + 3.0)*absX2 + 1.0;
+        } else if (absX >= 1.0 && absX < 2) {
+            return a*absX2*absX - 5.0*a*absX2 +8.0*a*absX - 4.0*a;
+        } else {
+            return 0.0;
+        }
+    }
+
+    /**
+     * Perform Lagrange polynomial based interpolation.
+     * @param pos Position array.
+     * @param val Sample value array.
+     * @param desiredPos Desired position.
+     * @return The interpolated sample value.
+     */
+    public static double lagrangeInterpolatingPolynomial (final double pos[], final double val[], final double desiredPos)
+            throws Exception {
+
+        if (pos.length != val.length) {
+            throw new Exception("Incorrect array length");
+        }
+
+        double retVal = 0;
+        for (int i = 0; i < pos.length; ++i) {
+            double weight = 1;
+            for (int j = 0; j < pos.length; ++j) {
+                if (j != i) {
+                    weight *= (desiredPos - pos[j]) / (pos[i] - pos[j]);
+                }
+            }
+            retVal += weight * val[i];
+        }
+        return retVal;
     }
 
     /**
@@ -222,7 +323,6 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         return out;
     }
 
-
     public final static class OrbitVector {
         public double utcTime = 0;
         public double delta_ut1 = 0;
@@ -234,5 +334,19 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         public double yVel = 0;
         public double zVel = 0;
         public String qualFlags = null;
+    }
+
+    /**
+     * Gets the singleton instance of this class.
+     * @return the singlton instance
+     */
+    public static EnvisatOrbitReader getInstance() {
+        return Holder.instance;
+    }
+
+    /** Initialization on demand holder idiom
+     */
+    private static class Holder {
+        private static final EnvisatOrbitReader instance = new EnvisatOrbitReader();
     }
 }

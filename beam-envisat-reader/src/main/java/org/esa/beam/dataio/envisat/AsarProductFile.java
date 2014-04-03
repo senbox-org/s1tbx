@@ -15,6 +15,7 @@
  */
 package org.esa.beam.dataio.envisat;
 
+import com.bc.ceres.core.runtime.RuntimeContext;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -42,7 +43,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.envisat.ProductFile
  */
-public class AsarProductFile extends ProductFile {
+public final class AsarProductFile extends ProductFile {
 
     /**
      * Number of pixels in across-track direction
@@ -90,7 +91,7 @@ public class AsarProductFile extends ProductFile {
     private boolean chronologicalOrder;
 
     enum IODD {
-        VERSION_UNKNOWN, ASAR_3K, ASAR_4A, ASAR_4B
+        VERSION_UNKNOWN, ASAR_3K, ASAR_4A, ASAR_4B, ASAR_4C
     }
 
     /**
@@ -110,6 +111,16 @@ public class AsarProductFile extends ProductFile {
      * Product type suffix for IODD-4B backward compatibility
      */
     private static final String IODD4B_SUFFIX = "_IODD_4B";
+    /**
+     * Product type suffix for IODD-4B backward compatibility
+     */
+    private static final String IODD4C_SUFFIX = "_IODD_4C";
+
+    /**
+     * The product type plus the IODD suffix
+     */
+    private String fullProductType = null;
+    private String versionSuffix = null;
 
     /**
      * Constructs a <code>MerisProductFile</code> for the given seekable data input stream. Attaches the
@@ -117,7 +128,6 @@ public class AsarProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected AsarProductFile(File file, ImageInputStream dataInputStream) throws IOException {
@@ -184,7 +194,6 @@ public class AsarProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingX(int)
      */
     @Override
@@ -196,7 +205,6 @@ public class AsarProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingY(int)
      */
     @Override
@@ -217,7 +225,7 @@ public class AsarProductFile extends ProductFile {
      * Returns the name of the GADS for this ENVISAT product file.
      *
      * @return the GADS name "VISIBLE_CALIB_COEFS_GADS", or <code>null</code> if this product file does not have a
-     *         GADS.
+     * GADS.
      */
     @Override
     public String getGADSName() {
@@ -236,7 +244,6 @@ public class AsarProductFile extends ProductFile {
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
-     *
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
     @Override
@@ -274,26 +281,25 @@ public class AsarProductFile extends ProductFile {
         sceneRasterHeight = mdsDsds[0].getNumRecords();
         final String productType = getProductType();
         boolean waveProduct = false;
-        if (productType.equals("ASA_WVI_1P")) {
-            waveProduct = true;
-
-            for (DSD dsd : mdsDsds) {
-                if (dsd.getNumRecords() > sceneRasterHeight) {
-                    sceneRasterHeight = dsd.getNumRecords();
-                }
-                if (dsd.getRecordSize() > sceneRasterWidth) {
-                    sceneRasterWidth = dsd.getRecordSize();
-                }
-            }
-        } else if (productType.equals("ASA_WVS_1P") || productType.equals("ASA_WVW_2P")) {
+        if (productType.equals("ASA_WVS_1P") || productType.equals("ASA_WVW_2P") || productType.equals("ASA_WVI_1P")) {
             waveProduct = true;
             final int numDirBins = getSPH().getParamInt("NUM_DIR_BINS");
             int numWlBins = getSPH().getParamInt("NUM_WL_BINS");
-            if (productType.equals("ASA_WVS_1P")) {
+            if (productType.equals("ASA_WVS_1P") || productType.equals("ASA_WVI_1P"))
                 numWlBins /= 2;                     // only 0 to 180 needed
-            }
 
             sceneRasterWidth = numDirBins * numWlBins;
+            parameters.put("spectraWidth", sceneRasterWidth);
+
+            if (productType.equals("ASA_WVI_1P")) {
+                for (DSD dsd : mdsDsds) {
+                    if (dsd.getNumRecords() > sceneRasterHeight)
+                        sceneRasterHeight = dsd.getNumRecords();
+                    if (dsd.getRecordSize() > sceneRasterWidth)
+                        sceneRasterWidth = dsd.getRecordSize();
+                }
+            }
+
         } else {
             sceneRasterWidth = getSPH().getParamInt("LINE_LENGTH");
         }
@@ -345,9 +351,8 @@ public class AsarProductFile extends ProductFile {
         final String prod_descriptor = getSPH().getParamString("SPH_DESCRIPTOR");
         if (prod_descriptor != null) {
             chronologicalOrder = false;
-            if (prod_descriptor.contains("Geocoded")) {
-                chronologicalOrder = true;
-            }
+            //if(prod_descriptor.contains("Geocoded"))
+            //    chronologicalOrder = true;
 
             // don't flip - leave in satellite geometry
             //final String pass = getSPH().getParamString("PASS").trim();
@@ -364,8 +369,13 @@ public class AsarProductFile extends ProductFile {
             firstMDSName = firstMDSName.replace(' ', '_');
         }
         if (!waveProduct) {
-            sceneRasterStartTime = getRecordTime(firstMDSName, "zero_doppler_time", 0);
-            sceneRasterStopTime = getRecordTime(firstMDSName, "zero_doppler_time", sceneRasterHeight - 1);
+            try {
+                sceneRasterStartTime = getSPH().getParamUTC("FIRST_LINE_TIME");
+                sceneRasterStopTime = getSPH().getParamUTC("LAST_LINE_TIME");
+            } catch (HeaderParseException e) {
+                sceneRasterStartTime = getRecordTime(firstMDSName, "zero_doppler_time", 0);
+                sceneRasterStopTime = getRecordTime(firstMDSName, "zero_doppler_time", sceneRasterHeight - 1);
+            }
         }
     }
 
@@ -424,7 +434,9 @@ public class AsarProductFile extends ProductFile {
         try {
 
             final String refDoc = mph.getParamString("REF_DOC").toUpperCase().trim();
-            if (refDoc.endsWith("4B") || refDoc.endsWith("4/B")) {
+            if (refDoc.endsWith("4C") || refDoc.endsWith("4/C")) {
+                _ioddVersion = IODD.ASAR_4C;
+            } else if (refDoc.endsWith("4B") || refDoc.endsWith("4/B")) {
                 _ioddVersion = IODD.ASAR_4B;
             } else if (refDoc.endsWith("4A") || refDoc.endsWith("4/A")) {
                 _ioddVersion = IODD.ASAR_4A;
@@ -455,16 +467,16 @@ public class AsarProductFile extends ProductFile {
                 } else if (softwareVersion.startsWith("ASAR/4.05") || softwareVersion.contains("4.05")) {
                     _ioddVersion = IODD.ASAR_4B;
                 } else if (softwareVersion.startsWith("ASAR/4.00") || softwareVersion.startsWith("ASAR/4.01") ||
-                           softwareVersion.startsWith("ASAR/4.02") || softwareVersion.startsWith("ASAR/4.03") ||
-                           softwareVersion.startsWith("ASAR/4.04") ||
-                           softwareVersion.contains("4.00") || softwareVersion.contains("4.01") ||
-                           softwareVersion.contains("4.02") || softwareVersion.contains("4.03") ||
-                           softwareVersion.contains("4.04")) {
+                        softwareVersion.startsWith("ASAR/4.02") || softwareVersion.startsWith("ASAR/4.03") ||
+                        softwareVersion.startsWith("ASAR/4.04") ||
+                        softwareVersion.contains("4.00") || softwareVersion.contains("4.01") ||
+                        softwareVersion.contains("4.02") || softwareVersion.contains("4.03") ||
+                        softwareVersion.contains("4.04")) {
                     _ioddVersion = IODD.ASAR_4A;
                 } else if (softwareVersion.startsWith("ASAR/4.05") || softwareVersion.startsWith("ASAR/4.06") ||
-                           softwareVersion.startsWith("ASAR/4.07") ||
-                           softwareVersion.contains("4.05") || softwareVersion.contains("4.06") ||
-                           softwareVersion.contains("4.07")) {
+                        softwareVersion.startsWith("ASAR/4.07") ||
+                        softwareVersion.contains("4.05") || softwareVersion.contains("4.06") ||
+                        softwareVersion.contains("4.07")) {
                     _ioddVersion = IODD.ASAR_4B;
                 } else if (softwareVersion.length() > 6) {
                     final char versionCh = softwareVersion.charAt(6);
@@ -495,16 +507,17 @@ public class AsarProductFile extends ProductFile {
      */
     @Override
     protected String getDddbProductType() {
-        // Debug.trace("MerisProductFile.getDddbProductType: IODD version still unknown");
-        final String productType = getDddbProductTypeReplacement(getProductType(), getIODDVersion());
-        return productType != null ? productType : super.getDddbProductType();
+        if (fullProductType == null) {
+            fullProductType = getDddbProductTypeReplacement(getProductType(), getIODDVersion());
+        }
+        return fullProductType != null ? fullProductType : super.getDddbProductType();
     }
 
     static String getDddbProductTypeReplacement(final String productType, final IODD ioddVersion) {
-        return productType + getVersionSuffix(productType, ioddVersion);
+        return productType + createVersionSuffix(productType, ioddVersion);
     }
 
-    static String getVersionSuffix(final String productType, final IODD ioddVersion) {
+    static String createVersionSuffix(final String productType, final IODD ioddVersion) {
         String suffix = "";
         if (ioddVersion == IODD.ASAR_3K) {
             if (productDDExists(productType + IODD3K_SUFFIX)) {
@@ -524,15 +537,31 @@ public class AsarProductFile extends ProductFile {
             } else if (productDDExists(productType + IODD3K_SUFFIX)) {
                 suffix = IODD3K_SUFFIX;
             }
+        } else if (ioddVersion == IODD.ASAR_4C) {
+            if (productDDExists(productType + IODD4C_SUFFIX)) {
+                suffix = IODD4C_SUFFIX;
+            } else if (productDDExists(productType + IODD4B_SUFFIX)) {
+                suffix = IODD4B_SUFFIX;
+            } else if (productDDExists(productType + IODD4A_SUFFIX)) {
+                suffix = IODD4A_SUFFIX;
+            } else if (productDDExists(productType + IODD3K_SUFFIX)) {
+                suffix = IODD3K_SUFFIX;
+            }
         } else if (ioddVersion == IODD.VERSION_UNKNOWN) {
             suffix = "";
         }
         return suffix;
     }
 
+    String getVersionSuffix(final String productType, final IODD ioddVersion) {
+        if (versionSuffix == null) {
+            versionSuffix = createVersionSuffix(productType, ioddVersion);
+        }
+        return versionSuffix;
+    }
+
     private static boolean productDDExists(String productType) {
-        String productInfoFilePath = "products/" + productType + ".dd";
-        return DDDB.databaseResourceExists(productInfoFilePath);
+        return DDDB.databaseResourceExists("products/" + productType + ".dd");
     }
 
     /**
@@ -563,9 +592,8 @@ public class AsarProductFile extends ProductFile {
      * Returns a new default set of mask definitions for this product file.
      *
      * @param dsName the name of the flag dataset
-     *
      * @return a new default set, an empty array if no default set is given for this product type, never
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     @Override
     public Mask[] createDefaultMasks(String dsName) {
@@ -607,36 +635,36 @@ public class AsarProductFile extends ProductFile {
 
                 final String iBandName = "i_" + (i + 1);
                 final BandInfo bandInfoI = createBandInfo(iBandName, bandDataType, -1,
-                                                          BandInfo.SMODEL_1OF2, BandInfo.SCALE_LINEAR, 0, 1,
-                                                          null, null, "real", "", dataSetName);
+                        BandInfo.SMODEL_1OF2, BandInfo.SCALE_LINEAR, 0, 1,
+                        null, null, "real", "", dataSetName);
 
                 final RecordReader pixelDataReaderI = getRecordReader(dataSetName);
                 final BandLineReader bandLineReaderI = new BandLineReader(bandInfoI, pixelDataReaderI,
-                                                                          pixelDataFieldIndex);
+                        pixelDataFieldIndex);
                 readerList.add(bandLineReaderI);
 
                 final String qBandName = "q_" + (i + 1);
                 final BandInfo bandInfoQ = createBandInfo(qBandName, bandDataType, -1,
-                                                          BandInfo.SMODEL_2OF2, BandInfo.SCALE_LINEAR, 0, 1,
-                                                          null, null, "imaginary", "", dataSetName);
+                        BandInfo.SMODEL_2OF2, BandInfo.SCALE_LINEAR, 0, 1,
+                        null, null, "imaginary", "", dataSetName);
 
                 final RecordReader pixelDataReaderQ = getRecordReader(dataSetName);
                 final BandLineReader bandLineReaderQ = new BandLineReader(bandInfoQ, pixelDataReaderQ,
-                                                                          pixelDataFieldIndex);
+                        pixelDataFieldIndex);
                 readerList.add(bandLineReaderQ);
 
                 final BandInfo bandInfoIntensity = createBandInfo("Intensity_" + (i + 1), bandDataType, -1,
-                                                                  BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0, 1,
-                                                                  null, null, "intensity", "", dataSetName);
+                        BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0, 1,
+                        null, null, "intensity", "", dataSetName);
 
                 final String expression = iBandName + '*' + iBandName + '+' + qBandName + '*' + qBandName;
                 final BandLineReader bandLineReaderIntensity = new BandLineReader.Virtual(bandInfoIntensity,
-                                                                                          updateExpression(expression));
+                        updateExpression(expression));
                 readerList.add(bandLineReaderIntensity);
 
                 final BandInfo bandInfoPhase = createBandInfo("Phase_" + (i + 1), bandDataType, -1,
-                                                              BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0, 1,
-                                                              null, null, "phase", "", dataSetName);
+                        BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0, 1,
+                        null, null, "phase", "", dataSetName);
 
                 final String expressionPhase = "atan2(" + qBandName + "," + iBandName + ")";
                 final BandLineReader bandLineReaderPhase = new BandLineReader.Virtual(bandInfoPhase, updateExpression(
@@ -667,7 +695,6 @@ public class AsarProductFile extends ProductFile {
      * @param physicalUnit      the physical unit.
      * @param description       the description.
      * @param dataSetName       the name of the dataset
-     *
      * @return a newly created <code>BandInfo</code> object.
      */
     @Override
@@ -750,25 +777,24 @@ public class AsarProductFile extends ProductFile {
         }
 
         return new BandInfo(bandName,
-                            dataType,
-                            spectralBandIndex,
-                            sampleModel,
-                            scalingMethod,
-                            scalingOffset,
-                            scalingFactor,
-                            validExpression,
-                            flagCoding,
-                            physicalUnit,
-                            description,
-                            rasterWidth,
-                            rasterHeight);
+                dataType,
+                spectralBandIndex,
+                sampleModel,
+                scalingMethod,
+                scalingOffset,
+                scalingFactor,
+                validExpression,
+                flagCoding,
+                physicalUnit,
+                description,
+                rasterWidth,
+                rasterHeight);
     }
 
     /**
      * Modifies the expression of a band if for example a band is renamed
      *
      * @param expression virtual band expression
-     *
      * @return the new expression
      */
     @Override
@@ -809,8 +835,11 @@ public class AsarProductFile extends ProductFile {
     }
 
     private void processWSSImageRecordMetadata(Product product) {
-        BandLineReader[] lineReaders = getBandLineReaders();
-        for (Band band : product.getBands()) {
+
+        for (final Band band : product.getBands()) {
+
+            if (band.getUnit().equals("imaginary"))
+                continue;
 
             MetadataElement imgRecElem = product.getMetadataRoot().getElement("Image Record");
             if (imgRecElem == null) {
@@ -823,52 +852,50 @@ public class AsarProductFile extends ProductFile {
                 bandElem = new MetadataElement(band.getName());
                 imgRecElem.addElement(bandElem);
             }
+            final MetadataElement bandElemement = bandElem;
 
-            final RecordInfo recInfo = new RecordInfo("Line");
-            recInfo.add("t", ProductData.TYPE_UTC, 1, "", "");
-            final Record lineRecord = Record.create(recInfo);
+            FieldInfo fInfo = new FieldInfo("t", ProductData.TYPE_UTC, 1, "", "");
+            Field field = fInfo.createField();
 
             try {
-                BandLineReader bandLineReader = null;
-                for (BandLineReader lineReader : lineReaders) {
-                    if (lineReader.getBandName().equals(band.getName())) {
-                        bandLineReader = lineReader;
-                        break;
-                    }
+                final BandLineReader bandLineReader = getBandLineReader(band);
+                final RecordReader recReader = bandLineReader.getPixelDataReader();
+                final ImageInputStream istream = getDataInputStream();
+
+                final long datasetOffset = recReader.getDSD().getDatasetOffset();
+                final long recordSize = recReader.getDSD().getRecordSize();
+
+                final int height = band.getRasterHeight();
+                final double[] timeData = new double[height];
+                long pos = datasetOffset;
+                for (int y = 0; y < height; ++y) {
+
+                    istream.seek(pos);
+                    field.readFrom(istream);
+                    ProductData data = field.getData();
+                    if (data.getElemIntAt(0) == 0)
+                        timeData[y] = 0;
+                    else
+                        timeData[y] = ((ProductData.UTC) data).getMJD();
+                    pos += recordSize;
                 }
-                if (bandLineReader != null) {
-                    final RecordReader recReader = bandLineReader.getPixelDataReader();
-                    final ImageInputStream istream = getDataInputStream();
 
-                    final long datasetOffset = recReader.getDSD().getDatasetOffset();
-                    final long recordSize = recReader.getDSD().getRecordSize();
+                final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);
+                attribute.setDataElems(timeData);
+                bandElemement.addAttribute(attribute);
 
-                    final int height = band.getRasterHeight();
-                    final double[] timeData = new double[height];
-                    for (int y = 0; y < height; ++y) {
-
-                        istream.seek(datasetOffset + (y * recordSize));
-                        lineRecord.readFrom(istream);
-
-                        timeData[y] = ((ProductData.UTC) lineRecord.getFieldAt(0).getData()).getMJD();
-                    }
-
-                    final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);
-                    attribute.setDataElems(timeData);
-                    bandElem.addAttribute(attribute);
-                }
             } catch (IOException e) {
-                System.out.print("processWSSImageRecordMetadata " + e.toString());
+                System.out.println("processWSSImageRecordMetadata " + e.toString());
             }
         }
     }
 
     private void processWaveMetadata(Product product) throws IOException {
 
+        final MetadataElement origRoot = EnvisatProductReader.getOriginalProductMetadata(product);
         final String[] datasetNames = getValidDatasetNames();
         for (String datasetName : datasetNames) {
-            if (datasetName.equalsIgnoreCase("CROSS_SPECTRA_MDS") || datasetName.equalsIgnoreCase(
-                    "OCEAN_WAVE_SPECTRA_MDS")) {
+            if (datasetName.equalsIgnoreCase("CROSS_SPECTRA_MDS") || datasetName.equalsIgnoreCase("OCEAN_WAVE_SPECTRA_MDS")) {
                 final RecordReader recordReader = getRecordReader(datasetName);
                 final MetadataElement metadataTableGroup = new MetadataElement(datasetName);
                 final StringBuilder sb = new StringBuilder(25);
@@ -883,9 +910,8 @@ public class AsarProductFile extends ProductFile {
 
                     for (int j = 0; j < record.getNumFields(); j++) {
                         final Field field = record.getFieldAt(j);
-                        if (field.getName().equals("ocean_spectra") || field.getName().equals("real_spectra")) {
+                        if (field.getName().equals("ocean_spectra") || field.getName().equals("real_spectra"))
                             break;
-                        }
 
                         final String description = field.getInfo().getDescription();
                         if (description != null) {
@@ -894,8 +920,7 @@ public class AsarProductFile extends ProductFile {
                             }
                         }
 
-                        final MetadataAttribute attribute = new MetadataAttribute(field.getName(), field.getData(),
-                                                                                  true);
+                        final MetadataAttribute attribute = new MetadataAttribute(field.getName(), field.getData(), true);
                         if (field.getInfo().getPhysicalUnit() != null) {
                             attribute.setUnit(field.getInfo().getPhysicalUnit());
                         }
@@ -906,7 +931,7 @@ public class AsarProductFile extends ProductFile {
                     }
                     metadataTableGroup.addElement(elem);
                 }
-                product.getMetadataRoot().addElement(metadataTableGroup);
+                origRoot.addElement(metadataTableGroup);
             }
         }
     }
@@ -915,7 +940,6 @@ public class AsarProductFile extends ProductFile {
      * Allow the productFile to add any other metadata not defined in dddb
      *
      * @param product the product
-     *
      * @throws IOException if reading from files
      */
     @Override
@@ -941,10 +965,41 @@ public class AsarProductFile extends ProductFile {
         // Abstracted metadata
         final MetadataElement root = product.getMetadataRoot();
         final AsarAbstractMetadata absMetadata = new AsarAbstractMetadata(getProductType(),
-                                                                          getVersionSuffix(getProductType(),
-                                                                                           getIODDVersion()),
-                                                                          getFile());
+                getVersionSuffix(getProductType(),
+                        getIODDVersion()),
+                getFile());
         absMetadata.addAbstractedMetadataHeader(product, root);
+
+        discardUnusedMetadata(product);
     }
 
+    private static void discardUnusedMetadata(final Product product) {
+        if (RuntimeContext.getModuleContext() != null) {
+            final String dicardUnusedMetadata = RuntimeContext.getModuleContext().getRuntimeConfig().
+                    getContextProperty("discard.unused.metadata");
+            if (dicardUnusedMetadata.equalsIgnoreCase("true")) {
+                removeUnusedMetadata(EnvisatProductReader.getOriginalProductMetadata(product));
+            }
+        }
+    }
+
+    private static String[] elemsToKeep = {"Abstracted_Metadata", "MAIN_PROCESSING_PARAMS_ADS", "DSD", "SPH"};
+
+    private static void removeUnusedMetadata(final MetadataElement root) {
+        final MetadataElement[] elems = root.getElements();
+        for (MetadataElement elem : elems) {
+            final String name = elem.getName();
+            boolean keep = false;
+            for (String toKeep : elemsToKeep) {
+                if (name.equals(toKeep)) {
+                    keep = true;
+                    break;
+                }
+            }
+            if (!keep) {
+                root.removeElement(elem);
+                elem.dispose();
+            }
+        }
+    }
 }

@@ -41,7 +41,7 @@ import java.util.zip.ZipFile;
  * the actual reader objects.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
+
  * @see org.esa.beam.dataio.envisat.EnvisatProductReader
  */
 public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
@@ -105,6 +105,12 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
             }
         } else if (input instanceof File) {
             final File inputFile = (File) input;
+            final String fileName = inputFile.getName().toUpperCase();
+            if (fileName.endsWith(".N1"))
+                return DecodeQualification.INTENDED;
+            if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
+                return DecodeQualification.UNABLE;
+
             if (ProductFile.getProductType(inputFile) != null) {
                 return DecodeQualification.INTENDED;
             }
@@ -170,7 +176,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * @throws java.io.IOException if an I/O error occurred
      */
     static InputStream getInflaterInputStream(File file) throws IOException {
-        if (file.getName().endsWith(".gz")) {
+        if (file.getName().endsWith(".gz") && !file.getName().endsWith(".tar.gz")) {
             try {
                 return createGZIPInputStream(file);
             } catch (IOException e) {

@@ -47,9 +47,8 @@ public class EnvisatAuxReader {
      * <code>readProductNodes(input, subsetInfo)</code> of the abstract superclass.
      *
      * @param input A file or path to the aux file
-     * @throws java.lang.IllegalArgumentException
-     *                             if <code>input</code> type is not one of the supported input sources.
-     * @throws java.io.IOException if an I/O error occurs
+     * @throws java.lang.IllegalArgumentException if <code>input</code> type is not one of the supported input sources.
+     * @throws java.io.IOException                if an I/O error occurs
      */
     public void readProduct(Object input) throws IOException {
 
@@ -128,18 +127,22 @@ public class EnvisatAuxReader {
     public static File getFile(String filePath) throws FileNotFoundException {
         File file = null;
 
-        final String[] exts = new String[] {"", ".gz", ".zip"};
+        final String[] exts = new String[]{".zip", ".gz", ""};
         for (String ext : exts) {
-            final URI fileUri = getFileURI(filePath + ext);
-            if (fileUri != null) {
-                file = new File(fileUri);
-                if (file.exists()) {
-                    break;
-                }
-            }
             file = new File(filePath + ext);
             if (file.exists()) {
                 break;
+            }
+        }
+        if (file == null) {
+            for (String ext : exts) {
+                final URI fileUri = getFileURI(filePath + ext);
+                if (fileUri != null) {
+                    file = new File(fileUri);
+                    if (file.exists()) {
+                        break;
+                    }
+                }
             }
         }
         if (file == null) {
