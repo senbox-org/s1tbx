@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,7 +41,7 @@ import java.util.List;
  * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
  * @author Ralf Quast
-
+ * @version $Revision$ $Date$
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class TargetProductSelectorModel {
@@ -168,7 +168,7 @@ public class TargetProductSelectorModel {
     public void setProductDir(File productDir) {
         setValueContainerValue("productDir", productDir);
     }
-    
+
     public void setFormatName(String formatName) {
         setValueContainerValue("formatName", formatName);
     }
