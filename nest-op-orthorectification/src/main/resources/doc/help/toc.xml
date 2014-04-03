@@ -16,6 +16,7 @@
 			<tocitem text="Slant Range to Ground Range" target="SRGROp"/>
 			<tocitem text="Mosaic" target="MosaicOp"/>
 			<tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
+			<tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
 		</tocitem>
     </tocitem>
     

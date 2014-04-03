@@ -6,3 +6,4 @@ org.esa.nest.gpf.SARSimulationOp$Spi
 org.esa.nest.gpf.SARSimTerrainCorrectionOp$Spi
 org.esa.nest.gpf.MosaicOp$Spi
 org.esa.nest.gpf.ALOSDeskewingOp$Spi
+org.esa.nest.gpf.TerrainFlatteningOp$Spi

@@ -16,4 +16,5 @@
 	<mapID target="SRGROp" url="operators/SRGROp.html"/>
 	<mapID target="MosaicOp" url="operators/MosaicOp.html"/>
 	<mapID target="ALOSDeskewingOp" url="operators/ALOSDeskewingOp.html"/>
+	<mapID target="TerrainFlatteningOp" url="operators/TerrainFlatteningOp.html"/>
 </map>

@@ -139,6 +139,37 @@
             <targetProductNameSuffix>_DS</targetProductNameSuffix>
             <placeAfter>SlantRangeGroundRangeOp</placeAfter>
         </action>
+
+        <action>
+            <id>TerrainFlattening</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Terrain Flattening</text>
+            <parent>geometry</parent>
+            <placeAfter>EllipsoidCorrection</placeAfter>
+        </action>
+
+        <action>
+            <id>TerrainFlatteningOp</id>
+            <helpId>TerrainFlatteningOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>rstbIcon</icon>
+            <parent>TerrainFlattening</parent>
+            <text>Radiometric Terrain Flattening</text>
+            <dialogTitle>Terrain Flattening</dialogTitle>
+            <shortDescr>Terrain Flattening</shortDescr>
+            <operatorName>Terrain-Flattening</operatorName>
+            <targetProductNameSuffix>_TF</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TerrainFlattenedTC</id>
+            <class>org.esa.nest.dat.TerrainFlattenedTCAction</class>
+            <text>Terrain Flattened Terrain Correction</text>
+            <shortDescr>Radiometric Terrain Flattened Terrain Correction</shortDescr>
+            <parent>TerrainFlattening</parent>
+            <helpId>TerrainFlattenedTC</helpId>
+        </action>
+
     </extension>
 
 	<extension point="beam-ui:helpSets">
