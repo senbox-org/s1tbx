@@ -1468,7 +1468,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets the image information for image display.
      *
-     * @return the image info or null
+     * @return the image info or <code>null</code>
      */
     public ImageInfo getImageInfo() {
         return imageInfo;
@@ -1477,7 +1477,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Sets the image information for image display.
      *
-     * @param imageInfo the image info, can be null
+     * @param imageInfo the image info, can be <code>null</code>
      */
     public void setImageInfo(ImageInfo imageInfo) {
         setImageInfo(imageInfo, true);
