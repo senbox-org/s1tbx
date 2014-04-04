@@ -79,7 +79,7 @@ public class MathUtils {
      */
     public static boolean equalValues(final float x1,
                                       final float x2) {
-        return StrictMath.abs(x1 - x2) <= EPS_F;
+        return Math.abs(x1 - x2) <= EPS_F;
     }
 
     /**
@@ -90,7 +90,7 @@ public class MathUtils {
      */
     public static boolean equalValues(final double x1,
                                       final double x2) {
-        return StrictMath.abs(x1 - x2) <= EPS;
+        return Math.abs(x1 - x2) <= EPS;
     }
 
     /**
@@ -103,7 +103,7 @@ public class MathUtils {
     public static boolean equalValues(final float x1,
                                       final float x2,
                                       final float eps) {
-        return StrictMath.abs(x1 - x2) <= eps;
+        return Math.abs(x1 - x2) <= eps;
     }
 
     /**
@@ -116,7 +116,7 @@ public class MathUtils {
     public static boolean equalValues(final double x1,
                                       final double x2,
                                       final double eps) {
-        return StrictMath.abs(x1 - x2) <= eps;
+        return Math.abs(x1 - x2) <= eps;
     }
 
     /**
