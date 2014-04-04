@@ -19,6 +19,7 @@ package com.bc.ceres.jai.opimage;
 import com.bc.ceres.jai.operator.InterpretationType;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
+import org.apache.commons.math3.util.FastMath;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -669,19 +670,23 @@ public final class ReinterpretOpImage extends PointOpImage {
 
     private final class Pow10 implements ScalingTransform {
         public double transform(double x) {
-            // exp(LOG10*x) is ~500 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
-            return Math.exp(LOG10 * x);
-            // pow(10,x) is ~700 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
-            //return Math.pow(10, x);
+            // This is ~500 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            //return Math.exp(LOG10 * x);
+            // This is ~700 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            //return Math.pow(10.0, x);
+            // This is ~300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            return FastMath.exp(LOG10 * x);
         }
     }
 
     private final class Log10 implements ScalingTransform {
         public double transform(double x) {
-            // log10(x) is slightly below 300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            // This is slightly below 300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
             return Math.log10(x);
-            // log(x)/LOG10 is slightly above 300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            // This is slightly above 300 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
             //return Math.log(x) / LOG10;
+            // This is ~900 ms per 4 mega-pixels on my Intel i7 2.8 GHz CPU
+            //return FastMath.log10(x);
         }
     }
 }
