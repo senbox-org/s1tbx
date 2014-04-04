@@ -47,6 +47,7 @@ public class EnvisatAuxReader {
      * <code>readProductNodes(input, subsetInfo)</code> of the abstract superclass.
      *
      * @param input A file or path to the aux file
+     *
      * @throws java.lang.IllegalArgumentException if <code>input</code> type is not one of the supported input sources.
      * @throws java.io.IOException                if an I/O error occurs
      */
@@ -67,7 +68,7 @@ public class EnvisatAuxReader {
         if (productType == null) {
             throw new IllegalFileFormatException("Not an ENVISAT product or ENVISAT product type not supported: " + file.toString());
         }
-        // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
+        // We use only the first 9 characters for comparison, since the 10th can be either 'P' or 'C'
         final String productTypeUC = productType.toUpperCase().substring(0, 9);
 
         if (productTypeUC.startsWith("AS")) {
@@ -127,22 +128,18 @@ public class EnvisatAuxReader {
     public static File getFile(String filePath) throws FileNotFoundException {
         File file = null;
 
-        final String[] exts = new String[]{".zip", ".gz", ""};
+        final String[] exts = new String[]{"", ".gz", ".zip"};
         for (String ext : exts) {
+            final URI fileUri = getFileURI(filePath + ext);
+            if (fileUri != null) {
+                file = new File(fileUri);
+                if (file.exists()) {
+                    break;
+                }
+            }
             file = new File(filePath + ext);
             if (file.exists()) {
                 break;
-            }
-        }
-        if (file == null) {
-            for (String ext : exts) {
-                final URI fileUri = getFileURI(filePath + ext);
-                if (fileUri != null) {
-                    file = new File(fileUri);
-                    if (file.exists()) {
-                        break;
-                    }
-                }
             }
         }
         if (file == null) {
