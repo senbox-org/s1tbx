@@ -29,6 +29,8 @@ public class VersionChecker {
     private String remoteVersionUrlString;
     private File localVersionFile;
     private static final String VERSION_PREFIX = "VERSION ";
+    private String localVersionStr = null;
+    private String remoteVersionStr = null;
 
     // todo - use application.properties with version ID set by Maven (resource Filter!)
     public VersionChecker() {
@@ -57,10 +59,15 @@ public class VersionChecker {
         this.localVersionFile = localVersionFile;
     }
 
+    public void setLocalVersion(final String ver) {
+        localVersionStr = ver;
+    }
+
     public int compareVersions() throws IOException {
         final String remoteVersion = getRemoteVersion();
-        final String localVersion = getLocalVersion();
-        return compareVersions(localVersion, remoteVersion);
+        if(localVersionStr == null)
+            localVersionStr = getLocalVersion();
+        return compareVersions(localVersionStr, remoteVersion);
     }
 
     static int compareVersions(String localVersion, String remoteVersion) {
@@ -82,17 +89,19 @@ public class VersionChecker {
 
     public String getRemoteVersion() throws IOException {
         try {
-            return getVersion(new URL(getRemoteVersionUrlString()));
+            if(remoteVersionStr == null)
+                remoteVersionStr = getVersion(new URL(getRemoteVersionUrlString()));
+            return remoteVersionStr;
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e.getMessage());
         }
     }
 
-    private String getVersion(final URL url) throws IOException {
+    private static String getVersion(final URL url) throws IOException {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
         final String line;
         try {
-            line = reader.readLine();
+            line = reader.readLine().toUpperCase();
         } finally {
             reader.close();
         }
