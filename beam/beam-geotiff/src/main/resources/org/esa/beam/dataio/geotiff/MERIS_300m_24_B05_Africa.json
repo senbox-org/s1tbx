@@ -1,0 +1,56 @@
+{
+    "id": "MERIS_300m_24_B05_Africa",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 2522,
+        "sceneHeight": 9722,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1087.0,
+                    "y": 5226.0,
+                    "lat": 2.4875,
+                    "lon": 18.015278
+                },
+                {
+                    "x": 1872.0,
+                    "y": 6308.0,
+                    "lat": -0.51805556,
+                    "lon": 20.195833
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "band_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 131,
+                        "y": 1732,
+                        "value": 258.0
+                    },
+                    {
+                        "x": 1727,
+                        "y": 8269,
+                        "value": 149.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTRasterTypeGeoKey",
+                "value": "RasterPixelIsArea"
+            },
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTCitationGeoKey",
+                "value": "IMAGINE GeoTIFF Support\nCopyright 1991 - 2005 by Leica Geosystems Geospatial Imaging, LLC. All Rights Reserved\n@(#)$RCSfile: egtf.c $ IMAGINE 9.0 $Revision: 10.0 $ $Date: 2005/07/26 15:10:00 EST $\nGeocoding information not available\nProjection Name = Unknown\nUnits = other\nGeoTIFF Units = other"
+            }
+        ]
+    }
+}

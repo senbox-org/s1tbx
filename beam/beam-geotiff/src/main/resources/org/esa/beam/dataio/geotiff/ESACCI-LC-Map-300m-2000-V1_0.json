@@ -1,0 +1,56 @@
+{
+    "id": "ESACCI-LC-Map-300m-2000-V1_0",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 129600,
+        "sceneHeight": 64800,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 55898.0,
+                    "y": 34834.0,
+                    "lat": -6.7611113,
+                    "lon": -24.727777
+                },
+                {
+                    "x": 96221.0,
+                    "y": 42049.0,
+                    "lat": -26.802778,
+                    "lon": 87.280556
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "band_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6762,
+                        "y": 11545,
+                        "value": 210.0
+                    },
+                    {
+                        "x": 88788,
+                        "y": 55118,
+                        "value": 210.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GeographicTypeGeoKey",
+                "value": "GCS_WGS_84"
+            },
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GeogInvFlatteningGeoKey",
+                "value": "298.257223563"
+            }
+        ]
+    }
+}
