@@ -16,18 +16,20 @@
 
 package org.esa.beam.dataio.envisat;
 
-import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * EnvisatAuxReader Tester.
  *
  * @author lveci
  */
-public class EnvisatAuxReaderTest extends TestCase {
+public class EnvisatAuxReaderTest {
 
     String ers1XCAFilePath = "org/esa/beam/resources/testdata/ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.txt";
     String ers2XCAFilePath = "org/esa/beam/resources/testdata/ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.txt";
@@ -36,48 +38,40 @@ public class EnvisatAuxReaderTest extends TestCase {
     String envisatXCAZipFilePath2 = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000_2";
     String envisatXCAGZFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.gz";
 
-    public EnvisatAuxReaderTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testAutoLookupZIP() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(envisatXCAZipFilePath2);
         testAuxDataFromGADS(reader);
     }
 
+    @Test
     public void testUncompressed() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(envisatXCAFilePath);
         testAuxDataFromGADS(reader);
     }
 
+    @Test
     public void testERS1() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(ers1XCAFilePath);
     }
 
+    @Test
     public void testERS2() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(ers2XCAFilePath);
     }
 
+    @Test
     public void testGZIP() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(envisatXCAGZFilePath);
         testAuxDataFromGADS(reader);
     }
 
+    @Test
     public void testZIP() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(envisatXCAZipFilePath);
