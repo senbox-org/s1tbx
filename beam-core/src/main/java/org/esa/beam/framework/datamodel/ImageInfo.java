@@ -228,7 +228,7 @@ public class ImageInfo implements Cloneable {
      * @return a copy of this object
      */
     public ImageInfo createDeepCopy() {
-        return (ImageInfo) clone();
+        return clone();
     }
 
     /**
