@@ -151,12 +151,6 @@
                                     <version>1.2.3-SNAPSHOT</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.esa.beam.glint</groupId>
-                                    <artifactId>flint-processor</artifactId>
-                                    <version>1.2</version>
-                                    <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
-                                </artifactItem>
 
                             </artifactItems>
                         </configuration>
