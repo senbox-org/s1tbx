@@ -17,10 +17,13 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ResamplingFactoryTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class ResamplingFactoryTest {
+
+    @Test
     public void testCreateResampling() {
         Resampling resampling;
 
@@ -32,6 +35,12 @@ public class ResamplingFactoryTest extends TestCase {
 
         resampling = ResamplingFactory.createResampling(ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
         assertEquals(resampling.getName(), Resampling.BILINEAR_INTERPOLATION.getName());
+
+        resampling = ResamplingFactory.createResampling(ResamplingFactory.BISINC_INTERPOLATION_NAME);
+        assertEquals(resampling.getName(), Resampling.BISINC_INTERPOLATION.getName());
+
+        resampling = ResamplingFactory.createResampling(ResamplingFactory.BICUBIC_INTERPOLATION_NAME);
+        assertEquals(resampling.getName(), Resampling.BICUBIC_INTERPOLATION.getName());
 
         resampling = ResamplingFactory.createResampling("Not known");
         assertTrue(resampling == null);
