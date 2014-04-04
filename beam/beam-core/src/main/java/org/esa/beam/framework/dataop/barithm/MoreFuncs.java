@@ -187,7 +187,6 @@ class MoreFuncs {
                 try {
                     propertyValue = method.invoke(band, (Object[]) null);
                 } catch (Throwable ignored) {
-                    // todo - handle exception!
                 }
                 if (propertyValue != null) {
                     final String propertyName = MoreFuncs.convertMethodNameToPropertyName(methodName);
