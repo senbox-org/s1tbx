@@ -29,13 +29,35 @@ import java.util.regex.Pattern;
  */
 class LandsatReprocessedMetadata extends AbstractLandsatMetadata {
 
+    private static final float[] ETM_PLUS_WAVELENGTHS = {
+            485.0f,
+            560.0f,
+            660.0f,
+            835.0f,
+            1650.0f,
+            11450.0f,
+            2220.0f,
+            710.0f
+    };
+    private static final float[] ETM_PLUS_BANDWIDTHS = {
+            70.0f,
+            80.0f,
+            60.0f,
+            130.0f,
+            200.0f,
+            2100.0f,
+            260.0f,
+            380.0f
+    };
     private final LandsatLegacyMetadata landsatLegacyMetadataDelegate;
     private final Landsat8Metadata landsat8MetadataDelegate;
+    private final String sensorId;
 
     public LandsatReprocessedMetadata(FileReader fileReader) throws IOException {
         super(fileReader);
         landsatLegacyMetadataDelegate = new LandsatLegacyMetadata(getMetaDataElementRoot());
         landsat8MetadataDelegate = new Landsat8Metadata(getMetaDataElementRoot());
+        sensorId = getMetaDataElementRoot().getElement("PRODUCT_METADATA").getAttribute("SENSOR_ID").getData().getElemString();
     }
 
     @Override
@@ -85,11 +107,21 @@ class LandsatReprocessedMetadata extends AbstractLandsatMetadata {
 
     @Override
     public float getWavelength(String bandNumber) {
+        if (sensorId.startsWith("ETM")) {
+            String bandIndexNumber = bandNumber.substring(0, 1);
+            int index = Integer.parseInt(bandIndexNumber) - 1;
+            return ETM_PLUS_WAVELENGTHS[index];
+        }
         return landsatLegacyMetadataDelegate.getWavelength(bandNumber);
     }
 
     @Override
     public float getBandwidth(String bandNumber) {
+        if (sensorId.startsWith("ETM")) {
+            String bandIndexNumber = bandNumber.substring(0, 1);
+            int index = Integer.parseInt(bandIndexNumber) - 1;
+            return ETM_PLUS_BANDWIDTHS[index];
+        }
         return landsatLegacyMetadataDelegate.getBandwidth(bandNumber);
     }
 

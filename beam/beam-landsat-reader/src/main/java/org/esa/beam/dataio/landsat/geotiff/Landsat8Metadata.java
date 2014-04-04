@@ -43,18 +43,18 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
             "TIRS 2"
     };
 
-    private static final float[] WAVELENGTHS = new float[]{
-            433,
-            482,
-            562,
+    private static final float[] WAVELENGTHS = {
+            440,
+            480,
+            560,
             655,
             865,
             1610,
             2200,
             590,
-            1375,
-            10800,
-            12000
+            1370,
+            10895,
+            12005
     };
     private static final String[] BAND_NAMES = {
             "coastal_aerosol",
@@ -70,7 +70,19 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
             "thermal_infrared_(tirs)_2",
     };
 
-    private static final float[] BANDWIDTHS = new float[]{20, 60, 60, 30, 30, 80, 180, 380, 20, 590, 1010};
+    private static final float[] BANDWIDTHS = {
+                    20,
+                    60,
+                    60,
+                    30,
+                    30,
+                    80,
+                    180,
+                    180,
+                    20,
+                    590,
+                    1010
+            };
 
     public Landsat8Metadata(Reader fileReader) throws IOException {
         super(fileReader);

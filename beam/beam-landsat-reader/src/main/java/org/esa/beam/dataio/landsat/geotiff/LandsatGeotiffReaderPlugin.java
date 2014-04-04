@@ -179,6 +179,8 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
     static boolean isLandsat4Filename(String filename) {
         if (filename.matches("LT4\\d{13}\\w{3}\\d{2}_MTL.(txt|TXT)")) {
             return true;
+        } else if (filename.matches("LT4\\d{13}\\w{3}\\d{2}\\.tar\\.gz")) {
+            return true;
         }
         return false;
     }

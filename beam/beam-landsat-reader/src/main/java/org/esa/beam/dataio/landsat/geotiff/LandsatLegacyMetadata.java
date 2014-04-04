@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 class LandsatLegacyMetadata extends AbstractLandsatMetadata {
 
-    private static final Map<String, String> BAND_DESCRIPTIONS = new HashMap<String, String>();
+    private static final Map<String, String> BAND_DESCRIPTIONS = new HashMap<>();
 
     static {
         BAND_DESCRIPTIONS.put("1", "Visible (30m)");
@@ -45,8 +45,27 @@ class LandsatLegacyMetadata extends AbstractLandsatMetadata {
     }
 
     private static final String SENSOR_ID = "SENSOR_ID";
-    private static final float[] WAVELENGTHS = new float[]{490, 560, 660, 830, 1670, 11500, 2240, 710};
-    private static final float[] BANDWIDTHS = new float[]{66, 82, 67, 128, 217, 1000, 252, 380};
+    private static final float[] WAVELENGTHS = {
+            490,
+            560,
+            660,
+            830,
+            1670,
+            11500,
+            2240,
+            710
+    };
+
+    private static final float[] BANDWIDTHS = {
+            66,
+            82,
+            67,
+            128,
+            217,
+            1000,
+            252,
+            380
+    };
 
     LandsatLegacyMetadata(Reader mtlReader) throws IOException {
         super(mtlReader);

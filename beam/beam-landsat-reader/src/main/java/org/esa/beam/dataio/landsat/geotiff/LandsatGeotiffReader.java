@@ -128,7 +128,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         final MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
         final Pattern pattern = landsatMetadata.getOpticalBandFileNamePattern();
 
-        bandProducts = new ArrayList<Product>();
+        bandProducts = new ArrayList<>();
         for (MetadataAttribute metadataAttribute : productAttributes) {
             String attributeName = metadataAttribute.getName();
             Matcher matcher = pattern.matcher(attributeName);
