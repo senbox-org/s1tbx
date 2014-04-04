@@ -1422,7 +1422,10 @@ public class ProductUtils {
                 copyIndexCoding(srcIndexCoding, targetProduct);
                 targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
 
-                targetBand.setImageInfo((ImageInfo)sourceBand.getImageInfo().clone());
+                ImageInfo imageInfo = sourceBand.getImageInfo();
+                if (imageInfo != null) {
+                    targetBand.setImageInfo(imageInfo.clone());
+                }
             }
         }
     }
