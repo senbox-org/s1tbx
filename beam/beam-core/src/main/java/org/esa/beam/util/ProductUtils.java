@@ -531,7 +531,10 @@ public class ProductUtils {
      * @param noDataValue   the no-data value to be used
      *
      * @return the map information instance
-     */
+
+     * @deprecated since BEAM 4.7 {@link MapInfo} is deprecated
+    */
+    @Deprecated
     public static MapInfo createSuitableMapInfo(final Product product,
                                                 final MapProjection mapProjection,
                                                 final double orientation,
@@ -594,7 +597,7 @@ public class ProductUtils {
 
     /**
      * Creates the boundary in map coordinates for the given product, source rectangle (in product pixel coordinates)
-     * and the given map transfromation. The method delegates to {@link #createMapEnvelope(org.esa.beam.framework.datamodel.Product,
+     * and the given map transformation. The method delegates to {@link #createMapEnvelope(org.esa.beam.framework.datamodel.Product,
      * java.awt.Rectangle, int, org.esa.beam.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
      * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
      * height.
@@ -614,7 +617,7 @@ public class ProductUtils {
 
     /**
      * Creates the boundary in map coordinates for the given product, source rectangle (in product
-     * pixel coordinates) and the given map transfromation. The method delegates to
+     * pixel coordinates) and the given map transformation. The method delegates to
      * {@link #createMapBoundary(Product, Rectangle, int, MapTransform) createMapBoundary(product, rect,
      * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene
      * raster width and height.
@@ -757,7 +760,7 @@ public class ProductUtils {
         int manhattanDistance = step;
         final int breakCriterion = (int) Math.max(region.getWidth(), region.getHeight());
         while (manhattanDistance < breakCriterion) {
-            List<PixelPos> candidatePositions = new ArrayList<PixelPos>();
+            List<PixelPos> candidatePositions = new ArrayList<>();
             for (int i = 0; i < manhattanDistance; i += step) {
                 final PixelPos newPos1 = new PixelPos(origPos.x + manhattanDistance - i, origPos.y + i);
                 if (region.contains(newPos1.getX(), newPos1.getY())) {
@@ -796,16 +799,6 @@ public class ProductUtils {
         return new GeoPos(Float.NaN, Float.NaN);
     }
 
-    /**
-     * Gets the first valid PixelPos along the line between two pixels. The method starts searching from pixelPos2.     *
-     *
-     * @param pixelPos1
-     * @param pixelPos2
-     * @param factor
-     * @param gc
-     *
-     * @return
-     */
     private static GeoPos getValidGeoPosAlongLine(PixelPos pixelPos1, PixelPos pixelPos2, double factor, GeoCoding gc) {
         int xDistToOrig = (int) pixelPos1.getX() - (int) pixelPos2.getX();
         int yDistToOrig = (int) pixelPos1.getY() - (int) pixelPos2.getY();
@@ -1063,7 +1056,7 @@ public class ProductUtils {
             step = 2 * Math.max(rect.width, rect.height); // don't step!
         }
 
-        final ArrayList<PixelPos> pixelPosList = new ArrayList<PixelPos>(2 * (rect.width + rect.height) / step + 10);
+        final ArrayList<PixelPos> pixelPosList = new ArrayList<>(2 * (rect.width + rect.height) / step + 10);
 
         int lastX = 0;
         for (int x = x1; x < x2; x += step) {
@@ -1270,7 +1263,7 @@ public class ProductUtils {
     }
 
     /**
-     * Copies all bands which contain a flagcoding from the source product to the target product.
+     * Copies all bands which contain a flag-coding from the source product to the target product.
      *
      * @param sourceProduct   the source product
      * @param targetProduct   the target product
@@ -1422,7 +1415,10 @@ public class ProductUtils {
                 copyIndexCoding(srcIndexCoding, targetProduct);
                 targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
 
-                targetBand.setImageInfo((ImageInfo)sourceBand.getImageInfo().clone());
+                ImageInfo imageInfo = sourceBand.getImageInfo();
+                if (imageInfo != null) {
+                    targetBand.setImageInfo(imageInfo.clone());
+                }
             }
         }
     }
@@ -1742,7 +1738,6 @@ public class ProductUtils {
             final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
             for (Mask mask : masks) {
                 pm.setSubTaskName(String.format("Applying mask '%s'", mask.getName()));
-                final GeoCoding geoCoding = raster.getGeoCoding();
                 final Layer layer = MaskLayerType.createLayer(raster, mask);
                 layer.render(imageRendering);
                 pm.worked(1);
@@ -1827,6 +1822,9 @@ public class ProductUtils {
         return normalized;
     }
 
+    /**
+     * @deprecated since BEAM 4.10
+     */
     @Deprecated
     public static int normalizeGeoPolygon_old(GeoPos[] polygon) {
         boolean negNormalized = false;
@@ -1886,6 +1884,9 @@ public class ProductUtils {
         geoPos.lon -= factor * 360.f;
     }
 
+    /**
+     * @deprecated since BEAM 4.10
+     */
     @Deprecated
     public static void denormalizeGeoPos_old(GeoPos geoPos) {
         if (geoPos.lon > 180.0f) {
@@ -2171,7 +2172,7 @@ public class ProductUtils {
      * @return an array of messages which changes are done to the given product.
      */
     public static String[] removeInvalidExpressions(final Product product) {
-        final ArrayList<String> messages = new ArrayList<String>(10);
+        final ArrayList<String> messages = new ArrayList<>(10);
 
         product.acceptVisitor(new ProductVisitorAdapter() {
             @Override
@@ -2415,7 +2416,7 @@ public class ProductUtils {
         Debug.assertNotNull(sourceProduct);
         Debug.assertNotNull(targetProduct);
 
-        final Map<Band, RasterDataNode> sourceNodes = new HashMap<Band, RasterDataNode>(
+        final Map<Band, RasterDataNode> sourceNodes = new HashMap<>(
                 sourceProduct.getNumBands() + sourceProduct.getNumTiePointGrids() + 10);
 
         final Band[] sourceBands = sourceProduct.getBands();
@@ -2526,7 +2527,7 @@ public class ProductUtils {
 
     public static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
         final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
-        final ArrayList<GeneralPath> pathList = new ArrayList<GeneralPath>(16);
+        final ArrayList<GeneralPath> pathList = new ArrayList<>(16);
 
         if (geoPoints.length > 1) {
             float lon = geoPoints[0].getLon();
