@@ -293,6 +293,61 @@ public class ParserImplTest {
     }
 
     @Test
+    public void testConditional() throws ParseException {
+        testConditional("x > 0 ? 1 : 0");
+        testConditional("IF x > 0 THEN 1 ELSE 0");
+    }
+
+    private void testConditional(String code) throws ParseException {
+        final Variable x = SymbolFactory.createVariable("x", 0.0);
+        ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(x);
+        Term term = parser.parse(code);
+
+        assertNotNull(term);
+        assertNotNull(term.getChildren());
+        int i = term.getChildren().length;
+        assertEquals(3, i);
+
+        x.assignI(null, -10);
+        assertEquals(0, term.evalI(env));
+
+        x.assignI(null, 0);
+        assertEquals(0, term.evalI(env));
+
+        x.assignI(null, 10);
+        assertEquals(1, term.evalI(env));
+    }
+
+    @Test
+    public void testNestedConditionalIfThenElse() throws ParseException {
+        testNestedConditional("x > 0 ? 1 : x < 0 ? -1 : 0");
+        testNestedConditional("x <= 0 ? (x==0?0:-1):1");
+        testNestedConditional("IF x > 0 THEN 1 ELSE (if x < 0 then -1 else 0)");
+        testNestedConditional("IF x > 0 THEN 1 ELSE IF x < 0 THEN -1 ELSE 0");
+        testNestedConditional("IF x <= 0 THEN (if x == 0 then 0 else -1) ELSE 1");
+    }
+
+    private void testNestedConditional(String code) throws ParseException {
+        final Variable x = SymbolFactory.createVariable("x", 0.0);
+        ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(x);
+
+        Term term = parser.parse(code);
+        assertNotNull(term);
+        assertNotNull(term.getChildren());
+        int i = term.getChildren().length;
+        assertEquals(3, i);
+
+        x.assignI(null, -10);
+        assertEquals(-1, term.evalI(env));
+
+        x.assignI(null, 0);
+        assertEquals(0, term.evalI(env));
+
+        x.assignI(null, 10);
+        assertEquals(1, term.evalI(env));
+    }
+
+    @Test
     public void testDistanceFunction() throws ParseException {
         Term term = parser.parse("distance(0.1, 0.2, 0.3, 0.4, 0.3, 0.1)");
         assertNotNull(term);
@@ -328,17 +383,6 @@ public class ParserImplTest {
         double d2 = (0.1 + 0.2) - (1.4 + 1.3);
         double d3 = (0.1 + 0.2 + 0.3) - (1.4 + 1.3 + 1.1);
         assertEquals(Math.sqrt(d1 * d1 + d2 * d2 + d3 * d3), term.evalD(env), 1.e-10);
-    }
-
-    @Test
-    public void testConditional() throws ParseException {
-        Term term = parser.parse("IF 5 > 4 THEN 1 ELSE 0");
-        assertNotNull(term);
-        assertNotNull(term.getChildren());
-        int i = term.getChildren().length;
-        assertEquals(3, i);
-
-        assertEquals(1, term.evalI(env));
     }
 
     int ix;
