@@ -1130,6 +1130,23 @@ public class ProductUtils {
     }
 
     /**
+     * Copies the index codings from the source product to the target.
+     *
+     * @param source the source product
+     * @param target the target product
+     */
+    public static void copyIndexCodings(Product source, Product target) {
+        Guardian.assertNotNull("source", source);
+        Guardian.assertNotNull("target", target);
+
+        int numCodings = source.getIndexCodingGroup().getNodeCount();
+        for (int n = 0; n < numCodings; n++) {
+            IndexCoding sourceFlagCoding = source.getIndexCodingGroup().get(n);
+            copyIndexCoding(sourceFlagCoding, target);
+        }
+    }
+
+    /**
      * Copies the given source index coding to the target product
      * If it exists already, the method simply returns the existing instance.
      *
@@ -1404,6 +1421,8 @@ public class ProductUtils {
                 IndexCoding srcIndexCoding = sourceBand.getIndexCoding();
                 copyIndexCoding(srcIndexCoding, targetProduct);
                 targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
+
+                targetBand.setImageInfo((ImageInfo)sourceBand.getImageInfo().clone());
             }
         }
     }
@@ -1466,6 +1485,25 @@ public class ProductUtils {
         targetBand.setSolarFlux(sourceBand.getSolarFlux());
     }
 
+    /**
+     * Copies all properties from source product to the target product.
+     *
+     * @param sourceProduct the source product
+     * @param targetProduct the target product
+     *
+     */
+    public static void copyProductNodes(final Product sourceProduct, final Product targetProduct) {
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        targetProduct.setDescription(sourceProduct.getDescription());
+    }
 
     /**
      * Copies the geocoding from the source product to target product.
@@ -2486,7 +2524,7 @@ public class ProductUtils {
         }
     }
 
-    static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
+    public static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
         final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
         final ArrayList<GeneralPath> pathList = new ArrayList<GeneralPath>(16);
 
