@@ -54,8 +54,8 @@ class CollocationForm extends JPanel {
     private JCheckBox renameSlaveComponentsCheckBox;
     private JTextField masterComponentPatternField;
     private JTextField slaveComponentPatternField;
-    private JComboBox resamplingComboBox;
-    private DefaultComboBoxModel resamplingComboBoxModel;
+    private JComboBox<ResamplingType> resamplingComboBox;
+    private DefaultComboBoxModel<ResamplingType> resamplingComboBoxModel;
     private TargetProductSelector targetProductSelector;
 
     public CollocationForm(PropertySet propertySet, TargetProductSelector targetProductSelector, AppContext appContext) {
@@ -68,8 +68,8 @@ class CollocationForm extends JPanel {
         renameSlaveComponentsCheckBox = new JCheckBox("Rename slave components:");
         masterComponentPatternField = new JTextField();
         slaveComponentPatternField = new JTextField();
-        resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
-        resamplingComboBox = new JComboBox(resamplingComboBoxModel);
+        resamplingComboBoxModel = new DefaultComboBoxModel<>(ResamplingType.values());
+        resamplingComboBox = new JComboBox<>(resamplingComboBoxModel);
 
         slaveProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -196,9 +196,11 @@ class CollocationForm extends JPanel {
         return panel;
     }
 
-    static void adaptResamplingComboBoxModel(DefaultComboBoxModel comboBoxModel, boolean isValidPixelExpressionUsed) {
+    static void adaptResamplingComboBoxModel(DefaultComboBoxModel<ResamplingType> comboBoxModel, boolean isValidPixelExpressionUsed) {
         if (isValidPixelExpressionUsed) {
-            if (comboBoxModel.getSize() == 3) {
+            if (comboBoxModel.getSize() == 5) {
+                comboBoxModel.removeElement(ResamplingType.BICUBIC_CONVOLUTION);
+                comboBoxModel.removeElement(ResamplingType.BISINC_CONVOLUTION);
                 comboBoxModel.removeElement(ResamplingType.CUBIC_CONVOLUTION);
                 comboBoxModel.removeElement(ResamplingType.BILINEAR_INTERPOLATION);
                 comboBoxModel.setSelectedItem(ResamplingType.NEAREST_NEIGHBOUR);
@@ -207,6 +209,8 @@ class CollocationForm extends JPanel {
             if (comboBoxModel.getSize() == 1) {
                 comboBoxModel.addElement(ResamplingType.BILINEAR_INTERPOLATION);
                 comboBoxModel.addElement(ResamplingType.CUBIC_CONVOLUTION);
+                comboBoxModel.addElement(ResamplingType.BICUBIC_CONVOLUTION);
+                comboBoxModel.addElement(ResamplingType.BISINC_CONVOLUTION);
             }
         }
     }

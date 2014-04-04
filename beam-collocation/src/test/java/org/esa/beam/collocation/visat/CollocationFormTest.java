@@ -58,7 +58,7 @@ public class CollocationFormTest {
         validPixelExpressionUsed = CollocationForm.isValidPixelExpressionUsed(product);
         assertFalse(validPixelExpressionUsed);
         CollocationForm.adaptResamplingComboBoxModel(resamplingComboBoxModel, validPixelExpressionUsed);
-        assertEquals(3, resamplingComboBoxModel.getSize());
+        assertEquals(5, resamplingComboBoxModel.getSize());
         assertEquals(ResamplingType.NEAREST_NEIGHBOUR, resamplingComboBoxModel.getSelectedItem());
     }
 }
