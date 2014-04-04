@@ -16,32 +16,35 @@
 
 package org.esa.beam.collocation.visat;
 
-import junit.framework.TestCase;
 import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Test;
 
 import javax.swing.DefaultComboBoxModel;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for class {@link CollocationForm}.
  *
  * @author Ralf Quast
  */
-public class CollocationFormTest extends TestCase {
+public class CollocationFormTest {
 
+    @Test
     public void testAdaptResamplingComboBoxModel() {
         final Product product = new Product("name", "type", 10, 10);
         final Band band1 = product.addBand("band1", ProductData.TYPE_INT32);
         final Band band2 = product.addBand("band2", ProductData.TYPE_INT32);
 
-        DefaultComboBoxModel resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
+        DefaultComboBoxModel<ResamplingType> resamplingComboBoxModel = new DefaultComboBoxModel<>(ResamplingType.values());
 
         boolean validPixelExpressionUsed = CollocationForm.isValidPixelExpressionUsed(product);
         assertFalse(validPixelExpressionUsed);
         CollocationForm.adaptResamplingComboBoxModel(resamplingComboBoxModel, validPixelExpressionUsed);
-        assertEquals(3, resamplingComboBoxModel.getSize());
+        assertEquals(5, resamplingComboBoxModel.getSize());
 
         band1.setValidPixelExpression("true");
         validPixelExpressionUsed = CollocationForm.isValidPixelExpressionUsed(product);
