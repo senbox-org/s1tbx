@@ -23,7 +23,6 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
@@ -52,12 +51,6 @@ public class L3ToL1Op extends MerisBasisOp {
     private Product targetProduct;
     @Parameter
     private String maskBand;
-    @Parameter(valueSet = {
-            ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME, ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_INTERPOLATION_NAME},
-               defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME)
-    private String resamplingType = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
 
     @Override
     public void initialize() throws OperatorException {
@@ -104,7 +97,6 @@ public class L3ToL1Op extends MerisBasisOp {
             useMask = true;
         }
         final Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
-        ResamplingFactory.createResampling(resamplingType);
         final Resampling.Index resamplingIndex = resampling.createIndex();
         final TileBasedResamplingRaster resamplingRaster = new TileBasedResamplingRaster(srcTile);
 
