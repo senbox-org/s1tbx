@@ -29,7 +29,8 @@ public final class ResamplingFactory {
     public static final String BISINC_INTERPOLATION_NAME = "BISINC_INTERPOLATION";
     public static final String BICUBIC_INTERPOLATION_NAME = "BICUBIC_INTERPOLATION";
 
-    public static final String[] resamplingNames = new String[]{NEAREST_NEIGHBOUR_NAME,
+    public static final String[] resamplingNames = new String[]{
+            NEAREST_NEIGHBOUR_NAME,
             BILINEAR_INTERPOLATION_NAME,
             CUBIC_CONVOLUTION_NAME,
             BISINC_INTERPOLATION_NAME,
@@ -43,21 +44,24 @@ public final class ResamplingFactory {
      * @see ResamplingFactory#NEAREST_NEIGHBOUR_NAME
      * @see ResamplingFactory#BILINEAR_INTERPOLATION_NAME
      * @see ResamplingFactory#CUBIC_CONVOLUTION_NAME
+     * @see ResamplingFactory#BISINC_INTERPOLATION_NAME
+     * @see ResamplingFactory#BICUBIC_INTERPOLATION_NAME
      */
     public static Resampling createResampling(final String resamplingName) {
 
-        if (resamplingName.equals(NEAREST_NEIGHBOUR_NAME)) {
-            return Resampling.NEAREST_NEIGHBOUR;
-        } else if (resamplingName.equals(BILINEAR_INTERPOLATION_NAME)) {
-            return Resampling.BILINEAR_INTERPOLATION;
-        } else if (resamplingName.equals(CUBIC_CONVOLUTION_NAME)) {
-            return Resampling.CUBIC_CONVOLUTION;
-        } else if (resamplingName.equals(BISINC_INTERPOLATION_NAME)) {
-            return Resampling.BISINC_INTERPOLATION;
-        } else if (resamplingName.equals(BICUBIC_INTERPOLATION_NAME)) {
-            return Resampling.BICUBIC_INTERPOLATION;
-        } else {
-            return null;
+        switch (resamplingName) {
+            case NEAREST_NEIGHBOUR_NAME:
+                return Resampling.NEAREST_NEIGHBOUR;
+            case BILINEAR_INTERPOLATION_NAME:
+                return Resampling.BILINEAR_INTERPOLATION;
+            case CUBIC_CONVOLUTION_NAME:
+                return Resampling.CUBIC_CONVOLUTION;
+            case BISINC_INTERPOLATION_NAME:
+                return Resampling.BISINC_INTERPOLATION;
+            case BICUBIC_INTERPOLATION_NAME:
+                return Resampling.BICUBIC_INTERPOLATION;
+            default:
+                return null;
         }
     }
 
