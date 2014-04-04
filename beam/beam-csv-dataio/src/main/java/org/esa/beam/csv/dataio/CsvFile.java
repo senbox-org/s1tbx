@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -19,6 +19,19 @@ package org.esa.beam.csv.dataio;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import com.sun.media.imageio.stream.FileChannelImageInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import javax.imageio.stream.ImageInputStream;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.converters.JavaTypeConverter;
@@ -32,20 +45,9 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * A CsvFile is a view on a csv file allowing a) to parse it using the {@link CsvSourceParser} interface
@@ -71,9 +73,10 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     private boolean recordsParsed = false;
 
     private ImageInputStream stream;
-    
+
     private int headerByteSize;
     private int propertiesByteSize;
+    private Converter<?>[] converters;
 
     private CsvFile(String csv) throws IOException {
         this(new File(csv), null);
@@ -83,7 +86,8 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         this.csv = csv;
         ConverterRegistry.getInstance().setConverter(ProductData.UTC.class, new UTCConverter());
         this.crs = crs;
-        stream = new FileImageInputStream(csv);
+        RandomAccessFile randomAccessFile = new RandomAccessFile(csv, "r");
+        stream = new FileChannelImageInputStream(randomAccessFile.getChannel());
     }
 
     public static CsvSourceParser createCsvSourceParser(String csv) throws IOException {
@@ -92,25 +96,61 @@ public class CsvFile implements CsvSourceParser, CsvSource {
 
     @Override
     public void checkReadingFirstRecord() throws IOException {
-       Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
-       skipToLine(0);
-       final String line = stream.readLine() ;
-       final String[] tokens = getTokens(line);
+        skipToLine(0);
+        final String line = stream.readLine();
+        final String[] tokens = getTokens(line);
 
-       for (int i = 0; i < converters.length; i++) {
-           Converter<?> converter = converters[i];
-           try {
-               converter.parse(tokens[i + (hasFeatureId ? 1 : 0)]);
-           } catch (ConversionException e) {
-               throw new IOException(e);
-           }
-       }
-   }
+        for (int i = 0; i < converters.length; i++) {
+            Converter<?> converter = converters[i];
+            try {
+                converter.parse(tokens[i + (hasFeatureId ? 1 : 0)]);
+            } catch (ConversionException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    @Override
+    public Object[] parseRecords(final int offset, final int numRecords, final String rowName) throws IOException {
+        AttributeDescriptor attributeDescriptor = simpleFeatureType.getDescriptor(rowName);
+        int expectedTokenCount = simpleFeatureType.getAttributeCount();
+        expectedTokenCount += hasFeatureId ? 1 : 0;
+        int rowIndex = simpleFeatureType.getAttributeDescriptors().indexOf(attributeDescriptor);
+        int tokenIndex = rowIndex + (hasFeatureId ? 1 : 0);
+
+        List<Object> values = new ArrayList<>(numRecords);
+        skipToLine(offset);
+        String line;
+        long featureCount = offset;
+        while ((numRecords == -1 || featureCount < offset + numRecords) && (line = stream.readLine()) != null) {
+            String[] tokens = getTokens(line);
+            if (tokens == null) {
+                break;
+            }
+
+            if (tokens.length != expectedTokenCount) {
+                continue;
+            }
+            featureCount++;
+
+            String token = tokens[tokenIndex];
+            try {
+                Object value = null;
+                if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
+                    value = converters[rowIndex].parse(token);
+                }
+                values.add(value);
+            } catch (ConversionException e) {
+                BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
+                        csv.getPath(), e.getMessage()));
+            }
+            bytePositionForOffset.put(featureCount, stream.getStreamPosition());
+        }
+        return values.toArray();
+    }
 
     @Override
     public void parseRecords(int offset, int numRecords) throws IOException {
-        Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
-
         featureCollection = new ListFeatureCollection(simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
 
@@ -144,7 +184,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
                         builder.set(simpleFeatureType.getDescriptor(currentIndex).getLocalName(), value);
                     } catch (ConversionException e) {
                         BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': %s",
-                                                                               csv.getPath(), e.getMessage()));
+                                csv.getPath(), e.getMessage()));
                     }
                 }
             }
@@ -159,6 +199,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     public CsvSource parseMetadata() throws IOException {
         parseProperties();
         parseHeader();
+        converters = VectorDataNodeIO.getConverters(simpleFeatureType);
         return this;
     }
 
@@ -227,7 +268,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             }
             propertiesByteSize += (stream.getStreamPosition() - posInStream);
             posInStream = stream.getStreamPosition();
-            
+
             line = line.substring(1);
             int pos = line.indexOf('=');
             if (pos == -1) {
@@ -289,22 +330,27 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             String attributeTypeName;
             String attributeName;
             final int colonPos = token.indexOf(':');
+            if(colonPos == 0) {
+                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+            }
+            Class<?> attributeType;
             if (colonPos == -1) {
                 attributeName = token;
-                attributeTypeName = "double";
-            } else if (colonPos == 0) {
-                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                attributeType = Double.class;
             } else {
                 attributeName = token.substring(0, colonPos);
                 attributeTypeName = token.substring(colonPos + 1).toLowerCase();
-            }
-            attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
-            Class<?> attributeType;
-            try {
-                attributeType = jtc.parse(attributeTypeName);
-            } catch (ConversionException e) {
-                throw new IOException(
-                        String.format("Unknown type in attribute descriptor '%s'", token), e);
+                if (attributeTypeName.equals("int")) {
+                    attributeType = Integer.class;
+                } else {
+                    attributeTypeName = attributeTypeName.substring(0, 1).toUpperCase() + attributeTypeName.substring(1);
+                    try {
+                        attributeType = jtc.parse(attributeTypeName);
+                    } catch (ConversionException e) {
+                        throw new IOException(
+                                String.format("Unknown type in attribute descriptor '%s'", token), e);
+                    }
+                }
             }
             builder.add(attributeName, attributeType);
         }

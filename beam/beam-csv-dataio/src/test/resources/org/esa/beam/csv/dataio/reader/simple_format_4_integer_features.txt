@@ -1,0 +1,6 @@
+#separator=,
+featureId,station:string,class:int,radiance:float,Time:time,anotherOne:Integer
+26,AMRU1,1,50.0,2010-06-01T12:45:00,Integer.MIN_VALUE
+28,AMRU1,4,50.0,2010-06-01T12:48:00,-10000
+371,AMRU2,Integer.MAX_VALUE,120.0,[null],-10000
+372,AMRU2,-1,120.0,[null],1000
