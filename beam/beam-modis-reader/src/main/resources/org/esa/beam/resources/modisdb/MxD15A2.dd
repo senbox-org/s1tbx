@@ -7,18 +7,18 @@ META | StructMeta | StructMetadata.0
 #   1 - SDS - keyword
 #   2 - the name of the set of bands as they appear in the HDF file
 #   3 - whether the band is a spectral band or not (true or false)
-#   4 - the scaling method (lin, exp or '*' - no scaling)
+#   4 - the scaling method (lin, lin_inv, sli, exp, p10 or '*' - no scaling)
 #   5 - the name of the attribute containing the scaling factors - or '*' - no scaling
 #   6 - the name of the attribute containing the scaling offsets - or '*' - no scaling
 #   7 - the name of the attribute containing the physical unit
 #   8 - the name of the attribute containing the spectral band indices - or '@' and a band name when the band indices are referenced somewhere else in the product
 #   9 - the attribute name containing a description for the band
 #
-# 1  | 2              | 3     | 4   | 5            | 6          | 7     | 8         | 9         |
-#----+----------------+-------+-----+--------------+------------+-------+-----------+-----------+
-SDS  | Fpar_1km       | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | Lai_1km        | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | FparLai_QC     | false | *   | *            | *          | units | long_name | long_name |
-SDS  | FparExtra_QC   | false | *   | *            | *          | units | long_name | long_name |
-SDS  | FparStdDev_1km | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | LaiStdDev_1km  | false | lin | scale_factor | add_offset | units | long_name | long_name |
+# 1  | 2              | 3     | 4   | 5            | 6          | 7     | 8         | 9
+#----+----------------+-------+-----+--------------+------------+-------+-----------+-----------
+SDS  | Fpar_1km       | false | lin | scale_factor | add_offset | units | long_name | long_name
+SDS  | Lai_1km        | false | lin | scale_factor | add_offset | units | long_name | long_name
+SDS  | FparLai_QC     | false | *   | *            | *          | units | long_name | long_name
+SDS  | FparExtra_QC   | false | *   | *            | *          | units | long_name | long_name
+SDS  | FparStdDev_1km | false | lin | scale_factor | add_offset | units | long_name | long_name
+SDS  | LaiStdDev_1km  | false | lin | scale_factor | add_offset | units | long_name | long_name

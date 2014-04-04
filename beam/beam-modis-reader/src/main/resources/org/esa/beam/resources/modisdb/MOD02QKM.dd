@@ -7,7 +7,7 @@ META | StructMeta   | StructMetadata.0
 #   1 - SDS - keyword
 #   2 - the name of the set of bands as they appear in the HDF file
 #   3 - whether the band is a spectral band or not (true or false)
-#   4 - the scaling method (lin, exp or '*' - no scaling)
+#   4 - the scaling method (lin, lin_inv, sli, exp, p10 or '*' - no scaling)
 #   5 - the name of the attribute containing the scaling factors - or '*' - no scaling
 #   6 - the name of the attribute containing the scaling offsets - or '*' - no scaling
 #   7 - the name of the attribute containing the physical unit
