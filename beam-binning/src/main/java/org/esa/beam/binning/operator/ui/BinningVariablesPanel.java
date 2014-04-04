@@ -35,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -64,12 +65,9 @@ class BinningVariablesPanel extends JPanel {
     BinningVariablesPanel(AppContext appContext, BinningFormModel binningFormModel) {
         this.appContext = appContext;
         this.binningFormModel = binningFormModel;
-        TableLayout layout = new TableLayout(1);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setTableWeightX(1.0);
-        setLayout(layout);
-        add(createBandsPanel());
-        add(createParametersPanel());
+        setLayout(new BorderLayout());
+        add(createBandsPanel(), BorderLayout.CENTER);
+        add(createParametersPanel(), BorderLayout.SOUTH);
     }
 
     private JPanel createBandsPanel() {
