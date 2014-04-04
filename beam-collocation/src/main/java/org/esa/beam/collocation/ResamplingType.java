@@ -20,8 +20,10 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 public enum ResamplingType {
     NEAREST_NEIGHBOUR(Resampling.NEAREST_NEIGHBOUR), 
     BILINEAR_INTERPOLATION(Resampling.BILINEAR_INTERPOLATION), 
-    CUBIC_CONVOLUTION(Resampling.CUBIC_CONVOLUTION);
-    
+    CUBIC_CONVOLUTION(Resampling.CUBIC_CONVOLUTION),
+    BISINC_CONVOLUTION(Resampling.BISINC_INTERPOLATION),
+    BICUBIC_CONVOLUTION(Resampling.BICUBIC_INTERPOLATION);
+
     private Resampling resampling;
     
     private ResamplingType(Resampling resampling) {

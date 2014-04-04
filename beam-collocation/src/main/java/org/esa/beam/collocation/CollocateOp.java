@@ -107,8 +107,7 @@ public class CollocateOp extends Operator {
 //               description = "If true, slave tie-point grids will become bands in the target product, otherwise they will be resampled to tiepoint grids again.")
 //    private boolean slaveTiePointGridsBecomeBands;
 
-    @Parameter(valueSet = {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION},
-               defaultValue = NEAREST_NEIGHBOUR,
+    @Parameter(defaultValue = NEAREST_NEIGHBOUR,
                description = "The method to be used when resampling the slave grid onto the master grid.")
     private ResamplingType resamplingType;
 
