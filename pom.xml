@@ -174,7 +174,6 @@
 		<module>nest-cli-bootstrap</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
-		<module>nest-developer-tools</module>
 		<module>nest-graph-builder</module>
 		<module>nest-help</module>
 		<module>nest-io</module>
