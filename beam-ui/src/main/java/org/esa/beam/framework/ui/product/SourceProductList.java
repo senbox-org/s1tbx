@@ -93,6 +93,7 @@ public class SourceProductList extends ComponentAdapter {
         this.lastOpenedFormat = "org.esa.beam.framework.ui.product.lastOpenedFormat";
         this.xAxis = true;
         listenersQueue = new ArrayList<>();
+        listModel = new InputListModel();
     }
 
     /**
@@ -119,7 +120,6 @@ public class SourceProductList extends ComponentAdapter {
      */
     private JComponent[] createComponents() {
         JPanel listPanel = new JPanel(new BorderLayout());
-        listModel = new InputListModel();
         for (ListDataListener listDataListener : listenersQueue) {
             listModel.addListDataListener(listDataListener);
         }
