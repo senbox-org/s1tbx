@@ -164,9 +164,9 @@ table.header {
 .header {
     font-size: 17;
     height: 29;
-    color: #003300;
+    color: #ffffff;
     vertical-align: middle;
-    background-color: #EEEFFF;
+    background-color: #993333;
     border-width: 0;
     padding: 0;
     white-space: nowrap;
@@ -177,5 +177,5 @@ hr {
     color: #000063;
     border-color: #000063;
     border-style: solid;
-    border-width: 0;
+    border-width: 1;
 }
