@@ -45,8 +45,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
@@ -90,9 +90,19 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
                                                            HELP_ID_JAVA_HELP);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
-        ChangeListener changeListener = new ChangeListener() {
+        ListDataListener changeListener = new ListDataListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
+            public void intervalAdded(ListDataEvent e) {
+                contentsChanged(e);
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                contentsChanged(e);
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
                 final Product[] sourceProducts = ioForm.getSourceProducts();
                 if (sourceProducts.length > 0) {
                     parametersForm.setActiveProduct(sourceProducts[0]);
@@ -113,7 +123,6 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
             }
         };
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer, changeListener);
-
         parametersForm = new PixelExtractionParametersForm(appContext, propertyContainer);
 
         final JPanel ioPanel = ioForm.getPanel();

@@ -30,12 +30,14 @@ import org.esa.beam.util.SystemUtils;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -58,7 +60,7 @@ class PixelExtractionIOForm {
     private final BindingContext context;
     private final SourceProductList sourceProductList;
 
-    PixelExtractionIOForm(final AppContext appContext, PropertyContainer container, ChangeListener changeListener) {
+    PixelExtractionIOForm(final AppContext appContext, PropertyContainer container, ListDataListener changeListener) {
         this.appContext = appContext;
         this.container = container;
         context = new BindingContext(container);
@@ -76,9 +78,14 @@ class PixelExtractionIOForm {
         tableLayout.setCellColspan(3, 1, 2);
         panel = new JPanel(tableLayout);
 
-        sourceProductList = new SourceProductList(appContext, container.getProperty("sourceProductPaths"),
-                                                  LAST_OPEN_INPUT_DIR, LAST_OPEN_FORMAT, changeListener);
-        JPanel[] components = sourceProductList.createComponents();
+        sourceProductList = new SourceProductList(appContext);
+        sourceProductList.setLastOpenedFormat(LAST_OPEN_FORMAT);
+        sourceProductList.setLastOpenInputDir(LAST_OPEN_INPUT_DIR);
+        sourceProductList.addChangeListener(changeListener);
+        sourceProductList.setXAxis(true);
+        context.bind("sourceProductPaths", sourceProductList);
+        JComponent[] components = sourceProductList.getComponents();
+
         panel.add(new JLabel("Source Paths:"));
         panel.add(components[0]);
         panel.add(components[1]);

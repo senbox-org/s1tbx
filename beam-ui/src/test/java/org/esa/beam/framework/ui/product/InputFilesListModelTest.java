@@ -42,7 +42,8 @@ public class InputFilesListModelTest {
     public void setUp() {
         property = Property.create("property", String[].class);
         property.setContainer(new PropertyContainer());
-        listModel = new InputListModel(property);
+        listModel = new InputListModel();
+        listModel.setProperty(property);
     }
 
 
