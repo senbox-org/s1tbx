@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,11 +24,11 @@ final class CubicConvolutionResampling implements Resampling {
     }
 
     public final Index createIndex() {
-        return new Index(4, 4);
+        return new Index(4, 1);
     }
 
-    public final void computeIndex(final float x,
-                                   final float y,
+    public final void computeIndex(final double x,
+                                   final double y,
                                    final int width,
                                    final int height,
                                    final Index index) {
@@ -40,118 +40,106 @@ final class CubicConvolutionResampling implements Resampling {
         final int i0 = (int) Math.floor(x);
         final int j0 = (int) Math.floor(y);
 
-        float di = x - (i0 + 0.5f);
-        float dj = y - (j0 + 0.5f);
-
         index.i0 = i0;
         index.j0 = j0;
+
+        final double di = x - (i0 + 0.5);
+        final double dj = y - (j0 + 0.5);
 
         final int iMax = width - 1;
         if (di >= 0) {
             index.i[0] = Index.crop(i0 - 1, iMax);
-            index.i[1] = Index.crop(i0 - 0, iMax);
+            index.i[1] = Index.crop(i0, iMax);
             index.i[2] = Index.crop(i0 + 1, iMax);
             index.i[3] = Index.crop(i0 + 2, iMax);
+            index.ki[0] = di;
         } else {
             index.i[0] = Index.crop(i0 - 2, iMax);
             index.i[1] = Index.crop(i0 - 1, iMax);
-            index.i[2] = Index.crop(i0 + 0, iMax);
+            index.i[2] = Index.crop(i0, iMax);
             index.i[3] = Index.crop(i0 + 1, iMax);
-            di += 1;
+            index.ki[0] = di + 1;
         }
 
         final int jMax = height - 1;
         if (dj >= 0) {
             index.j[0] = Index.crop(j0 - 1, jMax);
-            index.j[1] = Index.crop(j0 - 0, jMax);
+            index.j[1] = Index.crop(j0, jMax);
             index.j[2] = Index.crop(j0 + 1, jMax);
             index.j[3] = Index.crop(j0 + 2, jMax);
+            index.kj[0] = dj;
         } else {
             index.j[0] = Index.crop(j0 - 2, jMax);
             index.j[1] = Index.crop(j0 - 1, jMax);
-            index.j[2] = Index.crop(j0 + 0, jMax);
+            index.j[2] = Index.crop(j0, jMax);
             index.j[3] = Index.crop(j0 + 1, jMax);
-            dj += 1;
+            index.kj[0] = dj + 1;
+        }
+    }
+
+    public final double resample(final Raster raster,
+                                 final Index index) throws Exception {
+
+        final int[] x = new int[4];
+        final int[] y = new int[4];
+        final double[][] samples = new double[4][4];
+
+        for (int i = 0; i < 4; i++) {
+            x[i] = (int) index.i[i];
+            y[i] = (int) index.j[i];
+        }
+        if (!raster.getSamples(x, y, samples)) {
+            if (Double.isNaN(samples[1][1])) {
+                return samples[1][1];
+            }
+            double mean = 0.0;
+            int k = 0;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (!Double.isNaN(samples[i][j])) {
+                        mean += samples[i][j];
+                        k++;
+                    }
+                }
+            }
+            mean /= k;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (Double.isNaN(samples[i][j])) {
+                        samples[i][j] = mean;
+                    }
+                }
+            }
         }
 
-        index.ki[0] = f1(1 + di);
-        index.ki[1] = f2(di);
-        index.ki[2] = f2(1 - di);
-        index.ki[3] = f1(2 - di);
+        final double muX = index.ki[0];
+        final double muY = index.kj[0];
+        final double muX2 = muX * muX;
+        final double muX3 = muX2 * muX;
 
-        index.kj[0] = f1(1 + dj);
-        index.kj[1] = f2(dj);
-        index.kj[2] = f2(1 - dj);
-        index.kj[3] = f1(2 - dj);
+        final double c0 = 0.5 * (-muX + 2 * muX2 - muX3);
+        final double c1 = 0.5 * (2 - 5 * muX2 + 3 * muX3);
+        final double c2 = 0.5 * (muX + 4 * muX2 - 3 * muX3);
+        final double c3 = 0.5 * (-muX2 + muX3);
+        final double sum = c0 + c1 + c2 + c3;
 
+        final double tmpV0 = (c0 * samples[0][0] + c1 * samples[0][1] + c2 * samples[0][2] + c3 * samples[0][3]) / sum;
+        final double tmpV1 = (c0 * samples[1][0] + c1 * samples[1][1] + c2 * samples[1][2] + c3 * samples[1][3]) / sum;
+        final double tmpV2 = (c0 * samples[2][0] + c1 * samples[2][1] + c2 * samples[2][2] + c3 * samples[2][3]) / sum;
+        final double tmpV3 = (c0 * samples[3][0] + c1 * samples[3][1] + c2 * samples[3][2] + c3 * samples[3][3]) / sum;
+        return interpolationCubic(tmpV0, tmpV1, tmpV2, tmpV3, muY, muY * muY, muY * muY * muY);
     }
 
-    public final float resample(final Raster raster,
-                                final Index index) throws Exception {
+    private static double interpolationCubic(
+            final double y0, final double y1, final double y2, final double y3,
+            final double t, final double t2, final double t3) {
 
-        final int i1 = index.i[0];
-        final int i2 = index.i[1];
-        final int i3 = index.i[2];
-        final int i4 = index.i[3];
-
-        final int j1 = index.j[0];
-        final int j2 = index.j[1];
-        final int j3 = index.j[2];
-        final int j4 = index.j[3];
-
-        final float ki1 = index.ki[0];
-        final float ki2 = index.ki[1];
-        final float ki3 = index.ki[2];
-        final float ki4 = index.ki[3];
-
-        final float kj1 = index.kj[0];
-        final float kj2 = index.kj[1];
-        final float kj3 = index.kj[2];
-        final float kj4 = index.kj[3];
-
-        final float z11 = raster.getSample(i1, j1);
-        final float z12 = raster.getSample(i2, j1);
-        final float z13 = raster.getSample(i3, j1);
-        final float z14 = raster.getSample(i4, j1);
-
-        final float z21 = raster.getSample(i1, j2);
-        final float z22 = raster.getSample(i2, j2);
-        final float z23 = raster.getSample(i3, j2);
-        final float z24 = raster.getSample(i4, j2);
-
-        final float z31 = raster.getSample(i1, j3);
-        final float z32 = raster.getSample(i2, j3);
-        final float z33 = raster.getSample(i3, j3);
-        final float z34 = raster.getSample(i4, j3);
-
-        final float z41 = raster.getSample(i1, j4);
-        final float z42 = raster.getSample(i2, j4);
-        final float z43 = raster.getSample(i3, j4);
-        final float z44 = raster.getSample(i4, j4);
-
-        if (Float.isNaN(z11) || Float.isNaN(z12) || Float.isNaN(z13) || Float.isNaN(z14) ||
-            Float.isNaN(z21) || Float.isNaN(z22) || Float.isNaN(z23) || Float.isNaN(z24) ||
-            Float.isNaN(z31) || Float.isNaN(z32) || Float.isNaN(z33) || Float.isNaN(z34) ||
-            Float.isNaN(z41) || Float.isNaN(z42) || Float.isNaN(z43) || Float.isNaN(z44)) {
-            return raster.getSample(index.i0, index.j0);
-        }
-
-        // interpolate along 4 lines first
-        final float z1 = z11 * ki1 + z12 * ki2 + z13 * ki3 + z14 * ki4;
-        final float z2 = z21 * ki1 + z22 * ki2 + z23 * ki3 + z24 * ki4;
-        final float z3 = z31 * ki1 + z32 * ki2 + z33 * ki3 + z34 * ki4;
-        final float z4 = z41 * ki1 + z42 * ki2 + z43 * ki3 + z44 * ki4;
-
-        // then along a single column
-        return z1 * kj1 + z2 * kj2 + z3 * kj3 + z4 * kj4;
-    }
-
-    private static float f1(final float t) {
-        return 4f - 8f * (t) + 5f * (t * t) - (t * t * t);
-    }
-
-    private static float f2(final float t) {
-        return 1f - 2f * (t * t) + (t * t * t);
+        final double c0 = 0.5 * (-t + 2 * t2 - t3);
+        final double c1 = 0.5 * (2 - 5 * t2 + 3 * t3);
+        final double c2 = 0.5 * (t + 4 * t2 - 3 * t3);
+        final double c3 = 0.5 * (-t2 + t3);
+        final double sum = c0 + c1 + c2 + c3;
+        return (c0 * y0 + c1 * y1 + c2 * y2 + c3 * y3) / sum;
     }
 
     @Override

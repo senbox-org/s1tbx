@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,11 +17,10 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
-
 /**
  * This class implements the Nearest Neighbour resampling method.
+ *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision$ $Date$
  */
 final class NearestNeighbourResampling implements Resampling {
 
@@ -33,8 +32,8 @@ final class NearestNeighbourResampling implements Resampling {
         return new Index(0, 0);
     }
 
-    public final void computeIndex(final float x,
-                                   final float y,
+    public final void computeIndex(final double x,
+                                   final double y,
                                    int width, int height, final Index index) {
         index.x = x;
         index.y = y;
@@ -43,11 +42,18 @@ final class NearestNeighbourResampling implements Resampling {
 
         index.i0 = Index.crop((int) Math.floor(x), width - 1);
         index.j0 = Index.crop((int) Math.floor(y), height - 1);
+
     }
 
-    public final float resample(final Raster raster,
-                                final Index index) throws Exception {
-        return raster.getSample(index.i0, index.j0);
+    public final double resample(final Raster raster,
+                                 final Index index) throws Exception {
+
+        final int[] x = {(int) index.i0};
+        final int[] y = {(int) index.j0};
+        final double[][] samples = new double[1][1];
+        raster.getSamples(x, y, samples);
+
+        return samples[0][0];
     }
 
     @Override

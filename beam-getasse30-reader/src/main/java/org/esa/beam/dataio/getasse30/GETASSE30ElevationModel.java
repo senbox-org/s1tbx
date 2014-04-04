@@ -68,7 +68,7 @@ public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raste
     public float getElevation(GeoPos geoPos) throws Exception {
         float pixelX = (geoPos.lon + 180.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5
         float pixelY = RASTER_HEIGHT - (geoPos.lat + 90.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5, y = (90 - lon) / DEGREE_RES * NUM_PIXELS_PER_TILE;
-        final float elevation;
+        final double elevation;
         synchronized (resampling) {
             resampling.computeIndex(pixelX, pixelY,
                                      RASTER_WIDTH,
@@ -76,10 +76,10 @@ public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raste
                                      resamplingIndex);
             elevation = resampling.resample(resamplingRaster, resamplingIndex);
         }
-        if (Float.isNaN(elevation)) {
+        if (Double.isNaN(elevation)) {
             return descriptor.getNoDataValue();
         }
-        return elevation;
+        return (float)elevation;
     }
 
     @Override
@@ -108,17 +108,30 @@ public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raste
     }
 
     @Override
-    public float getSample(int pixelX, int pixelY) throws IOException {
-        final int tileXIndex = pixelX / NUM_PIXELS_PER_TILE;
-        final int tileYIndex = pixelY / NUM_PIXELS_PER_TILE;
-        final GETASSE30ElevationTile tile = getElevationTile(tileXIndex, tileYIndex);
-        final int tileX = pixelX - tileXIndex * NUM_PIXELS_PER_TILE;
-        final int tileY = pixelY - tileYIndex * NUM_PIXELS_PER_TILE;
-        final float sample = tile.getSample(tileX, tileY);
-        if (sample == descriptor.getNoDataValue()) {
-            return Float.NaN;
+    public final boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+        boolean allValid = true;
+        for (int i = 0; i < y.length; i++) {
+            final int tileYIndex = y[i] / NUM_PIXELS_PER_TILE;
+            final int pixelY = y[i] - tileYIndex * NUM_PIXELS_PER_TILE;
+
+            for (int j = 0; j < x.length; j++) {
+                final int tileXIndex = x[j] / NUM_PIXELS_PER_TILE;
+
+                final GETASSE30ElevationTile tile = getElevationTile(tileXIndex, tileYIndex);
+                if (tile == null) {
+                    samples[i][j] = Double.NaN;
+                    allValid = false;
+                    continue;
+                }
+
+                samples[i][j] = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
+                if(samples[i][j] == NO_DATA_VALUE) {
+                    samples[i][j] = Double.NaN;
+                    allValid = false;
+                }
+            }
         }
-        return sample;
+        return allValid;
     }
 
     private GETASSE30ElevationTile[][] createElevationTiles() throws IOException {
