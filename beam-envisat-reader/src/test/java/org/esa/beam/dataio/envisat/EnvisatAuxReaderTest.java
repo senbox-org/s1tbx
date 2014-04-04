@@ -16,80 +16,71 @@
 
 package org.esa.beam.dataio.envisat;
 
+import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.security.ProtectionDomain;
-
-import static org.junit.Assert.*;
 
 /**
  * EnvisatAuxReader Tester.
  *
  * @author lveci
  */
-public class EnvisatAuxReaderTest {
+public class EnvisatAuxReaderTest extends TestCase {
 
-    private final static String ERS_1XCA_FILE_NAME = "ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.txt";
-    private final static String ERS_2XCA_FILE_NAME = "ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.txt";
-    private final static String ENVISAT_XCA_FILE_NAME = "ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000";
-    private final static String ENVISAT_XCA_ZIP_FILE_NAME = "ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.zip";
-    private final static String ENVISAT_XCA_ZIP_FILE_NAME_2 = "ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000_2";
-    private final static String ENVISAT_XCAGZ_FILE_NAME = "ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.gz";
-    private static String basePath;
+    String ers1XCAFilePath = "org/esa/beam/resources/testdata/ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.txt";
+    String ers2XCAFilePath = "org/esa/beam/resources/testdata/ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.txt";
+    String envisatXCAFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000";
+    String envisatXCAZipFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.zip";
+    String envisatXCAZipFilePath2 = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000_2";
+    String envisatXCAGZFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.gz";
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        ProtectionDomain protectionDomain = EnvisatAuxReader.class.getProtectionDomain();
-        URL codeLocationURL = protectionDomain.getCodeSource().getLocation();
-        File codeLocationFile = new File(codeLocationURL.toURI());
-        basePath = codeLocationFile.getAbsolutePath() + "/org/esa/beam/resources/testdata/";
+    public EnvisatAuxReaderTest(String name) {
+        super(name);
     }
 
-    @Test
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
     public void testAutoLookupZIP() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
-        reader.readProduct(basePath + ENVISAT_XCA_ZIP_FILE_NAME_2);
+        reader.readProduct(envisatXCAZipFilePath2);
         testAuxDataFromGADS(reader);
     }
 
-    @Test
     public void testUncompressed() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
-        reader.readProduct(basePath + ENVISAT_XCA_FILE_NAME);
+        reader.readProduct(envisatXCAFilePath);
         testAuxDataFromGADS(reader);
     }
 
-    // Both test fail with
-    // IllegalFileFormatException: no valid global annotation datasets found in this ASAR product
-//    @Test
-//    public void testERS1() throws IOException {
-//        EnvisatAuxReader reader = new EnvisatAuxReader();
-//        reader.readProduct(basePath + ERS_1XCA_FILE_NAME);
-//    }
-//
-//    @Test
-//    public void testERS2() throws IOException {
-//        EnvisatAuxReader reader = new EnvisatAuxReader();
-//        reader.readProduct(basePath + ERS_2XCA_FILE_NAME);
-//    }
+    public void testERS1() throws IOException {
+        EnvisatAuxReader reader = new EnvisatAuxReader();
+        reader.readProduct(ers1XCAFilePath);
+    }
 
-    @Test
+    public void testERS2() throws IOException {
+        EnvisatAuxReader reader = new EnvisatAuxReader();
+        reader.readProduct(ers2XCAFilePath);
+    }
+
     public void testGZIP() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
-        reader.readProduct(basePath + ENVISAT_XCAGZ_FILE_NAME);
+        reader.readProduct(envisatXCAGZFilePath);
         testAuxDataFromGADS(reader);
     }
 
-    @Test
     public void testZIP() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
-        reader.readProduct(basePath + ENVISAT_XCA_ZIP_FILE_NAME);
+        reader.readProduct(envisatXCAZipFilePath);
         testAuxDataFromGADS(reader);
     }
 
