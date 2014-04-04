@@ -15,14 +15,17 @@
  */
 package org.esa.beam.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-public class VersionCheckerTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class VersionCheckerTest {
 
 
+    @Test
     public void testLocalVersion() throws IOException {
         VersionChecker vc = new VersionChecker();
         assertNotNull(vc.getRemoteVersionUrlString());
@@ -35,6 +38,7 @@ public class VersionCheckerTest extends TestCase {
         }
     }
 
+    @Test
     public void testRemoteVersion() throws IOException {
         VersionChecker vc = new VersionChecker(new File("./VERSION.txt"),
                                                getClass().getResource("version.txt").toExternalForm());
@@ -43,6 +47,19 @@ public class VersionCheckerTest extends TestCase {
         assertEquals("VERSION 4.9.12", vc.getRemoteVersion());
     }
 
+    @Test
+    public void testSettingLocalVersion() throws IOException {
+        VersionChecker vc = new VersionChecker(new File("./VERSION.txt"),
+                                               getClass().getResource("version.txt").toExternalForm());
+        vc.setLocalVersion("VERSION 4.8");
+        assertNotNull(vc.getRemoteVersionUrlString());
+        assertNotNull(vc.getLocalVersionFile());
+        assertNotNull(vc.getLocalVersion());
+        assertEquals("VERSION 4.8", vc.getLocalVersion());
+        assertEquals("VERSION 4.9.12", vc.getRemoteVersion());
+    }
+
+    @Test
     public void testCompare() {
         assertTrue(VersionChecker.compareVersions("VERSION 4.7", "VERSION 4.7") == 0);
         assertTrue(VersionChecker.compareVersions("VERSION 4.7", "VERSION 3.7") > 0);
