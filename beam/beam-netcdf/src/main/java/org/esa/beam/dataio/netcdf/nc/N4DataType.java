@@ -27,6 +27,8 @@ public class N4DataType {
     static DataType convert(int nhType) {
         if (nhType == NhVariable.TP_SBYTE) {
             return DataType.BYTE;
+        } else if (nhType == NhVariable.TP_UBYTE) {
+            return DataType.BYTE;
         } else if (nhType == NhVariable.TP_SHORT) {
             return DataType.SHORT;
         } else if (nhType == NhVariable.TP_INT) {

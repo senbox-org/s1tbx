@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A wrapper around the netCDF 3 {@link ucar.nc2.NetcdfFileWriteable}.
+ * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhFileWriter}.
  *
  * @author MarcoZ
  */
@@ -66,8 +66,9 @@ public class N4FileWriteable implements NFileWriteable {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         NhDimension[] dimensions = rootGroup.getDimensions();
         StringBuilder out = new StringBuilder();
-        for (NhDimension dim : dimensions)
+        for (NhDimension dim : dimensions) {
             out.append(dim.getName()).append(" ");
+        }
         return out.toString();
     }
 
@@ -86,7 +87,7 @@ public class N4FileWriteable implements NFileWriteable {
         boolean unsigned = false; // TODO
         int nhType = N4DataType.convert(dataType, unsigned);
         try {
-            NhVariable variable = rootGroup.addVariable(name, nhType, new NhDimension[0], new int[0], null, 0);
+            NhVariable variable = rootGroup.addVariable(name, nhType, new NhDimension[0], null, null, 0);
             NVariable nVariable = new N4Variable(variable, null);
             variables.put(name, nVariable);
             return nVariable;
@@ -96,9 +97,14 @@ public class N4FileWriteable implements NFileWriteable {
     }
 
     @Override
-    public NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dimensions) throws IOException {
+    public NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dims) throws IOException {
+        return addVariable(name, dataType, false, tileSize, dims);
+    }
+
+    @Override
+    public NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dimensions) throws
+            IOException {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
-        boolean unsigned = false; // TODO
         int nhType = N4DataType.convert(dataType, unsigned);
         String[] dims = dimensions.split(" ");
         NhDimension[] nhDims = new NhDimension[dims.length];
@@ -109,6 +115,19 @@ public class N4FileWriteable implements NFileWriteable {
         if (tileSize != null) {
             chunkLens[0] = tileSize.height;
             chunkLens[1] = tileSize.width;
+            // compute tile size so that number of tiles is considerably smaller than Short.MAX_VALUE
+            int imageWidth = nhDims[1].getLength();
+            int imageHeight = nhDims[0].getLength();
+            long imageSize = (long)imageHeight * imageWidth;
+            for (int scalingFactor = 2; imageSize / (chunkLens[0] * chunkLens[1]) > Short.MAX_VALUE / 2; scalingFactor *= 2) {
+                chunkLens[0] = tileSize.height * scalingFactor;
+                chunkLens[1] = tileSize.width * scalingFactor;
+            }
+
+            // ensure that chunklens <= scene width/height
+            chunkLens[1] = Math.min(chunkLens[1], imageWidth);
+            chunkLens[0] = Math.min(chunkLens[0], imageHeight);
+            tileSize = new Dimension(chunkLens[1], chunkLens[0]);
         } else {
             for (int i = 0; i < dims.length; i++) {
                 chunkLens[i] = nhDims[i].getLength();
@@ -117,7 +136,8 @@ public class N4FileWriteable implements NFileWriteable {
 
         Object fillValue = null; // TODO
         try {
-            NhVariable variable = rootGroup.addVariable(name, nhType, nhDims, chunkLens, fillValue, DEFAULT_COMPRESSION);
+            NhVariable variable = rootGroup.addVariable(name, nhType, nhDims, chunkLens, fillValue,
+                                                        DEFAULT_COMPRESSION);
             NVariable nVariable = new N4Variable(variable, tileSize);
             variables.put(name, nVariable);
             return nVariable;

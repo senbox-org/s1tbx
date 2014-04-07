@@ -23,26 +23,9 @@
     <name>BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
-    <artifactId>beam</artifactId>
-    <version>5.0-4.10.4</version>
+    <artifactId>beam-parent</artifactId>
+    <version>1</version>
     <packaging>pom</packaging>
-
-    <properties>
-        <!--
-           In version 3.0 of Maven the sourceEncoding property will be embedded in the
-           build tag. For now the convention is to that it as property.
-           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
-           -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <beam.version>5.0-4.10.4</beam.version>
-        <ceres.version>0.14-SNAPSHOT</ceres.version>
-        <geotools.version>9.0-M0</geotools.version>
-        <jide.version>3.5.3</jide.version>
-        <hdf.version>2.7</hdf.version>
-        <netcdf.version>4.2.20</netcdf.version>
-	<outputdir>../../output</outputdir>
-    </properties>
 
 	<prerequisites>
        <maven>3.0.1</maven>
@@ -68,8 +51,22 @@
         </license>
     </licenses>
 
+    <modules>
+        <module>beam-system</module>
+        <module>beam-plugins</module>
+        <module>beam-plugin-parent</module>
+    </modules>
+
+    <properties>
+        <!--This property needs to be set here and not in the one of the other parent poms, because it is used for
+        filtering the gpt scripts during the assembly phase. -->
+        <hdf.version>2.7</hdf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<outputdir>../../output</outputdir>
+    </properties>
+
     <repositories>
-        <!--repository>
+        <repository>
             <id>bc-mvn</id>
             <name>Public Maven Repository at Brockmann Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
@@ -79,8 +76,9 @@
             </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </repository-->
+        </repository>
 		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
@@ -98,14 +96,14 @@
             <url>http://download.java.net/maven/2</url>
         </repository>
         <repository>
+            <id>maven-repository.unidata.ucar.edu</id>
+            <name>Unidata Repository</name>
+            <url>http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
+        </repository>
+        <repository>
             <id>osgeo</id>
             <name>Open Source Geospatial Foundation Repository</name>
             <url>http://download.osgeo.org/webdav/geotools/</url>
-        </repository>
-        <repository>
-			<id>opengeo</id>
-			<name>GeoTools Maven Repository</name>
-			<url>http://repo.opengeo.org/</url>
         </repository>
     </repositories>
 
@@ -162,559 +160,6 @@
         </snapshotRepository>
     </distributionManagement>
 
-
-    <modules>
-		<module>ceres-0.x</module>
-		
-        <module>beam-core</module>
-        <module>beam-ui</module>
-
-        <module>beam-visat-rcp</module>
-        <module>beam-visat</module>
-        <module>beam-gpf</module>
-
-        <module>beam-scripting</module>
-
-        <module>beam-cluster-analysis</module>
-
-        <module>beam-alos-reader</module>
-        <module>beam-netcdf</module>
-
-        <module>beam-envisat-reader</module>
-        <module>beam-modis-reader</module>
-
-        <module>beam-landsat-reader</module>
-        <module>beam-geotiff</module>
-        <module>beam-hdf5-writer</module>
-
-        <module>beam-csv-dataio</module>
-
-        <module>lib-hdf</module>
-        <module>blue-marble-worldmap</module>
-
-		<module>beam-nest-common</module>
-		<module>beam-arcbingrid-reader</module>
-        <module>beam-envi-reader</module>
-		
-    </modules>
-
-    <dependencyManagement>
-        <dependencies>
-
-            <!-- Ceres System Level Module ############################################# -->
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-core</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binding</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-ui</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binio</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-jai</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-			
-			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-metadata</artifactId>
-                <version>${ceres.version}</version>
-            </dependency>
-
-            <!-- BEAM System Level Modules ############################################# -->
-
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-core</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-gpf</artifactId>
-                <version>5.0.1-4.10.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-ui</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-csv-dataio</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-visat-rcp</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-visat</artifactId>
-                <version>${beam.version}</version>
-            </dependency>
-
-            <!-- BEAM Modules ############################################# -->
-
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-envisat-reader</artifactId>
-                <version>1.5.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-netcdf</artifactId>
-                <version>5.0-1.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-geotiff</artifactId>
-                <version>5.0-1.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>ncsa.hdf</groupId>
-                <artifactId>lib-hdf</artifactId>
-                <version>${hdf.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>netcdf</artifactId>
-                <version>${netcdf.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-api</artifactId>
-					</exclusion>
-				</exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>nujan</artifactId>
-                <version>1.4.1.1</version>
-            </dependency>
-
-			<dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-core</artifactId>
-                <version>6.0-SNAPSHOT</version>
-            </dependency>
-			
-            <!-- GeoTools Libraries ############################################# -->
-            <!-- Sadly there is no global exclusion so every geotools artifact -->
-            <!-- has to exclude the 'wrong' jai version -->
-
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-api</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.vividsolutions</groupId>
-                        <artifactId>jts</artifactId>
-                    </exclusion>
-					<exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-referencing</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-main</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.vividsolutions</groupId>
-                        <artifactId>jts</artifactId>
-                    </exclusion>
-					<!--exclusion>
-                        <groupId>jdom</groupId>
-                        <artifactId>jdom</artifactId>
-                    </exclusion-->
-					<exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-epsg-hsql</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-wms</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-shapefile</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <!--exclusion>
-                        <groupId>jdom</groupId>
-                        <artifactId>jdom</artifactId>
-                    </exclusion-->
-					<exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-render</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-cql</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-geotiff</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-					<exclusion>
-                        <groupId>com.vividsolutions</groupId>
-                        <artifactId>jts</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_imageio</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-			<dependency>
-				<groupId>com.vividsolutions</groupId>
-                <artifactId>jts</artifactId>
-                <version>1.13</version>
-			</dependency>
-			
-            <!-- JAI Libraries ############################################# -->
-
-            <dependency>
-                <groupId>javax.media.jai</groupId>
-                <artifactId>jai-core</artifactId>
-                <version>1.1.3</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.media.jai</groupId>
-                <artifactId>jai-codec</artifactId>
-                <version>1.1.3</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.media.jai</groupId>
-                <artifactId>mlibwrapper-jai</artifactId>
-                <version>1.1.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.media</groupId>
-                <artifactId>jai-imageio</artifactId>
-                <version>1.2-20090918</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.media</groupId>
-                <artifactId>clibwrapper-jiio</artifactId>
-                <version>1.2-20090918</version>
-            </dependency>
-
-            <!-- Java Help Library ############################################# -->
-
-            <dependency>
-                <groupId>javax.help</groupId>
-                <artifactId>javahelp</artifactId>
-                <version>2.0.05</version>
-            </dependency>
-
-            <!-- JDOM Library ############################################# -->
-
-			 <dependency>
-                <groupId>org.jdom</groupId>
-                <artifactId>jdom</artifactId>
-                <version>1.1</version>
-            </dependency>
-			
-            <dependency>
-                <groupId>org.jdom</groupId>
-                <artifactId>jdom2</artifactId>
-                <version>2.0.4</version>
-            </dependency>
-
-            <!-- BC Neural Network Library ############################################# -->
-
-            <dependency>
-                <groupId>com.bc.jnn</groupId>
-                <artifactId>jnn</artifactId>
-                <version>1.6</version>
-            </dependency>
-
-            <!-- Jama Matrix Algebra Library ############################################# -->
-
-            <dependency>
-                <groupId>Jama</groupId>
-                <artifactId>Jama</artifactId>
-                <version>1.0.3</version>
-            </dependency>
-
-
-            <!-- Test Libraries ############################################# -->
-
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.11</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.9.5</version>
-                <scope>test</scope>
-            </dependency>
-
-            <!-- JIDE Swing Libraries ############################################# -->
-
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-dock</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-action</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-grids</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-components</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-common</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-
-            <!-- XStream Libraries ############################################# -->
-
-            <dependency>
-                <groupId>com.thoughtworks.xstream</groupId>
-                <artifactId>xstream</artifactId>
-                <version>1.4.4</version>
-            </dependency>
-            <dependency>
-                <groupId>xpp3</groupId>
-                <artifactId>xpp3</artifactId>
-                <version>1.1.4c</version>
-            </dependency>
-
-            <!-- JFreeChart Libraries ############################################# -->
-
-            <dependency>
-                <groupId>jfree</groupId>
-                <artifactId>jfreechart</artifactId>
-                <version>1.0.14</version>
-            </dependency>
-            <dependency>
-                <groupId>jfree</groupId>
-                <artifactId>jcommon</artifactId>
-                <version>1.0.17</version>
-            </dependency>
-
-            <!-- Python scripting support ######################################## -->
-
-            <dependency>
-                <groupId>org.jython</groupId>
-                <artifactId>jython</artifactId>
-                <version>2.5.2</version>
-            </dependency>
-
-            <!-- TAR archive support ########################################  -->
-            <dependency>
-                <groupId>org.xeustechnologies</groupId>
-                <artifactId>jtar</artifactId>
-                <version>1.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-math3</artifactId>
-                <version>3.2</version>
-            </dependency>
-            
-        </dependencies>
-    </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-    </dependencies>
-
-
     <build>
         <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
 
@@ -731,11 +176,20 @@
                         <debug>true</debug>
 						<optimize>true</optimize>
                         <encoding>UTF-8</encoding>
+                        <excludes>
+                            <exclude>.gitignore</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
 
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
 
@@ -775,23 +229,22 @@
                     <configuration>
                         <!-- TODO
                              If enabled some assertions in GeoTools fail.
-                             Disabling helps to have a successfull build.
+                             Disabling helps to have a successful build.
                              But it might indicate some problem.
                         -->
                         <enableAssertions>false</enableAssertions>
-                        <skip>true</skip>
+                        <!--<skip>true</skip>-->
                         <printSummary>true</printSummary>
                         <useFile>false</useFile>
                         <includes>
                             <include>**/*Test.java</include>
+                            <include>**/*Test*.java</include>
+                            <include>**/*TestCase.java</include>
                         </includes>
-                        <systemProperties>
-                            <property>
-                                <name>org.esa.beam.testdata.out</name>
-                                <value>target/test-data</value>
-                            </property>
-                        </systemProperties>
-                        <argLine>-Xmx512M -enableassertions</argLine>
+                        <systemPropertyVariables>
+                            <org.esa.beam.testdata.out>target/test-data</org.esa.beam.testdata.out>
+                        </systemPropertyVariables>
+                        <argLine>-Xmx1024M -Dfile.encoding=UTF-8</argLine>
                     </configuration>
                 </plugin>
 
@@ -800,7 +253,7 @@
                     <version>2.9.1</version>
                     <configuration>
                         <links>
-                            <link>http://java.sun.com/javase/6/docs/api/</link>
+                            <link>http://java.sun.com/javase/7/docs/api/</link>
                         </links>
                         <aggregate>true</aggregate>
                         <subpackages>
@@ -811,6 +264,14 @@
                         </excludePackageNames>
                         <maxmemory>256m</maxmemory>
                         <quiet>false</quiet>
+                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
+                        <doctitle>
+                            ${project.name} ${beam.api.version} API
+                        </doctitle>
+                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
+                        <windowtitle>
+                            ${project.name} ${beam.api.version} API
+                        </windowtitle>
                     </configuration>
                 </plugin>
 

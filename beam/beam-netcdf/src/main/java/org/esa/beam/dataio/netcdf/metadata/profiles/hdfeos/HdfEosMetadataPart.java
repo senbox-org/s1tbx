@@ -17,15 +17,15 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -58,7 +58,7 @@ public class HdfEosMetadataPart extends ProfilePartIO {
         Iterator<Variable> variableIterator = ncVariables.iterator();
         while (variableIterator.hasNext()) {
             Variable variable = variableIterator.next();
-            String varName = variable.getName();
+            String varName = variable.getFullName();
             if (varName.startsWith(HdfEosUtils.STRUCT_METADATA) ||
                     varName.startsWith(HdfEosUtils.CORE_METADATA) ||
                     varName.startsWith(HdfEosUtils.ARCHIVE_METADATA)) {

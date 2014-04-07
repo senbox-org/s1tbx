@@ -66,7 +66,7 @@ public class BeamMaskPart extends ProfilePartIO {
 
     private static void readMasks(ProfileReadContext ctx, Product p) throws ProductIOException {
         for (Variable variable : ctx.getNetcdfFile().getVariables()) {
-            if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
+            if (variable.getRank() != 0 || !variable.getFullName().endsWith(SUFFIX_MASK)) {
                 continue;
             }
             final Attribute expressionAttribute = variable.findAttribute(EXPRESSION);
@@ -78,7 +78,7 @@ public class BeamMaskPart extends ProfilePartIO {
             if (nameAttribute != null) {
                 maskName = nameAttribute.getStringValue();
             } else {
-                String variableName = variable.getName();
+                String variableName = variable.getFullName();
                 maskName = variableName.substring(0, variableName.lastIndexOf(SUFFIX_MASK));
             }
             final Mask mask = new Mask(maskName, p.getSceneRasterWidth(), p.getSceneRasterHeight(),
@@ -92,7 +92,7 @@ public class BeamMaskPart extends ProfilePartIO {
 
             final Attribute colorAttribute = variable.findAttribute(COLOR);
             if (colorAttribute != null && colorAttribute.getLength() >= 3
-                && colorAttribute.getLength() <= 4) {
+                    && colorAttribute.getLength() <= 4) {
                 mask.setImageColor(createColor(colorAttribute));
             }
 
@@ -188,7 +188,9 @@ public class BeamMaskPart extends ProfilePartIO {
                 }
                 String variableName = ReaderUtils.getVariableName(band);
                 final NVariable variable = ncFile.findVariable(variableName);
-                variable.addAttribute(MASK_OVERLAYS, overlayNames.toString().trim());
+                if (variable != null) {
+                    variable.addAttribute(MASK_OVERLAYS, overlayNames.toString().trim());
+                }
             }
         }
     }

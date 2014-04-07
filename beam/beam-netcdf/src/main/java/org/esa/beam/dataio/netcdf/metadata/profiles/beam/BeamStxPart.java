@@ -20,7 +20,11 @@ import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -86,13 +90,15 @@ public class BeamStxPart extends ProfilePartIO {
                 String variableName = ReaderUtils.getVariableName(band);
                 final Stx stx = band.getStx();
                 final NVariable variable = ctx.getNetcdfFileWriteable().findVariable(variableName);
-                final double[] statistics = new double[4];
-                statistics[INDEX_SCALED_MIN] = stx.getMinimum();
-                statistics[INDEX_SCALED_MAX] = stx.getMaximum();
-                statistics[INDEX_MEAN] = stx.getMean();
-                statistics[INDEX_STANDARD_DEVIATION] = stx.getStandardDeviation();
-                variable.addAttribute(STATISTICS, Array.factory(statistics));
-                variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins()));
+                if (variable != null) {
+                    final double[] statistics = new double[4];
+                    statistics[INDEX_SCALED_MIN] = stx.getMinimum();
+                    statistics[INDEX_SCALED_MAX] = stx.getMaximum();
+                    statistics[INDEX_MEAN] = stx.getMean();
+                    statistics[INDEX_STANDARD_DEVIATION] = stx.getStandardDeviation();
+                    variable.addAttribute(STATISTICS, Array.factory(statistics));
+                    variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins()));
+                }
             }
         }
     }

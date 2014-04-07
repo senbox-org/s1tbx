@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
- *
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,24 +9,26 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf;
+package org.esa.beam.dataio.netcdf.util;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter;
-import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Product;
+import org.junit.Test;
+import ucar.nc2.Attribute;
 
-public class NullProfilePartWriter implements ProfilePartWriter {
-    @Override
-    public void preEncode(ProfileWriteContext ctx, Product p) throws ProductIOException {
+import static org.junit.Assert.*;
+
+/**
+ * @author Thomas Storm
+ */
+public class TimeUtilsTest {
+
+    @Test
+    public void testGetDateTimeString() throws Exception {
+        String dateTimeString = TimeUtils.getDateTimeString(new Attribute("start_date", "2010-01-31"), new Attribute("start_time", "10:00:22"));
+        assertEquals("2010-01-31 10:00:22", dateTimeString);
     }
-
-    @Override
-    public void encode(ProfileWriteContext ctx, Product p) throws ProductIOException {
-    }
-
 }

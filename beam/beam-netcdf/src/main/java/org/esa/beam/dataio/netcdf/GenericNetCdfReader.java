@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -32,7 +33,7 @@ import java.io.IOException;
  * A generic product reader for NetCDF files. Trying to find the best matching metadata profile
  * for the given input.
  */
-class GenericNetCdfReader extends AbstractProductReader {
+public class GenericNetCdfReader extends AbstractProductReader {
 
     private NetcdfFile netcdfFile;
     private ProductReader netCdfReader;
@@ -53,7 +54,10 @@ class GenericNetCdfReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
 
         final File fileLocation = new File(getInput().toString());
-        netcdfFile = NetcdfFile.open(fileLocation.getPath());
+        netcdfFile = NetcdfFileOpener.open(fileLocation.getPath());
+        if (netcdfFile == null) {
+            throw new IOException("Failed to open file " + fileLocation.getPath());
+        }
         AbstractNetCdfReaderPlugIn[] plugIns = GenericNetCdfReaderPlugIn.getAllNetCdfReaderPlugIns();
         AbstractNetCdfReaderPlugIn bestPlugIn = null;
         for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {

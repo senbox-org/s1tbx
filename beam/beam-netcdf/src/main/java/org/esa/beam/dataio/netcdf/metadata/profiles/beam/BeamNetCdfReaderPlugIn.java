@@ -45,7 +45,7 @@ public class BeamNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
 
     @Override
     public String[] getFormatNames() {
-        return new String[]{"NetCDF-BEAM"/*, "NetCDF4-BEAM"*/};
+        return new String[]{"NetCDF-BEAM", "NetCDF4-BEAM"};
     }
 
     @Override

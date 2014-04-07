@@ -34,13 +34,13 @@ public class Nc4ReaderUtils_getVariablesTest {
     public void before() throws Exception {
         variables = new ArrayList<Variable>();
         final Variable v1 = mock(Variable.class);
-        when(v1.getName()).thenReturn("wasweißich");
+        when(v1.getFullName()).thenReturn("wasweißich");
         variables.add(v1);
         final Variable v2 = mock(Variable.class);
-        when(v2.getName()).thenReturn("ade");
+        when(v2.getFullName()).thenReturn("ade");
         variables.add(v2);
         final Variable v3 = mock(Variable.class);
-        when(v3.getName()).thenReturn("welcome");
+        when(v3.getFullName()).thenReturn("welcome");
         variables.add(v3);
     }
 

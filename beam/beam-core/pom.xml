@@ -23,14 +23,14 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
-        <version>5.0-4.10.4</version>
+        <artifactId>beam-system</artifactId>
+        <version>5.0-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Core API</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-core</artifactId>
-    <version>5.0-4.10.4</version>
 
     <packaging>jar</packaging>
     <dependencies>
@@ -84,6 +84,10 @@
             <artifactId>Jama</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-api</artifactId>
         </dependency>
@@ -122,11 +126,8 @@
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
+			 <version>1.13</version>
 		</dependency>
-		<dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

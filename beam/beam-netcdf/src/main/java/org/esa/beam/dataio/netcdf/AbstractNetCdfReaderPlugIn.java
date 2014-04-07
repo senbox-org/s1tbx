@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartReader;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -32,7 +33,6 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     ///////////////////////////////////////////////
     // ProductReaderPlugIn related methods
-    final static String[] NETCDF_FORMAT_FILE_EXTENSIONS = { "nc", "nc3", "hdf", "h5", "h4", "h5eos" };
 
     @Override
     public final Class[] getInputTypes() {
@@ -43,20 +43,25 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
     public final DecodeQualification getDecodeQualification(Object input) {
         NetcdfFile netcdfFile = null;
         try {
-            final String name = input.toString().toLowerCase();
-            boolean extOK = false;
-            for(String ext : NETCDF_FORMAT_FILE_EXTENSIONS) {
-                if(name.endsWith(ext)) {
-                    extOK = true;
-                    break;
-                }
-            }
-            if(!extOK)
+            netcdfFile = NetcdfFileOpener.open(input.toString());
+            if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
-            netcdfFile = NetcdfFile.open(input.toString());
+            }
             return getDecodeQualification(netcdfFile);
         } catch (Throwable ignored) {
             // ok -- just clean up and return UNABLE
+            if (input != null) {
+                String pathname = input.toString();
+                if (pathname.toLowerCase().trim().endsWith(".zip")) {
+                    final String trimmed = pathname.trim();
+                    pathname = trimmed.substring(0, trimmed.length() - 4);
+                    final File file = new File(pathname);
+                    if (file.isFile() && file.length() == 0) {
+                        file.deleteOnExit();
+                        file.delete();
+                    }
+                }
+            }
         } finally {
             try {
                 if (netcdfFile != null) {
@@ -87,7 +92,6 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      * When overriding this method at least the {@link RasterDigest} must be set to the context.
      *
      * @param ctx the context
-     *
      * @throws IOException if an IO-Error occurs
      */
     protected void initReadContext(ProfileReadContext ctx) throws IOException {
@@ -103,7 +107,6 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      * Gets the qualification of the product reader to decode the given {@link NetcdfFile NetCDF file}.
      *
      * @param netcdfFile the NetCDF file
-     *
      * @return the decode qualification
      */
     protected abstract DecodeQualification getDecodeQualification(NetcdfFile netcdfFile);

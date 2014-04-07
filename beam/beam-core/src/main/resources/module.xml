@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>5.0-4.10.4</version>
+    <version>5.0</version>
     <name>BEAM Core Library</name>
 
 
@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p/>Changes in 5.0:<br/>
+        [BEAM-1634] Use IF,THEN,ELSE in band maths expressions<br/>
         [BEAM-1455] Flag-Coding remains when subsetting<br/>
         [BEAM-1605] 'InvalidArgumentException: maxima' error message when trying to open a band<br/>
         [BEAM-1474] Data type raw symbols in band maths do not consider the raw data type of the raster<br/>

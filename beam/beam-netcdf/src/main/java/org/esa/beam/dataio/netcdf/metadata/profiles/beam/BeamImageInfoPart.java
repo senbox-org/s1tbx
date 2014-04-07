@@ -59,7 +59,9 @@ public class BeamImageInfoPart extends ProfilePartIO {
             if (imageInfo != null) {
                 String variableName = ReaderUtils.getVariableName(band);
                 NVariable variable = fileWriteable.findVariable(variableName);
-                writeImageInfo(imageInfo.getColorPaletteDef().getPoints(), variable);
+                if (variable != null) {
+                    writeImageInfo(imageInfo.getColorPaletteDef().getPoints(), variable);
+                }
             }
         }
     }

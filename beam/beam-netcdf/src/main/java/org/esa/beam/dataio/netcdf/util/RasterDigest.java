@@ -34,11 +34,17 @@ public class RasterDigest {
 
     private final DimKey rasterDim;
     private final Variable[] variables;
+    private ScaledVariable[] scaledVariables;
 
 
     public RasterDigest(DimKey rasterDim, Variable[] variables) {
+        this(rasterDim, variables, new ScaledVariable[0]);
+    }
+
+    public RasterDigest(DimKey rasterDim, Variable[] variables, ScaledVariable[] scaledVariables) {
         this.rasterDim = rasterDim;
         this.variables = variables;
+        this.scaledVariables = scaledVariables;
     }
 
     public DimKey getRasterDim() {
@@ -49,17 +55,48 @@ public class RasterDigest {
         return variables;
     }
 
-    public static RasterDigest createRasterDigest(final Group group) {
-        Map<DimKey, List<Variable>> variableListMap = getVariableListMap(group);
+    public ScaledVariable[] getScaledVariables() {
+        return scaledVariables;
+    }
+
+    public static RasterDigest createRasterDigest(final Group ...groups) {
+        Map<DimKey, List<Variable>> variableListMap = new HashMap<DimKey, List<Variable>>();
+        for (Group group : groups) {
+            collectVariableLists(group, variableListMap);
+        }
         if (variableListMap.isEmpty()) {
             return null;
         }
         final DimKey rasterDim = getBestRasterDim(variableListMap);
         final Variable[] rasterVariables = getRasterVariables(variableListMap, rasterDim);
-        return new RasterDigest(rasterDim, rasterVariables);
+        final ScaledVariable[] scaledVariables = getScaledVariables(variableListMap, rasterDim);
+        return new RasterDigest(rasterDim, rasterVariables, scaledVariables);
     }
 
-    public static Variable[] getRasterVariables(Map<DimKey, List<Variable>> variableLists,
+    private static ScaledVariable[] getScaledVariables(Map<DimKey, List<Variable>> variableListMap, DimKey rasterDim) {
+        List<ScaledVariable> scaledVariableList = new ArrayList<ScaledVariable>();
+        for (DimKey dimKey : variableListMap.keySet()) {
+            if (!dimKey.equals(rasterDim)){
+                double scaleX = getScale(dimKey.getDimensionX(), rasterDim.getDimensionX());
+                double scaleY = getScale(dimKey.getDimensionY(), rasterDim.getDimensionY());
+                if (scaleX == Math.round(scaleX) && scaleX == scaleY) {
+                    List<Variable> variableList = variableListMap.get(dimKey);
+                    for (Variable variable : variableList) {
+                        scaledVariableList.add(new ScaledVariable((float)scaleX, variable));
+                    }
+                }
+            }
+        }
+        return scaledVariableList.toArray(new ScaledVariable[scaledVariableList.size()]);
+    }
+
+    private static double getScale(Dimension scaledDim, Dimension rasterDim) {
+        double length = scaledDim.getLength();
+        double rasterLength = rasterDim.getLength();
+        return rasterLength / length;
+    }
+
+    static Variable[] getRasterVariables(Map<DimKey, List<Variable>> variableLists,
                                          DimKey rasterDim) {
         final List<Variable> list = variableLists.get(rasterDim);
         return list.toArray(new Variable[list.size()]);
@@ -77,13 +114,6 @@ public class RasterDigest {
             if (rasterDim.isTypicalRasterDim()) {
                 return rasterDim;
             }
-
-            // otherwise go by the largest size
-            if(bestRasterDim == null ||
-                    (bestRasterDim.getDimensionX().getLength() * bestRasterDim.getDimensionY().getLength()) <
-                            (rasterDim.getDimensionX().getLength()*rasterDim.getDimensionY().getLength())) {
-                bestRasterDim = rasterDim;
-            }
             // Otherwise, we assume the best is the one which holds the most variables
             final List<Variable> varList = variableListMap.get(rasterDim);
             if (bestVarList == null || varList.size() > bestVarList.size()) {
@@ -95,21 +125,15 @@ public class RasterDigest {
         return bestRasterDim;
     }
 
-    static Map<DimKey, List<Variable>> getVariableListMap(final Group group) {
-        Map<DimKey, List<Variable>> variableLists = new HashMap<DimKey, List<Variable>>();
-        collectVariableLists(group, variableLists);
-        return variableLists;
-    }
-
     static void collectVariableLists(Group group, Map<DimKey, List<Variable>> variableLists) {
         final List<Variable> variables = group.getVariables();
         for (final Variable variable : variables) {
             final int rank = variable.getRank();
             if (rank >= 2 && (DataTypeUtils.isValidRasterDataType(variable.getDataType()) || variable.getDataType() == DataType.LONG)) {
-                final Dimension dimX = variable.getDimension(rank - 1);
-                final Dimension dimY = variable.getDimension(rank - 2);
+                DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new Dimension[variable.getDimensions().size()]));
+                final Dimension dimX = rasterDim.getDimensionX();
+                final Dimension dimY = rasterDim.getDimensionY();
                 if (dimX.getLength() > 1 && dimY.getLength() > 1) {
-                    DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new Dimension[variable.getDimensions().size()]));
                     List<Variable> list = variableLists.get(rasterDim);
                     if (list == null) {
                         list = new ArrayList<Variable>();
