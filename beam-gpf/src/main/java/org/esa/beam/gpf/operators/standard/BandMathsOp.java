@@ -406,6 +406,7 @@ public class BandMathsOp extends Operator {
         bandDescriptor.type = ProductData.TYPESTRING_INT8;
 
         BandMathsOp bandMathsOp = new BandMathsOp();
+        bandMathsOp.setParameterDefaultValues();
         bandMathsOp.setSourceProduct(sourceProduct);
         bandMathsOp.setTargetBandDescriptors(bandDescriptor);
         return bandMathsOp;
