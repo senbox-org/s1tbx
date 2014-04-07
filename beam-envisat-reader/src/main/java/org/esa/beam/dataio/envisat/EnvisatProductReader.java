@@ -422,8 +422,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
                 } else {
                     validMask = "l2_flags.LAND or l2_flags.CLOUD or l2_flags.WATER";
                 }
-                final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(latBand, lonBand, validMask, 6);
-                product.setGeoCoding(pixelGeoCoding);
+                product.setGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6));
             }
         }
     }
