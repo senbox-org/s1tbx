@@ -32,6 +32,7 @@ import java.awt.Window;
  * is only for testing.
  */
 public class DefaultAppContext implements AppContext {
+
     private Window applicationWindow;
     private String applicationName;
     private ProductManager productManager;
@@ -43,7 +44,7 @@ public class DefaultAppContext implements AppContext {
         this(applicationName,
              new JFrame(applicationName),
              new ProductManager(),
-             new PropertyMap());        
+             new PropertyMap());
     }
 
 
