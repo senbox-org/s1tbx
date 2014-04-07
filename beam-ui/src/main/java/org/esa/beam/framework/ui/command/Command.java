@@ -34,14 +34,11 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-// @todo 1 nf/nf - place class API docu here
-
 /**
- * The <code>Command</code> is a ...
+ * The <code>Command</code> is the base class for all BEAM GUI commands.
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision$  $Date$
  */
 public abstract class Command implements ConfigurableExtension {
 
@@ -149,9 +146,6 @@ public abstract class Command implements ConfigurableExtension {
     }
 
     public Boolean getSortChildren() {
-        if(getProperty(ACTION_KEY_SORT_CHILDREN) == null) {
-            return null;
-        }
         return (Boolean) getProperty(ACTION_KEY_SORT_CHILDREN);
     }
 

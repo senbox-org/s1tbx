@@ -16,8 +16,6 @@
 package org.esa.beam.framework.ui.command;
 
 
-import org.esa.beam.framework.ui.UIUtils;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -36,49 +34,45 @@ import java.util.Map;
  * to build up menus.
  *
  * @author Norman Fomferra
- * @version $Revision$  $Date$
  */
 public class CommandMenuUtils {
 
-    protected CommandMenuUtils() {
+    private CommandMenuUtils() {
     }
 
     /**
-     * Inserts the given <code>command</command> at the end of the <code>popupMenu</code>.
+     * Inserts the given <code>command</command> into the <code>menu</code>.
      *
-     * @param popupMenu The popup menu to add the given <code>command</code> to.
-     * @param command   The command to insert.
-     * @param manager   The command manager.
-     *
-     * @deprecated since BEAM 4.10. Use {@link CommandMenuUtils#insertCommandMenuItem(Boolean, JPopupMenu, Command, CommandManager)} instead.
+     * @param menu           The  menu to add the given <code>command</code> to.
+     * @param command        The command to insert.
+     * @param commandManager The command manager.
      */
-    public static void insertCommandMenuItem0(final JPopupMenu popupMenu, final Command command,
-                                              final CommandManager manager) {
-    }
-
-    /**
-     * Inserts the given <code>command</command> at the end of the <code>popupMenu</code>.
-     *
-     * @param sortChildren Whether to sort the children alphabetically.
-     * @param popupMenu    The popup menu to add the given <code>command</code> to.
-     * @param command      The command to insert.
-     * @param manager      The command manager.
-     */
-    public static void insertCommandMenuItem(Boolean sortChildren, final JPopupMenu popupMenu, final Command command,
-                                             final CommandManager manager) {
-        Command[] commands = getCommands(popupMenu, manager, command);
-        if (sortChildren != null && sortChildren) {
-            commands = sortChildrenAlphabetically(commands);
+    public static void insertCommandMenuItem(JMenu menu, Command command, CommandManager commandManager) {
+        Command commandGroup = getCommandForComponent(menu, commandManager);
+        Boolean sortChildren;
+        if (commandGroup != null) {
+            sortChildren = commandGroup.getSortChildren();
         } else {
-            commands = sortAccordingToPlaceBeforeAndPlaceAfter(commands);
+            sortChildren = null;
+        }
+        insertCommandMenuItem(menu.getPopupMenu(), command, commandManager, sortChildren != null ? sortChildren : false);
+    }
+
+
+    private static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command, final CommandManager manager, boolean sortChildren) {
+        List<Command> commands = getCommands(popupMenu, command, manager);
+        if (sortChildren) {
+            sortChildrenAlphabetically(commands);
+        } else {
+            sortAccordingToPlaceBeforeAndPlaceAfter(commands);
         }
 
-        final Map<String, Component> popupMenues = new HashMap<String, Component>();
+        Map<String, Component> popupMenus = new HashMap<>();
         int count = popupMenu.getComponentCount();
         for (int i = 0; i < count; i++) {
-            final Component component = popupMenu.getComponent(i);
+            Component component = popupMenu.getComponent(i);
             if (component instanceof JMenu) {
-                popupMenues.put(component.getName(), component);
+                popupMenus.put(component.getName(), component);
             }
         }
 
@@ -88,10 +82,10 @@ public class CommandMenuUtils {
         }
         count = popupMenu.getComponentCount();
         for (int i = 0; i < count; i++) {
-            final Component component = popupMenu.getComponent(i);
+            Component component = popupMenu.getComponent(i);
             if (component instanceof JMenu) {
-                final String name = component.getName();
-                final Object o = popupMenues.get(name);
+                String name = component.getName();
+                Object o = popupMenus.get(name);
                 if (o != null) {
                     popupMenu.remove(i);
                     popupMenu.insert((Component) o, i);
@@ -100,85 +94,8 @@ public class CommandMenuUtils {
         }
     }
 
-    static Command[] sortChildrenAlphabetically(Command[] commands) {
-        final List<Command> sortedCommandsList = new ArrayList<Command>();
-        Collections.addAll(sortedCommandsList, commands);
-        Collections.sort(sortedCommandsList, new Comparator<Command>() {
-            @Override
-            public int compare(Command o1, Command o2) {
-                if(o1.getText() == null || o2.getText() == null) {
-                    return o1.getCommandID().compareTo(o2.getCommandID());
-                }
-                return o1.getText().compareTo(o2.getText());
-            }
-        });
-        commands = sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
-        return commands;
-    }
-
-    /**
-     * Finds the insert position of the given <code>command</command> within the <code>popupMenu</code>.
-     *
-     * @param popupMenu The popup menu.
-     * @param command   The command to insert.
-     * @param manager   The command manager.
-     */
-    public static int findMenuInsertPosition(final JPopupMenu popupMenu, final Command command,
-                                             final CommandManager manager) {
-        int pbi = popupMenu.getComponentCount();
-        String placeBefore = command.getPlaceBefore();
-        if (placeBefore != null) {
-            pbi = UIUtils.findMenuItemPosition(popupMenu, placeBefore);
-        }
-        int pai = -1;
-        String placeAfter = command.getPlaceAfter();
-        if (placeAfter != null) {
-            pai = UIUtils.findMenuItemPosition(popupMenu, placeAfter) + 1;
-        }
-        final int componentCount = popupMenu.getComponentCount();
-        for (int i = 0; i < componentCount; i++) {
-            final Component component = popupMenu.getComponent(i);
-            if (!(component instanceof JMenuItem)) {
-                continue;
-            }
-            final JMenuItem item = (JMenuItem) component;
-            final String name = item.getName();
-            final Command menuCommand = manager.getCommand(name);
-            if (menuCommand == null) {
-                continue;
-            }
-            placeBefore = menuCommand.getPlaceBefore();
-            if (command.getCommandID().equals(placeBefore)) {
-                if (pbi > i) {
-                    pbi = i + 1;
-                }
-            }
-            placeAfter = menuCommand.getPlaceAfter();
-            if (command.getCommandID().equals(placeAfter)) {
-                if (pai < i) {
-                    pai = i;
-                }
-            }
-        }
-        int insertPos = -1;
-        if (pbi >= pai) {
-            insertPos = pai;
-        }
-        if (insertPos == -1) {
-            insertPos = popupMenu.getComponentCount();
-        }
-        return insertPos;
-    }
-
-    /**
-     * Inserts the given <code>command</command> to the <code>popupMenu</code> at the given <code>position</code>.
-     *
-     * @param popupMenu The popup menu to add the given <code>command</code> to.
-     * @param command   The command to insert.
-     * @param pos       the position where to insert the <code>command</code>.
-     */
-    public static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command, final int pos) {
-        final JMenuItem menuItem = command.createMenuItem();
+    private static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command, final int pos) {
+        JMenuItem menuItem = command.createMenuItem();
         if (menuItem == null) {
             return;
         }
@@ -187,13 +104,13 @@ public class CommandMenuUtils {
 
         if (command.isSeparatorBefore() && insertPos > 0) {
             if (insertPos == popupMenu.getComponentCount()) {
-                final Component c = popupMenu.getComponent(insertPos - 1);
+                Component c = popupMenu.getComponent(insertPos - 1);
                 if (!(c instanceof JSeparator)) {
                     popupMenu.addSeparator();
                     insertPos++;
                 }
             } else {
-                final Component c = popupMenu.getComponent(insertPos);
+                Component c = popupMenu.getComponent(insertPos);
                 if (!(c instanceof JSeparator)) {
                     popupMenu.insert(new JPopupMenu.Separator(), insertPos);
                     insertPos++;
@@ -212,7 +129,7 @@ public class CommandMenuUtils {
             if (insertPos == popupMenu.getComponentCount()) {
                 popupMenu.addSeparator();
             } else {
-                final Component c = popupMenu.getComponent(insertPos);
+                Component c = popupMenu.getComponent(insertPos);
                 if (!(c instanceof JSeparator)) {
                     popupMenu.insert(new JPopupMenu.Separator(), insertPos);
                 }
@@ -220,28 +137,28 @@ public class CommandMenuUtils {
         }
     }
 
-    static Command[] sortAccordingToPlaceBeforeAndPlaceAfter(final Command[] commands) {
 
-        final List<Command> sortedCommandsList = new ArrayList<Command>();
-        final Map<String, CommandWrapper> wrappersMap = new HashMap<String, CommandWrapper>();
-        for (final Command command : commands) {
-            final CommandWrapper wrapper = new CommandWrapper(command);
+    static void sortAccordingToPlaceBeforeAndPlaceAfter(List<Command> commands) {
+
+        Map<String, CommandWrapper> wrappersMap = new HashMap<>(2 * commands.size() + 1);
+        for (Command command : commands) {
+            CommandWrapper wrapper = new CommandWrapper(command);
             wrappersMap.put(wrapper.getName(), wrapper);
         }
         for (final Command command : commands) {
-            final String placeBefore = command.getPlaceBefore();
-            final String placeAfter = command.getPlaceAfter();
+            String placeBefore = command.getPlaceBefore();
+            String placeAfter = command.getPlaceAfter();
             if (placeAfter != null || placeBefore != null) {
-                final CommandWrapper commandWrapper = wrappersMap.get(command.getCommandID());
+                CommandWrapper commandWrapper = wrappersMap.get(command.getCommandID());
                 if (placeAfter != null) {
-                    final CommandWrapper beforeCommand = wrappersMap.get(placeAfter);
+                    CommandWrapper beforeCommand = wrappersMap.get(placeAfter);
                     if (beforeCommand != null) {
                         commandWrapper.addBefore(beforeCommand);
                         beforeCommand.addAfter(commandWrapper);
                     }
                 }
                 if (placeBefore != null) {
-                    final CommandWrapper afterCommand = wrappersMap.get(placeBefore);
+                    CommandWrapper afterCommand = wrappersMap.get(placeBefore);
                     if (afterCommand != null) {
                         commandWrapper.addAfter(afterCommand);
                         afterCommand.addBefore(commandWrapper);
@@ -249,15 +166,17 @@ public class CommandMenuUtils {
                 }
             }
         }
+
+        List<Command> sortedCommandsList = new ArrayList<>(commands.size());
         while (!wrappersMap.isEmpty()) {
-            for (final Command command : commands) {
+            for (Command command : commands) {
                 CommandWrapper wrapper = wrappersMap.get(command.getCommandID());
                 if (wrapper != null) {
                     while (!wrapper.beforeWrappers.isEmpty()) {
-                        final List linksBefore = wrapper.beforeWrappers;
+                        List linksBefore = wrapper.beforeWrappers;
                         for (Object aLinksBefore : linksBefore) {
-                            final CommandWrapper cw = (CommandWrapper) aLinksBefore;
-                            final Object o = wrappersMap.get(cw.getName());
+                            CommandWrapper cw = (CommandWrapper) aLinksBefore;
+                            Object o = wrappersMap.get(cw.getName());
                             if (o != null) {
                                 wrapper = (CommandWrapper) o;
                                 break;
@@ -270,7 +189,8 @@ public class CommandMenuUtils {
                 }
             }
         }
-        return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
+        commands.clear();
+        commands.addAll(sortedCommandsList);
     }
 
     private static void appendSorted(final List<Command> commandsList,
@@ -303,22 +223,26 @@ public class CommandMenuUtils {
         }
     }
 
-    private static Command[] getCommands(final JPopupMenu popupMenu, final CommandManager manager,
-                                         final Command command) {
-        final List<Command> commands = new ArrayList<Command>();
-        final int count = popupMenu.getComponentCount();
+    private static List<Command> getCommands(final JPopupMenu popupMenu, final Command command, final CommandManager manager) {
+        List<Command> commands = getCommandsFromMenu(popupMenu, manager);
+        commands.add(command);
+        return commands;
+    }
+
+    private static List<Command> getCommandsFromMenu(JPopupMenu popupMenu, CommandManager manager) {
+        int count = popupMenu.getComponentCount();
+        List<Command> commands = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             final Component component = popupMenu.getComponent(i);
-            Command menuCommand = getCommandForComponent(manager, component);
+            Command menuCommand = getCommandForComponent(component, manager);
             if (menuCommand != null) {
                 commands.add(menuCommand);
             }
         }
-        commands.add(command);
-        return commands.toArray(new Command[commands.size()]);
+        return commands;
     }
 
-    private static Command getCommandForComponent(CommandManager manager, Component component) {
+    private static Command getCommandForComponent(Component component, CommandManager manager) {
         Command menuCommand = null;
         if (component instanceof JMenuItem) {
             final JMenuItem item = (JMenuItem) component;
@@ -328,16 +252,18 @@ public class CommandMenuUtils {
         return menuCommand;
     }
 
-    public static void insertCommandMenuItem(JMenu menu, Command command, CommandManager commandManager) {
-        Command commandGroup = getCommandForComponent(commandManager, menu);
-        Boolean sortChildren;
-        if(commandGroup == null) {
-            sortChildren = false;
-        } else {
-            sortChildren = commandGroup.getSortChildren();
-        }
-        insertCommandMenuItem(sortChildren, menu.getPopupMenu(), command, commandManager);
+    static void sortChildrenAlphabetically(List<Command> commands) {
+        Collections.sort(commands, new Comparator<Command>() {
+            @Override
+            public int compare(Command o1, Command o2) {
+                if (o1.getText() == null || o2.getText() == null) {
+                    return o1.getCommandID().compareTo(o2.getCommandID());
+                }
+                return o1.getText().compareTo(o2.getText());
+            }
+        });
     }
+
 
     private static final class CommandWrapper {
 
@@ -347,8 +273,8 @@ public class CommandMenuUtils {
 
         private CommandWrapper(final Command command) {
             this.command = command;
-            beforeWrappers = new ArrayList<CommandWrapper>();
-            afterWrappers = new ArrayList<CommandWrapper>();
+            beforeWrappers = new ArrayList<>();
+            afterWrappers = new ArrayList<>();
         }
 
         private String getName() {

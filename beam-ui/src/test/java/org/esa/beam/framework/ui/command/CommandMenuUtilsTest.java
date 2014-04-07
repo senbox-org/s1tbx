@@ -18,6 +18,9 @@ package org.esa.beam.framework.ui.command;
 import junit.framework.TestCase;
 
 import javax.swing.JPopupMenu;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CommandMenuUtilsTest extends TestCase {
 
@@ -25,7 +28,7 @@ public class CommandMenuUtilsTest extends TestCase {
         super(name);
     }
 
-    public void testAddConstextDependingMenueItems() {
+    public void testAddContextDependingMenuItems() {
         DefaultCommandManager manager = new DefaultCommandManager();
         createCommand("com1", manager);
         createCommand("com2", manager);
@@ -44,7 +47,7 @@ public class CommandMenuUtilsTest extends TestCase {
         assertEquals(1, menu.getComponentCount());
     }
 
-    public void testAddConstextDependingMenueItemsOnlyOneTime() {
+    public void testAddContextDependingMenuItemsOnlyOneTime() {
         DefaultCommandManager manager = new DefaultCommandManager();
         createCommand("com1", manager);
         createCommand("com2", manager);
@@ -56,7 +59,7 @@ public class CommandMenuUtilsTest extends TestCase {
         DefaultCommandUIFactory uiFactory = new DefaultCommandUIFactory();
         uiFactory.setCommandManager(manager);
 
-        final JPopupMenu bandMenu = new JPopupMenu();
+        JPopupMenu bandMenu = new JPopupMenu();
         uiFactory.addContextDependentMenuItems("virtualBand", bandMenu);
         assertEquals(2, bandMenu.getComponentCount());
 
@@ -72,9 +75,9 @@ public class CommandMenuUtilsTest extends TestCase {
 
     public void testPlaceAtContextTop() {
         DefaultCommandManager manager = new DefaultCommandManager();
-        final ExecCommand standardCommand1 = createCommand("com1", manager);
-        final ExecCommand standardCommand2 = createCommand("com2", manager);
-        final ExecCommand topCommand = createCommand("com3", manager);
+        ExecCommand standardCommand1 = createCommand("com1", manager);
+        ExecCommand standardCommand2 = createCommand("com2", manager);
+        ExecCommand topCommand = createCommand("com3", manager);
         standardCommand1.setProperty(Command.ACTION_KEY_CONTEXT, "band");
         standardCommand2.setProperty(Command.ACTION_KEY_CONTEXT, "band");
         topCommand.setProperty(Command.ACTION_KEY_CONTEXT, "band");
@@ -84,10 +87,10 @@ public class CommandMenuUtilsTest extends TestCase {
         DefaultCommandUIFactory uiFactory = new DefaultCommandUIFactory();
         uiFactory.setCommandManager(manager);
 
-        final JPopupMenu popup = new JPopupMenu();
+        JPopupMenu popup = new JPopupMenu();
         uiFactory.addContextDependentMenuItems("band", popup);
         assertEquals(3, popup.getComponentCount());
-        final String[] expectedOrder = new String[]{"com3", "com1", "com2",};
+        String[] expectedOrder = new String[]{"com3", "com1", "com2",};
         assertEquals(expectedOrder[0], popup.getComponent(0).getName());
         assertEquals(expectedOrder[1], popup.getComponent(1).getName());
         assertEquals(expectedOrder[2], popup.getComponent(2).getName());
@@ -127,29 +130,36 @@ public class CommandMenuUtilsTest extends TestCase {
 
         createCommand("a6", manager);
 
-        Command[] commands = new Command[manager.getNumCommands()];
-        assertEquals(11, commands.length);
-        for (int i = 0; i < commands.length; i++) {
-            Command commandAt = manager.getCommandAt(i);
-            assertNotNull(commandAt);
-            commands[i] = commandAt;
-        }
+        assertEquals(11, manager.getNumCommands());
 
-        commands = CommandMenuUtils.sortAccordingToPlaceBeforeAndPlaceAfter(commands);
-        assertEquals(11, commands.length);
+        ArrayList<Command> commands = getCommands(manager);
+
+        CommandMenuUtils.sortAccordingToPlaceBeforeAndPlaceAfter(commands);
+        assertEquals(11, commands.size());
+
         int sequenceStart = 0;
-        for (int i = 0; i < commands.length; i++) {
-            command = commands[i];
+        for (int i = 0; i < commands.size(); i++) {
+            command = commands.get(i);
             if ("test1".equals(command.getCommandID())) {
                 sequenceStart = i;
             }
         }
 
-        assertEquals("test1", commands[sequenceStart++].getCommandID());
-        assertEquals("test2", commands[sequenceStart++].getCommandID());
-        assertEquals("test3", commands[sequenceStart++].getCommandID());
-        assertEquals("test4", commands[sequenceStart++].getCommandID());
-        assertEquals("test5", commands[sequenceStart++].getCommandID());
+        assertEquals("test1", commands.get(sequenceStart++).getCommandID());
+        assertEquals("test2", commands.get(sequenceStart++).getCommandID());
+        assertEquals("test3", commands.get(sequenceStart++).getCommandID());
+        assertEquals("test4", commands.get(sequenceStart++).getCommandID());
+        assertEquals("test5", commands.get(sequenceStart).getCommandID());
+    }
+
+    private ArrayList<Command> getCommands(DefaultCommandManager manager) {
+        ArrayList<Command> commands = new ArrayList<>();
+        for (int i = 0; i < manager.getNumCommands(); i++) {
+            Command commandAt = manager.getCommandAt(i);
+            assertNotNull(commandAt);
+            commands.add(commandAt);
+        }
+        return commands;
     }
 
     public void testSortAlphabetically() {
@@ -162,58 +172,53 @@ public class CommandMenuUtilsTest extends TestCase {
         createCommand("e", manager);
         createCommand("b", manager);
 
-        Command[] commands = new Command[manager.getNumCommands()];
-        assertEquals(6, commands.length);
-        for (int i = 0; i < commands.length; i++) {
-            Command commandAt = manager.getCommandAt(i);
-            assertNotNull(commandAt);
-            commands[i] = commandAt;
-        }
+        ArrayList<Command> commands = getCommands(manager);
+        assertEquals(6, commands.size());
+        CommandMenuUtils.sortChildrenAlphabetically(commands);
+        assertEquals(6, commands.size());
 
-        commands = CommandMenuUtils.sortChildrenAlphabetically(commands);
-        assertEquals(6, commands.length);
         int index = 0;
-
-        assertEquals("a", commands[index++].getCommandID());
-        assertEquals("b", commands[index++].getCommandID());
-        assertEquals("c", commands[index++].getCommandID());
-        assertEquals("d", commands[index++].getCommandID());
-        assertEquals("e", commands[index++].getCommandID());
-        assertEquals("f", commands[index].getCommandID());
+        assertEquals("a", commands.get(index++).getCommandID());
+        assertEquals("b", commands.get(index++).getCommandID());
+        assertEquals("c", commands.get(index++).getCommandID());
+        assertEquals("d", commands.get(index++).getCommandID());
+        assertEquals("e", commands.get(index++).getCommandID());
+        assertEquals("f", commands.get(index).getCommandID());
     }
 
     public void testCorrectOrdering() {
-        final ExecCommand beforeCommand = new ExecCommand();
+        ExecCommand beforeCommand = new ExecCommand();
         beforeCommand.setCommandID("before_open");
-        final ExecCommand openCommand = new ExecCommand();
+        ExecCommand openCommand = new ExecCommand();
         openCommand.setCommandID("open");
-        final ExecCommand reopenCommand = new ExecCommand();
+        ExecCommand reopenCommand = new ExecCommand();
         reopenCommand.setCommandID("reopen");
-        final ExecCommand afterCommand = new ExecCommand();
+        ExecCommand afterCommand = new ExecCommand();
         afterCommand.setCommandID("after_reopen");
         beforeCommand.setPlaceBefore(openCommand.getCommandID());
         openCommand.setPlaceAfter(beforeCommand.getCommandID());
         reopenCommand.setPlaceAfter(openCommand.getCommandID());
         afterCommand.setPlaceAfter(reopenCommand.getCommandID());
 
-        final ExecCommand betweenCommand = new ExecCommand("between");
+        ExecCommand betweenCommand = new ExecCommand("between");
         betweenCommand.setPlaceAfter(openCommand.getCommandID());
         betweenCommand.setPlaceBefore(reopenCommand.getCommandID());
 
-        final Command[] commands = new Command[]{
+        Command[] commands = new Command[]{
                 reopenCommand,
                 openCommand,
                 afterCommand,
                 beforeCommand,
                 betweenCommand,
         };
-        final Command[] sortedCommands = CommandMenuUtils.sortAccordingToPlaceBeforeAndPlaceAfter(commands);
+        List<Command> sortedCommands = new ArrayList<>(Arrays.asList(commands));
+        CommandMenuUtils.sortAccordingToPlaceBeforeAndPlaceAfter(sortedCommands);
 
-        final Command[] expectedOrder = new Command[]{
+        Command[] expectedOrder = new Command[]{
                 beforeCommand, openCommand, betweenCommand, reopenCommand, afterCommand
         };
         for (int i = 0; i < expectedOrder.length; i++) {
-            assertSame("index=" + i, expectedOrder[i], sortedCommands[i]);
+            assertSame("index=" + i, expectedOrder[i], sortedCommands.get(i));
         }
     }
 
