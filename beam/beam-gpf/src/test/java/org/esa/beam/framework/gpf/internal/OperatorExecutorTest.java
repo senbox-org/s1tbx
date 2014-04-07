@@ -234,7 +234,7 @@ public class OperatorExecutorTest extends TestCase {
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
-        operatorExecutor.execute(ExecutionOrder.ROW_COLUMN_BAND, ProgressMonitor.NULL);
+        operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_BAND_COLUMN, ProgressMonitor.NULL);
         
         assertEquals(17, recordingTileScheduler.recordedCalls.size());
         

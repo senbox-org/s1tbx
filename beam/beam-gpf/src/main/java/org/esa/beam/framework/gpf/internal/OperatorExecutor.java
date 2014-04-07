@@ -16,7 +16,6 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
@@ -25,6 +24,12 @@ import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.util.StdOutProgressMonitor;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
+import javax.media.jai.util.ImagingListener;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,19 +38,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
-import javax.media.jai.TileScheduler;
-import javax.media.jai.util.ImagingListener;
-
 /**
  * This executor triggers the computation of all tiles that the bands of the
  * target product of the given operator have. The computation of these tiles is
  * parallelized to use all available CPUs (cores) using the JAI
  * {@link TileScheduler}.
- * 
+ *
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
@@ -67,15 +65,19 @@ public class OperatorExecutor {
     }
 
     public enum ExecutionOrder {
-        ROW_COLUMN_BAND, 
-        ROW_BAND_COLUMN,
+        SCHEDULE_ROW_COLUMN_BAND,
+        SCHEDULE_ROW_BAND_COLUMN,
         /**
          * Minimize disk seeks if following conditions are met:<br/>
          * 1. Bands can be computed independently of each other<br/>
          * 2. I/O-bound processing (time to compute band pixels will less than
          * time for I/O).<br/>
          */
-        BAND_ROW_COLUMN,
+        SCHEDULE_BAND_ROW_COLUMN,
+        /**
+         * for debugging purpose
+         */
+        PULL_ROW_BAND_COLUMN,
     }
 
     private final int tileCountX;
@@ -88,7 +90,7 @@ public class OperatorExecutor {
     public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY) {
         this(images, tileCountX, tileCountY, JAI.getDefaultInstance().getTileScheduler().getParallelism());
     }
-    
+
     public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY, int parallelism) {
         this.images = images;
         this.tileCountX = tileCountX;
@@ -98,27 +100,29 @@ public class OperatorExecutor {
     }
 
     public void execute(ProgressMonitor pm) {
-        execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+        execute(ExecutionOrder.SCHEDULE_ROW_BAND_COLUMN, pm);
     }
 
     public void execute(ExecutionOrder executionOrder, ProgressMonitor pm) {
         final Semaphore semaphore = new Semaphore(parallelism, true);
         final TileComputationListener tcl = new OperatorTileComputationListener(semaphore);
-        final TileComputationListener[] listeners = new TileComputationListener[] { tcl };
-        
+        final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
+
         ImagingListener imagingListener = JAI.getDefaultInstance().getImagingListener();
         JAI.getDefaultInstance().setImagingListener(new GPFImagingListener());
         pm.beginTask("Executing operator...", tileCountX * tileCountY * images.length);
-        
+
+        ExecutionOrder effectiveExecutionOrder = getEffectiveExecutionOrder(executionOrder);
+
         try {
-            if (executionOrder == ExecutionOrder.ROW_BAND_COLUMN) {
-                // for debugging purpose
-                // executeRowBandColumn(pm); 
+            if (effectiveExecutionOrder == ExecutionOrder.SCHEDULE_ROW_BAND_COLUMN) {
                 scheduleRowBandColumn(semaphore, listeners, pm);
-            } else if (executionOrder == ExecutionOrder.ROW_COLUMN_BAND) {
+            } else if (effectiveExecutionOrder == ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND) {
                 scheduleRowColumnBand(semaphore, listeners, pm);
-            } else if (executionOrder == ExecutionOrder.BAND_ROW_COLUMN) {
+            } else if (effectiveExecutionOrder == ExecutionOrder.SCHEDULE_BAND_ROW_COLUMN) {
                 scheduleBandRowColumn(semaphore, listeners, pm);
+            } else if (effectiveExecutionOrder == ExecutionOrder.PULL_ROW_BAND_COLUMN) {
+                executeRowBandColumn(pm);
             } else {
                 throw new IllegalArgumentException("executionOrder");
             }
@@ -133,10 +137,22 @@ public class OperatorExecutor {
         }
     }
 
+    private ExecutionOrder getEffectiveExecutionOrder(ExecutionOrder executionOrder) {
+        ExecutionOrder effectiveExecutionOrder = executionOrder;
+        String executionOrderProperty = System.getProperty("beam.gpf.executionOrder");
+        if (executionOrderProperty != null) {
+            effectiveExecutionOrder = ExecutionOrder.valueOf(executionOrderProperty);
+        }
+        if (effectiveExecutionOrder != executionOrder) {
+            BeamLogManager.getSystemLogger().info(
+                    "Changing execution order from " + executionOrder + " to " + effectiveExecutionOrder);
+        }
+        return effectiveExecutionOrder;
+    }
+
     private void scheduleBandRowColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (final PlanarImage image : images) {
             for (int tileY = 0; tileY < tileCountY; tileY++) {
-                BeamLogManager.getSystemLogger().info("Scheduling tile row " + tileY + " for " + image);
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
@@ -146,10 +162,8 @@ public class OperatorExecutor {
 
     private void scheduleRowBandColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         final StdOutProgressMonitor stdOutPM = new StdOutProgressMonitor(tileCountY);
-
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (final PlanarImage image : images) {
-                //BeamLogManager.getSystemLogger().info("Scheduling tile row " + tileY + " for " + image);
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
@@ -164,30 +178,33 @@ public class OperatorExecutor {
     }
 
     private void scheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
+        //better handle stack operators, should equal well work for normal operators
+        final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images);
+        listeners = new TileComputationListener[]{tcl};
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
-                BeamLogManager.getSystemLogger().info("Scheduling tile column " + tileX + ", row " + tileY);
-                for (final PlanarImage image : images) {
-                    scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
-                }
+                scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
             }
         }
     }
 
     private void scheduleTile(final PlanarImage image, int tileX, int tileY, Semaphore semaphore,
                               TileComputationListener[] listeners, ProgressMonitor pm) {
+
+        BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
+                                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
+
         checkForCancelation(pm);
         acquirePermits(semaphore, 1);
         if (error != null) {
             semaphore.release(parallelism);
             throw error;
         }
-        Point[] points = new Point[] { new Point(tileX, tileY) };
+        Point[] points = new Point[]{new Point(tileX, tileY)};
         /////////////////////////////////////////////////////////////////////
         //
         // Note: GPF pull-processing is triggered here!!!
         //
-        //System.out.println("sched ("+tileX+","+tileY+") ");   //NESTMOD
         tileScheduler.scheduleTiles(image, points, listeners);
         //
         /////////////////////////////////////////////////////////////////////
@@ -233,7 +250,7 @@ public class OperatorExecutor {
         }
     }
 
-    // unused (mz) left for debuggin purpose
+    // unused (mz) left for debugging purpose
     // does not schedule tile but instead calls getTile blocking
     private void executeRowBandColumn(ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
@@ -250,6 +267,45 @@ public class OperatorExecutor {
                     pm.worked(1);
                 }
             }
+        }
+    }
+
+    private class OperatorTileComputationListenerStack implements TileComputationListener {
+
+        private final Semaphore semaphore;
+        private final PlanarImage[] images;
+
+        OperatorTileComputationListenerStack(Semaphore semaphore, PlanarImage[] images) {
+            this.semaphore = semaphore;
+            this.images = images;
+        }
+
+        @Override
+        public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY,
+                                 Raster raster) {
+            for (PlanarImage planarImage : images) {
+                if (image != planarImage) {
+                    planarImage.getTile(tileX, tileY);
+                }
+            }
+            semaphore.release();
+        }
+
+        @Override
+        public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY) {
+            if (error == null) {
+                error = new OperatorException("Operation cancelled.");
+            }
+            semaphore.release(parallelism);
+        }
+
+        @Override
+        public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                           int tileY, Throwable situation) {
+            if (error == null) {
+                error = new OperatorException("Operation failed.", situation);
+            }
+            semaphore.release(parallelism);
         }
     }
 
@@ -284,17 +340,17 @@ public class OperatorExecutor {
             semaphore.release(parallelism);
         }
     }
-    
+
     private class GPFImagingListener implements ImagingListener {
 
         @Override
         public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable)
-                                                                                                         throws RuntimeException {
+                throws RuntimeException {
             if (error == null && !thrown.getClass().getSimpleName().equals("MediaLibLoadException")) {
                 error = new OperatorException(thrown);
             }
             return false;
         }
     }
-    
+
 }

@@ -16,13 +16,17 @@
 
 package org.esa.beam.framework.gpf;
 
+import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.internal.ModuleReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.OperatorUI;
 import org.esa.beam.framework.gpf.ui.DefaultUI;
 
-import java.awt.*;
+import java.awt.RenderingHints;
+import java.net.URL;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * <p>The <code>OperatorSpi</code> class is the service provider interface (SPI) for {@link Operator}s.
@@ -46,6 +50,7 @@ public abstract class OperatorSpi {
 
     private final Class<? extends Operator> operatorClass;
     private final String operatorAlias;
+	private Module module;
     private Class<? extends OperatorUI> operatorUIClass = DefaultUI.class;
 
     /**
@@ -185,11 +190,35 @@ public abstract class OperatorSpi {
         return operatorAlias;
     }
 
+    /**
+     * The module containing the operator.
+     *
+     * @return The {@link Module module} containing the operator or {@code null} if no module is defined.
+     */
+    public Module getModule() {
+        if(module == null) {
+            this.module = loadModule();
+        }
+        return module;
+    }
+
     public static String getOperatorAlias(Class<? extends Operator> operatorClass) {
-        final OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
         if (annotation != null && !annotation.alias().isEmpty()) {
             return annotation.alias();
         }
         return operatorClass.getSimpleName();
     }
+
+    private Module loadModule() {
+        ModuleReader moduleReader = new ModuleReader(Logger.getAnonymousLogger());
+        URL moduleLocation = operatorClass.getProtectionDomain().getCodeSource().getLocation();
+        try {
+            return moduleReader.readFromLocation(moduleLocation);
+        } catch (CoreException e) {
+            Logger.getAnonymousLogger().warning("Could not read " + moduleLocation.toString());
+        }
+        return null;
+    }
+
 }
