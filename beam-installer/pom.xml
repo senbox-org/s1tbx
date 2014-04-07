@@ -124,25 +124,25 @@
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-case2-regional</artifactId>
-                                    <version>1.5.9-SNAPSHOT</version>
+                                    <version>1.6-SNAPSHOT</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-l2auxdata</artifactId>
-                                    <version>1.2.4-SNAPSHOT</version>
+                                    <version>1.2.5-SNAPSHOT</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-sdr</artifactId>
-                                    <version>2.3.4-SNAPSHOT</version>
+                                    <version>2.4-SNAPSHOT</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.esa.beam</groupId>
                                     <artifactId>beam-meris-brr</artifactId>
-                                    <version>2.3.4-SNAPSHOT</version>
+                                    <version>2.4-SNAPSHOT</version>
                                     <outputDirectory>${basedir}/../target/beam-bin/modules</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
