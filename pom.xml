@@ -18,12 +18,12 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${ceresContext}</surefire.jvm.args>
 		
-		<beam.version>5.0-4.10.4</beam.version>
+		<beam.version>5.0-SNAPSHOT</beam.version>
 		<ceres.version>0.14-SNAPSHOT</ceres.version>
 		<geotools.version>9.0-M0</geotools.version>
 		<jide.version>3.5.3</jide.version>
 		<hdf.version>2.7</hdf.version>
-		<netcdf.version>4.2.20</netcdf.version>
+		<netcdf.version>4.3.19</netcdf.version>
 		<nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>5.9</rstb.version>
@@ -190,8 +190,6 @@
 		<module>nest-world-wind-view</module>
 		
 		<module>nest-op-sentinel1</module>
-		
-		<module>beam/esa-pfa</module>
   </modules>
 
     <dependencyManagement>
@@ -257,7 +255,7 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-				<version>5.0.1-4.10.4</version>
+				<version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
@@ -275,25 +273,19 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envisat-reader</artifactId>
-                <version>1.5.3</version>
+                <version>1.5.3.${beam.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-geotiff</artifactId>
-                <version>5.0-1.3</version>
+                <version>1.3.${beam.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envi-reader</artifactId>
-                <version>5.0-1.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-nest-common</artifactId>
-                <version>5.0</version>
+                <version>3.2.{beam.version}</version>
             </dependency>
 
             <dependency>
@@ -317,7 +309,7 @@
 			<dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>5.0-1.1</version>
+                <version>1.1.3.${beam.version}</version>
             </dependency>
 			
 			<dependency>

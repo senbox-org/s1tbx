@@ -73,7 +73,7 @@ public class Sentinel1OCNReader {
 
             final List<Variable> variableList = netcdfFile.getVariables();
             for (Variable variable : variableList) {
-                bandElem.addElement(MetadataUtils.createMetadataElement(variable));
+                bandElem.addElement(MetadataUtils.createMetadataElement(variable, 1000));
             }
 
             final ProfileReadContext context = new ProfileReadContextImpl(netcdfFile);

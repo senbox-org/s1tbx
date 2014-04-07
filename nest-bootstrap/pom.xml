@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-arcbingrid-reader</artifactId>
-            <version>5.0-3.0</version>
+            <version>3.0.${beam.version}</version>
         </dependency>
 		<dependency>
             <groupId>org.esa.nest</groupId>
@@ -69,7 +69,7 @@
             <artifactId>jlinda-core</artifactId>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.esa.pfa</groupId>
             <artifactId>pfa-core</artifactId>
             <version>0.1-SNAPSHOT</version>
@@ -78,7 +78,7 @@
             <groupId>org.esa.pfa</groupId>
             <artifactId>pfa-database</artifactId>
             <version>0.1-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>com.jidesoft</groupId>

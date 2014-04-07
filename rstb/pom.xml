@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jlinda.version>0.8</jlinda.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
-        <beam.version>5.0-4.10.4</beam.version>
+        <beam.version>5.0-SNAPSHOT</beam.version>
 		<rstb.version>5.9</rstb.version>
         <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
