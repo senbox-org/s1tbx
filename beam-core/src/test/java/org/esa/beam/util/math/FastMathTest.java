@@ -15,7 +15,7 @@
  */
 package org.esa.beam.util.math;
 
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 import org.junit.Test;
 
 /**

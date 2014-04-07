@@ -17,7 +17,7 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 
 final class BiSincInterpolationResampling implements Resampling {
 
