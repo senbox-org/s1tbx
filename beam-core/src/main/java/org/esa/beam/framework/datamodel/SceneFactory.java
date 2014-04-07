@@ -90,23 +90,23 @@ public final class SceneFactory {
 
     private static class ProductScene implements Scene {
 
-        private final Product _product;
+        private final Product product;
 
         public ProductScene(final Product product) {
             Guardian.assertNotNull("product", product);
-            _product = product;
+            this.product = product;
         }
 
         public void setGeoCoding(final GeoCoding geoCoding) {
-            _product.setGeoCoding(geoCoding);
+            product.setGeoCoding(geoCoding);
         }
 
         public GeoCoding getGeoCoding() {
-            return _product.getGeoCoding();
+            return product.getGeoCoding();
         }
 
         public boolean transferGeoCodingTo(final Scene targetScene, final ProductSubsetDef subsetDef) {
-            if (_product.isUsingSingleGeoCoding()) {
+            if (product.isUsingSingleGeoCoding()) {
                 return transferGeoCoding(this, targetScene, subsetDef);
             } else {
                 return transferGeoCodingBandwise(this, targetScene, subsetDef);
@@ -114,33 +114,33 @@ public final class SceneFactory {
         }
 
         public int getRasterWidth() {
-            return _product.getSceneRasterWidth();
+            return product.getSceneRasterWidth();
         }
 
         public int getRasterHeight() {
-            return _product.getSceneRasterHeight();
+            return product.getSceneRasterHeight();
         }
 
         public Product getProduct() {
-            return _product;
+            return product;
         }
     }
 
     private static class RasterDataNodeScene implements Scene {
 
-        RasterDataNode _raster;
+        RasterDataNode raster;
 
         public RasterDataNodeScene(final RasterDataNode raster) {
             Guardian.assertNotNull("raster", raster);
-            _raster = raster;
+            this.raster = raster;
         }
 
         public GeoCoding getGeoCoding() {
-            return _raster.getGeoCoding();
+            return raster.getGeoCoding();
         }
 
         public void setGeoCoding(final GeoCoding geoCoding) {
-            _raster.setGeoCoding(geoCoding);
+            raster.setGeoCoding(geoCoding);
         }
 
         public boolean transferGeoCodingTo(final Scene destScene, final ProductSubsetDef subsetDef) {
@@ -148,15 +148,15 @@ public final class SceneFactory {
         }
 
         public int getRasterWidth() {
-            return _raster.getSceneRasterWidth();
+            return raster.getSceneRasterWidth();
         }
 
         public int getRasterHeight() {
-            return _raster.getSceneRasterHeight();
+            return raster.getSceneRasterHeight();
         }
 
         public Product getProduct() {
-            return _raster.getProduct();
+            return raster.getProduct();
         }
     }
 }
