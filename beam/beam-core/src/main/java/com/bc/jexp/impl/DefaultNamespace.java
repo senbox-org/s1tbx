@@ -20,7 +20,7 @@ import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.Term;
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * A default namespace which includes the constants PI, E and NaN as well as most of the functions from
