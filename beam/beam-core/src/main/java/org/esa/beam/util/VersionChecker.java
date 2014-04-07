@@ -65,8 +65,9 @@ public class VersionChecker {
 
     public int compareVersions() throws IOException {
         final String remoteVersion = getRemoteVersion();
-        if(localVersionStr == null)
+        if (localVersionStr == null) {
             localVersionStr = getLocalVersion();
+        }
         return compareVersions(localVersionStr, remoteVersion);
     }
 
@@ -81,7 +82,10 @@ public class VersionChecker {
 
     public String getLocalVersion() throws IOException {
         try {
-            return getVersion(getLocalVersionFile().toURI().toURL());
+            if (localVersionStr == null) {
+                return getVersion(getLocalVersionFile().toURI().toURL());
+            }
+            return localVersionStr;
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e.getMessage());
         }
@@ -89,8 +93,9 @@ public class VersionChecker {
 
     public String getRemoteVersion() throws IOException {
         try {
-            if(remoteVersionStr == null)
+            if (remoteVersionStr == null) {
                 remoteVersionStr = getVersion(new URL(getRemoteVersionUrlString()));
+            }
             return remoteVersionStr;
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e.getMessage());
@@ -98,16 +103,17 @@ public class VersionChecker {
     }
 
     private static String getVersion(final URL url) throws IOException {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        final String line;
-        try {
-            line = reader.readLine().toUpperCase();
-        } finally {
-            reader.close();
+        String versionString = null;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            String line = reader.readLine();
+            if (line != null) {
+                versionString = line.toUpperCase();
+            }
         }
-        if (line == null || !line.startsWith(VERSION_PREFIX)) {
+        if (versionString == null || !versionString.startsWith(VERSION_PREFIX)) {
             throw new IOException("unexpected version file format");
         }
-        return line;
+        return versionString;
     }
+
 }
