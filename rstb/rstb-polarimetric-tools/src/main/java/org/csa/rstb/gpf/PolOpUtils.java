@@ -17,7 +17,7 @@ package org.csa.rstb.gpf;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.nest.gpf.PolBandUtils;

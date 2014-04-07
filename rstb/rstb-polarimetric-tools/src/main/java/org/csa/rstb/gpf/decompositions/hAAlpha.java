@@ -16,7 +16,7 @@
 package org.csa.rstb.gpf.decompositions;
 
 import org.csa.rstb.gpf.PolOpUtils;
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;

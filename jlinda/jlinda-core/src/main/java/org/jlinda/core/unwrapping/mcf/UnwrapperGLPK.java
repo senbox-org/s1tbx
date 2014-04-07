@@ -4,7 +4,7 @@ package org.jlinda.core.unwrapping.mcf;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.winvector.lp.LPException;
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;

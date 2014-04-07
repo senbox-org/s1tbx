@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dataio.dem;
 
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.util.MathUtils;
 import org.esa.nest.util.Settings;

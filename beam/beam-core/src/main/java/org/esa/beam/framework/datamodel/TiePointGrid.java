@@ -29,7 +29,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 
 import java.awt.image.RenderedImage;
 import java.io.IOException;

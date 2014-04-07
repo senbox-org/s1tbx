@@ -1,6 +1,6 @@
 package org.jlinda.core.unwrapping.mcf.utils;
 
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 
 public class JblasUtils {
