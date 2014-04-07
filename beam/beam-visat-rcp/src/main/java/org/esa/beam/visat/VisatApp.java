@@ -438,11 +438,6 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     @Override
-    public void handleError(Throwable t) {
-        handleError(t.getMessage(), t);
-    }
-
-    @Override
     public void handleError(String message, Throwable t) {
         if (t != null) {
             t.printStackTrace();

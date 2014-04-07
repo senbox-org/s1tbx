@@ -108,11 +108,6 @@ public class DefaultAppContext implements AppContext {
     }
 
     @Override
-    public void handleError(Throwable t) {
-        handleError("An error occurred:\n" + t.getMessage(), t);
-    }
-
-    @Override
     public void handleError(String message, Throwable t) {
         if (t != null) {
             t.printStackTrace();

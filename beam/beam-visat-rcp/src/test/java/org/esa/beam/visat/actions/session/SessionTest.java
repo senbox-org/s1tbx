@@ -357,10 +357,6 @@ public class SessionTest extends TestCase {
         }
 
         @Override
-        public void handleError(Throwable e) {
-        }
-
-        @Override
         public void handleError(String message, Throwable e) {
         }
 

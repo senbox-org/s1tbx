@@ -117,10 +117,6 @@ public class AbstractMoveLayerTest {
         }
 
         @Override
-        public void handleError(Throwable e) {
-        }
-
-        @Override
         public void handleError(String message, Throwable e) {
         }
 

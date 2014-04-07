@@ -32,9 +32,6 @@ public interface AppContext {
     ApplicationPage getApplicationPage();
 
     Product getSelectedProduct();
-
-    @Deprecated
-    void handleError(Throwable t);
     
     void handleError(String message, Throwable t);
 
