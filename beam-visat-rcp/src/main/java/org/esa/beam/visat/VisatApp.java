@@ -398,18 +398,23 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     private void loadCommands() {
+        CommandManager commandManager = getCommandManager();
         Map<String, Command> commandMap = VisatActivator.getInstance().getCommandMap();
         for (Command command : commandMap.values()) {
-            addCommand(command, getCommandManager(), commandMap);
-            if ("selectTool".equals(command.getCommandID())) {
-                ToolCommand toolCommand = (ToolCommand) command;
-                selectionInteractor = toolCommand.getInteractor();
-                setActiveInteractor(selectionInteractor);
-                toolCommand.setSelected(true);
-            }
+            addCommand(commandManager, command, commandMap);
         }
+        setSelectToolSelectState(commandManager);
     }
 
+    private void setSelectToolSelectState(CommandManager commandManager) {
+        Command selectTool = commandManager.getCommand("selectTool");
+        if (selectTool instanceof ToolCommand) {
+            ToolCommand toolCommand = (ToolCommand) selectTool;
+            selectionInteractor = toolCommand.getInteractor();
+            setActiveInteractor(selectionInteractor);
+            toolCommand.setSelected(true);
+        }
+    }
 
     public Interactor getActiveInteractor() {
         return activeInteractor;
@@ -520,13 +525,13 @@ public class VisatApp extends BasicApp implements AppContext {
         return null;
     }
 
-    private static void addCommand(Command command, CommandManager commandManager, Map<String, Command> commandMap) {
+    private static void addCommand(CommandManager commandManager, Command command, Map<String, Command> commandMap) {
         String parentId = command.getParent();
         if (parentId != null && commandManager.getCommandGroup(parentId) == null) {
             Command parentCommand = commandMap.get(parentId);
             if (parentCommand != null) {
                 // solve dependencies to other command groups
-                addCommand(parentCommand, commandManager, commandMap);
+                addCommand(commandManager, parentCommand, commandMap);
             }
         }
         Command existingCommand = commandManager.getCommand(command.getCommandID());
