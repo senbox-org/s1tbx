@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,35 +30,53 @@ package org.esa.beam.binning.operator;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
+import java.util.Date;
+
 class TimeRangeProductFilter extends BinningProductFilter {
 
-    private final ProductData.UTC startTime;
-    private final ProductData.UTC endTime;
+    private final Date rangeStart;
+    private final Date rangeEnd;
 
-    TimeRangeProductFilter(BinningProductFilter parent, ProductData.UTC startTime, ProductData.UTC endTime) {
+    TimeRangeProductFilter(BinningProductFilter parent, ProductData.UTC rangeStart, ProductData.UTC rangeEnd) {
         setParent(parent);
-        this.startTime = startTime;
-        this.endTime = endTime;
+        Assert.notNull(rangeStart, "rangeStart");
+        Assert.notNull(rangeEnd, "rangeEnd");
+        this.rangeStart = rangeStart.getAsDate();
+        this.rangeEnd = rangeEnd.getAsDate();
     }
 
     @Override
     protected boolean acceptForBinning(Product product) {
-        final ProductData.UTC productStartTime = product.getStartTime();
-        final ProductData.UTC productEndTime = product.getEndTime();
-        final boolean hasStartTime = productStartTime != null;
-        final boolean hasEndTime = productEndTime != null;
-        if (startTime != null && hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-            && endTime != null && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+        final ProductData.UTC productStart = product.getStartTime();
+        final ProductData.UTC productEnd = product.getEndTime();
+
+        if (productStart == null && productEnd == null) {
+            // no product data at all
             return true;
-        } else if (!hasStartTime && !hasEndTime) {
+        } else if (productStart == null || productEnd == null) {
+            // only one product date given
+            Date  productDate = productStart != null ? productStart.getAsDate() : productEnd.getAsDate();
+            boolean isDateInRange = productDate.after(rangeStart) && productDate.before(rangeEnd);
+            if (!isDateInRange) {
+                setReason("Does not match the time range.");
+            }
+            return isDateInRange;
+        } else if (productEnd.getAsDate().after(rangeStart) && productStart.getAsDate().before(rangeEnd)) {
             return true;
-        } else if (startTime != null && hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate()) && !hasEndTime) {
-            return true;
-        } else if (!hasStartTime && endTime != null && productEndTime.getAsDate().before(endTime.getAsDate())) {
-            return true;
+//        } else if (productStart != null && productStart.getAsDate().after(rangeStart)) {
+//            setReason("Does not match the time range.");
+//            return false;
+//
+//        } else if (productStart != null && productStart.getAsDate().before(rangeStart)
+//            && productEnd != null && productEnd.getAsDate().before(rangeEnd)) {
+//            return true;
+//
+//        } else if (productStart == null && productEnd.getAsDate().before(rangeEnd)) {
+//            return true;
         }
         setReason("Does not match the time range.");
         return false;

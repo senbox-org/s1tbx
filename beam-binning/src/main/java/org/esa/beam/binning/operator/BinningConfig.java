@@ -39,7 +39,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
 
 import java.lang.reflect.Constructor;
-import java.text.ParseException;
 
 /**
  * Configuration for the binning.
@@ -105,12 +104,6 @@ public class BinningConfig {
     private CellProcessorConfig postProcessorConfig;
 
 
-    @Parameter(description = "UTC start date of the binning period.", format = "YYYY-MM-DD")
-    private String startDate;
-
-    @Parameter(description = "Duration of the binning period in days. Only used if parameter 'startDate' is set.")
-    private Integer periodDuration;
-
     @Parameter(description = "The time in hours of a day (0 to 24) at which a given sensor has a minimum number of " +
             "observations at the date line (the 180 degree meridian). Only used if parameter 'startDate' is set.")
     private Double minDataHour;
@@ -130,22 +123,6 @@ public class BinningConfig {
 
     public void setNumRows(int numRows) {
         this.numRows = numRows;
-    }
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-    public Integer getPeriodDuration() {
-        return periodDuration;
-    }
-
-    public void setPeriodDuration(Integer periodDuration) {
-        this.periodDuration = periodDuration;
     }
 
     public Double getMinDataHour() {
@@ -216,12 +193,8 @@ public class BinningConfig {
         }
     }
 
-    @Deprecated
-    public BinningContext createBinningContext() {
-        return createBinningContext(null);
-    }
 
-    public BinningContext createBinningContext(Geometry region) {
+    public BinningContext createBinningContext(Geometry region, ProductData.UTC startDate, Double periodDuration) {
         VariableContext variableContext = createVariableContext();
         return new BinningContextImpl(createPlanetaryGrid(),
                                       createBinManager(variableContext),
@@ -317,24 +290,13 @@ public class BinningConfig {
 
 
     // used on Calvalus
-    public static DataPeriod createDataPeriod(String startDate, Integer periodDuration, Double minDataHour) {
-        if (startDate != null) {
-            final ProductData.UTC startUtc;
-            try {
-                startUtc = ProductData.UTC.parse(startDate, "yyyy-MM-dd");
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Illegal 'startDate', format 'yyyy-MM-dd' expected.");
-            }
-            int duration = periodDuration != null ? periodDuration : 1;
+    public static DataPeriod createDataPeriod(ProductData.UTC startUtc, Double periodDuration, Double minDataHour) {
+        if (startUtc != null) {
             if (minDataHour != null) {
-                return new SpatialDataPeriod(startUtc.getMJD(), duration, minDataHour);
+                return new SpatialDataPeriod(startUtc.getMJD(), periodDuration, minDataHour);
             } else {
-                return new TemporalDataPeriod(startUtc.getMJD(), duration);
+                return new TemporalDataPeriod(startUtc.getMJD(), periodDuration);
             }
-        } else if (minDataHour != null) {
-            throw new IllegalArgumentException("Parameter 'minDataHour' can only be used with 'startDate'.");
-        } else if (periodDuration != null) {
-            throw new IllegalArgumentException("Parameter 'periodDuration' can only be used with 'startDate'.");
         }
         return null;
     }

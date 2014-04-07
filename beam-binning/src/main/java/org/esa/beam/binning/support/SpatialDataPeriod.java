@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.support;
 
 import org.esa.beam.binning.DataPeriod;
@@ -13,7 +29,7 @@ public class SpatialDataPeriod implements DataPeriod {
     private static final double EPS = 1.0 / (60.0 * 60.0 * 1000); // 1 ms
 
     private final double startTime;
-    private final int duration;
+    private final double duration;
     private final double minDataHour;
 
     /**
@@ -23,20 +39,10 @@ public class SpatialDataPeriod implements DataPeriod {
      *                    This number is usually found plotting longitude-time pairs of given sensor observations and then finding
      *                    the area where there are a minimum number of observations at the date line.
      */
-    public SpatialDataPeriod(double startTime, int duration, double minDataHour) {
+    public SpatialDataPeriod(double startTime, double duration, double minDataHour) {
         this.startTime = startTime;
         this.duration = duration;
         this.minDataHour = minDataHour;
-    }
-
-    @Override
-    public double getStartTime() {
-        return startTime;
-    }
-
-    @Override
-    public int getDuration() {
-        return duration;
     }
 
     @Override

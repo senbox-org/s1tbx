@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -76,16 +76,6 @@ public class SpatialProductBinnerTest {
     public void testProcessProductWithDataPeriod() throws Exception {
 
         DataPeriod testDataPeriod = new DataPeriod() {
-            @Override
-            public double getStartTime() {
-                return 0; // unused
-            }
-
-            @Override
-            public int getDuration() {
-                return 0; // unused
-            }
-
             @Override
             public Membership getObservationMembership(double lon, double time) {
                 return Membership.SUBSEQUENT_PERIODS;

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.operator;
 
 import org.esa.beam.framework.gpf.OperatorException;
@@ -8,8 +24,7 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -34,18 +49,19 @@ public class BinningOpRobustnessTest {
     }
 
     @Test
-    public void testBinningConfigNotSet() throws Exception {
+    public void testNumRowsNotSet() throws Exception {
         final BinningOp binningOp = new BinningOp();
         binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
-        testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'binningConfig'.*");
+        // not ok, numRows == 0
+        testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'numRows'.*");
     }
 
     @Test
-    public void testInvalidConfigsSet() throws Exception {
+    public void testBinningConfigNotSet() throws Exception {
         final BinningOp binningOp = new BinningOp();
         binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
-        binningOp.setBinningConfig(new BinningConfig());        // not ok, numRows == 0
-        testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'binningConfig.numRows'.*");
+        binningOp.setNumRows(2);
+        testThatOperatorExceptionIsThrown(binningOp, "No aggregator have been defined");
     }
 
 //    @Test
@@ -73,6 +89,7 @@ public class BinningOpRobustnessTest {
             binningOp.getTargetProduct();
             fail(message);
         } catch (OperatorException e) {
+            System.out.println("e = " + e);
             assertTrue(message + ", got [" + e.getMessage() + "]", Pattern.matches(regex, e.getMessage()));
         }
     }

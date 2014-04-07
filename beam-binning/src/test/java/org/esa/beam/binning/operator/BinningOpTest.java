@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,11 +18,11 @@ package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -33,7 +33,6 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +46,6 @@ import java.util.SortedMap;
 import static java.lang.Math.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -96,9 +93,11 @@ public class BinningOpTest {
                                     createSourceProduct(2, 0.2F),
                                     createSourceProduct(3, 0.3F));
 
-        binningOp.setStartDate("2002-01-01");
-        binningOp.setEndDate("2002-01-10");
-        binningOp.setBinningConfig(createBinningConfig());
+        binningOp.setStartDateTime("2002-01-01");
+        binningOp.setPeriodDuration(10.0);
+        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+        binningOp.setNumRows(180);
+        binningOp.setMaskExpr("true");
         binningOp.setFormatterConfig(createFormatterConfig());
 
         binningOp.setParameter("metadataTemplateDir", TESTDATA_DIR);
@@ -140,32 +139,31 @@ public class BinningOpTest {
     @Test
     public void testInvalidDates() throws Exception {
         final BinningOp binningOp = createBinningOp();
-        binningOp.setStartDate("2010-01-01");
-        binningOp.setEndDate("2009-01-01");
+        binningOp.setStartDateTime("2010-01-01");
+        binningOp.setPeriodDuration(-1.0);
         try {
             binningOp.initialize();
             fail();
         } catch (OperatorException expected) {
-            assertTrue(expected.getMessage().contains("before"));
+            assertTrue(expected.getMessage().equals("The parameter 'periodDuration' must be a positive value"));
         }
     }
 
     @Test
     public void testBinningWithEmptyMaskExpression() throws Exception {
 
-        BinningConfig binningConfig = createBinningConfig();
-        binningConfig.setMaskExpr("");
         FormatterConfig formatterConfig = createFormatterConfig();
-
         float obs1 = 0.2F;
 
         final BinningOp binningOp = createBinningOp();
+        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+        binningOp.setNumRows(180);
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setSourceProducts(createSourceProduct(1, obs1));
-        binningOp.setStartDate("2002-01-01");
-        binningOp.setEndDate("2002-01-10");
-        binningOp.setBinningConfig(binningConfig);
+        binningOp.setStartDateTime("2002-01-01");
+        binningOp.setPeriodDuration(10.0);
+        binningOp.setMaskExpr("");
         binningOp.setFormatterConfig(formatterConfig);
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
@@ -177,19 +175,18 @@ public class BinningOpTest {
     @Test
     public void testBinningWhenMaskExpressionIsNull() throws Exception {
 
-        BinningConfig binningConfig = createBinningConfig();
-        binningConfig.setMaskExpr(null);
         FormatterConfig formatterConfig = createFormatterConfig();
-
         float obs1 = 0.2F;
 
         final BinningOp binningOp = createBinningOp();
+        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+        binningOp.setNumRows(180);
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setSourceProducts(createSourceProduct(1, obs1));
-        binningOp.setStartDate("2002-01-01");
-        binningOp.setEndDate("2002-01-10");
-        binningOp.setBinningConfig(binningConfig);
+        binningOp.setStartDateTime("2002-01-01");
+        binningOp.setPeriodDuration(10.0);
+        binningOp.setMaskExpr(null);
         binningOp.setFormatterConfig(formatterConfig);
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
@@ -207,7 +204,6 @@ public class BinningOpTest {
      */
     @Test
     public void testGlobalBinning() throws Exception {
-        BinningConfig binningConfig = createBinningConfig();
         FormatterConfig formatterConfig = createFormatterConfig();
 
         float obs1 = 0.2F;
@@ -217,7 +213,9 @@ public class BinningOpTest {
         float obs5 = 1.0F;
 
         final BinningOp binningOp = createBinningOp();
-
+        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+        binningOp.setNumRows(180);
+        binningOp.setMaskExpr("true");
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
                                     createSourceProduct(2, obs2),
                                     createSourceProduct(3, obs3),
@@ -225,9 +223,8 @@ public class BinningOpTest {
                                     createSourceProduct(5, obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
-        binningOp.setStartDate("2002-01-01");
-        binningOp.setEndDate("2002-01-10");
-        binningOp.setBinningConfig(binningConfig);
+        binningOp.setStartDateTime("2002-01-01");
+        binningOp.setPeriodDuration(10.0);
         binningOp.setFormatterConfig(formatterConfig);
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
@@ -251,7 +248,6 @@ public class BinningOpTest {
     @Test
     public void testLocalBinning() throws Exception {
 
-        BinningConfig binningConfig = createBinningConfig();
         FormatterConfig formatterConfig = createFormatterConfig();
 
         float obs1 = 0.2F;
@@ -261,7 +257,9 @@ public class BinningOpTest {
         float obs5 = 1.0F;
 
         final BinningOp binningOp = createBinningOp();
-
+        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+        binningOp.setNumRows(180);
+        binningOp.setMaskExpr("true");
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
                                     createSourceProduct(2, obs2),
                                     createSourceProduct(3, obs3),
@@ -276,9 +274,8 @@ public class BinningOpTest {
                 new Coordinate(-1.0, 3.0),
                 new Coordinate(-1.0, -1.0),
         }), null));
-        binningOp.setStartDate("2002-01-01");
-        binningOp.setEndDate("2002-01-10");
-        binningOp.setBinningConfig(binningConfig);
+        binningOp.setStartDateTime("2002-01-01");
+        binningOp.setPeriodDuration(10.0);
         binningOp.setFormatterConfig(formatterConfig);
 
         final Product targetProduct = binningOp.getTargetProduct();
@@ -300,7 +297,6 @@ public class BinningOpTest {
     @Test
     public void testGlobalBinningViaGPF() throws Exception {
 
-        BinningConfig binningConfig = createBinningConfig();
         FormatterConfig formatterConfig = createFormatterConfig();
 
         float obs1 = 0.2F;
@@ -310,9 +306,11 @@ public class BinningOpTest {
         float obs5 = 1.0F;
 
         final HashMap<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("startDate", "2002-01-01");
-        parameters.put("endDate", "2002-01-10");
-        parameters.put("binningConfig", binningConfig);
+        parameters.put("startDateTime", "2002-01-01");
+        parameters.put("periodDuration", "10");
+        parameters.put("numRows", 180);
+        parameters.put("maskExpr", "true");
+        parameters.put("aggregatorConfigs", new AggregatorConfig[]{chlAgg(), p70Agg()});
         parameters.put("formatterConfig", formatterConfig);
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
@@ -340,7 +338,6 @@ public class BinningOpTest {
     @Test
     public void testLocalBinningViaGPF() throws Exception {
 
-        BinningConfig binningConfig = createBinningConfig();
         FormatterConfig formatterConfig = createFormatterConfig();
 
         float obs1 = 0.2F;
@@ -351,9 +348,11 @@ public class BinningOpTest {
 
         final HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("region", "POLYGON((-1 -1, 3 -1, 3 3, -1 3, -1 -1))");
-        parameters.put("startDate", "2002-01-01");
-        parameters.put("endDate", "2002-01-10");
-        parameters.put("binningConfig", binningConfig);
+        parameters.put("startDateTime", "2002-01-01");
+        parameters.put("periodDuration", "10");
+        parameters.put("numRows", 180);
+        parameters.put("maskExpr", "true");
+        parameters.put("aggregatorConfigs", new AggregatorConfig[]{chlAgg(), p70Agg()});
         parameters.put("formatterConfig", formatterConfig);
 
         final Product targetProduct = GPF.createProduct("Binning",
@@ -571,9 +570,7 @@ public class BinningOpTest {
     @Test
     public void testCreateGeoCodingProductFilter() throws Exception {
         BinningOp binningOp = createBinningOp();
-        binningOp.useSpatialDataDay = false;
-        binningOp.startDate = null;
-        binningOp.endDate = null;
+        binningOp.setTimeFilterMethod(BinningOp.TimeFilterMethod.NONE);
 
         final ProductFilter allProductsFilter = BinningOp.createSourceProductFilter(null, null, null, null);
         assertThat(allProductsFilter, is(instanceOf(GeoCodingProductFilter.class)));
@@ -593,7 +590,7 @@ public class BinningOpTest {
         Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.SUBSEQUENT_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
 
         BinningOp binningOp = createBinningOp();
-        binningOp.useSpatialDataDay = true;
+        binningOp.setTimeFilterMethod(BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATADAY);
         ProductFilter filter = BinningOp.createSourceProductFilter(dataPeriod, null, null, null);
 
         assertSame(SpatialDataDaySourceProductFilter.class, filter.getClass());
@@ -624,7 +621,6 @@ public class BinningOpTest {
 
     @Test
     public void testBinningSetsCorrectStartAndStopTimesFromProductTimes() throws Exception {
-        final BinningConfig binningConfig = createBinningConfig();
         final FormatterConfig formatterConfig = createFormatterConfig();
 
         float obs1 = 0.2F;
@@ -638,37 +634,16 @@ public class BinningOpTest {
         sourceProduct.setEndTime(ProductData.UTC.parse("02-JAN-2002 12:28:19"));
 
         binningOp.setSourceProducts(sourceProduct);
-        binningOp.setBinningConfig(binningConfig);
+        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+        binningOp.setNumRows(180);
+        binningOp.setMaskExpr("true");
         binningOp.setFormatterConfig(formatterConfig);
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
+        // TODO actually test something
         targetProduct.dispose();
-    }
-
-    @SuppressWarnings("NullArgumentToVariableArgMethod")
-    @Test
-    public void testHasNoAggregatorConfigs() {
-        final BinningConfig binningConfig = new BinningConfig();
-        assertTrue(BinningOp.hasNoAggregatorConfigs(binningConfig));
-        binningConfig.setAggregatorConfigs(null);
-        assertTrue(BinningOp.hasNoAggregatorConfigs(binningConfig));
-
-        binningConfig.setAggregatorConfigs(new AggregatorAverage.Config());
-        assertFalse(BinningOp.hasNoAggregatorConfigs(binningConfig));
-    }
-
-    @SuppressWarnings("NullArgumentToVariableArgMethod")
-    @Test
-    public void testHasNoVariableConfigs() {
-        final BinningConfig binningConfig = new BinningConfig();
-        assertTrue(BinningOp.hasNoVariableConfigs(binningConfig));
-        binningConfig.setVariableConfigs(null);
-        assertTrue(BinningOp.hasNoVariableConfigs(binningConfig));
-
-        binningConfig.setVariableConfigs(new VariableConfig());
-        assertFalse(BinningOp.hasNoVariableConfigs(binningConfig));
     }
 
     private BinningOp createBinningOp() {
@@ -702,7 +677,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct.getStartTime());
         assertNotNull(targetProduct.getEndTime());
         assertEquals("01-JAN-2002 00:00:00.000000", targetProduct.getStartTime().format());
-        assertEquals("10-JAN-2002 00:00:00.000000", targetProduct.getEndTime().format());
+        assertEquals("11-JAN-2002 00:00:00.000000", targetProduct.getEndTime().format());
         assertNotNull(targetProduct.getBand("num_obs"));
         assertEquals(ProductData.TYPE_INT32, targetProduct.getBand("num_obs").getDataType());
         assertNotNull(targetProduct.getBand("num_passes"));
@@ -782,17 +757,23 @@ public class BinningOpTest {
         assertArrayEquals(expectedP70, actualP70, 1e-4F);
     }
 
-    static BinningConfig createBinningConfig() {
-        AggregatorAverage.Config chlAvg = new AggregatorAverage.Config();
-        chlAvg.setVarName("chl");
+//    static void applyDefaultConfig(BinningOp binningOp) {
+//        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
+//        binningOp.setNumRows(180);
+//        binningOp.setMaskExpr("true");
+//    }
+
+    private static AggregatorPercentile.Config p70Agg() {
         AggregatorPercentile.Config chlP70 = new AggregatorPercentile.Config();
         chlP70.setVarName("chl");
         chlP70.setPercentage(70);
-        final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setAggregatorConfigs(chlAvg, chlP70);
-        binningConfig.setNumRows(180);
-        binningConfig.setMaskExpr("true");
-        return binningConfig;
+        return chlP70;
+    }
+
+    private static AggregatorAverage.Config chlAgg() {
+        AggregatorAverage.Config chlAvg = new AggregatorAverage.Config();
+        chlAvg.setVarName("chl");
+        return chlAvg;
     }
 
     static FormatterConfig createFormatterConfig() throws IOException {

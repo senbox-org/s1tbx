@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,7 +34,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.*;
@@ -53,8 +52,8 @@ public class TimeRangeProductFilterTest {
         product = mock(Product.class);
         when(parent.accept(product)).thenReturn(true);
         timeRangeProductFilter = new TimeRangeProductFilter(parent,
-                    ProductData.UTC.parse("02-MAY-2013 00:00:00"),
-                    ProductData.UTC.parse("02-MAY-2013 23:59:59"));
+                                                            ProductData.UTC.parse("02-MAY-2013 00:00:00"),
+                                                            ProductData.UTC.parse("02-MAY-2013 23:59:59"));
     }
 
     @Test
@@ -97,45 +96,37 @@ public class TimeRangeProductFilterTest {
 
     @Test
     public void testRejectProduct_ProductsStartTimeIsInsideRange() throws Exception {
-        // todo - investigate into this strange behaviour (nf)
         when(product.getStartTime()).thenReturn(ProductData.UTC.parse("02-MAY-2013 23:30:00"));
         when(product.getEndTime()).thenReturn(ProductData.UTC.parse("03-MAY-2013 00:30:00"));
 
-        assertThat(timeRangeProductFilter.accept(product), is(false));
-        // However, Norman would expect: assertTrue(filter.accept(product));
-        assertThat(timeRangeProductFilter.getReason(), is("Does not match the time range."));
+        assertThat(timeRangeProductFilter.accept(product), is(true));
+        assertThat(timeRangeProductFilter.getReason(), is(nullValue()));
     }
 
     @Test
     public void testRejectProduct_ProductsEndTimeIsInsideRange() throws Exception {
-        // todo - investigate into this strange behaviour (nf)
         when(product.getStartTime()).thenReturn(ProductData.UTC.parse("01-MAY-2013 23:30:00"));
         when(product.getEndTime()).thenReturn(ProductData.UTC.parse("02-MAY-2013 00:30:00"));
 
-        assertThat(timeRangeProductFilter.accept(product), is(false));
-        // However, Norman would expect: assertTrue(filter.accept(product));
-        assertThat(timeRangeProductFilter.getReason(), is("Does not match the time range."));
+        assertThat(timeRangeProductFilter.accept(product), is(true));
+        assertThat(timeRangeProductFilter.getReason(), is(nullValue()));
     }
 
     @Test
     public void testRejectProduct_ProductsStartTimeEqualsRangeStartTime() throws Exception {
-        // todo - investigate into this strange behaviour (nf)
         when(product.getStartTime()).thenReturn(ProductData.UTC.parse("02-MAY-2013 00:00:00"));
         when(product.getEndTime()).thenReturn(ProductData.UTC.parse("02-MAY-2013 01:00:00"));
 
-        assertThat(timeRangeProductFilter.accept(product), is(false));
-        // However, Norman would expect: assertTrue(filter.accept(product));
-        assertThat(timeRangeProductFilter.getReason(), is("Does not match the time range."));
+        assertThat(timeRangeProductFilter.accept(product), is(true));
+        assertThat(timeRangeProductFilter.getReason(), is(nullValue()));
     }
 
     @Test
     public void testRejectProduct_ProductsEndTimeEqualsRangeEndTime() throws Exception {
-        // todo - investigate into this strange behaviour (nf)
         when(product.getStartTime()).thenReturn(ProductData.UTC.parse("02-MAY-2013 23:00:00"));
         when(product.getEndTime()).thenReturn(ProductData.UTC.parse("02-MAY-2013 23:59:59"));
 
-        assertThat(timeRangeProductFilter.accept(product), is(false));
-        // However, Norman would expect: assertTrue(filter.accept(product));
-        assertThat(timeRangeProductFilter.getReason(), is("Does not match the time range."));
+        assertThat(timeRangeProductFilter.accept(product), is(true));
+        assertThat(timeRangeProductFilter.getReason(), is(nullValue()));
     }
 }
