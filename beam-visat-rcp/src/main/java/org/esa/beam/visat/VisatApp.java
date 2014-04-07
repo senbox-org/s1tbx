@@ -398,9 +398,9 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     private void loadCommands() {
-        Command[] commands = VisatActivator.getInstance().getCommands();
-        for (Command command : commands) {
-            addCommand(command, getCommandManager());
+        Map<String, Command> commandMap = VisatActivator.getInstance().getCommandMap();
+        for (Command command : commandMap.values()) {
+            addCommand(command, getCommandManager(), commandMap);
             if ("selectTool".equals(command.getCommandID())) {
                 ToolCommand toolCommand = (ToolCommand) command;
                 selectionInteractor = toolCommand.getInteractor();
@@ -520,28 +520,19 @@ public class VisatApp extends BasicApp implements AppContext {
         return null;
     }
 
-    private static void addCommand(Command command, CommandManager commandManager) {
+    private static void addCommand(Command command, CommandManager commandManager, Map<String, Command> commandMap) {
         String parentId = command.getParent();
         if (parentId != null && commandManager.getCommandGroup(parentId) == null) {
-            Command com = getCommand(VisatActivator.getInstance().getCommands(), parentId);
-            if (com != null) {
-                // enter recursion
-                // needed to solve depencies to command groups
-                addCommand(com, commandManager);
+            Command parentCommand = commandMap.get(parentId);
+            if (parentCommand != null) {
+                // solve dependencies to other command groups
+                addCommand(parentCommand, commandManager, commandMap);
             }
         }
-        if (commandManager.getCommand(command.getCommandID()) == null) { // my be already added in the recursion
+        Command existingCommand = commandManager.getCommand(command.getCommandID());
+        if (existingCommand == null) {
             commandManager.addCommand(command);
         }
-    }
-
-    private static Command getCommand(Command[] commands, String commandId) {
-        for (Command command : commands) {
-            if (command.getCommandID().equals(commandId)) {
-                return command;
-            }
-        }
-        return null;
     }
 
     @Override
