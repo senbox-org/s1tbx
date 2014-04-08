@@ -16,9 +16,6 @@
         <module>nest-graph-builder</module>
     </dependency>
     <dependency>
-        <module>beam-nest-common</module>
-    </dependency>
-    <dependency>
         <module>nest-dat</module>
     </dependency>
     <dependency>

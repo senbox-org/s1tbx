@@ -33,7 +33,7 @@ public class HSVImageProfilePane extends RGBImageProfilePane {
     public HSVImageProfilePane(final PropertyMap preferences, final Product product, final Product[] openedProducts) {
         super(preferences, product, openedProducts);
 
-        _storeInProductCheck.setText("Store HSV channels as virtual bands in current product");
+        storeInProductCheck.setText("Store HSV channels as virtual bands in current product");
     }
 
     @Override
