@@ -47,7 +47,7 @@
     <modules>
 		<module>../ceres-0.x</module>
         <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
-        <!--module>../beam-bootstrap</module-->
+        <module>../beam-bootstrap</module>
         <module>../beam-core</module>
         <module>../beam-csv-dataio</module>
         <!--module>../beam-examples</module-->
