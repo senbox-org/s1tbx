@@ -17,7 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
-import org.apache.commons.math.util.FastMath;
+import org.apache.commons.math3.util.FastMath;
 
 import javax.media.jai.Histogram;
 
