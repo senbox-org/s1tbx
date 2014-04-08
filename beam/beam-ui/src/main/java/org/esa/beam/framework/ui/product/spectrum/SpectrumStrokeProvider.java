@@ -10,10 +10,11 @@ import java.awt.Stroke;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
+import org.esa.beam.util.ArrayUtils;
 
 public class SpectrumStrokeProvider {
 
-    public static final Stroke[] strokes = new Stroke[]{
+    private static final Stroke[] strokes = new Stroke[]{
             new BasicStroke(),
             new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f),
             new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{1.0f}, 0.0f),
@@ -22,7 +23,7 @@ public class SpectrumStrokeProvider {
             new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{1.0f, 5.0f}, 0.0f),
             new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f, 10.0f, 1.0f, 10.0f}, 0.0f)
     };
-    public static final ImageIcon[] strokeIcons = convertStrokesToIcons();
+    private static final ImageIcon[] strokeIcons = convertStrokesToIcons();
     public static final Stroke EMPTY_STROKE = new EmptyStroke();
 
     private static ImageIcon[] convertStrokesToIcons() {
@@ -46,6 +47,22 @@ public class SpectrumStrokeProvider {
         graphics.draw(strokeShape);
         graphics.dispose();
         return new ImageIcon(image);
+    }
+
+    public static Stroke getStroke(int i) {
+        return strokes[i % strokes.length];
+    }
+
+    public static ImageIcon getStrokeIcon(Stroke lineStyle) {
+        return strokeIcons[ArrayUtils.getElementIndex(lineStyle, strokes)];
+    }
+
+    public static ImageIcon[] getStrokeIcons() {
+        return strokeIcons;
+    }
+
+    public static Stroke getStroke(ImageIcon strokeIcon) {
+        return strokes[ArrayUtils.getElementIndex(strokeIcon, strokeIcons)];
     }
 
     private static class EmptyStroke implements Stroke {

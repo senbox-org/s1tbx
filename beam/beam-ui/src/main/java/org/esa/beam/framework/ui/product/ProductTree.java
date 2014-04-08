@@ -16,6 +16,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.TreeCellExtender;
+import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.PopupMenuFactory;
@@ -25,7 +26,6 @@ import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.product.tree.AbstractTN;
 import org.esa.beam.framework.ui.product.tree.ProductTreeModel;
-import org.esa.beam.dataio.dimap.DimapProductReader;
 
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
@@ -38,9 +38,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -104,8 +104,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         final PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         addMouseListener(popupMenuHandler);
         addKeyListener(popupMenuHandler);
-        activeProductNodes = new HashSet<ProductNode>();
-        openedProductNodes = new HashMap<ProductNode, Integer>();
+        activeProductNodes = new HashSet<>();
+        openedProductNodes = new HashMap<>();
         productManagerListener = new ProductManagerListener();
         productTreeModelListener = new ProductTreeModelListener(this);
 
@@ -252,7 +252,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     public void addProductTreeListener(ProductTreeListener listener) {
         if (listener != null) {
             if (productTreeListenerList == null) {
-                productTreeListenerList = new ArrayList<ProductTreeListener>();
+                productTreeListenerList = new ArrayList<>();
             }
             productTreeListenerList.add(listener);
         }
@@ -289,8 +289,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             if (selRow >= 0) {
                 int clickCount = event.getClickCount();
                 TreePath selPath = getPathForLocation(event.getX(), event.getY());
-                AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
-                fireNodeSelected(node.getContent(), clickCount);
+                if (selPath != null) {
+                    AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
+                    fireNodeSelected(node.getContent(), clickCount);
+                }
             }
         }
     }
@@ -356,7 +358,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                                                       boolean leaf,
                                                       int row,
                                                       boolean hasFocus) {
-            try {
+
             super.getTreeCellRendererComponent(tree,
                                                value,
                                                sel,
@@ -428,9 +430,15 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (productNode instanceof Band) {
                     Band band = (Band) productNode;
 
-                    addDN(band, toolTipBuffer);
+					addDN(band, toolTipBuffer);
 
                     if (band.getSpectralWavelength() > 0.0) {
+                        if (band.getSpectralWavelength() == Math.round(band.getSpectralWavelength())) {
+                            text = String.format("%s (%d nm)", productNode.getName(), (int) band.getSpectralWavelength());
+                        } else {
+                            text = String.format("%s (%f nm)", productNode.getName(), band.getSpectralWavelength());
+                        }
+
                         toolTipBuffer.append(", wavelength = ");
                         toolTipBuffer.append(band.getSpectralWavelength());
                         toolTipBuffer.append(" nm, bandwidth = ");
@@ -491,9 +499,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 this.setText(text);
                 this.setToolTipText(toolTipBuffer.toString());
             }
-            } catch(Throwable t) {
-                t.printStackTrace();
-            }
+
             return this;
         }
     }
@@ -619,8 +625,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             TreePath treePath = getModel().getTreePath(event.getProduct());
             expandPath(treePath);
             Rectangle bounds = getPathBounds(treePath);
-            bounds.setRect(0, bounds.y, bounds.width, bounds.height);
-            scrollRectToVisible(bounds);
+            if (bounds != null) {
+                bounds.setRect(0, bounds.y, bounds.width, bounds.height);
+                scrollRectToVisible(bounds);
+            }
         }
 
         @Override
@@ -727,8 +735,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         }
                     }
                 }
-            } catch (UnsupportedFlavorException ignored) {
-            } catch (IOException ignored) {
+            } catch (UnsupportedFlavorException | IOException ignored) {
                 // This can happen if the transferred object is not a real file on disk
                 // but a virtual file (e.g. email from Thunderbird or Outlook), see
                 // http://bugs.sun.com/view_bug.do?bug_id=6242241
@@ -749,7 +756,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
 
         private List<File> textURIListToFileList(String data) {
-            List<File> list = new ArrayList<File>(1);
+            List<File> list = new ArrayList<>(1);
             StringTokenizer st = new StringTokenizer(data, "\r\n");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
@@ -759,10 +766,11 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 }
                 try {
                     list.add(new File(new URI(token)));
-                } catch (java.net.URISyntaxException ignore) {
+                } catch (java.net.URISyntaxException | IllegalArgumentException ignore) {
                     // malformed URI
-                } catch (IllegalArgumentException ignore) {
+                    // or
                     // the URI is not a valid 'file:' URI
+
                 }
             }
             return list;

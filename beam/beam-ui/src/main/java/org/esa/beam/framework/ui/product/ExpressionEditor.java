@@ -15,72 +15,103 @@
  */
 package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.PropertyEditor;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
-
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.BooleanExpressionConverter;
+import org.esa.beam.framework.ui.GeneralExpressionConverter;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.util.PropertyMap;
+import org.esa.beam.framework.ui.UIUtils;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 
 /**
  * A value editor for band arithmetic expressions
  *
  * @author Marco Zuehlke
- * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class ExpressionEditor extends PropertyEditor {
+public abstract class ExpressionEditor extends PropertyEditor {
     
-    private final Product[] sourceProducts;
-    private final Product currentProduct;
-    private final PropertyMap preferences;
-    private final boolean booleanExpr;
-
-    
-    public ExpressionEditor(Product currentProduct, Product[] sourceProducts, PropertyMap preferences,
-                             boolean booleanExpr) {
-        this.currentProduct = currentProduct;
-        this.sourceProducts = sourceProducts != null ? sourceProducts: new Product[]{currentProduct};
-        this.preferences = preferences;
-        this.booleanExpr = booleanExpr;
-    }
+    private Product currentProduct;
 
     @Override
     public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
+        textField.setPreferredSize(new Dimension(100, textField.getPreferredSize().height));
         ComponentAdapter adapter = new TextComponentAdapter(textField);
         final Binding binding = bindingContext.bind(propertyDescriptor.getName(), adapter);
         final JPanel subPanel = new JPanel(new BorderLayout(2, 2));
         subPanel.add(textField, BorderLayout.CENTER);
-        JButton etcButton = new JButton("...");
+        final JButton etcButton = new JButton("...");
+        etcButton.setEnabled(false);
         etcButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ProductExpressionPane expressionPane;
-                if (booleanExpr) {
-                    expressionPane = ProductExpressionPane.createBooleanExpressionPane(sourceProducts, currentProduct, preferences);
-                }else {
-                    expressionPane = ProductExpressionPane.createGeneralExpressionPane(sourceProducts, currentProduct, preferences);
-                }
+                ProductExpressionPane expressionPane = getProductExpressionPane(currentProduct);
                 expressionPane.setCode((String) binding.getPropertyValue());
                 if (expressionPane.showModalDialog(null, "Expression Editor") == ModalDialog.ID_OK) {
                     binding.setPropertyValue(expressionPane.getCode());
                 }
             }
         });
+        Property property = Property.create(UIUtils.PROPERTY_SOURCE_PRODUCT, Product.class, null, false);
+        property.getDescriptor().setTransient(true);
+        bindingContext.getPropertySet().addProperty(property);
+        bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(UIUtils.PROPERTY_SOURCE_PRODUCT)) {
+                    currentProduct = (Product) evt.getNewValue();
+                    etcButton.setEnabled(currentProduct != null);
+                }
+            }
+        });
         subPanel.add(etcButton, BorderLayout.EAST);
         return subPanel;
+    }
+
+    abstract ProductExpressionPane getProductExpressionPane(Product currentProduct);
+
+    public static class GeneralExpressionEditor extends ExpressionEditor {
+
+        @Override
+        public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+            return propertyDescriptor.getConverter() instanceof GeneralExpressionConverter;
+        }
+
+        @Override
+        ProductExpressionPane getProductExpressionPane(Product currentProduct) {
+            return ProductExpressionPane.createGeneralExpressionPane(
+                    new Product[]{currentProduct}, currentProduct, null);
+        }
+    }
+
+    public static class BooleanExpressionEditor extends ExpressionEditor {
+
+        @Override
+        public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+            return propertyDescriptor.getConverter() instanceof BooleanExpressionConverter;
+        }
+
+        @Override
+        ProductExpressionPane getProductExpressionPane(Product currentProduct) {
+            return ProductExpressionPane.createBooleanExpressionPane(
+                    new Product[]{currentProduct}, currentProduct, null);
+        }
     }
 }

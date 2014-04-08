@@ -1,6 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.jidesoft.swing.CheckBoxTree;
+import javax.swing.tree.TreeNode;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -20,8 +21,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,18 +31,18 @@ import java.util.TreeMap;
 public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     // @todo 3 nf/se - see ProductSubsetDialog for a similar declarations  (code smell!)
-    private static final Font _SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
-    private static final Font _SMALL_ITALIC_FONT = _SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
+    private static final Font SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
+    private static final Font SMALL_ITALIC_FONT = SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
 
-    private JCheckBox _selectAllCheckBox;
-    private JCheckBox _selectNoneCheckBox;
-    private boolean _multipleProducts;
+    private JCheckBox selectAllCheckBox;
+    private JCheckBox selectNoneCheckBox;
+    private boolean multipleProducts;
     private Product.AutoGrouping autoGrouping;
     private CheckBoxTree checkBoxTree;
-    private final Map<String, Band> allBandsMap;
-    private final Map<String, Band> selectedBandsMap;
-    private final Map<String, TiePointGrid> allGridsMap;
-    private final Map<String, TiePointGrid> selectedGridsMap;
+    private final Map<Band, String> allBandsMap;
+    private final Map<Band, String> selectedBandsMap;
+    private final Map<TiePointGrid, String> allGridsMap;
+    private final Map<TiePointGrid, String> selectedGridsMap;
 
     public GroupedBandChoosingStrategy(Band[] allBands, Band[] selectedBands, TiePointGrid[] allTiePointGrids,
                                        TiePointGrid[] selectedTiePointGrids, Product.AutoGrouping autoGrouping, boolean multipleProducts) {
@@ -50,31 +51,36 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
         allGridsMap = createTiepointGridMap(allTiePointGrids);
         selectedGridsMap = createTiepointGridMap(selectedTiePointGrids);
         this.autoGrouping = autoGrouping;
-        this._multipleProducts = multipleProducts;
+        this.multipleProducts = multipleProducts;
     }
 
-    private Map<String, Band> createBandMap(Band[] bands) {
-        final Map<String, Band> bandMap = new TreeMap<String, Band>();
+    private Map<Band, String> createBandMap(Band[] bands) {
+        final Map<Band, String> bandMap = new TreeMap<>(BandSorter.createComparator());
         if (bands != null) {
             for (Band band : bands) {
-                bandMap.put(getDisplayDescription(band), band);
+                bandMap.put(band, getDisplayDescription(band));
             }
         }
         return bandMap;
     }
 
-    private Map<String, TiePointGrid> createTiepointGridMap(TiePointGrid[] grids) {
-        final Map<String, TiePointGrid> gridMap = new TreeMap<String, TiePointGrid>();
+    private Map<TiePointGrid, String> createTiepointGridMap(TiePointGrid[] grids) {
+        final Map<TiePointGrid, String> gridMap = new TreeMap<>(new Comparator<TiePointGrid>() {
+            @Override
+            public int compare(TiePointGrid grid1, TiePointGrid grid2) {
+                return grid1.getName().compareTo(grid2.getName());
+            }
+        });
         if (grids != null) {
             for (TiePointGrid grid : grids) {
-                gridMap.put(getDisplayDescription(grid), grid);
+                gridMap.put(grid, getDisplayDescription(grid));
             }
         }
         return gridMap;
     }
 
     private String getDisplayDescription(RasterDataNode rasterDataNode) {
-        final String fullName = _multipleProducts ? rasterDataNode.getDisplayName() : rasterDataNode.getName();
+        final String fullName = multipleProducts ? rasterDataNode.getDisplayName() : rasterDataNode.getName();
         final StringBuilder description = new StringBuilder();
         description.setLength(0);
         description.append(fullName);
@@ -92,42 +98,64 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     @Override
     public Band[] getSelectedBands() {
-        List<Band> selectedBandList = new ArrayList<Band>();
+        List<Band> selectedBandList = new ArrayList<>();
         final TreePath[] selectionPaths = checkBoxTree.getCheckBoxTreeSelectionModel().getSelectionPaths();
         TreePath rootPath = new TreePath(checkBoxTree.getModel().getRoot());
         for (TreePath selectionPath : selectionPaths) {
             if (selectionPath.equals(rootPath)) {
-                return allBandsMap.values().toArray(new Band[allBandsMap.size()]);
+                return allBandsMap.keySet().toArray(new Band[allBandsMap.size()]);
             }
             final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
             if (selectedNode.isLeaf()) {
-                selectedBandList.add(allBandsMap.get(selectedNode.getUserObject().toString()));
+                RasterDataNode key = getKey(selectedNode.getUserObject().toString(), allBandsMap);
+                if (key != null) {
+                    selectedBandList.add((Band) key);
+                }
             } else {
                 for (int i = 0; i < selectedNode.getChildCount(); i++) {
                     final DefaultMutableTreeNode child = (DefaultMutableTreeNode) selectedNode.getChildAt(i);
-                    selectedBandList.add(allBandsMap.get(child.getUserObject().toString()));
+                    RasterDataNode key = getKey(child.getUserObject().toString(), allBandsMap);
+                    if (key != null) {
+                        selectedBandList.add((Band) key);
+                    }
                 }
             }
         }
         return selectedBandList.toArray(new Band[selectedBandList.size()]);
     }
 
+    private RasterDataNode getKey(String value, Map<? extends RasterDataNode, String> map) {
+        for (Map.Entry<? extends RasterDataNode, String> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     @Override
     public TiePointGrid[] getSelectedTiePointGrids() {
-        List<TiePointGrid> selectedGridList = new ArrayList<TiePointGrid>();
+        List<TiePointGrid> selectedGridList = new ArrayList<>();
         final TreePath[] selectionPaths = checkBoxTree.getCheckBoxTreeSelectionModel().getSelectionPaths();
         TreePath rootPath = new TreePath(checkBoxTree.getModel().getRoot());
         for (TreePath selectionPath : selectionPaths) {
             if (selectionPath.equals(rootPath)) {
-                return allGridsMap.values().toArray(new TiePointGrid[allGridsMap.size()]);
+                return allGridsMap.keySet().toArray(new TiePointGrid[allGridsMap.size()]);
             }
             final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
             if (selectedNode.isLeaf()) {
-                selectedGridList.add(allGridsMap.get(selectedNode.getUserObject().toString()));
+                RasterDataNode key = getKey(selectedNode.getUserObject().toString(), allGridsMap);
+                if (key != null) {
+                    selectedGridList.add((TiePointGrid) key);
+                }
             } else {
                 for (int i = 0; i < selectedNode.getChildCount(); i++) {
                     final DefaultMutableTreeNode child = (DefaultMutableTreeNode) selectedNode.getChildAt(i);
-                    selectedGridList.add(allGridsMap.get(child.getUserObject().toString()));
+                    RasterDataNode key = getKey(child.getUserObject().toString(), allGridsMap);
+                    if (key != null) {
+                        selectedGridList.add((TiePointGrid) key);
+                    }
+                    selectedGridList.add((TiePointGrid) key);
                 }
             }
         }
@@ -137,7 +165,7 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
     public JPanel createCheckersPane() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode();
         Map<String, Integer> groupNodeMap = initGrouping(root);
-        List<TreePath> selectedPaths = new ArrayList<TreePath>();
+        List<TreePath> selectedPaths = new ArrayList<>();
         addBandCheckBoxes(root, selectedPaths, groupNodeMap);
         addTiePointGridCheckBoxes(root, selectedPaths, groupNodeMap);
         removeEmptyGroups(root, groupNodeMap);
@@ -155,7 +183,7 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
             }
         });
         final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) checkBoxTree.getActualCellRenderer();
-        renderer.setFont(_SMALL_ITALIC_FONT);
+        renderer.setFont(SMALL_ITALIC_FONT);
         renderer.setLeafIcon(null);
         renderer.setOpenIcon(null);
         renderer.setClosedIcon(null);
@@ -173,11 +201,10 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
     }
 
     private Map<String, Integer> initGrouping(DefaultMutableTreeNode root) {
-        Map<String, Integer> groupNodeMap = new HashMap<String, Integer>();
+        Map<String, Integer> groupNodeMap = new HashMap<>();
         if (autoGrouping != null) {
-            final Iterator<String[]> iterator = autoGrouping.iterator();
-            while (iterator.hasNext()) {
-                final String groupName = iterator.next()[0];
+            for (String[] groupNames : autoGrouping) {
+                final String groupName = groupNames[0];
                 if (!hasChild(root, groupName)) {
                     DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(groupName);
                     groupNodeMap.put(groupNode.getUserObject().toString(), root.getChildCount());
@@ -201,17 +228,17 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     private void addBandCheckBoxes(DefaultMutableTreeNode root, List<TreePath> selectedPaths,
                                    Map<String, Integer> groupNodeMap) {
-        final Set<Map.Entry<String, Band>> allBands = allBandsMap.entrySet();
-        for (Map.Entry<String, Band> bandEntry : allBands) {
-            final Band band = bandEntry.getValue();
+        final Set<Map.Entry<Band, String>> allBands = allBandsMap.entrySet();
+        for (Map.Entry<Band, String> bandEntry : allBands) {
+            final Band band = bandEntry.getKey();
             if (autoGrouping != null) {
                 final int bandIndex = autoGrouping.indexOf(band.getName());
                 if (bandIndex >= 0) {
                     final String groupName = autoGrouping.get(bandIndex)[0];
                     final Integer index = groupNodeMap.get(groupName);
                     final DefaultMutableTreeNode groupNode = (DefaultMutableTreeNode) root.getChildAt(index);
-                    final DefaultMutableTreeNode groupChild = new DefaultMutableTreeNode(bandEntry.getKey());
-                    if (selectedBandsMap.containsValue(band)) {
+                    final DefaultMutableTreeNode groupChild = new DefaultMutableTreeNode(bandEntry.getValue());
+                    if (selectedBandsMap.containsValue(bandEntry.getValue())) {
                         selectedPaths.add(new TreePath(new Object[]{root, groupNode, groupChild}));
                     }
                     groupNode.add(groupChild);
@@ -226,9 +253,9 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     private void addTiePointGridCheckBoxes(DefaultMutableTreeNode root, List<TreePath> selectedPaths,
                                            Map<String, Integer> groupNodeMap) {
-        final Set<Map.Entry<String, TiePointGrid>> allGrids = allGridsMap.entrySet();
-        for (Map.Entry<String, TiePointGrid> gridEntry : allGrids) {
-            final TiePointGrid grid = gridEntry.getValue();
+        final Set<Map.Entry<TiePointGrid, String>> allGrids = allGridsMap.entrySet();
+        for (Map.Entry<TiePointGrid, String> gridEntry : allGrids) {
+            final TiePointGrid grid = gridEntry.getKey();
             if (autoGrouping != null) {
                 final int gridIndex = autoGrouping.indexOf(grid.getName());
                 if (gridIndex >= 0) {
@@ -236,8 +263,8 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
                     final Integer index = groupNodeMap.get(groupName);
 
                     final DefaultMutableTreeNode groupNode = (DefaultMutableTreeNode) root.getChildAt(index);
-                    final DefaultMutableTreeNode groupChild = new DefaultMutableTreeNode(gridEntry.getKey());
-                    if (selectedGridsMap.containsValue(grid)) {
+                    final DefaultMutableTreeNode groupChild = new DefaultMutableTreeNode(gridEntry.getValue());
+                    if (selectedGridsMap.containsKey(grid)) {
                         selectedPaths.add(new TreePath(new Object[]{root, groupNode, groupChild}));
                     }
                     groupNode.add(groupChild);
@@ -250,17 +277,17 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
         }
     }
 
-    private void addToRoot(DefaultMutableTreeNode root, List<TreePath> selectedPaths, Map.Entry<String, Band> bandEntry, Band band) {
-        final DefaultMutableTreeNode rootChild = new DefaultMutableTreeNode(bandEntry.getKey());
-        if (selectedBandsMap.containsValue(band)) {
+    private void addToRoot(DefaultMutableTreeNode root, List<TreePath> selectedPaths, Map.Entry<Band, String> bandEntry, Band band) {
+        final DefaultMutableTreeNode rootChild = new DefaultMutableTreeNode(bandEntry.getValue());
+        if (selectedBandsMap.containsKey(band)) {
             selectedPaths.add(new TreePath(new Object[]{root, rootChild}));
         }
         root.add(rootChild);
     }
 
-    private void addToRoot(DefaultMutableTreeNode root, List<TreePath> selectedPaths, Map.Entry<String, TiePointGrid> gridEntry, TiePointGrid grid) {
-        final DefaultMutableTreeNode rootChild = new DefaultMutableTreeNode(gridEntry.getKey());
-        if (selectedGridsMap.containsValue(grid)) {
+    private void addToRoot(DefaultMutableTreeNode root, List<TreePath> selectedPaths, Map.Entry<TiePointGrid, String> gridEntry, TiePointGrid grid) {
+        final DefaultMutableTreeNode rootChild = new DefaultMutableTreeNode(gridEntry.getValue());
+        if (selectedGridsMap.containsKey(grid)) {
             selectedPaths.add(new TreePath(new Object[]{root, rootChild}));
         }
         root.add(rootChild);
@@ -268,13 +295,13 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     public void updateCheckBoxStates() {
         final TreePath[] selectionPaths = checkBoxTree.getCheckBoxTreeSelectionModel().getSelectionPaths();
-        if (selectionPaths == null) {
-            _selectAllCheckBox.setSelected(false);
-            _selectAllCheckBox.setEnabled(true);
-            _selectAllCheckBox.updateUI();
-            _selectNoneCheckBox.setSelected(true);
-            _selectNoneCheckBox.setEnabled(false);
-            _selectNoneCheckBox.updateUI();
+        if (selectionPaths == null || selectionPaths.length == 0) {
+            selectAllCheckBox.setSelected(false);
+            selectAllCheckBox.setEnabled(true);
+            selectAllCheckBox.updateUI();
+            selectNoneCheckBox.setSelected(true);
+            selectNoneCheckBox.setEnabled(false);
+            selectNoneCheckBox.updateUI();
         } else {
             final TreePath rootPath = new TreePath(checkBoxTree.getModel().getRoot());
             boolean allSelected = false;
@@ -282,12 +309,12 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
                 if (selectionPath.equals(rootPath)) {
                     allSelected = true;
                 }
-                _selectAllCheckBox.setSelected(allSelected);
-                _selectAllCheckBox.setEnabled(!allSelected);
-                _selectAllCheckBox.updateUI();
-                _selectNoneCheckBox.setSelected(false);
-                _selectNoneCheckBox.setEnabled(true);
-                _selectNoneCheckBox.updateUI();
+                selectAllCheckBox.setSelected(allSelected);
+                selectAllCheckBox.setEnabled(!allSelected);
+                selectAllCheckBox.updateUI();
+                selectNoneCheckBox.setSelected(false);
+                selectNoneCheckBox.setEnabled(true);
+                selectNoneCheckBox.updateUI();
             }
         }
     }
@@ -303,8 +330,8 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
 
     @Override
     public void setCheckBoxes(JCheckBox selectAllCheckBox, JCheckBox selectNoneCheckBox) {
-        this._selectAllCheckBox = selectAllCheckBox;
-        this._selectNoneCheckBox = selectNoneCheckBox;
+        this.selectAllCheckBox = selectAllCheckBox;
+        this.selectNoneCheckBox = selectNoneCheckBox;
         updateCheckBoxStates();
     }
 
@@ -321,6 +348,34 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
     @Override
     public boolean atLeastOneBandSelected() {
         return checkBoxTree.getCheckBoxTreeSelectionModel().getSelectionPaths() != null;
+    }
+
+    @Override
+    public void selectRasterDataNodes(String[] nodeNames) {
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) checkBoxTree.getModel().getRoot();
+        selectRasterDataNodes(rootNode, nodeNames);
+    }
+
+    private void selectRasterDataNodes(DefaultMutableTreeNode node, String[] nodeNames) {
+        int childCount = node.getChildCount();
+        if(childCount != 0) {
+            for(int i = 0; i < childCount; i++) {
+                selectRasterDataNodes((DefaultMutableTreeNode)node.getChildAt(i), nodeNames);
+            }
+        } else {
+            for (String nodeName : nodeNames) {
+                if (nodeName.equals(((String) node.getUserObject()).split(" ")[0].trim())) {
+                    List<TreeNode> pathList = new ArrayList<>();
+                    TreeNode currentNode = node;
+                    while(currentNode != null) {
+                        pathList.add(0, currentNode);
+                        currentNode = currentNode.getParent();
+                    }
+                    TreePath path = new TreePath(pathList.toArray(new TreeNode[pathList.size()]));
+                    checkBoxTree.getCheckBoxTreeSelectionModel().addSelectionPath(path);
+                }
+            }
+        }
     }
 
 }
