@@ -718,7 +718,7 @@ public class ImageManager {
     }
 
     private static Histogram createHistogram(Stx[] stxs) {
-        Histogram histogram = new Histogram(stxs[0].getHistogramBinCount(), 0, 512, stxs.length);
+        Histogram histogram = new Histogram(stxs[0].getHistogramBinCount(), 0, 256, stxs.length);
         for (int i = 0; i < stxs.length; i++) {
             System.arraycopy(stxs[i].getHistogramBins(), 0, histogram.getBins(i), 0, stxs[0].getHistogramBinCount());
         }
@@ -726,7 +726,7 @@ public class ImageManager {
     }
 
     private static PlanarImage createMatchCdfNormalizeImage(PlanarImage sourceImage, Stx[] stxs) {
-        final double dev = 512.0;
+        final double dev = 256.0;
         int numBands = sourceImage.getSampleModel().getNumBands();
         final double[] means = new double[numBands];
         Arrays.fill(means, 0.5 * dev);

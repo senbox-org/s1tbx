@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -95,7 +96,8 @@ public class ExportColorPaletteAction extends ExecCommand {
     private static void writeColorPalette(RasterDataNode raster, FileWriter writer) throws IOException {
         ImageInfo imageInfo = raster.getImageInfo();
         final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
-        Color[] colorPalette = paletteDef.createColorPalette(raster);
+        final Color[] colorPalette = ImageManager.createColorPalette(imageInfo);
+//        Color[] colorPalette = paletteDef.createColorPalette(raster);
         double s1 = paletteDef.getMinDisplaySample();
         double s2 = paletteDef.getMaxDisplaySample();
         int numColors = colorPalette.length;

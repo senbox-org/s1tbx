@@ -199,15 +199,11 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
         @Override
         public final double scale(double value) {
-            // todo ask Quast ... is there a reason for E-9 ?
-            // Why not E-42 ... is very small too but also not negative too.
             return value > 1.0E-9 ? Math.log10(value) : -9.0;
         }
 
         @Override
         public final double scaleInverse(double value) {
-            // todo ask Quast ... is there a reason for E-9 ?
-            // Why not E-42 ... is very small too but also not negative too.
             return value < -9.0 ? 1.0E-9 : Math.pow(10.0, value);
         }
     }
