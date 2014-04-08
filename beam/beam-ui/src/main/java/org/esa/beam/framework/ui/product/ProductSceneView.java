@@ -17,7 +17,6 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerFilter;
@@ -102,7 +101,6 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -379,6 +377,9 @@ public class ProductSceneView extends BasicView
         return sceneImage.getCoordinateReferenceSystem();
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
     @Deprecated
     public LayerContext getLayerContext() {
         return sceneImage;
@@ -1128,20 +1129,10 @@ public class ProductSceneView extends BasicView
         layerCanvas.dispose();
     }
 
-    @Deprecated
-    public void updateImage(ProgressMonitor pm) throws IOException {
-        updateImage();
-    }
-
     // only called from VISAT
 
     public void updateImage() {
         getBaseImageLayer().regenerate();
-    }
-
-    @Deprecated
-    public void updateNoDataImage(ProgressMonitor pm) throws Exception {
-        updateNoDataImage();
     }
 
     // used by PropertyEditor
@@ -1325,7 +1316,7 @@ public class ProductSceneView extends BasicView
             int currentPixelX = (int) Math.floor(imageLevelP.getX());
             int currentPixelY = (int) Math.floor(imageLevelP.getY());
             if (currentPixelX != currentLevelPixelX || currentPixelY != currentLevelPixelY || currentLevel != this.currentLevel) {
-                if (currentLevel ==0 && isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
+                if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
                     drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
                 }
                 currentLevelPixelX = currentPixelX;

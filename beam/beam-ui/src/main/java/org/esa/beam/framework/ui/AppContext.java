@@ -25,6 +25,7 @@ import org.esa.beam.util.PropertyMap;
 import java.awt.Window;
 
 public interface AppContext {
+
     String getApplicationName();
 
     Window getApplicationWindow();
@@ -32,7 +33,7 @@ public interface AppContext {
     ApplicationPage getApplicationPage();
 
     Product getSelectedProduct();
-    
+
     void handleError(String message, Throwable t);
 
     PropertyMap getPreferences();

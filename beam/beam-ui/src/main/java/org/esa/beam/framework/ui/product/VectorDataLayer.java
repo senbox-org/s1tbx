@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,9 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -106,10 +108,15 @@ public class VectorDataLayer extends Layer {
             SimpleFeatureFigure featureFigure = figureMap.get(simpleFeature);
             if (featureFigure != null) {
                 figureMap.remove(simpleFeature);
-                figureCollection.removeFigure(featureFigure);
+                final String css = SimpleFeatureFigureFactory.getStyleCss(simpleFeature, vectorDataNode.getDefaultStyleCss());
+                final FigureStyle normalStyle = DefaultFigureStyle.createFromCss(css);
+                final FigureStyle selectedStyle = getFigureFactory().deriveSelectedStyle(normalStyle);
+                featureFigure.setNormalStyle(normalStyle);
+                featureFigure.setSelectedStyle(selectedStyle);
+            } else {
+                featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultStyleCss());
+                figureCollection.addFigure(featureFigure);
             }
-            featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultStyleCss());
-            figureCollection.addFigure(featureFigure);
             featureFigure.forceRegeneration();
         }
 

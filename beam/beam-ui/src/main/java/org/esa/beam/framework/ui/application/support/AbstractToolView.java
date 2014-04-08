@@ -30,6 +30,7 @@ import java.beans.PropertyChangeListener;
 
 
 // todo - extract superclass AbstractPageComponent (nf)
+
 /**
  * An abstract base class for client {@link org.esa.beam.framework.ui.application.ToolView}s.
  * <p>Clients should use this class a base class for their tool view implementations.</p>
@@ -154,17 +155,6 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * Gets the content pane of this tool window's part.
      *
      * @return The content pane of this tool window's part.
-     * @deprecated since 4.2, use {@link #getPaneControl()}
-     */
-    @Deprecated
-    public Container getContentPane() {
-        return getPaneControl();
-    }
-
-    /**
-     * Gets the content pane of this tool window's part.
-     *
-     * @return The content pane of this tool window's part.
      */
     public Container getPaneControl() {
         return context != null ? context.getPane().getControl() : null;
@@ -243,6 +233,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * Gets the current selection context, if any.
      *
      * @return The current selection context, or {@code null} if none exists.
+     *
      * @since BEAM 4.7
      */
     @Override
@@ -252,6 +243,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
 
     /**
      * Returns whether the toolview is visible.
+     *
      * @return if the toolview is visible
      */
     public boolean isVisible() {
