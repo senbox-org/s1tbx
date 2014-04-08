@@ -15,17 +15,33 @@
  */
 package org.esa.beam.framework.ui;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RGBImageProfile;
+import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ComboBoxEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
@@ -42,9 +58,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 
 public class RGBImageProfilePane extends JPanel {
 
@@ -58,27 +74,27 @@ public class RGBImageProfilePane extends JPanel {
     };
     public static final Font EXPRESSION_FONT = new Font("Courier", Font.PLAIN, 12);
 
-    private PropertyMap _preferences;
-    private Product _product;
-    private Product[] _openedProducts;
-    private JComboBox _profileBox;
+    private PropertyMap preferences;
+    private Product product;
+	private Product[] openedProducts;
+    private JComboBox<ProfileItem> profileBox;
 
-    private JComboBox[] _rgbaExprBoxes;
-    private DefaultComboBoxModel _profileModel;
-    private AbstractAction _saveAsAction;
-    private AbstractAction _deleteAction;
-    private boolean _settingRgbaExpressions;
-    private File _lastDir;
-    protected JCheckBox _storeInProductCheck;
+    private JComboBox[] rgbaExprBoxes;
+    private DefaultComboBoxModel<ProfileItem> profileModel;
+    private AbstractAction saveAsAction;
+    private AbstractAction deleteAction;
+    private boolean settingRgbaExpressions;
+    private File lastDir;
+    protected JCheckBox storeInProductCheck;
 
     public RGBImageProfilePane(PropertyMap preferences) {
         this(preferences, null, null);
     }
 
     public RGBImageProfilePane(PropertyMap preferences, Product product, final Product[] openedProducts) {
-        _preferences = preferences;
-        _product = product;
-        _openedProducts = openedProducts;
+        this.preferences = preferences;
+        this.product = product;
+        this.openedProducts = openedProducts;
 
         AbstractAction openAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
@@ -88,62 +104,56 @@ public class RGBImageProfilePane extends JPanel {
         openAction.putValue(Command.ACTION_KEY_LARGE_ICON, UIUtils.loadImageIcon("icons/Open24.gif"));
         openAction.putValue(Action.SHORT_DESCRIPTION, "Open an external RGB profile");
 
-        _saveAsAction = new AbstractAction() {
+        saveAsAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                performSafeAs();
+                performSaveAs();
             }
         };
-        _saveAsAction.putValue(Command.ACTION_KEY_LARGE_ICON, UIUtils.loadImageIcon("icons/Save24.gif"));
-        _saveAsAction.putValue(Action.SHORT_DESCRIPTION, "Save the RGB profile");
+        saveAsAction.putValue(Command.ACTION_KEY_LARGE_ICON, UIUtils.loadImageIcon("icons/Save24.gif"));
+        saveAsAction.putValue(Action.SHORT_DESCRIPTION, "Save the RGB profile");
 
-        _deleteAction = new AbstractAction() {
+        deleteAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 performDelete();
             }
         };
-        _deleteAction.putValue(Command.ACTION_KEY_LARGE_ICON,
-                               UIUtils.loadImageIcon("icons/Remove24.gif"));   // todo - use the nicer "cross" icon
-        _deleteAction.putValue(Action.SHORT_DESCRIPTION, "Delete the selected RGB profile");
+        deleteAction.putValue(Command.ACTION_KEY_LARGE_ICON,
+                              UIUtils.loadImageIcon("icons/Remove24.gif"));   // todo - use the nicer "cross" icon
+        deleteAction.putValue(Action.SHORT_DESCRIPTION, "Delete the selected RGB profile");
 
         JPanel p2 = new JPanel(new GridLayout(1, 3, 2, 2));
         p2.add(ToolButtonFactory.createButton(openAction, false));
-        p2.add(ToolButtonFactory.createButton(_saveAsAction, false));
-        p2.add(ToolButtonFactory.createButton(_deleteAction, false));
+        p2.add(ToolButtonFactory.createButton(saveAsAction, false));
+        p2.add(ToolButtonFactory.createButton(deleteAction, false));
 
-        _profileModel = new DefaultComboBoxModel();
-        _profileBox = new JComboBox(_profileModel);
-        _profileBox.addItemListener(new ProfileSelectionHandler());
-        _profileBox.setEditable(false);
-        _profileBox.setName("profileBox");
-        setPrefferedWidth(_profileBox, 200);
+        profileModel = new DefaultComboBoxModel<>();
+        profileBox = new JComboBox<>(profileModel);
+        profileBox.addItemListener(new ProfileSelectionHandler());
+        profileBox.setEditable(false);
+        profileBox.setName("profileBox");
+        setPrefferedWidth(profileBox, 200);
 
-        _storeInProductCheck = new JCheckBox();
-        _storeInProductCheck.setText("Store RGB channels as virtual bands in current product");
-        _storeInProductCheck.setSelected(false);
-        _storeInProductCheck.setVisible(_product != null);
-        _storeInProductCheck.setName("storeInProductCheck");
+        storeInProductCheck = new JCheckBox();
+        storeInProductCheck.setText("Store RGB channels as virtual bands in current product");
+        storeInProductCheck.setSelected(false);
+        storeInProductCheck.setVisible(this.product != null);
+        storeInProductCheck.setName("storeInProductCheck");
 
         final String[] bandNames;
-        if (_product != null) {
-            bandNames = _product.getBandNames();
-            for(int i=0; i < bandNames.length; ++i) {
-                String b = bandNames[i];
-                if(!b.startsWith("\'") && !b.endsWith("\'")) {
-                    bandNames[i] = '\''+b+'\'';
-                }
-            }
+        if (this.product != null) {
+            bandNames = this.product.getBandNames();
         } else {
             bandNames = new String[0];
         }
-        _rgbaExprBoxes = new JComboBox[4];
-        for (int i = 0; i < _rgbaExprBoxes.length; i++) {
-            _rgbaExprBoxes[i] = createRgbaBox(bandNames);
-            _rgbaExprBoxes[i].setName("rgbExprBox_"+i);
+        rgbaExprBoxes = new JComboBox[4];
+        for (int i = 0; i < rgbaExprBoxes.length; i++) {
+            rgbaExprBoxes[i] = createRgbaBox(bandNames);
+            rgbaExprBoxes[i].setName("rgbExprBox_" + i);
         }
 
         JPanel p1 = new JPanel(new BorderLayout(2, 2));
         p1.add(new JLabel("Profile: "), BorderLayout.NORTH);
-        p1.add(_profileBox, BorderLayout.CENTER);
+        p1.add(profileBox, BorderLayout.CENTER);
         p1.add(p2, BorderLayout.EAST);
 
         JPanel p3 = new JPanel(new GridBagLayout());
@@ -160,12 +170,12 @@ public class RGBImageProfilePane extends JPanel {
         setLayout(new BorderLayout(10, 10));
         add(p1, BorderLayout.NORTH);
         add(p3, BorderLayout.CENTER);
-        add(_storeInProductCheck, BorderLayout.SOUTH);
+        add(storeInProductCheck, BorderLayout.SOUTH);
 
         final RGBImageProfile[] registeredProfiles = RGBImageProfileManager.getInstance().getAllProfiles();
         addProfiles(registeredProfiles);
-        if (_product != null) {
-            final RGBImageProfile productProfile = RGBImageProfile.getCurrentProfile(_product);
+        if (this.product != null) {
+            final RGBImageProfile productProfile = RGBImageProfile.getCurrentProfile(this.product);
             if (productProfile.isValid()) {
                 final RGBImageProfile similarProfile = findMatchingProfile(productProfile);
                 if (similarProfile != null) {
@@ -174,29 +184,38 @@ public class RGBImageProfilePane extends JPanel {
                     addNewProfile(productProfile);
                     selectProfile(productProfile);
                 }
+            } else {
+                List<RGBImageProfile> selectableProfiles = new ArrayList<>();
+                for (int i = 0; i < profileModel.getSize(); i++) {
+                    selectableProfiles.add(profileModel.getElementAt(i).getProfile());
+                }
+                RGBImageProfile[] selectableProfileArray = selectableProfiles.toArray(new RGBImageProfile[selectableProfiles.size()]);
+                RGBImageProfile profile = findProfileForProductPattern(selectableProfileArray, product);
+                if (profile != null) {
+                    selectProfile(profile);
+                }
             }
         }
-
         setRgbaExpressionsFromSelectedProfile();
 
 	//NESTMOD
-        if(_rgbaExprBoxes[0].getSelectedIndex() < 0) {
+        if(rgbaExprBoxes[0].getSelectedIndex() < 0) {
             // default
             if(bandNames.length == 2) {
-                _rgbaExprBoxes[0].setSelectedIndex(0);
-                _rgbaExprBoxes[1].setSelectedIndex(1);
+                rgbaExprBoxes[0].setSelectedIndex(0);
+                rgbaExprBoxes[1].setSelectedIndex(1);
             } else if(bandNames.length == 3) {
-                _rgbaExprBoxes[0].setSelectedIndex(0);
-                _rgbaExprBoxes[1].setSelectedIndex(1);
-                _rgbaExprBoxes[2].setSelectedIndex(2);
-            } else if(_product != null) {
+                rgbaExprBoxes[0].setSelectedIndex(0);
+                rgbaExprBoxes[1].setSelectedIndex(1);
+                rgbaExprBoxes[2].setSelectedIndex(2);
+            } else if(product != null) {
                 int cnt = 0, i = 0;
-                for(Band band : _product.getBands()) {
+                for(Band band : product.getBands()) {
                     final String unit = band.getUnit();
                     if(unit != null && unit.contains("intensity")) {
-                        _rgbaExprBoxes[i++].setSelectedIndex(cnt);
+                        rgbaExprBoxes[i++].setSelectedIndex(cnt);
                     }
-                    if(i >= _rgbaExprBoxes.length)
+                    if(i >= rgbaExprBoxes.length)
                         break;
                     ++cnt;
                 }
@@ -205,25 +224,25 @@ public class RGBImageProfilePane extends JPanel {
     }
 
     public Product getProduct() {
-        return _product;
+        return product;
     }
 
     public void dispose() {
-        _preferences = null;
-        _product = null;
-        _profileModel.removeAllElements();
-        _profileModel = null;
-        _profileBox = null;
-        _saveAsAction = null;
-        _deleteAction = null;
-        for (int i = 0; i < _rgbaExprBoxes.length; i++) {
-            _rgbaExprBoxes[i] = null;
+        preferences = null;
+        product = null;
+        profileModel.removeAllElements();
+        profileModel = null;
+        profileBox = null;
+        saveAsAction = null;
+        deleteAction = null;
+        for (int i = 0; i < rgbaExprBoxes.length; i++) {
+            rgbaExprBoxes[i] = null;
         }
-        _rgbaExprBoxes = null;
+        rgbaExprBoxes = null;
     }
 
     public boolean getStoreProfileInProduct() {
-        return _storeInProductCheck.isSelected();
+        return storeInProductCheck.isSelected();
     }
 
     /**
@@ -287,7 +306,7 @@ public class RGBImageProfilePane extends JPanel {
     }
 
     public void selectProfile(RGBImageProfile profile) {
-        _profileModel.setSelectedItem(new ProfileItem(profile));
+        profileModel.setSelectedItem(new ProfileItem(profile));
     }
 
     public boolean showDialog(Window parent, String title, String helpId) {
@@ -299,11 +318,11 @@ public class RGBImageProfilePane extends JPanel {
     }
 
     private String getExpression(int i) {
-        return ((JTextField) _rgbaExprBoxes[i].getEditor().getEditorComponent()).getText().trim();
+        return ((JTextField) rgbaExprBoxes[i].getEditor().getEditorComponent()).getText().trim();
     }
 
     private void setExpression(int i, String expression) {
-        _rgbaExprBoxes[i].setSelectedItem(expression);
+        rgbaExprBoxes[i].setSelectedItem(expression);
     }
 
     private void performOpen() {
@@ -315,7 +334,7 @@ public class RGBImageProfilePane extends JPanel {
             return;
         }
         final File file = beamFileChooser.getSelectedFile();
-        _lastDir = file.getParentFile();
+        lastDir = file.getParentFile();
         if (status != BeamFileChooser.APPROVE_OPTION) {
             return;
         }
@@ -340,7 +359,7 @@ public class RGBImageProfilePane extends JPanel {
         }
 
         RGBImageProfileManager.getInstance().addProfile(profile);
-        if (_product != null && !profile.isApplicableTo(_product)) {
+        if (product != null && !profile.isApplicableTo(product)) {
             JOptionPane.showMessageDialog(this,
                                           "The selected RGB-Profile '" + profile.getName() + "'\n" +
                                           "is not applicable to the current product.",
@@ -351,7 +370,7 @@ public class RGBImageProfilePane extends JPanel {
         addNewProfile(profile);
     }
 
-    private void performSafeAs() {
+    private void performSaveAs() {
         File file = promptForSaveFile();
         if (file == null) {
             return;
@@ -385,7 +404,7 @@ public class RGBImageProfilePane extends JPanel {
                 break;
             }
             selectedFile = beamFileChooser.getSelectedFile();
-            _lastDir = selectedFile.getParentFile();
+            lastDir = selectedFile.getParentFile();
             if (status != BeamFileChooser.APPROVE_OPTION) {
                 selectedFile = null;
                 break;
@@ -414,52 +433,52 @@ public class RGBImageProfilePane extends JPanel {
     private void performDelete() {
         final ProfileItem selectedProfileItem = getSelectedProfileItem();
         if (selectedProfileItem != null && !selectedProfileItem.getProfile().isInternal()) {
-            _profileModel.removeElement(selectedProfileItem);
+            profileModel.removeElement(selectedProfileItem);
         }
     }
 
     private File getProfilesDir() {
-        if (_lastDir != null) {
-            return _lastDir;
+        if (lastDir != null) {
+            return lastDir;
         } else {
             return RGBImageProfileManager.getProfilesDir();
         }
     }
 
     private void addNewProfile(RGBImageProfile profile) {
-        if (_product != null && !profile.isApplicableTo(_product)) {
+        if (product != null && !profile.isApplicableTo(product)) {
             return;
         }
         final ProfileItem profileItem = new ProfileItem(profile);
-        final int index = _profileModel.getIndexOf(profileItem);
+        final int index = profileModel.getIndexOf(profileItem);
         if (index == -1) {
-            _profileModel.addElement(profileItem);
+            profileModel.addElement(profileItem);
         }
-        _profileModel.setSelectedItem(profileItem);
+        profileModel.setSelectedItem(profileItem);
     }
 
     private void setRgbaExpressionsFromSelectedProfile() {
-        _settingRgbaExpressions = true;
+        settingRgbaExpressions = true;
         try {
             final ProfileItem profileItem = getSelectedProfileItem();
             if (profileItem != null) {
                 final String[] rgbaExpressions = profileItem.getProfile().getRgbaExpressions();
-                for (int i = 0; i < _rgbaExprBoxes.length; i++) {
+                for (int i = 0; i < rgbaExprBoxes.length; i++) {
                     setExpression(i, rgbaExpressions[i]);
                 }
             } else {
-                for (int i = 0; i < _rgbaExprBoxes.length; i++) {
+                for (int i = 0; i < rgbaExprBoxes.length; i++) {
                     setExpression(i, "");
                 }
             }
         } finally {
-            _settingRgbaExpressions = false;
+            settingRgbaExpressions = false;
         }
         updateUIState();
     }
 
     private ProfileItem getSelectedProfileItem() {
-        return (ProfileItem) _profileBox.getSelectedItem();
+        return (ProfileItem) profileBox.getSelectedItem();
     }
 
     private void addColorComponentRow(JPanel p3, final GridBagConstraints constraints, final int index) {
@@ -469,7 +488,7 @@ public class RGBImageProfilePane extends JPanel {
                 invokeExpressionEditor(index);
             }
         });
-        final Dimension preferredSize = _rgbaExprBoxes[index].getPreferredSize();
+        final Dimension preferredSize = rgbaExprBoxes[index].getPreferredSize();
         editorButton.setPreferredSize(new Dimension(preferredSize.height, preferredSize.height));
 
         constraints.gridy = index;
@@ -480,7 +499,7 @@ public class RGBImageProfilePane extends JPanel {
 
         constraints.gridx = 1;
         constraints.weightx = 1;
-        p3.add(_rgbaExprBoxes[index], constraints);
+        p3.add(rgbaExprBoxes[index], constraints);
 
         constraints.gridx = 2;
         constraints.weightx = 0;
@@ -494,10 +513,10 @@ public class RGBImageProfilePane extends JPanel {
     private void invokeExpressionEditor(final int colorIndex) {
         final Window window = SwingUtilities.getWindowAncestor(this);
         final String title = "Edit " + getComponentName(colorIndex) + " Expression";
-        if (_product != null) {
+        if (product != null) {
             final ExpressionPane pane;
-            final Product[] products = getCompatibleProducts(_product, _openedProducts);
-            pane = ProductExpressionPane.createGeneralExpressionPane(products, _product, _preferences);
+			final Product[] products = getCompatibleProducts(product, openedProducts);
+            pane = ProductExpressionPane.createGeneralExpressionPane(products, product, preferences);
             pane.setCode(getExpression(colorIndex));
             int status = pane.showModalDialog(window, title);
             if (status == ModalDialog.ID_OK) {
@@ -544,7 +563,7 @@ public class RGBImageProfilePane extends JPanel {
     }
 
     private JComboBox createRgbaBox(String[] suggestions) {
-        final JComboBox comboBox = new JComboBox(suggestions);
+        final JComboBox<String> comboBox = new JComboBox<>(suggestions);
         setPrefferedWidth(comboBox, 320);
         comboBox.setEditable(true);
         final ComboBoxEditor editor = comboBox.getEditor();
@@ -567,14 +586,14 @@ public class RGBImageProfilePane extends JPanel {
     }
 
     private void onRgbaExpressionChanged() {
-        if (_settingRgbaExpressions) {
+        if (settingRgbaExpressions) {
             return;
         }
         final ProfileItem profileItem = getSelectedProfileItem();
         if (profileItem != null) {
             if (isSelectedProfileModified()) {
-                _profileBox.revalidate();
-                _profileBox.repaint();
+                profileBox.revalidate();
+                profileBox.repaint();
             }
         }
         updateUIState();
@@ -597,16 +616,16 @@ public class RGBImageProfilePane extends JPanel {
     private void updateUIState() {
         final ProfileItem profileItem = getSelectedProfileItem();
         if (profileItem != null) {
-            _saveAsAction.setEnabled(true);
-            _deleteAction.setEnabled(!profileItem.getProfile().isInternal());
+            saveAsAction.setEnabled(true);
+            deleteAction.setEnabled(!profileItem.getProfile().isInternal());
         } else {
-            _saveAsAction.setEnabled(isAtLeastOneColorExpressionSet());
-            _deleteAction.setEnabled(false);
+            saveAsAction.setEnabled(isAtLeastOneColorExpressionSet());
+            deleteAction.setEnabled(false);
         }
     }
 
     private boolean isAtLeastOneColorExpressionSet() {
-        final JComboBox[] rgbaExprBoxes = _rgbaExprBoxes;
+        final JComboBox[] rgbaExprBoxes = this.rgbaExprBoxes;
         for (int i = 0; i < 3; i++) {
             JComboBox rgbaExprBox = rgbaExprBoxes[i];
             final Object selectedItem = rgbaExprBox.getSelectedItem();
@@ -620,6 +639,38 @@ public class RGBImageProfilePane extends JPanel {
     private void setPrefferedWidth(final JComboBox comboBox, final int width) {
         final Dimension preferredSize = comboBox.getPreferredSize();
         comboBox.setPreferredSize(new Dimension(width, preferredSize.height));
+    }
+
+    public static RGBImageProfile findProfileForProductPattern(RGBImageProfile[] rgbImageProfiles, Product product) {
+        if (rgbImageProfiles.length == 0) {
+            return null;
+        }
+
+        String productType = product.getProductType();
+        String productName = product.getName();
+        String productDesc = product.getDescription();
+        RGBImageProfile bestProfile = rgbImageProfiles[0];
+        int bestMatchScore = 0;
+        for (RGBImageProfile rgbImageProfile : rgbImageProfiles) {
+            String[] pattern = rgbImageProfile.getPattern();
+            if (pattern == null) {
+                continue;
+            }
+            boolean productTypeMatches = matches(productType, pattern[0]);
+            boolean productNameMatches = matches(productName, pattern[1]);
+            boolean productDescMatches = matches(productDesc, pattern[2]);
+            int currentMatchScore = (productTypeMatches ? 100 : 0) + (productNameMatches ? 10 : 0) + (productDescMatches ? 1 : 0);
+            if (currentMatchScore > bestMatchScore) {
+                bestProfile = rgbImageProfile;
+                bestMatchScore = currentMatchScore;
+            }
+        }
+        return bestProfile;
+    }
+
+    private static boolean matches(String s, String pattern) {
+        return pattern != null &&
+               s.matches(pattern.replace("*", ".*").replace("?", "."));
     }
 
 
@@ -670,9 +721,9 @@ public class RGBImageProfilePane extends JPanel {
 
 
     public RGBImageProfile findMatchingProfile(RGBImageProfile profile, boolean internal) {
-        final int size = _profileModel.getSize();
+        final int size = profileModel.getSize();
         for (int i = 0; i < size; i++) {
-            final ProfileItem item = (ProfileItem) _profileModel.getElementAt(i);
+            final ProfileItem item = profileModel.getElementAt(i);
             final RGBImageProfile knownProfile = item.getProfile();
             if (knownProfile.isInternal() == internal
                     && Arrays.equals(profile.getRgbExpressions(), knownProfile.getRgbExpressions())) {

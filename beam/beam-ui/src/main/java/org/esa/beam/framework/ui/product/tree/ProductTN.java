@@ -16,12 +16,7 @@
 
 package org.esa.beam.framework.ui.product.tree;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.*;
 
 import java.util.HashMap;
 
@@ -30,7 +25,7 @@ class ProductTN extends AbstractTN {
     private static final String IDENTIFICATION = "Identification";
     private static final String METADATA = "Metadata";
     private static final String BANDS = "Bands";
-    private static final String VECTOR_DATA = "Vectors";
+    private static final String VECTOR_DATA = "Vector data";
     private static final String TIE_POINT_GRIDS = "Tie-point grids";
     private static final String FLAG_CODINGS = "Flag codings";
     private static final String INDEX_CODINGS = "Index codings";
@@ -84,7 +79,7 @@ class ProductTN extends AbstractTN {
                 }
             }
         }
-        if (hasVectorData(product)) {
+        if (mustShowVectorData(product)) {
             childIndex++;
             if (childIndex == index) {
                 return new ProductNodeTN(ProductTN.VECTOR_DATA, this.product.getVectorDataGroup(), this);
@@ -102,7 +97,6 @@ class ProductTN extends AbstractTN {
             }
         }
 
-        System.out.println("ProductTN");
         throw new IndexOutOfBoundsException(String.format("No child for index <%d>.", index));
     }
 
@@ -170,7 +164,7 @@ class ProductTN extends AbstractTN {
         if (hasTiePoints(product)) {
             childCount++;
         }
-        if (hasVectorData(product)) {
+        if (mustShowVectorData(product)) {
             childCount++;
         }
         if (hasBands(product)) {
@@ -213,7 +207,7 @@ class ProductTN extends AbstractTN {
                 return childIndex;
             }
         }
-        if (hasVectorData(product)) {
+        if (mustShowVectorData(product)) {
             childIndex++;
             if (child.getName().equals(VECTOR_DATA)) {
                 return childIndex;
@@ -236,20 +230,23 @@ class ProductTN extends AbstractTN {
         return product.getTiePointGridGroup().getNodeCount() > 0;
     }
 
-    private boolean hasVectorData(Product product) {
+    private boolean mustShowVectorData(Product product) {
+
         final ProductNodeGroup<VectorDataNode> vectorNodeGroup = product.getVectorDataGroup();
-        return vectorNodeGroup.getNodeCount() > 0;
-        /*
+        VectorDataNode gcpVectorDataNode = product.getGcpGroup().getVectorDataNode();
+        VectorDataNode pinVectorDataNode = product.getPinGroup().getVectorDataNode();
         for (int i = 0; i < vectorNodeGroup.getNodeCount(); i++) {
             final VectorDataNode vectorDataNode = vectorNodeGroup.get(i);
-            // remove following test, once VectorDataNode.isInternalNode() is not used anymore
-            if (!vectorDataNode.isInternalNode() ||
-                    (vectorDataNode.isInternalNode() && !vectorDataNode.getFeatureCollection().isEmpty())) {
+            boolean isPinOrGcpNode = vectorDataNode.equals(gcpVectorDataNode) || vectorDataNode.equals(pinVectorDataNode);
+            if (isPinOrGcpNode) {
+                if(vectorDataNode.getPlacemarkGroup().getNodeCount() > 0) {
+                    return true;
+                }
+            } else {
                 return true;
             }
         }
         return false;
-        */
     }
 
     private boolean hasIndexCoding(Product product) {

@@ -16,9 +16,9 @@
 
 package org.esa.beam.framework.ui;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
+import org.junit.Test;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JSpinner;
@@ -28,8 +28,11 @@ import java.awt.HeadlessException;
 import java.awt.Panel;
 import java.awt.Rectangle;
 
-public class UIUtilsTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class UIUtilsTest {
+
+    @Test
     public void testCenterComponent() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -49,6 +52,7 @@ public class UIUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetScreenSize() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -59,6 +63,7 @@ public class UIUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetScreenWidth() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -68,6 +73,7 @@ public class UIUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetScreenHeight() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -78,6 +84,7 @@ public class UIUtilsTest extends TestCase {
     }
 
 
+    @Test
     public void testGetUniqueFrameTitle() {
         String title;
 
@@ -131,6 +138,7 @@ public class UIUtilsTest extends TestCase {
         assertEquals("Image (4)", title);
     }
 
+    @Test
     public void testCreateSpinner_WithParameter() {
         final String labelname = "paramLabel";
         final ParamProperties properties = new ParamProperties(Integer.class, Integer.valueOf(3));

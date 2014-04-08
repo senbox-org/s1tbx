@@ -94,7 +94,7 @@ public class VectorDataLayer extends Layer {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
 
         Figure[] figures = figureCollection.getFigures();
-        Map<SimpleFeature, SimpleFeatureFigure> figureMap = new HashMap<SimpleFeature, SimpleFeatureFigure>();
+        Map<SimpleFeature, SimpleFeatureFigure> figureMap = new HashMap<>();
         for (Figure figure : figures) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure simpleFeatureFigure = (SimpleFeatureFigure) figure;

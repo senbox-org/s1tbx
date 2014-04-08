@@ -15,22 +15,13 @@
  */
 package org.esa.beam.framework.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.net.URL;
-import java.text.DecimalFormat;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.util.ArrayUtils;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -52,15 +43,22 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.esa.beam.framework.param.ParamChangeEvent;
-import org.esa.beam.framework.param.ParamChangeListener;
-import org.esa.beam.framework.param.ParamProperties;
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.util.ArrayUtils;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.net.URL;
+import java.text.DecimalFormat;
 
 /**
  * The <code>UIUtils</code> class provides methods frequently used in connection with graphical user interfaces.
@@ -69,6 +67,8 @@ import org.esa.beam.util.StringUtils;
  * @version $Revision: 8407 $  $Date: 2010-02-14 12:58:02 +0100 (So, 14 Feb 2010) $
  */
 public class UIUtils {
+
+    public static final String PROPERTY_SOURCE_PRODUCT = "SOURCE_PRODUCT";
 
     public static final String IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
     public static final Color COLOR_DARK_RED = new Color(128, 0, 0);
@@ -507,4 +507,5 @@ public class UIUtils {
 
         return spinner;
     }
+
 }

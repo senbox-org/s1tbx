@@ -6,11 +6,17 @@ package org.esa.beam.framework.ui;
 
 import org.esa.beam.framework.help.HelpSys;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -21,11 +27,39 @@ public class SelectExportMethodDialog {
     public final static int EXPORT_CANCELED = -1;
 
     /**
-     * Opens a modal dialog that asks the user which method to use in order to export the ROI pixels.
+     * Opens a modal dialog that asks the user which method to use in order to export data.
      *
      * @return {@link #EXPORT_TO_CLIPBOARD}, {@link #EXPORT_TO_FILE} or {@link #EXPORT_CANCELED}
      */
     public static int run(Component parentComponent, String title, String text, String helpID) {
+        return run(parentComponent, title, text, new JCheckBox[0], helpID);
+    }
+
+    /**
+     * Opens a modal dialog that asks the user which method to use in order to export data.
+     *
+     * @return {@link #EXPORT_TO_CLIPBOARD}, {@link #EXPORT_TO_FILE} or {@link #EXPORT_CANCELED}
+     */
+    public static int run(Component parentComponent, String title, String text, JCheckBox[] options, String helpID) {
+        DialogDescriptor descriptor = createDialog(parentComponent, title, text, helpID, options);
+
+        descriptor.dialog.setVisible(true);
+
+        return getChosenMethod(descriptor);
+    }
+
+    private static int getChosenMethod(DialogDescriptor descriptor) {
+        int method = EXPORT_CANCELED;
+        final Object value = descriptor.optionPane.getValue();
+        if (descriptor.copyToClipboardButton.equals(value)) {
+            method = EXPORT_TO_CLIPBOARD;
+        } else if (descriptor.writeToFileButton.equals(value)) {
+            method = EXPORT_TO_FILE;
+        }
+        return method;
+    }
+
+    private static DialogDescriptor createDialog(Component parentComponent, String title, String text, String helpID, JCheckBox[] options) {
         final String copyToClipboardText = "Copy to Clipboard";  /*I18N*/
         final String writeToFileText = "Write to File"; /*I18N*/
         final String cancelText = "Cancel"; /*I18N*/
@@ -46,15 +80,35 @@ public class SelectExportMethodDialog {
         cancelButton.setMnemonic('C');
         cancelButton.setIcon(null);
 
-        final JButton[] buttonRow = new JButton[]{copyToClipboardButton, writeToFileButton, cancelButton};
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final JPanel checkboxPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.LINE_START;
+        c.gridx = 0;
+        c.gridy = GridBagConstraints.RELATIVE;
+        for (JCheckBox option : options) {
+            checkboxPanel.add(option, c);
+        }
+        c.gridx = 0;
+        c.gridy = 0;
+        panel.add(checkboxPanel, c);
+        final JPanel buttonPanel = new JPanel(new FlowLayout());
+        c.gridy = GridBagConstraints.RELATIVE;
+        buttonPanel.add(copyToClipboardButton, c);
+        buttonPanel.add(writeToFileButton, c);
+        buttonPanel.add(cancelButton, c);
+        c.gridx = 0;
+        c.gridy = 1;
+        panel.add(buttonPanel, c);
 
         final JOptionPane optionPane = new JOptionPane(text, /*I18N*/
                                                        JOptionPane.QUESTION_MESSAGE,
                                                        JOptionPane.DEFAULT_OPTION,
                                                        null,
-                                                       buttonRow,
+                                                       new JPanel[]{panel},
                                                        copyToClipboardButton);
         final JDialog dialog = optionPane.createDialog(parentComponent, title);
+        dialog.getContentPane().setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
         if (helpID != null) {
             HelpSys.enableHelpKey(optionPane, helpID);
         }
@@ -71,16 +125,21 @@ public class SelectExportMethodDialog {
         writeToFileButton.addActionListener(actionListener);
         cancelButton.addActionListener(actionListener);
 
-        // Open modal dialog (waits until one of our buttons has been pressed)
-        dialog.setVisible(true);
+        return new DialogDescriptor(dialog, optionPane, copyToClipboardButton, writeToFileButton);
+    }
 
-        int method = EXPORT_CANCELED;
-        final Object value = optionPane.getValue();
-        if (copyToClipboardButton.equals(value)) {
-            method = EXPORT_TO_CLIPBOARD;
-        } else if (writeToFileButton.equals(value)) {
-            method = EXPORT_TO_FILE;
+    private static class DialogDescriptor {
+
+        private final JDialog dialog;
+        private final JOptionPane optionPane;
+        private final JButton copyToClipboardButton;
+        private final JButton writeToFileButton;
+
+        private DialogDescriptor(JDialog dialog, JOptionPane optionPane, JButton copyToClipboardButton, JButton writeToFileButton) {
+            this.dialog = dialog;
+            this.optionPane = optionPane;
+            this.copyToClipboardButton = copyToClipboardButton;
+            this.writeToFileButton = writeToFileButton;
         }
-        return method;
     }
 }
