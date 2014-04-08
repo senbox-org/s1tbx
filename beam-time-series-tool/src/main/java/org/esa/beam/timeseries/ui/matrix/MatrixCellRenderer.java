@@ -1,6 +1,8 @@
 package org.esa.beam.timeseries.ui.matrix;
 
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.jai.ImageManager;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -45,7 +47,9 @@ class MatrixCellRenderer extends DefaultTableCellRenderer {
                 bgColor = invalidColor;
                 labelText = "NaN";
             } else {
-                bgColor = raster.getImageInfo().getColorPaletteDef().computeColor(raster, rasterValue);
+                final ImageInfo imageInfo = raster.getImageInfo();
+                bgColor = ImageManager.computeColor(imageInfo, rasterValue);
+//                bgColor = raster.getImageInfo().getColorPaletteDef().computeColor(raster, rasterValue);
                 labelText = valueFormatter.format(rasterValue);
             }
         } else { // outside of image or no raster set

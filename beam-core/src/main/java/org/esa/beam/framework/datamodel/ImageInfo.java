@@ -16,6 +16,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.jai.ImageManager;
 
 import java.awt.Color;
 import java.awt.Transparency;
@@ -166,7 +167,8 @@ public class ImageInfo implements Cloneable {
         if (colorPaletteDef == null) {
             return null;
         }
-        Color[] palette = colorPaletteDef.createColorPalette(scaling);
+        Color[] palette = ImageManager.createColorPalette(this);
+//        Color[] palette = colorPaletteDef.createColorPalette(scaling);
         final int numColors = palette.length;
         final byte[] red = new byte[numColors];
         final byte[] green = new byte[numColors];

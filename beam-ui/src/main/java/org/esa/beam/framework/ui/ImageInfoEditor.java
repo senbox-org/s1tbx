@@ -70,7 +70,7 @@ import java.text.DecimalFormat;
  * @version $Revision$ $Date$
  * @since BEAM 4.5.1
  */
-public class ImageInfoEditor extends JPanel {
+public abstract class ImageInfoEditor extends JPanel {
 
     public static final String PROPERTY_NAME_MODEL = "model";
 
@@ -376,10 +376,10 @@ public class ImageInfoEditor extends JPanel {
     }
 
     private String getFormattedValue(double value) {
-        if (value < 0.01 && value > -0.01 && value != 0.0) {
+        if (value < 0.1 && value > -0.11 && value != 0.0) {
             return new DecimalFormat("0.##E0").format(value);
         }
-        return String.format("%.2f", value);
+        return String.format("%.4f", value);
     }
 
     private void drawHistogramPane(Graphics2D g2d) {
@@ -562,6 +562,8 @@ public class ImageInfoEditor extends JPanel {
         getModel().setSliderSample(index, v);
     }
 
+    protected abstract void applyChanges();
+
     private void setSliderSample(int index, double newValue, boolean adjusting) {
         if (adjusting) {
             double minValue = Double.NEGATIVE_INFINITY;
@@ -581,6 +583,7 @@ public class ImageInfoEditor extends JPanel {
 
     private void setSliderColor(int index, Color c) {
         getModel().setSliderColor(index, c);
+        applyChanges();
     }
 
     private static Font createLabelFont() {
@@ -777,6 +780,7 @@ public class ImageInfoEditor extends JPanel {
                 hidePopup();
                 setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
                 computeZoomInToSliderLimits();
+                applyChanges();
             }
         });
     }
@@ -838,6 +842,7 @@ public class ImageInfoEditor extends JPanel {
                 doDragSlider(evt, false);
                 setDragging(false);
                 setDraggedSliderIndex(INVALID_INDEX);
+                applyChanges();
             } else if (!maybeShowSliderActions(evt) && SwingUtilities.isLeftMouseButton(evt)) {
                 int mode = 0;
                 int sliderIndex = getSelectedSliderIndex(evt);
@@ -957,6 +962,7 @@ public class ImageInfoEditor extends JPanel {
                                                                           getSliderColor(sliderIndex + 1));
                     setSliderColor(sliderIndex, newColor);
                     hidePopup();
+                    applyChanges();
                 }
             });
             return menuItem;
@@ -974,6 +980,7 @@ public class ImageInfoEditor extends JPanel {
                             getSliderSample(sliderIndex + 1))));
                     setSliderSample(sliderIndex, center, false);
                     hidePopup();
+                    applyChanges();
                 }
             });
             return menuItem;
@@ -988,6 +995,7 @@ public class ImageInfoEditor extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     getModel().removeSlider(removeIndex);
                     hidePopup();
+                    applyChanges();
                 }
             });
             return menuItem;
@@ -1021,6 +1029,7 @@ public class ImageInfoEditor extends JPanel {
                         getModel().createSliderAfter(index);
                     }
                     hidePopup();
+                    applyChanges();
                 }
             });
             return menuItem;

@@ -300,6 +300,16 @@ class ColorManipulationForm {
         return toolView.getDescriptor();
     }
 
+    public ActionListener wrapWithAutoApplyActionListener(final ActionListener actionListener) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actionListener.actionPerformed(e);
+                applyChanges();
+            }
+        };
+    }
+
     private void initContentPanel() {
 
         moreOptionsPane = new MoreOptionsPane(this);
@@ -317,13 +327,13 @@ class ColorManipulationForm {
         resetButton = createButton("icons/Undo24.gif");
         resetButton.setName("ResetButton");
         resetButton.setToolTipText("Reset to defaults"); /*I18N*/
-        resetButton.addActionListener(new ActionListener() {
+        resetButton.addActionListener(wrapWithAutoApplyActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 resetToDefaults();
             }
-        });
+        }));
 
         multiApplyButton = createButton("icons/MultiAssignBands24.gif");
         multiApplyButton.setName("MultiApplyButton");
@@ -343,6 +353,7 @@ class ColorManipulationForm {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 importColorPaletteDef();
+                applyChanges();
             }
         });
         importButton.setEnabled(true);
@@ -456,7 +467,7 @@ class ColorManipulationForm {
     }
 
 
-    private void applyChanges() {
+    void applyChanges() {
         setApplyEnabled(false);
         if (productSceneView != null) {
             try {
@@ -556,7 +567,7 @@ class ColorManipulationForm {
         if (ioDir == null) {
             if (preferences != null) {
                 ioDir = new File(
-                        preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
+                            preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
             } else {
                 ioDir = getSystemAuxdataDir();
             }
@@ -630,7 +641,8 @@ class ColorManipulationForm {
                                                    "Automatically distribute points of\n" +
                                                    "colour palette between min/max?",
                                                    "Import Colour Palette",
-                                                   JOptionPane.YES_NO_CANCEL_OPTION);
+                                                   JOptionPane.YES_NO_CANCEL_OPTION
+        );
         if (answer == JOptionPane.YES_OPTION) {
             return Boolean.TRUE;
         } else if (answer == JOptionPane.NO_OPTION) {

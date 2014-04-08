@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
+import org.apache.commons.math.util.FastMath;
 
 import javax.media.jai.Histogram;
 
@@ -280,8 +281,8 @@ public class Stx {
 
         @Override
         public double scaleInverse(double value) {
-            // ca. 2x faster than pow(10, value)
-            return Math.exp(LN10 * value);
+            // ca. 4x faster than Math.pow(10, value) and 2x faster than Math.exp(LN10 * value)
+            return FastMath.exp(LN10 * value);
         }
     }
 }

@@ -63,6 +63,10 @@ class ImageInfoEditor2 extends ImageInfoEditor {
         return showExtraInfo;
     }
 
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
+    }
+
     public void setShowExtraInfo(boolean showExtraInfo) {
         boolean oldValue = this.showExtraInfo;
         if (oldValue != showExtraInfo) {
@@ -147,6 +151,11 @@ class ImageInfoEditor2 extends ImageInfoEditor {
             SwingWorker sw = new StxComputer();
             sw.execute();
         }
+    }
+
+    @Override
+    protected void applyChanges() {
+        parentForm.applyChanges();
     }
 
     private class ModelChangeHandler implements PropertyChangeListener, ChangeListener {

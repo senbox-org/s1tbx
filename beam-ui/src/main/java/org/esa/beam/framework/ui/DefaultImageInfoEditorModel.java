@@ -18,6 +18,7 @@ package org.esa.beam.framework.ui;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.jai.ImageManager;
 
 import java.awt.Color;
 
@@ -83,7 +84,8 @@ public class DefaultImageInfoEditorModel extends AbstractImageInfoEditorModel {
 
     @Override
     public Color[] createColorPalette() {
-        return getImageInfo().getColorPaletteDef().createColorPalette(getSampleScaling());
+        return ImageManager.createColorPalette(getImageInfo());
+//        return getImageInfo().getColorPaletteDef().createColorPalette(getSampleScaling());
     }
 
     @Override

@@ -59,22 +59,22 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         logDisplayButton = ImageInfoEditorSupport.createToggleButton("icons/LogDisplay24.png");
         logDisplayButton.setName("logDisplayButton");
         logDisplayButton.setToolTipText("Switch to logarithmic display"); /*I18N*/
-        logDisplayButton.addActionListener(new ActionListener() {
+        logDisplayButton.addActionListener(parentForm.wrapWithAutoApplyActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), logDisplayButton.isSelected());
             }
-        });
+        }));
 
         evenDistButton = ImageInfoEditorSupport.createButton("icons/EvenDistribution24.gif");
         evenDistButton.setName("evenDistButton");
         evenDistButton.setToolTipText("Distribute sliders evenly between first and last slider"); /*I18N*/
-        evenDistButton.addActionListener(new ActionListener() {
+        evenDistButton.addActionListener(parentForm.wrapWithAutoApplyActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 distributeSlidersEvenly();
             }
-        });
+        }));
 
         applyEnablerCL = parentForm.createApplyEnablerChangeListener();
     }
@@ -159,10 +159,10 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         if (logarithmicDisplay) {
             final StxFactory stxFactory = new StxFactory();
             final Stx stx = stxFactory
-                    .withHistogramBinCount(raster.getStx().getHistogramBinCount())
-                    .withLogHistogram(logarithmicDisplay)
-                    .withResolutionLevel(raster.getSourceImage().getModel().getLevelCount() - 1)
-                    .create(raster, ProgressMonitor.NULL);
+                        .withHistogramBinCount(raster.getStx().getHistogramBinCount())
+                        .withLogHistogram(logarithmicDisplay)
+                        .withResolutionLevel(raster.getSourceImage().getModel().getLevelCount() - 1)
+                        .create(raster, ProgressMonitor.NULL);
             model.setDisplayProperties(raster.getName(), raster.getUnit(), stx, POW10_SCALING);
         } else {
             model.setDisplayProperties(raster.getName(), raster.getUnit(), raster.getStx(), Scaling.IDENTITY);
@@ -177,15 +177,15 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{
-                imageInfoEditorSupport.autoStretch95Button,
-                imageInfoEditorSupport.autoStretch100Button,
-                imageInfoEditorSupport.zoomInVButton,
-                imageInfoEditorSupport.zoomOutVButton,
-                imageInfoEditorSupport.zoomInHButton,
-                imageInfoEditorSupport.zoomOutHButton,
-                logDisplayButton,
-                evenDistButton,
-                imageInfoEditorSupport.showExtraInfoButton,
+                    imageInfoEditorSupport.autoStretch95Button,
+                    imageInfoEditorSupport.autoStretch100Button,
+                    imageInfoEditorSupport.zoomInVButton,
+                    imageInfoEditorSupport.zoomOutVButton,
+                    imageInfoEditorSupport.zoomInHButton,
+                    imageInfoEditorSupport.zoomOutHButton,
+                    logDisplayButton,
+                    evenDistButton,
+                    imageInfoEditorSupport.showExtraInfoButton,
         };
     }
 
@@ -199,16 +199,21 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
         @Override
         public final double scale(double value) {
+            // todo ask Quast ... is there a reason for E-9 ?
+            // Why not E-42 ... is very small too but also not negative too.
             return value > 1.0E-9 ? Math.log10(value) : -9.0;
         }
 
         @Override
         public final double scaleInverse(double value) {
+            // todo ask Quast ... is there a reason for E-9 ?
+            // Why not E-42 ... is very small too but also not negative too.
             return value < -9.0 ? 1.0E-9 : Math.pow(10.0, value);
         }
     }
 
     private static class Pow10Scaling implements Scaling {
+
         private final Scaling log10Scaling = new Log10Scaling();
 
         @Override
