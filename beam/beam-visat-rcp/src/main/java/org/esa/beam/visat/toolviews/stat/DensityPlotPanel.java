@@ -434,9 +434,9 @@ class DensityPlotPanel extends ChartPagePanel {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                       "Failed to compute scatter plot.\n" +
                                                               "No Pixels considered..",
-                                                      /*I18N*/
-                                                      CHART_TITLE, /*I18N*/
-                                                      JOptionPane.ERROR_MESSAGE);
+                                /*I18N*/
+                                CHART_TITLE, /*I18N*/
+                                JOptionPane.ERROR_MESSAGE);
                         plot.setDataset(null);
                         return;
 
@@ -462,17 +462,17 @@ class DensityPlotPanel extends ChartPagePanel {
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
                                                           "Calculation canceled.",
-                                                  /*I18N*/
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
+                            /*I18N*/
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE);
                 } catch (CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
                                                           "Calculation canceled.",
-                                                  /*I18N*/
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
+                            /*I18N*/
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),

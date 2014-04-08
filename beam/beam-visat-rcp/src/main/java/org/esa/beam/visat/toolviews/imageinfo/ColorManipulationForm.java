@@ -18,7 +18,17 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.BeamUiActivator;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.SuppressibleOptionPane;
@@ -36,9 +46,25 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -262,12 +288,12 @@ class ColorManipulationForm {
 
     private boolean isContinuous1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
-                && ((Band) productSceneView.getRaster()).getIndexCoding() == null;
+               && ((Band) productSceneView.getRaster()).getIndexCoding() == null;
     }
 
     private boolean isDiscrete1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
-                && ((Band) productSceneView.getRaster()).getIndexCoding() != null;
+               && ((Band) productSceneView.getRaster()).getIndexCoding() != null;
     }
 
     private PageComponentDescriptor getToolViewDescriptor() {
@@ -355,9 +381,6 @@ class ColorManipulationForm {
         // product scene view.
         //
         visatApp.addInternalFrameListener(new ColorManipulationIFL());
-    }
-
-    private void setShowExtraInfo(boolean selected) {
     }
 
 
@@ -563,7 +586,7 @@ class ColorManipulationForm {
         fileChooser.setCurrentDirectory(getIODir());
         final int result = fileChooser.showOpenDialog(getToolViewPaneControl());
         final File file = fileChooser.getSelectedFile();
-        if (file != null) {
+        if (file != null && file.getParentFile() != null) {
             setIODir(file.getParentFile());
         }
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -605,7 +628,7 @@ class ColorManipulationForm {
         }
         int answer = JOptionPane.showConfirmDialog(getToolViewPaneControl(),
                                                    "Automatically distribute points of\n" +
-                                                           "colour palette between min/max?",
+                                                   "colour palette between min/max?",
                                                    "Import Colour Palette",
                                                    JOptionPane.YES_NO_CANCEL_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
@@ -634,7 +657,7 @@ class ColorManipulationForm {
         fileChooser.setCurrentDirectory(getIODir());
         final int result = fileChooser.showSaveDialog(getToolViewPaneControl());
         File file = fileChooser.getSelectedFile();
-        if (file != null) {
+        if (file != null && file.getParentFile() != null) {
             setIODir(file.getParentFile());
         }
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -656,18 +679,6 @@ class ColorManipulationForm {
 
     private boolean isRgbMode() {
         return productSceneView != null && isContinuous3BandImage();
-    }
-
-    private boolean canComputeExactHistogram() {
-        boolean canComputeExact = false;
-        if (productSceneView != null) {
-            final RasterDataNode[] rasters = productSceneView.getRasters();
-            for (RasterDataNode raster : rasters) {
-                final int resolutionLevel = raster.getStx().getResolutionLevel();
-                canComputeExact = resolutionLevel > 0;
-            }
-        }
-        return canComputeExact;
     }
 
     private void showErrorDialog(final String message) {

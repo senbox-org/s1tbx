@@ -102,10 +102,9 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
         final TransectProfileData transectProfileData;
         try {
-            Shape shape = convertToImageCoordinates(transect.getShape(), raster.getGeoCoding());
             transectProfileData = new TransectProfileDataBuilder()
                     .raster(raster)
-                    .path(shape)
+                    .path(transect.getShape())
                     .build();
         } catch (IOException e) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,

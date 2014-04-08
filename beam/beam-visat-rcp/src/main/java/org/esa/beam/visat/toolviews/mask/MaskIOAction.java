@@ -46,7 +46,7 @@ abstract class MaskIOAction extends MaskAction {
     }
 
     void setDirectory(final File directory) {
-        if (VisatApp.getApp().getPreferences() != null) {
+        if (VisatApp.getApp().getPreferences() != null && directory != null) {
             VisatApp.getApp().getPreferences().setPropertyString("mask.io.dir", directory.getPath());
         }
     }

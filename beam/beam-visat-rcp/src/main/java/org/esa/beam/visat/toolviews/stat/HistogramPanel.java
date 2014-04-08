@@ -32,7 +32,6 @@ import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -472,7 +471,7 @@ class HistogramPanel extends ChartPagePanel {
                     if (evt.getNewValue().equals(Boolean.TRUE)) {
                         xAxisRangeControl.adjustComponents(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()), Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()), 3);
                     } else {
-                        xAxisRangeControl.adjustComponents(Stx.LOG10_SCALING.scale(xAxisRangeControl.getMin()), Stx.LOG10_SCALING.scale(xAxisRangeControl.getMax()), 3);
+                        xAxisRangeControl.adjustComponents(Stx.LOG10_SCALING.scaleInverse(xAxisRangeControl.getMin()), Stx.LOG10_SCALING.scaleInverse(xAxisRangeControl.getMax()), 3);
                     }
                 }
                 adjusting = false;
@@ -536,12 +535,8 @@ class HistogramPanel extends ChartPagePanel {
                     if (autoMinMaxEnabled) {
                         final double min = stx.getHistogramScaling().scale(stx.getMinimum());
                         final double max = stx.getHistogramScaling().scale(stx.getMaximum());
-                        final double v = MathUtils.computeRoundFactor(min, max, 4);
                         histogramComputing = true;
-                        xAxisRangeControl.getBindingContext().getBinding("min").setPropertyValue(
-                                StatisticsUtils.round(min, v));
-                        xAxisRangeControl.getBindingContext().getBinding("max").setPropertyValue(
-                                StatisticsUtils.round(max, v));
+                        xAxisRangeControl.adjustComponents(min, max, 4);
                         histogramComputing = false;
                     }
                     setStx(stx);

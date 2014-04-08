@@ -1,7 +1,9 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import static org.junit.Assert.*;
+
 import com.jidesoft.swing.TitledSeparator;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,8 +13,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import java.awt.Component;
 import java.awt.GridLayout;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -44,6 +44,17 @@ public class AxisRangeControlTest {
         axisRangeControl.adjustComponents(3.4, 13.8, 2);
         assertEquals((Double) 3.4, axisRangeControl.getMin());
         assertEquals((Double) 13.8, axisRangeControl.getMax());
+    }
+
+    @Test
+    public void testVerySmallValues() {
+        final AxisRangeControl axisRangeControl = new AxisRangeControl("");
+
+        int numDecimalPlaces = 2;
+        axisRangeControl.adjustComponents(-5e-9, 5e-9, numDecimalPlaces);
+
+        assertEquals(0.0, axisRangeControl.getMin(), 1e-7);
+        assertEquals(Math.pow(10, -numDecimalPlaces), axisRangeControl.getMax(), 1e-7);
     }
 
     @Test

@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.glayer.support.ImageLayer;
-
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 
 import java.awt.Color;
@@ -34,22 +33,21 @@ public class ImageLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
     protected void addEditablePropertyDescriptors() {
-        PropertyDescriptor vd0 = new PropertyDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class);
-        vd0.setDefaultValue(ImageLayer.DEFAULT_BORDER_SHOWN);
-        vd0.setDisplayName("Show image border");
-        vd0.setDefaultConverter();
-        addPropertyDescriptor(vd0);
 
-        PropertyDescriptor vd1 = new PropertyDescriptor(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class);
-        vd1.setDefaultValue(ImageLayer.DEFAULT_BORDER_COLOR);
-        vd1.setDisplayName("Image border colour");
-        vd1.setDefaultConverter();
-        addPropertyDescriptor(vd1);
+        addDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, "Show image border");
+        addDescriptor(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, "Image border colour");
+        addDescriptor(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, "Image border size");
 
-        PropertyDescriptor vd2 = new PropertyDescriptor(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class);
-        vd2.setDefaultValue(ImageLayer.DEFAULT_BORDER_WIDTH);
-        vd2.setDisplayName("Image border size");
-        vd2.setDefaultConverter();
-        addPropertyDescriptor(vd2);
+        addDescriptor(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN, "Show pixel borders");
+        addDescriptor(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_PIXEL_BORDER_COLOR, "Pixel border colour");
+        addDescriptor(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH, "Pixel border size");
+    }
+
+    private void addDescriptor(String name, Class<?> type, Object defaultValue, String displayName) {
+        PropertyDescriptor propertyDescriptor = new PropertyDescriptor(name, type);
+        propertyDescriptor.setDefaultValue(defaultValue);
+        propertyDescriptor.setDisplayName(displayName);
+        propertyDescriptor.setDefaultConverter();
+        addPropertyDescriptor(propertyDescriptor);
     }
 }

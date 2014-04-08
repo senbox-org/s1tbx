@@ -93,11 +93,11 @@ class RoiMaskSelector {
         final JPanel roiMaskPanel = GridBagUtils.createPanel();
         GridBagConstraints roiMaskPanelConstraints = GridBagUtils.createConstraints("anchor=SOUTHWEST,fill=HORIZONTAL,insets.top=2");
         GridBagUtils.addToPanel(roiMaskPanel, useRoiMaskCheckBox, roiMaskPanelConstraints,
-                ",gridy=0,gridx=0,weightx=1");
+                                ",gridy=0,gridx=0,weightx=1");
         GridBagUtils.addToPanel(roiMaskPanel, roiMaskComboBox, roiMaskPanelConstraints,
-                "gridy=1,insets.left=4");
+                                "gridy=1,insets.left=4");
         GridBagUtils.addToPanel(roiMaskPanel, showMaskManagerButton, roiMaskPanelConstraints,
-                "gridheight=2,gridy=0,gridx=1,weightx=0,ipadx=5,insets.left=0");
+                                "gridheight=2,gridy=0,gridx=1,weightx=0,ipadx=5,insets.left=0");
         return roiMaskPanel;
     }
 
@@ -110,13 +110,6 @@ class RoiMaskSelector {
                 newProduct.addProductNodeListener(productNodeListener);
             }
             this.product = newProduct;
-            if (useRoiEnablement != null) {
-                useRoiEnablement.apply();
-            }
-
-            if (roiMaskEnablement != null) {
-                roiMaskEnablement.apply();
-            }
             updateRoiMasks();
         }
     }
@@ -128,6 +121,8 @@ class RoiMaskSelector {
         } else {
             property.getDescriptor().setValueSet(new ValueSet(new Mask[0]));
         }
+        useRoiEnablement.apply();
+        roiMaskEnablement.apply();
     }
 
     private Enablement.Condition createUseRoiCondition() {
@@ -155,6 +150,9 @@ class RoiMaskSelector {
             @Override
             public boolean evaluate(BindingContext bindingContext) {
                 Boolean propertyValue = bindingContext.getPropertySet().getValue(PROPERTY_NAME_USE_ROI_MASK);
+                if (roiMaskComboBox.getItemCount() > 0 && roiMaskComboBox.getSelectedIndex() < 0) {
+                    roiMaskComboBox.setSelectedIndex(0);
+                }
                 return Boolean.TRUE.equals(propertyValue)
                         && product != null
                         && product.getMaskGroup().getNodeCount() > 0;

@@ -107,8 +107,6 @@ class AxisRangeControl {
     }
 
     public void setTitleSuffix(String suffix) {
-        if(titledSeparator == null) return;
-
         final JLabel label = (JLabel) titledSeparator.getLabelComponent();
         if (suffix == null || suffix.trim().length() == 0) {
             label.setText(axisName);
@@ -149,12 +147,18 @@ class AxisRangeControl {
     public void adjustComponents(double min, double max, int numDecimalPlaces) {
         final Double oldMax = getMax();
 
+        double newMax = MathUtils.round(max, roundFactor(numDecimalPlaces));
+        double newMin = MathUtils.round(min, roundFactor(numDecimalPlaces));
+        if(newMin == newMax) {
+            newMax += Math.pow(10, -numDecimalPlaces);
+        }
+
         if (min >= oldMax) {
-            setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
-            setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
+            setMax(newMax);
+            setMin(newMin);
         } else {
-            setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
-            setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
+            setMin(newMin);
+            setMax(newMax);
         }
 
     }
@@ -177,11 +181,11 @@ class AxisRangeControl {
         return (Double) getBindingContext().getPropertySet().getValue("max");
     }
 
-    public void setMin(double min) {
+    private void setMin(double min) {
         getBindingContext().getPropertySet().setValue("min", min);
     }
 
-    public void setMax(double max) {
+    private void setMax(double max) {
         getBindingContext().getPropertySet().setValue("max", max);
     }
 
