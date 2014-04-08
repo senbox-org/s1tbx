@@ -88,7 +88,7 @@ public class BindingContextTest {
         assertEquals("intValue", spinner.getName());
 
         spinner.setValue(3);
-        assertEquals(3, propertyContainerVB.getValue("intValue"));
+        assertEquals(3, (int)propertyContainerVB.getValue("intValue"));
 
         propertyContainerVB.setValue("intValue", 76);
         assertEquals(76, spinner.getValue());
@@ -181,6 +181,7 @@ public class BindingContextTest {
 
         textField.setText("Bibo");
         textField.postActionEvent();
+        Thread.sleep(10);
         assertEquals("Bibo", propertyContainerOB.getValue("stringValue"));
 
         propertyContainerOB.setValue("stringValue", "Samson");
@@ -223,7 +224,7 @@ public class BindingContextTest {
         assertEquals("doubleValue", textField.getName());
 
         textField.setValue(3.14);
-        assertEquals(3.14, propertyContainerVB.getValue("doubleValue"));
+        assertEquals(3.14, (double)propertyContainerVB.getValue("doubleValue"), 1.0e-6);
 
         propertyContainerVB.setValue("doubleValue", 2.71);
         assertEquals(2.71, textField.getValue());
