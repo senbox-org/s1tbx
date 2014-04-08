@@ -18,6 +18,8 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.debug.CheckThreadViolationRepaintManager;
+import com.bc.ceres.swing.debug.EventDispatchThreadHangMonitor;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.DefaultDockableBarDockableHolder;
 import com.jidesoft.action.DockableBar;
@@ -141,7 +143,7 @@ public class BasicApp {
 
     private static final String _IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
 
-    protected boolean uiDefaultsInitialized;
+    private boolean uiDefaultsInitialized;
 
     private final ApplicationDescriptor applicationDescriptor;
 
@@ -317,6 +319,11 @@ public class BasicApp {
             logStartUpInfo();
             pm.worked(1);
 
+            if (Boolean.getBoolean("beam.swing.debug")) {
+                RepaintManager.setCurrentManager(new CheckThreadViolationRepaintManager());
+                EventDispatchThreadHangMonitor.initMonitoring();
+            }
+
             pm.setSubTaskName("Creating main frame...");
             initCommandManager();
             initMainFrame();
@@ -352,13 +359,10 @@ public class BasicApp {
         try {
             getMainFrame().setVisible(true);
             updateState();
-        } catch(Throwable t) {
-            System.out.println(t.getMessage());
-        } finally {
+ 			postInit(); // NESTMOD
+ 		} finally {
             startedUp = true;
             startingUp = false;
-
-            postInit(); // NESTMOD
         }
     }
 
@@ -1533,12 +1537,12 @@ public class BasicApp {
 
     public final void showOutOfMemoryErrorDialog(String message) {
         showErrorDialog("Out of Memory",
-                        String.format("%s is out of memory.\n%s\n\n" +
-                                      "You can try to release memory by closing products or image views which\n" +
-                                      "you currently not really need.\n" +
-                                      "If this does not help, you can increase the amount of virtual memory\n" +
-                                      "as described on the BEAM website at http://envisat.esa.int/services/beam/.",
-                                      getAppName(), message));
+                String.format("%s is out of memory.\n%s\n\n" +
+                        "You can try to release memory by closing products or image views which\n" +
+                        "you currently not really need.\n" +
+                        "If this does not help, you can increase the amount of virtual memory\n" +
+                        "as described on the BEAM website at http://envisat.esa.int/services/beam/.",
+                        getAppName(), message));
     }
 
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {

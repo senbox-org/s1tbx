@@ -220,7 +220,7 @@ public class TabbedDesktopPane extends JPanel {
 //        desktopPane.setBackground(BACKGROUND_COLOR);
 // </old-UI>
         tabbedPane.setBackground(desktopPane.getBackground());
-
+        tabbedPane.setShowCloseButtonOnTab(true);
 // <JIDE>
         tabbedPane.setCloseAction(new AbstractAction() {
             @Override
@@ -236,7 +236,7 @@ public class TabbedDesktopPane extends JPanel {
                 }
             }
         });
-        tabbedPane.setShowCloseButton(true);
+//        tabbedPane.setShowCloseButton(true);
 //        tabbedPane.setTabShape(JideTabbedPane.SHAPE_BOX);
 //        tabbedPane.setTabResizeMode(JideTabbedPane.RESIZE_MODE_FIXED);
 // </JIDE>
@@ -521,7 +521,9 @@ public class TabbedDesktopPane extends JPanel {
          */
         @Override
         public void mouseReleased(MouseEvent e) {
-            // check: Context menu does not work anymore!!!
+            if (e.getButton() == MouseEvent.BUTTON2) {
+                closeFrame(getSelectedFrame());
+            }
             if (e.isPopupTrigger()) {
                 final int index = tabbedPane.indexAtLocation(e.getX(), e.getY());
                 if (index >= 0) {

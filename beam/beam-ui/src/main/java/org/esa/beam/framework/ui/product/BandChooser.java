@@ -1,5 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.swing.TableLayout;
+import javax.swing.AbstractButton;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -19,9 +21,9 @@ import java.util.Set;
 /**
  * A dialog which lets the user select from a product's bands and tie-point grids.
  */
-public class BandChooser extends ModalDialog {
+public class BandChooser extends ModalDialog implements LoadSaveRasterDataNodesConfigurationsComponent {
 
-    private final boolean _selectAtLeastOneBand;
+    private final boolean selectAtLeastOneBand;
     private BandChoosingStrategy strategy;
 
     public BandChooser(Window parent, String title, String helpID,
@@ -29,7 +31,7 @@ public class BandChooser extends ModalDialog {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, null);
         strategy = new GroupedBandChoosingStrategy(allBands, selectedBands, null, null, autoGrouping, multipleProducts);
-        _selectAtLeastOneBand = false;
+        selectAtLeastOneBand = false;
         initUI();
     }
 
@@ -45,20 +47,20 @@ public class BandChooser extends ModalDialog {
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, allTiePointGrids);
         strategy = new DefaultBandChoosingStrategy(allBands, selectedBands, allTiePointGrids, selectedTiePointGrids,
                                                    multipleProducts);
-        _selectAtLeastOneBand = selectAtLeastOneBand;
+        this.selectAtLeastOneBand = selectAtLeastOneBand;
         initUI();
     }
 
     private boolean bandsAndGridsFromMoreThanOneProduct(Band[] allBands, TiePointGrid[] allTiePointGrids) {
-        Set productSet = new HashSet();
+        Set<Product> productSet = new HashSet<>();
         if (allBands != null) {
-            for (int i = 0; i < allBands.length; i++) {
-                productSet.add(allBands[i].getProduct());
+            for (Band allBand : allBands) {
+                productSet.add(allBand.getProduct());
             }
         }
         if (allTiePointGrids != null) {
-            for (int i = 0; i < allTiePointGrids.length; i++) {
-                productSet.add(allTiePointGrids[i].getProduct());
+            for (TiePointGrid allTiePointGrid : allTiePointGrids) {
+                productSet.add(allTiePointGrid.getProduct());
             }
         }
         return productSet.size() > 1;
@@ -94,19 +96,32 @@ public class BandChooser extends ModalDialog {
         final JPanel checkPane = new JPanel(new BorderLayout());
         checkPane.add(selectAllCheckBox, BorderLayout.WEST);
         checkPane.add(selectNoneCheckBox, BorderLayout.CENTER);
+
+        LoadSaveRasterDataNodesConfigurationsProvider provider = new LoadSaveRasterDataNodesConfigurationsProvider(this);
+        AbstractButton loadButton = provider.getLoadButton();
+        AbstractButton saveButton = provider.getSaveButton();
+        TableLayout layout = new TableLayout(1);
+        layout.setTablePadding(4, 4);
+        JPanel buttonPanel = new JPanel(layout);
+        buttonPanel.add(loadButton);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(layout.createVerticalSpacer());
+
         final JPanel content = new JPanel(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(checkersPane);
         final Dimension preferredSize = checkersPane.getPreferredSize();
         scrollPane.setPreferredSize(new Dimension(Math.min(preferredSize.width + 20, 400),
-                                                  Math.min(preferredSize.height + 10, 300)));
+                Math.min(preferredSize.height + 10, 300)));
         content.add(scrollPane, BorderLayout.CENTER);
+        content.add(buttonPanel, BorderLayout.EAST);
         content.add(checkPane, BorderLayout.SOUTH);
+        content.setMinimumSize(new Dimension(0, 100));
         setContent(content);
     }
 
     @Override
     protected boolean verifyUserInput() {
-        if (!strategy.atLeastOneBandSelected() && _selectAtLeastOneBand) {
+        if (!strategy.atLeastOneBandSelected() && selectAtLeastOneBand) {
             showInformationDialog("No bands selected.\nPlease select at least one band.");
             return false;
         }
@@ -121,4 +136,23 @@ public class BandChooser extends ModalDialog {
         return strategy.getSelectedTiePointGrids();
     }
 
+    @Override
+    public void setReadRasterDataNodeNames(String[] readRasterDataNodeNames) {
+        strategy.selectNone();
+        strategy.selectRasterDataNodes(readRasterDataNodeNames);
+    }
+
+    @Override
+    public String[] getRasterDataNodeNamesToWrite() {
+        Band[] selectedBands = strategy.getSelectedBands();
+        TiePointGrid[] selectedTiePointGrids = strategy.getSelectedTiePointGrids();
+        String[] nodeNames = new String[selectedBands.length + selectedTiePointGrids.length];
+        for (int i = 0; i < selectedBands.length; i++) {
+            nodeNames[i] = selectedBands[i].getName();
+        }
+        for (int i = 0; i < selectedTiePointGrids.length; i++) {
+            nodeNames[selectedBands.length + i] = selectedTiePointGrids[i].getName();
+        }
+        return nodeNames;
+    }
 }

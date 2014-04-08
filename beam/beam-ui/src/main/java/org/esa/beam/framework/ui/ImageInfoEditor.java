@@ -81,7 +81,7 @@ public class ImageInfoEditor extends JPanel {
     public static final int PALETTE_HEIGHT = 16;
     public static final int SLIDER_WIDTH = 12;
     public static final int SLIDER_HEIGHT = 10;
-    public static final int SLIDER_VALUES_AREA_HEIGHT = 40;
+    public static final int SLIDER_VALUES_AREA_HEIGHT = 50;
     public static final int HOR_BORDER_SIZE = 10;
     public static final int VER_BORDER_SIZE = 4;
     public static final int PREF_HISTO_WIDTH = 256; //196;
@@ -360,7 +360,7 @@ public class ImageInfoEditor extends JPanel {
             g2d.setColor(gray < 128 ? Color.white : Color.black);
             g2d.draw(sliderShape);
 
-            String text = String.valueOf(round(getSliderSample(i)));
+            String text = getFormattedValue(getSliderSample(i));
             g2d.setColor(Color.black);
             // save the old transformation
             final AffineTransform oldTransform = g2d.getTransform();
@@ -373,6 +373,13 @@ public class ImageInfoEditor extends JPanel {
         }
 
         g2d.translate(-sliderBaseLineRect.x, -sliderBaseLineRect.y);
+    }
+
+    private String getFormattedValue(double value) {
+        if (value < 0.01 && value > -0.01 && value != 0.0) {
+            return new DecimalFormat("0.##E0").format(value);
+        }
+        return String.format("%.2f", value);
     }
 
     private void drawHistogramPane(Graphics2D g2d) {

@@ -36,6 +36,7 @@ import org.esa.beam.util.TreeNode;
 import javax.help.HelpSet;
 import javax.help.HelpSet.DefaultHelpSetFactory;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -123,8 +124,16 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         return applicationDescriptor;
     }
 
+    /**
+     * @deprecated since BEAM 5, use {@link #getCommandMap()}
+     */
+    @Deprecated
     public Command[] getCommands() {
         return actionRegistry.values().toArray(new Command[actionRegistry.size()]);
+    }
+
+    public Map<String, Command> getCommandMap() {
+        return Collections.unmodifiableMap(actionRegistry);
     }
 
     @Override
@@ -155,7 +164,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                                                                                                      "toolViews",
                                                                                                      "toolView",
                                                                                                      ToolViewDescriptor.class);
-        toolViewDescriptorRegistry = new HashMap<String, ToolViewDescriptor>(2 * toolViewDescriptorList.size());
+        toolViewDescriptorRegistry = new HashMap<>(2 * toolViewDescriptorList.size());
         for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptorList) {
             final String toolViewId = toolViewDescriptor.getId();
             final ToolViewDescriptor existingViewDescriptor = toolViewDescriptorRegistry.get(toolViewId);
@@ -171,7 +180,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                                                                                     "actions",
                                                                                     "action",
                                                                                     Command.class);
-        actionRegistry = new HashMap<String, Command>(2 * actionList.size());
+        actionRegistry = new HashMap<>(2 * actionList.size());
         for (Command action : actionList) {
             final String actionId = action.getCommandID();
             final Command existingAction = actionRegistry.get(actionId);
@@ -195,7 +204,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                                                            "layerSources",
                                                            "layerSource",
                                                            LayerSourceDescriptor.class);
-        layerSourcesRegistry = new HashMap<String, LayerSourceDescriptor>(2 * layerSourceListDescriptor.size());
+        layerSourcesRegistry = new HashMap<>(2 * layerSourceListDescriptor.size());
         for (LayerSourceDescriptor layerSourceDescriptor : layerSourceListDescriptor) {
             final String id = layerSourceDescriptor.getId();
             final LayerSourceDescriptor existingLayerSourceDescriptor = layerSourcesRegistry.get(id);
@@ -208,7 +217,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     private void registerHelpSets(ModuleContext moduleContext) {
-        this.helpSetRegistry = new TreeNode<HelpSet>("");
+        this.helpSetRegistry = new TreeNode<>("");
 
         ExtensionPoint hsExtensionPoint = moduleContext.getModule().getExtensionPoint("helpSets");
         Extension[] hsExtensions = hsExtensionPoint.getExtensions();
@@ -298,7 +307,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         TreeNode<HelpSet> parentNode = helpSetRegistry.createChild(helpSetParent);
         TreeNode<HelpSet> childNode = parentNode.getChild(helpSetId);
         if (childNode == null) {
-            childNode = new TreeNode<HelpSet>(helpSetId, helpSet);
+            childNode = new TreeNode<>(helpSetId, helpSet);
             parentNode.addChild(childNode);
         } else if (childNode.getContent() == null) {
             childNode.setContent(helpSet);
@@ -310,12 +319,12 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
             moduleContext.getLogger().severe(message);
         }
     }
-    
+
     private static class VerifyingHelpSetFactory extends DefaultHelpSetFactory {
         private final String helpSetPath;
         private final String moduleName;
         private final Logger logger;
-        
+
         public VerifyingHelpSetFactory(String helpSetPath, String moduleName, Logger logger) {
             super();
             this.helpSetPath = helpSetPath;
@@ -325,22 +334,19 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
 
         @Override
         public void processView(HelpSet hs,
-                String name,
-                String label,
-                String type,
-                Hashtable viewAttributes,
-                String data,
-                Hashtable dataAttributes,
-                Locale locale) {
+                                String name,
+                                String label,
+                                String type,
+                                Hashtable viewAttributes,
+                                String data,
+                                Hashtable dataAttributes,
+                                Locale locale) {
             if (name.equals("Search")) {
                 // check if a search engine can be created, this means the search index is available
-                try
-                {
+                try {
                     // just for checking if it can be created
                     QueryEngine qe = new QueryEngine(data, hs.getHelpSetURL());
-                }
-                catch(Exception exception)
-                {
+                } catch (Exception exception) {
                     String message = String.format("Help set [%s] of module [%s] has no or bad search index. Search view removed.",
                                                    helpSetPath, moduleName);
                     logger.log(Level.SEVERE, message, "");
