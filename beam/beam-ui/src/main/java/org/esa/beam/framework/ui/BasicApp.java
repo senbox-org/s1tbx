@@ -143,7 +143,7 @@ public class BasicApp {
 
     private static final String _IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
 
-    private boolean uiDefaultsInitialized;
+    protected boolean uiDefaultsInitialized;
 
     private final ApplicationDescriptor applicationDescriptor;
 
