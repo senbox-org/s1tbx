@@ -157,6 +157,8 @@
             <mnemonic type="char"/>
             <accelerator type="javax.swing.KeyStroke"/>
             <placeAtContextTop type="boolean"/>
+            <placeFirst type="boolean"/>
+            <placeLast type="boolean"/>
             <placeBefore type="java.lang.String"/>
             <placeAfter type="java.lang.String"/>
             <separatorBefore type="boolean"/>
