@@ -61,11 +61,11 @@ public class DefaultCommandMenuInserter implements CommandMenuInserter {
             return;
         }
 
-        Map<String, JMenuItem> menuItemMap = new HashMap<>();
         Map<String, Command> commandMap = new HashMap<>();
+        Map<String, JMenuItem> menuItemMap = new HashMap<>();
 
-        menuItemMap.put(newCommand.getCommandID(), newMenuItem);
         commandMap.put(newCommand.getCommandID(), newCommand);
+        menuItemMap.put(newCommand.getCommandID(), newMenuItem);
 
         JPopupMenu popupMenu = menu.getPopupMenu();
 
@@ -77,14 +77,14 @@ public class DefaultCommandMenuInserter implements CommandMenuInserter {
                 if (commandID != null) {
                     Command command = commandManager.getCommand(commandID);
                     if (command != null) {
-                        menuItemMap.put(commandID, (JMenuItem) component);
                         commandMap.put(commandID, command);
+                        menuItemMap.put(commandID, (JMenuItem) component);
                     }
                 }
             }
         }
 
-        BeamLogManager.getSystemLogger().fine(String.format("Inserting command '%s' into menu '%s' (size=%d)", newCommand.getCommandID(), menu.getName(), componentCount));
+        BeamLogManager.getSystemLogger().fine(String.format("Inserting command '%s' into menu '%s' with %d item(s)", newCommand.getCommandID(), menu.getName(), componentCount));
 
         ArrayList<Command> commands = new ArrayList<>(commandMap.values());
         if (isSortedByName(menu, commandManager)) {
@@ -200,7 +200,7 @@ public class DefaultCommandMenuInserter implements CommandMenuInserter {
             }
         }
 
-        if (iteration == commands.size()) {
+        if (iteration > 1 && iteration == commands.size()) {
             BeamLogManager.getSystemLogger().warning(String.format("Sorting updated command list took %d iterations!", iteration));
         }
 
