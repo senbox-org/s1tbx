@@ -25,6 +25,7 @@ import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.*;
@@ -118,8 +119,9 @@ public class MapProjectionHandler {
 
     public static CoordinateReferenceSystem getCRS(String mapProjection) throws Exception {
         try {
-            if(mapProjection == null || mapProjection.isEmpty())
-                mapProjection = "WGS84(DD)";
+            if(mapProjection == null || mapProjection.isEmpty() || mapProjection.equals("WGS84(DD)")) {
+                return DefaultGeographicCRS.WGS84;
+            }
             return CRS.parseWKT(mapProjection);
         } catch (Exception e) {
             return CRS.decode(mapProjection, true);

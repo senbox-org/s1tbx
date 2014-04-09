@@ -22,7 +22,7 @@ nest.test.ReadersOnAllProducts = true
 nest.test.ProcessingOnAllProducts = true
 nest.test.RunBenchmarks = false
 # max number of products to test from each root folder. Use -1 to test all.
-nest.test.maxProductsPerRootFolder = -1
+nest.test.maxProductsPerRootFolder = 1
 nest.test.subsetX = 100
 nest.test.subsetY = 100
 nest.test.subsetWidth = 100

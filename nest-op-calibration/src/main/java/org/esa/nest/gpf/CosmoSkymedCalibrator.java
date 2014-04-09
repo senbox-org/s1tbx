@@ -148,7 +148,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         }
 
         final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
-        constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration Constant Compensation Flag");
+        constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration_Constant_Compensation_Flag");
         if (!constantCompFlag) {
             applyConstantCorrection = true;
         }
@@ -165,14 +165,14 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if(s01Elem != null) {
         	pol = s01Elem.getAttributeString("Polarisation").toUpperCase();
-        	factor = s01Elem.getAttributeDouble("Calibration Constant");
+        	factor = s01Elem.getAttributeDouble("Calibration_Constant");
         	calibrationFactor.put(pol, factor);
         }
          	
         final MetadataElement s02Elem = globalElem.getElement("S02");
         if(s02Elem != null) {
         	pol = s02Elem.getAttributeString("Polarisation").toUpperCase();
-        	factor = s02Elem.getAttributeDouble("Calibration Constant");
+        	factor = s02Elem.getAttributeDouble("Calibration_Constant");
         	calibrationFactor.put(pol, factor);
         }
 
@@ -294,7 +294,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
         final String pol = OperatorUtils.getBandPolarization(srcBandNames[0], absRoot).toUpperCase();
         double Ks = 1.0;
-        if (pol != null && applyConstantCorrection) {
+        if (pol != null && !pol.isEmpty() && applyConstantCorrection) {
             Ks = calibrationFactor.get(pol);
         }
 
