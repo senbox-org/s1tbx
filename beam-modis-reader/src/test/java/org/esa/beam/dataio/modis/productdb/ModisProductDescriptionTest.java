@@ -15,31 +15,35 @@
  */
 package org.esa.beam.dataio.modis.productdb;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ModisProductDescriptionTest extends TestCase {
+import static org.junit.Assert.*;
 
-    private ModisProductDescription _prod;
+public class ModisProductDescriptionTest {
 
-    @Override
-    protected void setUp() {
-        _prod = new ModisProductDescription();
-        assertTrue(_prod != null);
+    private ModisProductDescription prod;
+
+    @Before
+    public void setUp() {
+        prod = new ModisProductDescription();
     }
 
+    @Test
     public void testDefaultConstruction() {
-        assertEquals(0, _prod.getBandNames().length);
-        assertNull(_prod.getBandDescription("no_band"));
-        assertEquals(false, _prod.mustFlipTopDown());
-        assertEquals(null, _prod.getGeolocationDatasetNames());
-        assertEquals(null, _prod.getExternalGeolocationPattern());
-        assertEquals(false, _prod.hasExternalGeolocation());
-        assertEquals(0, _prod.getTiePointNames().length);
+        assertEquals(0, prod.getBandNames().length);
+        assertNull(prod.getBandDescription("no_band"));
+        assertEquals(false, prod.mustFlipTopDown());
+        assertArrayEquals(null, prod.getGeolocationDatasetNames());
+        assertEquals(null, prod.getExternalGeolocationPattern());
+        assertEquals(false, prod.hasExternalGeolocation());
+        assertEquals(0, prod.getTiePointNames().length);
     }
 
     /**
      * Tests the correct functionality of the band accessor methods
      */
+    @Test
     public void testAddGetBand() {
         String expB_1_Name = "band_1";
         String expB_1_spectral = "true";
@@ -63,14 +67,14 @@ public class ModisProductDescriptionTest extends TestCase {
         String expB_2_DescName = "desc_name_2";
 
         // add two bands
-        _prod.addBand(expB_1_Name, expB_1_spectral, expB_1_ScaleMethod, expB_1_Scale,
+        prod.addBand(expB_1_Name, expB_1_spectral, expB_1_ScaleMethod, expB_1_Scale,
                       expB_1_Offset, expB_1_Unit, expB_1_BandName, expB_1_DescName,
                       expB_1_SpectralWL, expB_1_SpectralBW, expB_1_SpectralBI);
-        _prod.addBand(expB_2_Name, expB_2_spectral, expB_2_ScaleMethod, expB_2_Scale,
+        prod.addBand(expB_2_Name, expB_2_spectral, expB_2_ScaleMethod, expB_2_Scale,
                       expB_2_Offset, expB_2_Unit, expB_2_BandName, expB_2_DescName);
 
         // retrieve description object for band 1 - and check
-        ModisBandDescription band = _prod.getBandDescription(expB_1_Name);
+        ModisBandDescription band = prod.getBandDescription(expB_1_Name);
         assertNotNull(band);
         assertEquals(expB_1_Name, band.getName());
         assertEquals(expB_1_spectral, "" + band.isSpectral());
@@ -87,7 +91,7 @@ public class ModisProductDescriptionTest extends TestCase {
         assertEquals(expB_1_SpectralBI, "" + spectralInfo.getSpectralBandIndex());
 
         // retrieve description object for band 2 - and check
-        band = _prod.getBandDescription(expB_2_Name);
+        band = prod.getBandDescription(expB_2_Name);
         assertNotNull(band);
         assertEquals(expB_2_Name, band.getName());
         assertEquals(expB_2_spectral, "" + band.isSpectral());
@@ -98,31 +102,32 @@ public class ModisProductDescriptionTest extends TestCase {
         assertEquals(expB_2_BandName, band.getBandAttribName());
 
         // check that the band names are read out correctly
-        String[] bandNames = _prod.getBandNames();
+        String[] bandNames = prod.getBandNames();
         assertNotNull(bandNames);
         assertEquals(2, bandNames.length);
         assertEquals(expB_1_Name, bandNames[0]);
         assertEquals(expB_2_Name, bandNames[1]);
 
         // check some invalid band names
-        assertNull(_prod.getBandDescription("no_band"));
-        assertNull(_prod.getBandDescription("nonsense"));
+        assertNull(prod.getBandDescription("no_band"));
+        assertNull(prod.getBandDescription("nonsense"));
     }
 
     /**
      * Tests the correct functionality of the geolocation accessors.
      */
+    @Test
     public void testGeolocationAccess() {
         // none shall be set initially
-        assertNull(_prod.getGeolocationDatasetNames());
+        assertNull(prod.getGeolocationDatasetNames());
 
         // set a tie point geolocation and check
         String expLat = "latitude";
         String expLon = "longitude";
         String[] geoLoc;
 
-        _prod.setGeolocationDatasetNames(expLat, expLon);
-        geoLoc = _prod.getGeolocationDatasetNames();
+        prod.setGeolocationDatasetNames(expLat, expLon);
+        geoLoc = prod.getGeolocationDatasetNames();
         assertNotNull(geoLoc);
         assertEquals(2, geoLoc.length);
         assertEquals(expLat, geoLoc[0]);
@@ -132,9 +137,10 @@ public class ModisProductDescriptionTest extends TestCase {
     /**
      * Tests the correct functionality of the tie point accessors
      */
+    @Test
     public void testTiePointAccess() {
         // initially empty
-        assertEquals(0, _prod.getTiePointNames().length);
+        assertEquals(0, prod.getTiePointNames().length);
 
         String[] tp = new String[]{"tie_point_1", "tie_point_2", "tie_point_3"};
         String[] sc = new String[]{"scale_1", "scale_2", "scale_3"};
@@ -142,10 +148,10 @@ public class ModisProductDescriptionTest extends TestCase {
         String[] un = new String[]{"unit_1", "unit_2", "unit_3"};
 
         for (int n = 0; n < 3; n++) {
-            _prod.addTiePointGrid(new ModisTiePointDescription(tp[n], sc[n], of[n], un[n]));
+            prod.addTiePointGrid(new ModisTiePointDescription(tp[n], sc[n], of[n], un[n]));
         }
 
-        String[] tpNames = _prod.getTiePointNames();
+        String[] tpNames = prod.getTiePointNames();
         assertNotNull(tpNames);
         assertEquals(3, tpNames.length);
 
@@ -156,7 +162,7 @@ public class ModisProductDescriptionTest extends TestCase {
         // loop over descriptions
         ModisTiePointDescription desc;
         for (int n = 0; n < 3; n++) {
-            desc = _prod.getTiePointDescription(tpNames[n]);
+            desc = prod.getTiePointDescription(tpNames[n]);
             assertNotNull(desc);
 
             assertEquals(tp[n], desc.getName());
@@ -169,38 +175,40 @@ public class ModisProductDescriptionTest extends TestCase {
     /**
      * Tests the correct functionality of the flip accessor methods
      */
+    @Test
     public void testFlipAccessors() {
         // initially false
-        assertEquals(false, _prod.mustFlipTopDown());
+        assertEquals(false, prod.mustFlipTopDown());
 
         // set true and check
-        _prod.setTopDownFlip(true);
-        assertEquals(true, _prod.mustFlipTopDown());
+        prod.setTopDownFlip(true);
+        assertEquals(true, prod.mustFlipTopDown());
 
         // set false and check again
-        _prod.setTopDownFlip(false);
-        assertEquals(false, _prod.mustFlipTopDown());
+        prod.setTopDownFlip(false);
+        assertEquals(false, prod.mustFlipTopDown());
     }
 
     /**
      * Checks the correct functionality of the geocoding accessors
      */
+    @Test
     public void testGeocodingAccessors() {
         // intially everything is null and false
         String[] latlon;
 
-        latlon = _prod.getGeolocationDatasetNames();
+        latlon = prod.getGeolocationDatasetNames();
         assertNull(latlon);
-        assertEquals(false, _prod.hasExternalGeolocation());
-        assertNull(_prod.getExternalGeolocationPattern());
+        assertEquals(false, prod.hasExternalGeolocation());
+        assertNull(prod.getExternalGeolocationPattern());
 
         // set lat/lon tiepoint geocoding
         String expLat = "latitude";
         String expLon = "lomgitude";
-        _prod.setGeolocationDatasetNames(expLat, expLon);
+        prod.setGeolocationDatasetNames(expLat, expLon);
 
-        assertEquals(false, _prod.hasExternalGeolocation());
-        latlon = _prod.getGeolocationDatasetNames();
+        assertEquals(false, prod.hasExternalGeolocation());
+        latlon = prod.getGeolocationDatasetNames();
         assertNotNull(latlon);
         assertEquals(2, latlon.length);
         assertEquals(expLat, latlon[0]);
@@ -208,17 +216,13 @@ public class ModisProductDescriptionTest extends TestCase {
 
         // set external geocoding
         String expExter = "external";
-        _prod.setExternalGeolocationPattern(expExter);
-        assertEquals(true, _prod.hasExternalGeolocation());
-        assertEquals(expExter, _prod.getExternalGeolocationPattern());
+        prod.setExternalGeolocationPattern(expExter);
+        assertEquals(true, prod.hasExternalGeolocation());
+        assertEquals(expExter, prod.getExternalGeolocationPattern());
 
-        _prod.setExternalGeolocationPattern(null);
-        assertEquals(false, _prod.hasExternalGeolocation());
-        assertEquals(null, _prod.getExternalGeolocationPattern());
+        prod.setExternalGeolocationPattern(null);
+        assertEquals(false, prod.hasExternalGeolocation());
+        assertEquals(null, prod.getExternalGeolocationPattern());
     }
 
-    public void testAddSpectralInformation() {
-
-
-    }
 }
