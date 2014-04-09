@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -132,7 +133,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class Statistics {
 
-        Map<String, BandStatistics> statistics = new HashMap<String, BandStatistics>();
+        Map<String, BandStatistics> statistics = new LinkedHashMap<>();
 
         BandStatistics getDataForBandName(String bandName) {
             return statistics.get(bandName);
@@ -154,7 +155,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class BandStatistics {
 
-        Map<String, RegionStatistics> bandStatistics = new HashMap<String, RegionStatistics>();
+        Map<String, RegionStatistics> bandStatistics = new LinkedHashMap<>();
 
         RegionStatistics getDataForRegionName(String regionName) {
             return bandStatistics.get(regionName);
@@ -176,7 +177,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class RegionStatistics {
 
-        Map<String, Number> regionStatistics = new HashMap<String, Number>();
+        Map<String, Number> regionStatistics = new LinkedHashMap<String, Number>();
 
         Number getDataForAlgorithmName(String algorithmName) {
             return regionStatistics.get(algorithmName);
