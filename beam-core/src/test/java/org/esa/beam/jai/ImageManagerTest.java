@@ -244,4 +244,53 @@ public class ImageManagerTest {
         assertEquals(new Color(128, 128, 0), palette[5]);
         assertEquals(new Color(0, 255, 0), palette[6]);
     }
+
+    @Test
+    public void testCreateLinearColorPalette_Discrete() {
+        final ColorPaletteDef cpd = new ColorPaletteDef(new ColorPaletteDef.Point[]{
+                    new ColorPaletteDef.Point(100, Color.WHITE),
+                    new ColorPaletteDef.Point(200, Color.BLUE),
+                    new ColorPaletteDef.Point(300, Color.RED),
+                    new ColorPaletteDef.Point(400, Color.GREEN),
+        }, 7);
+        cpd.setDiscrete(true);
+        final ImageInfo imageInfo = new ImageInfo(cpd);
+        imageInfo.setLogScaled(false);
+
+        final Color[] palette = ImageManager.createColorPalette(imageInfo);
+
+        assertNotNull(palette);
+        assertEquals(7, palette.length);
+        assertEquals(new Color(255, 255, 255), palette[0]);
+        assertEquals(new Color(255, 255, 255), palette[1]);
+        assertEquals(new Color(0, 0, 255), palette[2]);
+        assertEquals(new Color(0, 0, 255), palette[3]);
+        assertEquals(new Color(255, 0, 0), palette[4]);
+        assertEquals(new Color(255, 0, 0), palette[4]);
+        assertEquals(new Color(0, 255, 0), palette[6]);
+    }
+
+    @Test
+    public void testCreateLog10ColorPalette_Discrete() {
+        final ColorPaletteDef cpd = new ColorPaletteDef(new ColorPaletteDef.Point[]{
+                    new ColorPaletteDef.Point(1, Color.WHITE),
+                    new ColorPaletteDef.Point(10, Color.BLUE),
+                    new ColorPaletteDef.Point(100, Color.RED),
+                    new ColorPaletteDef.Point(1000, Color.GREEN),
+        }, 7);
+        cpd.setDiscrete(true);
+        final ImageInfo imageInfo = new ImageInfo(cpd);
+        imageInfo.setLogScaled(true);
+
+        final Color[] palette = ImageManager.createColorPalette(imageInfo);
+        assertNotNull(palette);
+        assertEquals(7, palette.length);
+        assertEquals(new Color(255, 255, 255), palette[0]);
+        assertEquals(new Color(255, 255, 255), palette[1]);
+        assertEquals(new Color(0, 0, 255), palette[2]);
+        assertEquals(new Color(0, 0, 255), palette[3]);
+        assertEquals(new Color(255, 0, 0), palette[4]);
+        assertEquals(new Color(255, 0, 0), palette[5]);
+        assertEquals(new Color(0, 255, 0), palette[6]);
+    }
 }

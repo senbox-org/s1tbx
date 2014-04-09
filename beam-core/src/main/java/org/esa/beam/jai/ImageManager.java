@@ -993,16 +993,21 @@ public class ImageManager {
         int pointIndex = 0;
         final int maxPointIndex = cpd.getNumPoints() - 2;
         BorderSamplesAndColors boSaCo = getBorderSamplesAndColors(imageInfo, pointIndex, null);
-        for (int i = 0; i < numColors; i++) {
+        for (int i = 0; i < numColors - 1; i++) {
             final double w = i * scalingFactor;
             final double sample = minSample + w * (maxSample - minSample);
-            if (sample > boSaCo.sample2) {
+            if (sample >= boSaCo.sample2) {
                 pointIndex++;
                 pointIndex = Math.min(pointIndex, maxPointIndex);
                 boSaCo = getBorderSamplesAndColors(imageInfo, pointIndex, boSaCo);
             }
-            colorPalette[i] = computeColor(sample, boSaCo);
+            if (cpd.isDiscrete()) {
+                colorPalette[i] = boSaCo.color1;
+            } else {
+                colorPalette[i] = computeColor(sample, boSaCo);
+            }
         }
+        colorPalette[numColors - 1] = boSaCo.color2;
         return colorPalette;
     }
 
