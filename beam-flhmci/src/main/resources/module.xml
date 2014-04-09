@@ -11,7 +11,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -43,14 +43,13 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.thematicWater</parent>
             <id>flhMciScientificTool</id>
-            <helpId>flhMciScientificTool</helpId>
-            <class>org.esa.beam.processor.flh_mci.visat.FlhMciAction</class>
-            <parent>tools</parent>
             <text>FLH/MCI Processor...</text>
-            <shortDescr>Invoke the FLH/MCI processor.</shortDescr>
+            <class>org.esa.beam.processor.flh_mci.visat.FlhMciAction</class>
+            <description>Generates florescence line height (FLH) / maximum chlorophyll index (MCI) from spectral bands.</description>
             <mnemonic>F</mnemonic>
-            <placeAfter>imageAnalysis</placeAfter>
+            <helpId>flhMciScientificTool</helpId>
         </action>
     </extension>
 

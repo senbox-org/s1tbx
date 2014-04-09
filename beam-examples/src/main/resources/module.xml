@@ -31,23 +31,20 @@
         <action>
             <parent>edit</parent>
             <id>selectionAction</id>
-            <class>org.esa.beam.examples.selection.SelectionAwareAction</class>
+            <placeAfter>com.bc.ceres.swing.actions.SelectAllAction</placeAfter>
             <text>Number of selected placemarks...</text>
-            <placeAfter>properties</placeAfter>
-            <shortDescr>Shows number selected placemarks.</shortDescr>
+            <class>org.esa.beam.examples.selection.SelectionAwareAction</class>
             <description>Shows the number of selected placemarks, is any.</description>
         </action>
 
         <action>
+            <parent>processing</parent>
             <id>SimpleExampleOp</id>
+            <placeLast>true</placeLast>
             <class>org.esa.beam.examples.gpf.dialog.SimpleExampleAction</class>
-            <parent>tools</parent>
-            <placeAfter>flhMciScientificTool</placeAfter>
-            <placeBefore>cloudScientificTool</placeBefore>
             <helpId>simpleExample</helpId>
-            <text>Simple Example ...</text>
-            <shortDescr>Simple example operator with custom UI.</shortDescr>
-            <longDescr>Simple example operator with custom user interface.</longDescr>
+            <text>Simple Example Processor...</text>
+            <description>Simple example processor with custom user interface.</description>
             <mnemonic>E</mnemonic>
         </action>
 

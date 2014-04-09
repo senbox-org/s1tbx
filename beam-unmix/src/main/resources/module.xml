@@ -25,7 +25,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -41,12 +41,12 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
+            <parent>processing.imageAnalysis</parent>
             <id>spectralUnmixing</id>
-            <helpId>spectralUnmixing</helpId>
-            <parent>imageAnalysis</parent>
             <text>Spectral Unmixing...</text>
+            <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
             <mnemonic>U</mnemonic>
+            <helpId>spectralUnmixing</helpId>
         </action>
     </extension>
 

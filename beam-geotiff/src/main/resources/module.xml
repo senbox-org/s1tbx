@@ -23,7 +23,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
@@ -69,7 +69,6 @@
             <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <shortDescr>Import a GeoTIFF data product or subset.</shortDescr>
             <description>Import a GeoTIFF data product or product subset.</description>
             <helpId>importGeoTIFFProduct</helpId>
         </action>
@@ -80,7 +79,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
             <text>GeoTIFF</text>
-            <shortDescr>Export a GeoTIFF data product or subset.</shortDescr>
             <description>Export a GeoTIFF data product or product subset.</description>
             <helpId>exportGeoTIFFProduct</helpId>
         </action>

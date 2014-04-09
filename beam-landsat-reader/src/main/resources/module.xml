@@ -8,8 +8,8 @@
         and OLI and TIRS of Landsat 8 in GeoTIFF format. Landsat TM 5 is additionally supported in FAST format.
     </description>
 
-    <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
-    <copyright>(C) 2006-2012 by Brockmann Consult</copyright>
+    <vendor>Brockmann Consult GmbH (with contributions from Christian Berwanger)</vendor>
+    <copyright>(C) 2006-2014 by Brockmann Consult</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -66,7 +66,6 @@
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
-            <shortDescr>Import a Landsat 5 TM (Fast) data product or product subset.</shortDescr>
             <description>Import a Landsat 5 TM (in Fast format) data product or product subset.</description>
             <helpId>importLandsatProduct</helpId>
         </action>
@@ -77,7 +76,6 @@
             <formatName>LandsatGeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Landsat (GeoTIFF)</text>
-            <shortDescr>Import a Landsat (GeoTIFF) data product or product subset.</shortDescr>
             <description>Import a Landsat (in GeoTIFF format) data product or product subset.</description>
         </action>
     </extension>

@@ -31,7 +31,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -47,12 +47,11 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.geomOperations</parent>
             <id>collocation</id>
-            <helpId>collocation</helpId>
             <class>org.esa.beam.collocation.visat.CollocationAction</class>
-            <parent>tools</parent>
             <text>Collocation...</text>
-            <placeAfter>mosaicAction</placeAfter>
+            <helpId>collocation</helpId>
         </action>
     </extension>
 

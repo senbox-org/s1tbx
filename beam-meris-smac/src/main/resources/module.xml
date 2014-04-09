@@ -5,7 +5,7 @@
     <name>MERIS SMAC Atmospheric Correction</name>
 
     <description>
-        The MERIS SMAC Processor performs the Simplified Method for Atmospheric Correction.
+        The SMAC Processor performs the Simplified Method for Atmospheric Correction on MERIS and (A)ATSR L1b products.
     </description>
     <changelog>
         <![CDATA[
@@ -32,7 +32,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -51,16 +51,15 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.thematicLand</parent>
             <id>smacTool</id>
-            <helpId>smacScientificTool</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <text>SMAC Operator (MERIS/(A)ATSR)...</text>
-            <parent>tools</parent>
+            <text>MERIS/(A)ATSR SMAC Atmospheric Correction...</text>
             <operatorName>SmacOp</operatorName>
-            <dialogTitle>Smac Scientific Operator</dialogTitle>
-            <placeAfter>NDVIProcessorPlugIn</placeAfter>
-            <shortDescr>Invoke the MERIS/(A)ATSR SMAC Processor.</shortDescr>
+            <dialogTitle>MERIS/(A)ATSR SMAC Atmospheric Correction</dialogTitle>
+            <description>Perform the Simplified Method for Atmospheric Correction on MERIS and (A)ATSR L1b products.</description>
             <targetProductNameSuffix>_smac</targetProductNameSuffix>
+            <helpId>smacScientificTool</helpId>
         </action>
     </extension>
 

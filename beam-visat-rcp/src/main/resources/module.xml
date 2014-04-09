@@ -237,7 +237,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -665,11 +665,11 @@
         <action>
             <parent>file</parent>
             <id>new</id>
+            <placeFirst>true</placeFirst>
             <class>org.esa.beam.visat.actions.NewAction</class>
             <text>New Product</text>
             <mnemonic>N</mnemonic>
             <accelerator>control N</accelerator>
-            <shortDescr>Create a new data product.</shortDescr>
             <description>Create a new data product.</description>
             <smallIcon>icons/New16.gif</smallIcon>
             <largeIcon>icons/New24.gif</largeIcon>
@@ -679,13 +679,12 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>new</placeAfter>
             <id>open</id>
+            <placeAfter>new</placeAfter>
             <class>org.esa.beam.visat.actions.OpenAction</class>
             <text>Open Product...</text>
             <mnemonic>O</mnemonic>
             <accelerator>control O</accelerator>
-            <shortDescr>Open a data product.</shortDescr>
             <description>Open a data product.</description>
             <smallIcon>icons/Open16.gif</smallIcon>
             <largeIcon>icons/Open24.gif</largeIcon>
@@ -694,25 +693,23 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>open</placeAfter>
             <id>openSession</id>
+            <placeAfter>open</placeAfter>
             <class>org.esa.beam.visat.actions.session.OpenSessionAction</class>
             <text>Open Session...</text>
             <accelerator>shift control O</accelerator>
-            <shortDescr>Open a BEAM session.</shortDescr>
-            <longDescr>Open a BEAM session.</longDescr>
+            <description>Open a BEAM session.</description>
             <helpId>openSession</helpId>
         </action>
 
         <action>
             <parent>file</parent>
-            <placeAfter>openSession</placeAfter>
             <id>reopen</id>
+            <placeAfter>openSession</placeAfter>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Reopen</text>
             <mnemonic>R</mnemonic>
-            <shortDescr>Re-open a data product.</shortDescr>
-            <longDescr>Re-open a data product.</longDescr>
+            <description>Re-open a data product.</description>
             <smallIcon>icons/History16.gif</smallIcon>
             <largeIcon>icons/History24.gif</largeIcon>
             <helpId>reopen</helpId>
@@ -720,13 +717,12 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>reopen</placeAfter>
             <id>productGrabber</id>
+            <placeAfter>reopen</placeAfter>
             <class>org.esa.beam.visat.actions.pgrab.ProductGrabberAction</class>
             <text>Product Grabber</text>
             <accelerator>shift control P</accelerator>
-            <shortDescr>Opens the product grabber.</shortDescr>
-            <longDescr>Opens the product grabber dialog to preview and open products.</longDescr>
+            <description>Opens the product grabber dialog to preview and open products.</description>
             <smallIcon>icons/RsProduct16.gif</smallIcon>
             <largeIcon>icons/RsProduct24.gif</largeIcon>
             <helpId>productGrabber</helpId>
@@ -734,14 +730,13 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>productGrabber</placeAfter>
             <id>close</id>
+            <placeAfter>productGrabber</placeAfter>
+            <separatorBefore>true</separatorBefore>
             <class>org.esa.beam.visat.actions.CloseAction</class>
             <text>Close Product</text>
             <mnemonic>C</mnemonic>
             <accelerator>control W</accelerator>
-            <separatorBefore>true</separatorBefore>
-            <shortDescr>Close an open data product.</shortDescr>
             <description>Close an open data product.</description>
             <helpId>close</helpId>
             <context>product</context>
@@ -749,25 +744,23 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>close</placeAfter>
             <id>closeSession</id>
+            <placeAfter>close</placeAfter>
             <class>org.esa.beam.visat.actions.session.CloseSessionAction</class>
             <text>Close Session</text>
             <accelerator>shift control W</accelerator>
-            <shortDescr>Close the current BEAM session.</shortDescr>
-            <longDescr>Close the current BEAM session.</longDescr>
+            <description>Close the current BEAM session.</description>
             <helpId>closeSession</helpId>
         </action>
 
         <action>
             <parent>file</parent>
-            <placeAfter>closeSession</placeAfter>
             <id>save</id>
+            <placeAfter>closeSession</placeAfter>
             <class>org.esa.beam.visat.actions.SaveAction</class>
             <text>Save Product</text>
             <mnemonic>S</mnemonic>
             <separatorBefore>true</separatorBefore>
-            <shortDescr>Save a BEAM-DIMAP data product.</shortDescr>
             <description>Save a BEAM-DIMAP data product.</description>
             <accelerator>control S</accelerator>
             <smallIcon>icons/Save16.gif</smallIcon>
@@ -777,12 +770,11 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>save</placeAfter>
             <id>saveAs</id>
+            <placeAfter>save</placeAfter>
             <class>org.esa.beam.visat.actions.SaveAsAction</class>
             <text>Save Product As...</text>
             <mnemonic>A</mnemonic>
-            <shortDescr>Save a BEAM-DIMAP data product with a different name.</shortDescr>
             <description>Save a BEAM-DIMAP data product with a different name.</description>
             <smallIcon>icons/SaveAs16.gif</smallIcon>
             <largeIcon>icons/SaveAs24.gif</largeIcon>
@@ -792,8 +784,8 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>saveAs</placeAfter>
             <id>saveSession</id>
+            <placeAfter>saveAs</placeAfter>
             <class>org.esa.beam.visat.actions.session.SaveSessionAction</class>
             <text>Save Session</text>
             <accelerator>shift control S</accelerator>
@@ -804,11 +796,11 @@
 
         <action>
             <parent>file</parent>
-            <placeAfter>saveSession</placeAfter>
             <id>saveSessionAs</id>
+            <placeAfter>saveSession</placeAfter>
+            <separatorAfter>true</separatorAfter>
             <class>org.esa.beam.visat.actions.session.SaveSessionAsAction</class>
             <text>Save Session As...</text>
-            <separatorAfter>true</separatorAfter>
             <shortDescr>Save the current BEAM session using a different name.</shortDescr>
             <longDescr>Save the current BEAM session using a different name.</longDescr>
             <helpId>saveSessionAs</helpId>
@@ -817,36 +809,37 @@
         <action>
             <parent>file</parent>
             <id>importRasterData</id>
+            <placeAfter>saveSessionAs</placeAfter>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Import Raster Data</text>
             <shortDescr>Import raster data</shortDescr>
             <description>Import raster data</description>
             <helpId>importRasterData</helpId>
-            <placeAfter>saveSessionAs</placeAfter>
             <sortChildren>true</sortChildren>
         </action>
 
         <action>
             <parent>file</parent>
             <id>importVectorData</id>
+            <placeAfter>importRasterData</placeAfter>
+            <separatorAfter>true</separatorAfter>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Import Vector Data</text>
             <shortDescr>Import vector data</shortDescr>
             <description>Import vector data</description>
             <helpId>importVectorData</helpId>
-            <placeAfter>importRasterData</placeAfter>
-            <separatorAfter>true</separatorAfter>
             <sortChildren>true</sortChildren>
         </action>
 
         <action>
             <parent>file</parent>
-            <placeAfter>export</placeAfter>
             <id>exit</id>
+            <placeLast>true</placeLast>
+            <placeAfter>export</placeAfter>
+            <separatorBefore>true</separatorBefore>
             <class>org.esa.beam.visat.actions.ExitAction</class>
             <text>Exit</text>
             <mnemonic>x</mnemonic>
-            <separatorBefore>true</separatorBefore>
             <shortDescr>Exit the VISAT application.</shortDescr>
             <description>Exit the VISAT application.</description>
             <accelerator>alt F4</accelerator>
@@ -1080,187 +1073,199 @@
             <helpId>exportEnviGcpFile</helpId>
         </action>
 
-        <!--####################-->
-        <!-- Edit Menu          -->
-        <!--####################-->
+        <!-- Edit ################################################################################################# -->
 
         <action>
             <parent>edit</parent>
-            <id>preferences</id>
-            <class>org.esa.beam.visat.actions.PreferencesAction</class>
-            <text>Preferences...</text>
-            <mnemonic>P</mnemonic>
-            <placeAfter>properties</placeAfter>
-            <accelerator>alt P</accelerator>
-            <shortDescr>Edit VISAT preferences.</shortDescr>
-            <description>Edit VISAT preferences.</description>
-            <smallIcon>icons/Preferences16.gif</smallIcon>
-            <largeIcon>icons/Preferences24.gif</largeIcon>
-            <helpId>preferences</helpId>
-        </action>
-
-        <action>
             <id>properties</id>
-            <class>org.esa.beam.visat.actions.PropertiesAction</class>
             <placeBefore>preferences</placeBefore>
-            <parent>edit</parent>
             <text>Properties...</text>
+            <class>org.esa.beam.visat.actions.PropertiesAction</class>
             <mnemonic>e</mnemonic>
-            <shortDescr>Opens the property editor.</shortDescr>
-            <description>Opens the property editor.</description>
+            <description>Edit properties of the selected object.</description>
             <smallIcon>icons/Properties16.gif</smallIcon>
             <largeIcon>icons/Properties24.gif</largeIcon>
             <helpId>showPropertyEditor</helpId>
             <context>product,band,tiepointgrid</context>
             <placeAtContextTop>true</placeAtContextTop>
-            <separatorAfter>true</separatorAfter>
-        </action>
-
-
-        <!--####################-->
-        <!-- Data Menu          -->
-        <!--####################-->
-
-        <action>
-            <parent>data</parent>
-            <id>computeMaskArea</id>
-            <class>org.esa.beam.visat.actions.ComputeMaskAreaAction</class>
-            <text>Compute Mask Area...</text>
-            <mnemonic>A</mnemonic>
-            <helpId>computeMaskArea</helpId>
         </action>
 
         <action>
-            <id>showStandardToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
-            <context>mainToolBar</context>
-            <parent>toolBars</parent>
-            <text>Standard Tool Bar</text>
-            <mnemonic>S</mnemonic>
-            <placeBefore>showAnalysisToolBar</placeBefore>
-            <selected>true</selected>
-            <toggle>true</toggle>
-            <shortDescr>Toggle visibility of the standard tool bar.</shortDescr>
-            <description>Toggle visibility of the standard tool bar.</description>
-            <helpId>showStandardToolBar</helpId>
-        </action>
-
-        <action>
-            <id>showAnalysisToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
-            <context>analysisToolBar</context>
-            <parent>toolBars</parent>
-            <text>Analysis Tool Bar</text>
-            <mnemonic>A</mnemonic>
-            <placeAfter>showStandardToolBar</placeAfter>
-            <placeBefore>showLayersToolBar</placeBefore>
-            <selected>true</selected>
-            <toggle>true</toggle>
-            <shortDescr>Toggle visibility of the analysis tool bar.</shortDescr>
-            <description>Toggle visibility of the analysis tool bar.</description>
-            <helpId>showAnalysisToolBar</helpId>
-        </action>
-
-        <action>
-            <id>showLayersToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
-            <context>layersToolBar</context>
-            <parent>toolBars</parent>
-            <text>Layers Tool Bar</text>
-            <mnemonic>L</mnemonic>
-            <placeAfter>showAnalysisToolBar</placeAfter>
-            <placeBefore>showToolsToolBar</placeBefore>
-            <selected>true</selected>
-            <toggle>true</toggle>
-            <shortDescr>Toggle visibility of the layers tool bar.</shortDescr>
-            <description>Toggle visibility of the layers tool bar.</description>
-            <helpId>showLayersToolBar</helpId>
-        </action>
-
-        <action>
-            <id>showToolsToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
-            <context>toolsToolBar</context>
-            <parent>toolBars</parent>
-            <text>Tools Tool Bar</text>
-            <mnemonic>T</mnemonic>
-            <placeAfter>showLayersToolBar</placeAfter>
-            <placeBefore>showViewsToolBar</placeBefore>
-            <selected>true</selected>
-            <toggle>true</toggle>
-            <shortDescr>Toggle visibility of the tools tool bar.</shortDescr>
-            <description>Toggle visibility of the tools tool bar.</description>
-            <helpId>showToolsToolBar</helpId>
-        </action>
-
-        <action>
-            <id>showViewsToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
-            <context>viewsToolBar</context>
-            <parent>toolBars</parent>
-            <text>Views Tool Bar</text>
-            <mnemonic>V</mnemonic>
-            <placeAfter>showToolsToolBar</placeAfter>
-            <selected>true</selected>
-            <toggle>true</toggle>
-            <shortDescr>Toggle visibility of the views tool bar.</shortDescr>
-            <description>Toggle visibility of the views tool bar.</description>
-            <helpId>showViewsToolBar</helpId>
+            <parent>edit</parent>
+            <id>preferences</id>
+            <text>Preferences...</text>
+            <separatorBefore>true</separatorBefore>
+            <placeAfter>properties</placeAfter>
+            <class>org.esa.beam.visat.actions.PreferencesAction</class>
+            <mnemonic>P</mnemonic>
+            <accelerator>alt P</accelerator>
+            <description>Edit user preferences.</description>
+            <smallIcon>icons/Preferences16.gif</smallIcon>
+            <largeIcon>icons/Preferences24.gif</largeIcon>
+            <helpId>preferences</helpId>
         </action>
 
 
-        <!--####################-->
-        <!-- View Menu          -->
-        <!--####################-->
-
-        <action>
-            <parent>view</parent>
-            <id>toolBars</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Tool Bars</text>
-            <placeAfter>showToolViews</placeAfter>
-            <placeBefore>showStatusBar</placeBefore>
-            <mnemonic>T</mnemonic>
-            <shortDescr>Toggle Tool Bars visibity</shortDescr>
-            <description>Toggle Tool Bars visibity</description>
-            <helpId>toolBars</helpId>
-        </action>
+        <!-- View ################################################################################################# -->
 
         <action>
             <parent>view</parent>
             <id>showToolViews</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <separatorBefore>true</separatorBefore>
-            <placeAfter>computeMaskArea</placeAfter>
-            <placeBefore>toolBars</placeBefore>
+            <placeFirst>true</placeFirst>
             <text>Tool Windows</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <description>Toggle visibility of various tool windows</description>
             <sortChildren>true</sortChildren>
         </action>
 
         <action>
             <parent>view</parent>
-            <id>showStatusBar</id>
-            <class>org.esa.beam.visat.actions.ShowStatusBarAction</class>
-            <placeAfter>showToolsToolBar</placeAfter>
-            <text>Status Bar</text>
-            <mnemonic>S</mnemonic>
-            <selected>true</selected>
-            <toggle>true</toggle>
-            <separatorAfter>true</separatorAfter>
-            <shortDescr>Toggle visibility of the status bar.</shortDescr>
-            <description>Toggle visibility of the status bar.</description>
-            <helpId>showStatusBar</helpId>
+            <id>layoutToolViews</id>
+            <placeAfter>showToolViews</placeAfter>
+            <text>Tool Window Layout</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>L</mnemonic>
+            <description>Manage the position, size and docking state of tool windows.</description>
         </action>
 
         <action>
             <parent>view</parent>
+            <id>toolBars</id>
+            <placeAfter>layoutToolViews</placeAfter>
+            <text>Tool Bars</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>T</mnemonic>
+            <description>Toggle tool bars visibility</description>
+            <helpId>toolBars</helpId>
+        </action>
+
+        <action>
+            <parent>view</parent>
+            <id>showStatusBar</id>
+            <placeAfter>toolBars</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <text>Status Bar</text>
+            <class>org.esa.beam.visat.actions.ShowStatusBarAction</class>
+            <mnemonic>S</mnemonic>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <description>Toggle visibility of the status bar.</description>
+            <helpId>showStatusBar</helpId>
+        </action>
+
+        <!-- View / Tool Window Layout / ... ==================================================================== -->
+
+        <action>
+            <parent>layoutToolViews</parent>
+            <id>loadUserLayout</id>
+            <placeFirst>true</placeFirst>
+            <text>Load User Layout</text>
+            <class>org.esa.beam.visat.actions.layout.LoadUserLayoutAction</class>
+            <description>Load the user layout.</description>
+        </action>
+
+        <action>
+            <parent>layoutToolViews</parent>
+            <id>saveAsUserLayout</id>
+            <placeAfter>loadUserLayout</placeAfter>
+            <text>Save as User Layout</text>
+            <class>org.esa.beam.visat.actions.layout.SaveAsUserLayoutAction</class>
+            <description>Save the current layout as user layout.</description>
+        </action>
+
+        <action>
+            <parent>layoutToolViews</parent>
+            <id>resetLayout</id>
+            <placeAfter>saveAsUserLayout</placeAfter>
+            <text>Reset to Default Layout</text>
+            <class>org.esa.beam.visat.actions.layout.ResetLayoutAction</class>
+            <description>Reset to initial layout.</description>
+        </action>
+
+        <!-- View / (Show) ... Tool Bar ========================================================================= -->
+
+        <action>
+            <parent>toolBars</parent>
+            <id>showStandardToolBar</id>
+            <placeFirst>true</placeFirst>
+            <text>Standard Tool Bar</text>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>mainToolBar</context>
+            <mnemonic>S</mnemonic>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <description>Toggle visibility of the standard tool bar.</description>
+            <helpId>showStandardToolBar</helpId>
+        </action>
+
+        <action>
+            <parent>toolBars</parent>
+            <id>showAnalysisToolBar</id>
+            <placeAfter>showStandardToolBar</placeAfter>
+            <text>Analysis Tool Bar</text>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>analysisToolBar</context>
+            <mnemonic>A</mnemonic>
+            <placeBefore>showLayersToolBar</placeBefore>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <description>Toggle visibility of the analysis tool bar.</description>
+            <helpId>showAnalysisToolBar</helpId>
+        </action>
+
+        <action>
+            <parent>toolBars</parent>
+            <id>showLayersToolBar</id>
+            <placeAfter>showAnalysisToolBar</placeAfter>
+            <text>Layers Tool Bar</text>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>layersToolBar</context>
+            <mnemonic>L</mnemonic>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <description>Toggle visibility of the layers tool bar.</description>
+            <helpId>showLayersToolBar</helpId>
+        </action>
+
+        <action>
+            <parent>toolBars</parent>
+            <id>showToolsToolBar</id>
+            <placeAfter>showLayersToolBar</placeAfter>
+            <text>Tools Tool Bar</text>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>toolsToolBar</context>
+            <mnemonic>T</mnemonic>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <description>Toggle visibility of the tools tool bar.</description>
+            <helpId>showToolsToolBar</helpId>
+        </action>
+
+        <action>
+            <parent>toolBars</parent>
+            <id>showViewsToolBar</id>
+            <placeAfter>showToolsToolBar</placeAfter>
+            <text>Views Tool Bar</text>
+            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <context>viewsToolBar</context>
+            <mnemonic>V</mnemonic>
+            <selected>true</selected>
+            <toggle>true</toggle>
+            <description>Toggle visibility of the views tool bar.</description>
+            <helpId>showViewsToolBar</helpId>
+        </action>
+
+        <!-- View / Open ... View ================================================================================ -->
+
+        <action>
+            <parent>view</parent>
             <id>showImageView</id>
-            <class>org.esa.beam.visat.actions.ShowImageViewAction</class>
             <placeAfter>showStatusBar</placeAfter>
+            <separatorBefore>true</separatorBefore>
             <text>Open Image View</text>
+            <class>org.esa.beam.visat.actions.ShowImageViewAction</class>
             <mnemonic>I</mnemonic>
             <accellerator>control alt I</accellerator>
-            <shortDescr>Open image view.</shortDescr>
             <description>Open an image view for the selected band or tie-point grid.</description>
             <context>band,tiePointGrid</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
@@ -1271,12 +1276,11 @@
         <action>
             <parent>view</parent>
             <id>showImageViewRGB</id>
-            <class>org.esa.beam.visat.actions.ShowImageViewRGBAction</class>
             <placeAfter>showImageView</placeAfter>
             <text>Open RGB Image View...</text>
+            <class>org.esa.beam.visat.actions.ShowImageViewRGBAction</class>
             <mnemonic>R</mnemonic>
             <accellerator>control alt G</accellerator>
-            <shortDescr>Open RGB image view.</shortDescr>
             <description>Open an RGB image view for the selected product.</description>
             <context>product</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
@@ -1287,9 +1291,9 @@
         <action>
             <parent>view</parent>
             <id>showMetadataView</id>
-            <class>org.esa.beam.visat.actions.ShowMetadataViewAction</class>
             <placeAfter>showImageViewRGB</placeAfter>
             <text>Open Metadata View</text>
+            <class>org.esa.beam.visat.actions.ShowMetadataViewAction</class>
             <mnemonic>M</mnemonic>
             <accellerator>control alt M</accellerator>
             <shortDescr>Open metadata view.</shortDescr>
@@ -1302,29 +1306,29 @@
         <action>
             <parent>view</parent>
             <id>showPlacemarkView</id>
-            <class>org.esa.beam.visat.actions.ShowPlacemarkViewAction</class>
             <placeAfter>showMetadataView</placeAfter>
             <text>Open Placemark View</text>
+            <class>org.esa.beam.visat.actions.ShowPlacemarkViewAction</class>
             <mnemonic>P</mnemonic>
             <accellerator>control alt P</accellerator>
-            <shortDescr>Open placemark view.</shortDescr>
             <description>Open a placemark view for the selected metadata node.</description>
             <context>vectorDataNode</context>
             <smallIcon>icons/RsVectorData16.gif</smallIcon>
-            <!--<largeIcon>icons/ImageView24.gif</largeIcon>-->
         </action>
+
+        <!-- View / Show ... Overlay ============================================================================== -->
 
         <action>
             <parent>view</parent>
             <id>showNoDataOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowNoDataOverlayAction</class>
-            <placeBefore>showShapeOverlay</placeBefore>
+            <placeAfter>showPlacemarkView</placeAfter>
+            <separatorBefore>true</separatorBefore>
             <text>Show No-Data Overlay</text>
+            <class>org.esa.beam.visat.actions.ShowNoDataOverlayAction</class>
             <toggle>true</toggle>
             <shortDescr>Show no-data overlay</shortDescr>
             <description>Show no-data overlay for the selected image</description>
             <context>image</context>
-            <separatorBefore>true</separatorBefore>
             <smallIcon>icons/NoDataOverlay16.gif</smallIcon>
             <largeIcon>icons/NoDataOverlay24.gif</largeIcon>
             <helpId>noDataOverlay</helpId>
@@ -1333,12 +1337,11 @@
         <action>
             <parent>view</parent>
             <id>showShapeOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowGeometryOverlayAction</class>
             <placeAfter>showNoDataOverlay</placeAfter>
             <text>Show Geometry Overlay</text>
+            <class>org.esa.beam.visat.actions.ShowGeometryOverlayAction</class>
             <toggle>true</toggle>
             <mnemonic>O</mnemonic>
-            <shortDescr>Show/hide geometry overlay</shortDescr>
             <description>Show/hide geometry overlay for the selected image</description>
             <context>image</context>
             <smallIcon>icons/ShapeOverlay16.gif</smallIcon>
@@ -1349,13 +1352,11 @@
         <action>
             <parent>view</parent>
             <id>showGraticuleOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowGraticuleOverlayAction</class>
             <placeAfter>showShapeOverlay</placeAfter>
             <text>Show Graticule Overlay</text>
+            <class>org.esa.beam.visat.actions.ShowGraticuleOverlayAction</class>
             <toggle>true</toggle>
-            <separatorAfter>false</separatorAfter>
             <mnemonic>G</mnemonic>
-            <shortDescr>Show/hide graticule overlay</shortDescr>
             <description>Show/hide graticule overlay for the selected image</description>
             <context>image</context>
             <smallIcon>icons/GraticuleOverlay16.gif</smallIcon>
@@ -1364,253 +1365,12 @@
         </action>
 
         <action>
-            <id>bandArithmetic</id>
-            <parent>tools</parent>
-            <class>org.esa.beam.visat.actions.BandMathsAction</class>
-            <text>Create Band by Band Maths...</text>
-            <shortDescr>Create a new band using an arbitrary mathematical expression</shortDescr>
-            <context>image,band,tiePointGrid</context>
-            <smallIcon>icons/BAritmethic16.gif</smallIcon>
-            <largeIcon>icons/BAritmethic24.gif</largeIcon>
-            <placeBefore>createDemRelatedBands</placeBefore>
-            <helpId>bandArithmetic</helpId>
-        </action>
-
-        <action>
-            <id>virtualBand2Band</id>
-            <parent>tools</parent>
-            <class>org.esa.beam.visat.actions.ConvertVirtualBandIntoBandAction</class>
-            <text>Convert Virtual Band into Band</text>
-            <shortDescr>Converts a Virtual Band into a Band containing data</shortDescr>
-            <context>virtualBand</context>
-            <placeAfter>bandArithmetic</placeAfter>
-            <helpId>virtualBand2Band</helpId>
-        </action>
-
-        <action>
-            <id>createDemRelatedBands</id>
-            <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
-            <text>Create DEM-related Bands...</text>
-            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</description>
-            <context>product</context>
-            <helpId>createDemRelatedBands</helpId>
-            <parent>tools</parent>
-            <placeAfter>bandArithmetic</placeAfter>
-            <placeBefore>createAsarNrcsBands</placeBefore>
-        </action>
-        <action>
-            <id>createAsarNrcsBands</id>
-            <class>org.esa.beam.visat.actions.CreateAsarNrcsBandsAction</class>
-            <text>Create NRCS Bands (ASAR)...</text>
-            <mnemonic>N</mnemonic>
-            <shortDescr>Create ASAR Normalised Radar Cross Section Bands</shortDescr>
-            <helpId>createAsarNrcsBands</helpId>
-            <parent>tools</parent>
-            <placeAfter>createDemRelatedBands</placeAfter>
-            <placeBefore>createFilteredBand</placeBefore>
-        </action>
-
-        <action>
-            <id>createFilteredBand</id>
-            <class>org.esa.beam.visat.actions.imgfilter.CreateFilteredBandAction</class>
-            <text>Create Filtered Band...</text>
-            <shortDescr>Creates an filtered band</shortDescr>
-            <description>Creates an filtered band from the currently selected band</description>
-            <context>band</context>
-            <helpId>createFilteredBand</helpId>
-            <parent>tools</parent>
-            <placeAfter>createAsarNrcsBands</placeAfter>
-            <placeBefore>createVectorDataNode</placeBefore>
-        </action>
-
-        <action>
-            <id>createVectorDataNode</id>
-            <class>org.esa.beam.visat.actions.CreateVectorDataNodeAction</class>
-            <text>Create Vector Data Container...</text>
-            <shortDescr>Create a new vector data container</shortDescr>
-            <description>Create a new vector data container for drawing line and polygons.</description>
-            <smallIcon>icons/NewVectorDataNode16.gif</smallIcon>
-            <largeIcon>icons/NewVectorDataNode24.gif</largeIcon>
-            <helpId>createVectorDataNode</helpId>
-            <context>product</context>
-            <parent>tools</parent>
-            <placeAfter>createFilteredBand</placeAfter>
-            <placeBefore>attachPixelGeoCoding</placeBefore>
-            <separatorAfter>true</separatorAfter>
-        </action>
-
-        <action>
-            <id>attachPixelGeoCoding</id>
-            <class>org.esa.beam.visat.actions.AttachPixelGeoCodingAction</class>
-            <text>Attach Pixel Geo-Coding...</text>
-            <shortDescr>Attaches a pixel based geo-coding</shortDescr>
-            <description>Attaches a pixel based geo-coding to the selected product</description>
-            <context>attachPixelGeoCoding</context>
-            <helpId>attachPixelGeoCoding</helpId>
-            <parent>tools</parent>
-            <placeAfter>createVectorDataNode</placeAfter>
-            <placeBefore>detachPixelGeoCoding</placeBefore>
-            <separatorBefore>true</separatorBefore>
-        </action>
-
-        <action>
-            <id>detachPixelGeoCoding</id>
-            <class>org.esa.beam.visat.actions.DetachPixelGeoCodingAction</class>
-            <text>Detach Pixel Geo-Coding...</text>
-            <shortDescr>Detaches a pixel based geo-coding</shortDescr>
-            <description>Detaches a pixel based geo-coding from the selected product</description>
-            <context>detachPixelGeoCoding</context>
-            <helpId>detachPixelGeoCoding</helpId>
-            <parent>tools</parent>
-            <placeAfter>attachPixelGeoCoding</placeAfter>
-            <separatorAfter>true</separatorAfter>
-        </action>
-
-        <action>
-            <id>createSubsetFromView</id>
-            <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
-            <text>Spatial Subset from View...</text>
-            <shortDescr>Creates a product subset from the selected view</shortDescr>
-            <description>Creates a product subset from the selected view by preselecting the subset area from view
-            </description>
-            <context>image</context>
-            <helpId>subsetFromView</helpId>
-            <parent>tools</parent>
-            <placeAfter>detachPixelGeoCoding</placeAfter>
-            <placeBefore>flipping</placeBefore>
-        </action>
-
-        <action>
-            <id>showGeometryAsWkt</id>
-            <class>org.esa.beam.visat.actions.ShowGeometryWktAction</class>
-            <text>Show Well-Known-Text (WKT)...</text>
-            <popuptext>Well-Known-Text (WKT)...</popuptext>
-            <shortDescr>Show geometry as WKT.</shortDescr>
-            <description>Show geometry as WKT.</description>
-            <context>image</context>
-            <helpId>showGeometryAsWkt</helpId>
-        </action>
-
-        <action>
-            <id>flipping</id>
-            <class>org.esa.beam.visat.actions.FlippingAction</class>
-            <parent>tools</parent>
-            <placeAfter>createSubsetFromView</placeAfter>
-            <placeBefore>reprojectionAction</placeBefore>
-            <text>Data Flip...</text>
-            <shortDescr>Apply Data Flip</shortDescr>
-            <helpId>flipDialog</helpId>
-        </action>
-
-        <action>
-            <id>reprojectionAction</id>
-            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
-            <parent>tools</parent>
-            <placeAfter>flipping</placeAfter>
-            <placeBefore>orthorectificationAction</placeBefore>
-            <text>Reprojection...</text>
-            <shortDescr>Apply a reprojection.</shortDescr>
-            <helpId>reprojectionAction</helpId>
-        </action>
-        <action>
-            <id>orthorectificationAction</id>
-            <class>org.esa.beam.gpf.operators.reproject.OrthorectificationAction</class>
-            <parent>tools</parent>
-            <placeAfter>reprojectionAction</placeAfter>
-            <placeBefore>mosaicAction</placeBefore>
-            <text>Orthorectification...</text>
-            <shortDescr>Apply an orthorectification.</shortDescr>
-            <helpId>orthorectificationAction</helpId>
-        </action>
-        <action>
-            <id>mosaicAction</id>
-            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
-            <parent>tools</parent>
-            <placeAfter>orthorectificationAction</placeAfter>
-            <text>Mosaic...</text>
-            <shortDescr>Create a mosaic of multiple products.</shortDescr>
-            <helpId>mosaicAction</helpId>
-        </action>
-
-
-        <action>
-            <id>helpTopics</id>
-            <parent>help</parent>
-            <class>org.esa.beam.visat.actions.HelpTopicsAction</class>
-            <text>Help Topics</text>
-            <mnemonic>T</mnemonic>
-            <accelerator>F1</accelerator>
-            <separatorBefore>false</separatorBefore>
-            <shortDescr>VISAT help</shortDescr>
-            <description>Opens the VISAT help browser.</description>
-            <smallIcon>icons/Help16.png</smallIcon>
-            <largeIcon>icons/Help22.png</largeIcon>
-            <helpId>visat</helpId>
-        </action>
-
-        <action>
-            <id>showHomePage</id>
-            <parent>help</parent>
-            <class>org.esa.beam.visat.actions.ShowHomePageAction</class>
-            <text>BEAM Home Page</text>
-            <mnemonic>B</mnemonic>
-            <shortDescr>Opens the BEAM home page.</shortDescr>
-            <description>Opens the BEAM home page with the default web browser.</description>
-            <placeAfter>helpTopics</placeAfter>
-        </action>
-
-        <action>
-            <id>showDataSources</id>
-            <parent>help</parent>
-            <class>org.esa.beam.visat.actions.ShowDataSourcesAction</class>
-            <text>Access to Data Products</text>
-            <mnemonic>D</mnemonic>
-            <shortDescr>Provides information how different data products are accessed.</shortDescr>
-            <description>Provides information how different data products are accessed.</description>
-            <helpId>showDataSources</helpId>
-            <placeAfter>showHomePage</placeAfter>
-        </action>
-
-        <action>
-            <id>showUpdateDialog</id>
-            <parent>help</parent>
-            <class>org.esa.beam.visat.actions.ShowModuleManagerAction</class>
-            <text>Module Manager...</text>
-            <mnemonic>M</mnemonic>
-            <shortDescr>Opens the module manager.</shortDescr>
-            <description>Opens the module manager.</description>
-            <helpId>moduleManager</helpId>
-            <placeAfter>showDataSources</placeAfter>
-            <separatorBefore>true</separatorBefore>
-            <smallIcon>icons/ModuleManager16.png</smallIcon>
-            <largeIcon>icons/ModuleManager22.png</largeIcon>
-        </action>
-
-        <action>
-            <id>about</id>
-            <parent>help</parent>
-            <class>org.esa.beam.visat.actions.AboutAction</class>
-            <text>About VISAT</text>
-            <mnemonic>A</mnemonic>
-            <accelerator>ctrl alt A</accelerator>
-            <shortDescr>Displays information about VISAT.</shortDescr>
-            <description>Displays information about VISAT.</description>
-            <smallIcon>icons/About16.gif</smallIcon>
-            <largeIcon>icons/About24.gif</largeIcon>
-            <helpId>about</helpId>
-            <placeAfter>showUpdateDialog</placeAfter>
-            <separatorBefore>true</separatorBefore>
-        </action>
-
-        <action>
-            <id>showPinOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowPinOverlayAction</class>
-            <placeAfter>showGraticuleOverlay</placeAfter>
             <parent>view</parent>
+            <id>showPinOverlay</id>
+            <placeAfter>showGraticuleOverlay</placeAfter>
             <text>Show Pin Overlay</text>
+            <class>org.esa.beam.visat.actions.ShowPinOverlayAction</class>
             <toggle>true</toggle>
-            <separatorAfter>false</separatorAfter>
-            <shortDescr>Show pin overlay</shortDescr>
             <description>Show pin overlay for the selected image</description>
             <smallIcon>icons/PinOverlay16.gif</smallIcon>
             <largeIcon>icons/PinOverlay24.gif</largeIcon>
@@ -1619,14 +1379,12 @@
         </action>
 
         <action>
-            <id>showGcpOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowGcpOverlayAction</class>
-            <placeAfter>showPinOverlay</placeAfter>
             <parent>view</parent>
+            <id>showGcpOverlay</id>
+            <placeAfter>showPinOverlay</placeAfter>
             <text>Show GCP Overlay</text>
+            <class>org.esa.beam.visat.actions.ShowGcpOverlayAction</class>
             <toggle>true</toggle>
-            <separatorAfter>false</separatorAfter>
-            <shortDescr>Show GCP overlay</shortDescr>
             <description>Show GCP overlay for the selected image</description>
             <smallIcon>icons/GcpOverlay16.gif</smallIcon>
             <largeIcon>icons/GcpOverlay24.gif</largeIcon>
@@ -1635,14 +1393,12 @@
         </action>
 
         <action>
-            <id>showWorldMapOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowWorldMapOverlayAction</class>
-            <placeAfter>showGcpOverlay</placeAfter>
             <parent>view</parent>
+            <id>showWorldMapOverlay</id>
+            <placeAfter>showGcpOverlay</placeAfter>
             <text>Show World Map Overlay</text>
+            <class>org.esa.beam.visat.actions.ShowWorldMapOverlayAction</class>
             <toggle>true</toggle>
-            <separatorAfter>false</separatorAfter>
-            <shortDescr>Show World Map overlay</shortDescr>
             <description>Show World Map overlay for the selected image</description>
             <smallIcon>icons/WorldMapOverlay16.png</smallIcon>
             <largeIcon>icons/WorldMapOverlay24.png</largeIcon>
@@ -1650,12 +1406,327 @@
             <helpId>showWorldMapOverlay</helpId>
         </action>
 
+        <!-- Analysis ################################################################################################ -->
+
+        <!--
+            The Analysis menu is filled programmatically by the VisatApp class
+        -->
+
+        <!-- Tools ################################################################################################ -->
+
         <action>
+            <parent>tools</parent>
+            <id>bandArithmetic</id>
+            <placeFirst>true</placeFirst>
+            <text>Create Band from Math Expression...</text>
+            <class>org.esa.beam.visat.actions.BandMathsAction</class>
+            <description>Create a new band using an arbitrary mathematical expression</description>
+            <context>image,band,tiePointGrid</context>
+            <smallIcon>icons/BAritmethic16.gif</smallIcon>
+            <largeIcon>icons/BAritmethic24.gif</largeIcon>
+            <helpId>bandArithmetic</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>createFilteredBand</id>
+            <placeAfter>bandArithmetic</placeAfter>
+            <text>Create Filtered Band...</text>
+            <class>org.esa.beam.visat.actions.imgfilter.CreateFilteredBandAction</class>
+            <description>Applies a filter to the currently selected band and adds it as a new band.</description>
+            <context>band</context>
+            <helpId>createFilteredBand</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>convertComputedBand2Band</id>
+            <placeAfter>createFilteredBand</placeAfter>
+            <text>Convert Computed Band</text>
+            <class>org.esa.beam.visat.actions.ConvertComputedBandIntoBandAction</class>
+            <description>Computes a "real" band from a virtual band or filtered band</description>
+            <context>virtualBand</context>
+            <helpId>convertComputedBand2Band</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>createDemRelatedBands</id>
+            <text>Create Elevation Bands from DEM...</text>
+            <placeAfter>convertComputedBand2Band</placeAfter>
+            <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
+            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM
+            </description>
+            <context>product</context>
+            <helpId>createDemRelatedBands</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>createXYDisplacementBandsAction</id>
+            <placeAfter>createDemRelatedBands</placeAfter>
+            <text>Create Geo-Coding Displacement Bands...</text>
+            <class>org.esa.beam.visat.actions.CreateGeoCodingDisplacementBandsAction</class>
+            <description>&lt;html&gt;Computes actual pixel position minus pixel position computed from inverse
+                geo-coding&lt;br/&gt;
+                and adds displacements as new bands (test for geo-coding accuracy).
+            </description>
+            <context>createXYDisplacementBandsAction</context>
+            <helpId>createXYDisplacementBandsAction</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>createAsarNrcsBands</id>
+            <placeAfter>createXYDisplacementBandsAction</placeAfter>
+            <text>Create NRCS Bands (ASAR)...</text>
+            <class>org.esa.beam.visat.actions.CreateAsarNrcsBandsAction</class>
+            <mnemonic>N</mnemonic>
+            <description>Computes ASAR Normalised Radar Cross Section bands.</description>
+            <helpId>createAsarNrcsBands</helpId>
+        </action>
+
+        <!-- Tools / ... Pixel Geo-Coding... ===================================================================== -->
+
+        <action>
+            <parent>tools</parent>
+            <id>attachPixelGeoCoding</id>
+            <placeAfter>createAsarNrcsBands</placeAfter>
+            <placeBefore>detachPixelGeoCoding</placeBefore>
+            <separatorBefore>true</separatorBefore>
+            <text>Attach Pixel Geo-Coding...</text>
+            <class>org.esa.beam.visat.actions.AttachPixelGeoCodingAction</class>
+            <description>Attach a pixel based geo-coding to the selected product</description>
+            <context>attachPixelGeoCoding</context>
+            <helpId>attachPixelGeoCoding</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>detachPixelGeoCoding</id>
+            <placeAfter>attachPixelGeoCoding</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <text>Detach Pixel Geo-Coding...</text>
+            <class>org.esa.beam.visat.actions.DetachPixelGeoCodingAction</class>
+            <description>Detach a pixel based geo-coding from the selected product</description>
+            <context>detachPixelGeoCoding</context>
+            <helpId>detachPixelGeoCoding</helpId>
+        </action>
+
+        <!-- ==================================================================================================== -->
+
+        <action>
+            <parent>tools</parent>
+            <id>createVectorDataNode</id>
+            <placeAfter>detachPixelGeoCoding</placeAfter>
+            <text>Create Vector Data Container...</text>
+            <class>org.esa.beam.visat.actions.CreateVectorDataNodeAction</class>
+            <description>Create a new vector data container for drawing line and polygons.</description>
+            <smallIcon>icons/NewVectorDataNode16.gif</smallIcon>
+            <largeIcon>icons/NewVectorDataNode24.gif</largeIcon>
+            <helpId>createVectorDataNode</helpId>
+            <context>product</context>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>showGeometryAsWkt</id>
+            <placeAfter>createVectorDataNode</placeAfter>
+            <text>Get Well-Known-Text (WKT)...</text>
+            <class>org.esa.beam.visat.actions.ShowGeometryWktAction</class>
+            <popuptext>Well-Known-Text (WKT)...</popuptext>
+            <description>Get the well-known-text (WKT) representation of a selected geometry.</description>
+            <context>image</context>
+            <helpId>showGeometryAsWkt</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>computeMaskArea</id>
+            <placeAfter>showGeometryAsWkt</placeAfter>
+            <text>Compute Mask Area...</text>
+            <class>org.esa.beam.visat.actions.ComputeMaskAreaAction</class>
+            <helpId>computeMaskArea</helpId>
+        </action>
+
+        <!-- Processing ########################################################################################## -->
+
+        <action>
+            <parent>processing</parent>
+            <id>processing.preProcessing</id>
+            <placeFirst>true</placeFirst>
+            <text>Pre-Processing</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>C</mnemonic>
+        </action>
+
+        <action>
+            <parent>processing</parent>
+            <id>processing.thematicWater</id>
+            <placeAfter>processing.preProcessing</placeAfter>
+            <text>Thematic Water Processing</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>W</mnemonic>
+        </action>
+
+        <action>
+            <parent>processing</parent>
+            <id>processing.thematicLand</id>
+            <placeAfter>processing.thematicWater</placeAfter>
+            <text>Thematic Land Processing</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>L</mnemonic>
+        </action>
+
+        <action>
+            <parent>processing</parent>
+            <id>processing.imageAnalysis</id>
+            <placeAfter>processing.thematicLand</placeAfter>
+            <text>Image Analysis</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>A</mnemonic>
+        </action>
+
+        <action>
+            <parent>processing</parent>
+            <id>processing.geomOperations</id>
+            <placeAfter>processing.imageAnalysis</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <text>Geometric Operations</text>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <mnemonic>G</mnemonic>
+        </action>
+
+        <!-- Processing / Geometric Operations  ======================================================= -->
+
+        <action>
+            <parent>processing.geomOperations</parent>
+            <id>reprojectionAction</id>
+            <placeFirst>true</placeFirst>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <text>Reprojection...</text>
+            <description>Apply a reprojection.</description>
+            <helpId>reprojectionAction</helpId>
+        </action>
+
+        <action>
+            <parent>processing.geomOperations</parent>
+            <id>orthorectificationAction</id>
+            <placeAfter>reprojectionAction</placeAfter>
+            <text>Orthorectification...</text>
+            <class>org.esa.beam.gpf.operators.reproject.OrthorectificationAction</class>
+            <description>Apply an orthorectification.</description>
+            <helpId>orthorectificationAction</helpId>
+        </action>
+
+        <action>
+            <parent>processing.geomOperations</parent>
+            <id>mosaicAction</id>
+            <placeAfter>orthorectificationAction</placeAfter>
+            <text>Mosaicing...</text>
+            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
+            <description>Create a mosaic of multiple products.</description>
+            <helpId>mosaicAction</helpId>
+        </action>
+
+        <action>
+            <parent>processing.geomOperations</parent>
+            <id>createSubsetFromView</id>
+            <placeAfter>mosaicAction</placeAfter>
+            <text>Spatial Subset from View...</text>
+            <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
+            <description>Creates a product subset from the selected view.</description>
+            <context>image</context>
+            <helpId>subsetFromView</helpId>
+        </action>
+
+        <action>
+            <parent>processing.geomOperations</parent>
+            <id>flipping</id>
+            <placeAfter>createSubsetFromView</placeAfter>
+            <text>Flipping...</text>
+            <class>org.esa.beam.visat.actions.FlippingAction</class>
+            <shortDescr>Apply Data Flip</shortDescr>
+            <helpId>flipDialog</helpId>
+        </action>
+
+        <!-- Help ########################################################################################## -->
+
+        <action>
+            <parent>help</parent>
+            <id>helpTopics</id>
+            <placeFirst>true</placeFirst>
+            <text>Help Topics</text>
+            <class>org.esa.beam.visat.actions.HelpTopicsAction</class>
+            <mnemonic>T</mnemonic>
+            <accelerator>F1</accelerator>
+            <separatorBefore>false</separatorBefore>
+            <description>Opens the VISAT help browser.</description>
+            <smallIcon>icons/Help16.png</smallIcon>
+            <largeIcon>icons/Help22.png</largeIcon>
+            <helpId>visat</helpId>
+        </action>
+
+        <action>
+            <parent>help</parent>
+            <id>showHomePage</id>
+            <placeAfter>helpTopics</placeAfter>
+            <text>BEAM Home Page</text>
+            <class>org.esa.beam.visat.actions.ShowHomePageAction</class>
+            <mnemonic>B</mnemonic>
+            <description>Opens the BEAM home page with the default web browser.</description>
+        </action>
+
+        <action>
+            <parent>help</parent>
+            <id>showDataSources</id>
+            <placeAfter>showHomePage</placeAfter>
+            <text>Access to Data Products</text>
+            <class>org.esa.beam.visat.actions.ShowDataSourcesAction</class>
+            <mnemonic>D</mnemonic>
+            <shortDescr>Provides information how different data products are accessed.</shortDescr>
+            <description>Provides information how different data products are accessed.</description>
+            <helpId>showDataSources</helpId>
+        </action>
+
+        <action>
+            <parent>help</parent>
+            <id>showUpdateDialog</id>
+            <placeAfter>showDataSources</placeAfter>
+            <separatorBefore>true</separatorBefore>
+            <text>Module Manager...</text>
+            <class>org.esa.beam.visat.actions.ShowModuleManagerAction</class>
+            <mnemonic>M</mnemonic>
+            <description>Opens the module manager.</description>
+            <helpId>moduleManager</helpId>
+            <smallIcon>icons/ModuleManager16.png</smallIcon>
+            <largeIcon>icons/ModuleManager22.png</largeIcon>
+        </action>
+
+        <action>
+            <parent>help</parent>
+            <id>about</id>
+            <placeLast>true</placeLast>
+            <separatorBefore>true</separatorBefore>
+            <text>About VISAT</text>
+            <class>org.esa.beam.visat.actions.AboutAction</class>
+            <mnemonic>A</mnemonic>
+            <accelerator>ctrl alt A</accelerator>
+            <shortDescr>Displays information about VISAT.</shortDescr>
+            <description>Displays information about VISAT.</description>
+            <smallIcon>icons/About16.gif</smallIcon>
+            <largeIcon>icons/About24.gif</largeIcon>
+            <helpId>about</helpId>
+        </action>
+
+        <!-- Interactor Tools ##################################################################################### -->
+
+        <action>
+            <parent>tools</parent>
             <id>selectTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.SelectionInteractor</interactor>
             <interactorListener>org.esa.beam.visat.actions.SelectionInteractorInterceptor</interactorListener>
-            <parent>tools</parent>
             <text>Select</text>
             <shortDescr>Selection Tool</shortDescr>
             <largeIcon>icons/SelectTool24.gif</largeIcon>
@@ -1664,10 +1735,10 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>zoomTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.ZoomInteractor</interactor>
-            <parent>tools</parent>
             <placeAfter>selectTool</placeAfter>
             <text>Zoom</text>
             <shortDescr>Zooming Tool</shortDescr>
@@ -1678,10 +1749,10 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>pannerTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.PanInteractor</interactor>
-            <parent>tools</parent>
             <placeAfter>zoomTool</placeAfter>
             <text>Pan</text>
             <shortDescr>Pan Tool</shortDescr>
@@ -1692,10 +1763,10 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>pinTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
             <interactor>org.esa.beam.visat.toolviews.placemark.pin.InsertPinInteractor</interactor>
-            <parent>tools</parent>
             <placeAfter>pannerTool</placeAfter>
             <text>Pin Tool</text>
             <shortDescr>Pin placing tool</shortDescr>
@@ -1706,10 +1777,10 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>gcpTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
             <interactor>org.esa.beam.visat.toolviews.placemark.gcp.InsertGcpInteractor</interactor>
-            <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <placeBefore>drawLineTool</placeBefore>
             <text>GCP Tool</text>
@@ -1721,11 +1792,11 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>drawLineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertLineFigureInteractor</interactor>
             <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorInterceptor</interactorListener>
-            <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <text>Draw Line</text>
             <shortDescr>Line drawing tool</shortDescr>
@@ -1736,11 +1807,11 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>drawRectangleTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertRectangleFigureInteractor</interactor>
             <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorInterceptor</interactorListener>
-            <parent>tools</parent>
             <placeAfter>drawLineTool</placeAfter>
             <text>Draw Rectangle</text>
             <shortDescr>Rectangle drawing tool</shortDescr>
@@ -1751,11 +1822,11 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>drawEllipseTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertEllipseFigureInteractor</interactor>
             <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorInterceptor</interactorListener>
-            <parent>tools</parent>
             <placeAfter>drawRectangleTool</placeAfter>
             <text>Draw Ellipse</text>
             <shortDescr>Ellipse drawing tool</shortDescr>
@@ -1766,11 +1837,11 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>drawPolylineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertPolylineFigureInteractor</interactor>
             <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorInterceptor</interactorListener>
-            <parent>tools</parent>
             <placeAfter>drawEllipseTool</placeAfter>
             <text>Draw Polyline</text>
             <shortDescr>Polyline drawing tool</shortDescr>
@@ -1781,11 +1852,11 @@
         </action>
 
         <action>
+            <parent>tools</parent>
             <id>drawPolygonTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertPolygonFigureInteractor</interactor>
             <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorInterceptor</interactorListener>
-            <parent>tools</parent>
             <placeAfter>drawPolylineTool</placeAfter>
             <text>Draw Polygon</text>
             <shortDescr>Polygon drawing tool</shortDescr>
@@ -1794,11 +1865,12 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
+
         <action>
+            <parent>tools</parent>
             <id>rangeFinder</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>org.esa.beam.visat.actions.rangefinder.RangeFinderInteractor</interactor>
-            <parent>tools</parent>
             <placeAfter>selectTool</placeAfter>
             <text>Range Finder</text>
             <shortDescr>Range finder tool</shortDescr>
@@ -1808,11 +1880,12 @@
             <context>image</context>
             <helpId>rangeFinder</helpId>
         </action>
+
         <action>
+            <parent>tools</parent>
             <id>magicWandTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>org.esa.beam.visat.actions.masktools.MagicWandInteractor</interactor>
-            <parent>tools</parent>
             <placeAfter>rangeFinder</placeAfter>
             <text>Magic Wand</text>
             <shortDescr>Creates a ROI mask using a magic wand</shortDescr>
@@ -1820,53 +1893,6 @@
             <selected>false</selected>
             <context>image</context>
             <helpId>magicWandTool</helpId>
-        </action>
-
-        <action>
-            <id>layout</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <parent>view</parent>
-            <placeAfter>showToolViews</placeAfter>
-            <text>Manage Layout</text>
-            <mnemonic>L</mnemonic>
-            <shortDescr>Load or save layout.</shortDescr>
-        </action>
-        <action>
-            <id>loadUserLayout</id>
-            <class>org.esa.beam.visat.actions.layout.LoadUserLayoutAction</class>
-            <parent>layout</parent>
-            <text>Load User Layout</text>
-            <shortDescr>Load the user layout.</shortDescr>
-        </action>
-        <action>
-            <id>saveAsUserLayout</id>
-            <class>org.esa.beam.visat.actions.layout.SaveAsUserLayoutAction</class>
-            <parent>layout</parent>
-            <placeAfter>loadUserLayout</placeAfter>
-            <text>Save as User Layout</text>
-            <shortDescr>Save as user layout.</shortDescr>
-            <longDescr>Save the current layout as user layout.</longDescr>
-        </action>
-        <action>
-            <id>resetLayout</id>
-            <class>org.esa.beam.visat.actions.layout.ResetLayoutAction</class>
-            <parent>layout</parent>
-            <placeAfter>saveAsUserLayout</placeAfter>
-            <text>Reset to Default Layout</text>
-            <shortDescr>Reset to initial layout.</shortDescr>
-        </action>
-
-
-        <action>
-            <id>createXYDisplacementBandsAction</id>
-            <class>org.esa.beam.visat.actions.CreateGeoCodingDisplacementBandsAction</class>
-            <text>Add Geo-Coding Displacement Bands...</text>
-            <description>Add displacement bands as a test for the geo-coding accuracy</description>
-            <context>createXYDisplacementBandsAction</context>
-            <helpId>createXYDisplacementBandsAction</helpId>
-            <parent>tools</parent>
-            <placeAfter>createElevationBand</placeAfter>
-            <separatorAfter>false</separatorAfter>
         </action>
 
     </extension>
