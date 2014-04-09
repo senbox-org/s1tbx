@@ -35,6 +35,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -337,12 +338,13 @@ class VariableConfigTable {
         }
 
         private TargetVariableSpec[] getSpecsAsArray() {
-            TargetVariableSpec[] targetVariableSpecs = new TargetVariableSpec[tableModel.getRowCount()];
-            int i = 0;
+            List<TargetVariableSpec> specs = new ArrayList<>();
             for (TargetVariableSpec spec : tableModel.specs.values()) {
-                targetVariableSpecs[i++] = spec;
+                if (StringUtils.isNotNullAndNotEmpty(spec.aggregationString)) {
+                    specs.add(spec);
+                }
             }
-            return targetVariableSpecs;
+            return specs.toArray(new TargetVariableSpec[specs.size()]);
         }
     }
 
