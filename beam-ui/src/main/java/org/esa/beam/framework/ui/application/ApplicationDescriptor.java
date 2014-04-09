@@ -43,5 +43,7 @@ public interface ApplicationDescriptor {
 
     String[] getExcludedActions();
 
+    String[] getExcludedActionGroups();
+
     String[] getExcludedToolViews();
 }

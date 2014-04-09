@@ -98,7 +98,7 @@
     <extensionPoint id="helpSets"/>
 
     <!--
-       todo - Describe configuration elements
+       Extension point 'applicationDescriptors': Adds new application descriptors to the runtime.
     -->
     <extensionPoint id="applicationDescriptors">
         <applicationDescriptor type="org.esa.beam.framework.ui.application.ApplicationDescriptor"
@@ -116,6 +116,10 @@
                 <!-- Here: IDs of actions you wish to exclude from your application -->
                 <!-- e.g. <id>helpTopics</id> -->
             </excludedActions>
+            <excludedActionGroups type="java.lang.String[]">
+                <!-- Here: IDs of action groups you wish to exclude from your application -->
+                <!-- e.g. <id>processing.thematicLand</id> -->
+            </excludedActionGroups>
             <excludedToolViews type="java.lang.String[]">
                 <!-- Here:  IDs of tool views you wish to exclude from your application -->
                 <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
@@ -124,7 +128,9 @@
     </extensionPoint>
 
     <!--
-       todo - Describe configuration elements
+       Extension point 'toolViews': Adds new tool views to an application.
+       Extensions are instances of org.esa.beam.framework.ui.application.ToolView
+       specified by the 'class' element.
     -->
     <extensionPoint id="toolViews">
         <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
@@ -143,7 +149,9 @@
     </extensionPoint>
 
     <!--
-       todo - Describe configuration elements
+       Extension point 'actions': Adds new actions to an application.
+       Extensions are instances of org.esa.beam.framework.ui.command.Command
+       specified by the 'class' element.
     -->
     <extensionPoint id="actions">
         <action type="org.esa.beam.framework.ui.command.Command"
@@ -173,8 +181,44 @@
     </extensionPoint>
 
     <!--
+       Extension point 'actionGroups': Adds new action groups to an application.
+       The 'items' element is composed of 'separator', 'action' and 'actionGroup' elements.
+       The values of the 'action' and 'actionGroup' elements are the referenced action's and actionGroup's
+       'id' values.
+    -->
+    <extensionPoint id="actionGroups">
+        <actionGroup type="org.esa.beam.framework.ui.command.CommandGroup"
+                class="@descriptorClass"
+                autoConfig="false">
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.command.CommandGroup</descriptorClass>
+            <id type="java.lang.String"/>
+            <class type="java.lang.Class"/>
+            <parent type="java.lang.String"/>
+            <text type="java.lang.String"/>
+            <context type="java.lang.String"/>
+            <mnemonic type="char"/>
+            <accelerator type="javax.swing.KeyStroke"/>
+            <placeAtContextTop type="boolean"/>
+            <placeFirst type="boolean"/>
+            <placeLast type="boolean"/>
+            <placeBefore type="java.lang.String"/>
+            <placeAfter type="java.lang.String"/>
+            <separatorBefore type="boolean"/>
+            <separatorAfter type="boolean"/>
+            <shortDescr type="java.lang.String"/>
+            <description type="java.lang.String"/>
+            <smallIcon type="java.lang.String"/>
+            <largeIcon type="java.lang.String"/>
+            <helpId type="java.lang.String"/>
+            <items type="java.lang.Object[]"/>
+        </actionGroup>
+    </extensionPoint>
+
+    <!--
        The extension point 'layerEditors' comprises any number of 'layerEditor' elements.
        These are mappings from a specific layer or layer type to an appropriate layer editor or editor factory.
+       The value of the 'editor' element is the name of a class that implements the org.esa.beam.framework.ui.layer.LayerEditor interface.
+       The value of the 'editorFactory' element is the name of a class that implements the com.bc.ceres.core.ExtensionFactory interface.
     -->
     <extensionPoint id="layerEditors">
         <layerEditor type="org.esa.beam.framework.ui.layer.LayerEditorDescriptor"
@@ -204,7 +248,8 @@
     </extensionPoint>
 
     <!--
-       todo - Describe configuration elements
+       The extension point 'layerSources' comprises any number of 'layerSource' elements.
+       The value of the 'layerSourceClass' element is the name of a class that implements the org.esa.beam.framework.ui.layer.LayerSource interface.
     -->
     <extensionPoint id="layerSources">
         <layerSource type="org.esa.beam.framework.ui.layer.LayerSourceDescriptor"

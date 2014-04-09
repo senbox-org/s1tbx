@@ -1897,4 +1897,21 @@
 
     </extension>
 
+    <!-- Test for the new actionGroups extension point introduced in BEAM 5 -->
+    <extension point="beam-ui:actionGroups">
+        <actionGroup>
+            <id>__file__</id>
+            <text>File</text>
+            <mnemonic>F</mnemonic>
+            <description>File menu</description>
+            <items>
+                <action>new</action>
+                <separator/>
+                <action>open</action>
+                <action>save</action>
+                <separator/>
+                <action>exit</action>
+            </items>
+        </actionGroup>
+    </extension>
 </module>
