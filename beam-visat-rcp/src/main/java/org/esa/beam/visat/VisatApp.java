@@ -399,8 +399,12 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private void loadCommands() {
         CommandManager commandManager = getCommandManager();
-        Map<String, Command> commandMap = VisatActivator.getInstance().getCommandMap();
-        for (Command command : commandMap.values()) {
+        List<Command> commands = VisatActivator.getInstance().getCommands();
+        Map<String, Command> commandMap = new HashMap<>(commands.size() * 2 + 1);
+        for (Command command : commands) {
+            commandMap.put(command.getCommandID(), command);
+        }
+        for (Command command : commands) {
             addCommand(commandManager, command, commandMap);
         }
         setSelectToolSelectState(commandManager);

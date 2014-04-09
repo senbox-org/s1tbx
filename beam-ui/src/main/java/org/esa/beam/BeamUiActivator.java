@@ -36,6 +36,7 @@ import org.esa.beam.util.TreeNode;
 import javax.help.HelpSet;
 import javax.help.HelpSet.DefaultHelpSetFactory;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -57,7 +58,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     private static BeamUiActivator instance;
     private ModuleContext moduleContext;
     private TreeNode<HelpSet> helpSetRegistry;
-    private Map<String, Command> actionRegistry;
+    private List<Command> actionList;
     private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
     private Map<String, LayerSourceDescriptor> layerSourcesRegistry;
     private ApplicationDescriptor applicationDescriptor;
@@ -79,7 +80,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.helpSetRegistry = null;
         this.moduleContext = null;
-        actionRegistry = null;
+        actionList = null;
         toolViewDescriptorRegistry = null;
         applicationDescriptor = null;
         instance = null;
@@ -124,16 +125,8 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         return applicationDescriptor;
     }
 
-    /**
-     * @deprecated since BEAM 5, use {@link #getCommandMap()}
-     */
-    @Deprecated
-    public Command[] getCommands() {
-        return actionRegistry.values().toArray(new Command[actionRegistry.size()]);
-    }
-
-    public Map<String, Command> getCommandMap() {
-        return Collections.unmodifiableMap(actionRegistry);
+    public List<Command> getCommands() {
+        return Collections.unmodifiableList(actionList);
     }
 
     @Override
@@ -156,7 +149,13 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     public void removeAction(String actionId) {
-        actionRegistry.remove(actionId);
+        for (int i = 0; i < actionList.size(); i++) {
+            Command command = actionList.get(i);
+            if (actionId.equals(command.getCommandID())) {
+                actionList.remove(i);
+                return;
+            }
+        }
     }
 
     private void registerToolViews(ModuleContext moduleContext) {
@@ -176,18 +175,20 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     private void registerActions(ModuleContext moduleContext) {
-        final List<Command> actionList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
-                                                                                    "actions",
-                                                                                    "action",
-                                                                                    Command.class);
-        actionRegistry = new HashMap<>(2 * actionList.size());
-        for (Command action : actionList) {
+        actionList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                "actions",
+                                                                "action",
+                                                                Command.class);
+        HashMap<String, Command> actionMap = new HashMap<>(2 * actionList.size() + 1);
+        for (Command action : new ArrayList<>(actionList)) {
             final String actionId = action.getCommandID();
-            final Command existingAction = actionRegistry.get(actionId);
+            final Command existingAction = actionMap.get(actionId);
             if (existingAction != null) {
                 moduleContext.getLogger().warning(String.format("Action [%s] has been redeclared!\n", actionId));
+                actionMap.remove(actionId);
+                actionList.remove(existingAction);
             }
-            actionRegistry.put(actionId, action);
+            actionMap.put(actionId, action);
         }
     }
 
