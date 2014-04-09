@@ -57,9 +57,9 @@ public class ColorPaletteDef implements Cloneable {
 
     public ColorPaletteDef(double minSample, double centerSample, double maxSample) {
         this(new Point[]{
-                new Point(minSample, Color.black),
-                new Point(centerSample, Color.gray),
-                new Point(maxSample, Color.white)
+                    new Point(minSample, Color.black),
+                    new Point(centerSample, Color.gray),
+                    new Point(maxSample, Color.white)
         }, 256);
     }
 
@@ -318,6 +318,10 @@ public class ColorPaletteDef implements Cloneable {
         return colors;
     }
 
+    /**
+     * @deprecated since BEAM 5.0,  use {@link org.esa.beam.jai.ImageManager#createColorPalette(ImageInfo)} instead
+     */
+    @Deprecated
     public Color[] createColorPalette(Scaling scaling) {
         // @todo 1 tb/tb take care of non-linear scalings 2014-03-26
         Debug.assertTrue(getNumPoints() >= 2);
