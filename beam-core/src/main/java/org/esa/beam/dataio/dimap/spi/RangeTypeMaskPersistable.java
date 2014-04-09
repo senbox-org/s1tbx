@@ -44,8 +44,11 @@ public class RangeTypeMaskPersistable extends MaskPersistable {
     @Override
     protected void configureElement(Element root, Mask mask) {
         final PropertyContainer config = mask.getImageConfig();
-        root.addContent(createElement(TAG_MINIMUM, String.valueOf(config.getValue(PROPERTY_NAME_MINIMUM))));
-        root.addContent(createElement(TAG_MAXIMUM, String.valueOf(config.getValue(PROPERTY_NAME_MAXIMUM))));
-        root.addContent(createElement(TAG_RASTER, String.valueOf(config.getValue(PROPERTY_NAME_RASTER))));
+        Object minValue = config.getValue(PROPERTY_NAME_MINIMUM);
+        Object maxValue = config.getValue(PROPERTY_NAME_MAXIMUM);
+        Object rasterValue = config.getValue(PROPERTY_NAME_RASTER);
+        root.addContent(createElement(TAG_MINIMUM, String.valueOf(minValue)));
+        root.addContent(createElement(TAG_MAXIMUM, String.valueOf(maxValue)));
+        root.addContent(createElement(TAG_RASTER, String.valueOf(rasterValue)));
     }
 }
