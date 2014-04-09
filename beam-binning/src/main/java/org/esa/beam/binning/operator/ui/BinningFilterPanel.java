@@ -42,6 +42,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -174,10 +176,20 @@ class BinningFilterPanel extends JPanel {
         JLabel minDataHourLabel = new JLabel("Min data hour:");
         JLabel periodDurationUnitLabel = new JLabel("days");
 
-        JComboBox<String> temporalFilterComboBox = new JComboBox<>(new String[]{
+        final JComboBox<String> temporalFilterComboBox = new JComboBox<>(new String[]{
                 NONE.name(),
                 TIME_RANGE.name(),
                 SPATIOTEMPORAL_DATADAY.name()
+        });
+        temporalFilterComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object item = temporalFilterComboBox.getSelectedItem();
+                if (item != null) {
+                    BinningOp.TimeFilterMethod method = BinningOp.TimeFilterMethod.valueOf(item.toString());
+                    temporalFilterComboBox.setToolTipText(method.description);
+                }
+            }
         });
         DateExComboBox startDatePicker = createDatePicker();
         JTextField periodDurationTextField = new JTextField();

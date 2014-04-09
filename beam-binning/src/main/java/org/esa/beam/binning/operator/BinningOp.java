@@ -120,7 +120,19 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
                   suppressWrite = true)
 public class BinningOp extends Operator {
 
-    public static enum TimeFilterMethod {NONE, TIME_RANGE, SPATIOTEMPORAL_DATADAY}
+    public static enum TimeFilterMethod {
+
+        NONE("ignore pixel observation time, use all source pixels"),
+        TIME_RANGE("use all pixels that have been acquired in the given binning period"),
+        SPATIOTEMPORAL_DATADAY("<html>use a sensor-dependent, spatial \"data-day\" definition with the goal to minimise the<br>" +
+                               "time between the first and last observation contributing to the same bin in the given binning period.</html>");
+
+        public final String description;
+
+        private TimeFilterMethod(String description) {
+            this.description = description;
+        }
+    }
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";

@@ -40,6 +40,9 @@ class TargetVariableSpec implements Cloneable {
         this.targetName = spec.targetName;
         this.source = new Source(spec.source);
         this.aggregationString = spec.aggregationString;
+        if (StringUtils.isNullOrEmpty(spec.aggregationString)) {
+            return;
+        }
         this.aggregatorDescriptor = spec.aggregatorDescriptor; // using the same instance is ok
         this.aggregatorProperties = new PropertyContainer();
         if (spec.aggregatorProperties != null) {

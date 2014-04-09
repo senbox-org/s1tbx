@@ -186,7 +186,7 @@ class VariableConfigTable {
             }
         });
 
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         scrollPane = new JScrollPane(table);
     }
 
@@ -225,7 +225,19 @@ class VariableConfigTable {
         if (property.getType().equals(Boolean.class) && property.getValue() == null) {
             value = "false";
         } else if (property.getValue() != null) {
-            value = property.getValue().toString();
+            if (property.getType().isArray()) {
+                Object[] values = property.getValue();
+                for (int i = 0; i < values.length; i++) {
+                    final Object o = values[i];
+                    value += o;
+                    if (i < values.length - 1) {
+                        value += ",";
+                    }
+                }
+                return value;
+            } else {
+                value = property.getValue().toString();
+            }
         }
         return value;
     }
