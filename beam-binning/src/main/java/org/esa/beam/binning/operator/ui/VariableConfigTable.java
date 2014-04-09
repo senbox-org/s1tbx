@@ -22,6 +22,7 @@ import com.bc.ceres.binding.PropertyAccessorFactory;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
+import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.StringCellEditor;
@@ -29,6 +30,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
+import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.AppContext;
@@ -188,6 +190,8 @@ class VariableConfigTable {
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         scrollPane = new JScrollPane(table);
+
+        ExtensionManager.getInstance().register(AggregatorOnMaxSet.Config.class, new OnMaxSetExtensionFactory(binningFormModel));
     }
 
     static void removeProperties(PropertyContainer propertyContainer, String... properties) {
@@ -380,10 +384,12 @@ class VariableConfigTable {
             Product product = binningFormModel.getSourceProducts()[0];
             String[] bandNames = product.getBandNames();
             String[] tiePointGridNames = product.getTiePointGridNames();
+            String[] maskNames = product.getMaskGroup().getNodeNames();
             Object[] rasterNames = ArrayUtils.addAll(bandNames, tiePointGridNames);
+            Object[] names = ArrayUtils.addAll(maskNames, rasterNames);
             Object chosenRaster = JOptionPane.showInputDialog(appContext.getApplicationWindow(), "Choose raster data",
                                                               "Choose raster data", JOptionPane.PLAIN_MESSAGE, null,
-                                                              rasterNames, rasterNames[0]);
+                                                              names, names[0]);
             if (chosenRaster != null) {
                 setCurrentSourceType(TargetVariableSpec.Source.RASTER_SOURCE_TYPE);
                 table.setValueAt(chosenRaster.toString(), table.getSelectedRow(), table.getSelectedColumn());

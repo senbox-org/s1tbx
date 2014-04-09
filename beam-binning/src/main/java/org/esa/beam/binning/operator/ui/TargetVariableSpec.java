@@ -34,6 +34,7 @@ class TargetVariableSpec implements Cloneable {
 
     TargetVariableSpec() {
         source = new Source();
+        aggregatorProperties = new PropertyContainer();
     }
 
     TargetVariableSpec(TargetVariableSpec spec) {
@@ -45,10 +46,8 @@ class TargetVariableSpec implements Cloneable {
         }
         this.aggregatorDescriptor = spec.aggregatorDescriptor; // using the same instance is ok
         this.aggregatorProperties = new PropertyContainer();
-        if (spec.aggregatorProperties != null) {
-            for (Property property : spec.aggregatorProperties.getProperties()) {
-                aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
-            }
+        for (Property property : spec.aggregatorProperties.getProperties()) {
+            aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
         }
     }
 

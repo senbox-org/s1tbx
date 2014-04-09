@@ -19,6 +19,7 @@ package org.esa.beam.binning;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.core.ExtensibleObject;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.util.ObjectUtils;
@@ -31,7 +32,7 @@ import org.esa.beam.util.ObjectUtils;
  *
  * @see TypedDescriptor
  */
-public class TypedConfig {
+public class TypedConfig extends ExtensibleObject {
     @Parameter(alias = "type")
     protected String type;
 
