@@ -19,7 +19,7 @@ package org.esa.beam.statistics.output;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -132,7 +132,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class Statistics {
 
-        Map<String, BandStatistics> statistics = new LinkedHashMap<>();
+        Map<String, BandStatistics> statistics = new HashMap<>();
 
         BandStatistics getDataForBandName(String bandName) {
             return statistics.get(bandName);
@@ -154,7 +154,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class BandStatistics {
 
-        Map<String, RegionStatistics> bandStatistics = new LinkedHashMap<>();
+        Map<String, RegionStatistics> bandStatistics = new HashMap<>();
 
         RegionStatistics getDataForRegionName(String regionName) {
             return bandStatistics.get(regionName);
@@ -176,7 +176,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class RegionStatistics {
 
-        Map<String, Number> regionStatistics = new LinkedHashMap<>();
+        Map<String, Number> regionStatistics = new HashMap<>();
 
         Number getDataForAlgorithmName(String algorithmName) {
             return regionStatistics.get(algorithmName);
