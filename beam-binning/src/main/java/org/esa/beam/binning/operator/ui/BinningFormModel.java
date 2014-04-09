@@ -18,6 +18,7 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.binding.BindingContext;
+import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.beans.PropertyChangeListener;
@@ -35,9 +36,10 @@ interface BinningFormModel {
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
     static final String PROPERTY_KEY_EXPRESSION = "expression";
-    static final String PROPERTY_KEY_TEMPORAL_FILTER = "temporalFilter";
-    static final String PROPERTY_KEY_START_DATE = "startDate";
-    static final String PROPERTY_KEY_END_DATE = "endDate";
+    static final String PROPERTY_KEY_TIME_FILTER_METHOD = "timeFilterMethod";
+    static final String PROPERTY_KEY_START_DATE_TIME = "startDateTime";
+    static final String PROPERTY_KEY_PERIOD_DURATION = "periodDuration";
+    static final String PROPERTY_KEY_MIN_DATA_HOUR = "minDataHour";
     static final String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
     static final String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
@@ -69,19 +71,36 @@ interface BinningFormModel {
     /**
      * @return the expression good pixels in the target product need to comply with.
      */
-    String getValidExpression();
+    String getMaskExpr();
 
     /**
      * @return the user-chosen start date; <code>null</code> if no start date has been chosen
      */
-    String getStartDate();
+    String getStartDateTime();
 
     /**
-     * @return the user-chosen end date; <code>null</code> if no end date has been chosen
+     * @return the user-chosen binning period in days
      */
-    String getEndDate();
+    double getPeriodDuration();
 
+    /**
+     * @return the sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of
+               observations at the date line (the 180 degree meridian)
+     */
+    double getMinDataHour();
+
+    /**
+     * @return the user-chosen supersampling
+     */
     int getSuperSampling();
 
+    /**
+     * @return the user-chosen number of rows in the planetary grid
+     */
     int getNumRows();
+
+    /**
+     * @return the user-chosen time filter method
+     */
+    BinningOp.TimeFilterMethod getTimeFilterMethod();
 }

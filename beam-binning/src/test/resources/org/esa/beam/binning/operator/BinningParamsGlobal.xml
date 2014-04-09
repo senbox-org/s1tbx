@@ -17,9 +17,7 @@
             <percentage>70</percentage>
         </aggregator>
     </aggregators>
-    <formatterConfig>
-        <outputType>Product</outputType>
-        <outputFile>${targetFile}</outputFile>
-        <outputFormat>BEAM-DIMAP</outputFormat>
-    </formatterConfig>
+    <outputType>Product</outputType>
+    <outputFile>${targetFile}</outputFile>
+    <outputFormat>BEAM-DIMAP</outputFormat>
 </parameters>

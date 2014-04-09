@@ -51,7 +51,7 @@ public final class ImageTemporalBinRenderer implements TemporalBinRenderer {
     public ImageTemporalBinRenderer(String[] featureNames,
                                     File outputFile, String outputFormat,
                                     Rectangle outputRegion,
-                                    FormatterConfig.BandConfiguration[] bandConfigurations,
+                                    BinningOp.BandConfiguration[] bandConfigurations,
                                     boolean writeRgb) {
 
         final int bandCount = bandConfigurations.length;
@@ -79,7 +79,7 @@ public final class ImageTemporalBinRenderer implements TemporalBinRenderer {
         bandMinValues = new float[bandCount];
         bandMaxValues = new float[bandCount];
         for (int i = 0; i < bandCount; i++) {
-            FormatterConfig.BandConfiguration bandConfiguration = bandConfigurations[i];
+            BinningOp.BandConfiguration bandConfiguration = bandConfigurations[i];
             String nameStr = bandConfiguration.name;
             bandIndices[i] = Integer.parseInt(bandConfiguration.index);
             bandNames[i] = nameStr != null ? nameStr : featureNames[bandIndices[i]];

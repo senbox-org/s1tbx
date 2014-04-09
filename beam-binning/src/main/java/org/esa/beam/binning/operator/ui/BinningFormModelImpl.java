@@ -115,7 +115,7 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     @Override
-    public String getValidExpression() {
+    public String getMaskExpr() {
         final String propertyValue = getPropertyValue(PROPERTY_KEY_EXPRESSION);
         if (StringUtils.isNullOrEmpty(propertyValue)) {
             return "true";
@@ -124,13 +124,23 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     @Override
-    public String getStartDate() {
-        return getDate(PROPERTY_KEY_START_DATE);
+    public BinningOp.TimeFilterMethod getTimeFilterMethod() {
+        return BinningOp.TimeFilterMethod.valueOf(propertySet.getProperty(PROPERTY_KEY_TIME_FILTER_METHOD).getValueAsText());
     }
 
     @Override
-    public String getEndDate() {
-        return getDate(PROPERTY_KEY_END_DATE);
+    public String getStartDateTime() {
+        return getDate();
+    }
+
+    @Override
+    public double getPeriodDuration() {
+        return getPropertyValue(PROPERTY_KEY_PERIOD_DURATION);
+    }
+
+    @Override
+    public double getMinDataHour() {
+        return getPropertyValue(PROPERTY_KEY_MIN_DATA_HOUR);
     }
 
     @Override
@@ -141,17 +151,23 @@ class BinningFormModelImpl implements BinningFormModel {
         return (Integer) getPropertyValue(PROPERTY_KEY_SUPERSAMPLING);
     }
 
-    private String getDate(String propertyKey) {
-        if (getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER) != null &&
-            (Boolean) getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER)) {
-            final Calendar propertyValue = getPropertyValue(propertyKey);
-            if (propertyValue == null) {
+    private String getDate() {
+        BinningOp.TimeFilterMethod temporalFilter = BinningOp.TimeFilterMethod.valueOf(getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD).toString());
+        switch (temporalFilter) {
+            case NONE: {
                 return null;
             }
-            final Date date = propertyValue.getTime();
-            return new SimpleDateFormat(BinningOp.DATE_PATTERN).format(date);
+            case TIME_RANGE:
+            case SPATIOTEMPORAL_DATADAY: {
+                Calendar calendar = getPropertyValue(PROPERTY_KEY_START_DATE_TIME);
+                if (calendar == null) {
+                    return null;
+                }
+                Date date = calendar.getTime();
+                return new SimpleDateFormat(BinningOp.DATE_PATTERN).format(date);
+            }
         }
-        return null;
+        throw new IllegalStateException("Illegal temportal filter method: '" + temporalFilter + "'");
     }
 
     @Override

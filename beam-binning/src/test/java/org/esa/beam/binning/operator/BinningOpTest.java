@@ -98,7 +98,9 @@ public class BinningOpTest {
         binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
         binningOp.setNumRows(180);
         binningOp.setMaskExpr("true");
-        binningOp.setFormatterConfig(createFormatterConfig());
+        binningOp.setOutputFile(getTestFile("target-1.dim").getPath());
+        binningOp.setOutputType("Product");
+        binningOp.setOutputFormat("BEAM-DIMAP");
 
         binningOp.setParameter("metadataTemplateDir", TESTDATA_DIR);
 
@@ -152,7 +154,6 @@ public class BinningOpTest {
     @Test
     public void testBinningWithEmptyMaskExpression() throws Exception {
 
-        FormatterConfig formatterConfig = createFormatterConfig();
         float obs1 = 0.2F;
 
         final BinningOp binningOp = createBinningOp();
@@ -164,7 +165,10 @@ public class BinningOpTest {
         binningOp.setStartDateTime("2002-01-01");
         binningOp.setPeriodDuration(10.0);
         binningOp.setMaskExpr("");
-        binningOp.setFormatterConfig(formatterConfig);
+        final File targetFile = getTestFile("target-1.dim");
+        binningOp.setOutputFile(targetFile.getPath());
+        binningOp.setOutputType("Product");
+        binningOp.setOutputFormat("BEAM-DIMAP");
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
@@ -175,7 +179,7 @@ public class BinningOpTest {
     @Test
     public void testBinningWhenMaskExpressionIsNull() throws Exception {
 
-        FormatterConfig formatterConfig = createFormatterConfig();
+        final File targetFile = getTestFile("target-1.dim");
         float obs1 = 0.2F;
 
         final BinningOp binningOp = createBinningOp();
@@ -187,7 +191,9 @@ public class BinningOpTest {
         binningOp.setStartDateTime("2002-01-01");
         binningOp.setPeriodDuration(10.0);
         binningOp.setMaskExpr(null);
-        binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setOutputFile(targetFile.getPath());
+        binningOp.setOutputType("Product");
+        binningOp.setOutputFormat("BEAM-DIMAP");
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
@@ -204,7 +210,7 @@ public class BinningOpTest {
      */
     @Test
     public void testGlobalBinning() throws Exception {
-        FormatterConfig formatterConfig = createFormatterConfig();
+        final File targetFile = getTestFile("target-1.dim");
 
         float obs1 = 0.2F;
         float obs2 = 0.4F;
@@ -223,9 +229,11 @@ public class BinningOpTest {
                                     createSourceProduct(5, obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
+        binningOp.setOutputFile(targetFile.getPath());
+        binningOp.setOutputType("Product");
+        binningOp.setOutputFormat("BEAM-DIMAP");
         binningOp.setStartDateTime("2002-01-01");
         binningOp.setPeriodDuration(10.0);
-        binningOp.setFormatterConfig(formatterConfig);
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
@@ -248,7 +256,7 @@ public class BinningOpTest {
     @Test
     public void testLocalBinning() throws Exception {
 
-        FormatterConfig formatterConfig = createFormatterConfig();
+        final File targetFile = getTestFile("target-1.dim");
 
         float obs1 = 0.2F;
         float obs2 = 0.4F;
@@ -260,6 +268,9 @@ public class BinningOpTest {
         binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
         binningOp.setNumRows(180);
         binningOp.setMaskExpr("true");
+        binningOp.setOutputFile(targetFile.getPath());
+        binningOp.setOutputType("Product");
+        binningOp.setOutputFormat("BEAM-DIMAP");
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
                                     createSourceProduct(2, obs2),
                                     createSourceProduct(3, obs3),
@@ -276,7 +287,6 @@ public class BinningOpTest {
         }), null));
         binningOp.setStartDateTime("2002-01-01");
         binningOp.setPeriodDuration(10.0);
-        binningOp.setFormatterConfig(formatterConfig);
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
@@ -297,7 +307,7 @@ public class BinningOpTest {
     @Test
     public void testGlobalBinningViaGPF() throws Exception {
 
-        FormatterConfig formatterConfig = createFormatterConfig();
+        final File targetFile = getTestFile("target-1.dim");
 
         float obs1 = 0.2F;
         float obs2 = 0.4F;
@@ -305,13 +315,15 @@ public class BinningOpTest {
         float obs4 = 0.8F;
         float obs5 = 1.0F;
 
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("startDateTime", "2002-01-01");
         parameters.put("periodDuration", "10");
         parameters.put("numRows", 180);
         parameters.put("maskExpr", "true");
         parameters.put("aggregatorConfigs", new AggregatorConfig[]{chlAgg(), p70Agg()});
-        parameters.put("formatterConfig", formatterConfig);
+        parameters.put("outputFile", targetFile.getPath());
+        parameters.put("outputType", "Product");
+        parameters.put("outputFormat", "BEAM-DIMAP");
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
@@ -338,7 +350,7 @@ public class BinningOpTest {
     @Test
     public void testLocalBinningViaGPF() throws Exception {
 
-        FormatterConfig formatterConfig = createFormatterConfig();
+        final File targetFile = getTestFile("target-1.dim");
 
         float obs1 = 0.2F;
         float obs2 = 0.4F;
@@ -346,14 +358,16 @@ public class BinningOpTest {
         float obs4 = 0.8F;
         float obs5 = 1.0F;
 
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("region", "POLYGON((-1 -1, 3 -1, 3 3, -1 3, -1 -1))");
         parameters.put("startDateTime", "2002-01-01");
         parameters.put("periodDuration", "10");
         parameters.put("numRows", 180);
         parameters.put("maskExpr", "true");
         parameters.put("aggregatorConfigs", new AggregatorConfig[]{chlAgg(), p70Agg()});
-        parameters.put("formatterConfig", formatterConfig);
+        parameters.put("outputFile", targetFile.getPath());
+        parameters.put("outputType", "Product");
+        parameters.put("outputFormat", "BEAM-DIMAP");
 
         final Product targetProduct = GPF.createProduct("Binning",
                                                         parameters,
@@ -621,8 +635,7 @@ public class BinningOpTest {
 
     @Test
     public void testBinningSetsCorrectStartAndStopTimesFromProductTimes() throws Exception {
-        final FormatterConfig formatterConfig = createFormatterConfig();
-
+        final File targetFile = getTestFile("target-1.dim");
         float obs1 = 0.2F;
 
         final BinningOp binningOp = createBinningOp();
@@ -637,7 +650,9 @@ public class BinningOpTest {
         binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
         binningOp.setNumRows(180);
         binningOp.setMaskExpr("true");
-        binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setOutputFile(targetFile.getPath());
+        binningOp.setOutputType("Product");
+        binningOp.setOutputFormat("BEAM-DIMAP");
         binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
@@ -757,12 +772,6 @@ public class BinningOpTest {
         assertArrayEquals(expectedP70, actualP70, 1e-4F);
     }
 
-//    static void applyDefaultConfig(BinningOp binningOp) {
-//        binningOp.setAggregatorConfigs(chlAgg(), p70Agg());
-//        binningOp.setNumRows(180);
-//        binningOp.setMaskExpr("true");
-//    }
-
     private static AggregatorPercentile.Config p70Agg() {
         AggregatorPercentile.Config chlP70 = new AggregatorPercentile.Config();
         chlP70.setVarName("chl");
@@ -774,15 +783,6 @@ public class BinningOpTest {
         AggregatorAverage.Config chlAvg = new AggregatorAverage.Config();
         chlAvg.setVarName("chl");
         return chlAvg;
-    }
-
-    static FormatterConfig createFormatterConfig() throws IOException {
-        final File targetFile = getTestFile("target-1.dim");
-        final FormatterConfig formatterConfig = new FormatterConfig();
-        formatterConfig.setOutputFile(targetFile.getPath());
-        formatterConfig.setOutputType("Product");
-        formatterConfig.setOutputFormat("BEAM-DIMAP");
-        return formatterConfig;
     }
 
     static Product createSourceProduct(int sourceProductCounter, float value) {
