@@ -659,8 +659,8 @@ class ColorManipulationForm {
     private void exportColorPaletteDef() {
         final ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
-            // Normaly this code is unreacable because, the export Button
-            // is disabled if the _contrastStretchPane have no ImageInfo.
+            // Normaly this code is unreacable because, the export Button should be
+            // disabled if the color manipulation form have no ImageInfo.
             return;
         }
         final BeamFileChooser fileChooser = new BeamFileChooser();
