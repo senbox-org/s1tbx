@@ -30,23 +30,28 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
     private final ColorManipulationForm parentForm;
     private JPanel contentPanel;
-    private JRadioButton graphicalButton;
-    private JRadioButton tabularButton;
     private JCheckBox discreteColorsCheckBox;
     private ColorManipulationChildForm childForm;
-    private Continuous1BandTabularForm tabularPaletteEditorForm;
+    private JRadioButton graphicalButton;
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
+    private JRadioButton tabularButton;
+    private Continuous1BandTabularForm tabularPaletteEditorForm;
+//    private JRadioButton basicButton;
+//    private Continuous1BandBasicForm basicPaletteEditorForm;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         childForm = EmptyImageInfoForm.INSTANCE;
+//        basicButton = new JRadioButton("Basic");
         graphicalButton = new JRadioButton("Sliders");
         tabularButton = new JRadioButton("Table");
         final ButtonGroup editorGroup = new ButtonGroup();
+//        editorGroup.add(basicButton);
         editorGroup.add(graphicalButton);
         editorGroup.add(tabularButton);
         graphicalButton.setSelected(true);
         final SwitcherActionListener switcherActionListener = new SwitcherActionListener();
+//        basicButton.addActionListener(switcherActionListener);
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
         discreteColorsCheckBox = new JCheckBox("Discrete colors");
@@ -112,8 +117,10 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         parentForm.getImageInfo().getColorPaletteDef().setDiscrete(discreteColorsCheckBox.isSelected());
         if (childForm == graphicalPaletteEditorForm) {
             graphicalPaletteEditorForm.getImageInfoEditor().getModel().fireStateChanged();
+//        } else if (childForm == basicPaletteEditorForm){
+//            basicPaletteEditorForm.getBasicColorEditor().updateColorRamp(null, parentForm.getImageInfo().getColorPaletteDef());
         }
-        parentForm.setApplyEnabled(true);
+        parentForm.applyChanges();
     }
 
     private void switchForm(ProductSceneView productSceneView) {
@@ -124,6 +131,11 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
             }
             newForm = tabularPaletteEditorForm;
+//        } else if (basicButton.isSelected()){
+//            if (basicPaletteEditorForm == null) {
+//                basicPaletteEditorForm = new Continuous1BandBasicForm(parentForm);
+//            }
+//            newForm = basicPaletteEditorForm;
         } else {
             if (graphicalPaletteEditorForm == null) {
                 graphicalPaletteEditorForm = new Continuous1BandGraphicalForm(parentForm);

@@ -45,7 +45,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     private final AbstractButton logDisplayButton;
     private final AbstractButton evenDistButton;
     private final MoreOptionsForm moreOptionsForm;
-    private ChangeListener applyEnablerCL;
 
     Continuous1BandGraphicalForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
@@ -75,8 +74,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
                 distributeSlidersEvenly();
             }
         }));
-
-        applyEnablerCL = parentForm.createApplyEnablerChangeListener();
     }
 
 
@@ -97,7 +94,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
         if (imageInfoEditor.getModel() != null) {
-            imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
             imageInfoEditor.setModel(null);
         }
     }
@@ -106,7 +102,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     public void updateFormModel(ProductSceneView productSceneView) {
         final ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
         final ImageInfoEditorModel newModel = new ImageInfoEditorModel1B(parentForm.getImageInfo());
-        newModel.addChangeListener(applyEnablerCL);
         imageInfoEditor.setModel(newModel);
 
         final RasterDataNode raster = productSceneView.getRaster();
