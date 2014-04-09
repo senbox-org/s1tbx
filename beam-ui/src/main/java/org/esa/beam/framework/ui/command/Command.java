@@ -55,6 +55,8 @@ public abstract class Command implements ConfigurableExtension {
     public static final String ACTION_KEY_LARGE_ICON = "_largeIcon";
     public static final String ACTION_KEY_SEPARATOR_BEFORE = "_separatorBefore";
     public static final String ACTION_KEY_SEPARATOR_AFTER = "_separatorAfter";
+    public static final String ACTION_KEY_PLACE_FIRST = "_placeFirst";
+    public static final String ACTION_KEY_PLACE_LAST = "_placeLast";
     public static final String ACTION_KEY_PLACE_BEFORE = "_placeBefore";
     public static final String ACTION_KEY_PLACE_AFTER = "_placeAfter";
     public static final String ACTION_KEY_PLACE_CONTEXT_TOP = "_placeAtContextTop";
@@ -145,8 +147,8 @@ public abstract class Command implements ConfigurableExtension {
         setProperty(ACTION_KEY_POPUP_TEXT, value);
     }
 
-    public Boolean getSortChildren() {
-        return (Boolean) getProperty(ACTION_KEY_SORT_CHILDREN);
+    public boolean getSortChildren() {
+        return getProperty(ACTION_KEY_SORT_CHILDREN, false);
     }
 
     /**
@@ -229,6 +231,22 @@ public abstract class Command implements ConfigurableExtension {
 
     public void setSeparatorAfter(boolean separatorAfter) {
         setProperty(ACTION_KEY_SEPARATOR_AFTER, separatorAfter);
+    }
+
+    public boolean getPlaceFirst() {
+        return getProperty(ACTION_KEY_PLACE_FIRST, false);
+    }
+
+    public void setPlaceFirst(boolean value) {
+        setProperty(ACTION_KEY_PLACE_FIRST, value);
+    }
+
+    public boolean getPlaceLast() {
+        return getProperty(ACTION_KEY_PLACE_LAST, false);
+    }
+
+    public void setPlaceLast(boolean value) {
+        setProperty(ACTION_KEY_PLACE_LAST, value);
     }
 
     public String getPlaceAfter() {
@@ -696,6 +714,16 @@ public abstract class Command implements ConfigurableExtension {
         resBoolean = getConfigBoolean(config, "separatorAfter");
         if (resBoolean != null) {
             setSeparatorAfter(resBoolean);
+        }
+
+        resBoolean = getConfigBoolean(config, "placeFirst");
+        if (resBoolean != null) {
+            setProperty(ACTION_KEY_PLACE_FIRST, resBoolean);
+        }
+
+        resBoolean = getConfigBoolean(config, "placeLast");
+        if (resBoolean != null) {
+            setProperty(ACTION_KEY_PLACE_LAST, resBoolean);
         }
 
         resString = getConfigString(config, "placeBefore");
