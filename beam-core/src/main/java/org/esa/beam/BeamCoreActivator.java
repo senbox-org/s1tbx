@@ -18,14 +18,7 @@ package org.esa.beam;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import com.bc.ceres.core.runtime.Activator;
-import com.bc.ceres.core.runtime.ConfigurationElement;
-import com.bc.ceres.core.runtime.Extension;
-import com.bc.ceres.core.runtime.ExtensionPoint;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.ModuleRuntime;
-import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.*;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
@@ -122,8 +115,6 @@ public class BeamCoreActivator implements Activator {
         }
     }
 
-    // todo - move this method elsewhere. ModuleContext or Module?
-
     public static <T> List<T> loadExecutableExtensions(ModuleContext moduleContext,
                                                        String extensionPointId,
                                                        String elementName,
@@ -131,7 +122,7 @@ public class BeamCoreActivator implements Activator {
         Module module = moduleContext.getModule();
         ExtensionPoint extensionPoint = module.getExtensionPoint(extensionPointId);
         ConfigurationElement[] configurationElements = extensionPoint.getConfigurationElements();
-        List<T> executableExtensions = new ArrayList<T>(32);
+        List<T> executableExtensions = new ArrayList<>(32);
         for (ConfigurationElement configurationElement : configurationElements) {
             ConfigurationElement[] children = configurationElement.getChildren(elementName);
             for (ConfigurationElement child : children) {
@@ -142,41 +133,12 @@ public class BeamCoreActivator implements Activator {
                         executableExtensions.add(executableExtension);
                     }
                 } catch (CoreException e) {
-                    // todo - better throw CoreException? Or better register error in moduleContext?
                     moduleContext.getLogger().log(Level.SEVERE, e.getMessage(), e);
                 }
             }
         }
         return executableExtensions;
     }
-//
-//    // todo - move this method elsewhere. ModuleContext or Module?
-//    public static <T> List<T> loadExecutableExtensions(ModuleContext moduleContext,
-//                                                       String extensionPointId,
-//                                                       String elementName,
-//                                                       String keyElementName,
-//                                                       Class<T> extensionType) {
-//        Module module = moduleContext.getModule();
-//        ExtensionPoint extensionPoint = module.getExtensionPoint(extensionPointId);
-//        ConfigurationElement[] configurationElements = keyElementName != null ? extensionPoint.getConfigurationElements(keyElementName) : extensionPoint.getConfigurationElements();
-//        List<T> executableExtensions = new ArrayList<T>(32);
-//        for (ConfigurationElement configurationElement : configurationElements) {
-//            ConfigurationElement[] children = configurationElement.getChildren(elementName);
-//            for (ConfigurationElement child : children) {
-//                try {
-//                    ModuleState moduleState = child.getDeclaringExtension().getDeclaringModule().getState();
-//                    if (moduleState.isOneOf(ModuleState.STARTING, ModuleState.RESOLVED)) {
-//                        T executableExtension = child.createExecutableExtension(extensionType);
-//                        executableExtensions.add(executableExtension);
-//                    }
-//                } catch (CoreException e) {
-//                    // todo - better throw CoreException? Or better register error in moduleContext?
-//                    moduleContext.getLogger().log(Level.SEVERE, e.getMessage(), e);
-//                }
-//            }
-//        }
-//        return executableExtensions;
-//    }
 
     private static final class GeotoolsFactoryIteratorProvider implements FactoryIteratorProvider {
         private final ServiceRegistry<MathTransformProvider> serviceRegistry;
