@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-602]  Copy pins to other products<br/>
           [BEAM-1601] Correlative plot does not reset point data correctly when switching between two products<br/>
           [BEAM-1602] Histogram toolview shall remember last computed histograms<br/>
           [BEAM-1616] Geocoding toolview shall display data as table<br/>

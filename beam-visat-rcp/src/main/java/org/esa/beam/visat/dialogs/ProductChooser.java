@@ -15,28 +15,17 @@
  */
 package org.esa.beam.visat.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductChooser extends ModalDialog {
 
@@ -45,7 +34,6 @@ public class ProductChooser extends ModalDialog {
 
     private final Product[] _allProducts;
     private Product[] _selectedProducts;
-    private String _roiBandName;
 
     private int _numSelected;
 
@@ -54,14 +42,11 @@ public class ProductChooser extends ModalDialog {
     private JCheckBox _selectNoneCheckBox;
     private final boolean _selectAtLeastOneProduct;
     private boolean _multipleProducts;
-    private JRadioButton _transferToAllBandsRB;
 
     public ProductChooser(Window parent, String title, String helpID,
-                          Product[] allProducts, Product[] selectedProducts,
-                          String roiBandName) {
+                          Product[] allProducts, Product[] selectedProducts) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         Guardian.assertNotNull("allProducts", allProducts);
-        Guardian.assertNotNullOrEmpty("roiBandName", roiBandName);
         _allProducts = allProducts;
         _selectedProducts = selectedProducts;
         _selectAtLeastOneProduct = true;
@@ -69,7 +54,6 @@ public class ProductChooser extends ModalDialog {
             _selectedProducts = new Product[0];
         }
         _multipleProducts = allProducts.length > 1;
-        _roiBandName = roiBandName;
         initUI();
     }
 
@@ -98,18 +82,6 @@ public class ProductChooser extends ModalDialog {
             }
         });
 
-        JRadioButton transferToBandRB = new JRadioButton("Transfer ROI to '" + _roiBandName + "' only"); /*I18N*/
-        _transferToAllBandsRB = new JRadioButton("Transfer ROI to all bands"); /*I18N*/
-        final ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(transferToBandRB);
-        buttonGroup.add(_transferToAllBandsRB);
-        transferToBandRB.setSelected(true);
-        final JPanel bandNamePanel = new JPanel(new BorderLayout());
-        bandNamePanel.add(transferToBandRB, BorderLayout.CENTER);
-        bandNamePanel.add(_transferToAllBandsRB, BorderLayout.SOUTH);
-        bandNamePanel.setBorder(BorderFactory.createTitledBorder("Transfer mode")); /*I18N*/
-
-
         final JPanel checkPane = new JPanel(new BorderLayout());
         checkPane.add(_selectAllCheckBox, BorderLayout.WEST);
         checkPane.add(_selectNoneCheckBox, BorderLayout.CENTER);
@@ -135,7 +107,6 @@ public class ProductChooser extends ModalDialog {
         content.add(checkPane, gbc);
         gbc.gridy++;
         gbc.insets.top = 20;
-        content.add(bandNamePanel, gbc);
         setContent(content);
     }
 
@@ -154,8 +125,7 @@ public class ProductChooser extends ModalDialog {
         for (int i = 0; i < _allProducts.length; i++) {
             Product product = _allProducts[i];
             boolean checked = false;
-            for (int j = 0; j < _selectedProducts.length; j++) {
-                Product selectedProduct = _selectedProducts[j];
+            for (Product selectedProduct : _selectedProducts) {
                 if (product == selectedProduct) {
                     checked = true;
                     _numSelected++;
@@ -200,8 +170,7 @@ public class ProductChooser extends ModalDialog {
     }
 
     private void select(boolean b) {
-        for (int i = 0; i < _checkBoxes.length; i++) {
-            JCheckBox checkBox = _checkBoxes[i];
+        for (JCheckBox checkBox : _checkBoxes) {
             if (b && !checkBox.isSelected()) {
                 _numSelected++;
             }
@@ -224,14 +193,14 @@ public class ProductChooser extends ModalDialog {
 
     @Override
     protected boolean verifyUserInput() {
-        final List products = new ArrayList();
+        final List<Product> products = new ArrayList<>();
         for (int i = 0; i < _checkBoxes.length; i++) {
             JCheckBox checkBox = _checkBoxes[i];
             if (checkBox.isSelected()) {
                 products.add(_allProducts[i]);
             }
         }
-        _selectedProducts = (Product[]) products.toArray(new Product[products.size()]);
+        _selectedProducts = products.toArray(new Product[products.size()]);
         if (_selectAtLeastOneProduct) {
             boolean result = _selectedProducts.length > 0;
             if (!result) {
@@ -247,7 +216,4 @@ public class ProductChooser extends ModalDialog {
         return _selectedProducts;
     }
 
-    public boolean isTransferToAllBands() {
-        return _transferToAllBandsRB.isSelected();
-    }
 }
