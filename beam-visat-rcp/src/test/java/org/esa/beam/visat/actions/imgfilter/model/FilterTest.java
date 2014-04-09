@@ -3,8 +3,7 @@ package org.esa.beam.visat.actions.imgfilter.model;
 import com.thoughtworks.xstream.XStream;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman
@@ -40,15 +39,17 @@ public class FilterTest {
         filter.setTags("sharpen", "all");
         XStream xStream = Filter.createXStream();
         String xml = xStream.toXML(filter);
-        assertEquals("" +
-                             "<filter>\n" +
-                             "  <name>" + filter.getName() + "</name>\n" +
-                             "  <shorthand>"+filter.getShorthand()+"</shorthand>\n" +
-                             "  <operation>CONVOLVE</operation>\n" +
-                             "  <editable>false</editable>\n" +
-                             "  <tags>\n" +
-                             "    <string>sharpen</string>\n" +
-                             "    <string>all</string>\n" +
+        assertTrue(xml.startsWith("" +
+                                  "<filter>\n" +
+                                  "  <name>" + filter.getName() + "</name>\n" +
+                                  "  <shorthand>" + filter.getShorthand() + "</shorthand>\n" +
+                                  "  <operation>CONVOLVE</operation>\n" +
+                                  "  <editable>false</editable>\n" +
+                                  "  <tags>\n"
+        ));
+        assertTrue(xml.contains("    <string>sharpen</string>\n"));
+        assertTrue(xml.contains("    <string>all</string>\n"));
+        assertTrue(xml.endsWith("" +
                              "  </tags>\n" +
                              "  <kernelElements>0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0</kernelElements>\n" +
                              "  <kernelWidth>5</kernelWidth>\n" +
@@ -56,9 +57,7 @@ public class FilterTest {
                              "  <kernelQuotient>1.0</kernelQuotient>\n" +
                              "  <kernelOffsetX>2</kernelOffsetX>\n" +
                              "  <kernelOffsetY>2</kernelOffsetY>\n" +
-                             "</filter>",
-                     xml
-        );
+                             "</filter>"));
     }
 
 }
