@@ -310,7 +310,7 @@ public class BandMathsDialog extends ModalDialog {
         descriptor.setNotEmpty(true);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_SAVE_EXPRESSION_ONLY);
-        descriptor.setDisplayName("Virtual (save expression only, don't write data)");
+        descriptor.setDisplayName("Virtual (save expression only, don't store data)");
         descriptor.setDefaultValue(Boolean.TRUE);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE_USED);
