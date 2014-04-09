@@ -19,7 +19,6 @@ package org.esa.beam.statistics.output;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -177,7 +176,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class RegionStatistics {
 
-        Map<String, Number> regionStatistics = new LinkedHashMap<String, Number>();
+        Map<String, Number> regionStatistics = new LinkedHashMap<>();
 
         Number getDataForAlgorithmName(String algorithmName) {
             return regionStatistics.get(algorithmName);
