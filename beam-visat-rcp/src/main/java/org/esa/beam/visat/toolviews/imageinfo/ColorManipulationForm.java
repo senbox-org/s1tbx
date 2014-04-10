@@ -48,17 +48,17 @@ import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
+//import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+//import javax.swing.event.ChangeEvent;
+//import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+//import javax.swing.event.TableModelEvent;
+//import javax.swing.event.TableModelListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -87,7 +87,7 @@ class ColorManipulationForm {
     private final static String FILE_EXTENSION = ".cpd";
     private VisatApp visatApp;
     private PropertyMap preferences;
-    private AbstractButton applyButton;
+//    private AbstractButton applyButton;
     private AbstractButton resetButton;
     private AbstractButton multiApplyButton;
     private AbstractButton importButton;
@@ -160,14 +160,13 @@ class ColorManipulationForm {
         return imageInfo;
     }
 
+//    ChangeListener createApplyEnablerChangeListener() {
+//        return new ApplyEnablerCL();
+//    }
 
-    ChangeListener createApplyEnablerChangeListener() {
-        return new ApplyEnablerCL();
-    }
-
-    TableModelListener createApplyEnablerTableModelListener() {
-        return new ApplyEnablerTML();
-    }
+//    TableModelListener createApplyEnablerTableModelListener() {
+//        return new ApplyEnablerTML();
+//    }
 
     private void setProductSceneView(final ProductSceneView productSceneView) {
         ProductSceneView productSceneViewOld = this.productSceneView;
@@ -314,15 +313,15 @@ class ColorManipulationForm {
 
         moreOptionsPane = new MoreOptionsPane(this);
 
-        applyButton = new JButton("Apply");
-        applyButton.setName("ApplyButton");
-        applyButton.setMnemonic('A');
-        applyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                applyChanges();
-            }
-        });
+//        applyButton = new JButton("Apply");
+//        applyButton.setName("ApplyButton");
+//        applyButton.setMnemonic('A');
+//        applyButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(final ActionEvent e) {
+//                applyChanges();
+//            }
+//        });
 
         resetButton = createButton("icons/Undo24.gif");
         resetButton.setName("ResetButton");
@@ -397,7 +396,7 @@ class ColorManipulationForm {
 
     public void setApplyEnabled(final boolean enabled) {
         final boolean canApply = productSceneView != null;
-        applyButton.setEnabled(canApply && enabled);
+//        applyButton.setEnabled(canApply && enabled);
         multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
     }
 
@@ -407,10 +406,10 @@ class ColorManipulationForm {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 1.0;
-        gbc.gridwidth = 2;
-        gbc.insets.bottom = 3;
+//        gbc.gridwidth = 2;
+//        gbc.insets.bottom = 3;
         gbc.gridy = 1;
-        toolButtonsPanel.add(applyButton, gbc);
+//        toolButtonsPanel.add(applyButton, gbc);
         gbc.insets.bottom = 0;
         gbc.gridwidth = 1;
         gbc.gridy++;
@@ -493,7 +492,7 @@ class ColorManipulationForm {
         if (productSceneView != null) {
             setImageInfoCopy(createDefaultImageInfo());
             childForm.resetFormModel(getProductSceneView());
-            applyButton.setEnabled(true);
+//            applyButton.setEnabled(true);
         }
     }
 
@@ -505,7 +504,7 @@ class ColorManipulationForm {
         final Product selectedProduct = productSceneView.getProduct();
         final ProductManager productManager = selectedProduct.getProductManager();
         final RasterDataNode[] protectedRasters = productSceneView.getRasters();
-        final ArrayList<Band> availableBandList = new ArrayList<Band>();
+        final ArrayList<Band> availableBandList = new ArrayList<>();
         for (int i = 0; i < productManager.getProductCount(); i++) {
             final Product product = productManager.getProduct(i);
             final Band[] bands = product.getBands();
@@ -541,7 +540,7 @@ class ColorManipulationForm {
                                                         getToolViewDescriptor().getHelpId(),
                                                         availableBands,
                                                         bandsToBeModified);
-        final List<Band> modifiedRasterList = new ArrayList<Band>(availableBands.length);
+        final List<Band> modifiedRasterList = new ArrayList<>(availableBands.length);
         if (bandChooser.show() == BandChooser.ID_OK) {
             bandsToBeModified = bandChooser.getSelectedBands();
             for (final Band band : bandsToBeModified) {
@@ -820,22 +819,22 @@ class ColorManipulationForm {
         }
     }
 
-    private class ApplyEnablerCL implements ChangeListener {
+//    private class ApplyEnablerCL implements ChangeListener {
+//
+//        @Override
+//        public void stateChanged(ChangeEvent e) {
+//            setApplyEnabled(true);
+//        }
+//    }
 
-        @Override
-        public void stateChanged(ChangeEvent e) {
-            setApplyEnabled(true);
-        }
-    }
 
-
-    private class ApplyEnablerTML implements TableModelListener {
-
-        @Override
-        public void tableChanged(TableModelEvent e) {
-            setApplyEnabled(true);
-        }
-    }
+//    private class ApplyEnablerTML implements TableModelListener {
+//
+//        @Override
+//        public void tableChanged(TableModelEvent e) {
+//            setApplyEnabled(true);
+//        }
+//    }
 
     private class SceneViewImageInfoChangeListener implements PropertyChangeListener {
 

@@ -136,7 +136,7 @@ class MoreOptionsForm {
         if (hasHistogramMatching) {
             getImageInfo().setHistogramMatching(getHistogramMatching());
         }
-        getParentForm().setApplyEnabled(true);
+        getParentForm().applyChanges();
     }
 
     public JPanel getContentPanel() {

@@ -48,13 +48,13 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     private final ColorManipulationForm parentForm;
     private JComponent contentPanel;
     private ImageInfoTableModel tableModel;
-    private final TableModelListener applyEnablerTML;
+//    private final TableModelListener applyEnablerTML;
     private MoreOptionsForm moreOptionsForm;
 
     public Discrete1BandTabularForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel();
-        applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
+//        applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
         moreOptionsForm = new MoreOptionsForm(parentForm, false);
 
         final JTable table = new SortableTable(tableModel);
@@ -75,12 +75,12 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         updateFormModel(productSceneView);
-        tableModel.addTableModelListener(applyEnablerTML);
+//        tableModel.addTableModelListener(applyEnablerTML);
     }
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
-        tableModel.removeTableModelListener(applyEnablerTML);
+//        tableModel.removeTableModelListener(applyEnablerTML);
     }
 
     @Override
