@@ -50,7 +50,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private String polarization = null;
     private int numOfSubSwath = 1;
     private CalibrationInfo[] calibration = null;
-    private boolean isDualPol = false;
+    private boolean isGRD = false;
     protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<String, CalibrationInfo>(2);
     private java.util.List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
@@ -163,6 +163,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         if(!productType.equals("SLC") && !productType.equals("GRD")) {
             throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
         }
+        isGRD = productType.equals("GRD");
     }
 
     /**
@@ -198,8 +199,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             !polarization.equals("VV") && !polarization.equals("VH")) {
             throw new OperatorException("Invalid source product");
         }
-
-        isDualPol = polarization.equals("DH") || polarization.equals("DV");
     }
 
     /**
@@ -301,7 +300,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final String ss = calibration[dataSetIndex].subSwath;
         final String[] targetBandNames = targetProduct.getBandNames();
         for (String bandName:targetBandNames) {
-            if (isDualPol) {
+            if (!isGRD) {
                 if (bandName.contains(pol) && bandName.contains(ss)) {
                     targetBandToCalInfo.put(bandName, calibration[dataSetIndex]);
 
@@ -470,11 +469,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
-        System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
+        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
-        if (x0 == 0 && y0 == 0 && w == 512 && h == 512 && targetBand.getName().contains("Gamma0_HH")) {
-            System.out.println();
-        }
         final String targetBandName = targetBand.getName();
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
         //final double[][] lut = new double[h][w];
@@ -508,7 +504,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         double dn, dn2, i, q;
         int index;
         for (int y = y0; y < maxY; ++y) {
-
             srcIndex.calculateStride(y);
             final double[] lut = new double[w];
             computeTileCalibrationLUTs(y, x0, y0, w, h, calInfo, targetBandName, lut);
@@ -519,16 +514,16 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(index);
-                    dn2 = dn*dn;
+                    dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
                     i = srcData1.getElemDoubleAt(index);
                     q = srcData2.getElemDoubleAt(index);
-                    dn2 = i*i + q*q;
+                    dn2 = i * i + q * q;
                 } else {
                     throw new OperatorException("Calibration: unhandled unit");
                 }
 
-                trgData.setElemDoubleAt(index, dn2/lut[xx]);
+                trgData.setElemDoubleAt(index, dn2 / lut[xx]);
             }
         }
     }
