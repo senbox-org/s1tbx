@@ -65,7 +65,7 @@ class TargetVariableSpec implements Cloneable {
     }
 
     public boolean isValid() {
-        boolean expressionCorrect = (source.type == Source.EXPRESSION_SOURCE_TYPE && StringUtils.isNotNullAndNotEmpty(source.expression) && targetName != null) || source.type == Source.RASTER_SOURCE_TYPE;
+        boolean expressionCorrect = (source.type == Source.EXPRESSION_SOURCE_TYPE && StringUtils.isNotNullAndNotEmpty(source.expression) && StringUtils.isNotNullAndNotEmpty(targetName)) || source.type == Source.RASTER_SOURCE_TYPE;
 
         boolean bandCorrect = (
                 source.type == Source.RASTER_SOURCE_TYPE && StringUtils.isNotNullAndNotEmpty(source.bandName) || source.type == Source.EXPRESSION_SOURCE_TYPE);

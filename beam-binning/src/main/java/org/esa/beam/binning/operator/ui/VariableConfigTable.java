@@ -388,6 +388,11 @@ class VariableConfigTable {
                 if (spec.aggregatorDescriptor != null && spec.aggregatorDescriptor.getName().equals(AggregatorOnMaxSetWithMask.Descriptor.NAME)) {
                     spec.aggregatorProperties.setValue("onMaxName", getSourceName(spec));
                 }
+                if (spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE) {
+                    spec.source.expression = null;
+                } else {
+                    spec.source.bandName = null;
+                }
                 if (StringUtils.isNotNullAndNotEmpty(spec.aggregationString)) {
                     specs.add(spec);
                 }
