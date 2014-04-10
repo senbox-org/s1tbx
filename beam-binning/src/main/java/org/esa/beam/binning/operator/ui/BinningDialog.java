@@ -214,11 +214,8 @@ public class BinningDialog extends SingleTargetProductDialog {
             parameters.put("numRows", binningConfig.getNumRows());
             parameters.put("superSampling", binningConfig.getSuperSampling());
 
-            pm.worked(1);
-
             final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
 
-            pm.worked(99);
             pm.done();
 
             return targetProduct;
