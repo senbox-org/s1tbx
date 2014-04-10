@@ -18,7 +18,6 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyEditor;
 import com.bc.ceres.swing.binding.PropertyPane;
@@ -85,29 +84,13 @@ public class EditAggregationDialog extends ModalDialog {
     }
 
     private Component createUI() {
-        TableLayout layout = new TableLayout(3);
-        layout.setCellColspan(1, 1, 2);
-        layout.setCellColspan(2, 0, 3);
-        layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        layout.setCellAnchor(2, 0, TableLayout.Anchor.SOUTHEAST);
-        layout.setTableFill(TableLayout.Fill.BOTH);
-        layout.setTablePadding(10, 10);
-        layout.setTableWeightX(1.0);
-        layout.setTableWeightY(0.0);
-        layout.setColumnWeightX(1, 1.0);
-        layout.setRowFill(0, TableLayout.Fill.HORIZONTAL);
-        layout.setRowFill(1, TableLayout.Fill.HORIZONTAL);
-        layout.setRowFill(2, TableLayout.Fill.BOTH);
-
-        aggregatorPanel = new JPanel(new BorderLayout());
+        aggregatorPanel = new JPanel(new BorderLayout(10, 5));
         aggregatorsComboBox = new JComboBox<>();
         initComboBox();
         aggregatorPanel.add(aggregatorsComboBox, BorderLayout.NORTH);
 
-        setAggregatorConfigPanel(getPropertyPane(aggregatorsComboBox));
-
-        JPanel panel = new JPanel(layout);
-        panel.add(aggregatorPanel);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(aggregatorPanel, BorderLayout.CENTER);
 
         applyOriginalVariableSpec();
 
@@ -115,9 +98,6 @@ public class EditAggregationDialog extends ModalDialog {
     }
 
     private void applyOriginalVariableSpec() {
-        if (targetVariableSpec == null) {
-            return;
-        }
         if (targetVariableSpec.aggregatorDescriptor == null) {
             targetVariableSpec.aggregatorDescriptor = aggregatorsComboBox.getItemAt(0);
             targetVariableSpec.aggregatorProperties = VariableConfigTable.createAggregatorProperties(targetVariableSpec.aggregatorDescriptor);
@@ -125,7 +105,7 @@ public class EditAggregationDialog extends ModalDialog {
         }
         aggregatorsComboBox.setSelectedItem(targetVariableSpec.aggregatorDescriptor);
         aggregatorProperties = targetVariableSpec.aggregatorProperties;
-        setAggregatorConfigPanel(new PropertyPane(targetVariableSpec.aggregatorProperties).createPanel());
+        setAggregatorConfigPanel(getPropertyPane(targetVariableSpec.aggregatorDescriptor));
     }
 
     private void setAggregatorConfigPanel(JComponent aggregatorConfigPanel) {
@@ -149,7 +129,7 @@ public class EditAggregationDialog extends ModalDialog {
         aggregatorsComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JComponent aggregatorConfigPanel = getPropertyPane(aggregatorsComboBox);
+                JComponent aggregatorConfigPanel = getPropertyPane((AggregatorDescriptor) aggregatorsComboBox.getSelectedItem());
                 setAggregatorConfigPanel(aggregatorConfigPanel);
                 getJDialog().getContentPane().revalidate();
                 getJDialog().pack();
@@ -157,8 +137,7 @@ public class EditAggregationDialog extends ModalDialog {
         });
     }
 
-    private JComponent getPropertyPane(JComboBox<AggregatorDescriptor> aggregatorsComboBox) {
-        AggregatorDescriptor selectedAggregatorDescriptor = (AggregatorDescriptor) aggregatorsComboBox.getSelectedItem();
+    private JComponent getPropertyPane(AggregatorDescriptor selectedAggregatorDescriptor) {
         aggregatorProperties = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
         VariableConfigTable.removeProperties(aggregatorProperties, "varName", "type", "targetName");
         AggregatorConfig config = selectedAggregatorDescriptor.createConfig();

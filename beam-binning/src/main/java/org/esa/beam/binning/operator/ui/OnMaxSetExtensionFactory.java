@@ -21,17 +21,21 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.ExtensionFactory;
+import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyEditor;
 import org.esa.beam.framework.datamodel.Product;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BorderLayout;
+import java.awt.Component;
 
 /**
 * @author thomas
@@ -47,7 +51,7 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
     @Override
     public PropertyEditor getExtension(Object object, Class<?> extensionType) {
         if (extensionType.equals(getExtensionTypes()[0])) {
-            return new OnMaxSetPropertyEditor();
+            return new OnMaxSetPropertyEditor(model);
         }
         return null;
     }
@@ -68,45 +72,83 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
         return rasterNames;
     }
 
-    private class OnMaxSetPropertyEditor extends PropertyEditor {
+    private static class OnMaxSetPropertyEditor extends PropertyEditor {
+
+        private BinningFormModel model;
+
+        private OnMaxSetPropertyEditor(BinningFormModel model) {
+            this.model = model;
+        }
 
         @Override
         public JComponent createEditorComponent(final PropertyDescriptor propertyDescriptor, final BindingContext bindingContext) {
+            final String errorMessage = "no rasters available";
             JLabel label = new JLabel("Raster names");
             label.setToolTipText("The raster names that are set when the chosen source raster has the maximum value");
             Product[] sourceProducts = model.getSourceProducts();
-            String[] rasterNames = new String[0];
+            String[] rasterNames = new String[] {errorMessage};
+            final JList<String> list = new JList<>();
+            list.setVisibleRowCount(8);
+            list.setFixedCellHeight(15);
+            list.setFixedCellWidth(100);
             if (sourceProducts.length != 0) {
                 Product product = sourceProducts[0];
                 rasterNames = getRasterNames(product);
+            } else {
+                setUpEmptyList(list);
             }
-            final JList<String> list = new JList<>(rasterNames);
+            list.setListData(rasterNames);
+            list.addListSelectionListener(createListSelectionListener(propertyDescriptor, bindingContext, list));
 
-            list.addListSelectionListener(new ListSelectionListener() {
-                @Override
-                public void valueChanged(ListSelectionEvent e) {
-                    int[] selectedIndices = list.getSelectedIndices();
-                    String[] values = new String[selectedIndices.length];
-                    for (int i = 0; i < selectedIndices.length; i++) {
-                        values[i] = list.getModel().getElementAt(selectedIndices[i]);
-                    }
-                    try {
-                        Property aggregatorPropertiesProperty = bindingContext.getPropertySet().getProperty(propertyDescriptor.getName());
-                        PropertyContainer aggregatorProperties = aggregatorPropertiesProperty.getValue();
-                        aggregatorProperties.getProperty("varNames").setValue(values);
-                    } catch (ValidationException e1) {
-                        // todo
-                        e1.printStackTrace();
-                    }
-                }
-            });
+            TableLayout layout = new TableLayout(2);
+            layout.setColumnWeightX(1, 1.0);
+            layout.setTablePadding(10, 5);
+            layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
 
-            JPanel panel = new JPanel(new BorderLayout());
-
-            panel.add(label, BorderLayout.WEST);
-            panel.add(list, BorderLayout.WEST);
+            JPanel panel = new JPanel(layout);
+            panel.add(label);
+            panel.add(new JScrollPane(list));
 
             return panel;
         }
     }
+
+    private static ListSelectionListener createListSelectionListener(final PropertyDescriptor propertyDescriptor, final BindingContext bindingContext, final JList<String> list) {
+        return new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int[] selectedIndices = list.getSelectedIndices();
+                String[] values = new String[selectedIndices.length];
+                for (int i = 0; i < selectedIndices.length; i++) {
+                    values[i] = list.getModel().getElementAt(selectedIndices[i]);
+                }
+                try {
+                    Property aggregatorPropertiesProperty = bindingContext.getPropertySet().getProperty(propertyDescriptor.getName());
+                    PropertyContainer aggregatorProperties = aggregatorPropertiesProperty.getValue();
+                    aggregatorProperties.getProperty("varNames").setValue(values);
+                } catch (ValidationException e1) {
+                    // todo
+                    e1.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private static void setUpEmptyList(JList<String> list) {
+        list.setSelectionModel(new DefaultListSelectionModel() {
+            @Override
+            public void setSelectionInterval(int index0, int index1) {
+                super.setSelectionInterval(-1, -1);
+            }
+        });
+        list.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> _list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                final Component component = super.getListCellRendererComponent(_list, value, index, isSelected, cellHasFocus);
+                component.setEnabled(false);
+                return component;
+            }
+        });
+    }
+
 }
