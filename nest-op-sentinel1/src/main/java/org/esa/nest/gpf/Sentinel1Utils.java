@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.math.Array;
 import org.esa.nest.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
@@ -58,6 +59,30 @@ public final class Sentinel1Utils
             for (int i = 0; i < items.length; i++) {
                 try {
                     array[i] = Integer.parseInt(items[i]);
+                } catch (NumberFormatException e) {
+                    throw new OperatorException("Failed in getting" + tag + " array");
+                }
+            }
+        }
+
+        return array;
+    }
+
+    public static double[] getDoubleArray(final MetadataElement elem, final String tag) {
+
+        MetadataAttribute attribute = elem.getAttribute(tag);
+        if (attribute == null) {
+            throw new OperatorException(tag + " attribute not found");
+        }
+
+        double[] array = null;
+        if (attribute.getDataType() == ProductData.TYPE_ASCII) {
+            String dataStr = attribute.getData().getElemString();
+            String[] items = dataStr.split(" ");
+            array = new double[items.length];
+            for (int i = 0; i < items.length; i++) {
+                try {
+                    array[i] = Double.parseDouble(items[i]);
                 } catch (NumberFormatException e) {
                     throw new OperatorException("Failed in getting" + tag + " array");
                 }
