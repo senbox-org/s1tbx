@@ -245,11 +245,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             );
             calibration[dataSetIndex].count = count;
             calibration[dataSetIndex].calibrationVectorList = new CalibrationVector[count];
-
-            final String tgtBandName = getTargetBandName(
-                    calibration[dataSetIndex].polarization, calibration[dataSetIndex].subSwath);
-
-            targetBandToCalInfo.put(tgtBandName, calibration[dataSetIndex]);
+            createTargetBandToCalInfoMap(dataSetIndex);
 
             int vectorIndex = 0;
             for (MetadataElement vectorElem : vectorListElem) {
@@ -295,21 +291,27 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    private String getTargetBandName(final String polarization, final String swath) {
+    /**
+     * Create a target band name to CalibrationInfo map.
+     * @param dataSetIndex Index of a given CalibrationInfo object.
+     */
+    private void createTargetBandToCalInfoMap(final int dataSetIndex) {
 
+        final String pol = calibration[dataSetIndex].polarization;
+        final String ss = calibration[dataSetIndex].subSwath;
         final String[] targetBandNames = targetProduct.getBandNames();
         for (String bandName:targetBandNames) {
             if (isDualPol) {
-                if (bandName.contains(polarization) && bandName.contains(swath)) {
-                    return bandName;
+                if (bandName.contains(pol) && bandName.contains(ss)) {
+                    targetBandToCalInfo.put(bandName, calibration[dataSetIndex]);
+
                 }
             } else {
-                if (bandName.contains(polarization)) {
-                    return bandName;
+                if (bandName.contains(pol)) {
+                    targetBandToCalInfo.put(bandName, calibration[dataSetIndex]);
                 }
             }
         }
-        return null;
     }
 
     private int getNumOfLines(final String polarization, final String swath) {
@@ -468,8 +470,11 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
-        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
+        System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
+        if (x0 == 0 && y0 == 0 && w == 512 && h == 512 && targetBand.getName().contains("Gamma0_HH")) {
+            System.out.println();
+        }
         final String targetBandName = targetBand.getName();
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
         //final double[][] lut = new double[h][w];
