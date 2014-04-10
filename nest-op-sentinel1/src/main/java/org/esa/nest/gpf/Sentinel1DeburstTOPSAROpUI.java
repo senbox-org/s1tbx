@@ -48,9 +48,7 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
 
         if(sourceProducts != null && sourceProducts.length > 0) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(
-                    absRoot, acquisitionMode);
+            final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
             polList.setListData(polarisations);
 
             OperatorUIUtils.initParamList(polList, polarisations);
