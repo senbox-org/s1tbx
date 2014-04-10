@@ -155,6 +155,8 @@ class BinningVariablesPanel extends JPanel {
         JLabel supersamplingLabel = new JLabel("Supersampling:");
         final JTextField superSamplingTextField = new IntegerTextField(1);
 
+        final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
+
         binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
         binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
 
@@ -168,12 +170,11 @@ class BinningVariablesPanel extends JPanel {
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        updateResolutionLabel(targetHeightTextField, resolutionTextField);
+                        updateResolutionLabel(targetHeightTextField, resolutionTextField, listener);
                     }
                 }
         );
 
-        final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
         resolutionTextField.addFocusListener(listener);
         resolutionTextField.addActionListener(listener);
         resolutionButton.addActionListener(new ActionListener() {
@@ -185,7 +186,7 @@ class BinningVariablesPanel extends JPanel {
         });
 
         validPixelExpressionLabel.setToolTipText("Only those pixels matching this expression are considered");
-        targetHeightLabel.setToolTipText("<html>The height of the <b>maximum</b> target grid in pixels</html>");
+        targetHeightLabel.setToolTipText("<html>The number of rows of the <b>maximum</b> target grid</html>");
         resolutionLabel.setToolTipText("The spatial resolution, directly depending on #rows");
         supersamplingLabel.setToolTipText("Every input pixel is subdivided into n x n subpixels in order to reduce or avoid Moiré effect");
 
@@ -228,8 +229,9 @@ class BinningVariablesPanel extends JPanel {
         return (RE * Math.PI) / (numRows - 1);
     }
 
-    private static void updateResolutionLabel(JTextField targetHeightTextField, JTextField resolutionField) {
+    private static void updateResolutionLabel(JTextField targetHeightTextField, JTextField resolutionField, ResolutionTextFieldListener listener) {
         resolutionField.setText(getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
+        listener.update();
     }
 
     static String getResolutionString(int numRows) {
@@ -323,11 +325,11 @@ class BinningVariablesPanel extends JPanel {
     private class ResolutionTextFieldListener extends FocusAdapter implements ActionListener {
 
         private final JTextField resolutionTextField;
-        private final JTextField numPixelsTextField;
+        private final JTextField numRowsTextField;
 
-        public ResolutionTextFieldListener(JTextField resolutionTextField, JTextField numPixelsTextField) {
+        public ResolutionTextFieldListener(JTextField resolutionTextField, JTextField numRowsTextField) {
             this.resolutionTextField = resolutionTextField;
-            this.numPixelsTextField = numPixelsTextField;
+            this.numRowsTextField = numRowsTextField;
         }
 
         @Override
@@ -343,7 +345,8 @@ class BinningVariablesPanel extends JPanel {
         private void update() {
             double resolution = Double.parseDouble(resolutionTextField.getText());
             if (Math.abs(currentResolution - resolution) > 1E-6) {
-                numPixelsTextField.setText(String.valueOf(computeNumRows(resolution)));
+                binningFormModel.getBindingContext().getPropertySet().setValue(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, computeNumRows(resolution));
+                numRowsTextField.setText(String.valueOf(computeNumRows(resolution)));
                 currentResolution = resolution;
             }
         }

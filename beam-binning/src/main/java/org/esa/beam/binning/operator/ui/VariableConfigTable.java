@@ -42,6 +42,7 @@ import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -52,8 +53,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -189,6 +192,18 @@ class VariableConfigTable {
                 if (column == 2) {
                     openEditAggregationDialog(table);
                 }
+            }
+        });
+
+        table.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel component = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                final String text = value.toString();
+                if (!"".equals(text)) {
+                    component.setToolTipText(text);
+                }
+                return component;
             }
         });
 
@@ -422,7 +437,9 @@ class VariableConfigTable {
 
         @Override
         public boolean isEnabled() {
-            return binningFormModel.getSourceProducts().length > 0;
+            final AggregatorDescriptor aggregatorDescriptor = tableModel.getSpec(table.getSelectedRow()).aggregatorDescriptor;
+            boolean isOnMaxSetWithMask = aggregatorDescriptor != null && aggregatorDescriptor.getName().equals(AggregatorOnMaxSetWithMask.Descriptor.NAME);
+            return binningFormModel.getSourceProducts().length > 0 && !isOnMaxSetWithMask;
         }
 
         @Override
