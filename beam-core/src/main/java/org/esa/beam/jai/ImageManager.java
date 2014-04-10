@@ -28,6 +28,7 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.jai.JAIUtils;
