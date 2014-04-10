@@ -60,7 +60,7 @@
         <action>
             <parent>processing.preProcessing</parent>
             <id>merisRadiometryCorrection</id>
-            <text>MERIS Radiometry Correction...</text>
+            <text>MERIS Radiometric Correction...</text>
             <class>org.esa.beam.meris.radiometry.visat.MerisRadiometryCorrectionAction</class>
             <shortDescr>Performs radiometric corrections on a MERIS L1b data product.</shortDescr>
             <mnemonic>E</mnemonic>
