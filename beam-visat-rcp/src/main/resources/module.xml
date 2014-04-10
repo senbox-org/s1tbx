@@ -28,6 +28,10 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-753]  Manual adjustment of axes in spectrum view<br/>
+          [BEAM-1060] make y-axis of spectrum view user defined<br/>
+          [BEAM-1541] Spectrum view does not remember the selection of bands<br/>
+          [BEAM-1542] Legend in the new spectrum view<br/>
           [BEAM-602]  Copy pins to other products<br/>
           [BEAM-1601] Correlative plot does not reset point data correctly when switching between two products<br/>
           [BEAM-1602] Histogram toolview shall remember last computed histograms<br/>
