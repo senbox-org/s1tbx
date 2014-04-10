@@ -57,7 +57,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>M</mnemonic>
             <shortDescr>Import a SPOT VGT data product or product subset.</shortDescr>
-            <description>Import a SPOT VGT data product or product subset.</description>
         </action>
     </extension>
 

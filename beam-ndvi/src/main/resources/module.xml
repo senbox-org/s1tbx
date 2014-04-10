@@ -53,7 +53,7 @@
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <operatorName>NdviOp</operatorName>
             <dialogTitle>NDVI Processor</dialogTitle>
-            <description>Generates NDVI from a source product with at least two spectral bands.</description>
+            <shortDescr>Generates NDVI from a source product with at least two spectral bands.</shortDescr>
             <targetProductNameSuffix>_ndvi</targetProductNameSuffix>
             <helpId>NDVIOperator</helpId>
         </action>

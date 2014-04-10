@@ -76,8 +76,7 @@
             <formatName>SeaDAS-L1</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>SeaDAS L1 (OCTS, CZCS, SeaWiFS)</text>
-            <description>Import a SeaDAS-supported Level 1 (OCTS, CZCS, SeaWiFS) data product.
-            </description>
+            <shortDescr>Import a SeaDAS-supported Level 1 (OCTS, CZCS, SeaWiFS) data product.</shortDescr>
             <helpId>importSeadasL1Product</helpId>
         </action>
         <action>
@@ -86,8 +85,7 @@
             <formatName>SeaDAS-L2</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>SeaDAS L2 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.)</text>
-            <description>Import a SeaDAS-supported Level 2 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.) data product.
-            </description>
+            <shortDescr>Import a SeaDAS-supported Level 2 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.) data product.</shortDescr>
             <helpId>importSeadasL2Product</helpId>
         </action>
         <action>
@@ -96,8 +94,7 @@
             <formatName>SeaDAS-L3</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>SeaDAS L3 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.)</text>
-            <description>Import a SeaDAS-supported Level 3 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.) data product.
-            </description>
+            <shortDescr>Import a SeaDAS-supported Level 3 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.) data product.</shortDescr>
             <helpId>importSeadasL3Product</helpId>
         </action>
         <action>
@@ -106,7 +103,7 @@
             <formatName>Aquarius</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Aquarius (L1A, L2, L3)</text>
-            <description>Import an Aquarius (L1A, L2, L3) data product.</description>
+            <shortDescr>Import an Aquarius (L1A, L2, L3) data product.</shortDescr>
             <helpId>importAquariusProduct</helpId>
         </action>
         <action>
@@ -115,7 +112,7 @@
             <formatName>HICO-L1B</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>HICO L1B</text>
-            <description>Import an HICO L1B data product.</description>
+            <shortDescr>Import an HICO L1B data product.</shortDescr>
             <helpId>importHICOL1BProduct</helpId>
         </action>
         <action>
@@ -124,7 +121,7 @@
             <formatName>MODIS-L1B</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>MODIS L1B</text>
-            <description>Import a MODIS Level 1B data product.</description>
+            <shortDescr>Import a MODIS Level 1B data product.</shortDescr>
             <helpId>importModisL1BProduct</helpId>
         </action>
         <action>
@@ -133,7 +130,7 @@
             <formatName>OCM2-L1B</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>OCM2 L1B</text>
-            <description>Import an OCM2 L1B data product.</description>
+            <shortDescr>Import an OCM2 L1B data product.</shortDescr>
             <helpId>importOCM2L1BProduct</helpId>
         </action>
         <action>
@@ -142,7 +139,7 @@
             <formatName>VIIRS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>VIIRS (SDR, EDR)</text>
-            <description>Import a VIIRS (SDR, EDR) data product.</description>
+            <shortDescr>Import a VIIRS (SDR, EDR) data product.</shortDescr>
             <helpId>importViirsProduct</helpId>
         </action>
         <action>
@@ -151,7 +148,7 @@
             <formatName>SeaDAS-Browse</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>SeaDAS Browse (L1, L2)</text>
-            <description>Import a SeaDAS Browse (L1, L2) data product.</description>
+            <shortDescr>Import a SeaDAS Browse (L1, L2) data product.</shortDescr>
             <helpId>importSeadasBrowseProduct</helpId>
         </action>
 
@@ -159,6 +156,7 @@
             <id>importSeabass</id>
             <class>gov.nasa.gsfc.seadas.dataio.ImportSeabassAction</class>
             <text>SeaBASS Data</text>
+            <shortDescr>Import SeaBASS Data.</shortDescr>
             <parent>importVectorData</parent>
             <helpId>importSeabass</helpId>
         </action>

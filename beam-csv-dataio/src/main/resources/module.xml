@@ -29,7 +29,7 @@
             <formatName>CSV</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <largeIcon>icons/Import24.gif</largeIcon>
-            <description>Import a CSV data product.</description>
+            <shortDescr>Import a CSV data product.</shortDescr>
             <helpId>importCsvProduct</helpId>
         </action>
         <action>
@@ -38,7 +38,7 @@
             <text>CSV</text>
             <formatName>CSV</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <description>Writes a product in CSV format</description>
+            <shortDescr>Writes a product in CSV format</shortDescr>
             <helpId>exportCsvProduct</helpId>
         </action>
     </extension>

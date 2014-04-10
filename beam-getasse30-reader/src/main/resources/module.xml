@@ -39,7 +39,6 @@
             <text>GETASSE30 DEM Tile</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Import a GETASSE30 DEM tile or tile subset.</shortDescr>
-            <description>Import a GETASSE30 DEM tile or tile subset.</description>
             <helpId>importGETASSE30Product</helpId>
         </action>
     </extension>

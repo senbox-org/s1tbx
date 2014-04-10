@@ -76,7 +76,7 @@
             <text>Extract Pixel Values...</text>
             <class>org.esa.beam.pixex.visat.PixelExtractionAction</class>
             <helpId>pixelExtraction</helpId>
-            <description>Extract pixel values given a list of geographical points from one or more data products.</description>
+            <shortDescr>Extract pixel values given a list of geographical points from one or more data products.</shortDescr>
             <mnemonic>P</mnemonic>
         </action>
     </extension>

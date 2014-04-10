@@ -34,7 +34,7 @@
             <placeAfter>com.bc.ceres.swing.actions.SelectAllAction</placeAfter>
             <text>Number of selected placemarks...</text>
             <class>org.esa.beam.examples.selection.SelectionAwareAction</class>
-            <description>Shows the number of selected placemarks, is any.</description>
+            <shortDescr>Shows the number of selected placemarks, is any.</shortDescr>
         </action>
 
         <action>
@@ -44,7 +44,7 @@
             <class>org.esa.beam.examples.gpf.dialog.SimpleExampleAction</class>
             <helpId>simpleExample</helpId>
             <text>Simple Example Processor...</text>
-            <description>Simple example processor with custom user interface.</description>
+            <shortDescr>Simple example processor with custom user interface.</shortDescr>
             <mnemonic>E</mnemonic>
         </action>
 

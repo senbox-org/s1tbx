@@ -47,7 +47,7 @@
             <formatName>MODIS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>M</mnemonic>
-            <description>Import a MODIS (MOD, MXD, MYD) data product data product or product subset.</description>
+            <shortDescr>Import a MODIS (MOD, MXD, MYD) data product data product or product subset.</shortDescr>
             <helpId>importModisProduct</helpId>
         </action>
     </extension>

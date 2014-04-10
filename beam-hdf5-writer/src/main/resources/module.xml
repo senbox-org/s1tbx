@@ -40,8 +40,7 @@
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <formatName>HDF5</formatName>
             <mnemonic>5</mnemonic>
-            <shortDescr>Export product to HDF5 format.</shortDescr>
-            <description>Export the selected product to HDF5 format.</description>
+            <shortDescr>Export the selected product to HDF5 format.</shortDescr>
             <helpId>exportHdf5Product</helpId>
         </action>
     </extension>

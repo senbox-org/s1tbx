@@ -54,7 +54,7 @@
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <operatorName>CloudProb</operatorName>
             <dialogTitle>MERIS Cloud Probability Processor</dialogTitle>
-            <description>Invoke the BEAM MERIS Cloud Probability Processor.</description>
+            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
             <targetProductNameSuffix>_cloud</targetProductNameSuffix>
             <helpId>cloudScientificTool</helpId>
         </action>

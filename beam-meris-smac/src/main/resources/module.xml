@@ -57,7 +57,7 @@
             <text>MERIS/(A)ATSR SMAC Atmospheric Correction...</text>
             <operatorName>SmacOp</operatorName>
             <dialogTitle>MERIS/(A)ATSR SMAC Atmospheric Correction</dialogTitle>
-            <description>Perform the Simplified Method for Atmospheric Correction on MERIS and (A)ATSR L1b products.</description>
+            <shortDescr>Perform the Simplified Method for Atmospheric Correction on MERIS and (A)ATSR L1b products.</shortDescr>
             <targetProductNameSuffix>_smac</targetProductNameSuffix>
             <helpId>smacScientificTool</helpId>
         </action>

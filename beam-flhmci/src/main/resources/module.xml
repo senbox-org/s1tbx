@@ -47,7 +47,7 @@
             <id>flhMciScientificTool</id>
             <text>FLH/MCI Processor...</text>
             <class>org.esa.beam.processor.flh_mci.visat.FlhMciAction</class>
-            <description>Generates florescence line height (FLH) / maximum chlorophyll index (MCI) from spectral bands.</description>
+            <shortDescr>Generates florescence line height (FLH) / maximum chlorophyll index (MCI) from spectral bands.</shortDescr>
             <mnemonic>F</mnemonic>
             <helpId>flhMciScientificTool</helpId>
         </action>

@@ -48,7 +48,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>V</mnemonic>
             <shortDescr>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</shortDescr>
-            <description>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</description>
             <helpId>importAvhrr3L1bProduct</helpId>
             <largeIcon>icons/Import24.gif</largeIcon>
         </action>

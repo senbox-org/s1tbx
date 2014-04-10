@@ -47,7 +47,7 @@
             <useAllFileFilter>true</useAllFileFilter>
             <text>MERIS Binned Level-3</text>
             <mnemonic>B</mnemonic>
-            <description>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</description>
+            <shortDescr>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</shortDescr>
             <helpId>importMerisBinnedL3Product</helpId>
             <!--<placeAfter>importEnvisatProduct</placeAfter>-->
         </action>

@@ -66,7 +66,7 @@
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
-            <description>Import a Landsat 5 TM (in Fast format) data product or product subset.</description>
+            <shortDescr>Import a Landsat 5 TM (in Fast format) data product or product subset.</shortDescr>
             <helpId>importLandsatProduct</helpId>
         </action>
         <action>
@@ -76,7 +76,7 @@
             <formatName>LandsatGeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Landsat (GeoTIFF)</text>
-            <description>Import a Landsat (in GeoTIFF format) data product or product subset.</description>
+            <shortDescr>Import a Landsat (in GeoTIFF format) data product or product subset.</shortDescr>
         </action>
     </extension>
 
