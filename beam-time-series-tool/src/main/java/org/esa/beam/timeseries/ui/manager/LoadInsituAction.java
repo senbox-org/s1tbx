@@ -49,7 +49,7 @@ class LoadInsituAction extends AbstractAction {
     private InsituSource insituSource;
 
     public LoadInsituAction(AbstractTimeSeries currentTimeSeries) {
-        putValue(SHORT_DESCRIPTION, "Import in situ source file");
+        putValue(SHORT_DESCRIPTION, "Import in-situ source file");
         putValue(LARGE_ICON_KEY, UIUtils.loadImageIcon("icons/Import24.gif"));
         this.currentTimeSeries = currentTimeSeries;
     }
@@ -61,13 +61,13 @@ class LoadInsituAction extends AbstractAction {
         String lastDir = preferences.getPropertyString(PROPERTY_KEY_LAST_OPEN_INSITU_DIR, SystemUtils.getUserHomeDir().getPath());
         final BeamFileChooser fileChooser = new BeamFileChooser(new File(lastDir));
         fileChooser.setAcceptAllFileFilterUsed(true);
-        fileChooser.setDialogTitle("Select insitu source file");
+        fileChooser.setDialogTitle("Select in-situ source file");
         fileChooser.setMultiSelectionEnabled(false);
 
         FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
         fileChooser.setFileFilter(actualFileFilter);
 
-        int result = fileChooser.showDialog(visatApp.getMainFrame(), "Select in situ source file");    /*I18N*/
+        int result = fileChooser.showDialog(visatApp.getMainFrame(), "Select in-situ source file");    /*I18N*/
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
@@ -81,13 +81,13 @@ class LoadInsituAction extends AbstractAction {
             insituSource = new InsituSource(insituLoader.loadSource());
             currentTimeSeries.setInsituSource(insituSource);
         } catch (IOException exception) {
-            BeamLogManager.getSystemLogger().log(Level.WARNING, "Unable to load in situ data from '" + selectedFile + "'.", exception);
+            BeamLogManager.getSystemLogger().log(Level.WARNING, "Unable to load in-situ data from '" + selectedFile + "'.", exception);
             return;
         }
 
-        String currentDir = fileChooser.getCurrentDirectory().getAbsolutePath();
-        if (currentDir != null) {
-            preferences.setPropertyString(PROPERTY_KEY_LAST_OPEN_INSITU_DIR, currentDir);
+        File currentDirectory = fileChooser.getCurrentDirectory();
+        if (currentDirectory != null) {
+            preferences.setPropertyString(PROPERTY_KEY_LAST_OPEN_INSITU_DIR, currentDirectory.getAbsolutePath());
         }
     }
 
