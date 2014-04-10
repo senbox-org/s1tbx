@@ -101,7 +101,7 @@ public class EditAggregationDialog extends ModalDialog {
         if (targetVariableSpec.aggregatorDescriptor == null) {
             targetVariableSpec.aggregatorDescriptor = aggregatorsComboBox.getItemAt(0);
             targetVariableSpec.aggregatorProperties = VariableConfigTable.createAggregatorProperties(targetVariableSpec.aggregatorDescriptor);
-            VariableConfigTable.removeProperties(targetVariableSpec.aggregatorProperties, "varName", "type", "targetName");
+            VariableConfigTable.cleanProperties(targetVariableSpec.aggregatorProperties);
         }
         aggregatorsComboBox.setSelectedItem(targetVariableSpec.aggregatorDescriptor);
         aggregatorProperties = targetVariableSpec.aggregatorProperties;
@@ -140,10 +140,10 @@ public class EditAggregationDialog extends ModalDialog {
     private JComponent getPropertyPane(AggregatorDescriptor selectedAggregatorDescriptor) {
         if (aggregatorProperties == null) {
             aggregatorProperties = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
-            VariableConfigTable.removeProperties(aggregatorProperties, "varName", "type", "targetName");
+            VariableConfigTable.cleanProperties(aggregatorProperties);
         }
         PropertyContainer newAggProps = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
-        VariableConfigTable.removeProperties(newAggProps, "varName", "type", "targetName");
+        VariableConfigTable.cleanProperties(newAggProps);
         if (!haveSameDescriptor(newAggProps, aggregatorProperties)) {
             this.aggregatorProperties = newAggProps;
         }
@@ -152,9 +152,11 @@ public class EditAggregationDialog extends ModalDialog {
         PropertyEditor propertyEditor = config.getExtension(PropertyEditor.class);
         if (propertyEditor != null) {
             BindingContext bindingContext = new BindingContext();
-            Property property = Property.create("aggregatorProperties", aggregatorProperties);
-            bindingContext.getPropertySet().addProperty(property);
-            return propertyEditor.createEditorComponent(property.getDescriptor(), bindingContext);
+            Property aggProps = Property.create("aggregatorProperties", aggregatorProperties);
+            Property varName = Property.create("varName", VariableConfigTable.getSourceName(targetVariableSpec));
+            bindingContext.getPropertySet().addProperty(aggProps);
+            bindingContext.getPropertySet().addProperty(varName);
+            return propertyEditor.createEditorComponent(aggProps.getDescriptor(), bindingContext);
         } else {
             return new PropertyPane(aggregatorProperties).createPanel();
         }

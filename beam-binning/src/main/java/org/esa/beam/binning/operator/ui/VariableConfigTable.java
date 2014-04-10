@@ -31,6 +31,7 @@ import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
+import org.esa.beam.binning.aggregators.AggregatorOnMaxSetWithMask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.AppContext;
@@ -71,6 +72,7 @@ import java.util.Map;
 class VariableConfigTable {
 
     private static final String PROPERTY_SOURCE_TYPE = "sourceType";
+    private static final String[] PROPERTIES_TO_REMOVE = new String[] {"varName", "type", "targetName"};
 
     private final JTable table;
     private final VariableTableModel tableModel;
@@ -136,6 +138,10 @@ class VariableConfigTable {
                 } else {
                     spec.source.expression = source;
                 }
+                if (spec.aggregatorDescriptor != null && spec.aggregatorDescriptor.getName().equals(AggregatorOnMaxSetWithMask.Descriptor.NAME)) {
+                    spec.aggregatorProperties.setValue("onMaxName", source);
+                    spec.aggregationString = createAggregationString(spec.aggregatorDescriptor, spec.aggregatorProperties);
+                }
                 spec.targetName = table.getValueAt(selectedRow, 1).toString();
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -190,10 +196,11 @@ class VariableConfigTable {
         scrollPane = new JScrollPane(table);
 
         ExtensionManager.getInstance().register(AggregatorOnMaxSet.Config.class, new OnMaxSetExtensionFactory(binningFormModel));
+        ExtensionManager.getInstance().register(AggregatorOnMaxSetWithMask.Config.class, new OnMaxSetWithMaskExtensionFactory(binningFormModel));
     }
 
-    static void removeProperties(PropertyContainer propertyContainer, String... properties) {
-        for (String property : properties) {
+    static void cleanProperties(PropertyContainer propertyContainer) {
+        for (String property : PROPERTIES_TO_REMOVE) {
             Property propertyToRemove = propertyContainer.getProperty(property);
             if (propertyToRemove != null) {
                 propertyContainer.removeProperty(propertyToRemove);
@@ -242,6 +249,15 @@ class VariableConfigTable {
             }
         }
         return value;
+    }
+
+    static String getSourceName(TargetVariableSpec targetVariableSpec) {
+        String sourceName = "";
+        if (targetVariableSpec.source != null) {
+            sourceName = targetVariableSpec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ?
+                             targetVariableSpec.source.bandName : targetVariableSpec.source.expression;
+        }
+        return sourceName;
     }
 
     private void setCurrentSourceType(int type) {
@@ -354,6 +370,9 @@ class VariableConfigTable {
         private TargetVariableSpec[] getSpecsAsArray() {
             List<TargetVariableSpec> specs = new ArrayList<>();
             for (TargetVariableSpec spec : tableModel.specs.values()) {
+                if (spec.aggregatorDescriptor != null && spec.aggregatorDescriptor.getName().equals(AggregatorOnMaxSetWithMask.Descriptor.NAME)) {
+                    spec.aggregatorProperties.setValue("onMaxName", getSourceName(spec));
+                }
                 if (StringUtils.isNotNullAndNotEmpty(spec.aggregationString)) {
                     specs.add(spec);
                 }
@@ -383,8 +402,8 @@ class VariableConfigTable {
             String[] bandNames = product.getBandNames();
             String[] tiePointGridNames = product.getTiePointGridNames();
             String[] maskNames = product.getMaskGroup().getNodeNames();
-            Object[] rasterNames = ArrayUtils.addAll(bandNames, tiePointGridNames);
-            Object[] names = ArrayUtils.addAll(maskNames, rasterNames);
+            Object[] names = ArrayUtils.addAll(bandNames, tiePointGridNames);
+            names = ArrayUtils.addAll(names, maskNames);
             Object chosenRaster = JOptionPane.showInputDialog(appContext.getApplicationWindow(), "Choose raster data",
                                                               "Choose raster data", JOptionPane.PLAIN_MESSAGE, null,
                                                               names, names[0]);

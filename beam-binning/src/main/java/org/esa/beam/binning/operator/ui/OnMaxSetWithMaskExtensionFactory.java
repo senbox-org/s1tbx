@@ -26,8 +26,10 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyEditor;
 import org.esa.beam.framework.datamodel.Product;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -36,22 +38,24 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
 * @author thomas
 */
-class OnMaxSetExtensionFactory implements ExtensionFactory {
+class OnMaxSetWithMaskExtensionFactory implements ExtensionFactory {
 
     private final BinningFormModel model;
 
-    OnMaxSetExtensionFactory(BinningFormModel model) {
+    OnMaxSetWithMaskExtensionFactory(BinningFormModel model) {
         this.model = model;
     }
 
     @Override
     public PropertyEditor getExtension(Object object, Class<?> extensionType) {
         if (extensionType.equals(getExtensionTypes()[0])) {
-            return new OnMaxSetPropertyEditor(model);
+            return new OnMaxSetWithMaskPropertyEditor(model);
         }
         return null;
     }
@@ -72,32 +76,50 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
         return rasterNames;
     }
 
-    private static class OnMaxSetPropertyEditor extends PropertyEditor {
+    private static class OnMaxSetWithMaskPropertyEditor extends PropertyEditor {
 
         private BinningFormModel model;
 
-        private OnMaxSetPropertyEditor(BinningFormModel model) {
+        private OnMaxSetWithMaskPropertyEditor(BinningFormModel model) {
             this.model = model;
         }
 
         @Override
         public JComponent createEditorComponent(final PropertyDescriptor propertyDescriptor, final BindingContext bindingContext) {
-            JLabel label = new JLabel("Raster names");
-            label.setToolTipText("The raster names that are set when the chosen source has the maximum value");
+            Property aggregatorPropertiesProperty = bindingContext.getPropertySet().getProperty(propertyDescriptor.getName());
+            PropertyContainer aggregatorProperties = aggregatorPropertiesProperty.getValue();
+            Property varName = bindingContext.getPropertySet().getProperty("varName");
+            aggregatorProperties.setValue("onMaxName", varName.getValue());
+
+            JLabel maskLabel = new JLabel("Mask name");
+            maskLabel.setToolTipText("The mask name");
+
+            JLabel rasterLabel = new JLabel("Raster names");
+            rasterLabel.setToolTipText("The raster names that are set when the chosen source has the maximum value");
+
             Product[] sourceProducts = model.getSourceProducts();
-            final JList<String> list = new JList<>();
-            list.setVisibleRowCount(8);
-            list.setFixedCellHeight(15);
-            list.setFixedCellWidth(100);
+            final JComboBox<String> maskDropDown = new JComboBox<>();
+            final JList<String> rasterList = new JList<>();
+            rasterList.setVisibleRowCount(8);
+            rasterList.setFixedCellHeight(15);
+            rasterList.setFixedCellWidth(100);
             if (sourceProducts.length != 0) {
                 Product product = sourceProducts[0];
                 String[] rasterNames = getRasterNames(product);
-                list.setListData(rasterNames);
-                selectOldRasters(propertyDescriptor, bindingContext, list, rasterNames);
+                rasterList.setListData(rasterNames);
+                selectOldRasters(propertyDescriptor, bindingContext, rasterList, rasterNames);
             } else {
-                setUpEmptyList(list);
+                setUpEmptyList(rasterList);
             }
-            list.addListSelectionListener(createListSelectionListener(propertyDescriptor, bindingContext, list));
+            if (sourceProducts.length != 0 && sourceProducts[0].getMaskGroup().getNodeCount() > 0) {
+                maskDropDown.setModel(new DefaultComboBoxModel<>(sourceProducts[0].getMaskGroup().getNodeNames()));
+                selectOldMask(propertyDescriptor, bindingContext, maskDropDown);
+            } else {
+                setUpEmptyDropDown(maskDropDown);
+            }
+
+            rasterList.addListSelectionListener(createListSelectionListener(propertyDescriptor, bindingContext, rasterList));
+            maskDropDown.addActionListener(createDropDownListener(propertyDescriptor, bindingContext, maskDropDown));
 
             TableLayout layout = new TableLayout(2);
             layout.setColumnWeightX(1, 1.0);
@@ -105,15 +127,36 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
             layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
 
             JPanel panel = new JPanel(layout);
-            panel.add(label);
-            panel.add(new JScrollPane(list));
+            panel.add(maskLabel);
+            panel.add(maskDropDown);
+            panel.add(rasterLabel);
+            panel.add(new JScrollPane(rasterList));
 
             return panel;
         }
     }
 
+    private static void selectOldMask(PropertyDescriptor propertyDescriptor, BindingContext bindingContext, JComboBox<String> maskDropDown) {
+        Property maskName = getProperty("maskName", propertyDescriptor, bindingContext);
+        maskDropDown.setSelectedItem(maskName.getValue());
+    }
+
+    private static ActionListener createDropDownListener(final PropertyDescriptor propertyDescriptor, final BindingContext bindingContext, final JComboBox<String> maskDropDown) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Property maskName = getProperty("maskName", propertyDescriptor, bindingContext);
+                    maskName.setValue(maskDropDown.getSelectedItem());
+                } catch (ValidationException e1) {
+                    throw new IllegalStateException(e1);
+                }
+            }
+        };
+    }
+
     private static void selectOldRasters(PropertyDescriptor propertyDescriptor, BindingContext bindingContext, JList<String> list, String[] rasterNames) {
-        String[] varNames = getVarNames(propertyDescriptor, bindingContext);
+        String[] varNames = getSetNames(propertyDescriptor, bindingContext);
         for (int i = 0; i < rasterNames.length; i++) {
             for (final String varName : varNames) {
                 if (rasterNames[i].equals(varName)) {
@@ -123,14 +166,11 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
         }
     }
 
-    private static String[] getVarNames(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
-        Property property = getVarNamesProperty(propertyDescriptor, bindingContext);
-        if (property == null) {
-            return new String[0];
-        }
+    private static String[] getSetNames(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+        Property property = getProperty("setNames", propertyDescriptor, bindingContext);
         String[] varNames = property.getValue();
         if (varNames == null) {
-            return new String[0];
+            varNames = new String[0];
         }
         return varNames;
     }
@@ -145,7 +185,7 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
                     values[i] = list.getModel().getElementAt(selectedIndices[i]);
                 }
                 try {
-                    Property varNames = getVarNamesProperty(propertyDescriptor, bindingContext);
+                    Property varNames = getProperty("setNames", propertyDescriptor, bindingContext);
                     varNames.setValue(values);
                 } catch (ValidationException e1) {
                     throw new IllegalStateException(e1);
@@ -154,10 +194,10 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
         };
     }
 
-    private static Property getVarNamesProperty(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+    private static Property getProperty(String propertyName, PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         Property aggregatorPropertiesProperty = bindingContext.getPropertySet().getProperty(propertyDescriptor.getName());
         PropertyContainer aggregatorProperties = aggregatorPropertiesProperty.getValue();
-        return aggregatorProperties.getProperty("varNames");
+        return aggregatorProperties.getProperty(propertyName);
     }
 
     private static void setUpEmptyList(JList<String> list) {
@@ -177,6 +217,11 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
         });
         String[] rasterNames = new String[] {"no rasters available"};
         list.setListData(rasterNames);
+    }
+
+    private static void setUpEmptyDropDown(JComboBox<String> comboBox) {
+        comboBox.setEnabled(false);
+        comboBox.setModel(new DefaultComboBoxModel<>(new String[]{"no masks available"}));
     }
 
 }
