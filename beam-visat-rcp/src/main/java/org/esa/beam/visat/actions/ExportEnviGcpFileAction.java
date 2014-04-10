@@ -36,15 +36,14 @@ import java.io.IOException;
 /**
  * This actions exports ground control points of the selected product in a ENVI format.
  *
- * @author Marco Peters
- * @version $Revision$ $Date$
  */
 public class ExportEnviGcpFileAction extends ExecCommand {
 
-    private static final String _GCP_FILE_DESCRIPTION = "ENVI Ground Control Points";
-    private static final String _GCP_FILE_EXTENSION = ".pts";
-    private static final String _GCP_LINE_SEPARATOR = System.getProperty("line.separator");
-    private static final String _GCP_EXPORT_DIR_PREFERENCES_KEY = "user.gcp.export.dir";
+    private static final String GCP_FILE_DESCRIPTION = "ENVI Ground Control Points";
+    private static final String GCP_FILE_EXTENSION = ".pts";
+    private static final String GCP_LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String GCP_EXPORT_DIR_PREFERENCES_KEY = "user.gcp.export.dir";
+    private static final String DIALOG_TITLE = "Export ENVI Ground Control Points";
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -72,9 +71,9 @@ public class ExportEnviGcpFileAction extends ExecCommand {
         if (file == null || file.getName().equals("")) {
             return;
         }
-        final File absoluteFile = FileUtils.ensureExtension(file.getAbsoluteFile(), _GCP_FILE_EXTENSION);
+        final File absoluteFile = FileUtils.ensureExtension(file.getAbsoluteFile(), GCP_FILE_EXTENSION);
         String lastDirPath = absoluteFile.getParent();
-        visatApp.getPreferences().setPropertyString(_GCP_EXPORT_DIR_PREFERENCES_KEY, lastDirPath);
+        visatApp.getPreferences().setPropertyString(GCP_EXPORT_DIR_PREFERENCES_KEY, lastDirPath);
 
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding == null) {
@@ -114,21 +113,20 @@ public class ExportEnviGcpFileAction extends ExecCommand {
                 }
             }
         } catch (IOException e) {
-            visatApp.showErrorDialog("Export ENVI Ground Control Points",
-                                     "An I/O error occurred:\n" + e.getMessage());
+            visatApp.showErrorDialog(DIALOG_TITLE, "An I/O error occurred:\n" + e.getMessage());
         }
     }
 
     private static String createLineString(final String str) {
-        return str.concat(_GCP_LINE_SEPARATOR);
+        return str.concat(GCP_LINE_SEPARATOR);
     }
 
     private static String createLineString(final float mapX, final float mapY, final float imageX, final float imageY) {
-        return "" + mapX + "\t" + mapY + "\t" + imageX + "\t" + imageY + _GCP_LINE_SEPARATOR;
+        return "" + mapX + "\t" + mapY + "\t" + imageX + "\t" + imageY + GCP_LINE_SEPARATOR;
     }
 
     private JFileChooser createFileChooser(final VisatApp visatApp) {
-        String lastDirPath = visatApp.getPreferences().getPropertyString(_GCP_EXPORT_DIR_PREFERENCES_KEY,
+        String lastDirPath = visatApp.getPreferences().getPropertyString(GCP_EXPORT_DIR_PREFERENCES_KEY,
                                                                          SystemUtils.getUserHomeDir().getPath());
         BeamFileChooser fileChooser = new BeamFileChooser();
         HelpSys.enableHelpKey(fileChooser, getHelpId());
@@ -136,8 +134,8 @@ public class ExportEnviGcpFileAction extends ExecCommand {
         fileChooser.setCurrentDirectory(new File(lastDirPath));
 
         fileChooser.setFileFilter(
-                new BeamFileFilter(_GCP_FILE_DESCRIPTION, _GCP_FILE_EXTENSION, _GCP_FILE_DESCRIPTION));
-        fileChooser.setDialogTitle(visatApp.getAppName() + getShortDescription());
+                new BeamFileFilter(GCP_FILE_DESCRIPTION, GCP_FILE_EXTENSION, GCP_FILE_DESCRIPTION));
+        fileChooser.setDialogTitle(DIALOG_TITLE);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         return fileChooser;
     }
