@@ -262,7 +262,6 @@ class BinningFilterPanel extends JPanel {
 
     private static DateExComboBox createDatePicker() {
         DateExComboBox datePicker = new DateExComboBox();
-        datePicker.setFormat(new SimpleDateFormat("dd/MM/yyyy"));
         datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_PATTERN));
         datePicker.setPreferredSize(new Dimension(120, 20));
         datePicker.setMinimumSize(new Dimension(120, 20));
