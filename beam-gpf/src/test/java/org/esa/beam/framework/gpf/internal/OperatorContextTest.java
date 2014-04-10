@@ -121,7 +121,7 @@ public class OperatorContextTest {
         assertNotNull(elementPG);
         MetadataElement node0Element = elementPG.getElement("node.0");
         assertNotNull(node0Element);
-        assertEquals(4, node0Element.getNumAttributes());
+        assertEquals(8, node0Element.getNumAttributes());
         assertNotNull(node0Element.getAttribute("id"));
         assertNotNull(node0Element.getAttribute("operator"));
         assertNotNull(node0Element.getAttribute("moduleName"));

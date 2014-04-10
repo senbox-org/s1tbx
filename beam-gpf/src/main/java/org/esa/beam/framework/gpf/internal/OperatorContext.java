@@ -118,7 +118,6 @@ public class OperatorContext {
     private Logger logger;
     private boolean cancelled;
     private boolean disposed;
-//    private Map<String, Object> parameterMap;
     private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
@@ -318,20 +317,24 @@ public class OperatorContext {
         Assert.notNull(name, "name");
         PropertySet paramSet = getParameterSet();
         if(paramSet.isPropertyDefined(name)) {
+            Property property = paramSet.getProperty(name);
             if (value != null) {
-                Property property = paramSet.getProperty(name);
-                try {
-                    if (value instanceof String && !String.class.isAssignableFrom(property.getType())) {
-                        property.setValueFromText((String) value);
-                    } else {
-                        property.setValue(value);
-                    }
-                } catch (ValidationException e) {
-                    throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
-                }
+                setPropertyValue(value, property);
             } else {
-                paramSet.removeProperty(paramSet.getProperty(name));
+                paramSet.removeProperty(property);
             }
+        }
+    }
+
+    private void setPropertyValue(Object value, Property property) {
+        try {
+            if (value instanceof String && !String.class.isAssignableFrom(property.getType())) {
+                property.setValueFromText((String) value);
+            } else {
+                property.setValue(value);
+            }
+        } catch (ValidationException e) {
+            throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
         }
     }
 
@@ -342,9 +345,6 @@ public class OperatorContext {
         for (Property property : properties) {
             parameterMap.put(property.getName(), property.getValue());
         }
-//        if (parameterMap == null) {
-//            parameterMap = new HashMap<>();
-//        }
         return parameterMap;
     }
 
@@ -352,8 +352,6 @@ public class OperatorContext {
         for (Entry<String, Object> entry : parameters.entrySet()) {
             setParameter(entry.getKey(), entry.getValue());
         }
-//        getParameterMap().clear();
-//        getParameterMap().putAll(parameters);
     }
 
     public RenderingHints getRenderingHints() {
@@ -420,7 +418,6 @@ public class OperatorContext {
     public void dispose() {
         if (!disposed) {
             disposed = true;
-//            parameterMap = null;
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
@@ -522,7 +519,7 @@ public class OperatorContext {
                 if (operatorDescriptor instanceof AnnotationOperatorDescriptor) {
                     parameterSet = PropertyContainer.createObjectBacked(operator, propertySetDescriptor);
                 }else{
-                    parameterSet = PropertyContainer.createMapBacked(getParameterMap(), propertySetDescriptor);
+                    parameterSet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), propertySetDescriptor);
                 }
             }
         }
