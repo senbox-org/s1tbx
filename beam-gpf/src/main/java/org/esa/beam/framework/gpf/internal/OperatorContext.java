@@ -118,7 +118,6 @@ public class OperatorContext {
     private Logger logger;
     private boolean cancelled;
     private boolean disposed;
-    private Map<String, Object> parameterMap;
     private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
@@ -311,31 +310,48 @@ public class OperatorContext {
 
     public Object getParameter(String name) {
         Assert.notNull(name, "name");
-        if (parameterMap == null) {
-            return null;
-        }
-        return parameterMap.get(name);
+        return getParameterSet().getValue(name);
     }
 
     public void setParameter(String name, Object value) {
         Assert.notNull(name, "name");
-        if (value != null) {
-            getParameterMap().put(name, value);
-        } else if (parameterMap != null) {
-            parameterMap.remove(name);
+        PropertySet paramSet = getParameterSet();
+        if(paramSet.isPropertyDefined(name)) {
+            Property property = paramSet.getProperty(name);
+            if (value != null) {
+                setPropertyValue(value, property);
+            } else {
+                paramSet.removeProperty(property);
+            }
+        }
+    }
+
+    private void setPropertyValue(Object value, Property property) {
+        try {
+            if (value instanceof String && !String.class.isAssignableFrom(property.getType())) {
+                property.setValueFromText((String) value);
+            } else {
+                property.setValue(value);
+            }
+        } catch (ValidationException e) {
+            throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
         }
     }
 
     public Map<String, Object> getParameterMap() {
-        if (parameterMap == null) {
-            parameterMap = new HashMap<>();
+        PropertySet paramSet = getParameterSet();
+        Property[] properties = paramSet.getProperties();
+        Map<String, Object> parameterMap = new HashMap<>();
+        for (Property property : properties) {
+            parameterMap.put(property.getName(), property.getValue());
         }
         return parameterMap;
     }
 
     public void setParameterMap(Map<String, Object> parameters) {
-        getParameterMap().clear();
-        getParameterMap().putAll(parameters);
+        for (Entry<String, Object> entry : parameters.entrySet()) {
+            setParameter(entry.getKey(), entry.getValue());
+        }
     }
 
     public RenderingHints getRenderingHints() {
@@ -402,7 +418,6 @@ public class OperatorContext {
     public void dispose() {
         if (!disposed) {
             disposed = true;
-            parameterMap = null;
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
@@ -460,7 +475,7 @@ public class OperatorContext {
             initialising = true;
             if (!(operator instanceof GraphOp)) {
                 initSourceProductFields();
-                injectParameterValues();
+                updatePropertyDescriptors();
                 injectConfiguration();
             }
             operator.initialize();
@@ -504,7 +519,7 @@ public class OperatorContext {
                 if (operatorDescriptor instanceof AnnotationOperatorDescriptor) {
                     parameterSet = PropertyContainer.createObjectBacked(operator, propertySetDescriptor);
                 }else{
-                    parameterSet = PropertyContainer.createMapBacked(getParameterMap(), propertySetDescriptor);
+                    parameterSet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), propertySetDescriptor);
                 }
             }
         }
@@ -1082,47 +1097,21 @@ public class OperatorContext {
         }
     }
 
-    private void injectParameterValues() throws OperatorException {
-        if (parameterMap != null) {
-            for (String parameterName : parameterMap.keySet()) {
-                final Property property = getParameterSet().getProperty(parameterName);
-                if (property == null) {
-                    // Note: "Unknown parameter" exception commented out by Norman on 09.02.2011
-                    // Intention is to reuse parameter maps for multiple operators. (see OpParameterInitialisationTest)
-                    // Clients of GPF should test parameter compatibility before calling GPF.createProduct() methods.
-                    // todo - must add to OperatorSpi (nf,mp,mz,rq - 09.02.2011)
-                    //    ProductDescriptor getSourceProductDescriptors();
-                    //    PropertyDescriptor[] getParameterDescriptors();
-                    //    PropertyDescriptor[] getTargetPropertyDescriptors();
-                    //    ProductDescriptor getTargetProductDescriptor();
-
-                    //throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
-                    continue;
+    void updatePropertyDescriptors() throws OperatorException {
+        Property[] properties = getParameterSet().getProperties();
+        for (Property property : properties) {
+            PropertyDescriptor descriptor = property.getDescriptor();
+            if (descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
+                Product sourceProduct = sourceProductList.get(0);
+                if (sourceProduct == null) {
+                    throw new OperatorException(formatExceptionMessage("No source product."));
                 }
-                try {
-                    PropertyDescriptor descriptor = property.getDescriptor();
-                    if (descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
-                        Product sourceProduct = sourceProductList.get(0);
-                        if (sourceProduct == null) {
-                            throw new OperatorException(formatExceptionMessage("No source product."));
-                        }
-                        Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
-                        Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                        final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
-                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType,
-                                                                       includeEmptyValue);
-                        ValueSet valueSet = new ValueSet(names);
-                        descriptor.setValueSet(valueSet);
-                    }
-                    Object paramValue = parameterMap.get(parameterName);
-                    if (paramValue instanceof String && !String.class.isAssignableFrom(property.getType())) {
-                        property.setValueFromText((String) paramValue);
-                    } else {
-                        property.setValue(paramValue);
-                    }
-                } catch (ValidationException e) {
-                    throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
-                }
+                Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+                Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
+                final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
+                String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType, includeEmptyValue);
+                ValueSet valueSet = new ValueSet(names);
+                descriptor.setValueSet(valueSet);
             }
         }
     }
