@@ -91,28 +91,17 @@
 </h5>
 
 <p>
-    The temporal filter can be used in order to specify time bounds the source products have to comply with. Source
-    products that are not within these time bounds are not considered for level-3 generation. If the filter shall be
-    used, both a start date and an end date must be supplied. The following rules apply:
-</p>
-
-<ol>
-    <li>
-        If the product has a start time and an end time, the product is filtered out if its start time lies before the
-        specified start time or its end time lies after the specified end time.
-    </li>
-    <li>
-        If the product has a start time, but no end time, the product is filtered out if its start time lies before the
-        specified start time.
-    </li>
-    <li>
-        If the product has an end time, but no start time, the product is filtered out if its end time lies after the
-        specified end time.
-    </li>
-    <li>
-        If the product has neither start nor end time, it is never filtered out.
-    </li>
-</ol>
+    The method that is used to decide which source pixels are used with respect to their observation time.
+<ul>
+    <li>NONE: ignore pixel observation time, use all source pixels.
+    <li>TIME_RANGE: use all pixels that have been acquired in the given binning period.
+    <li>SPATIOTEMPORAL_DATADAY: use a sensor-dependent, spatial "data-day" definition with the goal to minimise the tim
+        between the first and last observation contributing to the same bin in the given binning period.<br>
+        The decision whether a source pixel contributes to a bin or not, is a function of the pixel's observation
+        longitude
+        and time<br>
+        Requires the parameter 'minDataHour'.
+</ul>
 
 <h4>Configuration</h4>
 
@@ -125,62 +114,13 @@ The third tab allows the user to supply the general binning configuration. See t
 <h5>The bands table</h5>
 
 <p>
-    Using the table, the user can specify the bands that shall appear in the target product. Using the <i>plus</i> and
-    <i>minus</i> buttons, bands can be added and removed.<br>
-    Each row in the table determines one or multiple output bands, depending on the aggregation method being chosen. If,
-    for example, the aggregation method AVG (average) is chosen in the third column, the target product will contain two
-    bands written by this output method: 1) the mean, 2) the standard deviation.<br>
-    In the first column, bands can be chosen. Either bands that are contained in the products the user entered in the
-    <i>IO Parameters</i> tab can be chosen, or band math expressions can be set by choosing the band
-    <i>&lt;expression_x&gt;</i>. In the latter case, a band maths expression can be entered in the second column, so
-    that e.g.
-    simple algorithms such as NDVI can be computed on-the-fly.<br>
-    The <i>weight</i> and <i>percentile</i> columns are used only for specific aggregation methods.<br>
-    See the following table on valid input for the standard aggregators:
-</p>
-
-<table>
-    <tr>
-        <td>Aggregator</td>
-        <td>Description</td>
-        <td>Weight</td>
-        <td>Percentile</td>
-    </tr>
-    <tr>
-        <td>PERCENTILE</td>
-        <td>An aggregator that computes the p-th percentile.</td>
-        <td>not considered</td>
-        <td>integer value between 0 and 100</td>
-    </tr>
-    <tr>
-        <td>AVG_ML</td>
-        <td>An aggregator that computes a maximum-likelihood average.</td>
-        <td>any float value, not NaN</td>
-        <td>not considered</td>
-    </tr>
-    <tr>
-        <td>AVG</td>
-        <td>An aggregator that computes a maximum-likelihood average.</td>
-        <td>any float value > 0.0, not NaN</td>
-        <td>not considered</td>
-    </tr>
-    <tr>
-        <td>MIN_MAX</td>
-        <td>An aggregator that computes the minimum and maximum values.</td>
-        <td>not considered</td>
-        <td>not considered</td>
-    </tr>
-    <tr>
-        <td>ON_MAX_SET</td>
-        <td>An aggregator that sets an output if an input is maximal.</td>
-        <td>not considered</td>
-        <td>not considered</td>
-    </tr>
-</table>
-
-<p>
-    The fill value can be set for all aggregation methods -- this is the value being set to the pixel if the aggregation
-    method yields no sensible value. This might happen if no valid source pixels are found for the pixel.
+    Using the table, the user can specify the sources that shall be aggregated for the target product. Using the <i>plus</i> and
+    <i>minus</i> buttons, sources (which can be any raster data, or expressions) can be added and removed.<br>
+    The second column allows the user to set a target name for the aggregation; in case an expression is defined as
+    source, setting a target name is mandatory.<br>
+    The third column is used to set the aggregation method; depending on which aggregation method is chosen, a number of
+    additional parameters must be set.<br>
+    Table cells are edited via double click.
 </p>
 
 <h5>Valid expression and target height</h5>
