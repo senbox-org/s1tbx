@@ -109,6 +109,23 @@ public class BinningDialog extends SingleTargetProductDialog {
                 return;
             }
         }
+        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATADAY ||
+                formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
+            if (formModel.getStartDateTime() == null) {
+                showErrorDialog("Start date/time must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
+                return;
+            }
+            if (formModel.getPeriodDuration() == null) {
+                showErrorDialog("Period duration must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
+                return;
+            }
+        }
+        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATADAY) {
+            if (formModel.getMinDataHour() == null) {
+                showErrorDialog("Min data hour must be provided when time filter method 'spatiotemporal data day' is chosen.");
+                return;
+            }
+        }
         super.onApply();
     }
 
