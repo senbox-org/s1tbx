@@ -260,12 +260,17 @@ public final class RemoveThermalNoiseOp extends Operator {
             return -1;
         }
 
-        final int line = vector.getAttributeInt("line");
+        // For some reason this line does not work for subsets
+        //final int line = vector.getAttributeInt("line");
+        final String lineStr = vector.getAttributeString("line");
+        final int line = Integer.parseInt(lineStr);
+
+        System.out.println(vector.getName() + " line str = " + vector.getAttributeString("line") + " line = " + line);
 
         // This is the width of the LUT, i.e. number of columns.
         final int count = (intNames.length > 0) ?
-                            getMetadataElement(vector, intNames[0]).getAttributeInt("count") :
-                            getMetadataElement(vector, doubleNames[0]).getAttributeInt("count");
+                            Integer.parseInt(getMetadataElement(vector, intNames[0]).getAttributeString("count")) :
+                            Integer.parseInt(getMetadataElement(vector, doubleNames[0]).getAttributeString("count"));
 
         for (String name : intNames) {
 
@@ -294,7 +299,10 @@ public final class RemoveThermalNoiseOp extends Operator {
 
         final MetadataElement elem = getMetadataElement(vector, name);
 
-        final int cnt = elem.getAttributeInt("count");
+        // This does not work?!
+        //final int cnt = elem.getAttributeInt("count");
+        final String cntStr = elem.getAttributeString("count");
+        final int cnt = Integer.parseInt(cntStr);
 
         if (cnt != count) {
 
@@ -343,12 +351,6 @@ public final class RemoveThermalNoiseOp extends Operator {
             noisePixel.add(intValues.get(0));
             noiseValue.add(doubleValues.get(0));
         }
-
-        /*
-        for (int i = 0; i < noiseLine.length; i++) {
-            System.out.println("noiseLine[" + i + "] = " + noiseLine[i]);
-        }
-        */
     }
 
     private void readCalibrationLUT(final MetadataElement oriProdMetadata) {
@@ -447,7 +449,7 @@ public final class RemoveThermalNoiseOp extends Operator {
         return -1; // Should never reach here
     }
 
-    private static double computeValue(int x, int y, int[] line, ArrayList<int[]> pixel, ArrayList<double[]> value, int debugNum) {
+    private static double computeValue(int x, int y, int[] line, ArrayList<int[]> pixel, ArrayList<double[]> value) {
 
         // TBD Optimize!!!!!
 
@@ -462,12 +464,12 @@ public final class RemoveThermalNoiseOp extends Operator {
 
             if (y != line[leftYIdx]) {
 
-                throw new OperatorException("computeValue: y = " + y + " leftYIdx == rightYIdx = " + leftYIdx + " " + debugNum);
+                throw new OperatorException("computeValue: y = " + y + " leftYIdx == rightYIdx = " + leftYIdx);
             }
 
         } else if (y <= line[leftYIdx] || y >= line[rightYIdx])  {
 
-            throw new OperatorException("computeValue: y = " + y + " line[" + leftYIdx + "] = " + line[leftYIdx] + " line[" + rightYIdx + "] = " + line[rightYIdx] + " debugNum = " + debugNum);
+            throw new OperatorException("computeValue: y = " + y + " line[" + leftYIdx + "] = " + line[leftYIdx] + " line[" + rightYIdx + "] = " + line[rightYIdx]);
         }
 
         // It is not clear if it can be assumed that each line will have noise values at the same pixels.
@@ -592,9 +594,9 @@ public final class RemoveThermalNoiseOp extends Operator {
 
                     final Double srcValue = srcData.getElemDoubleAt(index);
 
-                    final double eta = computeValue(x, y, noiseLine, noisePixel, noiseValue, 1);
+                    final double eta = computeValue(x, y, noiseLine, noisePixel, noiseValue);
 
-                    final double A = computeValue(x, y, calibrationLine, calibrationPixel, calibrationValue, 2);
+                    final double A = computeValue(x, y, calibrationLine, calibrationPixel, calibrationValue);
 
                     final double noise = performCorrection? eta/A : -eta/A;
 
