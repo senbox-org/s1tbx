@@ -15,6 +15,7 @@
  */
 package org.esa.nest.gpf;
 
+import com.jidesoft.swing.JideLabel;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
@@ -38,6 +39,8 @@ import java.util.Map;
 public class CalibrationOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
+    private final JScrollPane bandListPane = new JScrollPane(bandList);
+    private final JLabel bandListLabel = new JideLabel("Source Bands:");
     private final JComboBox auxFile = new JComboBox(new String[] {CalibrationOp.LATEST_AUX,
                                                                   CalibrationOp.PRODUCT_AUX,
                                                                   CalibrationOp.EXTERNAL_AUX});
@@ -56,6 +59,18 @@ public class CalibrationOpUI extends BaseOperatorUI {
     private boolean saveInDb = false;
     private boolean createGamma0VirtualBand = false;
     private boolean createBeta0VirtualBand = false;
+
+    private final JList<String> polList = new JList<String>();
+    private final JScrollPane polListPane = new JScrollPane(polList);
+    private final JLabel polListLabel = new JLabel("Polarisations:");
+    private final JCheckBox outputSigmaBandCheckBox = new JCheckBox("Output sigma0 band");
+    private final JCheckBox outputGammaBandCheckBox = new JCheckBox("Output gamma0 band");
+    private final JCheckBox outputBetaBandCheckBox = new JCheckBox("Output beta0 band");
+    private final JCheckBox outputDNBandCheckBox = new JCheckBox("Output DN band");
+    private boolean outputSigmaBand = false;
+    private boolean outputGammaBand = false;
+    private boolean outputBetaBand = false;
+    private boolean outputDNBand = false;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -124,6 +139,30 @@ public class CalibrationOpUI extends BaseOperatorUI {
                 }
         });
 
+        outputSigmaBandCheckBox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    outputSigmaBand = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+        });
+
+        outputGammaBandCheckBox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    outputGammaBand = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+        });
+
+        outputBetaBandCheckBox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    outputBetaBand = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+        });
+
+        outputDNBandCheckBox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    outputDNBand = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+        });
+
         return panel;
     }
 
@@ -155,6 +194,20 @@ public class CalibrationOpUI extends BaseOperatorUI {
                     auxFile.setEnabled(true);
                     auxFileLabel.setEnabled(true);
                 }
+
+                DialogUtils.enableComponents(auxFileLabel, auxFile, true);
+                DialogUtils.enableComponents(bandListLabel, bandListPane, true);
+                saveInComplexCheckBox.setVisible(true);
+                saveInDbCheckBox.setVisible(true);
+                createGamma0VirtualBandCheckBox.setVisible(true);
+                createBeta0VirtualBandCheckBox.setVisible(true);
+
+                DialogUtils.enableComponents(polListLabel, polListPane, false);
+                outputSigmaBandCheckBox.setVisible(false);
+                outputGammaBandCheckBox.setVisible(false);
+                outputBetaBandCheckBox.setVisible(false);
+                outputDNBandCheckBox.setVisible(false);
+
 //                if (mission.equals("RS2") || mission.contains("TSX") || mission.contains("ALOS")) {
                 if (mission.equals("RS2") && sampleType.equals("COMPLEX")) {
 
@@ -173,6 +226,28 @@ public class CalibrationOpUI extends BaseOperatorUI {
                         createGamma0VirtualBandCheckBox.setEnabled(true);
                         createBeta0VirtualBandCheckBox.setEnabled(true);
                     }
+
+                } else if (mission.equals("SENTINEL-1A")) {
+
+                    final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+                    final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(
+                            absRoot, acquisitionMode);
+                    polList.setListData(polarisations);
+                    OperatorUIUtils.initParamList(polList, polarisations);
+
+                    DialogUtils.enableComponents(auxFileLabel, auxFile, false);
+                    DialogUtils.enableComponents(externalAuxFileLabel, externalAuxFile, false);
+                    DialogUtils.enableComponents(bandListLabel, bandListPane, false);
+                    saveInComplexCheckBox.setVisible(false);
+                    saveInDbCheckBox.setVisible(false);
+                    createGamma0VirtualBandCheckBox.setVisible(false);
+                    createBeta0VirtualBandCheckBox.setVisible(false);
+
+                    DialogUtils.enableComponents(polListLabel, polListPane, true);
+                    outputSigmaBandCheckBox.setVisible(true);
+                    outputGammaBandCheckBox.setVisible(true);
+                    outputBetaBandCheckBox.setVisible(true);
+                    outputDNBandCheckBox.setVisible(true);
 
                 } else {
                     saveInComplexCheckBox.setEnabled(false);
@@ -200,6 +275,18 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
         createBeta0VirtualBand = (Boolean)paramMap.get("createBetaBand");
         createBeta0VirtualBandCheckBox.setSelected(createBeta0VirtualBand);
+
+        outputSigmaBand = (Boolean)paramMap.get("outputSigmaBand");
+        outputSigmaBandCheckBox.setSelected(outputSigmaBand);
+
+        outputGammaBand = (Boolean)paramMap.get("outputGammaBand");
+        outputGammaBandCheckBox.setSelected(outputGammaBand);
+
+        outputBetaBand = (Boolean)paramMap.get("outputBetaBand");
+        outputBetaBandCheckBox.setSelected(outputBetaBand);
+
+        outputDNBand = (Boolean)paramMap.get("outputDNBand");
+        outputDNBandCheckBox.setSelected(outputDNBand);
     }
 
     @Override
@@ -223,6 +310,12 @@ public class CalibrationOpUI extends BaseOperatorUI {
         paramMap.put("outputImageScaleInDb", saveInDb);
         paramMap.put("createGammaBand", createGamma0VirtualBand);
         paramMap.put("createBetaBand", createBeta0VirtualBand);
+
+        OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
+        paramMap.put("outputSigmaBand", outputSigmaBand);
+        paramMap.put("outputGammaBand", outputGammaBand);
+        paramMap.put("outputBetaBand", outputBetaBand);
+        paramMap.put("outputDNBand", outputDNBand);
     }
 
     private JComponent createPanel() {
@@ -230,7 +323,8 @@ public class CalibrationOpUI extends BaseOperatorUI {
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        DialogUtils.addComponent(contentPane, gbc, "Source Bands:", new JScrollPane(bandList));
+        DialogUtils.addComponent(contentPane, gbc, bandListLabel, bandListPane);
+        DialogUtils.addComponent(contentPane, gbc, polListLabel, polListPane);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -242,14 +336,27 @@ public class CalibrationOpUI extends BaseOperatorUI {
         gbc.gridx = 0;
         gbc.gridy++;
         contentPane.add(saveInComplexCheckBox, gbc);
+        contentPane.add(outputSigmaBandCheckBox, gbc);
+
         gbc.gridy++;
         contentPane.add(saveInDbCheckBox, gbc);
+        contentPane.add(outputGammaBandCheckBox, gbc);
+
         gbc.gridy++;
         contentPane.add(createGamma0VirtualBandCheckBox, gbc);
+        contentPane.add(outputBetaBandCheckBox, gbc);
+
         gbc.gridy++;
         contentPane.add(createBeta0VirtualBandCheckBox, gbc);
+        contentPane.add(outputDNBandCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
+
+        DialogUtils.enableComponents(polListLabel, polListPane, false);
+        outputSigmaBandCheckBox.setVisible(false);
+        outputGammaBandCheckBox.setVisible(false);
+        outputBetaBandCheckBox.setVisible(false);
+        outputDNBandCheckBox.setVisible(false);
 
         return contentPane;
     }
