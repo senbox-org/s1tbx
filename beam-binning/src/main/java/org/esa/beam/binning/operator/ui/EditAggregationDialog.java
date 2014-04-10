@@ -138,7 +138,9 @@ public class EditAggregationDialog extends ModalDialog {
     }
 
     private JComponent getPropertyPane(AggregatorDescriptor selectedAggregatorDescriptor) {
-        aggregatorProperties = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
+        if (aggregatorProperties == null) {
+            aggregatorProperties = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
+        }
         VariableConfigTable.removeProperties(aggregatorProperties, "varName", "type", "targetName");
         AggregatorConfig config = selectedAggregatorDescriptor.createConfig();
         PropertyEditor propertyEditor = config.getExtension(PropertyEditor.class);

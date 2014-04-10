@@ -82,22 +82,21 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
 
         @Override
         public JComponent createEditorComponent(final PropertyDescriptor propertyDescriptor, final BindingContext bindingContext) {
-            final String errorMessage = "no rasters available";
             JLabel label = new JLabel("Raster names");
             label.setToolTipText("The raster names that are set when the chosen source raster has the maximum value");
             Product[] sourceProducts = model.getSourceProducts();
-            String[] rasterNames = new String[] {errorMessage};
             final JList<String> list = new JList<>();
             list.setVisibleRowCount(8);
             list.setFixedCellHeight(15);
             list.setFixedCellWidth(100);
             if (sourceProducts.length != 0) {
                 Product product = sourceProducts[0];
-                rasterNames = getRasterNames(product);
+                String[] rasterNames = getRasterNames(product);
+                list.setListData(rasterNames);
+                selectOldRasters(propertyDescriptor, bindingContext, list, rasterNames);
             } else {
                 setUpEmptyList(list);
             }
-            list.setListData(rasterNames);
             list.addListSelectionListener(createListSelectionListener(propertyDescriptor, bindingContext, list));
 
             TableLayout layout = new TableLayout(2);
@@ -113,6 +112,26 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
         }
     }
 
+    private static void selectOldRasters(PropertyDescriptor propertyDescriptor, BindingContext bindingContext, JList<String> list, String[] rasterNames) {
+        String[] varNames = getVarNames(propertyDescriptor, bindingContext);
+        for (int i = 0; i < rasterNames.length; i++) {
+            for (final String varName : varNames) {
+                if (rasterNames[i].equals(varName)) {
+                    list.addSelectionInterval(i, i);
+                }
+            }
+        }
+    }
+
+    private static String[] getVarNames(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+        Property property = getVarNamesProperty(propertyDescriptor, bindingContext);
+        String[] varNames = property.getValue();
+        if (varNames == null) {
+            varNames = new String[0];
+        }
+        return varNames;
+    }
+
     private static ListSelectionListener createListSelectionListener(final PropertyDescriptor propertyDescriptor, final BindingContext bindingContext, final JList<String> list) {
         return new ListSelectionListener() {
             @Override
@@ -123,15 +142,20 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
                     values[i] = list.getModel().getElementAt(selectedIndices[i]);
                 }
                 try {
-                    Property aggregatorPropertiesProperty = bindingContext.getPropertySet().getProperty(propertyDescriptor.getName());
-                    PropertyContainer aggregatorProperties = aggregatorPropertiesProperty.getValue();
-                    aggregatorProperties.getProperty("varNames").setValue(values);
+                    Property varNames = getVarNamesProperty(propertyDescriptor, bindingContext);
+                    varNames.setValue(values);
                 } catch (ValidationException e1) {
                     // todo
                     e1.printStackTrace();
                 }
             }
         };
+    }
+
+    private static Property getVarNamesProperty(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+        Property aggregatorPropertiesProperty = bindingContext.getPropertySet().getProperty(propertyDescriptor.getName());
+        PropertyContainer aggregatorProperties = aggregatorPropertiesProperty.getValue();
+        return aggregatorProperties.getProperty("varNames");
     }
 
     private static void setUpEmptyList(JList<String> list) {
@@ -149,6 +173,8 @@ class OnMaxSetExtensionFactory implements ExtensionFactory {
                 return component;
             }
         });
+        String[] rasterNames = new String[] {"no rasters available"};
+        list.setListData(rasterNames);
     }
 
 }
