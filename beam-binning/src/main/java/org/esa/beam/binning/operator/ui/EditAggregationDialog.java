@@ -140,8 +140,14 @@ public class EditAggregationDialog extends ModalDialog {
     private JComponent getPropertyPane(AggregatorDescriptor selectedAggregatorDescriptor) {
         if (aggregatorProperties == null) {
             aggregatorProperties = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
+            VariableConfigTable.removeProperties(aggregatorProperties, "varName", "type", "targetName");
         }
-        VariableConfigTable.removeProperties(aggregatorProperties, "varName", "type", "targetName");
+        PropertyContainer newAggProps = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
+        VariableConfigTable.removeProperties(newAggProps, "varName", "type", "targetName");
+        if (!haveSameDescriptor(newAggProps, aggregatorProperties)) {
+            this.aggregatorProperties = newAggProps;
+        }
+
         AggregatorConfig config = selectedAggregatorDescriptor.createConfig();
         PropertyEditor propertyEditor = config.getExtension(PropertyEditor.class);
         if (propertyEditor != null) {
@@ -149,8 +155,23 @@ public class EditAggregationDialog extends ModalDialog {
             Property property = Property.create("aggregatorProperties", aggregatorProperties);
             bindingContext.getPropertySet().addProperty(property);
             return propertyEditor.createEditorComponent(property.getDescriptor(), bindingContext);
+        } else {
+            return new PropertyPane(aggregatorProperties).createPanel();
         }
-        return new PropertyPane(aggregatorProperties).createPanel();
+    }
+
+    private static boolean haveSameDescriptor(PropertyContainer newAggProps, PropertyContainer aggregatorProperties) {
+        for (Property newProp : newAggProps.getProperties()) {
+            if (aggregatorProperties.getProperty(newProp.getName()) == null) {
+                return false;
+            }
+        }
+        for (Property oldProp : aggregatorProperties.getProperties()) {
+            if (newAggProps.getProperty(oldProp.getName()) == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
