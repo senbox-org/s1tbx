@@ -26,7 +26,7 @@ package org.esa.beam.framework.gpf.experimental;
  * @author Marco Peters
  * @since BEAM 4.9
  * @deprecated since 5.0, use
- * {@link org.esa.beam.framework.gpf.annotations.OperatorMetadata#preventAutoWrite() OperatorMetadata.preventAutoWrite}
+ * {@link org.esa.beam.framework.gpf.annotations.OperatorMetadata#autoWriteDisabled() OperatorMetadata.preventAutoWrite}
  * instead
  */
 @Deprecated

@@ -31,7 +31,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
@@ -91,8 +90,8 @@ import java.util.Map;
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Writes a data product to a file.",
-                  preventAutoWrite = true)
-public class WriteOp extends Operator implements Output {
+                  autoWriteDisabled = true)
+public class WriteOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;

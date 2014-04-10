@@ -78,7 +78,7 @@ public @interface OperatorMetadata {
      * The GPF framework usually writes the target product of either single operators or processing graphs to the file
      * system when executed from the GPT command-line interface or the operator GUI.
      * <p/>
-     * If the {@code preventAutoWrite} property is set, this default behaviour is suppressed and hence,
+     * If the {@code autoWriteDisabled} property is set, this default behaviour is switched off and hence,
      * the operator or graph is responsible for outputting any computed results.
      * <p/>
      * Setting this property on an operator will only be useful, if it either does not generate a new target
@@ -88,7 +88,7 @@ public @interface OperatorMetadata {
      * @return If {@code true}, the framework will prevent automatic writing of the target product to the file system.
      * @since BEAM 5.0
      */
-    boolean preventAutoWrite() default false;
+    boolean autoWriteDisabled() default false;
 
     /**
      * @return If {@code true}, this operator is considered for internal use only and thus

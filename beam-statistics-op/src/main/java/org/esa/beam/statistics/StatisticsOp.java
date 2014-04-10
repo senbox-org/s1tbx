@@ -29,7 +29,6 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.statistics.output.BandNameCreator;
 import org.esa.beam.statistics.output.CsvStatisticsWriter;
 import org.esa.beam.statistics.output.FeatureStatisticsWriter;
@@ -82,8 +81,8 @@ import java.util.logging.Level;
                   authors = "Sabine Embacher, Tonio Fincke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Computes statistics for an arbitrary number of source products.",
-                  preventAutoWrite = true)
-public class StatisticsOp extends Operator implements Output {
+                  autoWriteDisabled = true)
+public class StatisticsOp extends Operator {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String MAXIMUM = "maximum";

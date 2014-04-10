@@ -113,7 +113,7 @@ import static java.lang.Math.min;
         authors = "Marco Peters, Thomas Storm, Norman Fomferra",
         copyright = "(c) 2011 by Brockmann Consult",
         description = "Extracts pixels from given locations and source products.",
-        preventAutoWrite = true)
+        autoWriteDisabled = true)
 public class PixExOp extends Operator {
 
     public static final String RECURSIVE_INDICATOR = "**";
