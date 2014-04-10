@@ -50,7 +50,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.*;
 
@@ -263,7 +262,7 @@ class BinningFilterPanel extends JPanel {
 
     private static DateExComboBox createDatePicker() {
         DateExComboBox datePicker = new DateExComboBox();
-        datePicker.setLocale(Locale.ENGLISH);
+        datePicker.setFormat(new SimpleDateFormat("dd/MM/yyyy"));
         datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_PATTERN));
         datePicker.setPreferredSize(new Dimension(120, 20));
         datePicker.setMinimumSize(new Dimension(120, 20));
