@@ -65,6 +65,8 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -343,6 +345,12 @@ class VariableConfigTable {
                 }
             }
         }
+        Collections.sort(filteredDescriptors, new Comparator<AggregatorDescriptor>() {
+            @Override
+            public int compare(AggregatorDescriptor o1, AggregatorDescriptor o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         return filteredDescriptors;
     }
 
