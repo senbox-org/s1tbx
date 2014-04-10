@@ -266,7 +266,6 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile,
-                            HashMap<String, String[]> targetBandNameToSourceBandName,
                             ProgressMonitor pm) throws OperatorException {
 
     try {

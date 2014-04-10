@@ -256,7 +256,6 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 	}
 
 	public void computeTile(Band targetBand, Tile targetTile,
-			HashMap<String, String[]> targetBandNameToSourceBandName,
 			ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();

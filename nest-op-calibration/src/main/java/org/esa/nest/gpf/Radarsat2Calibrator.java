@@ -179,9 +179,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the target raster.
      */
-    public void computeTile(Band targetBand, Tile targetTile,
-                            HashMap<String, String[]> targetBandNameToSourceBandName,
-                            ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;

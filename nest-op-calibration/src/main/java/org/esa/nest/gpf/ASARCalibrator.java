@@ -828,7 +828,6 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     @Override
 
     public void computeTile(Band targetBand, Tile targetTile,
-                            HashMap<String, String[]> targetBandNameToSourceBandName,
                             ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
