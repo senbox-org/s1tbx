@@ -469,11 +469,7 @@ public class BandArithmetic {
      */
     public static String getProductNodeNamePrefix(Product product) {
         Guardian.assertNotNull("product", product);
-        StringBuffer sb = new StringBuffer();
-        sb.append('$');
-        sb.append(product.getRefNo());
-        sb.append('.');
-        return sb.toString();
+        return "$" + product.getRefNo() + '.';
     }
 
     private static void registerProductSymbols(WritableNamespace namespace,
