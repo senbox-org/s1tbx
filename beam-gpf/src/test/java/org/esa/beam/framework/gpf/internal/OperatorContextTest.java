@@ -16,11 +16,14 @@
 
 package org.esa.beam.framework.gpf.internal;
 
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -66,7 +69,7 @@ public class OperatorContextTest {
     }
 
     @Test
-    public void testWithSourceProductsAleadySet() {
+    public void testWithSourceProductsAlreadySet() {
         final TestOperator testOp = new TestOperator();
         Product[] products = new Product[]{
                 new Product("John Doe", "T", 10, 10),
@@ -118,13 +121,32 @@ public class OperatorContextTest {
         assertNotNull(elementPG);
         MetadataElement node0Element = elementPG.getElement("node.0");
         assertNotNull(node0Element);
-        assertEquals(8, node0Element.getNumAttributes());
+        assertEquals(4, node0Element.getNumAttributes());
         assertNotNull(node0Element.getAttribute("id"));
         assertNotNull(node0Element.getAttribute("operator"));
         assertNotNull(node0Element.getAttribute("moduleName"));
         assertEquals("beam-gpf", node0Element.getAttributeString("moduleName"));
         assertNotNull(node0Element.getAttribute("moduleVersion"));
 
+    }
+
+    @Test
+    public void testInitOfRasterDataNodeTypeParameter() {
+        OperatorContext context = new OperatorContext(new TestOperator());
+        final Product productBibo = new Product("bibo", "T", 10, 10);
+        productBibo.addBand("Bibo1", ProductData.TYPE_INT8);
+        productBibo.addBand("Bibo2", ProductData.TYPE_INT8);
+        productBibo.addBand("Bibo3", ProductData.TYPE_INT8);
+        final Product productBert = new Product("bert", "T", 10, 10);
+        productBibo.addBand("Bert1", ProductData.TYPE_INT8);
+
+        context.setSourceProduct("bibo", productBibo);
+        context.setSourceProduct("bert", productBert);
+        context.updatePropertyDescriptors();
+
+        context.setParameter("bandNames", new String[]{"Bibo1", "Bibo2"});
+
+        context.getTargetProduct();
     }
 
     private static class TestOperator extends Operator {
@@ -140,6 +162,9 @@ public class OperatorContextTest {
 
         @TargetProduct
         Product targetProduct;
+
+        @Parameter(rasterDataNodeType = Band.class)
+        String[] bandNames;
 
         @Override
         public void initialize() throws OperatorException {
