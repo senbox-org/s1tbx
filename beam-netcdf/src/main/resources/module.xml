@@ -81,7 +81,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>N</mnemonic>
             <shortDescr>Import a NetCDF data product or product subset.</shortDescr>
-            <description>Import a NetCDF data product or product subset.</description>
             <helpId>importNetCdfProduct</helpId>
         </action>
         <action>
@@ -91,7 +90,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
             <shortDescr>Import a NetCDF/CF data product or product subset.</shortDescr>
-            <description>Import a NetCDF/CF data product or product subset.</description>
             <helpId>importNetCdfProduct</helpId>
         </action>
         <action>
@@ -101,7 +99,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
             <shortDescr>Import a NetCDF/BEAM data product or product subset.</shortDescr>
-            <description>Import a NetCDF/BEAM data product or product subset.</description>
             <helpId>importNetCdfProduct</helpId>
         </action>
         <action>
@@ -112,7 +109,6 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
             <shortDescr>Import a gridded HDF-EOS data product or product subset.</shortDescr>
-            <description>Import a gridded HDF-EOS data product or product subset.</description>
             <helpId>importNetCdfProduct</helpId>
         </action>
         <action>
@@ -121,7 +117,6 @@
             <formatName>NetCDF-CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/CF format</shortDescr>
-            <description>Writes a product in NetCDF/CF format</description>
             <helpId>exportNetCdfProduct</helpId>
         </action>
         <action>
@@ -130,7 +125,6 @@
             <formatName>NetCDF-BEAM</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/BEAM format</shortDescr>
-            <description>Writes a product in NetCDF/BEAM format</description>
             <helpId>exportNetCdfProduct</helpId>
         </action>
         <action>
@@ -139,7 +133,6 @@
             <formatName>NetCDF4-BEAM</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF-4/BEAM format</shortDescr>
-            <description>Writes a product in NetCDF-4/BEAM format</description>
             <helpId>exportNetCdf4Product</helpId>
         </action>
         <action>
@@ -148,7 +141,6 @@
             <formatName>NetCDF4-CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF-4/CF format</shortDescr>
-            <description>Writes a product in NetCDF-4/CF format</description>
             <helpId>exportNetCdf4Product</helpId>
         </action>
     </extension>

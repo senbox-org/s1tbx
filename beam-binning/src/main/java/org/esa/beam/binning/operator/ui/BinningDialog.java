@@ -30,7 +30,6 @@ import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
-import org.esa.beam.binning.operator.FormatterConfig;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -38,6 +37,7 @@ import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
 import java.util.ArrayList;
@@ -120,12 +120,8 @@ public class BinningDialog extends SingleTargetProductDialog {
         return targetProductCreator.get();
     }
 
-    private FormatterConfig createFormatterConfig() {
-        final FormatterConfig formatterConfig = new FormatterConfig();
-        formatterConfig.setOutputFormat("BEAM-DIMAP");
-        formatterConfig.setOutputFile(getTargetProductSelector().getModel().getProductFile().getPath());
-        formatterConfig.setOutputType("Product");
-        return formatterConfig;
+    private static String getVarName(TargetVariableSpec spec) {
+        return spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ? spec.source.bandName : spec.targetName;
     }
 
     private BinningConfig createBinningConfig() {
@@ -142,8 +138,14 @@ public class BinningDialog extends SingleTargetProductDialog {
         return createBinningConfig(variableConfigs, aggregatorConfigs);
     }
 
-    private static String getVarName(TargetVariableSpec spec) {
-        return spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ? spec.source.bandName : spec.targetName;
+    private BinningConfig createBinningConfig(List<VariableConfig> variableConfigs, List<AggregatorConfig> aggregatorConfigs) {
+        final BinningConfig binningConfig = new BinningConfig();
+        binningConfig.setAggregatorConfigs(aggregatorConfigs.toArray(new AggregatorConfig[aggregatorConfigs.size()]));
+        binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
+        binningConfig.setMaskExpr(formModel.getMaskExpr());
+        binningConfig.setNumRows(formModel.getNumRows());
+        binningConfig.setSuperSampling(formModel.getSuperSampling());
+        return binningConfig;
     }
 
     private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, String targetName, PropertyContainer aggregatorProperties) {
@@ -154,23 +156,13 @@ public class BinningDialog extends SingleTargetProductDialog {
         if (pc.isPropertyDefined("varName")) {
             pc.setValue("varName", varName);
         }
-        if (pc.isPropertyDefined("targetName")) {
+        if (pc.isPropertyDefined("targetName") && StringUtils.isNotNullAndNotEmpty(targetName)) {
             pc.setValue("targetName", targetName);
         }
         for (Property property : aggregatorProperties.getProperties()) {
             pc.setValue(property.getName(), property.getValue());
         }
         return aggregatorConfig;
-    }
-
-    private BinningConfig createBinningConfig(List<VariableConfig> variableConfigs, List<AggregatorConfig> aggregatorConfigs) {
-        final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setAggregatorConfigs(aggregatorConfigs.toArray(new AggregatorConfig[aggregatorConfigs.size()]));
-        binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
-        binningConfig.setMaskExpr(formModel.getValidExpression());
-        binningConfig.setNumRows(formModel.getNumRows());
-        binningConfig.setSuperSampling(formModel.getSuperSampling());
-        return binningConfig;
     }
 
     @Override
@@ -191,10 +183,19 @@ public class BinningDialog extends SingleTargetProductDialog {
 
             final Map<String, Object> parameters = new HashMap<>();
             parameters.put("region", formModel.getRegion());
-            parameters.put("startDate", formModel.getStartDate());
-            parameters.put("endDate", formModel.getEndDate());
-            parameters.put("binningConfig", createBinningConfig());
-            parameters.put("formatterConfig", createFormatterConfig());
+            setTimeFiltering(parameters);
+
+            BinningConfig binningConfig = createBinningConfig();
+            parameters.put("variableConfigs", binningConfig.getVariableConfigs());
+            parameters.put("aggregatorConfigs", binningConfig.getAggregatorConfigs());
+
+            parameters.put("outputFormat", "BEAM-DIMAP");
+            parameters.put("outputFile", getTargetProductSelector().getModel().getProductFile().getPath());
+            parameters.put("outputType", "Product");
+
+            parameters.put("maskExpr", binningConfig.getMaskExpr());
+            parameters.put("numRows", binningConfig.getNumRows());
+            parameters.put("superSampling", binningConfig.getSuperSampling());
 
             pm.worked(1);
 
@@ -204,6 +205,22 @@ public class BinningDialog extends SingleTargetProductDialog {
             pm.done();
 
             return targetProduct;
+        }
+
+        private void setTimeFiltering(Map<String, Object> parameters) {
+            BinningOp.TimeFilterMethod method = formModel.getTimeFilterMethod();
+            parameters.put("timeFilterMethod", method);
+            switch (method) {
+                case NONE:
+                    return;
+                case SPATIOTEMPORAL_DATADAY: {
+                    parameters.put("minDataHour", formModel.getMinDataHour());
+                }
+                case TIME_RANGE: {
+                    parameters.put("startDateTime", formModel.getStartDateTime());
+                    parameters.put("periodDuration", formModel.getPeriodDuration());
+                }
+            }
         }
     }
 

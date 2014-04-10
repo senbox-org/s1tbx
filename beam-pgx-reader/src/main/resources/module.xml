@@ -52,8 +52,7 @@
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>PGX</formatName>
             <useAllFileFilter>false</useAllFileFilter>
-            <shortDescr>Import an PGX image.</shortDescr>
-            <description>Import an PGX image.</description>
+            <shortDescr>Import a PGX image.</shortDescr>
         </action>
     </extension>
 

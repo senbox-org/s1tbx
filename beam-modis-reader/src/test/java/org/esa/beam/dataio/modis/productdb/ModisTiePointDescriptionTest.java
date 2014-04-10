@@ -17,20 +17,14 @@
 
 package org.esa.beam.dataio.modis.productdb;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
-public class ModisTiePointDescriptionTest extends TestCase {
+import static org.junit.Assert.*;
 
-    public ModisTiePointDescriptionTest(String name) {
-        super(name);
-    }
+public class ModisTiePointDescriptionTest {
 
-    public static Test suite() {
-        return new TestSuite(ModisTiePointDescriptionTest.class);
-    }
 
+    @Test
     public void testTheFunctionality() {
         String expName = "tie_point_name";
         String expScale = "scale_name";

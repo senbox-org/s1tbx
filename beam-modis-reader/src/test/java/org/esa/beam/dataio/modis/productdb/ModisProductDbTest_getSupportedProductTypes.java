@@ -15,12 +15,15 @@
  */
 package org.esa.beam.dataio.modis.productdb;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.util.StringUtils;
+import org.junit.Test;
 
-public class ModisProductDbTest_getSupportedProductTypes extends TestCase {
+import static org.junit.Assert.*;
 
+public class ModisProductDbTest_getSupportedProductTypes {
+
+    @Test
     public void testSupportetProductTypes() throws ProductIOException {
         final String[] expectedProductTypes = new String[]{
                 "MOD021KM", "MYD021KM",

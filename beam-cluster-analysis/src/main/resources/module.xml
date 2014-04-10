@@ -22,7 +22,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -38,45 +38,36 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>imageAnalysis</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <parent>tools</parent>
-            <text>Image Analysis</text>
-            <mnemonic>A</mnemonic>
-            <shortDescr>Image analysis tools.</shortDescr>
-            <placeAfter>Binning</placeAfter>
-        </action>
-        <action>
+            <parent>processing.imageAnalysis</parent>
             <id>emClusterAnalysis</id>
-            <helpId>clusterAnalysisEM</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>imageAnalysis</parent>
             <text>EM Cluster Analysis...</text>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <mnemonic>C</mnemonic>
             <operatorName>EMClusterAnalysis</operatorName>
             <dialogTitle>EM Cluster Analysis</dialogTitle>
             <targetProductNameSuffix>_em</targetProductNameSuffix>
+            <helpId>clusterAnalysisEM</helpId>
         </action>
         <action>
+            <parent>processing.imageAnalysis</parent>
             <id>kmeansClusterAnalysis</id>
-            <helpId>clusterAnalysisKMeans</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>imageAnalysis</parent>
             <text>K-Means Cluster Analysis...</text>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <mnemonic>C</mnemonic>
             <operatorName>KMeansClusterAnalysis</operatorName>
             <dialogTitle>K-Means Cluster Analysis</dialogTitle>
             <targetProductNameSuffix>_kmeans</targetProductNameSuffix>
+            <helpId>clusterAnalysisKMeans</helpId>
         </action>
         <action>
+            <parent>processing.imageAnalysis</parent>
             <id>principleComponentAnalysis</id>
-            <helpId>principleComponentAnalysis</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>imageAnalysis</parent>
             <text>Principle Component Analysis...</text>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <operatorName>PCA</operatorName>
             <dialogTitle>Principle Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>
+            <helpId>principleComponentAnalysis</helpId>
         </action>
     </extension>
 

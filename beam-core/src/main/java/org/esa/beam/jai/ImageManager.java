@@ -27,22 +27,7 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RGBChannelDef;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Scene;
-import org.esa.beam.framework.datamodel.SceneFactory;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.util.Debug;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.jai.JAIUtils;
@@ -55,43 +40,15 @@ import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
-import javax.media.jai.Histogram;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.LookupTableJAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.BandMergeDescriptor;
-import javax.media.jai.operator.ClampDescriptor;
-import javax.media.jai.operator.CompositeDescriptor;
-import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.InvertDescriptor;
-import javax.media.jai.operator.LookupDescriptor;
-import javax.media.jai.operator.MatchCDFDescriptor;
-import javax.media.jai.operator.MaxDescriptor;
-import javax.media.jai.operator.MultiplyConstDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
+import javax.media.jai.*;
+import javax.media.jai.operator.*;
+import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
+import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -104,14 +61,12 @@ public class ImageManager {
     /**
      * The default BEAM image coordinate reference system.
      */
-    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS(
-                "BEAM",
-                new DefaultImageDatum("BEAM", PixelInCell.CELL_CORNER),
-                DefaultCartesianCS.DISPLAY
-    );
+    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM_IMAGE_CRS",
+                                                                         new DefaultImageDatum("BEAM_IMAGE_DATUM", PixelInCell.CELL_CORNER),
+                                                                         DefaultCartesianCS.DISPLAY);
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
-                "beam.imageManager.enableIntermediateTileCaching");
+            "beam.imageManager.enableIntermediateTileCaching");
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<>(101);
     private final ProductNodeListener rasterDataChangeListener;
@@ -137,7 +92,6 @@ public class ImageManager {
      * Otherwise a new model will be created using {@link #createMultiLevelModel}.
      *
      * @param rasterDataNode The raster data node, for which an image pyramid model is requested.
-     *
      * @return The image pyramid model.
      */
     public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
@@ -163,9 +117,8 @@ public class ImageManager {
      * that is used to render images for display.
      *
      * @param geoCoding A geo-coding, may be {@code null}.
-     *
      * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
-     * it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
+     *         it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
      */
     public static CoordinateReferenceSystem getModelCrs(GeoCoding geoCoding) {
         if (geoCoding != null) {
@@ -293,41 +246,41 @@ public class ImageManager {
 
     public static int getDataBufferType(int productDataType) {
         switch (productDataType) {
-        case ProductData.TYPE_INT8:
-        case ProductData.TYPE_UINT8:
-            return DataBuffer.TYPE_BYTE;
-        case ProductData.TYPE_INT16:
-            return DataBuffer.TYPE_SHORT;
-        case ProductData.TYPE_UINT16:
-            return DataBuffer.TYPE_USHORT;
-        case ProductData.TYPE_INT32:
-        case ProductData.TYPE_UINT32:
-            return DataBuffer.TYPE_INT;
-        case ProductData.TYPE_FLOAT32:
-            return DataBuffer.TYPE_FLOAT;
-        case ProductData.TYPE_FLOAT64:
-            return DataBuffer.TYPE_DOUBLE;
-        default:
-            throw new IllegalArgumentException("productDataType");
+            case ProductData.TYPE_INT8:
+            case ProductData.TYPE_UINT8:
+                return DataBuffer.TYPE_BYTE;
+            case ProductData.TYPE_INT16:
+                return DataBuffer.TYPE_SHORT;
+            case ProductData.TYPE_UINT16:
+                return DataBuffer.TYPE_USHORT;
+            case ProductData.TYPE_INT32:
+            case ProductData.TYPE_UINT32:
+                return DataBuffer.TYPE_INT;
+            case ProductData.TYPE_FLOAT32:
+                return DataBuffer.TYPE_FLOAT;
+            case ProductData.TYPE_FLOAT64:
+                return DataBuffer.TYPE_DOUBLE;
+            default:
+                throw new IllegalArgumentException("productDataType");
         }
     }
 
     public static int getProductDataType(int dataBufferType) {
         switch (dataBufferType) {
-        case DataBuffer.TYPE_BYTE:
-            return ProductData.TYPE_UINT8;
-        case DataBuffer.TYPE_SHORT:
-            return ProductData.TYPE_INT16;
-        case DataBuffer.TYPE_USHORT:
-            return ProductData.TYPE_UINT16;
-        case DataBuffer.TYPE_INT:
-            return ProductData.TYPE_INT32;
-        case DataBuffer.TYPE_FLOAT:
-            return ProductData.TYPE_FLOAT32;
-        case DataBuffer.TYPE_DOUBLE:
-            return ProductData.TYPE_FLOAT64;
-        default:
-            throw new IllegalArgumentException("dataBufferType");
+            case DataBuffer.TYPE_BYTE:
+                return ProductData.TYPE_UINT8;
+            case DataBuffer.TYPE_SHORT:
+                return ProductData.TYPE_INT16;
+            case DataBuffer.TYPE_USHORT:
+                return ProductData.TYPE_UINT16;
+            case DataBuffer.TYPE_INT:
+                return ProductData.TYPE_INT32;
+            case DataBuffer.TYPE_FLOAT:
+                return ProductData.TYPE_FLOAT32;
+            case DataBuffer.TYPE_DOUBLE:
+                return ProductData.TYPE_FLOAT64;
+            default:
+                throw new IllegalArgumentException("dataBufferType");
         }
     }
 
@@ -348,10 +301,9 @@ public class ImageManager {
                                                 int level) {
         Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
-                     "invalid number of bands"
-        );
+                             || rasterDataNodes.length == 3
+                             || rasterDataNodes.length == 4,
+                     "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
         if (rasterDataNodes.length == 1) {
@@ -367,7 +319,6 @@ public class ImageManager {
      * number of resolution levels for the pyramid.
      *
      * @param productNode The product node requesting the model.
-     *
      * @return A new image pyramid model.
      */
     public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
@@ -638,7 +589,6 @@ public class ImageManager {
             palette[palette.length - 1] = imageInfo.getNoDataColor();
         } else {
             palette = createColorPalette(rasterDataNode.getImageInfo());
-//            palette = colorPaletteDef.createColorPalette(rasterDataNode);
         }
 
         final byte[][] lutData = new byte[3][palette.length];
@@ -651,9 +601,9 @@ public class ImageManager {
         if (maskImage != null) {
             final Color noDataColor = imageInfo.getNoDataColor();
             final Byte[] noDataRGB = new Byte[]{
-                        (byte) noDataColor.getRed(),
-                        (byte) noDataColor.getGreen(),
-                        (byte) noDataColor.getBlue()
+                    (byte) noDataColor.getRed(),
+                    (byte) noDataColor.getGreen(),
+                    (byte) noDataColor.getBlue()
             };
             final RenderedOp noDataColorImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
@@ -753,7 +703,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -889,15 +839,14 @@ public class ImageManager {
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, RenderingHints hints) {
         RenderedOp colorImage =
-                    ConstantDescriptor.create(
-                                (float) alphaImage.getWidth(),
-                                (float) alphaImage.getHeight(),
-                                new Byte[]{
-                                            (byte) color.getRed(),
-                                            (byte) color.getGreen(),
-                                            (byte) color.getBlue(),
-                                }, hints
-                    );
+                ConstantDescriptor.create(
+                        (float) alphaImage.getWidth(),
+                        (float) alphaImage.getHeight(),
+                        new Byte[]{
+                                (byte) color.getRed(),
+                                (byte) color.getGreen(),
+                                (byte) color.getBlue(),
+                        }, hints);
         return BandMergeDescriptor.create(colorImage, alphaImage, hints);
     }
 

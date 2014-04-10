@@ -42,7 +42,6 @@
             <largeIcon>icons/Import24.gif</largeIcon>
             <mnemonic>A</mnemonic>
             <shortDescr>Import a ATSR data product or product subset.</shortDescr>
-            <description>Import a ATSR data product or product subset.</description>
             <helpId>importAtsrProduct</helpId>
         </action>
     </extension>

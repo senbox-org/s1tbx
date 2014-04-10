@@ -54,9 +54,9 @@ import java.util.logging.Logger;
 @SuppressWarnings({"UnusedDeclaration", "MismatchedReadAndWriteOfArray, FieldCanBeLocal"})
 @OperatorMetadata(alias = "SmacOp",
                   version = "1.5.205",
-                  authors = "H. Rahman, G. Dedieu (Algorithm), Tom Block (BEAM Implementation), Thomas Storm (GPF conversion)",
+                  authors = "H. Rahman, G. Dedieu (Algorithm); T. Block, T. Storm (Implementation)",
                   copyright = "Copyright (C) 2002-2014 by Brockmann Consult (info@brockmann-consult.de)",
-                  description = "Applies the simplified method for atmospheric corrections of satellite measurements.")
+                  description = "Applies the Simplified Method for Atmospheric Corrections of Envisat MERIS/(A)ATSR measurements.")
 public class SmacOperator extends Operator {
 
     private static final String DEFAULT_MERIS_FLAGS_VALUE = "l1_flags.LAND_OCEAN and not (l1_flags.INVALID or l1_flags.BRIGHT)";

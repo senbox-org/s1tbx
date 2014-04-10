@@ -144,7 +144,6 @@
             <text>Time Series as Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
             <shortDescr>Export Time Series as KMZ.</shortDescr>
-            <description>Export Time Series as KMZ.</description>
         </action>
 
     </extension>

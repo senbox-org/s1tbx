@@ -28,7 +28,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -62,14 +62,13 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.thematicWater</parent>
             <id>sstScientificTool</id>
-            <helpId>sstScientificTool</helpId>
+            <text>(A)ATSR SST Processor...</text>
             <class>org.esa.beam.aatsr.sst.visat.AatsrSstAction</class>
-            <parent>tools</parent>
-            <text>SST Processor ((A)ATSR)...</text>
-            <shortDescr>Invoke the BEAM (A)ATSR SST Processor.</shortDescr>
+            <description>Generates an SST product from (A)ATSR source products.</description>
             <mnemonic>S</mnemonic>
-            <placeAfter>smacScientificTool</placeAfter>
+            <helpId>sstScientificTool</helpId>
         </action>
     </extension>
 

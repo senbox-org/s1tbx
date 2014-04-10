@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.placemark;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
@@ -38,6 +39,7 @@ public class PlacemarkManagerButtons extends JPanel {
     private AbstractButton filterButton;
     private AbstractButton exportTableButton;
     private AbstractButton zoomToPlacemarkButton;
+    private AbstractButton transferPlacemarkButton;
 
     public PlacemarkManagerButtons(final PlacemarkManagerToolView view) {
         super(new GridBagLayout());
@@ -146,6 +148,17 @@ public class PlacemarkManagerButtons extends JPanel {
             }
         });
 
+        transferPlacemarkButton = createButton("icons/MultiAssignProducts24.gif");
+        transferPlacemarkButton.setName("transferButton");
+        transferPlacemarkButton.setToolTipText("Transfer the selected " + placemarkLabel + "s to other products.");
+        transferPlacemarkButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                view.transferPlacemarks();
+            }
+        });
+
         final AbstractButton helpButton = createButton("icons/Help22.png");
         helpButton.setName("helpButton");
         final String helpId = view.getDescriptor().getHelpId();
@@ -172,6 +185,7 @@ public class PlacemarkManagerButtons extends JPanel {
         add(exportTableButton, gbc);
         gbc.gridy++;
         add(zoomToPlacemarkButton, gbc);
+        add(transferPlacemarkButton, gbc);
         gbc.gridy++;
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
@@ -196,6 +210,7 @@ public class PlacemarkManagerButtons extends JPanel {
         editButton.setEnabled(hasActivePin);
         removeButton.setEnabled(hasSelectedPins);
         zoomToPlacemarkButton.setEnabled(hasActivePin);
+        transferPlacemarkButton.setEnabled(pinsAvailable && VisatApp.getApp().getProductManager().getProductCount() > 1);
         importButton.setEnabled(productSelected);
         exportButton.setEnabled(pinsAvailable);
         exportTableButton.setEnabled(pinsAvailable);

@@ -32,7 +32,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -48,16 +48,15 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.preProcessing</parent>
             <id>cloudScientificTool</id>
-            <helpId>cloudScientificTool</helpId>
+            <text>MERIS Cloud Probability Processor...</text>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <text>Cloud Probability Processor (MERIS)...</text>
-            <parent>tools</parent>
             <operatorName>CloudProb</operatorName>
-            <dialogTitle>Cloud Probability Processor</dialogTitle>
-            <placeAfter>merisRadiometryCorrection</placeAfter>
+            <dialogTitle>MERIS Cloud Probability Processor</dialogTitle>
             <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
             <targetProductNameSuffix>_cloud</targetProductNameSuffix>
+            <helpId>cloudScientificTool</helpId>
         </action>
     </extension>
 

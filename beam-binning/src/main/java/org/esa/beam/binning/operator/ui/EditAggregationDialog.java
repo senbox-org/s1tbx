@@ -16,9 +16,13 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.PropertyEditor;
 import com.bc.ceres.swing.binding.PropertyPane;
+import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.aggregators.AggregatorAverageML;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -124,7 +128,7 @@ public class EditAggregationDialog extends ModalDialog {
         setAggregatorConfigPanel(new PropertyPane(targetVariableSpec.aggregatorProperties).createPanel());
     }
 
-    private void setAggregatorConfigPanel(JPanel aggregatorConfigPanel) {
+    private void setAggregatorConfigPanel(JComponent aggregatorConfigPanel) {
         if (aggregatorPanel.getComponents().length > 1) {
             aggregatorPanel.remove(1);
         }
@@ -145,7 +149,7 @@ public class EditAggregationDialog extends ModalDialog {
         aggregatorsComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JPanel aggregatorConfigPanel = getPropertyPane(aggregatorsComboBox);
+                JComponent aggregatorConfigPanel = getPropertyPane(aggregatorsComboBox);
                 setAggregatorConfigPanel(aggregatorConfigPanel);
                 getJDialog().getContentPane().revalidate();
                 getJDialog().pack();
@@ -153,10 +157,18 @@ public class EditAggregationDialog extends ModalDialog {
         });
     }
 
-    private JPanel getPropertyPane(JComboBox<AggregatorDescriptor> aggregatorsComboBox) {
+    private JComponent getPropertyPane(JComboBox<AggregatorDescriptor> aggregatorsComboBox) {
         AggregatorDescriptor selectedAggregatorDescriptor = (AggregatorDescriptor) aggregatorsComboBox.getSelectedItem();
         aggregatorProperties = VariableConfigTable.createAggregatorProperties(selectedAggregatorDescriptor);
         VariableConfigTable.removeProperties(aggregatorProperties, "varName", "type", "targetName");
+        AggregatorConfig config = selectedAggregatorDescriptor.createConfig();
+        PropertyEditor propertyEditor = config.getExtension(PropertyEditor.class);
+        if (propertyEditor != null) {
+            BindingContext bindingContext = new BindingContext();
+            Property property = Property.create("aggregatorProperties", aggregatorProperties);
+            bindingContext.getPropertySet().addProperty(property);
+            return propertyEditor.createEditorComponent(property.getDescriptor(), bindingContext);
+        }
         return new PropertyPane(aggregatorProperties).createPanel();
     }
 

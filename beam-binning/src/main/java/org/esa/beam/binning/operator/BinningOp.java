@@ -26,6 +26,7 @@ import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CellProcessorConfig;
 import org.esa.beam.binning.DataPeriod;
+import org.esa.beam.binning.ProductCustomizerConfig;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.TemporalBin;
@@ -47,7 +48,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
@@ -117,10 +117,22 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells",
-                  suppressWrite = true)
-public class BinningOp extends Operator implements Output {
+                  autoWriteDisabled = true)
+public class BinningOp extends Operator {
 
-    public static enum TimeFilterMethod {NONE, TIME_RANGE, SPATIOTEMPORAL_DATADAY}
+    public static enum TimeFilterMethod {
+
+        NONE("ignore pixel observation time, use all source pixels"),
+        TIME_RANGE("use all pixels that have been acquired in the given binning period"),
+        SPATIOTEMPORAL_DATADAY("<html>use a sensor-dependent, spatial \"data-day\" definition with the goal to minimise the<br>" +
+                               "time between the first and last observation contributing to the same bin in the given binning period.</html>");
+
+        public final String description;
+
+        private TimeFilterMethod(String description) {
+            this.description = description;
+        }
+    }
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
@@ -193,9 +205,17 @@ public class BinningOp extends Operator implements Output {
     @Parameter(alias = "postProcessor", domConverter = CellProcessorConfigDomConverter.class)
     private CellProcessorConfig postProcessorConfig;
 
-    @Parameter(notNull = true,
-               description = "The configuration used for the output formatting process.")
-    FormatterConfig formatterConfig;
+    @Parameter(valueSet = {"Product", "RGB", "Grey"})
+    private String outputType;
+    @Parameter
+    private String outputFile;
+    @Parameter
+    private String outputFormat;
+    @Parameter(alias = "outputBands", itemAlias = "band", description = "Configures the target bands. Not needed " +
+                                                                        "if output type 'Product' is chosen.")
+    private BandConfiguration[] bandConfigurations;
+    @Parameter(alias = "productCustomizer", domConverter = ProductCustomizerConfigDomConverter.class)
+    private ProductCustomizerConfig productCustomizerConfig;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
                              "target product. The output file name will be <target>-bins.nc",
@@ -217,6 +237,7 @@ public class BinningOp extends Operator implements Output {
 
 
     private transient BinningContext binningContext;
+    private transient FormatterConfig formatterConfig;
     private transient List<String> sourceProductNames;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
@@ -296,6 +317,18 @@ public class BinningOp extends Operator implements Output {
         this.maskExpr = maskExpr;
     }
 
+    public void setOutputFile(String outputFile) {
+        this.outputFile = outputFile;
+    }
+
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
+    }
+
+    public void setOutputFormat(String outputFormat) {
+        this.outputFormat = outputFormat;
+    }
+
     public VariableConfig[] getVariableConfigs() {
         return variableConfigs;
     }
@@ -332,10 +365,6 @@ public class BinningOp extends Operator implements Output {
         this.outputTargetProduct = outputTargetProduct;
     }
 
-    public void setFormatterConfig(FormatterConfig formatterConfig) {
-            this.formatterConfig = formatterConfig;
-        }
-
     /**
      * Processes all source products and writes the output file.
      * The target product represents the written output file
@@ -344,6 +373,12 @@ public class BinningOp extends Operator implements Output {
      */
     @Override
     public void initialize() throws OperatorException {
+        formatterConfig = new FormatterConfig();
+        formatterConfig.setBandConfigurations(bandConfigurations);
+        formatterConfig.setOutputFile(outputFile);
+        formatterConfig.setOutputFormat(outputFormat);
+        formatterConfig.setOutputType(outputType);
+
         validateInput();
 
         ProductData.UTC startDateUtc = null;
@@ -372,7 +407,6 @@ public class BinningOp extends Operator implements Output {
         binningConfig.setAggregatorConfigs(aggregatorConfigs);
         binningConfig.setPostProcessorConfig(postProcessorConfig);
         binningConfig.setMinDataHour(minDataHour);
-
 
         binningContext = binningConfig.createBinningContext(region, startDateUtc, periodDuration);
 
@@ -548,9 +582,8 @@ public class BinningOp extends Operator implements Output {
     private void initMetadataProperties() {
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
 
-        File outputFile = new File(formatterConfig.getOutputFile());
         OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
-        metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(outputFile));
+        metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(new File(outputFile)));
         metadataProperties.put("software_qualified_name", operatorDescriptor.getName());
         metadataProperties.put("software_name", operatorDescriptor.getAlias());
         metadataProperties.put("software_version", operatorDescriptor.getVersion());
@@ -753,12 +786,10 @@ public class BinningOp extends Operator implements Output {
             //
             // This is why I have to do the following
 
-            final String outputType = formatterConfig.getOutputType();
             if (outputType.equalsIgnoreCase("Product")) {
-                final File outputFile = new File(formatterConfig.getOutputFile());
-                final String outputFormat = Formatter.getOutputFormat(formatterConfig, outputFile);
-
-                writtenProduct = ProductIO.readProduct(outputFile, outputFormat);
+                final File writtenProductFile = new File(outputFile);
+                String format = Formatter.getOutputFormat(formatterConfig, writtenProductFile);
+                writtenProduct = ProductIO.readProduct(writtenProductFile, format);
                 this.targetProduct = copyProduct(writtenProduct);
             } else {
                 this.targetProduct = new Product("Dummy", "t", 10, 10);
@@ -864,4 +895,34 @@ public class BinningOp extends Operator implements Output {
         }
     }
 
+    public static class BandConfiguration {
+        public String index;
+        public String name;
+        public String minValue;
+        public String maxValue;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            BandConfiguration that = (BandConfiguration) o;
+
+            if (index != null ? !index.equals(that.index) : that.index != null) return false;
+            if (maxValue != null ? !maxValue.equals(that.maxValue) : that.maxValue != null) return false;
+            if (minValue != null ? !minValue.equals(that.minValue) : that.minValue != null) return false;
+            if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = index != null ? index.hashCode() : 0;
+            result = 31 * result + (name != null ? name.hashCode() : 0);
+            result = 31 * result + (minValue != null ? minValue.hashCode() : 0);
+            result = 31 * result + (maxValue != null ? maxValue.hashCode() : 0);
+            return result;
+        }
+    }
 }

@@ -81,15 +81,15 @@ public class LayerIOTest extends TestCase {
         assertNotNull(configuration1);
 
         assertNull(configuration1.getValue("rasterRef"));
-        assertEquals(true, configuration1.getValue("borderShown"));
-        assertEquals(1.0, configuration1.getValue("borderWidth"));
+        assertEquals(true, (boolean)configuration1.getValue("borderShown"));
+        assertEquals(1.0, (double)configuration1.getValue("borderWidth"), 1.0e-6);
         assertEquals(Color.YELLOW, configuration1.getValue("borderColor"));
 
         final Context context = DefaultContext.getInstance();
         try {
             t.createL(context, configuration1);
             fail();
-        } catch (ValidationException expected) {
+        } catch (ValidationException ignore) {
         }
 
         configuration1.setValue("rasterRef", new RasterRef(1, "a"));

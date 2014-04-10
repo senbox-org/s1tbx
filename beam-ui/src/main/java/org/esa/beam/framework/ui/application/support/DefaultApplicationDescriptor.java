@@ -49,46 +49,64 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     @XStreamAlias("image")
     private String imagePath;
 
+    @SuppressWarnings("UnusedDeclaration")
     private ArrayList<ID> excludedActions;
+    @SuppressWarnings("UnusedDeclaration")
+    private ArrayList<ID> excludedActionGroups;
+    @SuppressWarnings("UnusedDeclaration")
     private ArrayList<ID> excludedToolViews;
 
-
+    @Override
     public String getApplicationId() {
         return applicationId;
     }
 
+    @Override
     public String getCopyright() {
         return copyright;
     }
 
+    @Override
     public String getResourceBundleName() {
         return resourceBundleName;
     }
 
+    @Override
     public String getSymbolicName() {
         return symbolicName;
     }
 
+    @Override
     public String getDisplayName() {
         return displayName;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
+    @Override
     public String getFrameIconPath() {
         return frameIconPath;
     }
 
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
     public String getImagePath() {
         return imagePath;
     }
 
+    @Override
     public String[] getExcludedActions() {
         return toStringArray(excludedActions);
     }
 
+    @Override
+    public String[] getExcludedActionGroups() {
+        return toStringArray(excludedActionGroups);
+    }
+
+    @Override
     public String[] getExcludedToolViews() {
         return toStringArray(excludedToolViews);
     }
@@ -129,6 +147,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         this.version = version;
     }
 
+    @Override
     public String getBuildId() {
         return buildId;
     }
@@ -137,6 +156,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         this.buildId = buildId;
     }
 
+    @Override
     public String getBuildDate() {
         return buildDate;
     }
@@ -152,6 +172,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
      * @throws com.bc.ceres.core.CoreException
      *          if an error occurred during configuration.
      */
+    @Override
     public void configure(ConfigurationElement config) throws CoreException {
 
         if (applicationId == null) {

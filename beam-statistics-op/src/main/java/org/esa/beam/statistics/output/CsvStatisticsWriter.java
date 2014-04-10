@@ -132,7 +132,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class Statistics {
 
-        Map<String, BandStatistics> statistics = new HashMap<String, BandStatistics>();
+        Map<String, BandStatistics> statistics = new HashMap<>();
 
         BandStatistics getDataForBandName(String bandName) {
             return statistics.get(bandName);
@@ -154,7 +154,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class BandStatistics {
 
-        Map<String, RegionStatistics> bandStatistics = new HashMap<String, RegionStatistics>();
+        Map<String, RegionStatistics> bandStatistics = new HashMap<>();
 
         RegionStatistics getDataForRegionName(String regionName) {
             return bandStatistics.get(regionName);
@@ -176,7 +176,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     static class RegionStatistics {
 
-        Map<String, Number> regionStatistics = new HashMap<String, Number>();
+        Map<String, Number> regionStatistics = new HashMap<>();
 
         Number getDataForAlgorithmName(String algorithmName) {
             return regionStatistics.get(algorithmName);

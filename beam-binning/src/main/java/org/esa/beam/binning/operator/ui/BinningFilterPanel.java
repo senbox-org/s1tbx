@@ -16,7 +16,9 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.Enablement;
 import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
 import com.jidesoft.combobox.DateExComboBox;
 import com.jidesoft.swing.AutoResizingTextArea;
@@ -27,18 +29,21 @@ import org.esa.beam.framework.ui.RegionBoundsInputUI;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -46,6 +51,8 @@ import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.*;
 
 /**
  * The panel in the binning operator UI which allows for setting the regional and temporal filters.
@@ -149,36 +156,112 @@ class BinningFilterPanel extends JPanel {
     }
 
     private Component createTemporalFilterPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        JCheckBox temporalFilterCheckBox = new JCheckBox("Temporal Filter");
+        TableLayout layout = new TableLayout(3);
+        layout.setTableFill(TableLayout.Fill.BOTH);
+        layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        layout.setTableWeightX(0.0);
+        layout.setTableWeightY(0.0);
+        layout.setTablePadding(10, 5);
+        layout.setCellColspan(0, 1, 2);
+        layout.setCellColspan(1, 1, 2);
+        layout.setCellColspan(3, 1, 2);
+        layout.setCellWeightX(2, 1, 1.0);
+        layout.setCellWeightX(2, 2, 0.0);
+        layout.setColumnWeightX(1, 1.0);
+
+        JPanel panel = new JPanel(layout);
+        JLabel temporalFilterLabel = new JLabel("Time filter method:");
         JLabel startDateLabel = new JLabel("Start date:");
-        JLabel endDateLabel = new JLabel("End date:");
+        JLabel periodDurationLabel = new JLabel("Period duration:");
+        JLabel minDataHourLabel = new JLabel("Min data hour:");
+        JLabel periodDurationUnitLabel = new JLabel("days");
+
+        final JComboBox<String> temporalFilterComboBox = new JComboBox<>(new String[]{
+                NONE.name(),
+                TIME_RANGE.name(),
+                SPATIOTEMPORAL_DATADAY.name()
+        });
+        temporalFilterComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object item = temporalFilterComboBox.getSelectedItem();
+                if (item != null) {
+                    BinningOp.TimeFilterMethod method = BinningOp.TimeFilterMethod.valueOf(item.toString());
+                    temporalFilterComboBox.setToolTipText(method.description);
+                }
+            }
+        });
         DateExComboBox startDatePicker = createDatePicker();
-        DateExComboBox endDatePicker = createDatePicker();
+        JTextField periodDurationTextField = new JTextField();
+        JTextField minDataHourTextField = new JTextField();
         startDateLabel.setEnabled(false);
-        endDateLabel.setEnabled(false);
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, Boolean.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE, Calendar.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_END_DATE, Calendar.class));
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, temporalFilterCheckBox);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_START_DATE, startDatePicker);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_END_DATE, endDatePicker);
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE, true, BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_END_DATE, true, BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_START_DATE).addComponent(startDateLabel);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_END_DATE).addComponent(endDateLabel);
+        periodDurationLabel.setEnabled(false);
+        temporalFilterLabel.setToolTipText("The method that is used to decide which source pixels are used with respect to their observation time.");
+        startDateLabel.setToolTipText("The UTC start date of the binning period. If only the date part is given, the time 00:00:00 is assumed.");
+        periodDurationLabel.setToolTipText("Duration of the binning period in days.");
+        minDataHourLabel.setToolTipText("A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).");
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, String.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, Calendar.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, Double.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
 
-        GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, temporalFilterComboBox);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, startDatePicker);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, periodDurationTextField);
+        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, minDataHourTextField);
 
-        GridBagUtils.addToPanel(panel, temporalFilterCheckBox, gbc, "anchor=NORTHWEST, insets=5");
-        GridBagUtils.addToPanel(panel, startDateLabel, gbc, "gridx=1,insets.top=9");
-        GridBagUtils.addToPanel(panel, startDatePicker, gbc, "gridx=2,insets.top=6,weightx=1");
-        GridBagUtils.addToPanel(panel, endDateLabel, gbc, "gridy=1,gridx=1,insets.top=9,weightx=0");
-        GridBagUtils.addToPanel(panel, endDatePicker, gbc, "gridx=2,insets.top=6,weightx=1");
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_START_DATE_TIME).addComponent(startDateLabel);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationLabel);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationUnitLabel);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR).addComponent(minDataHourLabel);
+
+        temporalFilterComboBox.setSelectedIndex(0); // selected value must not be empty when setting enablement
+
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATADAY));
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATADAY));
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, true, hasTimeInformation(SPATIOTEMPORAL_DATADAY));
+
+        temporalFilterComboBox.setSelectedIndex(0); // ensure that enablement is applied
+
+        panel.add(temporalFilterLabel);
+        panel.add(temporalFilterComboBox);
+        panel.add(startDateLabel);
+        panel.add(startDatePicker);
+        panel.add(periodDurationLabel);
+        panel.add(periodDurationTextField);
+        panel.add(periodDurationUnitLabel);
+        panel.add(minDataHourLabel);
+        panel.add(minDataHourTextField);
         return panel;
     }
 
-    private DateExComboBox createDatePicker() {
+    private static Enablement.Condition hasTimeInformation(final BinningOp.TimeFilterMethod... conditions) {
+        return new Enablement.Condition() {
+            @Override
+            public boolean evaluate(BindingContext bindingContext) {
+                String chosenMethod = bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD).getValueAsText();
+                BinningOp.TimeFilterMethod temporalFilter = BinningOp.TimeFilterMethod.valueOf(chosenMethod);
+                for (BinningOp.TimeFilterMethod condition : conditions) {
+                    if (condition == temporalFilter) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void install(BindingContext bindingContext, Enablement enablement) {
+                bindingContext.addPropertyChangeListener(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, enablement);
+            }
+
+            @Override
+            public void uninstall(BindingContext bindingContext, Enablement enablement) {
+                bindingContext.removePropertyChangeListener(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, enablement);
+            }
+        };
+    }
+
+    private static DateExComboBox createDatePicker() {
         DateExComboBox datePicker = new DateExComboBox();
         datePicker.setLocale(Locale.ENGLISH);
         datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_PATTERN));

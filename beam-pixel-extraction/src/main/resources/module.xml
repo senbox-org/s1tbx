@@ -50,7 +50,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -70,12 +70,13 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <parent>tool</parent>
+            <parent>tools</parent>
             <id>pixelExtraction</id>
+            <placeLast>true</placeLast>
+            <text>Extract Pixel Values...</text>
             <class>org.esa.beam.pixex.visat.PixelExtractionAction</class>
             <helpId>pixelExtraction</helpId>
-            <text>Pixel Extraction...</text>
-            <description>Extract of one or more data products for given list of geographical points.</description>
+            <shortDescr>Extract pixel values given a list of geographical points from one or more data products.</shortDescr>
             <mnemonic>P</mnemonic>
         </action>
     </extension>

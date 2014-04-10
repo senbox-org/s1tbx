@@ -31,7 +31,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     String authors;
     String copyright;
     Boolean internal;
-    Boolean suppressWrite;
+    Boolean autoWriteSuppressed;
 
     DefaultSourceProductDescriptor[] sourceProductDescriptors;
     DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -71,8 +71,8 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     }
 
     @Override
-    public boolean isSuppressWrite() {
-        return suppressWrite != null ? suppressWrite : false;
+    public boolean isAutoWriteDisabled() {
+        return autoWriteSuppressed != null ? autoWriteSuppressed : false;
     }
 
     @Override

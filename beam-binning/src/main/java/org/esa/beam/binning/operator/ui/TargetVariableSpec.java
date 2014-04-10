@@ -34,18 +34,20 @@ class TargetVariableSpec implements Cloneable {
 
     TargetVariableSpec() {
         source = new Source();
+        aggregatorProperties = new PropertyContainer();
     }
 
     TargetVariableSpec(TargetVariableSpec spec) {
         this.targetName = spec.targetName;
         this.source = new Source(spec.source);
         this.aggregationString = spec.aggregationString;
+        if (StringUtils.isNullOrEmpty(spec.aggregationString)) {
+            return;
+        }
         this.aggregatorDescriptor = spec.aggregatorDescriptor; // using the same instance is ok
         this.aggregatorProperties = new PropertyContainer();
-        if (spec.aggregatorProperties != null) {
-            for (Property property : spec.aggregatorProperties.getProperties()) {
-                aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
-            }
+        for (Property property : spec.aggregatorProperties.getProperties()) {
+            aggregatorProperties.addProperty(Property.create(property.getName(), property.getValue()));
         }
     }
 
@@ -65,7 +67,8 @@ class TargetVariableSpec implements Cloneable {
     public boolean isValid() {
         boolean expressionCorrect = (source.type == Source.EXPRESSION_SOURCE_TYPE && source.expression != null && targetName != null) || source.type == Source.RASTER_SOURCE_TYPE;
         boolean bandCorrect = (source.type == Source.RASTER_SOURCE_TYPE && source.bandName != null) || source.type == Source.EXPRESSION_SOURCE_TYPE;
-        return expressionCorrect && bandCorrect;
+        boolean aggregationSet = StringUtils.isNotNullAndNotEmpty(aggregationString);
+        return expressionCorrect && bandCorrect && aggregationSet;
     }
 
     static class Source {

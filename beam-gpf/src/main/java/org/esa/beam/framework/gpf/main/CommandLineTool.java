@@ -260,8 +260,9 @@ class CommandLineTool implements GraphProcessingObserver {
         Product targetProduct = operator.getTargetProduct();
 
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        boolean suppressWrite = operator instanceof Output || operatorDescriptor.isSuppressWrite();
-        if (suppressWrite) {
+        boolean autoWriteDisabled = operator instanceof Output
+                                      || operatorDescriptor.isAutoWriteDisabled();
+        if (autoWriteDisabled) {
             // operator has its own output management, we "execute" by pulling at tiles
             final OperatorExecutor executor = OperatorExecutor.create(operator);
             executor.execute(ProgressMonitor.NULL);
@@ -325,14 +326,14 @@ class CommandLineTool implements GraphProcessingObserver {
         }
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
 
-        boolean suppressWrite = false;
+        boolean autoWriteDisabled = false;
         if (Output.class.isAssignableFrom(operatorSpi.getOperatorClass())
-            || operatorDescriptor != null && operatorDescriptor.isSuppressWrite()) {
-            suppressWrite = true;
+            || operatorDescriptor != null && operatorDescriptor.isAutoWriteDisabled()) {
+            autoWriteDisabled = true;
         }
 
-        if (!suppressWrite) {
-            // Writing is not suppressed, so add a WriteOp as last node
+        if (!autoWriteDisabled) {
+            // Auto-writing is permitted, so add a WriteOp as last node
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
 
             DomElement configuration = new DefaultDomElement("parameters");

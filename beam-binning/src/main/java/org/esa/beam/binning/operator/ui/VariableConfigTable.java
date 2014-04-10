@@ -22,6 +22,7 @@ import com.bc.ceres.binding.PropertyAccessorFactory;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
+import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.StringCellEditor;
@@ -29,17 +30,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
+import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractAction;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -52,11 +52,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
@@ -92,8 +91,7 @@ class VariableConfigTable {
         tableModel.setColumnIdentifiers(new String[]{
                 "Band / Expression",
                 "Target name",
-                "Aggregation",
-                ""
+                "Aggregation"
         });
 
         tableModel.addTableModelListener(new VariableConfigTableListener());
@@ -115,12 +113,6 @@ class VariableConfigTable {
 
         table.getColumnModel().getColumn(2).setMinWidth(110);
 
-        table.getColumnModel().getColumn(3).setMinWidth(40);
-        table.getColumnModel().getColumn(3).setMaxWidth(40);
-        table.getColumnModel().getColumn(3).setWidth(40);
-
-        DialogButtonEditor dialogButtonEditor = new DialogButtonEditor(table, tableModel);
-
         StringCellEditor editor = new StringCellEditor();
         table.setCellEditor(editor);
         table.getModel().addTableModelListener(new TableModelListener() {
@@ -131,6 +123,10 @@ class VariableConfigTable {
                     return;
                 }
                 TargetVariableSpec spec = tableModel.getSpec(selectedRow);
+                if (spec == null) {
+                    // spec has been deleted, do nothing.
+                    return;
+                }
                 spec.source.type = currentSourceType.getValue();
                 Object value = table.getValueAt(selectedRow, 0);
                 String source = "";
@@ -151,12 +147,13 @@ class VariableConfigTable {
             }
         });
 
-        table.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer("..."));
-        table.getColumnModel().getColumn(3).setCellEditor(dialogButtonEditor);
+        table.addMouseListener(new MouseAdapter() {
 
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() != 2) {
+                    return;
+                }
                 int column = table.columnAtPoint(e.getPoint());
                 if (column == 0) {
                     JPopupMenu viewPopup = new JPopupMenu();
@@ -177,8 +174,24 @@ class VariableConfigTable {
             }
         });
 
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        table.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() != 2) {
+                    return;
+                }
+                int column = table.columnAtPoint(e.getPoint());
+                if (column == 2) {
+                    openEditAggregationDialog(table);
+                }
+            }
+        });
+
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         scrollPane = new JScrollPane(table);
+
+        ExtensionManager.getInstance().register(AggregatorOnMaxSet.Config.class, new OnMaxSetExtensionFactory(binningFormModel));
     }
 
     static void removeProperties(PropertyContainer propertyContainer, String... properties) {
@@ -216,7 +229,19 @@ class VariableConfigTable {
         if (property.getType().equals(Boolean.class) && property.getValue() == null) {
             value = "false";
         } else if (property.getValue() != null) {
-            value = property.getValue().toString();
+            if (property.getType().isArray()) {
+                Object[] values = property.getValue();
+                for (int i = 0; i < values.length; i++) {
+                    final Object o = values[i];
+                    value += o;
+                    if (i < values.length - 1) {
+                        value += ",";
+                    }
+                }
+                return value;
+            } else {
+                value = property.getValue().toString();
+            }
         }
         return value;
     }
@@ -292,6 +317,17 @@ class VariableConfigTable {
         return filteredDescriptors;
     }
 
+    private static void openEditAggregationDialog(JTable table) {
+        int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
+        VariableTableModel model = (VariableTableModel) table.getModel();
+        EditAggregationDialog editAggregationDialog = new EditAggregationDialog(UIUtils.getRootWindow(table), model.getSpec(selectionIndex));
+        int result = editAggregationDialog.show();
+        if (result == EditAggregationDialog.ID_OK) {
+            TargetVariableSpec spec = editAggregationDialog.getSpec();
+            model.setSpec(selectionIndex, spec);
+        }
+    }
+
     private static class ClassFieldAccessorFactory implements PropertyAccessorFactory {
 
         private final Object object;
@@ -318,52 +354,13 @@ class VariableConfigTable {
         }
 
         private TargetVariableSpec[] getSpecsAsArray() {
-            TargetVariableSpec[] targetVariableSpecs = new TargetVariableSpec[tableModel.getRowCount()];
-            int i = 0;
+            List<TargetVariableSpec> specs = new ArrayList<>();
             for (TargetVariableSpec spec : tableModel.specs.values()) {
-                targetVariableSpecs[i++] = spec;
-            }
-            return targetVariableSpecs;
-        }
-    }
-
-    private static class ButtonRenderer extends JButton implements TableCellRenderer {
-
-        public ButtonRenderer(String text) {
-            super(text);
-        }
-
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            return this;
-        }
-    }
-
-    private static class DialogButtonEditor extends DefaultCellEditor {
-
-        protected JButton button;
-
-        public DialogButtonEditor(final JTable table, final VariableTableModel model) {
-            super(new JCheckBox());
-            button = new JButton("...");
-            button.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
-                    EditAggregationDialog editAggregationDialog = new EditAggregationDialog(UIUtils.getRootWindow(table), model.getSpec(selectionIndex));
-                    int result = editAggregationDialog.show();
-                    if (result == EditAggregationDialog.ID_OK) {
-                        TargetVariableSpec spec = editAggregationDialog.getSpec();
-                        model.setSpec(selectionIndex, spec);
-                    }
-                    fireEditingStopped();
+                if (StringUtils.isNotNullAndNotEmpty(spec.aggregationString)) {
+                    specs.add(spec);
                 }
-            });
-        }
-
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
-            return button;
+            }
+            return specs.toArray(new TargetVariableSpec[specs.size()]);
         }
     }
 
@@ -387,10 +384,12 @@ class VariableConfigTable {
             Product product = binningFormModel.getSourceProducts()[0];
             String[] bandNames = product.getBandNames();
             String[] tiePointGridNames = product.getTiePointGridNames();
+            String[] maskNames = product.getMaskGroup().getNodeNames();
             Object[] rasterNames = ArrayUtils.addAll(bandNames, tiePointGridNames);
+            Object[] names = ArrayUtils.addAll(maskNames, rasterNames);
             Object chosenRaster = JOptionPane.showInputDialog(appContext.getApplicationWindow(), "Choose raster data",
                                                               "Choose raster data", JOptionPane.PLAIN_MESSAGE, null,
-                                                              rasterNames, rasterNames[0]);
+                                                              names, names[0]);
             if (chosenRaster != null) {
                 setCurrentSourceType(TargetVariableSpec.Source.RASTER_SOURCE_TYPE);
                 table.setValueAt(chosenRaster.toString(), table.getSelectedRow(), table.getSelectedColumn());
@@ -452,7 +451,7 @@ class VariableConfigTable {
 
         @Override
         public int getColumnCount() {
-            return 4;
+            return 3;
         }
 
         @Override
@@ -467,7 +466,7 @@ class VariableConfigTable {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return columnIndex != 2;
+            return columnIndex == 1;
         }
 
         @Override

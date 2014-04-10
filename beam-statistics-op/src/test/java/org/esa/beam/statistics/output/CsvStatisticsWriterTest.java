@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -82,11 +82,11 @@ public class CsvStatisticsWriterTest {
         addOutput();
         csvStatisticsWriter.finaliseOutput();
         csvStream.close();
-        assertEquals("# Region\tBand\tmax\tmin\tp90\tp95\n" +
-                             "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n" +
-                             "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n" +
-                             "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"
-                , csvOutput.toString());
+        String actualOutput = csvOutput.toString();
+        assertTrue(actualOutput.startsWith("# Region\tBand\tmax\tmin\tp90\tp95\n"));
+        assertTrue(actualOutput.contains("werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n"));
+        assertTrue(actualOutput.contains("bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n"));
+        assertTrue(actualOutput.contains("bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"));
     }
 
     @Test

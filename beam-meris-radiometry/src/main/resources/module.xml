@@ -39,7 +39,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -58,17 +58,13 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.preProcessing</parent>
             <id>merisRadiometryCorrection</id>
+            <text>MERIS Radiometric Correction...</text>
             <class>org.esa.beam.meris.radiometry.visat.MerisRadiometryCorrectionAction</class>
-            <parent>tools</parent>
-            <placeAfter>flhMciScientificTool</placeAfter>
-            <placeBefore>cloudScientificTool</placeBefore>
-            <helpId>merisRadiometryCorrection</helpId>
-            <text>Radiometry Correction (MERIS)...</text>
-            <shortDescr>Performs radiometric correction on MERIS</shortDescr>
-            <longDescr>Performs radiometric correction on MERIS data products</longDescr>
+            <shortDescr>Performs radiometric corrections on a MERIS L1b data product.</shortDescr>
             <mnemonic>E</mnemonic>
-
+            <helpId>merisRadiometryCorrection</helpId>
         </action>
 
     </extension>

@@ -66,8 +66,8 @@ public class AnnotationOperatorDescriptor implements OperatorDescriptor {
     }
 
     @Override
-    public boolean isSuppressWrite() {
-        return annotation.suppressWrite();
+    public boolean isAutoWriteDisabled() {
+        return annotation.autoWriteDisabled();
     }
 
     @Override

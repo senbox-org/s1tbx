@@ -67,7 +67,8 @@ public abstract class MaskPersistable implements DimapPersistable {
         colorElement.setAttribute(ATTRIB_BLUE, String.valueOf(color.getBlue()));
         colorElement.setAttribute(ATTRIB_ALPHA, String.valueOf(color.getAlpha()));
         root.addContent(colorElement);
-        final String transparency = String.valueOf(config.getValue(Mask.ImageType.PROPERTY_NAME_TRANSPARENCY));
+        Object transparencyValue = config.getValue(Mask.ImageType.PROPERTY_NAME_TRANSPARENCY);
+        final String transparency = String.valueOf(transparencyValue);
         root.addContent(createElement(TAG_TRANSPARENCY, transparency));
         configureElement(root, mask);
         

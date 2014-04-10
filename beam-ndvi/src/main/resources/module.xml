@@ -47,16 +47,15 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <parent>processing.thematicLand</parent>
             <id>ndviOp</id>
-            <helpId>NDVIOperator</helpId>
+            <text>NDVI Processor...</text>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <text>NDVI Operator...</text>
-            <parent>tools</parent>
             <operatorName>NdviOp</operatorName>
-            <dialogTitle>NDVI Operator</dialogTitle>
-            <placeAfter>smacTool</placeAfter>
-            <shortDescr>Invoke the NDVI Operator.</shortDescr>
+            <dialogTitle>NDVI Processor</dialogTitle>
+            <shortDescr>Generates NDVI from a source product with at least two spectral bands.</shortDescr>
             <targetProductNameSuffix>_ndvi</targetProductNameSuffix>
+            <helpId>NDVIOperator</helpId>
         </action>
     </extension>
 

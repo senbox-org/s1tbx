@@ -16,19 +16,14 @@
 package org.esa.beam;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.Activator;
-import com.bc.ceres.core.runtime.ConfigurationElement;
-import com.bc.ceres.core.runtime.Extension;
-import com.bc.ceres.core.runtime.ExtensionPoint;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.*;
 import com.sun.java.help.search.QueryEngine;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.framework.ui.command.CommandGroup;
 import org.esa.beam.framework.ui.layer.LayerEditorDescriptor;
 import org.esa.beam.framework.ui.layer.LayerSourceDescriptor;
 import org.esa.beam.util.TreeNode;
@@ -36,12 +31,7 @@ import org.esa.beam.util.TreeNode;
 import javax.help.HelpSet;
 import javax.help.HelpSet.DefaultHelpSetFactory;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +47,8 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     private static BeamUiActivator instance;
     private ModuleContext moduleContext;
     private TreeNode<HelpSet> helpSetRegistry;
-    private Map<String, Command> actionRegistry;
+    private List<Command> actionList;
+    private List<CommandGroup> actionGroupList;
     private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
     private Map<String, LayerSourceDescriptor> layerSourcesRegistry;
     private ApplicationDescriptor applicationDescriptor;
@@ -70,6 +61,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         registerHelpSets(moduleContext);
         registerToolViews(moduleContext);
         registerActions(moduleContext);
+        registerActionGroups(moduleContext);
         registerApplicationDescriptors(moduleContext);
         registerLayerEditors(moduleContext);
         registerLayerSources(moduleContext);
@@ -79,7 +71,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.helpSetRegistry = null;
         this.moduleContext = null;
-        actionRegistry = null;
+        actionList = null;
         toolViewDescriptorRegistry = null;
         applicationDescriptor = null;
         instance = null;
@@ -101,6 +93,11 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                 for (String actionId : actionIds) {
                     BeamUiActivator.getInstance().removeAction(actionId);
                     moduleContext.getLogger().info(String.format("Removed action [%s]", actionId));
+                }
+                final String[] actionGroupIds = applicationDescriptor.getExcludedActionGroups();
+                for (String actionGroupId : actionGroupIds) {
+                    BeamUiActivator.getInstance().removeActionGroup(actionGroupId);
+                    moduleContext.getLogger().info(String.format("Removed action group [%s]", actionGroupId));
                 }
             } else {
                 moduleContext.getLogger().warning(String.format("Ignoring application descriptor [%s]", applicationId));
@@ -124,16 +121,12 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         return applicationDescriptor;
     }
 
-    /**
-     * @deprecated since BEAM 5, use {@link #getCommandMap()}
-     */
-    @Deprecated
-    public Command[] getCommands() {
-        return actionRegistry.values().toArray(new Command[actionRegistry.size()]);
+    public List<Command> getCommands() {
+        return Collections.unmodifiableList(actionList);
     }
 
-    public Map<String, Command> getCommandMap() {
-        return Collections.unmodifiableMap(actionRegistry);
+    public List<CommandGroup> getCommandGroups() {
+        return Collections.unmodifiableList(actionGroupList);
     }
 
     @Override
@@ -156,8 +149,25 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     public void removeAction(String actionId) {
-        actionRegistry.remove(actionId);
+        for (int i = 0; i < actionList.size(); i++) {
+            Command command = actionList.get(i);
+            if (actionId.equals(command.getCommandID())) {
+                actionList.remove(i);
+                return;
+            }
+        }
     }
+
+    public void removeActionGroup(String actionGroupId) {
+        for (int i = 0; i < actionGroupList.size(); i++) {
+            Command command = actionGroupList.get(i);
+            if (actionGroupId.equals(command.getCommandID())) {
+                actionGroupList.remove(i);
+                return;
+            }
+        }
+    }
+
 
     private void registerToolViews(ModuleContext moduleContext) {
         List<ToolViewDescriptor> toolViewDescriptorList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
@@ -176,20 +186,42 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     private void registerActions(ModuleContext moduleContext) {
-        final List<Command> actionList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
-                                                                                    "actions",
-                                                                                    "action",
-                                                                                    Command.class);
-        actionRegistry = new HashMap<>(2 * actionList.size());
-        for (Command action : actionList) {
+        actionList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                "actions",
+                                                                "action",
+                                                                Command.class);
+        HashMap<String, Command> actionMap = new HashMap<>(2 * actionList.size() + 1);
+        for (Command action : new ArrayList<>(actionList)) {
             final String actionId = action.getCommandID();
-            final Command existingAction = actionRegistry.get(actionId);
+            final Command existingAction = actionMap.get(actionId);
             if (existingAction != null) {
                 moduleContext.getLogger().warning(String.format("Action [%s] has been redeclared!\n", actionId));
+                actionMap.remove(actionId);
+                actionList.remove(existingAction);
             }
-            actionRegistry.put(actionId, action);
+            actionMap.put(actionId, action);
         }
     }
+
+
+    private void registerActionGroups(ModuleContext moduleContext) {
+        actionGroupList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                     "actionGroups",
+                                                                     "actionGroup",
+                                                                     CommandGroup.class);
+        HashMap<String, CommandGroup> actionGroupMap = new HashMap<>(2 * actionGroupList.size() + 1);
+        for (CommandGroup actionGroup : new ArrayList<>(actionGroupList)) {
+            final String actionGroupId = actionGroup.getCommandID();
+            final CommandGroup existingActionGroup = actionGroupMap.get(actionGroupId);
+            if (existingActionGroup != null) {
+                moduleContext.getLogger().warning(String.format("Action group [%s] has been redeclared!\n", actionGroupId));
+                actionGroupMap.remove(actionGroupId);
+                actionGroupList.remove(existingActionGroup);
+            }
+            actionGroupMap.put(actionGroupId, actionGroup);
+        }
+    }
+
 
     private void registerLayerEditors(ModuleContext moduleContext) {
         BeamCoreActivator.loadExecutableExtensions(moduleContext,
@@ -209,7 +241,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
             final String id = layerSourceDescriptor.getId();
             final LayerSourceDescriptor existingLayerSourceDescriptor = layerSourcesRegistry.get(id);
             if (existingLayerSourceDescriptor
-                != null) {
+                    != null) {
                 moduleContext.getLogger().info(String.format("Layer source [%s] has been redeclared!\n", id));
             }
             layerSourcesRegistry.put(id, layerSourceDescriptor);

@@ -878,7 +878,7 @@ class MaskFormActions {
         void updateState() {
             setEnabled(getMaskForm().isInManagementMode() &&
                        getMaskForm().getSelectedRowCount() > 0 &&
-                       VisatApp.getApp().getProductManager().getProducts().length > 1);
+                       VisatApp.getApp().getProductManager().getProductCount() > 1);
         }
 
         @Override

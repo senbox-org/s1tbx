@@ -26,7 +26,7 @@ import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -54,16 +54,8 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
         return visatPlugins.toArray(new VisatPlugIn[visatPlugins.size()]);
     }
 
-    /**
-     * @deprecated since BEAM 5, use {@link #getCommandMap()}
-     */
-    @Deprecated
-    public Command[] getCommands() {
+    public List<Command> getCommands() {
         return BeamUiActivator.getInstance().getCommands();
-    }
-
-    public Map<String, Command> getCommandMap() {
-        return BeamUiActivator.getInstance().getCommandMap();
     }
 
     @Override

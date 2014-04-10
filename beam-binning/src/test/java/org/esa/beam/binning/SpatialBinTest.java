@@ -22,8 +22,7 @@ public class SpatialBinTest {
         try {
             new SpatialBin(0, -1);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
@@ -45,9 +44,9 @@ public class SpatialBinTest {
 
         SpatialBin bin = bman.createSpatialBin(0);
 
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, new float[]{0.2f, 4.0f, 4.0f}), bin);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, new float[]{0.6f, 2.0f, 2.0f}), bin);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, new float[]{0.4f, 6.0f, 6.0f}), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.2f, 4.0f, 4.0f), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.6f, 2.0f, 2.0f), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.4f, 6.0f, 6.0f), bin);
 
         assertEquals(3, bin.getNumObs());
 
@@ -109,7 +108,7 @@ public class SpatialBinTest {
         BinContext ctx = new SpatialBin(0, 0);
         assertEquals(null, ctx.get("a"));
         ctx.put("a", 42);
-        assertEquals(42, ctx.get("a"));
+        assertEquals(42, (int)ctx.get("a"));
     }
 
     @Test

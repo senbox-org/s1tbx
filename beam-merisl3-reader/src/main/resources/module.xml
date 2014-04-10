@@ -21,7 +21,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -48,7 +48,6 @@
             <text>MERIS Binned Level-3</text>
             <mnemonic>B</mnemonic>
             <shortDescr>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</shortDescr>
-            <description>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</description>
             <helpId>importMerisBinnedL3Product</helpId>
             <!--<placeAfter>importEnvisatProduct</placeAfter>-->
         </action>

@@ -78,42 +78,26 @@ public class BinningFormModelImplTest {
     @Test
     public void testGetStartDate() throws Exception {
         final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, false);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.NONE);
 
-        assertNull(binningFormModel.getStartDate());
+        assertNull(binningFormModel.getStartDateTime());
 
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_START_DATE, new GregorianCalendar(2000, 1, 1));
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.TIME_RANGE);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, new GregorianCalendar(2000, 1, 1));
 
-        assertNotNull(binningFormModel.getStartDate());
+        assertNotNull(binningFormModel.getStartDateTime());
         SimpleDateFormat dateFormat = new SimpleDateFormat(BinningOp.DATE_PATTERN);
         String expectedString = dateFormat.format(new GregorianCalendar(2000, 1, 1).getTime());
-        assertEquals(expectedString, binningFormModel.getStartDate());
-    }
-
-    @Test
-    public void testGetEndDate() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, false);
-
-        assertNull(binningFormModel.getEndDate());
-
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TEMPORAL_FILTER, true);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_END_DATE, new GregorianCalendar(2010, 0, 1));
-
-        assertNotNull(binningFormModel.getEndDate());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(BinningOp.DATE_PATTERN);
-        String expectedString = dateFormat.format(new GregorianCalendar(2010, 0, 1).getTime());
-        assertEquals(expectedString, binningFormModel.getEndDate());
+        assertEquals(expectedString, binningFormModel.getStartDateTime());
     }
 
     @Test
     public void testGetValidExpression() throws Exception {
         final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
-        assertTrue(Boolean.parseBoolean(binningFormModel.getValidExpression()));
+        assertTrue(Boolean.parseBoolean(binningFormModel.getMaskExpr()));
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, "some_expression");
 
-        assertEquals("some_expression", binningFormModel.getValidExpression());
+        assertEquals("some_expression", binningFormModel.getMaskExpr());
     }
 
     @Test

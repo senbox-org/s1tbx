@@ -30,18 +30,21 @@ public interface OperatorDescriptor extends ElementDescriptor {
      */
     boolean isInternal();
 
-    // todo - rename before beam 5 rel
     /**
-     * @return If {@code true}, the framework will not automatically write the target product of this
-     * operator. Usually, the framework writes the target products of single operators or processing graphs
-     * when executed from the GPT commandline operator's GUI. The default is {@code false}.
+     * The GPF framework usually writes the target product of either single operators or processing graphs to the file
+     * system when executed from the GPT command-line interface or the operator GUI.
      * <p/>
-     * Setting this property may be useful if your operator does not generate a new target
+     * If the {@code autoWriteDisabled} property is set, this default behaviour is switched off and hence,
+     * the operator or graph is responsible for outputting any computed results.
+     * <p/>
+     * Setting this property on an operator will only be useful, if it either does not generate a new target
      * {@link org.esa.beam.framework.datamodel.Product Product} and/or if it
-     * does its own writing of non-{@link org.esa.beam.framework.datamodel.Product Product}
-     * targets to external files in any format.
+     * does its own outputting of non-{@code Product} targets to external files.
+     *
+     * @return If {@code true}, the framework will prevent automatic writing of the target product to the file system.
+     * @since BEAM 5.0
      */
-    boolean isSuppressWrite();
+    boolean isAutoWriteDisabled();
 
     /**
      * @return A concrete, non-abstract operator class.

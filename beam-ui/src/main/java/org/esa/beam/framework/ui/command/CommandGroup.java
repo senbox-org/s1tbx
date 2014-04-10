@@ -15,19 +15,32 @@
  */
 package org.esa.beam.framework.ui.command;
 
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.JMenuItem;
+import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.core.runtime.Module;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
- * The <code>CommandGroup</code> is a group of commands represented by a menu item group.
+ * The <code>CommandGroup</code> is a group of commands represented by a menu item group or a tool bar.
+ * As of BEAM 5, <code>CommandGroup</code>s can also be used to collect group items. There can be either
+ * (forward declarations of) contained command IDs or other commands group IDs or separators.
  *
  * @author Norman Fomferra
- * @version $Revision$  $Date$
  */
 public class CommandGroup extends Command {
+
+    public static final String ACTION_KEY_GROUP_ITEMS = "_groupItems";
+
+    private static final String ELEMENT_NAME_ITEMS = "items";
+    private static final String ELEMENT_NAME_ACTION_ID = "action";
+    private static final String ELEMENT_NAME_ACTION_GROUP_ID = "actionGroup";
+    private static final String ELEMENT_NAME_SEPARATOR = "separator";
+
+    public CommandGroup() {
+        super(CommandGroup.class.getName());
+    }
 
     public CommandGroup(String commandGroupID, CommandStateListener listener) {
         super(commandGroupID);
@@ -67,8 +80,43 @@ public class CommandGroup extends Command {
     public void removeCommandStateListener(CommandStateListener l) {
         removeEventListener(CommandStateListener.class, l);
     }
-    
-    
+
+    public String[] getGroupItems() {
+        return getProperty(ACTION_KEY_GROUP_ITEMS, new String[0]);
+    }
+
+    public void setGroupItems(String[] groupItems) {
+        setProperty(ACTION_KEY_GROUP_ITEMS, groupItems.clone());
+    }
+
+    @Override
+    public void configure(ConfigurationElement config) throws CoreException {
+        super.configure(config);
+        ConfigurationElement itemsElement = config.getChild(ELEMENT_NAME_ITEMS);
+        if (itemsElement == null) {
+            return;
+        }
+        ConfigurationElement[] children = itemsElement.getChildren();
+        String[] groupItems = new String[children.length];
+        for (int i = 0; i < children.length; i++) {
+            ConfigurationElement child = children[i];
+            String childName = child.getName();
+            switch (childName) {
+                case ELEMENT_NAME_ACTION_ID:
+                case ELEMENT_NAME_ACTION_GROUP_ID:
+                    groupItems[i] = child.getValue().trim();
+                    break;
+                case ELEMENT_NAME_SEPARATOR:
+                    groupItems[i] = null;
+                    break;
+                default:
+                    Module declaringModule = config.getDeclaringExtension().getDeclaringModule();
+                    throw new CoreException(String.format("Module [%s]: '%s' is an unknown 'groupItems' element", declaringModule.getName(), childName));
+            }
+        }
+        setProperty(ACTION_KEY_GROUP_ITEMS, groupItems);
+    }
+
     @Override
     protected Action createAction() {
         return new AbstractAction() {

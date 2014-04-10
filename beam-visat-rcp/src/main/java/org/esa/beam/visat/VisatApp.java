@@ -399,8 +399,12 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private void loadCommands() {
         CommandManager commandManager = getCommandManager();
-        Map<String, Command> commandMap = VisatActivator.getInstance().getCommandMap();
-        for (Command command : commandMap.values()) {
+        List<Command> commands = VisatActivator.getInstance().getCommands();
+        Map<String, Command> commandMap = new HashMap<>(commands.size() * 2 + 1);
+        for (Command command : commands) {
+            commandMap.put(command.getCommandID(), command);
+        }
+        for (Command command : commands) {
             addCommand(commandManager, command, commandMap);
         }
         setSelectToolSelectState(commandManager);
@@ -2194,7 +2198,7 @@ public class VisatApp extends BasicApp implements AppContext {
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
-        menuBar.add(createJMenu("data", "Analysis", 'A',
+        menuBar.add(createJMenu("analysis", "Analysis", 'A',
                                 InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
@@ -2203,7 +2207,8 @@ public class VisatApp extends BasicApp implements AppContext {
                                 DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                                 ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
         ));
-        menuBar.add(createJMenu("tools", "Tools", 'T'));
+        menuBar.add(createJMenu("tools", "Utilities", 'U'));
+        menuBar.add(createJMenu("processing", "Processing", 'P'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));
 
