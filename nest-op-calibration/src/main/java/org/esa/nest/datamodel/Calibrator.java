@@ -46,7 +46,6 @@ public interface Calibrator {
                            throws OperatorException;
 
     public void computeTile(final Band targetBand, final Tile targetTile,
-                            final HashMap<String, String[]> targetBandNameToSourceBandName,
                             final com.bc.ceres.core.ProgressMonitor pm) throws OperatorException;
 
     public void setOutputImageInComplex(final boolean flag);
@@ -68,4 +67,6 @@ public interface Calibrator {
             final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex);
     
     public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile, final String srcBandName);
+
+    public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames);
 }
