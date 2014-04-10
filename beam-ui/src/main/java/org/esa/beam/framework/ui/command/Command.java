@@ -275,11 +275,11 @@ public abstract class Command implements ConfigurableExtension {
 
     /**
      * Configures this command with the properties (if any) found in the given recource bundle. The resource keys for
-     * the corresponding properties are: <p> <ld> <li><code>command.</code><i>command-ID</i><code>.text = <i>display
-     * text</i></code></li> <li><code>command.</code><i>command-ID</i><code>.popuptext = <i>display text for popup
-     * menu</i></code></li> <li><code>command.</code><i>command-ID</i><code>.mnemonic = <i>mnemonic
-     * character</i></code></li> <li><code>command.</code><i>command-ID</i><code>.accelerator = <i>accelerator
-     * key</i></code></li> <li><code>command.</code><i>command-ID</i><code>.shortdescr = <i>text</i></code></li>
+     * the corresponding properties are: <p> <ld> <li><code>command.</code><i>command-ID</i><code>.text = <i>display text</i></code></li>
+     * <li><code>command.</code><i>command-ID</i><code>.popuptext = <i>display text for popup menu</i></code></li>
+     * <li><code>command.</code><i>command-ID</i><code>.mnemonic = <i>mnemonic key character</i></code></li>
+     * <li><code>command.</code><i>command-ID</i><code>.accelerator = <i>accelerator</i></code></li>
+     * <li><code>command.</code><i>command-ID</i><code>.shortdescr = <i>text</i></code></li>
      * <li><code>command.</code><i>command-ID</i><code>.longdescr = <i>text</i></code></li>
      * <li><code>command.</code><i>command-ID</i><code>.smallicon = <i>image-path</i></code></li>
      * <li><code>command.</code><i>command-ID</i><code>.largeicon = <i>image-path</i></code></li>
@@ -293,7 +293,7 @@ public abstract class Command implements ConfigurableExtension {
      *
      * @param resourceBundle the resource bundle from which the properties are received
      *
-     * @throws IllegalArgumentException if the recource bundle is null
+     * @throws IllegalArgumentException if the resource bundle is null
      */
     public void configure(ResourceBundle resourceBundle) {
         Guardian.assertNotNull("resourceBundle", resourceBundle);
@@ -533,12 +533,7 @@ public abstract class Command implements ConfigurableExtension {
      * this application.
      */
     protected String createResourceKey(String commandPropertyName) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("command.");
-        sb.append(getCommandID());
-        sb.append(".");
-        sb.append(commandPropertyName);
-        return sb.toString();
+        return String.format("command.%s.%s", getCommandID(), commandPropertyName);
     }
 
     /**
@@ -549,7 +544,7 @@ public abstract class Command implements ConfigurableExtension {
         try {
             return resourceBundle.getString(key);
         } catch (MissingResourceException e) {
-            //Debug.trace("missing value for recource key '" + key + "'");
+            //Debug.trace("missing value for resource key '" + key + "'");
             return null;
         }
     }
@@ -573,7 +568,7 @@ public abstract class Command implements ConfigurableExtension {
         try {
             return resourceBundle.getStringArray(key);
         } catch (MissingResourceException e) {
-            //Debug.trace("missing value for recource key '" + key + "'");
+            //Debug.trace("missing value for resource key '" + key + "'");
             return null;
         }
     }
@@ -595,9 +590,8 @@ public abstract class Command implements ConfigurableExtension {
             try {
                 return UIUtils.loadImageIcon(value);
             } catch (RuntimeException e) {
-                Debug.trace(
-                        "failed to load icon for recource entry '" + createResourceKey(
-                                commandPropertyName) + "=" + value + "'");
+                String message = String.format("failed to load icon for resource entry '%s=%s'", createResourceKey(commandPropertyName), value);
+                Debug.trace(message);
             }
         }
         return null;
