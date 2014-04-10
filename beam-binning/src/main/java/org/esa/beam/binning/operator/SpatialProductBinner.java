@@ -18,6 +18,7 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.jexp.ParseException;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CompositingType;
@@ -31,6 +32,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
@@ -233,6 +236,12 @@ public class SpatialProductBinner {
                                                    product.getSceneRasterWidth(),
                                                    product.getSceneRasterHeight(),
                                                    variableExpr);
+
+                try {
+                    validMaskExpression = BandArithmetic.getValidMaskExpression(variableExpr, new Product[]{product}, 0, validMaskExpression);
+                } catch (ParseException e) {
+                    throw new OperatorException("Failed to parse valid-mask expression: " + e.getMessage(), e);
+                }
                 if (StringUtils.isNotNullAndNotEmpty(validMaskExpression)) {
                     band.setValidPixelExpression(validMaskExpression);
                 }
