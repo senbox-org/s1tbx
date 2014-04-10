@@ -105,12 +105,10 @@ class VariableConfigTable {
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
 
-        table.getColumnModel().getColumn(0).setMinWidth(80);
-        table.getColumnModel().getColumn(0).setWidth(80);
-
-        table.getColumnModel().getColumn(1).setMinWidth(110);
-        table.getColumnModel().getColumn(1).setWidth(220);
-
+        table.getColumnModel().getColumn(0).setMinWidth(140);
+        table.getColumnModel().getColumn(0).setMaxWidth(140);
+        table.getColumnModel().getColumn(1).setMinWidth(140);
+        table.getColumnModel().getColumn(1).setMaxWidth(140);
         table.getColumnModel().getColumn(2).setMinWidth(110);
 
         StringCellEditor editor = new StringCellEditor();
