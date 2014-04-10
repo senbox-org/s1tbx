@@ -47,6 +47,8 @@ public class CalibrationFactory {
             return new TerraSARXCalibrator();
         } else if(mission.contains("CSK")) {
         	return new CosmoSkymedCalibrator();
+        } else if(mission.contains("SENTINEL-1A")) {
+            return new Sentinel1Calibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
         }
