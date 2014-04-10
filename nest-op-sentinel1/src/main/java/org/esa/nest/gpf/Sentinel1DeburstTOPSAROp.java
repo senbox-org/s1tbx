@@ -139,11 +139,13 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     public static String[] getProductPolarizations(final MetadataElement absRoot, final String acquisitionMode) {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final String subSwathName = acquisitionMode + '1';
         final List<String> polarizations = new ArrayList<String>(4);
         for(MetadataElement elem : elems) {
-            if(elem.getName().contains(subSwathName)) {
-                polarizations.add(elem.getAttributeString("polarization"));
+            if(elem.getName().contains(acquisitionMode)) {
+                final String pol = elem.getAttributeString("polarization");
+                if (!polarizations.contains(pol)) {
+                    polarizations.add(pol);
+                }
             }
         }
         return polarizations.toArray(new String[polarizations.size()]);
