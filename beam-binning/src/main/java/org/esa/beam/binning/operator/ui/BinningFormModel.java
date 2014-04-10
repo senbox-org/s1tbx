@@ -81,13 +81,13 @@ interface BinningFormModel {
     /**
      * @return the user-chosen binning period in days
      */
-    double getPeriodDuration();
+    Double getPeriodDuration();
 
     /**
      * @return the sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of
                observations at the date line (the 180 degree meridian)
      */
-    double getMinDataHour();
+    Double getMinDataHour();
 
     /**
      * @return the user-chosen supersampling

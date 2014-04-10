@@ -134,12 +134,12 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     @Override
-    public double getPeriodDuration() {
+    public Double getPeriodDuration() {
         return getPropertyValue(PROPERTY_KEY_PERIOD_DURATION);
     }
 
     @Override
-    public double getMinDataHour() {
+    public Double getMinDataHour() {
         return getPropertyValue(PROPERTY_KEY_MIN_DATA_HOUR);
     }
 
