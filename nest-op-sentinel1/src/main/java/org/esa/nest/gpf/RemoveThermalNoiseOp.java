@@ -210,7 +210,7 @@ public final class RemoveThermalNoiseOp extends Operator {
                 targetProduct.addBand(newVirtualBand);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, newVirtualBand);
 
-            } if (shouldApplyCorrection(srcBand)) {
+            } else if (shouldApplyCorrection(srcBand)) {
 
                 final Band newBand = new Band(srcBand.getName(),
                                               srcBand.getDataType(),
@@ -343,8 +343,13 @@ public final class RemoveThermalNoiseOp extends Operator {
             noisePixel.add(intValues.get(0));
             noiseValue.add(doubleValues.get(0));
         }
-    }
 
+        /*
+        for (int i = 0; i < noiseLine.length; i++) {
+            System.out.println("noiseLine[" + i + "] = " + noiseLine[i]);
+        }
+        */
+    }
 
     private void readCalibrationLUT(final MetadataElement oriProdMetadata) {
 
@@ -462,7 +467,7 @@ public final class RemoveThermalNoiseOp extends Operator {
 
         } else if (y <= line[leftYIdx] || y >= line[rightYIdx])  {
 
-            throw new OperatorException("computeValue: y = " + y + " leftYIdx = " + leftYIdx + " rightYIdx = " + rightYIdx + " " + debugNum);
+            throw new OperatorException("computeValue: y = " + y + " line[" + leftYIdx + "] = " + line[leftYIdx] + " line[" + rightYIdx + "] = " + line[rightYIdx] + " debugNum = " + debugNum);
         }
 
         // It is not clear if it can be assumed that each line will have noise values at the same pixels.
