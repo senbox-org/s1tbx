@@ -256,7 +256,8 @@ public class RuntimeActivator implements Activator {
     }
 
     private Module getModule(String urlAsString) {
-        for (Module module : moduleContext.getModules()) {
+        final Module[] modules = moduleContext.getModules();
+        for (Module module : modules) {
             if (urlAsString.startsWith(module.getLocation().toExternalForm())) {
                 return module;
             }

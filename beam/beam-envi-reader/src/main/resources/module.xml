@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-envi-reader</symbolicName>
-    <version>5.0-1.2</version>
+    <version>3.2</version>
     <name>ENVI Product Reader</name>
 
     <description>

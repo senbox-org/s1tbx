@@ -285,7 +285,7 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envi-reader</artifactId>
-                <version>3.2.{beam.version}</version>
+                <version>3.2.${beam.version}</version>
             </dependency>
 
             <dependency>
