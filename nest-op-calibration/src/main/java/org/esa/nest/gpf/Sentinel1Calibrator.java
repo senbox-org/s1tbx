@@ -1,0 +1,738 @@
+/*
+ * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+package org.esa.nest.gpf;
+
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.util.ProductUtils;
+import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.BaseCalibrator;
+import org.esa.nest.datamodel.Calibrator;
+import org.esa.nest.datamodel.Unit;
+
+
+import java.awt.*;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+
+/**
+ * Calibration for Sentinel1 data products.
+ */
+
+public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
+
+    private TiePointGrid incidenceAngle = null;
+    private double offset = 0.0;
+    private double[] gains = null;
+
+    private int subsetOffsetX = 0;
+    private int subsetOffsetY = 0;
+
+    private String productType = null;
+    private String acquisitionMode = null;
+    private String polarization = null;
+    private int numOfSubSwath = 1;
+    private CalibrationInfo[] calibration = null;
+    private boolean isDualPol = false;
+    protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<String, CalibrationInfo>(2);
+    private java.util.List<String> selectedPolList = null;
+    private boolean outputSigmaBand = false;
+    private boolean outputGammaBand = false;
+    private boolean outputBetaBand = false;
+    private boolean outputDNBand = false;
+
+    /**
+     * Default constructor. The graph processing framework
+     * requires that an operator has a default constructor.
+     */
+    public Sentinel1Calibrator() {
+    }
+
+    /**
+     * Set external auxiliary file.
+     */
+    public void setExternalAuxFile(File file) throws OperatorException {
+        if (file != null) {
+            throw new OperatorException("No external auxiliary file should be selected for Sentinel1 product");
+        }
+    }
+
+    /**
+     * Set auxiliary file flag.
+     */
+    @Override
+    public void setAuxFileFlag(String file) {
+    }
+
+    public void setUserSelections(final Product sourceProduct,
+                                  final String[] selectedPolarisations,
+                                  final boolean outputSigmaBand,
+                                  final boolean outputGammaBand,
+                                  final boolean outputBetaBand,
+                                  final boolean outputDNBand) {
+
+        this.outputSigmaBand = outputSigmaBand;
+        this.outputGammaBand = outputGammaBand;
+        this.outputBetaBand = outputBetaBand;
+        this.outputDNBand = outputDNBand;
+
+        String[] selectedPols = selectedPolarisations;
+        if(selectedPols == null || selectedPols.length == 0) {
+            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot, acquisitionMode);
+        }
+        selectedPolList = Arrays.asList(selectedPols);
+
+        if (!outputSigmaBand && !outputGammaBand && !outputBetaBand && !outputDNBand) {
+            throw new OperatorException("No output product is selected");
+        }
+    }
+
+    /**
+
+     */
+    public void initialize(final Operator op, final Product srcProduct, final Product tgtProduct,
+                           final boolean mustPerformRetroCalibration, final boolean mustUpdateMetadata)
+            throws OperatorException {
+        try {
+            calibrationOp = op;
+            sourceProduct = srcProduct;
+            targetProduct = tgtProduct;
+
+            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
+            getCalibrationFlag();
+
+            getMission();
+
+            getProductType();
+
+            getAcquisitionMode();
+
+            getProductPolarization();
+
+            getSampleType();
+
+            getSubsetOffset();
+
+            getCalibrationVectors();
+
+            getTiePointGridData(sourceProduct);
+
+            if (mustUpdateMetadata) {
+                updateTargetProductMetadata();
+            }
+
+        } catch(Exception e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    /**
+     * Get product mission from abstracted metadata.
+     */
+    private void getMission() {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        if(!mission.equals("SENTINEL-1A")) {
+            throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
+        }
+    }
+
+    /**
+     * Get product type from abstracted metadata.
+     */
+    private void getProductType() {
+        productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        if(!productType.equals("SLC") && !productType.equals("GRD")) {
+            throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
+        }
+    }
+
+    /**
+     * Get acquisition mode from abstracted metadata.
+     */
+    private void getAcquisitionMode() {
+
+        acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+
+        if (productType.equals("SLC")) {
+            if (acquisitionMode.equals("IW")) {
+                numOfSubSwath = 3;
+            } else if (acquisitionMode.equals("EW")) {
+                numOfSubSwath = 5;
+            }
+        }
+    }
+
+    /**
+     * Get product polarization.
+     */
+    private void getProductPolarization() {
+
+        final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+        final String level = productName.substring(12,14);
+        if (!level.equals("1S")) {
+            throw new OperatorException("Invalid source product");
+        }
+
+        polarization = productName.substring(14,16);
+        if (!polarization.equals("SH") && !polarization.equals("SV") && !polarization.equals("DH") &&
+            !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
+            !polarization.equals("VV") && !polarization.equals("VH")) {
+            throw new OperatorException("Invalid source product");
+        }
+
+        isDualPol = polarization.equals("DH") || polarization.equals("DV");
+    }
+
+    /**
+     * Get subset x and y offsets from abstract metadata.
+     */
+    private void getSubsetOffset() {
+        subsetOffsetX = absRoot.getAttributeInt(AbstractMetadata.subset_offset_x);
+        subsetOffsetY = absRoot.getAttributeInt(AbstractMetadata.subset_offset_y);
+    }
+
+    /**
+     * Get calibration vectors from metadata.
+     */
+    private void getCalibrationVectors() {
+
+        calibration = new CalibrationInfo[numOfSubSwath*selectedPolList.size()];
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+        final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
+        final MetadataElement[] calibrationDataSetListElem = calibrationElem.getElements();
+
+        int dataSetIndex = 0;
+        for (MetadataElement dataSetListElem : calibrationDataSetListElem) {
+
+            final MetadataElement calElem = dataSetListElem.getElement("calibration");
+            final MetadataElement adsHeaderElem = calElem.getElement("adsHeader");
+            final String pol = adsHeaderElem.getAttributeString("polarisation");
+            if (!selectedPolList.contains(pol)) {
+                continue;
+            }
+
+            final MetadataElement calVecListElem = calElem.getElement("calibrationVectorList");
+            final int count = calVecListElem.getAttributeInt("count");
+            final MetadataElement[] vectorListElem = calVecListElem.getElements();
+
+            calibration[dataSetIndex] = new CalibrationInfo();
+            calibration[dataSetIndex].polarization = pol;
+            calibration[dataSetIndex].subSwath = adsHeaderElem.getAttributeString("swath");
+            calibration[dataSetIndex].firstLineTime = Sentinel1Utils.getTime(adsHeaderElem, "startTime").getMJD();
+            calibration[dataSetIndex].lastLineTime = Sentinel1Utils.getTime(adsHeaderElem, "stopTime").getMJD();
+            calibration[dataSetIndex].numOfLines = getNumOfLines(
+                    calibration[dataSetIndex].polarization, calibration[dataSetIndex].subSwath
+            );
+            calibration[dataSetIndex].count = count;
+            calibration[dataSetIndex].calibrationVectorList = new CalibrationVector[count];
+
+            final String tgtBandName = getTargetBandName(
+                    calibration[dataSetIndex].polarization, calibration[dataSetIndex].subSwath);
+
+            targetBandToCalInfo.put(tgtBandName, calibration[dataSetIndex]);
+
+            int vectorIndex = 0;
+            for (MetadataElement vectorElem : vectorListElem) {
+
+                calibration[dataSetIndex].calibrationVectorList[vectorIndex] = new CalibrationVector();
+
+                calibration[dataSetIndex].calibrationVectorList[vectorIndex].azimuthTime =
+                        Sentinel1Utils.getTime(vectorElem, "azimuthTime").getMJD();
+
+                calibration[dataSetIndex].calibrationVectorList[vectorIndex].line =
+                        vectorElem.getAttributeInt("line");
+
+                calibration[dataSetIndex].calibrationVectorList[vectorIndex].pixels =
+                        Sentinel1Utils.getIntArray(vectorElem.getElement("pixel"), "pixel");
+
+                calibration[dataSetIndex].calibrationVectorList[vectorIndex].count =
+                        vectorElem.getElement("pixel").getAttributeInt("count");
+
+                if (outputSigmaBand) {
+                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].sigmaNought =
+                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("sigmaNought"), "sigmaNought");
+                }
+
+                if (outputBetaBand) {
+                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].betaNought =
+                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("betaNought"), "betaNought");
+                }
+
+                if (outputGammaBand) {
+                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].gamma =
+                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("gamma"), "gamma");
+                }
+
+                if (outputDNBand) {
+                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].dn =
+                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("dn"), "dn");
+                }
+
+                vectorIndex++;
+            }
+
+            dataSetIndex++;
+        }
+    }
+
+    private String getTargetBandName(final String polarization, final String swath) {
+
+        final String[] targetBandNames = targetProduct.getBandNames();
+        for (String bandName:targetBandNames) {
+            if (isDualPol) {
+                if (bandName.contains(polarization) && bandName.contains(swath)) {
+                    return bandName;
+                }
+            } else {
+                if (bandName.contains(polarization)) {
+                    return bandName;
+                }
+            }
+        }
+        return null;
+    }
+
+    private int getNumOfLines(final String polarization, final String swath) {
+
+        final MetadataElement[] elems = absRoot.getElements();
+        for(MetadataElement elem : elems) {
+            final String elemName = elem.getName();
+            if(elemName.contains(swath) && elemName.contains(polarization)) {
+                return elem.getAttributeInt("num_output_lines");
+            }
+        }
+        return -1;
+    }
+
+
+    /**
+     * Get incidence angle and slant range time tie point grids.
+     * @param sourceProduct the source
+     */
+    private void getTiePointGridData(Product sourceProduct) {
+        incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+    }
+
+    /**
+     * Update the metadata in the target product.
+     */
+    private void updateTargetProductMetadata() {
+        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
+    }
+    /**
+     * Create target product.
+     */
+    @Override
+    public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames) {
+
+        targetProduct = new Product(sourceProduct.getName(),
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
+
+        addSelectedBands(sourceProduct, sourceBandNames);
+
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+
+        return targetProduct;
+    }
+
+    private void addSelectedBands(final Product sourceProduct, final String[] sourceBandNames) {
+
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+
+        for (int i = 0; i < sourceBands.length; i++) {
+
+            final Band srcBand = sourceBands[i];
+            final String unit = srcBand.getUnit();
+            if(unit == null) {
+                throw new OperatorException("band "+srcBand.getName()+" requires a unit");
+            }
+
+            if(!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE)) {
+                continue;
+            }
+
+            String[] srcBandNames;
+            if (unit.contains(Unit.REAL)) { // SLC
+
+                if(i+1 >= sourceBands.length) {
+                    throw new OperatorException("Real and imaginary bands are not in pairs");
+                }
+
+                final String nextUnit = sourceBands[i+1].getUnit();
+                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
+                    throw new OperatorException("Real and imaginary bands are not in pairs");
+                }
+
+                srcBandNames = new String[2];
+                srcBandNames[0] = srcBand.getName();
+                srcBandNames[1] = sourceBands[i+1].getName();
+                ++i;
+
+            } else { // GRD
+
+                srcBandNames = new String[1];
+                srcBandNames[0] = srcBand.getName();
+            }
+
+            final String pol = srcBandNames[0].substring(srcBandNames[0].lastIndexOf("_") + 1);
+            if (!selectedPolList.contains(pol)) {
+                continue;
+            }
+
+            final String[] targetBandNames = createTargetBandNames(srcBandNames[0]);
+            for (String tgtBandName:targetBandNames) {
+                if(targetProduct.getBand(tgtBandName) == null) {
+
+                    targetBandNameToSourceBandName.put(tgtBandName, srcBandNames);
+
+                    final Band targetBand = new Band(tgtBandName,
+                            ProductData.TYPE_FLOAT32,
+                            srcBand.getSceneRasterWidth(),
+                            srcBand.getSceneRasterHeight());
+
+                    targetBand.setUnit(Unit.INTENSITY);
+                    targetProduct.addBand(targetBand);
+                }
+            }
+        }
+    }
+
+    /**
+     * Create target band names for given source band name.
+     * @param srcBandName The given source band name.
+     * @return The target band name array.
+     */
+    private String[] createTargetBandNames(final String srcBandName) {
+
+        final int cnt = (outputSigmaBand?1:0) + (outputGammaBand?1:0) + (outputBetaBand?1:0) + (outputDNBand?1:0);
+        String[] targetBandNames = new String[cnt];
+
+        final String pol = srcBandName.substring(srcBandName.indexOf("_"));
+        int k = 0;
+        if (outputSigmaBand) {
+            targetBandNames[k++] = "Sigma0" + pol;
+        }
+
+        if (outputGammaBand) {
+            targetBandNames[k++] = "Gamma0" + pol;
+        }
+
+        if (outputBetaBand) {
+            targetBandNames[k++] = "Beta0" + pol;
+        }
+
+        if (outputDNBand) {
+            targetBandNames[k] = "DN" + pol;
+        }
+
+        return targetBandNames;
+    }
+
+    /**
+     * Called by the framework in order to compute a tile for the given target band.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     *
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException
+     *          If an error occurs during computation of the target raster.
+     */
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
+        final Rectangle targetTileRectangle = targetTile.getRectangle();
+        final int x0 = targetTileRectangle.x;
+        final int y0 = targetTileRectangle.y;
+        final int w = targetTileRectangle.width;
+        final int h = targetTileRectangle.height;
+        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
+
+        final String targetBandName = targetBand.getName();
+        final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
+        //final double[][] lut = new double[h][w];
+        //computeTileCalibrationLUTs(x0, y0, w, h, calInfo, targetBandName, lut);
+
+        Tile sourceRaster1 = null;
+        ProductData srcData1 = null;
+        ProductData srcData2 = null;
+        Band sourceBand1 = null;
+
+        final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
+        if (srcBandNames.length == 1) {
+            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            srcData1 = sourceRaster1.getDataBuffer();
+        } else {
+            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+            final Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            final Tile sourceRaster2 = calibrationOp.getSourceTile(sourceBand2, targetTileRectangle);
+            srcData1 = sourceRaster1.getDataBuffer();
+            srcData2 = sourceRaster2.getDataBuffer();
+        }
+
+        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final ProductData trgData = targetTile.getDataBuffer();
+        final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
+
+        double dn, dn2, i, q;
+        int index;
+        for (int y = y0; y < maxY; ++y) {
+
+            srcIndex.calculateStride(y);
+            final double[] lut = new double[w];
+            computeTileCalibrationLUTs(y, x0, y0, w, h, calInfo, targetBandName, lut);
+
+            for (int x = x0; x < maxX; ++x) {
+                final int xx = x - x0;
+                index = srcIndex.getIndex(x);
+
+                if (bandUnit == Unit.UnitType.AMPLITUDE) {
+                    dn = srcData1.getElemDoubleAt(index);
+                    dn2 = dn*dn;
+                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                    i = srcData1.getElemDoubleAt(index);
+                    q = srcData2.getElemDoubleAt(index);
+                    dn2 = i*i + q*q;
+                } else {
+                    throw new OperatorException("Calibration: unhandled unit");
+                }
+
+                trgData.setElemDoubleAt(index, dn2/lut[xx]);
+            }
+        }
+    }
+
+    /**
+     * Compute calibration LUTs for the given tile.
+     * @param x0 X coordinate of the upper left corner pixel of the given tile.
+     * @param y0 Y coordinate of the upper left corner pixel of the given tile.
+     * @param w Tile width.
+     * @param h Tile height.
+     * @param calInfo Object of CalibrationInfo class.
+     * @param targetBandName Target band name.
+     * @param lut LUT for calibration.
+     */
+    private void computeTileCalibrationLUTs(final int x0, final int y0, final int w, final int h,
+                                            final CalibrationInfo calInfo, final String targetBandName,
+                                            double[][] lut) {
+
+        final double lineTimeInterval = (calInfo.lastLineTime - calInfo.firstLineTime) / (calInfo.numOfLines - 1);
+
+        double v00, v01, v10, v11, muX, muY;
+        int calVecIdx = getCalibrationVectorIndex(y0, calInfo);
+        int pixelIdx = getPixelIndex(x0, calVecIdx, calInfo);
+        for (int y = y0; y < y0 + h; y++) {
+
+            final int yy = y - y0;
+            final double azTime = calInfo.firstLineTime + y*lineTimeInterval;
+            if (azTime > calInfo.calibrationVectorList[calVecIdx + 1].azimuthTime) {
+                calVecIdx++;
+            }
+
+            final double azT0 = calInfo.calibrationVectorList[calVecIdx].azimuthTime;
+            final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].azimuthTime;
+            muY = (azTime - azT0) / (azT1 - azT0);
+
+            for (int x = x0; x < x0 + w; x++) {
+
+                final int xx = x - x0;
+                if (x > calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx + 1]) {
+                    pixelIdx++;
+                }
+
+                final int i0 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx];
+                final int i1 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx + 1];
+                muX = (double)(x - i0) / (double)(i1 - i0);
+
+                if (targetBandName.contains("Sigma")) {
+                    v00 = calInfo.calibrationVectorList[calVecIdx].sigmaNought[pixelIdx];
+                    v01 = calInfo.calibrationVectorList[calVecIdx].sigmaNought[pixelIdx + 1];
+                    v10 = calInfo.calibrationVectorList[calVecIdx + 1].sigmaNought[pixelIdx];
+                    v11 = calInfo.calibrationVectorList[calVecIdx + 1].sigmaNought[pixelIdx + 1];
+                } else if (targetBandName.contains("Beta")) {
+                    v00 = calInfo.calibrationVectorList[calVecIdx].betaNought[pixelIdx];
+                    v01 = calInfo.calibrationVectorList[calVecIdx].betaNought[pixelIdx + 1];
+                    v10 = calInfo.calibrationVectorList[calVecIdx + 1].betaNought[pixelIdx];
+                    v11 = calInfo.calibrationVectorList[calVecIdx + 1].betaNought[pixelIdx + 1];
+                } else if (targetBandName.contains("Gamma")) {
+                    v00 = calInfo.calibrationVectorList[calVecIdx].gamma[pixelIdx];
+                    v01 = calInfo.calibrationVectorList[calVecIdx].gamma[pixelIdx + 1];
+                    v10 = calInfo.calibrationVectorList[calVecIdx + 1].gamma[pixelIdx];
+                    v11 = calInfo.calibrationVectorList[calVecIdx + 1].gamma[pixelIdx + 1];
+                } else {
+                    v00 = calInfo.calibrationVectorList[calVecIdx].dn[pixelIdx];
+                    v01 = calInfo.calibrationVectorList[calVecIdx].dn[pixelIdx + 1];
+                    v10 = calInfo.calibrationVectorList[calVecIdx + 1].dn[pixelIdx];
+                    v11 = calInfo.calibrationVectorList[calVecIdx + 1].dn[pixelIdx + 1];
+                }
+
+                lut[yy][xx] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            }
+        }
+    }
+
+    /**
+     * Compute calibration LUTs for the given range line.
+     * @param y Index of the given range line.
+     * @param x0 X coordinate of the upper left corner pixel of the given tile.
+     * @param y0 Y coordinate of the upper left corner pixel of the given tile.
+     * @param w Tile width.
+     * @param h Tile height.
+     * @param calInfo Object of CalibrationInfo class.
+     * @param targetBandName Target band name.
+     * @param lut LUT for calibration.
+     */
+    private void computeTileCalibrationLUTs(final int y, final int x0, final int y0, final int w, final int h,
+                                            final CalibrationInfo calInfo, final String targetBandName,
+                                            double[] lut) {
+
+        final double lineTimeInterval = (calInfo.lastLineTime - calInfo.firstLineTime) / (calInfo.numOfLines - 1);
+
+        double v00, v01, v10, v11, muX, muY;
+        int calVecIdx = getCalibrationVectorIndex(y0, calInfo);
+        int pixelIdx = getPixelIndex(x0, calVecIdx, calInfo);
+
+        final double azTime = calInfo.firstLineTime + y*lineTimeInterval;
+        final double azT0 = calInfo.calibrationVectorList[calVecIdx].azimuthTime;
+        final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].azimuthTime;
+        muY = (azTime - azT0) / (azT1 - azT0);
+
+        for (int x = x0; x < x0 + w; x++) {
+
+            if (x > calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx + 1]) {
+                pixelIdx++;
+            }
+
+            final int xx0 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx];
+            final int xx1 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx + 1];
+            muX = (double)(x - xx0) / (double)(xx1 - xx0);
+
+            if (targetBandName.contains("Sigma")) {
+                v00 = calInfo.calibrationVectorList[calVecIdx].sigmaNought[pixelIdx];
+                v01 = calInfo.calibrationVectorList[calVecIdx].sigmaNought[pixelIdx + 1];
+                v10 = calInfo.calibrationVectorList[calVecIdx + 1].sigmaNought[pixelIdx];
+                v11 = calInfo.calibrationVectorList[calVecIdx + 1].sigmaNought[pixelIdx + 1];
+            } else if (targetBandName.contains("Beta")) {
+                v00 = calInfo.calibrationVectorList[calVecIdx].betaNought[pixelIdx];
+                v01 = calInfo.calibrationVectorList[calVecIdx].betaNought[pixelIdx + 1];
+                v10 = calInfo.calibrationVectorList[calVecIdx + 1].betaNought[pixelIdx];
+                v11 = calInfo.calibrationVectorList[calVecIdx + 1].betaNought[pixelIdx + 1];
+            } else if (targetBandName.contains("Gamma")) {
+                v00 = calInfo.calibrationVectorList[calVecIdx].gamma[pixelIdx];
+                v01 = calInfo.calibrationVectorList[calVecIdx].gamma[pixelIdx + 1];
+                v10 = calInfo.calibrationVectorList[calVecIdx + 1].gamma[pixelIdx];
+                v11 = calInfo.calibrationVectorList[calVecIdx + 1].gamma[pixelIdx + 1];
+            } else {
+                v00 = calInfo.calibrationVectorList[calVecIdx].dn[pixelIdx];
+                v01 = calInfo.calibrationVectorList[calVecIdx].dn[pixelIdx + 1];
+                v10 = calInfo.calibrationVectorList[calVecIdx + 1].dn[pixelIdx];
+                v11 = calInfo.calibrationVectorList[calVecIdx + 1].dn[pixelIdx + 1];
+            }
+
+            lut[x-x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+        }
+    }
+
+    /**
+     * Get index of the calibration vector in the list for a given line.
+     * @param y Line coordinate.
+     * @param calInfo Object of CalibrationInfo class.
+     * @return The calibration vector index.
+     */
+    private int getCalibrationVectorIndex(final int y, final CalibrationInfo calInfo) {
+
+        for (int i = 0; i < calInfo.count; i++) {
+            if (y < calInfo.calibrationVectorList[i].line) {
+                return i - 1;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get pixel index in a given calibration vector for a given pixel.
+     * @param x Pixel coordinate.
+     * @param calVecIdx Calibration vector index.
+     * @param calInfo Object of CalibrationInfo class.
+     * @return The pixel index.
+     */
+    private int getPixelIndex(final int x, final int calVecIdx, final CalibrationInfo calInfo) {
+
+        for (int i = 0; i < calInfo.calibrationVectorList[calVecIdx].count; i++) {
+            if (x < calInfo.calibrationVectorList[calVecIdx].pixels[i]) {
+                return i - 1;
+            }
+        }
+        return -1;
+    }
+
+
+    public double applyCalibration(
+            final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
+            final double satelliteHeight, final double sceneToEarthCentre,final double localIncidenceAngle,
+            final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
+
+        return 0.0;
+    }
+
+    public double applyRetroCalibration(int x, int y, double v, String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
+        return 0.0;
+    }
+
+    public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile,
+                                            final String srcBandName) throws OperatorException {
+
+        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
+        final Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
+        targetTile.setRawSamples(sourceTile.getRawSamples());
+    }
+
+    private static class CalibrationInfo {
+        public String subSwath;
+        public String polarization;
+        public double firstLineTime;
+        public double lastLineTime;
+        public int numOfLines;
+        public int count; // number of calibrationVector records within the list
+        public CalibrationVector[] calibrationVectorList;
+    }
+
+    private static class CalibrationVector {
+        public double azimuthTime;
+        public int line;
+        public int count; // number of data samples in each vector
+        public int[] pixels;
+        public double[] sigmaNought;
+        public double[] betaNought;
+        public double[] gamma;
+        public double[] dn;
+
+    }
+}
