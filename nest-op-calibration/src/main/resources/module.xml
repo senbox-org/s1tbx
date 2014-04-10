@@ -21,6 +21,9 @@
     <dependency>
         <module>nest-io</module>
     </dependency>
+    <dependency>
+        <module>nest-op-sentinel1</module>
+    </dependency>
 
     <categories>VISAT,Processing</categories>
 
