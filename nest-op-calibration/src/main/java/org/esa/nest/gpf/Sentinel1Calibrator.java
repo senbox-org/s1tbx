@@ -96,8 +96,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         String[] selectedPols = selectedPolarisations;
         if(selectedPols == null || selectedPols.length == 0) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot, acquisitionMode);
+            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
         }
         selectedPolList = Arrays.asList(selectedPols);
 

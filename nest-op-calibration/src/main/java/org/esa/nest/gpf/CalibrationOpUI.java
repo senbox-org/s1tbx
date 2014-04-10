@@ -229,9 +229,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
                 } else if (mission.equals("SENTINEL-1A")) {
 
-                    final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-                    final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(
-                            absRoot, acquisitionMode);
+                    final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
                     polList.setListData(polarisations);
                     OperatorUIUtils.initParamList(polList, polarisations);
 
