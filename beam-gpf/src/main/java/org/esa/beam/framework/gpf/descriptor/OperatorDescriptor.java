@@ -41,7 +41,7 @@ public interface OperatorDescriptor extends ElementDescriptor {
      * does its own writing of non-{@link org.esa.beam.framework.datamodel.Product Product}
      * targets to external files in any format.
      */
-    boolean isSuppressWrite();
+    boolean getPreventAutoWrite();
 
     /**
      * @return A concrete, non-abstract operator class.

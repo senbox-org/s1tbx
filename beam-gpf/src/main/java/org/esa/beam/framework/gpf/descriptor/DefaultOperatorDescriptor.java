@@ -71,7 +71,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     }
 
     @Override
-    public boolean isSuppressWrite() {
+    public boolean getPreventAutoWrite() {
         return suppressWrite != null ? suppressWrite : false;
     }
 

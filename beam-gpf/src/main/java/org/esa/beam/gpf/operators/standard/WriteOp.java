@@ -91,7 +91,7 @@ import java.util.Map;
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Writes a data product to a file.",
-                  suppressWrite = true)
+                  preventAutoWrite = true)
 public class WriteOp extends Operator implements Output {
 
     @TargetProduct

@@ -21,12 +21,12 @@ package org.esa.beam.framework.gpf.experimental;
  * in order to indicate that the {@code Operator} marked by this interface takes care of the output itself and thus,
  * the framework shall not consider it as an operator that produces raster data to be written to a product file.
  * <p/>
- * <i>Important Note: This class is not part of the official API, we may remove or rename it later.</i>
+ * <i>Important Note: This class is not part of the official API, we may remove or rename it at any time.</i>
  *
  * @author Marco Peters
  * @since BEAM 4.9
  * @deprecated since 5.0, use
- * {@link org.esa.beam.framework.gpf.annotations.OperatorMetadata#suppressWrite() OperatorMetadata.suppressWrite}
+ * {@link org.esa.beam.framework.gpf.annotations.OperatorMetadata#preventAutoWrite() OperatorMetadata.preventAutoWrite}
  * instead
  */
 @Deprecated

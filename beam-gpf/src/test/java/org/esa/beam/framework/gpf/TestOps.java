@@ -32,7 +32,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.glayer.AbstractFigureDomConverter;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.geotools.referencing.CRS;
 
@@ -255,7 +254,7 @@ public class TestOps {
         }
     }
 
-    @OperatorMetadata(alias = "OutputOp", suppressWrite = true)
+    @OperatorMetadata(alias = "OutputOp", preventAutoWrite = true)
     public static class OpImplementingOutput extends Operator implements Output {
 
         @TargetProduct

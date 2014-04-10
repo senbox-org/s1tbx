@@ -308,7 +308,9 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 if (targetProduct.getProductReader() instanceof OperatorProductReader) {
                     final OperatorProductReader opReader = (OperatorProductReader) targetProduct.getProductReader();
                     Operator operator = opReader.getOperatorContext().getOperator();
-                    if (operator instanceof Output || operator.getSpi().getOperatorDescriptor().isSuppressWrite()) {
+                    boolean preventAutoWrite = operator instanceof Output
+                                               || operator.getSpi().getOperatorDescriptor().getPreventAutoWrite();
+                    if (preventAutoWrite) {
                         execOp = operator;
                     }
                 }

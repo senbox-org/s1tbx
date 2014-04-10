@@ -117,7 +117,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells",
-                  suppressWrite = true)
+                  preventAutoWrite = true)
 public class BinningOp extends Operator {
 
     public static enum TimeFilterMethod {

@@ -304,7 +304,7 @@ public abstract class OperatorSpi {
         }
 
         @Override
-        public boolean isSuppressWrite() {
+        public boolean getPreventAutoWrite() {
             return false;
         }
 
