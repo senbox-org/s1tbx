@@ -22,6 +22,9 @@
     <packaging>dir</packaging>
 
     <description>
+        This modules allows for integrating new data processors written entirely in Python 3.3 or higher.
+        As it uses CPython, developers can use any Python native extensions such as numpy, scipy, etc.
+        The bundled README.md file provides the instructions how to setup BEAM for Python development.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -46,7 +49,7 @@
         <module>beam-visat-rcp</module>
     </dependency>
     <dependency>
-        <lib>lib/jpy-0.7-SNAPSHOT.jar</lib>
+        <lib>lib/jpy.jar</lib>
     </dependency>
 
 

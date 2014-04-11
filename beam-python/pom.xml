@@ -44,6 +44,7 @@
                                     <groupId>org.jpy</groupId>
                                     <artifactId>jpy</artifactId>
                                     <outputDirectory>${basedir}/src/main/resources/lib</outputDirectory>
+                                    <destFileName>jpy.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
