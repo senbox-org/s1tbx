@@ -37,10 +37,16 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat</artifactId>
         </dependency>
-        <dependency> <!-- Landsat is used in test. That's why it can not be removed -->
+        <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-landsat-reader</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-landsat-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -48,36 +54,21 @@
             <version>${beam.version}</version>
         </dependency>
         <dependency>
-            <!--not compatible with BEAM 5-->
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-binning</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>${beam.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-netcdf</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>edu.ucar</groupId>
-                    <artifactId>netcdf</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-merisl3-reader</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-ui</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-visat-rcp</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>1.5.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>gov.nasa.gsfc.seadas</groupId>
+            <artifactId>seadas-reader</artifactId>
+            <version>1.5.5-SNAPSHOT</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -86,8 +77,26 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-envisat-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-alos-reader</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-alos-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-alos-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -96,8 +105,20 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-atsr-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-avhrr-reader</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-avhrr-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -106,8 +127,20 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-chris-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-merisl3-reader</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-merisl3-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -116,8 +149,20 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-geotiff</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-getasse30-reader</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-getasse30-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -126,8 +171,20 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-csv-dataio</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-modis-reader</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-modis-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -136,34 +193,21 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-netcdf</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-spot-vgt-reader</artifactId>
             <version>${beam.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-spot-vgt-reader</artifactId>
+            <version>${beam.version}</version>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
 </project>
