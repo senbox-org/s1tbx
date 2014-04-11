@@ -82,7 +82,7 @@
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
             <includes>
-                <include>*.command</include>
+                <include>*.sh</include>
             </includes>
             <excludes>
                 <exclude>beam-cli-template.*</exclude>

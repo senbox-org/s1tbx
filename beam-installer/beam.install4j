@@ -1805,29 +1805,11 @@ if (wizardContext != null) {
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="bin/aatsr-sst.command" fileType="regular" />
-        <entry location="bin/aatsr-sst.sh" fileType="regular" />
-        <entry location="bin/beam-cli.command" fileType="regular" />
         <entry location="bin/beam-cli.sh" fileType="regular" />
-        <entry location="bin/binning.command" fileType="regular" />
-        <entry location="bin/binning.sh" fileType="regular" />
-        <entry location="bin/detect_java.sh" fileType="regular" />
-        <entry location="bin/flhmci.command" fileType="regular" />
-        <entry location="bin/flhmci.sh" fileType="regular" />
-        <entry location="bin/gpt.command" fileType="regular" />
         <entry location="bin/gpt.sh" fileType="regular" />
-        <entry location="bin/mapproj.command" fileType="regular" />
-        <entry location="bin/mapproj.sh" fileType="regular" />
-        <entry location="bin/meris-cloud.command" fileType="regular" />
-        <entry location="bin/meris-cloud.sh" fileType="regular" />
-        <entry location="bin/meris-smac.command" fileType="regular" />
-        <entry location="bin/meris-smac.sh" fileType="regular" />
-        <entry location="bin/mosaic.command" fileType="regular" />
-        <entry location="bin/mosaic.sh" fileType="regular" />
-        <entry location="bin/pconvert.command" fileType="regular" />
         <entry location="bin/pconvert.sh" fileType="regular" />
-        <entry location="bin/visat-d.command" fileType="regular" />
         <entry location="bin/visat-d.sh" fileType="regular" />
+        <entry location="bin/detect_java.sh" fileType="regular" />
       </exclude>
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
@@ -1842,29 +1824,11 @@ if (wizardContext != null) {
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="bin/aatsr-sst.command" fileType="regular" />
-        <entry location="bin/aatsr-sst.sh" fileType="regular" />
-        <entry location="bin/beam-cli.command" fileType="regular" />
         <entry location="bin/beam-cli.sh" fileType="regular" />
-        <entry location="bin/binning.command" fileType="regular" />
-        <entry location="bin/binning.sh" fileType="regular" />
-        <entry location="bin/detect_java.sh" fileType="regular" />
-        <entry location="bin/flhmci.command" fileType="regular" />
-        <entry location="bin/flhmci.sh" fileType="regular" />
-        <entry location="bin/gpt.command" fileType="regular" />
         <entry location="bin/gpt.sh" fileType="regular" />
-        <entry location="bin/mapproj.command" fileType="regular" />
-        <entry location="bin/mapproj.sh" fileType="regular" />
-        <entry location="bin/meris-cloud.command" fileType="regular" />
-        <entry location="bin/meris-cloud.sh" fileType="regular" />
-        <entry location="bin/meris-smac.command" fileType="regular" />
-        <entry location="bin/meris-smac.sh" fileType="regular" />
-        <entry location="bin/mosaic.command" fileType="regular" />
-        <entry location="bin/mosaic.sh" fileType="regular" />
-        <entry location="bin/pconvert.command" fileType="regular" />
         <entry location="bin/pconvert.sh" fileType="regular" />
-        <entry location="bin/visat-d.command" fileType="regular" />
         <entry location="bin/visat-d.sh" fileType="regular" />
+        <entry location="bin/detect_java.sh" fileType="regular" />
       </exclude>
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
@@ -1879,22 +1843,10 @@ if (wizardContext != null) {
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="bin/aatsr-sst.bat" fileType="regular" />
-        <entry location="bin/aatsr-sst.sh" fileType="regular" />
         <entry location="bin/beam-cli.bat" fileType="regular" />
-        <entry location="bin/beam-cli.sh" fileType="regular" />
-        <entry location="bin/binning.bat" fileType="regular" />
-        <entry location="bin/binning.sh" fileType="regular" />
         <entry location="bin/gpt.bat" fileType="regular" />
-        <entry location="bin/gpt.sh" fileType="regular" />
-        <entry location="bin/meris-cloud.bat" fileType="regular" />
-        <entry location="bin/meris-cloud.sh" fileType="regular" />
-        <entry location="bin/meris-smac.bat" fileType="regular" />
-        <entry location="bin/meris-smac.sh" fileType="regular" />
         <entry location="bin/pconvert.bat" fileType="regular" />
-        <entry location="bin/pconvert.sh" fileType="regular" />
         <entry location="bin/visat-d.bat" fileType="regular" />
-        <entry location="bin/visat-d.sh" fileType="regular" />
         <entry location="beam-website.url" fileType="regular" />
       </exclude>
       <variables />
