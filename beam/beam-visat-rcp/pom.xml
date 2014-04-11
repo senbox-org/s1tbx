@@ -19,13 +19,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam-system</artifactId>
         <version>5.0-SNAPSHOT</version>
-        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-visat-rcp</artifactId>
     <packaging>jar</packaging>
     <name>BEAM VISAT Rich Client Platform</name>
@@ -43,6 +41,13 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-ui</artifactId>
         </dependency>
+        <!-- TODO: remove this dependency as soon as beam-statistics-op has been moved to beam-core
+                  (prerequisite: beam-gpf needs to be moved to beam-core before) -->
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-statistics-op</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-binding</artifactId>
@@ -58,13 +63,6 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
-        </dependency>
-        <!-- TODO: remove this dependency as soon as beam-statistics-op has been moved to beam-core
-                  (prerequisite: beam-gpf needs to be moved to beam-core before) -->
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-statistics-op</artifactId>
-            <version>1.0.0.${beam.version}</version>
         </dependency>
     </dependencies>
 </project>

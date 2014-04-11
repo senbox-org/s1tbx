@@ -57,9 +57,9 @@ public class ColorPaletteDef implements Cloneable {
 
     public ColorPaletteDef(double minSample, double centerSample, double maxSample) {
         this(new Point[]{
-                new Point(minSample, Color.black),
-                new Point(centerSample, Color.gray),
-                new Point(maxSample, Color.white)
+                    new Point(minSample, Color.black),
+                    new Point(centerSample, Color.gray),
+                    new Point(maxSample, Color.white)
         }, 256);
     }
 
@@ -318,64 +318,76 @@ public class ColorPaletteDef implements Cloneable {
         return colors;
     }
 
+    /**
+     * @deprecated since BEAM 5.0,  use {@link org.esa.beam.jai.ImageManager#createColorPalette(ImageInfo)} instead
+     */
+    @Deprecated
     public Color[] createColorPalette(Scaling scaling) {
+        // @todo 1 tb/tb take care of non-linear scalings 2014-03-26
         Debug.assertTrue(getNumPoints() >= 2);
-        final int numColors = getNumColors();
         final Color[] colorPalette = new Color[numColors];
-        final double minDisplay = scaling.scaleInverse(getMinDisplaySample());
-        final double maxDisplay = scaling.scaleInverse(getMaxDisplaySample());
+        final double displayMin = getMinDisplaySample();
+        final double displayMax = getMaxDisplaySample();
+        final double scalingFactor = 1 / (numColors - 1.0);
         for (int i = 0; i < numColors; i++) {
-            final double w = i / (numColors - 1.0);
-            final double sample = minDisplay + w * (maxDisplay - minDisplay);
-            colorPalette[i] = computeColorRaw(scaling, sample, minDisplay, maxDisplay);
+            final double w = i * scalingFactor;
+            final double sample = displayMin + w * (displayMax - displayMin);
+            colorPalette[i] = computeColor(sample, displayMin, displayMax);
         }
         return colorPalette;
     }
 
-    private Color computeColorRaw(Scaling scaling, double sample, double minDisplay, double maxDisplay) {
+    public Color computeColor(final Scaling scaling, final double sample) {
+        // @todo 1 tb/tb take care of non-linear scalings 2014-03-26
+        return computeColor(sample, getMinDisplaySample(), getMaxDisplaySample());
+    }
+
+    private Color computeColor(double sample, double minDisplay, double maxDisplay) {
         final Color c;
         if (sample <= minDisplay) {
             c = getFirstPoint().getColor();
         } else if (sample >= maxDisplay) {
             c = getLastPoint().getColor();
         } else {
-            c = computeColorRaw(scaling, sample);
+            c = computeColor(sample);
         }
         return c;
     }
 
-    public Color computeColor(final Scaling scaling, final double sample) {
-        return computeColorRaw(scaling, scaling.scaleInverse(sample), getMinDisplaySample(), getMaxDisplaySample());
-    }
-
-    private Color computeColorRaw(final Scaling scaling, final double rawSample) {
+    private Color computeColor(final double sample) {
         for (int i = 0; i < getNumPoints() - 1; i++) {
             final Point p1 = getPointAt(i);
             final Point p2 = getPointAt(i + 1);
-            final double sample1 = scaling.scaleInverse(p1.getSample());
-            final double sample2 = scaling.scaleInverse(p2.getSample());
-            if (rawSample >= sample1 && rawSample <= sample2) {
+            final double sample1 = p1.getSample();
+            final double sample2 = p2.getSample();
+            final Color color1 = p1.getColor();
+            final Color color2 = p2.getColor();
+            if (sample >= sample1 && sample <= sample2) {
                 if (discrete) {
-                    return p1.getColor();
+                    return color1;
                 } else {
-                    final double f = (rawSample - sample1) / (sample2 - sample1);
-                    final double r1 = p1.getColor().getRed();
-                    final double r2 = p2.getColor().getRed();
-                    final double g1 = p1.getColor().getGreen();
-                    final double g2 = p2.getColor().getGreen();
-                    final double b1 = p1.getColor().getBlue();
-                    final double b2 = p2.getColor().getBlue();
-                    final double a1 = p1.getColor().getAlpha();
-                    final double a2 = p2.getColor().getAlpha();
-                    final int red = (int) MathUtils.roundAndCrop(r1 + f * (r2 - r1), 0L, 255L);
-                    final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
-                    final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
-                    final int alpha = (int) MathUtils.roundAndCrop(a1 + f * (a2 - a1), 0L, 255L);
-                    return new Color(red, green, blue, alpha);
+                    return computeColor(sample, sample1, sample2, color1, color2);
                 }
             }
         }
         return Color.BLACK;
+    }
+
+    private Color computeColor(double sample, double sample1, double sample2, Color color1, Color color2) {
+        final double f = (sample - sample1) / (sample2 - sample1);
+        final double r1 = color1.getRed();
+        final double r2 = color2.getRed();
+        final double g1 = color1.getGreen();
+        final double g2 = color2.getGreen();
+        final double b1 = color1.getBlue();
+        final double b2 = color2.getBlue();
+        final double a1 = color1.getAlpha();
+        final double a2 = color2.getAlpha();
+        final int red = (int) MathUtils.roundAndCrop(r1 + f * (r2 - r1), 0L, 255L);
+        final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
+        final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
+        final int alpha = (int) MathUtils.roundAndCrop(a1 + f * (a2 - a1), 0L, 255L);
+        return new Color(red, green, blue, alpha);
     }
 
     public static class Point implements Cloneable {

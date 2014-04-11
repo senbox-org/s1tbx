@@ -74,8 +74,14 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
+    /**
+     * @deprecated since BEAM 4.10, no replacement
+     */
     @Deprecated
     public static final String PIN_MASK_NAME = "pins";
+    /**
+     * @deprecated since BEAM 4.10, no replacement
+     */
     @Deprecated
     public static final String GCP_MASK_NAME = "ground_control_points";
 
@@ -231,18 +237,18 @@ public class Product extends ProductNode {
         this.metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
         this.metadataRoot.setOwner(this);
 
-        this.bandGroup = new ProductNodeGroup<Band>(this, "bands", true);
-        this.tiePointGridGroup = new ProductNodeGroup<TiePointGrid>(this, "tie_point_grids", true);
-        this.bitmaskDefGroup = new ProductNodeGroup<BitmaskDef>(this, "bitmask_defs", true);
+        this.bandGroup = new ProductNodeGroup<>(this, "bands", true);
+        this.tiePointGridGroup = new ProductNodeGroup<>(this, "tie_point_grids", true);
+        this.bitmaskDefGroup = new ProductNodeGroup<>(this, "bitmask_defs", true);
         this.vectorDataGroup = new VectorDataNodeProductNodeGroup();
-        this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings", true);
-        this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings", true);
-        this.maskGroup = new ProductNodeGroup<Mask>(this, "masks", true);
+        this.indexCodingGroup = new ProductNodeGroup<>(this, "index_codings", true);
+        this.flagCodingGroup = new ProductNodeGroup<>(this, "flag_codings", true);
+        this.maskGroup = new ProductNodeGroup<>(this, "masks", true);
 
         pinGroup = createPinGroup();
         gcpGroup = createGcpGroup();
 
-        groups = new ProductNodeGroup<ProductNodeGroup>(this, "groups", false);
+        groups = new ProductNodeGroup<>(this, "groups", false);
         groups.add(bandGroup);
         groups.add(tiePointGridGroup);
         groups.add(vectorDataGroup);
@@ -740,10 +746,7 @@ public class Product extends ProductNode {
             return false;
         }
         final Scene destScene = SceneFactory.createScene(destProduct);
-        if (destScene == null) {
-            return false;
-        }
-        return srcScene.transferGeoCodingTo(destScene, subsetDef);
+        return destScene != null && srcScene.transferGeoCodingTo(destScene, subsetDef);
     }
 
     /**
@@ -1463,7 +1466,7 @@ public class Product extends ProductNode {
     public boolean addProductNodeListener(final ProductNodeListener listener) {
         if (listener != null) {
             if (listeners == null) {
-                listeners = new ArrayList<ProductNodeListener>();
+                listeners = new ArrayList<>();
             }
             if (!listeners.contains(listener)) {
                 listeners.add(listener);
@@ -1814,7 +1817,7 @@ public class Product extends ProductNode {
      * @return the info string at the given position
      */
     public String createPixelInfoString(final int pixelX, final int pixelY) {
-        final StringBuffer sb = new StringBuffer(1024);
+        final StringBuilder sb = new StringBuilder(1024);
 
         sb.append("Product:\t");
         sb.append(getName()).append("\n\n");
@@ -1968,7 +1971,7 @@ public class Product extends ProductNode {
      * @return All removed child nodes. Array may be empty.
      */
     public ProductNode[] getRemovedChildNodes() {
-        final ArrayList<ProductNode> removedNodes = new ArrayList<ProductNode>();
+        final ArrayList<ProductNode> removedNodes = new ArrayList<>();
         removedNodes.addAll(bandGroup.getRemovedNodes());
         removedNodes.addAll(bitmaskDefGroup.getRemovedNodes());
         removedNodes.addAll(flagCodingGroup.getRemovedNodes());
@@ -1995,7 +1998,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Checks whether or not this product can be ortorectified.
+     * Checks whether or not this product can be orthorectified.
      *
      * @return true if {@link Band#canBeOrthorectified()} returns true for all bands, false otherwise
      */
@@ -2077,7 +2080,7 @@ public class Product extends ProductNode {
      * @return the preferred tile size, may be <code>null</null> if not specified
      *
      * @see RasterDataNode#getSourceImage()
-     * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
+     * @see RasterDataNode#setSourceImage(java.awt.image.RenderedImage)
      */
     public Dimension getPreferredTileSize() {
         return preferredTileSize;
@@ -2103,7 +2106,7 @@ public class Product extends ProductNode {
      * @param preferredTileSize the preferred tile size, may be <code>null</null> if not specified
      *
      * @see RasterDataNode#getSourceImage()
-     * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
+     * @see RasterDataNode#setSourceImage(java.awt.image.RenderedImage)
      */
     public void setPreferredTileSize(Dimension preferredTileSize) {
         this.preferredTileSize = preferredTileSize;
@@ -2124,7 +2127,7 @@ public class Product extends ProductNode {
      * @see #parseExpression(String)
      */
     public String[] getAllFlagNames() {
-        final List<String> l = new ArrayList<String>(32);
+        final List<String> l = new ArrayList<>(32);
         for (int i = 0; i < getNumBands(); i++) {
             final Band band = getBandAt(i);
             if (band.getFlagCoding() != null) {
@@ -2288,7 +2291,7 @@ public class Product extends ProductNode {
         private AutoGroupingImpl(String[][] paths) {
             this.paths = paths.clone();
             this.indexes = new Index[paths.length];
-            this.wildcardMap = new HashMap<String, WildcardMatcher>();
+            this.wildcardMap = new HashMap<>();
             for (int i = 0; i < paths.length; i++) {
                 String[] path = paths[i];
                 String entry = path.length > 0 ? path[0] : "";
@@ -2523,7 +2526,7 @@ public class Product extends ProductNode {
             Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
             Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
             if (validMasks == null) {
-                validMasks = new HashMap<String, BitRaster>();
+                validMasks = new HashMap<>();
             }
             validMasks.put(id, validMask);
         } else {
@@ -2746,10 +2749,7 @@ public class Product extends ProductNode {
         @Override
         public boolean remove(VectorDataNode vectorDataNode) {
             Assert.notNull(vectorDataNode, "node");
-            if (vectorDataNode.isPermanent()) {
-                return false;
-            }
-            return super.remove(vectorDataNode);
+            return !vectorDataNode.isPermanent() && super.remove(vectorDataNode);
         }
 
         private VectorDataNode getPermanentNode(String nodeName) {

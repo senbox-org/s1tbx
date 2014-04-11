@@ -27,6 +27,7 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
@@ -305,7 +306,8 @@ public class ImageLegend {
     }
 
     private void drawPalette(Graphics2D g2d) {
-        final Color[] palette = imageInfo.getColorPaletteDef().createColorPalette(getRaster());
+        final Color[] palette = ImageManager.createColorPalette(getRaster().getImageInfo());
+//        final Color[] palette = imageInfo.getColorPaletteDef().createColorPalette(getRaster());
         final int x1 = paletteRect.x;
         final int x2 = paletteRect.x + paletteRect.width;
         final int y1 = paletteRect.y;

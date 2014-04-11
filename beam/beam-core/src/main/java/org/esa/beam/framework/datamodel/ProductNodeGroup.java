@@ -279,9 +279,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         if (takingOverNodeOwnership) {
             node.setOwner(this);
         }
-        if(node instanceof MetadataAttribute || node instanceof MetadataElement)
-            return;
-        
+
         // notify listeners
         Product product = getProduct();
         if (product != null) {

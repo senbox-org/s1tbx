@@ -17,7 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 
 import javax.media.jai.Histogram;
 
@@ -29,7 +29,7 @@ import javax.media.jai.Histogram;
  * leaving behind this class as a pure data container. Statistics are now furthermore derived upon
  * geo-physically interpreted image data (before it operated on the raw, unscaled data). Thus, it is
  * not required to scale the returned statistical properties, e.g. we used to write
- * {@code band.scale(stx.getMean())}. This is not required anymore.</i>
+ * {@code band.scale(stx.getMean)}. This is not required anymore.</i>
  *
  * @author Norman Fomferra
  * @author Marco Peters
@@ -75,24 +75,30 @@ public class Stx {
                double coeffOfVariation, double enl,
                boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
 
-        Assert.argument(!Double.isNaN(minimum) && !Double.isInfinite(minimum), "minimum");
-        Assert.argument(!Double.isNaN(maximum) && !Double.isInfinite(maximum), "maximum");
+        Assert.argument(!Double.isNaN(minimum), "minimum must not be NaN");
+        Assert.argument(!Double.isInfinite(minimum), "minimum must not be infinity");
+        Assert.argument(!Double.isNaN(maximum), "maximum must not be NaN");
+        Assert.argument(!Double.isInfinite(maximum), "minimum must not be infinity");
         Assert.argument(resolutionLevel >= 0, "resolutionLevel");
 
         // todo - this is still a lot of behaviour, move all computations to StxFactory (nf)
-        // todo - minimum and maximum must always be valid (nf)
         this.sampleCount = StxFactory.computeSum(histogram.getBins(0));
         this.minimum = minimum;
         this.maximum = maximum;
         this.histogramScaling = getHistogramScaling(logHistogram);
-        this.mean = Double.isNaN(mean) ? histogramScaling.scaleInverse(histogram.getMean()[0]) : mean;
-        this.standardDeviation = Double.isNaN(standardDeviation) ? histogramScaling.scaleInverse(histogram.getStandardDeviation()[0]) : standardDeviation;
-        this.median = histogramScaling.scaleInverse(StxFactory.computeMedian(histogram, this.sampleCount));
+        if (minimum == maximum) {
+            this.mean = minimum;
+            this.standardDeviation = 0.0;
+            this.median = maximum;
+        } else {
+            this.mean = Double.isNaN(mean) ? histogramScaling.scaleInverse(histogram.getMean()[0]) : mean;
+            this.standardDeviation = Double.isNaN(standardDeviation) ? histogramScaling.scaleInverse(histogram.getStandardDeviation()[0]) : standardDeviation;
+            this.median = histogramScaling.scaleInverse(StxFactory.computeMedian(histogram, this.sampleCount));
+        }
         this.logHistogram = logHistogram;
         this.intHistogram = intHistogram;
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
-
         this.coefficientOfVariation = coeffOfVariation;
         this.enl = enl;
     }
@@ -273,11 +279,16 @@ public class Stx {
         return logHistogram ? LOG10_SCALING : Scaling.IDENTITY;
     }
 
+    /**
+     * Used for histogram scaling only.
+     */
     static final class Log10Scaling implements Scaling {
+
+        private static final double LN10 = Math.log(10.0);
 
         @Override
         public double scale(double value) {
-            // This is mathematical nonsense, but we want to consider every pixel in the distribution (nf)
+            // This is mathematical nonsense, but this way even negative and zero pixels can contribute to the log-distribution (nf)
             if (value <= 1.0E-9) {
                 return -9.0;
             }
@@ -286,123 +297,8 @@ public class Stx {
 
         @Override
         public double scaleInverse(double value) {
-            return Math.pow(10.0, value);
+            // ca. 4x faster than Math.pow(10, value) and 2x faster than Math.exp(LN10 * value)
+            return FastMath.exp(LN10 * value);
         }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getHistogramBinMinimum(int)}
-     */
-    @Deprecated
-    public double getHistogramBinMin(int binIndex) {
-        return getHistogramBinMinimum(binIndex);
-    }
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getHistogramBinMaximum(int)}
-     */
-    @Deprecated
-    public double getHistogramBinMax(int binIndex) {
-        return getHistogramBinMaximum(binIndex);
-    }
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getMinimum()}
-     */
-    @Deprecated
-    public double getMin() {
-        return getMinimum();
-    }
-
-    /**
-     * @deprecated since BEAM 4.10, use {@link #getMaximum()} ()}
-     */
-    @Deprecated
-    public double getMax() {
-        return getMaximum();
-    }
-
-    // todo - check if the following createXXX need to be maintained, otherwise remove (nf)
-
-    /**
-     * Creates statistics for the given raster data node at the given resolution level.
-     *
-     * @param raster The raster data node.
-     * @param level  The image resolution level.
-     * @param pm     A progress monitor.
-     * @return The statistics at the given resolution level.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, int level, ProgressMonitor pm) {
-        return new StxFactory().withResolutionLevel(level).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster  The raster data node.
-     * @param roiMask The mask that determines the region of interest.
-     * @param pm      A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, Mask roiMask, ProgressMonitor pm) {
-        return new StxFactory().withRoiMask(roiMask).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster   The raster data node.
-     * @param roiMask  The mask that determines the region of interest.
-     * @param binCount The number of bin cells used for the histogram.
-     * @param pm       A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, ProgressMonitor pm) {
-        return new StxFactory().withRoiMask(roiMask).withHistogramBinCount(binCount).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster   The raster data node.
-     * @param level    The image resolution level.
-     * @param binCount The number of bin cells used for the histogram.
-     * @param min      The minimum value.
-     * @param max      The maximum value.
-     * @param pm       A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, int level, int binCount, double min, double max,
-                             ProgressMonitor pm) {
-        return new StxFactory().withResolutionLevel(level).withHistogramBinCount(binCount).withMinimum(min).withMaximum(max).create(raster, pm);
-    }
-
-    /**
-     * Creates (accurate) statistics for the given raster data node.
-     *
-     * @param raster   The raster data node.
-     * @param roiMask  The mask that determines the region of interest.
-     * @param binCount The number of bin cells used for the histogram.
-     * @param min      The minimum value.
-     * @param max      The maximum value.
-     * @param pm       A progress monitor.
-     * @return The (accurate) statistics.
-     * @deprecated since BEAM 4.10, use {@link StxFactory} instead.
-     */
-    @Deprecated
-    public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, double min, double max,
-                             ProgressMonitor pm) {
-        return new StxFactory().withRoiMask(roiMask).withHistogramBinCount(binCount).withMinimum(min).withMaximum(max).create(raster, pm);
     }
 }

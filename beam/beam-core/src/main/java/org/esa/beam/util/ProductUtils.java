@@ -222,7 +222,8 @@ public class ProductUtils {
                         return raster.isPixelValid(pixelIndex);
                     }
                 };
-                palette = raster.getImageInfo().getColorPaletteDef().createColorPalette(raster);
+                palette = ImageManager.createColorPalette(raster.getImageInfo());
+//                palette = raster.getImageInfo().getColorPaletteDef().createColorPalette(raster);
                 pm.worked(50);
                 checkCanceled(pm);
             } else {

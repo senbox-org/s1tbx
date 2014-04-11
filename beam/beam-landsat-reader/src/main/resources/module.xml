@@ -1,46 +1,25 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.4.2</version>
+    <version>5.0</version>
     <name>Landsat Product Reader</name>
     <description>
         A product reader for Landsat files. It supports the instruments MSS of Landsat 1-5, TM of Landsat 4 and 5, ETM+ of Landsat 7
         and OLI and TIRS of Landsat 8 in GeoTIFF format. Landsat TM 5 is additionally supported in FAST format.
     </description>
 
-    <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
-    <copyright>(C) 2006-2012 by Brockmann Consult</copyright>
+    <vendor>Brockmann Consult GmbH (with contributions from Christian Berwanger)</vendor>
+    <copyright>(C) 2006-2014 by Brockmann Consult</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
         <![CDATA[
-        Changes in 1.5:<br/>
+        <b>Changes in 5.0</b><br/>
             [BEAM-1635] Support .tar.gz format for Landsat 4 GeoTIFF products<br/>
             [BEAM-1604] Wavelength values for Landsat need to be updated<br/>
-        Changes in 1.4.1:<br/>
             [BEAM-1572] Landsat 5 TM in Fast format can have wrong scaling and offset<br/>
             [BEAM-1558] Support MSS data products of Landsat 1-5<br/>
-        Changes in 1.4:<br/>
-            [BEAM-1534] Landsat TM Reader: Naming is misleading<br/>
-            [BEAM-1531] Implement support for Landsat 4 GeoTIFF products<br/>
-            [BEAM-1524] Support Landsat8 in GeoTIFF format<br/>
-            [BEAM-1515] Landsat products in GeoTiff format can not be opened <br/>
-        Changes in 1.3.2:<br/>
-            [BEAM-1426] Landsat GeoTIFF reader hides other format readers<br/>
-            [BEAM-1425] NPE in Landsat GeoTIFF reader<br/>
-        Changes in 1.3.1:<br/>
-            Adapted to new Maven-architecture<br/>
-        Changes in 1.2.100:<br/>
-            [BEAM-1186] The Landsat GeoTIFF reader should handle invalid input gracefully<br/>
-        Changes in 1.2:<br/>
-            [BEAM-1167] The Landsat reader should support products in GeoTIFF<br/>
-        Changes in 1.1.2:<br/>
-            [BEAM-945] Landsat reader does not consider the center information in header file<br/>
-        Changes in 1.1.1:<br/>
-            [BEAM-874] Ensure thread safety of product reader<br/>
-        Changes in 1.1:<br/>
-            [BEAM-653] Landsat reads the raw data (unsigned bytes) wrong<br/>
         ]]>
     </changelog>
 
@@ -66,8 +45,7 @@
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
-            <shortDescr>Import a Landsat 5 TM (Fast) data product or product subset.</shortDescr>
-            <description>Import a Landsat 5 TM (in Fast format) data product or product subset.</description>
+            <shortDescr>Import a Landsat 5 TM (in Fast format) data product or product subset.</shortDescr>
             <helpId>importLandsatProduct</helpId>
         </action>
         <action>
@@ -77,8 +55,7 @@
             <formatName>LandsatGeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Landsat (GeoTIFF)</text>
-            <shortDescr>Import a Landsat (GeoTIFF) data product or product subset.</shortDescr>
-            <description>Import a Landsat (in GeoTIFF format) data product or product subset.</description>
+            <shortDescr>Import a Landsat (in GeoTIFF format) data product or product subset.</shortDescr>
 			<parent>importOptical</parent>
         </action>
     </extension>

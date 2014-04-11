@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-hdf5-writer</symbolicName>
-    <version>1.0.1</version>
+    <version>5.0</version>
     <name>HDF5 Product Writer</name>
 
 
@@ -15,8 +15,6 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.0.1:<br\>
-        Adapted to new Maven-architecture<br>
         ]]>
     </changelog>
 
@@ -40,8 +38,7 @@
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <formatName>HDF5</formatName>
             <mnemonic>5</mnemonic>
-            <shortDescr>Export product to HDF5 format.</shortDescr>
-            <description>Export the selected product to HDF5 format.</description>
+            <shortDescr>Export the selected product to HDF5 format.</shortDescr>
             <helpId>exportHdf5Product</helpId>
         </action>
     </extension>

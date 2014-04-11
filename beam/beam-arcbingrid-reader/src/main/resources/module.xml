@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-arcbingrid-reader</symbolicName>
-    <version>3.0</version>
+    <version>5.0</version>
     <name>Arc/Info Binary Grid Reader</name>
 
     <description>

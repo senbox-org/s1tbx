@@ -41,7 +41,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 2.7<br/>
-            [BEAM-1279] Add 64-bit HDF libaries for all platforms<br/>
+            [BEAM-1279] Add 64-bit HDF libraries for all platforms<br/>
         </p>
         ]]>
     </changelog>

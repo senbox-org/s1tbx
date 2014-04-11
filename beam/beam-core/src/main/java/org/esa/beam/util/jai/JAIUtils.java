@@ -49,7 +49,7 @@ public class JAIUtils {
 
     static final int TILE_SIZE_STEP = 64;
     static final int MIN_TILE_SIZE = 4 * TILE_SIZE_STEP;
-    static final int MAX_TILE_SIZE = 16 * TILE_SIZE_STEP;
+    static final int MAX_TILE_SIZE = 10 * TILE_SIZE_STEP;
 
     /**
      * Sets the memory capacity of the default tile cache in megabytes

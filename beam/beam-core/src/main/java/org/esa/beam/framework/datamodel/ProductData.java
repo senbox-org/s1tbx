@@ -198,7 +198,7 @@ public abstract class ProductData implements Cloneable {
      *
      * @throws IllegalArgumentException if one of the arguments is invalid
      */
-    public final static ProductData createInstance(int type, int numElems) {
+    public static ProductData createInstance(int type, int numElems) {
         if (numElems < 1 && type != TYPE_UTC) {
             throw new IllegalArgumentException("numElems is less than one");
         }
@@ -319,7 +319,7 @@ public abstract class ProductData implements Cloneable {
     /**
      * Returns this value's type ID.
      */
-    public final int getType() {
+    public int getType() {
         return _type;
     }
 
@@ -358,7 +358,7 @@ public abstract class ProductData implements Cloneable {
      *
      * @return the size of a single element in bytes
      */
-    public final int getElemSize() {
+    public int getElemSize() {
         return getElemSize(getType());
     }
 
@@ -1464,7 +1464,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemFloatAt(int index, float value) {
-            _array[index] = (short) value;//Math.round(value);
+            _array[index] = (short) Math.round(value);
         }
 
         /**
@@ -1472,7 +1472,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemDoubleAt(int index, double value) {
-            _array[index] = (short) value;//Math.round(value);
+            _array[index] = (short) Math.round(value);
         }
 
         /**
@@ -1615,7 +1615,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public long getElemUIntAt(int index) {
-            return _array[index] & 0xffff;
+            return getElemIntAt(index);
         }
 
         /**
@@ -1623,7 +1623,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public float getElemFloatAt(int index) {
-            return _array[index] & 0xffff;
+            return getElemIntAt(index);
         }
 
         /**
@@ -1631,7 +1631,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public double getElemDoubleAt(int index) {
-            return _array[index] & 0xffff;
+            return getElemIntAt(index);
         }
 
         /**
@@ -1805,7 +1805,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemFloatAt(int index, float value) {
-            _array[index] = (int)value;//Math.round(value);
+            _array[index] = Math.round(value);
         }
 
         /**
@@ -1813,7 +1813,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemDoubleAt(int index, double value) {
-            _array[index] = (int) value;//Math.round(value);
+            _array[index] = (int) Math.round(value);
         }
 
         /**
@@ -2035,7 +2035,7 @@ public abstract class ProductData implements Cloneable {
      * <p/>
      * <p> Internally, data is stored in an array of the type <code>float[]</code>.
      */
-    public final static class Float extends ProductData {
+    public static class Float extends ProductData {
 
         /**
          * The internal data array holding this value's data elements.
@@ -2254,7 +2254,7 @@ public abstract class ProductData implements Cloneable {
      * <p/>
      * <p> Internally, data is stored in an array of the type <code>double[]</code>.
      */
-    public final static class Double extends ProductData {
+    public static class Double extends ProductData {
 
         /**
          * The internal data array holding this value's data elements.
@@ -2457,7 +2457,7 @@ public abstract class ProductData implements Cloneable {
      * <p/>
      * <p> Internally, data is stored in an array of the type <code>byte[]</code>.
      */
-    public final static class ASCII extends Byte {
+    public static class ASCII extends Byte {
 
         /**
          * Constructs a new <code>ASCII</code> value.
@@ -2478,7 +2478,7 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Returns a textual representation of this value's value. The text returned is a string cretaed from the bytes
+         * Returns a textual representation of this value's value. The text returned is a string created from the bytes
          * array elements in this value interpreted as ASCII values.
          *
          * @return a text representing this product data, never <code>null</code>
@@ -2560,7 +2560,7 @@ public abstract class ProductData implements Cloneable {
      * @see org.esa.beam.framework.datamodel.ProductData.UTC#getSecondsFraction()
      * @see org.esa.beam.framework.datamodel.ProductData.UTC#getMicroSecondsFraction()
      */
-    public final static class UTC extends UInt {
+    public static class UTC extends UInt {
 
         /**
          * The default UTC time zone used by this class.
