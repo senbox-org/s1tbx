@@ -43,9 +43,19 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static java.lang.Math.sqrt;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -604,7 +614,7 @@ public class BinningOpTest {
         Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.SUBSEQUENT_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
 
         BinningOp binningOp = createBinningOp();
-        binningOp.setTimeFilterMethod(BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATADAY);
+        binningOp.setTimeFilterMethod(BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY);
         ProductFilter filter = BinningOp.createSourceProductFilter(dataPeriod, null, null, null);
 
         assertSame(SpatialDataDaySourceProductFilter.class, filter.getClass());

@@ -121,17 +121,9 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
 public class BinningOp extends Operator {
 
     public static enum TimeFilterMethod {
-
-        NONE("ignore pixel observation time, use all source pixels"),
-        TIME_RANGE("use all pixels that have been acquired in the given binning period"),
-        SPATIOTEMPORAL_DATADAY("<html>use a sensor-dependent, spatial \"data-day\" definition with the goal to minimise the<br>" +
-                               "time between the first and last observation contributing to the same bin in the given binning period.</html>");
-
-        public final String description;
-
-        private TimeFilterMethod(String description) {
-            this.description = description;
-        }
+        NONE,
+        TIME_RANGE,
+        SPATIOTEMPORAL_DATA_DAY,
     }
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
@@ -173,7 +165,7 @@ public class BinningOp extends Operator {
     @Parameter(description = "The method that is used to decide which source pixels are used with respect to their observation time. " +
                              "'NONE': ignore pixel observation time, use all source pixels. " +
                              "'TIME_RANGE': use all pixels that have been acquired in the given binning period. " +
-                             "'SPATIOTEMPORAL_DATADAY': use a sensor-dependent, spatial \"data-day\" definition with the goal " +
+                             "'SPATIOTEMPORAL_DATA_DAY': use a sensor-dependent, spatial \"data-day\" definition with the goal " +
                              "to minimise the time between the first and last observation contributing to the same bin in the given binning period. " +
                              "The decision, whether a source pixel contributes to a bin or not, is a function of the pixel's observation longitude and time. " +
                              "Requires the parameter 'minDataHour'.",
@@ -473,7 +465,7 @@ public class BinningOp extends Operator {
         if (periodDuration != null && periodDuration < 0.0) {
             throw new OperatorException("The parameter 'periodDuration' must be a positive value");
         }
-        if (timeFilterMethod == TimeFilterMethod.SPATIOTEMPORAL_DATADAY && minDataHour == null) {
+        if (timeFilterMethod == TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY && minDataHour == null) {
             throw new OperatorException("If SPATIOTEMPORAL_DATADAY filtering is used the parameters 'minDataHour' must be given");
         }
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
