@@ -27,7 +27,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BinningConfigWithProcessorTest {
 
@@ -77,7 +79,7 @@ public class BinningConfigWithProcessorTest {
 
         assertEquals(config.getNumRows(), configCopy.getNumRows());
         assertEquals(config.getCompositingType(), configCopy.getCompositingType());
-        assertEquals(config.getSuperSampling(), configCopy.getSuperSampling());
+        assertEquals(config.getSupersampling(), configCopy.getSupersampling());
         assertEquals(config.getMaskExpr(), configCopy.getMaskExpr());
         assertArrayEquals(config.getVariableConfigs(), configCopy.getVariableConfigs());
         assertArrayEquals(config.getAggregatorConfigs(), configCopy.getAggregatorConfigs());

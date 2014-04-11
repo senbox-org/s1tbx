@@ -145,7 +145,7 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     @Override
-    public int getSuperSampling() {
+    public int getSupersampling() {
         if (getPropertyValue(PROPERTY_KEY_SUPERSAMPLING) == null) {
             return 1;
         }

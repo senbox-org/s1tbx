@@ -27,7 +27,12 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Thomas Storm
@@ -103,10 +108,10 @@ public class BinningFormModelImplTest {
     @Test
     public void testGetSuperSampling() throws Exception {
         final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
-        assertEquals(1, binningFormModel.getSuperSampling());
+        assertEquals(1, binningFormModel.getSupersampling());
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, 10);
-        assertEquals(10, binningFormModel.getSuperSampling());
+        assertEquals(10, binningFormModel.getSupersampling());
     }
 
     @Test

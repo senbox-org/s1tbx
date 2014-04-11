@@ -159,7 +159,7 @@ public class BinningDialog extends SingleTargetProductDialog {
         binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
         binningConfig.setMaskExpr(formModel.getMaskExpr());
         binningConfig.setNumRows(formModel.getNumRows());
-        binningConfig.setSuperSampling(formModel.getSuperSampling());
+        binningConfig.setSupersampling(formModel.getSupersampling());
         return binningConfig;
     }
 
@@ -210,7 +210,7 @@ public class BinningDialog extends SingleTargetProductDialog {
 
             parameters.put("maskExpr", binningConfig.getMaskExpr());
             parameters.put("numRows", binningConfig.getNumRows());
-            parameters.put("superSampling", binningConfig.getSuperSampling());
+            parameters.put("superSampling", binningConfig.getSupersampling());
 
             final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
 

@@ -145,7 +145,7 @@ public class BinningConfigTest {
 
         assertEquals(config.getNumRows(), configCopy.getNumRows());
         assertEquals(config.getCompositingType(), configCopy.getCompositingType());
-        assertEquals(config.getSuperSampling(), configCopy.getSuperSampling());
+        assertEquals(config.getSupersampling(), configCopy.getSupersampling());
         assertEquals(config.getMaskExpr(), configCopy.getMaskExpr());
         assertArrayEquals(config.getVariableConfigs(), configCopy.getVariableConfigs());
         assertArrayEquals(config.getAggregatorConfigs(), configCopy.getAggregatorConfigs());

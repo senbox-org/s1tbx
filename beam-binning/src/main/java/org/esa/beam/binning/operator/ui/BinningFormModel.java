@@ -92,7 +92,7 @@ interface BinningFormModel {
     /**
      * @return the user-chosen supersampling
      */
-    int getSuperSampling();
+    int getSupersampling();
 
     /**
      * @return the user-chosen number of rows in the planetary grid

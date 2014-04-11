@@ -76,10 +76,10 @@ public class BinningConfig {
     private CompositingType compositingType = CompositingType.BINNING;
 
     /**
-     * The number of pixels used for super-sampling an input pixel into sub-pixel.
+     * The number of pixels used for supersampling an input pixel into sub-pixel.
      */
     @Parameter
-    private Integer superSampling;
+    private Integer supersampling;
 
     /**
      * The band maths expression used to filter input pixels.
@@ -141,8 +141,12 @@ public class BinningConfig {
         this.maskExpr = maskExpr;
     }
 
-    public Integer getSuperSampling() {
-        return superSampling;
+    public Integer getSupersampling() {
+        return supersampling;
+    }
+
+    public void setSupersampling(Integer supersampling) {
+        this.supersampling = supersampling;
     }
 
     public CompositingType getCompositingType() {
@@ -153,9 +157,6 @@ public class BinningConfig {
         this.compositingType = type;
     }
 
-    public void setSuperSampling(Integer superSampling) {
-        this.superSampling = superSampling;
-    }
 
     public VariableConfig[] getVariableConfigs() {
         return variableConfigs;
@@ -199,7 +200,7 @@ public class BinningConfig {
         return new BinningContextImpl(createPlanetaryGrid(),
                                       createBinManager(variableContext),
                                       compositingType,
-                                      getSuperSampling() != null ? getSuperSampling() : 1,
+                                      getSupersampling() != null ? getSupersampling() : 1,
                                       createDataPeriod(startDate, periodDuration, minDataHour),
                                       region);
     }

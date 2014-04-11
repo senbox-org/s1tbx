@@ -393,7 +393,7 @@ public class BinningOp extends Operator {
 
         BinningConfig binningConfig = new BinningConfig();
         binningConfig.setNumRows(numRows);
-        binningConfig.setSuperSampling(superSampling);
+        binningConfig.setSupersampling(superSampling);
         binningConfig.setMaskExpr(maskExpr);
         binningConfig.setVariableConfigs(variableConfigs);
         binningConfig.setAggregatorConfigs(aggregatorConfigs);
