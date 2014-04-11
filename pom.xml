@@ -929,6 +929,11 @@
         </developer>
     </developers>
 
+
+    <!-- TODO - check is this is still needed in BEAM 5.0 -->
+    <!-- Dependency on SLF4J binding to Java logging. -->
+    <!-- Its only purpose is to prevent SLF4 from outputting annoying 'missing binding' messages to System.err -->
+    <!-- So, since it is not used in any module, it's included on the highest level. -->
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
