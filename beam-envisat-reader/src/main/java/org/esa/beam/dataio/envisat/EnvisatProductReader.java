@@ -254,7 +254,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
         Debug.assertNotNull(product);
 
         BandLineReader[] bandLineReaders = productFile.getBandLineReaders();
-        bandlineReaderMap = new HashMap<Band, BandLineReader>(bandLineReaders.length);
+        bandlineReaderMap = new HashMap<>(bandLineReaders.length);
         for (BandLineReader bandLineReader : bandLineReaders) {
             if (bandLineReader.isTiePointBased()) {
                 continue;
@@ -318,7 +318,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
     }
 
     private void addDefaultMasksToProduct(Product product) {
-        List<Band> flagDsList = new Vector<Band>();
+        List<Band> flagDsList = new Vector<>();
         for (int i = 0; i < product.getNumBands(); i++) {
             Band band = product.getBandAt(i);
             if (band.getFlagCoding() != null) {
@@ -416,7 +416,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
                 lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
             }
             if (latBand != null && lonBand != null) {
-                String validMask = "";
+                String validMask;
                 if (EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(product.getProductType()).matches()) {
                     validMask = "NOT l1_flags.INVALID";
                 } else {
@@ -508,12 +508,12 @@ public final class EnvisatProductReader extends AbstractProductReader {
                                                   GeodeticDatum datum) throws FactoryException {
         final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
         final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
-        final HashMap<String, Object> projProperties = new HashMap<String, Object>();
+        final HashMap<String, Object> projProperties = new HashMap<>();
         projProperties.put("name", crsName + " / " + datum.getName().getCode());
         final Conversion conversion = coFactory.createDefiningConversion(projProperties,
                                                                          method,
                                                                          parameters);
-        final HashMap<String, Object> baseCrsProperties = new HashMap<String, Object>();
+        final HashMap<String, Object> baseCrsProperties = new HashMap<>();
         baseCrsProperties.put("name", datum.getName().getCode());
         final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum,
                                                                      DefaultEllipsoidalCS.GEODETIC_2D);
@@ -529,25 +529,10 @@ public final class EnvisatProductReader extends AbstractProductReader {
         product.setPointingFactory(pointingFactory);
     }
 
-    /**
-     * Returns the orignal product metadata
-     * @param product input product
-     * @return original metadata
-     */
-    public static MetadataElement getOriginalProductMetadata(final Product product) {
-        final MetadataElement root = product.getMetadataRoot();
-        MetadataElement origMetadata = root.getElement("Original_Product_Metadata");
-        if(origMetadata == null) {
-            origMetadata = new MetadataElement("Original_Product_Metadata");
-            root.addElement(origMetadata);
-        }
-        return origMetadata;
-    }
-
     private void addHeaderAnnotationsToProduct(Product product) {
         Debug.assertNotNull(productFile);
         Debug.assertNotNull(product);
-        final MetadataElement metaRoot = getOriginalProductMetadata(product);
+        final MetadataElement metaRoot = product.getMetadataRoot();
         metaRoot.addElement(createMetadataGroup("MPH", productFile.getMPH().getParams()));
         metaRoot.addElement(createMetadataGroup("SPH", productFile.getSPH().getParams()));
 
@@ -562,19 +547,13 @@ public final class EnvisatProductReader extends AbstractProductReader {
                                               ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
                                               true));
                 dsdGroup.addAttribute(new MetadataAttribute("DATASET_TYPE",
-                                                            ProductData.createInstance(
-                                                                    new String(new char[]{dsd.getDatasetType()})),
+                                                            ProductData.createInstance(new String(new char[]{dsd.getDatasetType()})),
                                                             true));
                 dsdGroup.addAttribute(new MetadataAttribute("FILE_NAME",
-                                                            ProductData.createInstance(
-                                                                    getNonNullString(dsd.getFileName())),
+                                                            ProductData.createInstance(getNonNullString(dsd.getFileName())),
                                                             true));
-                dsdGroup.addAttribute(new MetadataAttribute("OFFSET", ProductData.createInstance(
-                        new long[]{dsd.getDatasetOffset()}),
-                                                            true));
-                dsdGroup.addAttribute(new MetadataAttribute("SIZE", ProductData.createInstance(
-                        new long[]{dsd.getDatasetSize()}),
-                                                            true));
+                dsdGroup.addAttribute(new MetadataAttribute("OFFSET", ProductData.createInstance(new long[]{dsd.getDatasetOffset()}), true));
+                dsdGroup.addAttribute(new MetadataAttribute("SIZE", ProductData.createInstance(new long[]{dsd.getDatasetSize()}), true));
                 dsdGroup.addAttribute(new MetadataAttribute("NUM_RECORDS",
                                                             ProductData.createInstance(new int[]{dsd.getNumRecords()}),
                                                             true));
@@ -594,7 +573,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
     private void addDatasetAnnotationsToProduct(final Product product) throws IOException {
         Debug.assertNotNull(productFile);
         Debug.assertNotNull(product);
-        final MetadataElement metaRoot = getOriginalProductMetadata(product);
+        final MetadataElement metaRoot = product.getMetadataRoot();
         final String[] datasetNames = productFile.getValidDatasetNames();
         for (String datasetName : datasetNames) {
             final DSD dsd = productFile.getDSD(datasetName);
@@ -839,7 +818,7 @@ private TiePointGrid createTiePointGrid(final BandLineReader bandLineReader,
         Debug.assertTrue(recordReader != null);
 
         final MetadataElement metadataTableGroup = new MetadataElement(name);
-        final StringBuffer sb = new StringBuffer(16);
+        final StringBuilder sb = new StringBuilder(16);
         final int numRecords = recordReader.getNumRecords();
         for (int i = 0; i < numRecords; i++) {
             final Record record = recordReader.readRecord(i);

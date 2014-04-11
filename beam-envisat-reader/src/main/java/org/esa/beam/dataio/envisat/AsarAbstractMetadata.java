@@ -56,10 +56,8 @@ public final class AsarAbstractMetadata {
         final MetadataElement absRoot = new MetadataElement(ABSTRACTED_METADATA_ROOT_NAME);
         product.getMetadataRoot().addElementAt(absRoot, 0);
 
-        final MetadataElement origRoot = EnvisatProductReader.getOriginalProductMetadata(product);
-
-        final MetadataElement mph = origRoot.getElement("MPH");
-        final MetadataElement sph = origRoot.getElement("SPH");
+        final MetadataElement mph = root.getElement("MPH");
+        final MetadataElement sph = root.getElement("SPH");
 
         final String productType = product.getProductType();
         boolean waveProduct = false;
@@ -67,7 +65,7 @@ public final class AsarAbstractMetadata {
             waveProduct = true;
         }
 
-        MetadataElement mppAds = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
+        MetadataElement mppAds = root.getElement("MAIN_PROCESSING_PARAMS_ADS");
         if (mppAds != null) {
             final MetadataElement ads = mppAds.getElement("MAIN_PROCESSING_PARAMS_ADS.1");
             if (ads != null)
@@ -190,7 +188,7 @@ public final class AsarAbstractMetadata {
             String mapProjection = "";
             String geoRefSystem = "";
             if (productType.contains("APG") || productType.contains("IMG")) {
-                final MetadataElement mapGads = origRoot.getElement("MAP_PROJECTION_GADS");
+                final MetadataElement mapGads = root.getElement("MAP_PROJECTION_GADS");
                 mapProjection = mapGads.getAttributeString("map_descriptor", "Geocoded");
                 geoRefSystem = mapGads.getAttributeString("ellipsoid_name", "WGS84");
             }
@@ -202,7 +200,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("lat_pixel_res", 0.0, "deg", absRoot, "pixel resolution in geocoded image");
             addAbstractedAttribute("lon_pixel_res", 0.0, "deg", absRoot, "pixel resolution in geocoded image");
 
-            final MetadataElement gg = origRoot.getElement("GEOLOCATION_GRID_ADS");
+            final MetadataElement gg = root.getElement("GEOLOCATION_GRID_ADS");
             double slantRangeDist = 0;
             if (gg != null) {
                 final MetadataElement gg1 = gg.getElement("GEOLOCATION_GRID_ADS.1");
@@ -284,7 +282,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("coregistered_stack", ProductData.TYPE_UINT8, "flag", "Coregistration applied", absRoot);
         }
 
-        final MetadataElement dsd = origRoot.getElement("DSD");
+        final MetadataElement dsd = root.getElement("DSD");
         if (dsd != null) {
             final MetadataElement dsd17 = dsd.getElement("DSD.17");
             if (dsd17 != null) {
@@ -298,16 +296,16 @@ public final class AsarAbstractMetadata {
             }
         }
 
-        addOrbitStateVectors(origRoot, absRoot);
+        addOrbitStateVectors(root, absRoot);
 
         // add SRGR coefficients if found
-        final MetadataElement srgrADS = origRoot.getElement("SR_GR_ADS");
+        final MetadataElement srgrADS = root.getElement("SR_GR_ADS");
         if (srgrADS != null) {
             addSRGRCoefficients(srgrADS, absRoot);
         }
 
         // add Doppler Centroid coefficients
-        final MetadataElement dopplerCentroidCoeffsADS = origRoot.getElement("DOP_CENTROID_COEFFS_ADS");
+        final MetadataElement dopplerCentroidCoeffsADS = root.getElement("DOP_CENTROID_COEFFS_ADS");
         if (dopplerCentroidCoeffsADS != null) {
             addDopplerCentroidCoefficients(dopplerCentroidCoeffsADS, absRoot);
         }

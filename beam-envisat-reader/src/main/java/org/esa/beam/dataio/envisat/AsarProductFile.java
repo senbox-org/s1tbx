@@ -892,7 +892,7 @@ public final class AsarProductFile extends ProductFile {
 
     private void processWaveMetadata(Product product) throws IOException {
 
-        final MetadataElement origRoot = EnvisatProductReader.getOriginalProductMetadata(product);
+        final MetadataElement origRoot = product.getMetadataRoot();
         final String[] datasetNames = getValidDatasetNames();
         for (String datasetName : datasetNames) {
             if (datasetName.equalsIgnoreCase("CROSS_SPECTRA_MDS") || datasetName.equalsIgnoreCase("OCEAN_WAVE_SPECTRA_MDS")) {
@@ -978,7 +978,7 @@ public final class AsarProductFile extends ProductFile {
             final String dicardUnusedMetadata = RuntimeContext.getModuleContext().getRuntimeConfig().
                     getContextProperty("discard.unused.metadata");
             if (dicardUnusedMetadata.equalsIgnoreCase("true")) {
-                removeUnusedMetadata(EnvisatProductReader.getOriginalProductMetadata(product));
+                removeUnusedMetadata(product.getMetadataRoot());
             }
         }
     }
