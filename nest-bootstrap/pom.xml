@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-arcbingrid-reader</artifactId>
-            <version>3.0.${beam.version}</version>
+            <version>${beam.version}</version>
         </dependency>
 		<dependency>
             <groupId>org.esa.nest</groupId>
@@ -58,10 +58,6 @@
             <version>0.1-SNAPSHOT</version>
         </dependency-->
 
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom</artifactId>
-        </dependency>
 		<dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
