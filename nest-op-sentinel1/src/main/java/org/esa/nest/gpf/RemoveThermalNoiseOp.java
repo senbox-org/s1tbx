@@ -265,7 +265,7 @@ public final class RemoveThermalNoiseOp extends Operator {
         final String lineStr = vector.getAttributeString("line");
         final int line = Integer.parseInt(lineStr);
 
-        System.out.println(vector.getName() + " line str = " + vector.getAttributeString("line") + " line = " + line);
+        //System.out.println(vector.getName() + " line str = " + vector.getAttributeString("line") + " line = " + line);
 
         // This is the width of the LUT, i.e. number of columns.
         final int count = (intNames.length > 0) ?
@@ -449,7 +449,7 @@ public final class RemoveThermalNoiseOp extends Operator {
         return -1; // Should never reach here
     }
 
-    private static double computeValue(int x, int y, int[] line, ArrayList<int[]> pixel, ArrayList<double[]> value) {
+    private static double computeValue(final int x, final int y, final int[] line, final ArrayList<int[]> pixel, final ArrayList<double[]> value) {
 
         // TBD Optimize!!!!!
 
@@ -487,13 +487,14 @@ public final class RemoveThermalNoiseOp extends Operator {
         final double bottomVal = linearInterpolateAlongLine(x, rightYIdx, pixel, value);
 
         // Do interpolation in y direction
-        val = linearInterpolate(leftYIdx, rightYIdx, y, topVal, bottomVal);
+        val = linearInterpolate(line[leftYIdx], line[rightYIdx], y, topVal, bottomVal);
 
         return val;
     }
 
 
-    private static double linearInterpolateAlongLine(int x, int yIdx, ArrayList<int[]> pixel, ArrayList<double[]> value) {
+    private static double linearInterpolateAlongLine(final int x, final int yIdx,
+                                                     final ArrayList<int[]> pixel, final ArrayList<double[]> value) {
 
         final int leftXIdx = findLeftOfBracket(x, pixel.get(yIdx));
         final int rightXIdx = (x == pixel.get(yIdx)[leftXIdx]) ? leftXIdx : leftXIdx+1;
@@ -503,10 +504,10 @@ public final class RemoveThermalNoiseOp extends Operator {
         final double leftNoise = value.get(yIdx)[leftXIdx];
         final double rightNoise =  value.get(yIdx)[rightXIdx];
 
-        return linearInterpolate(leftXIdx, rightXIdx, x, leftNoise, rightNoise);
+        return linearInterpolate(pixel.get(yIdx)[leftXIdx], pixel.get(yIdx)[rightXIdx], x, leftNoise, rightNoise);
     }
 
-    private static void checkBracket(int left, int right, int max) {
+    private static void checkBracket(final int left, final int right, final int max) {
 
         if (left < 0 || right < 0 || left > max || right > max) {
 
@@ -514,9 +515,13 @@ public final class RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    private static double linearInterpolate(int x0, int x1, int x, double y0, double y1) {
+    private static double linearInterpolate(final int x0, final int x1, final int x, final double y0, final double y1) {
 
-        return y0 + (y1-y0)*(x-x0)/(x1-x0);
+        if (x1 == x0) {
+            return y0;
+        } else {
+            return y0 + (y1-y0)*(x-x0)/(x1-x0);
+        }
     }
 
     /**
@@ -603,6 +608,7 @@ public final class RemoveThermalNoiseOp extends Operator {
                     final double tgtValue = srcValue + noise;
 
                     tgtData.setElemDoubleAt(index, tgtValue);
+                    //tgtData.setElemDoubleAt(index, eta); // TBD debug
                 }
             }
 
