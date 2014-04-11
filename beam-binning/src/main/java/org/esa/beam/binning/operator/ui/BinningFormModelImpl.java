@@ -34,6 +34,7 @@ import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -125,7 +126,7 @@ class BinningFormModelImpl implements BinningFormModel {
 
     @Override
     public BinningOp.TimeFilterMethod getTimeFilterMethod() {
-        return BinningOp.TimeFilterMethod.valueOf(propertySet.getProperty(PROPERTY_KEY_TIME_FILTER_METHOD).getValueAsText());
+        return propertySet.getProperty(PROPERTY_KEY_TIME_FILTER_METHOD).getValue();
     }
 
     @Override
@@ -152,13 +153,13 @@ class BinningFormModelImpl implements BinningFormModel {
     }
 
     private String getDate() {
-        BinningOp.TimeFilterMethod temporalFilter = BinningOp.TimeFilterMethod.valueOf(getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD).toString());
+        BinningOp.TimeFilterMethod temporalFilter = getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD);
         switch (temporalFilter) {
             case NONE: {
                 return null;
             }
             case TIME_RANGE:
-            case SPATIOTEMPORAL_DATADAY: {
+            case SPATIOTEMPORAL_DATA_DAY: {
                 Calendar calendar = getPropertyValue(PROPERTY_KEY_START_DATE_TIME);
                 if (calendar == null) {
                     return null;
@@ -167,7 +168,7 @@ class BinningFormModelImpl implements BinningFormModel {
                 return new SimpleDateFormat(BinningOp.DATE_PATTERN).format(date);
             }
         }
-        throw new IllegalStateException("Illegal temportal filter method: '" + temporalFilter + "'");
+        throw new IllegalStateException("Illegal temporal filter method: '" + temporalFilter + "'");
     }
 
     @Override
@@ -188,18 +189,13 @@ class BinningFormModelImpl implements BinningFormModel {
         }
         final Property property = new Property(descriptor, new DefaultPropertyAccessor());
         propertySet.addProperty(property);
+        traceProperty(key, value);
         property.setValue(value);
-        if (value != null && value.getClass().isArray()) {
-            for (Object singleValue : (Object[]) value) {
-                printDebugMessage(key, singleValue);
-            }
-        } else {
-            printDebugMessage(key, value);
-        }
     }
 
-    private void printDebugMessage(String key, Object value) {
-        Debug.trace("set property: 'key = " + key + ", value = " + value + "'.");
+    private void traceProperty(String name, Object value) {
+        boolean isArray = value != null && value.getClass().isArray();
+        Debug.trace(String.format("set property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
     }
 
     @Override

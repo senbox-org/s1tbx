@@ -50,8 +50,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.*;
+import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.NONE;
+import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY;
+import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.TIME_RANGE;
 
 /**
  * The panel in the binning operator UI which allows for setting the regional and temporal filters.
@@ -67,10 +71,20 @@ class BinningFilterPanel extends JPanel {
     public static final String PROPERTY_SOUTH_BOUND = "southBound";
     public static final String PROPERTY_WKT = "manualWkt";
 
+    private static final String TIME_FILTER_METHOD_NONE = "ignore pixel observation time, use all source pixels";
+    private static final String TIME_FILTER_METHOD_TIME_RANGE = "use all pixels that have been acquired in the given binning period";
+    private static final String TIME_FILTER_METHOD_SPATIOTEMPORAL_DATA_DAY = "<html>use a sensor-dependent, spatial \"data-day\" definition with the goal to minimise the<br>" +
+                                                                             "time between the first and last observation contributing to the same bin in the given binning period.</html>";
+
+    private final Map<BinningOp.TimeFilterMethod, String> timeFilterMethodDescriptions;
     private final BindingContext bindingContext;
     private BinningFormModel binningFormModel;
 
     BinningFilterPanel(final BinningFormModel binningFormModel) {
+        timeFilterMethodDescriptions = new HashMap<>();
+        timeFilterMethodDescriptions.put(BinningOp.TimeFilterMethod.NONE, TIME_FILTER_METHOD_NONE);
+        timeFilterMethodDescriptions.put(BinningOp.TimeFilterMethod.TIME_RANGE, TIME_FILTER_METHOD_TIME_RANGE);
+        timeFilterMethodDescriptions.put(BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY, TIME_FILTER_METHOD_SPATIOTEMPORAL_DATA_DAY);
         this.binningFormModel = binningFormModel;
         bindingContext = binningFormModel.getBindingContext();
         init();
@@ -100,7 +114,7 @@ class BinningFilterPanel extends JPanel {
         setLayout(layout);
         GridBagConstraints gbc = new GridBagConstraints();
 
-        GridBagUtils.addToPanel(this, new TitledSeparator("Specify target region", SwingConstants.CENTER), gbc, "insets=5,weighty=0,anchor=NORTHWEST,fill=HORIZONTAL");
+        GridBagUtils.addToPanel(this, new TitledSeparator("Spatial Filter / Region", SwingConstants.CENTER), gbc, "insets=5,weighty=0,anchor=NORTHWEST,fill=HORIZONTAL");
         GridBagUtils.addToPanel(this, computeOption, gbc, "insets=3,gridy=1");
         GridBagUtils.addToPanel(this, globalOption, gbc, "gridy=2");
         GridBagUtils.addToPanel(this, wktOption, gbc, "gridy=3");
@@ -108,7 +122,7 @@ class BinningFilterPanel extends JPanel {
         GridBagUtils.addToPanel(this, regionOption, gbc, "gridy=5");
         GridBagUtils.addToPanel(this, createAndInitBoundsUI(), gbc, "gridy=6,insets.bottom=5");
 
-        GridBagUtils.addToPanel(this, new TitledSeparator("Specify temporal filtering", SwingConstants.CENTER), gbc, "gridy=7,insets.bottom=3");
+        GridBagUtils.addToPanel(this, new TitledSeparator("Temporal Filter", SwingConstants.CENTER), gbc, "gridy=7,insets.bottom=3");
         GridBagUtils.addToPanel(this, createTemporalFilterPanel(), gbc, "gridy=8");
         GridBagUtils.addVerticalFiller(this, gbc);
     }
@@ -175,18 +189,17 @@ class BinningFilterPanel extends JPanel {
         JLabel minDataHourLabel = new JLabel("Min data hour:");
         JLabel periodDurationUnitLabel = new JLabel("days");
 
-        final JComboBox<String> temporalFilterComboBox = new JComboBox<>(new String[]{
-                NONE.name(),
-                TIME_RANGE.name(),
-                SPATIOTEMPORAL_DATADAY.name()
+        final JComboBox<BinningOp.TimeFilterMethod> temporalFilterComboBox = new JComboBox<>(new BinningOp.TimeFilterMethod[]{
+                NONE,
+                TIME_RANGE,
+                SPATIOTEMPORAL_DATA_DAY
         });
         temporalFilterComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Object item = temporalFilterComboBox.getSelectedItem();
-                if (item != null) {
-                    BinningOp.TimeFilterMethod method = BinningOp.TimeFilterMethod.valueOf(item.toString());
-                    temporalFilterComboBox.setToolTipText(method.description);
+                BinningOp.TimeFilterMethod method = (BinningOp.TimeFilterMethod) temporalFilterComboBox.getSelectedItem();
+                if (method != null) {
+                    temporalFilterComboBox.setToolTipText(timeFilterMethodDescriptions.get(method));
                 }
             }
         });
@@ -199,7 +212,7 @@ class BinningFilterPanel extends JPanel {
         startDateLabel.setToolTipText("The UTC start date of the binning period. If only the date part is given, the time 00:00:00 is assumed.");
         periodDurationLabel.setToolTipText("Duration of the binning period in days.");
         minDataHourLabel.setToolTipText("A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).");
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, String.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD,BinningOp.TimeFilterMethod.class));
         binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, Calendar.class));
         binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, Double.class));
         binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
@@ -216,9 +229,9 @@ class BinningFilterPanel extends JPanel {
 
         temporalFilterComboBox.setSelectedIndex(0); // selected value must not be empty when setting enablement
 
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATADAY));
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATADAY));
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, true, hasTimeInformation(SPATIOTEMPORAL_DATADAY));
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATA_DAY));
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATA_DAY));
+        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, true, hasTimeInformation(SPATIOTEMPORAL_DATA_DAY));
 
         temporalFilterComboBox.setSelectedIndex(0); // ensure that enablement is applied
 
@@ -238,10 +251,9 @@ class BinningFilterPanel extends JPanel {
         return new Enablement.Condition() {
             @Override
             public boolean evaluate(BindingContext bindingContext) {
-                String chosenMethod = bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD).getValueAsText();
-                BinningOp.TimeFilterMethod temporalFilter = BinningOp.TimeFilterMethod.valueOf(chosenMethod);
+                BinningOp.TimeFilterMethod chosenMethod = bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD).getValue();
                 for (BinningOp.TimeFilterMethod condition : conditions) {
-                    if (condition == temporalFilter) {
+                    if (condition == chosenMethod) {
                         return true;
                     }
                 }

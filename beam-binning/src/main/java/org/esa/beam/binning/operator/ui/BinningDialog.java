@@ -33,6 +33,9 @@ import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
 import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
@@ -67,25 +70,20 @@ public class BinningDialog extends SingleTargetProductDialog {
         formModel = new BinningFormModelImpl();
         form = new BinningForm(appContext, formModel, getTargetProductSelector());
 
-/*
-        TODO menu entries for binning op, still a work in progress by nf 2013-11-05
+        // TODO menu entries for binning op, still a work in progress by nf 2013-11-05
         OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
 
         ParameterUpdater parameterUpdater = new BinningParameterUpdater();
-
-
-        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass(),
+        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(),
                                                                                  null,
                                                                                  null,
                                                                                  parameterUpdater);
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                     operatorSpi.getOperatorClass(),
+                                                     operatorSpi.getOperatorDescriptor(),
                                                      parameterSupport,
+                                                     appContext,
                                                      helpID);
-
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
-
-*/
     }
 
     static Property createProperty(String name, Class type) {
@@ -109,8 +107,8 @@ public class BinningDialog extends SingleTargetProductDialog {
                 return;
             }
         }
-        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATADAY ||
-                formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
+        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY ||
+            formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
             if (formModel.getStartDateTime() == null) {
                 showErrorDialog("Start date/time must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
                 return;
@@ -120,7 +118,7 @@ public class BinningDialog extends SingleTargetProductDialog {
                 return;
             }
         }
-        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATADAY) {
+        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY) {
             if (formModel.getMinDataHour() == null) {
                 showErrorDialog("Min data hour must be provided when time filter method 'spatiotemporal data day' is chosen.");
                 return;
@@ -227,7 +225,7 @@ public class BinningDialog extends SingleTargetProductDialog {
             switch (method) {
                 case NONE:
                     return;
-                case SPATIOTEMPORAL_DATADAY: {
+                case SPATIOTEMPORAL_DATA_DAY: {
                     parameters.put("minDataHour", formModel.getMinDataHour());
                 }
                 case TIME_RANGE: {
@@ -252,13 +250,11 @@ public class BinningDialog extends SingleTargetProductDialog {
         @Override
         public void handleParameterLoadRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
             final PropertySet propertySet = formModel.getBindingContext().getPropertySet();
-            final Set<Map.Entry<String,Object>> entries = parameterMap.entrySet();
+            final Set<Map.Entry<String, Object>> entries = parameterMap.entrySet();
             for (Map.Entry<String, Object> entry : entries) {
-                try {
-                    propertySet.setValue(entry.getKey(), entry.getValue());
-                } catch (IllegalArgumentException e) {
-                    // todo - handle exception (Norman, 14.05.13)
-                    e.printStackTrace();
+                Property property = propertySet.getProperty(entry.getKey());
+                if (property != null) {
+                    property.setValue(entry.getValue());
                 }
             }
             formModel.getBindingContext().adjustComponents();
