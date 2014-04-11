@@ -92,7 +92,7 @@
                             </filterSet>
                         </template>
                         <template>
-                            <source>${basedir}/../src/main/bin/macosx/beam-cli-template.command</source>
+                            <source>${basedir}/../src/main/bin/macosx/beam-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
                             <outputDirectory>${basedir}/../target/beam-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
