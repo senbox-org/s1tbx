@@ -84,7 +84,8 @@ public class TypedConfig extends ExtensibleObject {
     @Override
     public int hashCode() {
         int code = 0;
-        for (Property property : propertySet.getProperties()) {
+        PropertySet ps = asPropertySet();
+        for (Property property : ps.getProperties()) {
             String name = property.getName();
             Object value = property.getValue();
             code = 31 * code + name.hashCode();
