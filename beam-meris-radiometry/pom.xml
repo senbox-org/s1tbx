@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>beam-meris-radiometry</artifactId>
-    <name>BEAM MERIS Radiometry Processor</name>
+    <name>BEAM MERIS L1b Radiometric Correction</name>
     <version>${beam.version}</version>
 
     <dependencies>
