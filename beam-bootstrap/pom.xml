@@ -21,15 +21,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam-system</artifactId>
+        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
         <version>5.0-SNAPSHOT</version>
-        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-bootstrap</artifactId>
     <name>BEAM Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch VISAT from your favourite IDE.</description>

@@ -22,17 +22,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam-system</artifactId>
+        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
         <version>5.0-SNAPSHOT</version>
-        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Installer Resources</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-installer</artifactId>
-
-    <packaging>jar</packaging>
 
     <dependencies>
 

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-chris-reader</symbolicName>
-    <version>1.7.2</version>
+    <version>5.0</version>
     <name>CHRIS/Proba Product Reader</name>
 
     <description>Enables BEAM to read CHRIS/Proba HDF4 data products.</description>

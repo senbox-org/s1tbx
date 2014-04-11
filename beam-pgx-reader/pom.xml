@@ -20,16 +20,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam-plugin-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
+        <version>5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>beam-pgx-reader</artifactId>
     <name>BEAM PGX Product Reader</name>
-    <version>1.0.1.${beam.version}</version>
-    <url>http://envisat.esa.int/beam/</url>
+    <version>${beam.version}</version>
 
     <dependencies>
         <dependency>

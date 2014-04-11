@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-unmix</symbolicName>
-    <version>1.2.1</version>
+    <version>5.0</version>
     <name>Spectral Unmixing</name>
 
     <description>

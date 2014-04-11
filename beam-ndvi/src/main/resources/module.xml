@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-ndvi</symbolicName>
-    <version>1.4</version>
+    <version>5.0</version>
     <name>NDVI Processor</name>
 
     <description>

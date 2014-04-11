@@ -22,17 +22,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam-plugin-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
+        <version>5.0-SNAPSHOT</version>
     </parent>
 
     <name>BEAM MERIS SMAC Atmospheric Correction</name>
     <artifactId>beam-meris-smac</artifactId>
-    <version>1.5.205.${beam.version}</version>
-
-    <packaging>jar</packaging>
+    <version>${beam.version}</version>
 
     <dependencies>
         <dependency>
@@ -46,7 +43,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
-            <version>1.5.2.${beam.version}</version>
+            <version>${beam.version}</version>
         </dependency>
     </dependencies>
 

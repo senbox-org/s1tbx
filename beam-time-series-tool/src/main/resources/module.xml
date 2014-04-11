@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>time-series-tool</symbolicName>
-    <version>3.0.1</version>
+    <version>5.0</version>
     <name>Time Series Tool</name>
     <funding>ESA, EU</funding>
 

@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>beam-statistics-op</symbolicName>
-    <version>1.0</version>
+    <version>5.0</version>
     <name>BEAM Statistics Operator</name>
     <funding>EU</funding>
 
