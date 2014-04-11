@@ -248,7 +248,9 @@ public class GraphExecuter extends Observable {
             try {
                 recreateGraphContext();
                 updateGraphNodes();
-                recreateGraphContext();
+               //todo recreateGraphContext();
+            } catch(Exception e) {
+                e.printStackTrace();
             } finally {
                 restoreProductSetReaders(savedProductSetList);
             }
