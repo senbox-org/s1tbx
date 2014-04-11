@@ -46,9 +46,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -260,19 +262,30 @@ public class OperatorMenu {
 
     private class DisplayParametersAction extends AbstractAction {
 
+        private static final String TITLE = "Display Parameters";
+
         DisplayParametersAction() {
-            super("Display Parameters...");
+            super(TITLE + "...");
         }
 
         @Override
         public void actionPerformed(ActionEvent event) {
+            String parameterXml;
             try {
                 DomElement domElement = parameterSupport.toDomElement();
-                showMessageDialog("Parameters", new JTextArea(domElement.toXml()));
+                parameterXml = domElement.toXml();
             } catch (Exception e) {
                 Debug.trace(e);
-                showMessageDialog("Parameters", new JLabel("Failed to convert parameters to XML."));
+                JOptionPane.showMessageDialog(UIUtils.getRootWindow(parentComponent),
+                                              "Failed to convert parameters to XML.",
+                                              TITLE,
+                                              JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            JTextArea textArea = new JTextArea(parameterXml);
+            textArea.setEditable(false);
+            textArea.setPreferredSize(new Dimension(360, 360));
+            showInformationDialog(getOperatorName() + " Parameters", new JScrollPane(textArea));
         }
 
         @Override
@@ -290,11 +303,11 @@ public class OperatorMenu {
 
         @Override
         public void actionPerformed(ActionEvent event) {
-            showMessageDialog("About " + getOperatorName(), new JLabel(getOperatorDescription()));
+            showInformationDialog("About " + getOperatorName(), new JLabel(getOperatorDescription()));
         }
     }
 
-    private void showMessageDialog(String title, Component component) {
+    private void showInformationDialog(String title, Component component) {
         final ModalDialog modalDialog = new ModalDialog(UIUtils.getRootWindow(parentComponent),
                                                         title,
                                                         AbstractDialog.ID_OK,
@@ -308,21 +321,26 @@ public class OperatorMenu {
     }
 
     String getOperatorDescription() {
-            @SuppressWarnings("StringBufferReplaceableByString")
-            StringBuilder sb = new StringBuilder("<html>");
-            sb.append("<h2>").append(getOperatorName()).append(" Operator</h2>");
-            sb.append("<table>");
-            sb.append("  <tr><td><b>Name:</b></td><td><code>").append(getOperatorName()).append(
-                    "</code></td></tr>");
-            sb.append("  <tr><td><b>Full name:</b></td><td><code>").append(opDescriptor.getName()).append(
-                    "</code></td></tr>");
-            sb.append("  <tr><td><b>Purpose:</b></td><td>").append(opDescriptor.getDescription()).append("</td></tr>");
-            sb.append("  <tr><td><b>Authors:</b></td><td>").append(opDescriptor.getAuthors()).append("</td></tr>");
-            sb.append("  <tr><td><b>Version:</b></td><td>").append(opDescriptor.getVersion()).append("</td></tr>");
-            sb.append("  <tr><td><b>Copyright:</b></td><td>").append(opDescriptor.getCopyright()).append("</td></tr>");
-            sb.append("</table>");
-            sb.append("</html>");
-            return makeHtmlConform(sb.toString());
+        return makeHtmlConform(String.format("" +
+                                             "<html>" +
+                                             "<h2>%s Operator</h2>" +
+                                             "<table>" +
+                                             "<tr><td><b>Name:</b></td><td><code>%s</code></td></tr>" +
+                                             "<tr><td><b>Version:</b></td><td>%s</td></tr>" +
+                                             "<tr><td><b>Full name:</b></td><td><code>%s</code></td></tr>" +
+                                             "<tr><td><b>Class name:</b></td><td><code>%s</code></td></tr>" +
+                                             "<tr><td><b>Description:</b></td><td>%s</td></tr>" +
+                                             "<tr><td><b>Authors:</b></td><td>%s</td></tr>" +
+                                             "<tr><td><b>Copyright:</b></td><td>%s</td></tr></table></html>",
+                                             getOperatorName(),
+                                             getOperatorName(),
+                                             opDescriptor.getVersion(),
+                                             opDescriptor.getName(),
+                                             opDescriptor.getOperatorClass(),
+                                             opDescriptor.getDescription(),
+                                             opDescriptor.getAuthors(),
+                                             opDescriptor.getCopyright()
+        ));
     }
 
     private static String makeHtmlConform(String text) {
@@ -338,12 +356,12 @@ public class OperatorMenu {
         if (operatorDescriptor == null) {
             Class<?>[] declaredClasses = opType.getDeclaredClasses();
             for (Class<?> declaredClass : declaredClasses) {
-                if(OperatorSpi.class.isAssignableFrom(declaredClass)) {
+                if (OperatorSpi.class.isAssignableFrom(declaredClass)) {
                     operatorDescriptor = spiRegistry.getOperatorSpi(declaredClass.getName()).getOperatorDescriptor();
                 }
             }
         }
-        if(operatorDescriptor == null) {
+        if (operatorDescriptor == null) {
             throw new IllegalStateException("Not able to find SPI for operator class '" + opType.getName() + "'");
         }
         return operatorDescriptor;
