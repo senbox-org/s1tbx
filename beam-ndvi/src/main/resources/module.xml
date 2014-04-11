@@ -24,23 +24,6 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.4:<br/>
-        Generalised and adopted to GPF.
-        Changes in 1.3.2:<br/>
-        Deprecated API.<br/>
-        Changes in 1.3.1:<br/>
-        Adapted to new Maven-architecture<br/>
-        Changes in 1.3:<br/>
-        Remove usage of deprecated methods/classes<br/>
-        Changes in 1.2.203:<br/>
-        [BEAM-1006] MER_FSG pixel geocoding not used<br/>
-        Changes in 1.2.102:<br/>
-        [BEAM-957] "Search" tab missing VISAT help<br/>
-        Changes in 1.2.101:<br/>
-        [BEAM-867] NDVI processor fails with a java.lang.ClassCastException when invoked
-        with a request file in non-interactive mode<br/>
-        Changes in 1.2.100:<br/>
-        [BEAM-757] Layout of help pages is not uniform<br/>
         ]]>
     </changelog>
 

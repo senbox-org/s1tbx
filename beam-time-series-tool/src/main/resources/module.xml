@@ -17,23 +17,9 @@
 
     <changelog>
         <![CDATA[
-        <p>Changes in 3.0.1<br/>
+        <b>Changes in 5.0</b><br/>
             [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
             [BEAM-1497] Command 'Time Series as Google Earth KMZ' misplaced in tools menu<br/>
-        </p>
-        <p>Changes in 3.0<br/>
-            <ul>
-            <li>Complete revision of time series graph tool
-            <li>Time series tool can now deal with correlative data, such as in-situ data
-            <li>Input products are reprojected to a common grid, so the time series tool can create time series from
-                products on originally different grids
-            <li>Many fixes regarding stability and usability
-            <li>New icons
-            </ul>
-        </p>
-        <p>Changes in 2.1<br/>
-          [GLOB-007] When adding geometries to time series, an ArrayIndexOutOfBoundsException is thrown<br/>
-        </p>
         ]]>
     </changelog>
 

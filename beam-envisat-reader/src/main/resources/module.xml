@@ -28,54 +28,14 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
 
-    <changelog><![CDATA[
-       <p>Changes from version 1.5.2 to 1.5.3:<br/>
+    <changelog>
+        <![CDATA[
+       <b>Changes in 5.0</b><br/>
        [BEAM-1639] Support ASAR 4C specification<br/>
        [BEAM-1638] Envisat/Doris Orbit interpolation not sufficient<br/>
-       <p>Changes from version 1.5.1 to 1.5.2:<br/>
        [BEAM-1414] Incorrect valid-pixel mask for ATSR SST bands<br/>
-       <p>Changes from version 1.5 to 1.5.1:<br/>
-       Adapted to new Maven-architecture<br>
-       <p>Changes from version 1.4 to 1.5:<br/>
-       [BEAM-1364] Inaccurate AATSR geo-location<br/>
-       [BEAM-1343] For AATSR NR products, all land pixels should be visible in the LST band<br/>
-       [BEAM-1341] The Envisat reader should read AMORGOS output for MER_RR_1P input (MER_RRG_1P)<br/>
-       [BEAM-943] ProductIOException occures in VISAT by saving product as DIMAP, if some band names have been changed<br/>
-       <p>Changes from version 1.3.200 to 1.4:<br/>
-       [BEAM-1214] MERIS L2 products low_pressure flag is raised over water<br/>
-       [BEAM-1242] Support MERIS FSG L2 products<br/>
-       [BEAM-1237] Update MERIS L2 flags for IODD version 8<br/>
-       [BEAM-1213] Unit of yellow_subs in MERIS product not correct<br/>
-       </p>
-       <p>Changes from version 1.3.101 to 1.3.200:<br/>
-       [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>
-       [BEAM-1162] The Envisat reader should support reformatted / line-interleaved products<br/>
-       </p>
-       <p>Changes from version 1.3 to 1.3.101:<br/>
-       [BEAM-1034] Envisat reader should create PixelGeoCoding for FSG/FRG products automatically<br/>
-       [BEAM-1032] Orthorectification not applicable for MER_FRS_2P<br/>
-       </p>
-       <p>Changes from version 1.2.1 to 1.3:<br/>
-       [BEAM-898] ATSR active fire bitmasks<br/>
-       [BEAM-922] Wrong exception type thrown on format errors<br/>
-       </p>
-       <p>Changes from version 1.2 to 1.2.1:<br/>
-       [BEAM-874] Ensure thread safety of product reader<br/>
-       [BEAM-871] Envisat reader inefficiently reads single lines when tiles are requested<br/>
-       </p>
-       <p>Changes from version 1.1.100 to 1.2:<br/>
-       [BEAM-828] New ASAR products for envisat reader<br/>
-       [BEAM-803] Add support for all ASAR products and format versions<br/>
-       </p>
-       <p>Changes from version 1.1 to 1.1.100:<br/>
-       [BEAM-802] Take attachment flag into account<br/>
-       </p>
-       Changes in version 1.1:<br/>
-       [BEAM-620] Generify detection of product type<br/>
-       [BEAM-624] Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format<br/>
-       [BEAM-656] Support for MERIS band subset<br/>
-       [BEAM-683] Add capability to read from zipped products<br/>
-       </p>]]></changelog>
+       ]]>
+    </changelog>
 
 
     <dependency>

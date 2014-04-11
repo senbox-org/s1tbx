@@ -22,19 +22,8 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.7 (SNAPSHOT):<br/>
-        [BEAM-1528] FLH/MCI operator does not set valid mask of output bands<br>
-        Changes in 1.6.204:<br/>
-        Aligned version numbers of module.xml and pom.xml<br>
-        Changes in 1.6.203:<br/>
-        Adapted to new Maven-architecture<br>
-        Changes in 1.6.202:<br/>
-        [BEAM-1036] Ensure temporarily loaded products are disposed in processors<br/>
-        [BEAM-1006] MER_FSG pixel geocoding not used<br/>
-        Changes in 1.6.101:<br/>
-        [BEAM-957] "Search" tab missing VISAT help<br/>
-        Changes in 1.6.100:<br/>
-        [BEAM-757] Layout of help pages is not uniform<br/>
+        <b>Changes in 5.0</b><br/>
+        [BEAM-1528] FLH/MCI operator does not set valid mask of output bands<br/>
         ]]>
     </changelog>
 

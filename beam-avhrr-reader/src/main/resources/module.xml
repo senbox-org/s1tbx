@@ -14,16 +14,6 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.2.1:<br/>
-        Adapted to new Maven-architecture<br>
-        Changes in 1.2:<br/>
-        Remove usage of deprecated methods/classes<br/>
-        Changes in 1.1:<br/>
-        [BEAM-1216] The NOAA AVHRR reader should support GAC products<br/>
-        Changes in 1.0.101:<br/>
-        [BEAM-965] BEAM can not open NOAA-AVHRR Full Resolution Area Coverage (FRAC) Level1B products<br/>
-        Changes in 1.0.1:<br/>
-        [BEAM-874] Ensure thread safety of product reader<br/>
         ]]>
     </changelog>
 

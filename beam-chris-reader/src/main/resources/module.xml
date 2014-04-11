@@ -14,62 +14,8 @@
 
     <changelog>
         <![CDATA[
-        <p>Changes in Version 1.7.2
-        <ul>
-        <li>[BEAM-1504] - Update NetCDF library to latest version
-        </ul>
-        <p>Changes in Version 1.7.1
-        <ul>
-        <li>Adapted to new Maven-architecture
-        </ul>
-        <p>Changes in Version 1.7
-        <ul>
-        <li>Remove usage of deprecated methods/classes</li>
-        </ul>
-        <p>Changes in Version 1.6.101
-        <ul>
-        <li>[CBOX-76] CHRIS reader shall provide pointing factory for geo-corrected products</li>
-        </ul>
-        <p>Changes in Version 1.6
-        <ul>
-        <li>[CBOX-75] CHRIS/Proba product reader should use the pure Java netcdf library</li>
-        </ul>
-        <p>Changes in Version 1.5
-        <ul>
-        <li>[CBOX-59] Write 'Proba' instead of 'PROBA'</li>
-        </ul>
-        <p>Changes in Version 1.4.101
-        <ul>
-        <li>[BEAM-874] Ensure thread safety of product reader</li>
-        <li>[CBOX-57] Incorrect RGB profiles</li>
-        </ul>
-        <p>Changes in Version 1.4
-        <ul>
-        <li>[CBOX-44] RGB profile for Mode 0</li>
-        <li>[CBOX-43] Support of Modes 20 and 30</li>
-        <li>[CBOX-42] New mask values should leave large gap</li>
-        <li>[CBOX-41] IOException thrown for PR format</li>
-        <li>[CBOX-40] Wrong import of cut-off wavelength</li>
-        </ul>
-        <p>Changes in Version 1.3
-        <ul>
-        <li>[CBOX-32] Dropout correction should be cosmetic only</li>
-        <li>[CBOX-31] Optimize raster data input in order to require less memory</li>
-        <li>[CBOX-30] Make pins available for CHRIS data products</li>
-        <li>[CBOX-29] Predefined bit mask for indicating spectrum quality</li>
-        <li>[CBOX-28] Predefined RGB profiles for all CHRIS modes</li>
-        <li>[CBOX-27] Computation of solar azimuth angle</li>
-        <li>[CBOX-26] Gains and coefficients are not included in metadata</li>
-        </ul>
-        </p>
-        <p>Changes in Version 1.2
-        <ul>
-        <li>[CBOX-25] Dropout and saturated flags are reversed</li>
-        <li>[CBOX-24] Calibration coefficients are applied twice</li>
-        <li>[CBOX-23] Imported subsets are scrambled</li>
-        <li>[CBOX-22] No thumbnail image in subset dialog</li>
-        </ul>
-        </p>
+        <b>Changes in 5.0</b><br/>
+        [BEAM-1504] - Update NetCDF library to latest version<br/>
         ]]>
     </changelog>
 

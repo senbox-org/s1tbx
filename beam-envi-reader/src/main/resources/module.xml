@@ -17,16 +17,13 @@
 
     <changelog>
         <![CDATA[
-          <p>Changes in 3.2:<br/>
+          <b>Changes in 5.0</b><br/>
           [BEAM-1626] ENVI reader shall consider classification attributs in HDR files <br/>
           [BEAM-1623] ENVI reader shall read data in BIP format<br/>
           [BEAM-1614] ENVI Reader shall consider 'Full width at half maximum'<br/>
           [BEAM-1621] ENVI reader shall consider "data ignore value"<br/>
           [BEAM-1622] ENVI reader shall have metadata<br/>
           [GBOX-030] Support offset and gain in ENVI header files<br/>
-          <p>Changes in 3.1:<br/>
-          [GBOX-026] Add support for HICO<br/>
-          </p>
         ]]>
     </changelog>
 

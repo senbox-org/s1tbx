@@ -15,14 +15,6 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.3:<br/>
-        Adapted to new Maven-architecture<br/>
-
-        Changes in 1.2:<br/>
-        Support for MOD09GA and MYD09GA products<br/>
-
-        Changes in 1.1:<br/>
-        [BEAM-923] Wrong exception type thrown on format errors<br/>
         ]]>
     </changelog>
 

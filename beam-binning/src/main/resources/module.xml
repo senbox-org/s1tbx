@@ -29,52 +29,15 @@
 
     <changelog>
         <![CDATA[
-        Changes from version 0.9 to 1.0:<br\>
-        <ol>
-        <li>[BEAM-1584] Binner should include used source products in metadata</li>
-        <li>[BEAM-1580] Binned Level 3 products from the oc-cci project should be readable</li>
-        <li>[BEAM-1565] Binning shall use parameter 'region' to subset source products</li>
-        <li>[BEAM-1564] Binning operator causes NPE with invalid graph XML</li>
-        <li>[BEAM-1495] NaN should be considered in L3-Binning</li>
-        </ol>
-        Changes from version 0.8.1 to 0.9:<br\>
-        <ol>
-        <li>[BEAM-1502] Binning should (optionally) support a postprocessor</li>
-        <li>[BEAM-1499] In L3-Binning No-data should always be represented by NaN</li>
-        <li>[BEAM-1483] Percentile Aggregator shares state</li>
-        </ol>
-        Changes from version 0.8 to 0.8.1:<br\>
-        <ol>
-        <li>Adapted to new Maven-architecture</li>
-        <li>Binning operator now usable via graphical user interface in VISAT</li>
-        </ol>
-        Changes from version 0.7 to 0.8:<br\>
-        <ol>
-        <li>Added 'comment' attribute for all BinIndex variables.</li>
-        <li>Fixed 'bi_start_num' being in wrong order.</li>
-        <li>Added new BinIndex variable 'bi_begin_offset' indicating the absolute offset of a data-containing bin
-            within the dataset. Offsets start with 0, -1 means no data in that row.</li>
-        <li>Changed meaning of 'bi_extent' from being bin number range into actual number of bins stored per row.</li>
-        <li>Fixed typo: 'bi_extend' --> 'bi_extent'.</li>
-        bi_begin_offset
-        </ol>
-        Changes from version 0.6 to 0.7:<br\>
-        <ol>
-        <li>Now writing NetCDF binned data file using the same bin numbering as SeaDAS.</li>
-        <li>The NetCDF binned data file now also contains the 'bi_begin' and 'bi_extend' fields found in SeaDAS.</li>
-        <li>Added new operator parameter 'metadataPropertiesFile' which specifies (constant) metadata key-values
-            to be written to the output product.</li>
-        <li>Added metadata element 'Global_Attributes' to the output product.</li>
-        </ol>
-        Changes from version 0.5 to 0.6:<br\>
-        <ol>
-        <li>Fixed content the 'BinIndex' annotation datasets (variable prefix 'bi_').</li>
-        <li>If no temporal bins are generated, no output will be written</li>
-        </ol>
-        Changes since initial version 0.5:<br\>
-        <ol>
-        <li>Introduced parameters 'sourceProductPaths' and 'outputBinnedData'</li>
-        </ol>
+        <b>Changes in 5.0</b><br/>
+        [BEAM-1584] Binner should include used source products in metadata<br/>
+        [BEAM-1580] Binned Level 3 products from the oc-cci project should be readable<br/>
+        [BEAM-1565] Binning shall use parameter 'region' to subset source products<br/>
+        [BEAM-1564] Binning operator causes NPE with invalid graph XML<br/>
+        [BEAM-1495] NaN should be considered in L3-Binning<br/>
+        [BEAM-1502] Binning should (optionally) support a postprocessor<br/>
+        [BEAM-1499] In L3-Binning No-data should always be represented by NaN<br/>
+        [BEAM-1483] Percentile Aggregator shares state<br/>
         ]]>
     </changelog>
 

@@ -31,33 +31,10 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.1.3:<br/>
+        <b>Changes in 5.0</b><br/>
         [BEAM-1506] - Scalar variables are wrongly written to NetCDF4<br/>
         [BEAM-1505] - HDF-EOS reader should scale bands to highest resolution<br/>
         [BEAM-1504] - Update NetCDF library to latest version<br/>
-        Adapted to BEAM 5.0<br/>
-        Changes in 1.1.2:<br/>
-        Extend MetadataUtils with maxNumValuesRead in methods
-            readNetcdfMetadata(NetcdfFile, MetadataElement, int maxNumValuesRead)
-            readVariableDescriptions(List<Variable>, String, int maxNumValuesRead)
-        [BEAM-1421] - A file in NetCDF-BEAM format, which was created using the BandMaths gpf operator, can not be opened in VISAT<br/>
-        Changes in 1.1.1:<br/>
-        Adapted to new Maven-architecture<br/>
-        Changes in 1.1:<br/>
-        [BEAM-1381] - Statistics written to NetCDF files shall be in geo-physical units<br/>
-        [BEAM-1363] - Write NetCDf 4 files using compression<br/>
-        [BEAM-1351] - Metadata is duplicated if NetCDF-BEAM file is saved again<br/>
-        [BEAM-1347] - Wrong Histogram in exported NetCDF-BEAM product<br/>
-        [BEAM-1333] - NetCDF files are not CF compliant<br/>
-        [BEAM-1332] - NetCDF/CF writer does not write coordinates<br/>
-        [BEAM-1320] - BEAM-NetCDF reader/writer does not preserve solar flux information<br/>
-        [BEAM-1315] - NetCDF-BEAM does not consider log-scaled attribute<br/>
-        Changes in 1.0.101:<br/>
-        [BEAM-1302] - Products read from NetCDF files should have a 'Global_Attributes' element in metadata<br/>
-        [BEAM-1233] - NetCDF-CF does not consider log-scaled attribute<br/>
-        [BEAM-1215] - NetCDF product appears inverted<br/>
-        [BEAM-1206] - CF Profile does not write latitude longitude data when writing pixel geo-coding<br/>
-        [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'<br/>
         ]]>
     </changelog>
 

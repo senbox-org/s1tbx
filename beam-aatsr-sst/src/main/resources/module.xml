@@ -45,16 +45,6 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.5.1:<br>
-        Adapted to new Maven-architecture<br>
-        Changes in 1.5:<br>
-        [BEAM-1337] SST processor produces stripes when using multiple coefficient maps<br>
-        Changes in 1.4.202:<br>
-        [BEAM-1036] Ensure temporarily loaded products are disposed in processors<br>
-        Changes in 1.4.101:<br>
-        [BEAM-957] "Search" tab missing VISAT help<br>
-        Changes in 1.4.100:<br>
-        [BEAM-757] Layout of help pages is not uniform<br>
         ]]>
     </changelog>
 

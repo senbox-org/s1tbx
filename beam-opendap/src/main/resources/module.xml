@@ -22,10 +22,8 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.1.1:<br/>
-          [BEAM-1545] - Date filter in OPeNDAP-tool shall use European date format<br>
-        Changes in 1.1.0:<br/>
-          [BEAM-1504] - Update NetCDF library to latest version<br/>
+        <b>Changes in 5.0</b><br/>
+        [BEAM-1545] - Date filter in OPeNDAP-tool shall use European date format<br/>
         ]]>
     </changelog>
 

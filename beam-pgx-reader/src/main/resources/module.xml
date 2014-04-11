@@ -30,8 +30,8 @@
 
     <changelog>
         <![CDATA[
-            <b>Changes from 1.0 to 1.0.1</b><br/>
-            BEAM-1612 - PGX reader plugin may take very long to determine decode qualification<br>
+            <b>Changes in 5.0</b><br/>
+            [BEAM-1612] PGX reader plugin may take very long to determine decode qualification<br/>
         ]]>
     </changelog>
 

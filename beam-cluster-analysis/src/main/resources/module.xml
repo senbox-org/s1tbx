@@ -11,12 +11,7 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.1.2:<br/>
-        Added PCA<br/>
-        Adapted to new Maven-architecture<br>
-        Changes in 1.1:<br/>
-        [BEAM-841] EM clustering does not come to an end for small scenes<br/>
-        [BEAM-839] Improper initialization of EM clustering algorithm<br/>
+
         ]]>
     </changelog>
 

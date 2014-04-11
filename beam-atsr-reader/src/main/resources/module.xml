@@ -22,12 +22,6 @@
 
     <changelog>
         <![CDATA[
-        Changes in Version 1.0.3<br/>
-        Adapted to new Maven-architecture<br>
-        Changes in Version 1.0.2<br/>
-        Remove usage of deprecated methods/classes<br/>
-        Changes in Version 1.0.1<br/>
-       [BEAM-898] ATSR active fire bitmasks<br/>
         ]]>
     </changelog>
 
