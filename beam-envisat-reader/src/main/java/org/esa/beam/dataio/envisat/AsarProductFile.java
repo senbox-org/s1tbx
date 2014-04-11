@@ -977,7 +977,7 @@ public final class AsarProductFile extends ProductFile {
         if (RuntimeContext.getModuleContext() != null) {
             final String dicardUnusedMetadata = RuntimeContext.getModuleContext().getRuntimeConfig().
                     getContextProperty("discard.unused.metadata");
-            if (dicardUnusedMetadata.equalsIgnoreCase("true")) {
+            if ("true".equalsIgnoreCase(dicardUnusedMetadata)) {
                 removeUnusedMetadata(product.getMetadataRoot());
             }
         }
