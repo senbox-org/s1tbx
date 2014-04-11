@@ -53,7 +53,7 @@ public final class RemoveThermalNoiseOp extends Operator {
     // To indicate if thermal noise should be removed or added back in.
     // true means remove thermal noise
     // false means add thermal noise back in
-    private boolean performCorrection = true;
+    private boolean removeNoise = true;
 
     // The lines in the image for which noise values are available.
     // An image line is uniquely identified by a y-value. noiseLine contain these y-values.
@@ -104,7 +104,7 @@ public final class RemoveThermalNoiseOp extends Operator {
             final MetadataElement finalMetadataElem = getParentMetadataElemForFlag(oriProdMetadata);
             final String flag = finalMetadataElem.getAttributeString(ANNOTATION_FLAG_NAME);
 
-            performCorrection = flag.toLowerCase().equals("false");
+            removeNoise = flag.toLowerCase().equals("false");
 
             createTargetProduct();
 
@@ -235,7 +235,7 @@ public final class RemoveThermalNoiseOp extends Operator {
         final MetadataElement oriProdMetadata = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         final MetadataElement finalMetadataElem = getParentMetadataElemForFlag(oriProdMetadata);
 
-        if (performCorrection) {
+        if (removeNoise) {
 
             finalMetadataElem.setAttributeString(ANNOTATION_FLAG_NAME, "true");
 
@@ -603,9 +603,9 @@ public final class RemoveThermalNoiseOp extends Operator {
 
                     final double A = computeValue(x, y, calibrationLine, calibrationPixel, calibrationValue);
 
-                    final double noise = performCorrection? eta/A : -eta/A;
+                    final double noise = removeNoise ? eta/A : -eta/A;
 
-                    final double tgtValue = srcValue + noise;
+                    final double tgtValue = srcValue - noise;
 
                     tgtData.setElemDoubleAt(index, tgtValue);
                     //tgtData.setElemDoubleAt(index, eta); // TBD debug
