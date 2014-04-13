@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
           <b>Changes in 5.0</b><br/>
+          [BEAM-1642] Create geometry from WKT<br/>
           [BEAM-753]  Manual adjustment of axes in spectrum view<br/>
           [BEAM-1060] make y-axis of spectrum view user defined<br/>
           [BEAM-1541] Spectrum view does not remember the selection of bands<br/>
@@ -1328,9 +1329,9 @@
             <parent>tools</parent>
             <id>showGeometryAsWkt</id>
             <placeAfter>createVectorDataNode</placeAfter>
-            <text>Get Well-Known-Text (WKT)...</text>
+            <text>WKT from Geometry...</text>
             <class>org.esa.beam.visat.actions.ShowGeometryWktAction</class>
-            <popuptext>Well-Known-Text (WKT)...</popuptext>
+            <popuptext>WKT from Geometry...</popuptext>
             <shortDescr>Get the well-known-text (WKT) representation of a selected geometry.</shortDescr>
             <context>image</context>
             <helpId>showGeometryAsWkt</helpId>
@@ -1338,8 +1339,20 @@
 
         <action>
             <parent>tools</parent>
-            <id>computeMaskArea</id>
+            <id>insertWktAsGeometry</id>
             <placeAfter>showGeometryAsWkt</placeAfter>
+            <text>Geometry from WKT...</text>
+            <class>org.esa.beam.visat.actions.InsertWktGeometryAction</class>
+            <popuptext>Geometry from WKT...</popuptext>
+            <shortDescr>Creates a geomtry from well-known-text (WKT) representation.</shortDescr>
+            <context>image</context>
+            <helpId>insertWktAsGeometry</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>computeMaskArea</id>
+            <placeAfter>insertWktAsGeometry</placeAfter>
             <text>Compute Mask Area...</text>
             <class>org.esa.beam.visat.actions.ComputeMaskAreaAction</class>
             <shortDescr>Displays information about the spatial area of the mask.</shortDescr>
