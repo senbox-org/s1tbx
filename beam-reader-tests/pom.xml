@@ -94,12 +94,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
-            <artifactId>beam-alos-reader</artifactId>
-            <version>${beam.version}</version>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
             <artifactId>beam-atsr-reader</artifactId>
             <version>${beam.version}</version>
         </dependency>
