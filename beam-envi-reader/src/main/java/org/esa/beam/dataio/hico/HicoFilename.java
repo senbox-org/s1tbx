@@ -133,10 +133,7 @@ class HicoFilename {
         File[] hdrFiles = parentFile.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                System.out.println("dir = " + dir);
-                System.out.println("name = " + name);
                 boolean hdrExist = name.startsWith(getProductBase()) && name.endsWith(".hdr");
-                System.out.println("hdrExist = " + hdrExist);
                 boolean dataExist = false;
                 if (hdrExist) {
                     int hdrIndex = name.lastIndexOf("hdr");
@@ -144,7 +141,6 @@ class HicoFilename {
                     File bsqFile = new File(dir, bandBaseName + "bsq");
                     File bilFile = new File(dir, bandBaseName + "bil");
                     dataExist = bsqFile.exists() || bilFile.exists();
-                    System.out.println("dataExist = " + dataExist);
                 }
                 return hdrExist && dataExist;
             }
