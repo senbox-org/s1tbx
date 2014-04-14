@@ -15,26 +15,26 @@
  */
 package org.esa.beam.framework.dataop.barithm;
 
-import java.io.IOException;
-
-import junit.framework.TestCase;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
-
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import com.bc.jexp.impl.DefaultNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import junit.framework.TestCase;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ProductData;
+
+import java.io.IOException;
 
 public class BandArithmeticPerformanceTest extends TestCase {
+
+    private static final int MAX_NUM_TEST_LOOPS = 10000000;
+    private static final int MIN_NUM_OPS_PER_SECOND = 2500000;
 
     public BandArithmeticPerformanceTest(String s) {
         super(s);
     }
 
-    public void testThatPerformanceIsSufficient() throws ParseException,
-                                                         IOException {
+    public void testThatPerformanceIsSufficient() throws ParseException, IOException {
         final Band flags = new Band("flags", ProductData.TYPE_INT8, 1, 1);
         final SingleFlagSymbol s1 = new SingleFlagSymbol("flags.WATER", flags, 0x01);
         final SingleFlagSymbol s2 = new SingleFlagSymbol("flags.LAND", flags, 0x02);
@@ -51,22 +51,21 @@ public class BandArithmeticPerformanceTest extends TestCase {
         final Term term = new ParserImpl(namespace, true).parse(code);
 
         final RasterDataEvalEnv evalEnv = new RasterDataEvalEnv(0, 0, 1, 1);
-        final int numLoops = 10000000;    // 10 Mio.
 
         long t1 = System.currentTimeMillis();
-        for (int i = 0; i < numLoops; i++) {
+        for (int i = 0; i < MAX_NUM_TEST_LOOPS; i++) {
         }
         long t2 = System.currentTimeMillis();
-        for (int i = 0; i < numLoops; i++) {
+        for (int i = 0; i < MAX_NUM_TEST_LOOPS; i++) {
             term.evalI(evalEnv);
         }
         long t3 = System.currentTimeMillis();
         long dt = (t3 - t2) - (t2 - t1);
-        long numOps = Math.round(numLoops * (1000.0 / dt));
+        long numOps = Math.round(MAX_NUM_TEST_LOOPS * (1000.0 / dt));
 
-        //System.out.println("BandArithmeticPerformanceTest: " + numOps + " ops per second for term '" + code + "'");
-        assertTrue("Low evaluation performance detected: Term implementation change?",
-                   numOps > 2500000);
+        // System.out.println("numOps = " + numOps);
+        assertTrue(String.format("Low evaluation performance detected (%d ops/s for term \"%s\"): Term implementation change?", numOps, code),
+                   numOps > MIN_NUM_OPS_PER_SECOND);
     }
 
 }
