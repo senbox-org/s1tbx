@@ -63,11 +63,7 @@ public class ConvertComputedBandIntoBandAction extends ExecCommand {
             String expression = virtualBand.getExpression();
             realBand = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
             realBand.setDescription(createDescription(virtualBand.getDescription(), expression));
-            String validPixelExpression = computedBand.getValidPixelExpression();
-            if (validPixelExpression != null && !validPixelExpression.isEmpty()) {
-                expression = "(" + validPixelExpression + ") ? (" + expression + ") : NaN";
-            }
-            realBand.setSourceImage(VirtualBand.createVirtualSourceImage(realBand, expression));
+            realBand.setSourceImage(virtualBand.getSourceImage());
         } else if (selectedProductNode instanceof FilterBand) {
             FilterBand filterBand = (FilterBand) selectedProductNode;
             realBand = new Band(bandName, filterBand.getDataType(), width, height);
@@ -101,7 +97,6 @@ public class ConvertComputedBandIntoBandAction extends ExecCommand {
         ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         int bandIndex = bandGroup.indexOf(computedBand);
         bandGroup.remove(computedBand);
-        computedBand.dispose();
         bandGroup.add(bandIndex, realBand);
 
         realBand.setModified(true);
