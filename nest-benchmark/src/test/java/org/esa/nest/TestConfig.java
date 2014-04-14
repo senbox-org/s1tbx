@@ -45,7 +45,7 @@ public class TestConfig {
         }
 
         final int numProperties = prop.size()/4;
-        for(int i=0; i < numProperties; ++i) {
+        for(int i=0; i <= numProperties; ++i) {
             final String key = prefix+i;
             final String graph = readProp(key + ".graph");
             if(graph != null) {
