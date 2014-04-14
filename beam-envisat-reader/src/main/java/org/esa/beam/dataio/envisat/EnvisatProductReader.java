@@ -210,8 +210,6 @@ public final class EnvisatProductReader extends AbstractProductReader {
 
     private Product createProduct() throws IOException {
         Debug.assertNotNull(getProductFile());
-        Debug.assertTrue(getSceneRasterWidth() > 0);
-        Debug.assertTrue(getSceneRasterHeight() > 0);
 
         File file = getProductFile().getFile();
         String productName;
