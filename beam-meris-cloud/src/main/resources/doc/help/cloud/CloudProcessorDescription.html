@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Data Processors - Cloud Probability</title>
+    <title>BEAM Data Processors - MERIS Cloud Probability</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,55 +25,45 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Cloud Probability- Processor Description</td>
+            MERIS Cloud Probability- Processor Description</td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                          border=0></a></td>
     </tr>
 </table>
 
-<p class="inote">Please note: The chapter <i><a href="../processors/ProcessorCommons.html">BEAM Scientific Data Processors</a></i>
-    provides a general description for all BEAM data processors. It describes the common graphical user interface (GUI),
-    the command-line interface and the common processing request file format.</p>
+<h3>Processor Description</h3>
 
-<h3>The Cloud Probability In- and Output Parameters tab</h3>
+<h4>I/O Parameters Tab</h4>
 
-<p align="center"><img src="images/CloudPathes.png"></p>
-<ol>
-    <li><b>Input product file</b>: Select the input product file by either typing
-        the product path into the text field or by pressing the file selection button
-        <img src="../images/FileDialogButton.jpg"> to invoke a
-        standard file dialog.</li>
-    <li><b>Output product file</b>: Select the output product file by either typing
-        the product path into the text field or by pressing the file selection button
-        <img src="../images/FileDialogButton.jpg"> to invoke a
-        standard file dialog. </li>
-    <li><b>Output product format</b>: Select one of the available output product
-        formats.</li>
-    <li><b>Extra log to output directory</b>: Select whether to write an additional
-        log file to the directory selected for the output product.</li>
-</ol>
+<p align="center"><img src="images/CloudProbProcessorGUI.png"></p>
+<h5>Source Product Group</h5>
 
-<h3>The Cloud Probability Processing Request File</h3>
+<p class="i1">
+    <b>Name: </b>
+    Used to select the spectral source product. The source product shall
+    contain spectral bands providing a source spectrum at each pixel. Use the <b>...</b> button to
+    open a data product currently not opened in VISAT.
+</p>
 
-<p>The following table describes
-    the Cloud Probability processor specific processing request file contents. For a detailed description of the
-    processing request file concept and file specification please look at chapter
-    <i><a href="../processors/ProcessorCommons#ProcessingRequestConcept">Processing Request Files</a></i>.</p>
+<h5>Target Product Group</h5>
 
-<table width="100%">
-    <tr>
-        <th>Parameter name</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Valueset</th>
-    </tr>
-    <tr>
-        <td>type</td>
-        <td>Request type. Mandatory attribute of the <code>Request</code> element</td>
-        <td>String</td>
-        <td>"MER_L2_CLOUD"</td>
-    </tr>
-</table>
+<p class="i1">
+    <b>Name:</b>
+    Used to specify the name of the target product.
+</p>
+
+<p class="i1">
+    <b>Save to:</b>
+    Used to specify whether the target product should be saved to the file system. The
+    combo box presents a list of file formats. If ENVISAT is selected the source product must be in ENVISAT format too.
+</p>
+
+<p class="i1">
+    <b>Open in VISAT:</b>
+    Used to specify whether the target product should be opened in VISAT. When the
+    the target product is not saved, it is opened in VISAT automatically.
+</p>
+
 
 <h3>Advanced configuration</h3>
 
@@ -93,7 +83,6 @@
 	If neither of the two expressions evaluate to true, the no-data value is set.
 	</li>
  </ul>
- </p>
 
 <hr>
 </body>

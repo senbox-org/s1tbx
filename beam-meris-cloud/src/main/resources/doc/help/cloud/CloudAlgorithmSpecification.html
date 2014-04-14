@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Data Processors - Algorithm Specification Cloud Probability </title>
+    <title>BEAM Data Processors - MERIS Cloud Probability </title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,22 +25,19 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Cloud Probability - Algorithm Specification</td>
+            MERIS Cloud Probability - Algorithm Specification</td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                          border=0></a></td>
     </tr>
 </table>
 
-<p>Algorithm Specification
-    of the science processors of the MERIS/(A)ATSR Toolbox
-</p>
+<p>Algorithm Specification</p>
 
 <h3>Cloud Probability</h3>
 
 <p>
     The BEAM Cloud Probability Processor uses a clear sky conservative cloud detection algorithm which is based on
-    artificial
-    neural nets developed by <i>Rene Preusker</i> of <a href="http://www.fu-berlin.de">Free University Berlin</a>.
+    artificial neural nets developed by <i>Rene Preusker</i> of <a href="http://www.fu-berlin.de">Free University Berlin</a>.
 </p>
 
 <h4>Cloud detection for MERIS</h4>
@@ -49,19 +46,15 @@
 <p>
     The cloud probability algorithm has been developed and implemented by Free University Berlin and Brockmann Consult.
     It is also used in the Global MERIS Land Albedomap project. The cloud probability algorithm is using 9 spectral
-    bands
-    of MERIS, the ratio of band 11 and 10, which is an indication of the absorption due to oxygen, the ECMWF surface
-    pressure
-    and the exact wavelength of band 11 as input. As an output, it yields a probability value (0 ... 1) indicating if a
+    bands of MERIS, the ratio of band 11 and 10, which is an indication of the absorption due to oxygen, the ECMWF surface
+    pressure and the exact wavelength of band 11 as input. As an output, it yields a probability value (0 ... 1) indicating if a
     pixel can be regarded as a cloud or not. Such a probability permits a more flexible way to work with identified
-    clouds
-    compared to a binary cloud mask.
+    clouds compared to a binary cloud mask.
 </p>
 
 <p>
     The algorithm uses two different artificial neural nets. The first one is used over the open ocean and the second
-    one over land.
-    The distinction between ocean and land is done using the altitude information.
+    one over land.The distinction between ocean and land is done using the altitude information.
     If the altitude is lower than -50 meters the ocean net is used.
 </p>
 
@@ -71,8 +64,7 @@
     using the radiative transfer model MOMO, simulated cloud and non-cloud top of atmosphere radiance have been produced
     and an artificial neural net (ANN) has been trained. This neural net is now used in the Cloud Probability Processor,
     where it is fed with the reflectances and the pressure as shown in the figure. A post-processing is applied after
-    the net
-    (nn2prop) which scales the output of the neural net into a probability value.
+    the net (nn2prop) which scales the output of the neural net into a probability value.
 </p>
 
 <p align="center">
