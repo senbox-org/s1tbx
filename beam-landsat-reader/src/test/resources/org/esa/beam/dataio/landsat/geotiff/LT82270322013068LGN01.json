@@ -236,7 +236,7 @@
                 "description": "Thermal Infrared Sensor (TIRS) 1",
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "0.09999579989013337",
-                "spectralWavelength": "10800.0",
+                "spectralWavelength": "10895.0",
                 "spectralBandwidth": "590.0",
                 "expectedPixels": [
                     {
@@ -256,7 +256,7 @@
                 "description": "TIRS 2",
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "0.09999579989013337",
-                "spectralWavelength": "12000.0",
+                "spectralWavelength": "12005.0",
                 "spectralBandwidth": "1010.0",
                 "expectedPixels": [
                     {

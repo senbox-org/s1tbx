@@ -129,7 +129,7 @@
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "-63.508831766411326",
                 "noDataValueUsed": "true",
-                "spectralWavelength": "433.0",
+                "spectralWavelength": "440.0",
                 "spectralBandwidth": "20.0",
                 "expectedPixels": [
                     {
@@ -160,7 +160,7 @@
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "-64.76229245872372",
                 "noDataValueUsed": "true",
-                "spectralWavelength": "482.0",
+                "spectralWavelength": "480.0",
                 "spectralBandwidth": "60.0",
                 "expectedPixels": [
                     {
@@ -191,7 +191,7 @@
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "-59.30042008316293",
                 "noDataValueUsed": "true",
-                "spectralWavelength": "562.0",
+                "spectralWavelength": "560.0",
                 "spectralBandwidth": "60.0",
                 "expectedPixels": [
                     {
@@ -347,7 +347,7 @@
                 "noDataValue": "-56.573954791711174",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "590.0",
-                "spectralBandwidth": "380.0",
+                "spectralBandwidth": "180.0",
                 "expectedPixels": [
                     {
                         "x": 2066,
@@ -377,7 +377,7 @@
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "-12.52400480117191",
                 "noDataValueUsed": "true",
-                "spectralWavelength": "1375.0",
+                "spectralWavelength": "1370.0",
                 "spectralBandwidth": "20.0",
                 "expectedPixels": [
                     {
@@ -408,7 +408,7 @@
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "0.09999579989013337",
                 "noDataValueUsed": "true",
-                "spectralWavelength": "10800.0",
+                "spectralWavelength": "10895.0",
                 "spectralBandwidth": "590.0",
                 "expectedPixels": [
                     {
@@ -439,7 +439,7 @@
                 "geophysicalUnit": "W/(m^2*sr*µm)",
                 "noDataValue": "0.09999579989013337",
                 "noDataValueUsed": "true",
-                "spectralWavelength": "12000.0",
+                "spectralWavelength": "12005.0",
                 "spectralBandwidth": "1010.0",
                 "expectedPixels": [
                     {
