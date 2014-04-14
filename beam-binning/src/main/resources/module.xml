@@ -77,7 +77,7 @@
     <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-            <path>doc/help/gpf_binning.hs</path>
+            <path>doc/help/binning.hs</path>
         </helpSet>
     </extension>
 

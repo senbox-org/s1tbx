@@ -5,9 +5,9 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="Level 3 Binning Operator" target="gpf_binning_overview">
-            <tocitem text="Overview" target="gpf_binning_overview"/>
-            <tocitem text="User Interface" target="gpf_binning_user_interface"/>
+        <tocitem text="Level 3 Binning Operator" target="binning_overview">
+            <tocitem text="Overview" target="binning_overview"/>
+            <tocitem text="User Interface" target="binning_user_interface"/>
         </tocitem>
     </tocitem>
 </toc>
