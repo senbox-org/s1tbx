@@ -2,6 +2,7 @@ target
 build
 local.txt
 beampy.ini
+jpy.jar
 .idea
 *.iml
 *.class
