@@ -33,6 +33,8 @@ public interface EnvisatConstants {
 
     String ENVISAT_FORMAT_NAME = "ENVISAT";
 
+    String[] EXTENSIONS = { ".N1", ".E1", ".E2" };
+
     /**
      * The string used to identify a file as an ENVISAT product. The value is <code>&quot;PRODUCT=\&quot;&quot;</code>.
      */
