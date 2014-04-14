@@ -44,6 +44,8 @@ import java.util.Set;
  * Note that type-safe enums exists for the {@link com.bc.ceres.swing.TableLayout.Fill fill} and
  * {@link com.bc.ceres.swing.TableLayout.Anchor anchor} parameter values.
  * <p/>
+ * Any parameter settings may be removed from the layout by passing {@code null} as value.
+ * <p/>
  * Components are added to their container using a {@link #cell(int, int) cell(row, col)}</i> or
  * {@link #cell(int, int, int, int) cell(row, col, rowspan, colspan)} constraint, for example:
  * <pre>
@@ -163,14 +165,14 @@ public class TableLayout implements LayoutManager2 {
     /////////////////////////////////////////////////////////////////////////
     // gridwidth
 
-    public void setCellColspan(int row, int col, int colspan) {
+    public void setCellColspan(int row, int col, Integer colspan) {
         setCellValue("gridwidth", row, col, colspan);
     }
 
     /////////////////////////////////////////////////////////////////////////
     // gridheight
 
-    public void setCellRowspan(int row, int col, int rowspan) {
+    public void setCellRowspan(int row, int col, Integer rowspan) {
         setCellValue("gridheight", row, col, rowspan);
     }
 
@@ -203,38 +205,38 @@ public class TableLayout implements LayoutManager2 {
     /////////////////////////////////////////////////////////////////////////
     // weighty
 
-    public void setTableWeightX(double weightx) {
+    public void setTableWeightX(Double weightx) {
         setValue("weightx", weightx);
     }
 
-    public void setRowWeightX(int row, double weightx) {
+    public void setRowWeightX(int row, Double weightx) {
         setRowValue("weightx", row, weightx);
     }
 
-    public void setColumnWeightX(int col, double weightx) {
+    public void setColumnWeightX(int col, Double weightx) {
         setColumnValue("weightx", col, weightx);
     }
 
-    public void setCellWeightX(int row, int col, double weightx) {
+    public void setCellWeightX(int row, int col, Double weightx) {
         setCellValue("weightx", row, col, weightx);
     }
 
     /////////////////////////////////////////////////////////////////////////
     // weighty
 
-    public void setTableWeightY(double weightx) {
+    public void setTableWeightY(Double weightx) {
         setValue("weighty", weightx);
     }
 
-    public void setRowWeightY(int row, double weighty) {
+    public void setRowWeightY(int row, Double weighty) {
         setRowValue("weighty", row, weighty);
     }
 
-    public void setColumnWeightY(int col, double weighty) {
+    public void setColumnWeightY(int col, Double weighty) {
         setColumnValue("weighty", col, weighty);
     }
 
-    public void setCellWeightY(int row, int col, double weighty) {
+    public void setCellWeightY(int row, int col, Double weighty) {
         setCellValue("weighty", row, col, weighty);
     }
 
@@ -513,7 +515,11 @@ public class TableLayout implements LayoutManager2 {
     }
 
     private void setValue(String name, Object value) {
-        propertyMap.put(name, value);
+        if (value != null) {
+            propertyMap.put(name, value);
+        } else {
+            propertyMap.remove(name);
+        }
     }
 
     private static String getCellName(String name, int row, int col) {
