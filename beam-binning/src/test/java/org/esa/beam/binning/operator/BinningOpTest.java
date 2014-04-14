@@ -628,18 +628,21 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testParseDateUtc() {
-        final ProductData.UTC utc = BinningOp.parseDateUtc("Gerda", "2012-05-22");
+    public void testParseStartDateUtc() {
+        ProductData.UTC utc = BinningOp.parseStartDateUtc("2012-05-22");
         assertEquals("22-MAY-2012 00:00:00.000000", utc.format());
+        utc = BinningOp.parseStartDateUtc("2012-05-22 11:22:33");
+        assertEquals("22-MAY-2012 11:22:33.000000", utc.format());
     }
 
     @Test
     public void testParseDateUtc_errorCase() {
         try {
-            BinningOp.parseDateUtc("Fritz", "yesterday evening");
+            BinningOp.parseStartDateUtc("yesterday evening");
             fail("OperatorException expected");
-        } catch (OperatorException expected) {
-            assertEquals("Invalid parameter 'Fritz': Unparseable date: \"yesterday evening\"", expected.getMessage());
+        } catch (OperatorException oe) {
+            String expected = "Error while parsing start date parameter 'yesterday evening': Unparseable date: \"yesterday evening\"";
+            assertEquals(expected, oe.getMessage());
         }
     }
 

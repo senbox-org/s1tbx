@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -274,7 +274,7 @@ class BinningFilterPanel extends JPanel {
 
     private static DateExComboBox createDatePicker() {
         DateExComboBox datePicker = new DateExComboBox();
-        datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_PATTERN));
+        datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_INPUT_PATTERN));
         datePicker.setPreferredSize(new Dimension(120, 20));
         datePicker.setMinimumSize(new Dimension(120, 20));
         return datePicker;

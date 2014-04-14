@@ -126,8 +126,9 @@ public class BinningOp extends Operator {
         SPATIOTEMPORAL_DATA_DAY,
     }
 
-    public static final String DATE_PATTERN = "yyyy-MM-dd";
-    public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    public static final String DATE_INPUT_PATTERN = "yyyy-MM-dd";
+    public static final String DATETIME_INPUT_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATETIME_OUTPUT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
                                   "If not given, the parameter 'sourceProductPaths' must be provided.")
@@ -376,7 +377,7 @@ public class BinningOp extends Operator {
         ProductData.UTC startDateUtc = null;
         ProductData.UTC endDateUtc = null;
         if (startDateTime != null) {
-            startDateUtc = parseDateUtc("startDateTime", startDateTime);
+            startDateUtc = parseStartDateUtc(startDateTime);
             double startMJD = startDateUtc.getMJD();
             double endMJD = startMJD + periodDuration;
             endDateUtc = new ProductData.UTC(endMJD);
@@ -572,7 +573,7 @@ public class BinningOp extends Operator {
     }
 
     private void initMetadataProperties() {
-        final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN, Locale.ENGLISH);
 
         OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
         metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(new File(outputFile)));
@@ -841,11 +842,15 @@ public class BinningOp extends Operator {
     }
 
     // package access for tessting only tb 2013-05-07
-    static ProductData.UTC parseDateUtc(String name, String date) {
+    static ProductData.UTC parseStartDateUtc(String date) {
         try {
-            return ProductData.UTC.parse(date, DATE_PATTERN);
+            if (date.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+                return ProductData.UTC.parse(date, DATETIME_INPUT_PATTERN);
+            } else {
+                return ProductData.UTC.parse(date, DATE_INPUT_PATTERN);
+            }
         } catch (ParseException e) {
-            throw new OperatorException(String.format("Invalid parameter '%s': %s", name, e.getMessage()));
+            throw new OperatorException(String.format("Error while parsing start date parameter '%s': %s", date, e.getMessage()));
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractBinWriter implements BinWriter {
 
-    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat(BinningOp.DATETIME_PATTERN);
+    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat(BinningOp.DATETIME_OUTPUT_PATTERN);
     private final static int BUFFER_SIZE = 4096;
 
     private final Geometry region;
