@@ -44,14 +44,14 @@ public class OperatorMenuTest {
 
 
     @Test
-    public void testOperatorDescription() throws Exception {
+    public void testOperatorAboutText() throws Exception {
         DefaultAppContext appContext = new DefaultAppContext("test");
 
         final OperatorMenu support = new OperatorMenu(null, testOpSpi.getOperatorDescriptor(), null, appContext, "");
 
         assertEquals("Tester", support.getOperatorName());
 
-        String operatorDescription = support.getOperatorDescription();
+        String operatorDescription = support.getOperatorAboutText();
         assertTrue(operatorDescription.length() > 80);
     }
 }

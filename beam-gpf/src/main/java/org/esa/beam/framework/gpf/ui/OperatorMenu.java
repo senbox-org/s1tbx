@@ -303,7 +303,7 @@ public class OperatorMenu {
 
         @Override
         public void actionPerformed(ActionEvent event) {
-            showInformationDialog("About " + getOperatorName(), new JLabel(getOperatorDescription()));
+            showInformationDialog("About " + getOperatorName(), new JLabel(getOperatorAboutText()));
         }
     }
 
@@ -320,7 +320,7 @@ public class OperatorMenu {
         return opDescriptor.getAlias() != null ? opDescriptor.getAlias() : opDescriptor.getName();
     }
 
-    String getOperatorDescription() {
+    String getOperatorAboutText() {
         return makeHtmlConform(String.format("" +
                                              "<html>" +
                                              "<h2>%s Operator</h2>" +
