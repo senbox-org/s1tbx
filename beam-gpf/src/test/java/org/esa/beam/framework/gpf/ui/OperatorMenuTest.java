@@ -23,7 +23,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(HeadlessTestRunner.class)
 public class OperatorMenuTest {
@@ -51,10 +52,6 @@ public class OperatorMenuTest {
         assertEquals("Tester", support.getOperatorName());
 
         String operatorDescription = support.getOperatorDescription();
-        assertFalse(operatorDescription.isEmpty());
-        assertTrue(operatorDescription.contains("<tr><td><b>Full name:</b></td><td><code>org.esa.beam.framework.gpf.ui.OperatorParameterSupportTest$TestOp</code></td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Authors:</b></td><td>Nobody</td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Version:</b></td><td>42</td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Purpose:</b></td><td>This is very stupid operator.</td></tr>"));
+        assertTrue(operatorDescription.length() > 80);
     }
 }
