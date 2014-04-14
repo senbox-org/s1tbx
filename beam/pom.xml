@@ -615,6 +615,17 @@
 
 
     <repositories>
+		<repository>
+            <id>array-mvn-repo</id>
+            <name>Public Maven Repository at Array Systems Computing Inc</name>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>bc-mvn</id>
             <name>Public Maven Repository at Brockmann Consult</name>
