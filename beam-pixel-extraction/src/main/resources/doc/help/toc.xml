@@ -23,7 +23,7 @@
     <tocitem text="VISAT">
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
-                <tocitem text="Export Pixels" target="pixelExtraction"/>
+                <tocitem text="Extract Pixel Values" target="pixelExtraction"/>
             </tocitem>
         </tocitem>
     </tocitem>
