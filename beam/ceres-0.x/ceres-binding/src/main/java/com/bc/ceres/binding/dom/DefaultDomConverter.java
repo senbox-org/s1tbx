@@ -93,23 +93,14 @@ public class DefaultDomConverter implements DomConverter {
     @Override
     public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         PropertySet propertySet = getPropertySet(value);
-        convertPropertySetToDom(propertySet, parentElement);
-    }
-
-
-    private void convertPropertySetToDom(PropertySet propertySet, DomElement parentElement) throws ConversionException {
-        Property[] properties = propertySet.getProperties();
-        for (Property property : properties) {
-            if(property.getDescriptor().isDeprecated()) {
-                continue;
-            }
+        for (Property property : propertySet.getProperties()) {
             convertPropertyToDom(property, parentElement);
         }
     }
 
     private void convertPropertyToDom(Property property, DomElement parentElement) throws ConversionException {
         PropertyDescriptor descriptor = property.getDescriptor();
-        if (descriptor.isTransient()) {
+        if (descriptor.isTransient() || descriptor.isDeprecated()) {
             return;
         }
 

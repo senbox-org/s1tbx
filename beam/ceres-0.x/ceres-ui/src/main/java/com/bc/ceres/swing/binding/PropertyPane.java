@@ -68,7 +68,7 @@ public class PropertyPane {
         final PropertyEditorRegistry registry = PropertyEditorRegistry.getInstance();
         for (Property property : properties) {
             PropertyDescriptor descriptor = property.getDescriptor();
-            if (Boolean.FALSE.equals(descriptor.getAttribute("visible")) || descriptor.isDeprecated()) {
+            if (isInvisible(descriptor)) {
                 continue;
             }
             PropertyEditor propertyEditor = registry.findPropertyEditor(descriptor);
@@ -100,11 +100,15 @@ public class PropertyPane {
         return panel;
     }
 
+    private boolean isInvisible(PropertyDescriptor descriptor) {
+        return Boolean.FALSE.equals(descriptor.getAttribute("visible")) || descriptor.isDeprecated();
+    }
+
     private boolean wantDisplayUnitColumn(Property[] models) {
         boolean showUnitColumn = false;
         for (Property model : models) {
             PropertyDescriptor descriptor = model.getDescriptor();
-            if(descriptor.isDeprecated()) {
+            if (isInvisible(descriptor)) {
                 continue;
             }
             String unit = descriptor.getUnit();

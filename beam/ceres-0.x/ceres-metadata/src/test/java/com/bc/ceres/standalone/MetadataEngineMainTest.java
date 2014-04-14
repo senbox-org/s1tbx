@@ -151,23 +151,18 @@ public class MetadataEngineMainTest {
         metadataEngineMain.processMetadata();
 
         assertFalse(metadataResult.toString().isEmpty());
-        assertFalse(metadataResultXml.toString().isEmpty());
-
         assertEquals("Hello world. my.key=my value. Output item path: /my/chl-a.N1. " +
                 "The source metadata: 1) source 1 text 2) source 2 text 3) source 3-txt text 4) source 3-xml text. " +
                 "A source path: source/path/tsm-1.dim." +
                 "WGS 84 / UTM", metadataResult.toString());
 
-        assertEquals("" +
-                "<metadata>\n" +
-                "    <sources>\n" +
-                "                    <source>source/path/tsm-3.hdf</source>\n" +
-                "                    <source>source/path/tsm-2.N1</source>\n" +
-                "                    <source>source/path/tsm-1.dim</source>\n" +
-                "            </sources>\n" +
-                "    <target>/my/chl-a.N1</target>\n" +
-                "    <additional>Hello world</additional>\n" +
-                "    <2643>WGS 84 / UTM</2643>\n" +
-                "</metadata>", metadataResultXml.toString());
+        String metadataResultXmlString = metadataResultXml.toString();
+        assertFalse(metadataResultXmlString.isEmpty());
+        assertTrue(metadataResultXmlString.contains("<source>source/path/tsm-3.hdf</source>"));
+        assertTrue(metadataResultXmlString.contains("<source>source/path/tsm-2.N1</source>"));
+        assertTrue(metadataResultXmlString.contains("<source>source/path/tsm-1.dim</source>"));
+        assertTrue(metadataResultXmlString.contains("<target>/my/chl-a.N1</target>"));
+        assertTrue(metadataResultXmlString.contains("<additional>Hello world</additional>"));
+        assertTrue(metadataResultXmlString.contains("<2643>WGS 84 / UTM</2643>"));
     }
 }

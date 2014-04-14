@@ -28,7 +28,38 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A convenient layout manager that allows multiple components to be laid out
+ * in form of a table-like grid.
+ * <p/>
+ * It uses the same parameters as Swing's standard {@link java.awt.GridBagLayout GridBagLayout} manager, however clients
+ * don't have to deal with {@link java.awt.GridBagConstraints GridBagConstraints}. Instead, they can easily use the
+ * the various setters to adjust single parameters. Parameters can be specified for
+ * <ol>
+ * <li>the entire table: {@code setTable&lt;Param&gt;()},</li>
+ * <li>an entire row: {@code setRow&lt;Param&gt;()},</li>
+ * <li>an entire column: {@code setColumn&lt;Param&gt;()},</li>
+ * <li>each cell separately: {@code setCell&lt;Param&gt;()}.</li>
+ * </ol>
+ * Note that type-safe enums exists for the {@link com.bc.ceres.swing.TableLayout.Fill fill} and
+ * {@link com.bc.ceres.swing.TableLayout.Anchor anchor} parameter values.
+ * <p/>
+ * Any parameter settings may be removed from the layout by passing {@code null} as value.
+ * <p/>
+ * Components are added to their container using a {@link #cell(int, int) cell(row, col)}</i> or
+ * {@link #cell(int, int, int, int) cell(row, col, rowspan, colspan)} constraint, for example:
+ * <pre>
+ *      panel.add(new JLabel("Iterations:"), TableLayout.cell(0, 3));
+ * </pre>
+ *
+ * @author Norman
+ */
 public class TableLayout implements LayoutManager2 {
+    /**
+     * This parameter is used when the component is smaller than its
+     * display area. It determines where, within the display area, to
+     * place the component.
+     */
     public enum Fill {
         /**
          * Do not resize the component.
@@ -58,6 +89,11 @@ public class TableLayout implements LayoutManager2 {
         }
     }
 
+    /**
+     * This parameter is used when the component's display area is larger
+     * than the component's requested size. It determines whether to
+     * resize the component, and if so, how.
+     */
     public enum Anchor {
         // Absolute
         CENTER(GridBagConstraints.CENTER),
@@ -78,7 +114,7 @@ public class TableLayout implements LayoutManager2 {
         FIRST_LINE_END(GridBagConstraints.FIRST_LINE_END),
         LAST_LINE_START(GridBagConstraints.LAST_LINE_START),
         LAST_LINE_END(GridBagConstraints.LAST_LINE_END),
-        // Baseline relvative
+        // Baseline relative
         BASELINE(GridBagConstraints.BASELINE),
         BASELINE_LEADING(GridBagConstraints.BASELINE_LEADING),
         BASELINE_TRAILING(GridBagConstraints.LAST_LINE_END),
@@ -113,7 +149,7 @@ public class TableLayout implements LayoutManager2 {
 
     public TableLayout(int columnCount) {
         this.gbl = new GridBagLayout();
-        this.propertyMap = new HashMap<String, Object>(32);
+        this.propertyMap = new HashMap<>(32);
         this.columnCount = columnCount;
         this.currentCell = new Cell();
     }
@@ -129,14 +165,14 @@ public class TableLayout implements LayoutManager2 {
     /////////////////////////////////////////////////////////////////////////
     // gridwidth
 
-    public void setCellColspan(int row, int col, int colspan) {
+    public void setCellColspan(int row, int col, Integer colspan) {
         setCellValue("gridwidth", row, col, colspan);
     }
 
     /////////////////////////////////////////////////////////////////////////
     // gridheight
 
-    public void setCellRowspan(int row, int col, int rowspan) {
+    public void setCellRowspan(int row, int col, Integer rowspan) {
         setCellValue("gridheight", row, col, rowspan);
     }
 
@@ -169,38 +205,38 @@ public class TableLayout implements LayoutManager2 {
     /////////////////////////////////////////////////////////////////////////
     // weighty
 
-    public void setTableWeightX(double weightx) {
+    public void setTableWeightX(Double weightx) {
         setValue("weightx", weightx);
     }
 
-    public void setRowWeightX(int row, double weightx) {
+    public void setRowWeightX(int row, Double weightx) {
         setRowValue("weightx", row, weightx);
     }
 
-    public void setColumnWeightX(int col, double weightx) {
+    public void setColumnWeightX(int col, Double weightx) {
         setColumnValue("weightx", col, weightx);
     }
 
-    public void setCellWeightX(int row, int col, double weightx) {
+    public void setCellWeightX(int row, int col, Double weightx) {
         setCellValue("weightx", row, col, weightx);
     }
 
     /////////////////////////////////////////////////////////////////////////
     // weighty
 
-    public void setTableWeightY(double weightx) {
+    public void setTableWeightY(Double weightx) {
         setValue("weighty", weightx);
     }
 
-    public void setRowWeightY(int row, double weighty) {
+    public void setRowWeightY(int row, Double weighty) {
         setRowValue("weighty", row, weighty);
     }
 
-    public void setColumnWeightY(int col, double weighty) {
+    public void setColumnWeightY(int col, Double weighty) {
         setColumnValue("weighty", col, weighty);
     }
 
-    public void setCellWeightY(int row, int col, double weighty) {
+    public void setCellWeightY(int row, int col, Double weighty) {
         setCellValue("weighty", row, col, weighty);
     }
 
@@ -242,17 +278,19 @@ public class TableLayout implements LayoutManager2 {
         setCellValue("anchor", row, col, anchor);
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    // spacers
+
+    public Component createHorizontalSpacer() {
+        setCellFill(currentCell.row, currentCell.col, Fill.BOTH);
+        setCellWeightX(currentCell.row, currentCell.col, 1.0);
+        return new JPanel();
+    }
 
     public Component createVerticalSpacer() {
         setCellColspan(currentCell.row, 0, columnCount);
         setCellFill(currentCell.row, currentCell.col, Fill.BOTH);
         setCellWeightY(currentCell.row, currentCell.col, 1.0);
-        return new JPanel();
-    }
-
-    public Component createHorizontalSpacer() {
-        setCellFill(currentCell.row, currentCell.col, Fill.BOTH);
-        setCellWeightX(currentCell.row, currentCell.col, 1.0);
         return new JPanel();
     }
 
@@ -341,7 +379,6 @@ public class TableLayout implements LayoutManager2 {
      * container, given the components it contains.
      *
      * @param parent the component to be laid out
-     *
      * @see #preferredLayoutSize
      */
     @Override
@@ -354,7 +391,6 @@ public class TableLayout implements LayoutManager2 {
      * container, given the components it contains.
      *
      * @param parent the container to be laid out
-     *
      * @see #minimumLayoutSize
      */
     @Override
@@ -428,20 +464,23 @@ public class TableLayout implements LayoutManager2 {
 
     private Object getValue(String name, Cell cell) {
         Object value;
+        // 1. Get value for cell
         value = getCellValue(name, cell.row, cell.col);
         if (value == null) {
+            // 2. Get value for column
             value = getColumnValue(name, cell.col);
             if (value == null) {
+                // 3. Get value for row
                 value = getRowValue(name, cell.row);
                 if (value == null) {
+                    // 4. Get value for table
                     value = getValue(name);
                 }
             }
         }
         if (value instanceof Fill) {
             value = ((Fill) value).value();
-        }
-        if (value instanceof Anchor) {
+        } else if (value instanceof Anchor) {
             value = ((Anchor) value).value();
         }
         return value;
@@ -476,7 +515,11 @@ public class TableLayout implements LayoutManager2 {
     }
 
     private void setValue(String name, Object value) {
-        propertyMap.put(name, value);
+        if (value != null) {
+            propertyMap.put(name, value);
+        } else {
+            propertyMap.remove(name);
+        }
     }
 
     private static String getCellName(String name, int row, int col) {
