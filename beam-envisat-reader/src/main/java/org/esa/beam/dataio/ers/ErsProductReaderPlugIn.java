@@ -16,15 +16,10 @@
 package org.esa.beam.dataio.ers;
 
 import org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn;
-import org.esa.beam.dataio.envisat.ProductFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.util.Locale;
 import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
+import java.util.Locale;
 
 /**
  * The <code>ErsProductReaderPlugIn</code> class is an implementation of the <code>ProductReaderPlugIn</code>
@@ -70,6 +65,7 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given decription string, if <code>null</code> the default locale is used
+     *
      * @return a textual description of this product reader/writer
      */
     @Override
@@ -87,6 +83,7 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
      * stream.
      *
      * @param input the input object
+     *
      * @return <code>true</code> if the given input is an object referencing a physical ERS in ENVISAT data source.
      */
     @Override
@@ -98,11 +95,11 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
             fileName = ((File) input).getName().toUpperCase();
         }
         if (fileName != null) {
-            if (matchesExtension(fileName))
+            if (matchesExtension(fileName)) {
                 return DecodeQualification.INTENDED;
-            else if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
+            } else if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ")) {
                 return DecodeQualification.UNABLE;
-            return super.getDecodeQualification(input);
+            }
         }
         return DecodeQualification.UNABLE;
     }
