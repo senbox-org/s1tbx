@@ -40,18 +40,15 @@ public class GridGuiTest {
             }
         };*/
         grid.getLayout().setTablePadding(4, 2);
-        /*
         grid.getLayout().setColumnFill(1, TableLayout.Fill.HORIZONTAL);
         grid.getLayout().setColumnWeightX(1, 1.0);
-        */
         grid.setHeaderRow(new JLabel("<html><b>Name</b>"), new JLabel("<html><b>Letter</b>"), new JLabel("<html><b>Units</b>"));
 
         GridControlBar gridControlBar = new GridControlBar(GridControlBar.HORIZONTAL, grid, new MyController());
 
         JFrame frame = new JFrame(Grid.class.getSimpleName());
-        //frame.getContentPane().add(new JScrollPane(grid), BorderLayout.CENTER);
-        frame.getContentPane().add(new JScrollPane(grid), BorderLayout.NORTH);
-        //frame.getContentPane().add(new JLabel("Wraw!"), BorderLayout.CENTER);
+        frame.getContentPane().add(new JScrollPane(grid), BorderLayout.CENTER);
+        //frame.getContentPane().add(new JScrollPane(grid), BorderLayout.NORTH);
         frame.getContentPane().add(gridControlBar, BorderLayout.SOUTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(340, 340);
@@ -69,7 +66,7 @@ public class GridGuiTest {
         }
 
         @Override
-        public boolean removeDataRows(GridControlBar gridControlBar, List<Integer> rowIndexes) {
+        public boolean removeDataRows(GridControlBar gridControlBar, List<Integer> selectedIndexes) {
             return true;
         }
 

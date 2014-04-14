@@ -1,5 +1,7 @@
 package com.bc.ceres.swing;
 
+import com.bc.ceres.core.Assert;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -18,18 +20,25 @@ public class GridControlBar extends JToolBar implements Grid.SelectionListener {
 
     public GridControlBar(int orientation, Grid grid, Controller controller) {
         super(orientation);
+
+        Assert.notNull(grid, "grid");
+        Assert.notNull(controller, "controller");
+
         this.grid = grid;
         this.controller = controller;
-        addAction = new AddAction();
-        removeAction = new RemoveAction();
-        moveUpAction = new MoveUpAction();
-        moveDownAction = new MoveDownAction();
+        this.addAction = new AddAction();
+        this.removeAction = new RemoveAction();
+        this.moveUpAction = new MoveUpAction();
+        this.moveDownAction = new MoveDownAction();
+
         setFloatable(false);
         add(addAction);
         add(removeAction);
         add(moveUpAction);
         add(moveDownAction);
+
         grid.addSelectionListener(this);
+
         updateState();
     }
 
@@ -39,14 +48,14 @@ public class GridControlBar extends JToolBar implements Grid.SelectionListener {
 
     @Override
     public void selectionStateChanged(Grid grid) {
-        System.out.println("selectionStateChanged: grid = " + grid);
+        //System.out.println("selectionStateChanged: grid = " + grid);
         updateState();
     }
 
     public void addNewRow() {
-        JComponent[] componentRow = controller.newDataRow(this);
-        if (componentRow != null) {
-            grid.addDataRow(componentRow);
+        JComponent[] dataRow = controller.newDataRow(this);
+        if (dataRow != null) {
+            grid.addDataRow(dataRow);
         }
         updateState();
     }
@@ -54,16 +63,6 @@ public class GridControlBar extends JToolBar implements Grid.SelectionListener {
     public void removeSelectedRows() {
         List<Integer> rowIndexes = grid.getSelectedDataRowIndexes();
         if (controller.removeDataRows(this, rowIndexes)) {
-            /*
-            int offset = 0;
-            List<Integer> selectedRowIndexes = grid.getSelectedDataRowIndexes();
-            for (int rowIndex : selectedRowIndexes) {
-                int actualRowIndex = rowIndex - offset;
-                System.out.println("actualRowIndex = " + actualRowIndex);
-                grid.removeDataRow(actualRowIndex);
-                offset++;
-            }
-            */
             grid.removeDataRows(rowIndexes);
             updateState();
         }
@@ -149,7 +148,7 @@ public class GridControlBar extends JToolBar implements Grid.SelectionListener {
     public interface Controller {
         JComponent[] newDataRow(GridControlBar gridControlBar);
 
-        boolean removeDataRows(GridControlBar gridControlBar, List<Integer> rowIndexes);
+        boolean removeDataRows(GridControlBar gridControlBar, List<Integer> selectedIndexes);
 
         boolean moveDataRowUp(GridControlBar gridControlBar, int selectedIndex);
 

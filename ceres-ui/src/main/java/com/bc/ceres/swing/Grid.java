@@ -28,6 +28,7 @@ public class Grid extends JPanel {
     private final List<List<JComponent>> componentRows;
     private final List<SelectionListener> selectionListeners;
     private int dataRowSelectorStateChangeCount;
+    private JPanel filler;
 
     public Grid(int columnCount, boolean showSelectionColumn) {
         this(new TableLayout(columnCount), showSelectionColumn);
@@ -39,6 +40,9 @@ public class Grid extends JPanel {
         this.componentRows = new ArrayList<>();
         this.componentRows.add(new ArrayList<>(Arrays.asList(new JComponent[tableLayout.getColumnCount()])));
         this.selectionListeners = new ArrayList<>();
+
+        filler = new JPanel();
+        addFiller();
     }
 
     @Override
@@ -121,9 +125,7 @@ public class Grid extends JPanel {
     public void addDataRow(JComponent... components) {
         checkColumnCount(components);
 
-        //if (componentRows.get(0).get(0) == null) {
-        //    setHeaderRow(new JComponent[getColumnCount() - 1]);
-        //}
+        removeFiller();
 
         List<JComponent> dataRow = new ArrayList<>(components.length + 1);
         if (showSelectionColumn) {
@@ -144,12 +146,14 @@ public class Grid extends JPanel {
 
         addComponentRowIntern(dataRow, componentRows.size());
         componentRows.add(dataRow);
+        addFiller();
         fireComponentsChanged();
         adjustHeaderRowSelector();
     }
 
     public void removeDataRow(int rowIndex) {
         Assert.argument(rowIndex >= 1, "rowIndex");
+        removeFiller();
         boolean rowSelected = isRowSelected(rowIndex);
         List<JComponent> componentRow = componentRows.get(rowIndex);
         removeComponentRowIntern(componentRow);
@@ -158,6 +162,7 @@ public class Grid extends JPanel {
         for (int i = rowIndex; i < componentRows.size(); i++) {
             addComponentRowIntern(componentRows.get(i), i);
         }
+        addFiller();
         fireComponentsChanged();
         if (rowSelected) {
             fireSelectionChange();
@@ -168,6 +173,8 @@ public class Grid extends JPanel {
         if (rowIndexes.isEmpty()) {
             return;
         }
+
+        removeFiller();
 
         int offset = 0;
         int selectedCount = 0;
@@ -188,6 +195,7 @@ public class Grid extends JPanel {
             addComponentRowIntern(componentRows.get(i), i);
         }
 
+        addFiller();
         fireComponentsChanged();
         if (selectedCount > 0) {
             fireSelectionChange();
@@ -384,6 +392,23 @@ public class Grid extends JPanel {
             newBorder = BorderFactory.createCompoundBorder(newBorder, oldBorder);
         }
         component.setBorder(newBorder);
+    }
+
+    private int lastFillerRow = -1;
+
+    public void addFiller() {
+        lastFillerRow = getRowCount();
+        getLayout().setCellWeightY(lastFillerRow, 0, 1.0);
+        getLayout().setCellFill(lastFillerRow, 0, TableLayout.Fill.VERTICAL);
+        add(filler, TableLayout.cell(lastFillerRow, 0));
+    }
+
+    public void removeFiller() {
+        if (lastFillerRow >= 0) {
+            getLayout().setCellWeightY(lastFillerRow, 0, null);
+            getLayout().setCellFill(lastFillerRow, 0, null);
+        }
+        remove(filler);
     }
 
     private static class HeaderBorder implements Border {
