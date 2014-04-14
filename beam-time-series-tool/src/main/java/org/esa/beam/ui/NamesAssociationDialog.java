@@ -167,10 +167,10 @@ public class NamesAssociationDialog extends ModalDialog {
         layout.setColumnFill(3, TableLayout.Fill.BOTH);
         layout.setRowFill(0, TableLayout.Fill.NONE);
         layout.setRowAnchor(0, TableLayout.Anchor.SOUTHWEST);
-        layout.setRowWeightY(1, 100);
-        layout.setColumnWeightX(0, 100);
-        layout.setColumnWeightX(2, 100);
-        layout.setColumnWeightX(3, 100);
+        layout.setRowWeightY(1, 100.0);
+        layout.setColumnWeightX(0, 100.0);
+        layout.setColumnWeightX(2, 100.0);
+        layout.setColumnWeightX(3, 100.0);
         layout.setCellFill(0, 0, TableLayout.Fill.NONE);
         layout.setCellFill(0, 1, TableLayout.Fill.NONE);
         layout.setCellFill(0, 2, TableLayout.Fill.NONE);
