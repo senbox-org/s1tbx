@@ -3,15 +3,12 @@ package com.bc.ceres.swing;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class GridControlPanel extends JToolBar implements Grid.SelectionListener {
+public class GridControlBar extends JToolBar implements Grid.SelectionListener {
     private final AddAction addAction;
     private final RemoveAction removeAction;
     private final MoveUpAction moveUpAction;
@@ -19,8 +16,8 @@ public class GridControlPanel extends JToolBar implements Grid.SelectionListener
     private Grid grid;
     private Controller controller;
 
-    public GridControlPanel(Grid grid, Controller controller) {
-        super(HORIZONTAL);
+    public GridControlBar(int orientation, Grid grid, Controller controller) {
+        super(orientation);
         this.grid = grid;
         this.controller = controller;
         addAction = new AddAction();
@@ -55,13 +52,19 @@ public class GridControlPanel extends JToolBar implements Grid.SelectionListener
     }
 
     public void removeSelectedRows() {
-        if (controller.removeDataRows(this)) {
+        List<Integer> rowIndexes = grid.getSelectedDataRowIndexes();
+        if (controller.removeDataRows(this, rowIndexes)) {
+            /*
             int offset = 0;
             List<Integer> selectedRowIndexes = grid.getSelectedDataRowIndexes();
             for (int rowIndex : selectedRowIndexes) {
-                grid.removeDataRow(rowIndex - offset);
+                int actualRowIndex = rowIndex - offset;
+                System.out.println("actualRowIndex = " + actualRowIndex);
+                grid.removeDataRow(actualRowIndex);
                 offset++;
             }
+            */
+            grid.removeDataRows(rowIndexes);
             updateState();
         }
     }
@@ -144,12 +147,12 @@ public class GridControlPanel extends JToolBar implements Grid.SelectionListener
     }
 
     public interface Controller {
-        JComponent[] newDataRow(GridControlPanel gridControlPanel);
+        JComponent[] newDataRow(GridControlBar gridControlBar);
 
-        boolean removeDataRows(GridControlPanel gridControlPanel);
+        boolean removeDataRows(GridControlBar gridControlBar, List<Integer> rowIndexes);
 
-        boolean moveDataRowUp(GridControlPanel gridControlPanel, int selectedIndex);
+        boolean moveDataRowUp(GridControlBar gridControlBar, int selectedIndex);
 
-        boolean moveDataRowDown(GridControlPanel gridControlPanel, int selectedIndex);
+        boolean moveDataRowDown(GridControlBar gridControlBar, int selectedIndex);
     }
 }
