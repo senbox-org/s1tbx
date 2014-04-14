@@ -56,7 +56,7 @@
             <text>Level-3 Binning</text>
             <class>org.esa.beam.binning.operator.ui.BinningOperatorAction</class>
             <operatorName>Binning</operatorName>
-            <helpId>gpf_binning_overview</helpId>
+            <helpId>binning_overview</helpId>
         </action>
     </extension>
     <!-- todo - clarify with MZ if we need this, it is actually an OC-CCI-specific product format -->
