@@ -28,7 +28,8 @@
     <mapID target="editMenu" url="visat/EditMenu.html"/>
     <mapID target="viewMenu" url="visat/ViewMenu.html"/>
     <mapID target="analysisMenu" url="visat/AnalysisMenu.html"/>
-    <mapID target="toolsMenu" url="visat/ToolsMenu.html"/>
+    <mapID target="utilitiesMenu" url="visat/UtilitiesMenu.html"/>
+    <mapID target="processingMenu" url="visat/ProcessingMenu.html"/>
     <mapID target="windowMenu" url="visat/WindowMenu.html"/>
     <mapID target="helpMenu" url="visat/HelpMenu.html"/>
     <mapID target="moduleManager" url="visat/ModuleManager.html"/>
@@ -113,7 +114,5 @@
     <mapID target="dataFlip" url="visat/DataFlip.html"/>
     <mapID target="flipDialog" url="visat/DataFlip.html"/>
     <mapID target="pixelGeoCodingSetup" url="visat/PixelGeoCoding.html"/>
-
-    <mapID target="dataProcessors" url="processors/ProcessorCommons.html"/>
 
 </map>

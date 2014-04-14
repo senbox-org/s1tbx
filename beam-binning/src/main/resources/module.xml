@@ -60,7 +60,6 @@
         </action>
     </extension>
     <!-- todo - clarify with MZ if we need this, it is actually an OC-CCI-specific product format -->
-    <!--
     <extension point="beam-ui:actions">
         <action>
             <id>importBinnedProduct</id>
@@ -69,10 +68,8 @@
             <useAllFileFilter>true</useAllFileFilter>
             <text>Binned SeaDAS data</text>
             <shortDescr>Import a SeaDAS-Level-3-alike NetCDF file.</shortDescr>
-            <description>Import a SeaDAS-Level-3-alike NetCDF file.</description>
         </action>
     </extension>
-    -->
 
     <extension point="beam-ui:helpSets">
         <helpSet>

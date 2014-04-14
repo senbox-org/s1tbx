@@ -134,7 +134,8 @@
             <tocitem text="Edit Menu" target="editMenu"/>
             <tocitem text="View Menu" target="viewMenu"/>
             <tocitem text="Analysis Menu" target="analysisMenu"/>
-            <tocitem text="Tools Menu" target="toolsMenu"/>
+            <tocitem text="Utilities Menu" target="utilitiesMenu"/>
+            <tocitem text="Processing Menu" target="processingMenu"/>
             <tocitem text="Window Menu" target="windowMenu"/>
             <tocitem text="Help Menu" target="helpMenu"/>
             <tocitem text="No-Data Value" target="noDataValue"/>
@@ -142,7 +143,6 @@
     </tocitem>
 
     <tocitem text="Data Processors">
-        <tocitem text="Introduction" target="dataProcessors"/>
     </tocitem>
 
 </toc>

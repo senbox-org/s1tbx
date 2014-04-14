@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Tools Menu</title>
+    <title>VISAT Help - Processing Menu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,26 +25,29 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Tools Menu</td>
+            Processing Menu</td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
     </tr>
 </table>
 
-<h3>VISAT's Tools Menu</h3>
+<h3>VISAT's Processing Menu</h3>
 
-<p>The following tools all generate new products or nodes of a product from the currently
-    selected input product(s).
+<p>The following processing operations all generate new products from one or multiple source product(s).
     To view their created raster datasets after processing is complete, change to the product browser,
     expand the new product's nodes and double click on a band node to open an image view. Note that you
-    really get new products which can be saved and opened again for later use.</p>
+    really get new products. The menu contains the following groups and entries:</p>
 
 <ul>
-    <li><a href="BandMaths.html"> Create Band by Band Maths</a></li>
+    <li>Pre-Processing</li>
+    <ul>
+        <li><a href="../radiometry/overview.html">Level-3 Binning Processor</a></li>
 
-    <li><a href="CreateDemRelatedBands.html"> Create DEM-related Bands</a></li>
-    <li><a href="CreateAsarNRCSBands.html"> Create NRCS Bands (ASAR)</a></li>
-    <li><a href="CreateFilteredBand.html"> Create Filtered Band</a></li>
-    <li><a href="VectorDataManagement.html#CreateGeometryContainer"> Create Geometry Container</a></li>
+    </ul>
+    <li>Thematic Water Processing</li>
+    <li>Thematic Land Processing</li>
+    <li>Image Analysis</li>
+    <li>Geometric Operations</li>
+    <li><a href="../binning/overview.html">Level-3 Binning Processor</a></li>
     <li><a href="Reprojection.html"> Reprojection</a></li>
     <li><a href="Orthorectification.html"> Orthorectification</a></li>
     <li><a href="Mosaic.html"> Mosaic</a></li>
