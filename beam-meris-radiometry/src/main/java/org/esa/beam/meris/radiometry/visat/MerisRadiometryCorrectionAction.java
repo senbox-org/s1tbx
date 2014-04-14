@@ -27,7 +27,7 @@ public class MerisRadiometryCorrectionAction extends AbstractVisatAction {
     public void actionPerformed(CommandEvent event) {
         final OperatorMetadata opMetadata = MerisRadiometryCorrectionOp.class.getAnnotation(OperatorMetadata.class);
         final RadiometryDialog operatorDialog = new RadiometryDialog(opMetadata.alias(), getAppContext(),
-                                                                     "MERIS L1b Radiometry Correction",
+                                                                     "MERIS L1b Radiometric Correction",
                                                                      event.getCommand().getHelpId());
         operatorDialog.getJDialog().pack();
         operatorDialog.show();
