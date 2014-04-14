@@ -49,22 +49,43 @@
     <categories>Reader,Envisat,MERIS,AATSR,ASAR,ERS</categories>
 
     <extension point="beam-ui:actions">
+		 <action>
+            <id>importEnvisatASARProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVISAT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ENVISAT ASAR</text>
+            <shortDescr>Import an ENVISAT ASAR data product or product subset.</shortDescr>
+            <largeIcon>icons/Import24.gif</largeIcon>
+        </action>
         <action>
             <id>importEnvisatProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
+            <text>ENVISAT MERIS,AATSR</text>
             <mnemonic>E</mnemonic>
-            <shortDescr>Import an ENVISAT (MERIS,AATSR,ASAR) data product or product subset.</shortDescr>
+            <shortDescr>Import an ENVISAT (MERIS,AATSR) data product or product subset.</shortDescr>
             <largeIcon>icons/Import24.gif</largeIcon>
+        </action>
+		 <action>
+            <id>importErsSARProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVISAT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ERS 1 / 2 SAR (.E1, .E2)</text>
+            <shortDescr>Import an ERS1/2 SAR data product or product subset.</shortDescr>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <placeAfter>importEnvisatASARProduct</placeAfter>
         </action>
         <action>
             <id>importErsProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>ERS1/2</formatName>
+            <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
+            <text>ERS 1 / 2 ATSR (.E1, .E2)</text>
             <mnemonic>E</mnemonic>
-            <shortDescr>Import an ERS1/2 (ATSR,SAR) data product or product subset.</shortDescr>
+            <shortDescr>Import an ERS1/2 ATSR data product or product subset.</shortDescr>
             <largeIcon>icons/Import24.gif</largeIcon>
         </action>
     </extension>
