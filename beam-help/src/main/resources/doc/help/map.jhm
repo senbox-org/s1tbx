@@ -91,7 +91,7 @@
     <mapID target="densityPlotDialog" url="visat/DensityPlotDialog.html"/>
     <mapID target="correlativePlotDialog" url="visat/CorrelativePlotDialog.html"/>
     <mapID target="profilePlotDialog" url="visat/ProfilePlotDialog.html"/>
-    <mapID target="tableView" url="visat/TableView.html"/>
+    <mapID target="coordinateListView" url="visat/CoordinateListView.html"/>
     <mapID target="computeMaskArea" url="visat/ComputeMaskArea.html"/>
     <mapID target="createFilteredBand" url="visat/CreateFilteredBand.html"/>
     <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
