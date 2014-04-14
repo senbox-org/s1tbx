@@ -98,7 +98,7 @@ class VariableConfigTable {
         tableModel.setColumnIdentifiers(new String[]{
                 "Band / Expression",
                 "Target name",
-                "Aggregation"
+                "Aggregator"
         });
 
         tableModel.addTableModelListener(new VariableConfigTableListener());
