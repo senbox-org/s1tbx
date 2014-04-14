@@ -13,11 +13,13 @@ import java.util.Properties;
  */
 public class TestConfig {
 
+    private final String name;
     private final Properties prop;
     private final List<TestInfo> testList = new ArrayList<TestInfo>(20);
     private int maxProductsPerInputFolder = -1;
 
     public TestConfig(final String name) throws Exception {
+        this.name = name;
         final PropertyMap propMap = Config.getAutomatedTestConfigPropertyMap(name);
         if(propMap == null)
             throw new Exception("Test config "+name+" not found");
@@ -49,12 +51,13 @@ public class TestConfig {
             if(graph != null) {
                 final String skip = readProp(key + ".skip");
                 if(skip != null && skip.equalsIgnoreCase("true")) {
+                    System.out.println(name+": "+key+" skipped");
                     continue;
                 }
 
                 final String input_products = readProp(key + ".input_products");
-                final String expected_results = readProp(key + ".expected_results") + "\\test"+i;
-                final String output_products = readProp(key + ".output_products") + "\\test"+i;
+                final String expected_results = readProp(key + ".expected_results") + '\\'+name+"\\test"+i;
+                final String output_products = readProp(key + ".output_products") + '\\'+name+"\\test"+i;
 
                 if(input_products == null || output_products == null) {
                     throw new Exception("Test configuration "+key+" is incomplete");
