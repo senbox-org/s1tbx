@@ -113,13 +113,13 @@ public class SmacOperator extends Operator {
     @Parameter(description = "Aerosol optical depth", label = "Aerosol optical depth", defaultValue = "0.2")
     private Float tauAero550 = 0.2F;
 
-    @Parameter(description = "Relative humidity", label = "Relative humidity", defaultValue = "3.0")
+    @Parameter(description = "Relative humidity", label = "Relative humidity", defaultValue = "3.0", unit ="g/cm²" )
     private Float uH2o = 3.0F;
 
-    @Parameter(description = "Ozone content", label = "Ozone content", defaultValue = "0.15")
+    @Parameter(description = "Ozone content", label = "Ozone content", defaultValue = "0.15", unit = "cm * atm")
     private Float uO3 = 0.15F;
 
-    @Parameter(description = "Surface pressure", label = "Surface pressure", defaultValue = "1013.0")
+    @Parameter(description = "Surface pressure", label = "Surface pressure", defaultValue = "1013.0", unit = "hPa")
     private Float surfPress = 1013.0F;
 
     @Parameter(description = "Use MERIS ADS", label = "Use MERIS ADS", defaultValue = "false")
