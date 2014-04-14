@@ -67,8 +67,8 @@ public class EditAggregationDialog extends ModalDialog {
     }
 
     private static String getTitle(TargetVariableSpec targetVariableSpec) {
-        return "Edit aggregation" + (StringUtils.isNotNullAndNotEmpty(targetVariableSpec.targetName) ?
-                                     " of " + targetVariableSpec.targetName : "");
+        return "Edit Aggregator " + (StringUtils.isNotNullAndNotEmpty(targetVariableSpec.targetName) ?
+                                     " for " + targetVariableSpec.targetName : "");
     }
 
     TargetVariableSpec getSpec() {
