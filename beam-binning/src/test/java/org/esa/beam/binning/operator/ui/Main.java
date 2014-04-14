@@ -17,6 +17,7 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.jidesoft.utils.Lm;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 
 import javax.swing.UIManager;
@@ -36,6 +37,8 @@ public class Main {
         } catch (Throwable e) {
             // ok
         }
+
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
 
         final BinningDialog dialog = new BinningDialog(new DefaultAppContext("VISAT"), "Binning Op", "") {
             @Override
