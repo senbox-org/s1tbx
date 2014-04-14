@@ -206,37 +206,22 @@ class GeoCodingTablePanel extends TablePagePanel {
             GeoPos gp = new GeoPos();
 
             gp = geoCoding.getGeoPos(sceneCenter, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneCenter, region, 2);
-            }
             addRow("Center latitude", gp.getLatString());
             addRow("Center longitude", gp.getLonString());
 
             gp = geoCoding.getGeoPos(sceneUpperLeft, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneUpperLeft, region, 2);
-            }
             addRow("Upper left latitude", gp.getLatString());
             addRow("Upper left longitude", gp.getLonString());
 
             gp = geoCoding.getGeoPos(sceneUpperRight, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneUpperRight, region, 2);
-            }
             addRow("Upper right latitude", gp.getLatString());
             addRow("Upper right longitude", gp.getLonString());
 
             gp = geoCoding.getGeoPos(sceneLowerLeft, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneLowerLeft, region, 2);
-            }
             addRow("Lower left latitude", gp.getLatString());
             addRow("Lower left longitude", gp.getLonString());
 
             gp = geoCoding.getGeoPos(sceneLowerRight, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneLowerRight, region, 2);
-            }
             addRow("Lower right latitude", gp.getLatString());
             addRow("Lower right longitude", gp.getLonString());
 

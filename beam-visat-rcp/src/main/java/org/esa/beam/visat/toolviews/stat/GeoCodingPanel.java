@@ -141,37 +141,22 @@ class GeoCodingPanel extends PagePanel {
             sb.append('\n');
 
             gp = geoCoding.getGeoPos(sceneCenter, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneCenter, region, 2);
-            }
             sb.append(String.format("%1$-18s \t%2$s\n", "Center latitude:", gp.getLatString()));
             sb.append(String.format("%1$-18s \t%2$s\n", "Center longitude:", gp.getLonString()));
 
             gp = geoCoding.getGeoPos(sceneUpperLeft, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneUpperLeft, region, 2);
-            }
             sb.append(String.format("%1$-18s \t%2$s\n", "Upper left latitude:", gp.getLatString()));
             sb.append(String.format("%1$-18s \t%2$s\n", "Upper left longitude:", gp.getLonString()));
 
             gp = geoCoding.getGeoPos(sceneUpperRight, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneUpperRight, region, 2);
-            }
             sb.append(String.format("%1$-18s \t%2$s\n", "Upper right latitude:", gp.getLatString()));
             sb.append(String.format("%1$-18s \t%2$s\n", "Upper right longitude:", gp.getLonString()));
 
             gp = geoCoding.getGeoPos(sceneLowerLeft, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneLowerLeft, region, 2);
-            }
             sb.append(String.format("%1$-18s \t%2$s\n", "Lower left latitude:", gp.getLatString()));
             sb.append(String.format("%1$-18s \t%2$s\n", "Lower left longitude:", gp.getLonString()));
 
             gp = geoCoding.getGeoPos(sceneLowerRight, gp);
-            if (!gp.isValid()) {
-                gp = ProductUtils.getClosestGeoPos(geoCoding, sceneLowerRight, region, 2);
-            }
             sb.append(String.format("%1$-18s \t%2$s\n", "Lower right latitude:", gp.getLatString()));
             sb.append(String.format("%1$-18s \t%2$s\n", "Lower right longitude:", gp.getLonString()));
 

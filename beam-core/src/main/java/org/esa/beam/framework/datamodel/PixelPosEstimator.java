@@ -98,6 +98,36 @@ public class PixelPosEstimator {
         return approximation;
     }
 
+    Approximation getGeoPos(PixelPos p, GeoPos g) {
+        Approximation approximation = null;
+        if (approximations != null) {
+            if (g == null) {
+                g = new GeoPos();
+            }
+            if (p.isValid()) {
+                approximation = Approximation.findSuitable(approximations, p);
+                if (approximation != null) {
+                    final double x = p.getX();
+                    final double y = p.getY();
+                    final Point2D q = new Point2D.Double(x, y);
+                    approximation.p2g(q);
+                    final double lon = q.getX();
+                    final double lat = q.getY();
+                    if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
+                        g.setLocation((float) lat, (float) lon);
+                    } else {
+                        g.setInvalid();
+                    }
+                } else {
+                    g.setInvalid();
+                }
+            } else {
+                g.setInvalid();
+            }
+        }
+        return approximation;
+    }
+
     private static Approximation[] createApproximations(PlanarImage lonImage,
                                                         PlanarImage latImage,
                                                         PlanarImage maskImage,
@@ -130,6 +160,8 @@ public class PixelPosEstimator {
 
         private final RationalFunctionModel fX;
         private final RationalFunctionModel fY;
+        private final RationalFunctionModel fLon;
+        private final RationalFunctionModel fLat;
         private final double maxDistance;
         private final Rotator rotator;
         private final DistanceMeasure calculator;
@@ -228,7 +260,13 @@ public class PixelPosEstimator {
                 return null;
             }
 
-            return new Approximation(fX, fY, maxDistance, rotator, new CosineDistance(centerLon, centerLat), range);
+            final int[] lonIndices = new int[]{X, Y, LON};
+            final int[] latIndices = new int[]{X, Y, LAT};
+            final RationalFunctionModel fLon = findBestModel(data, lonIndices, 0.0);
+            final RationalFunctionModel fLat = findBestModel(data, latIndices, 0.0);
+
+            return new Approximation(fX, fY, fLon, fLat, maxDistance, rotator, new CosineDistance(centerLon, centerLat),
+                                     range);
         }
 
         /**
@@ -260,6 +298,24 @@ public class PixelPosEstimator {
                 }
             }
             return bestApproximation;
+        }
+
+        /**
+         * Among several approximations, returns the approximation that is suitable for a given pixel.
+         *
+         * @param approximations The approximations.
+         * @param p              The pixel position.
+         *
+         * @return the approximation that is suitable for the given pixel,
+         * or {@code null}, if none is suitable.
+         */
+        static Approximation findSuitable(Approximation[] approximations, PixelPos p) {
+            for (final Approximation a : approximations) {
+                if (a.getRange().contains(p)) {
+                    return a;
+                }
+            }
+            return null;
         }
 
         static Approximation[] createApproximations(SampleSource lonSamples,
@@ -352,10 +408,30 @@ public class PixelPosEstimator {
             g.setLocation(x, y);
         }
 
-        private Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
+        /**
+         * This method yields the geographic position corresponding to a pixel position.
+         *
+         * @param p The pixel position on input, the geographic position on output.
+         */
+        private void p2g(final Point2D p) {
+            final double x = p.getX();
+            final double y = p.getY();
+            final double lon = fLon.getValue(x, y);
+            final double lat = fLat.getValue(x, y);
+            p.setLocation(lon, lat);
+            rotator.transformInversely(p);
+        }
+
+        private Approximation(RationalFunctionModel fX,
+                              RationalFunctionModel fY,
+                              RationalFunctionModel fLon,
+                              RationalFunctionModel fLat,
+                              double maxDistance,
                               Rotator rotator, DistanceMeasure calculator, Rectangle range) {
             this.fX = fX;
             this.fY = fY;
+            this.fLon = fLon;
+            this.fLat = fLat;
             this.maxDistance = maxDistance;
             this.rotator = rotator;
             this.calculator = calculator;

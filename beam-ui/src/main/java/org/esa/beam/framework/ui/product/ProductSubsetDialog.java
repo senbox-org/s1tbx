@@ -166,9 +166,10 @@ public class ProductSubsetDialog extends ModalDialog {
         super(window,
               "Specify Product Subset", /*I18N*/
               ModalDialog.ID_OK
-                      | ModalDialog.ID_CANCEL
-                      | ModalDialog.ID_HELP,
-              "subsetDialog");
+              | ModalDialog.ID_CANCEL
+              | ModalDialog.ID_HELP,
+              "subsetDialog"
+        );
         Guardian.assertNotNull("product", product);
         this.product = product;
         givenProductSubsetDef = productSubsetDef;
@@ -223,13 +224,13 @@ public class ProductSubsetDialog extends ModalDialog {
             }
 
             final String pattern = "The following dataset(s) are referenced but not included\n" +
-                    "in your current subset definition:\n" +
-                    "{0}\n" +
-                    "If you do not include these dataset(s) into your selection,\n" +
-                    "you might get unexpected results while working with the\n" +
-                    "resulting product.\n\n" +
-                    "Do you wish to include the referenced dataset(s) into your\n" +
-                    "subset definition?\n"; /*I18N*/
+                                   "in your current subset definition:\n" +
+                                   "{0}\n" +
+                                   "If you do not include these dataset(s) into your selection,\n" +
+                                   "you might get unexpected results while working with the\n" +
+                                   "resulting product.\n\n" +
+                                   "Do you wish to include the referenced dataset(s) into your\n" +
+                                   "subset definition?\n"; /*I18N*/
             final MessageFormat format = new MessageFormat(pattern);
             int status = JOptionPane.showConfirmDialog(getJDialog(),
                                                        format.format(new Object[]{nameListText.toString()}),
@@ -328,12 +329,13 @@ public class ProductSubsetDialog extends ModalDialog {
         if (numFlagDs > 0 && !flagDsInSubset) {
             int status = JOptionPane.showConfirmDialog(getJDialog(),
                                                        "No flag dataset selected.\n\n"
-                                                               + "If you do not include a flag dataset in the subset,\n"
-                                                               + "you will not be able to create bitmask overlays.\n\n"
-                                                               + "Do you wish to include the available flag dataset(s)\n"
-                                                               + "in the current subset?\n",
+                                                       + "If you do not include a flag dataset in the subset,\n"
+                                                       + "you will not be able to create bitmask overlays.\n\n"
+                                                       + "Do you wish to include the available flag dataset(s)\n"
+                                                       + "in the current subset?\n",
                                                        "No Flag Dataset Selected",
-                                                       JOptionPane.YES_NO_CANCEL_OPTION);
+                                                       JOptionPane.YES_NO_CANCEL_OPTION
+            );
             if (status == JOptionPane.YES_OPTION) {
                 productSubsetDef.addNodeNames(flagDsNameList.toArray(new String[numFlagDs]));
                 ok = true;
@@ -955,18 +957,9 @@ public class ProductSubsetDialog extends ModalDialog {
                                                     ((Number) paramY1.getValue()).intValue());
             final PixelPos pixelPos2 = new PixelPos(((Number) paramX2.getValue()).intValue(),
                                                     ((Number) paramY2.getValue()).intValue());
-            Rectangle region = new Rectangle((int) pixelPos1.getX(), (int) pixelPos1.getY(),
-                                             (int) (pixelPos2.getX() - pixelPos1.getX()),
-                                             (int) (pixelPos2.getY() - pixelPos1.getY()));
             final GeoCoding geoCoding = product.getGeoCoding();
-            GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
-            if (!geoPos1.isValid()) {
-                geoPos1 = ProductUtils.getClosestGeoPos(geoCoding, pixelPos1, region, 4);
-            }
-            GeoPos geoPos2 = geoCoding.getGeoPos(pixelPos2, null);
-            if (!geoPos2.isValid()) {
-                geoPos2 = ProductUtils.getClosestGeoPos(geoCoding, pixelPos2, region, 4);
-            }
+            final GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
+            final GeoPos geoPos2 = geoCoding.getGeoPos(pixelPos2, null);
             paramNorthLat1.setValue(geoPos1.getLat(), null);
             paramWestLon1.setValue(geoPos1.getLon(), null);
             paramSouthLat2.setValue(geoPos2.getLat(), null);
@@ -1102,7 +1095,7 @@ public class ProductSubsetDialog extends ModalDialog {
                 productNodeCheck.addActionListener(productNodeCheckListener);
 
                 if (includeAlways != null
-                        && StringUtils.containsIgnoreCase(includeAlways, name)) {
+                    && StringUtils.containsIgnoreCase(includeAlways, name)) {
                     productNodeCheck.setSelected(true);
                     productNodeCheck.setEnabled(false);
                 } else if (givenProductSubsetDef != null) {
