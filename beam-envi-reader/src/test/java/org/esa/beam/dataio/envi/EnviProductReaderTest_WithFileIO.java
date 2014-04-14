@@ -57,7 +57,7 @@ public class EnviProductReaderTest_WithFileIO {
         final File imgFile = new File(tempDir, imgFilename);
         assertEquals(true, imgFile.createNewFile());
 
-        assertEquals(imgFile, EnviProductReader.getEnviImageFile(hdrFile));
+        assertEquals(imgFile.getCanonicalFile(), EnviProductReader.getEnviImageFile(hdrFile).getCanonicalFile());
         // cleanup
         imgFile.delete();
         hdrFile.delete();
