@@ -207,6 +207,7 @@ public class OperatorContext {
                 sourceProductList.add(product);
             }
             sourceProductMap.put(id, product);
+            updatePropertyDescriptors(); // the source product is used if the property is of type RasterDataNodeType
         }
     }
 
