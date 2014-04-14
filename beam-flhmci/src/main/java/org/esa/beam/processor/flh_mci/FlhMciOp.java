@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -52,26 +52,37 @@ import java.awt.image.Raster;
                   description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
 public class FlhMciOp extends PixelOperator {
 
-    @SourceProduct(alias = "source", label = "Source product")
+    @SourceProduct(alias = "source",
+                   label = "Source product")
     private Product sourceProduct;
 
-    @Parameter(rasterDataNodeType = Band.class)
+    @Parameter(description = "The name for the lower wavelength band defining the baseline",
+               rasterDataNodeType = Band.class)
     private String lowerBaselineBandName;
-    @Parameter(rasterDataNodeType = Band.class)
+    @Parameter(description = "The name of the upper wavelength band defining the baseline",
+               rasterDataNodeType = Band.class)
     private String upperBaselineBandName;
-    @Parameter(rasterDataNodeType = Band.class)
+    @Parameter(description = " The name of the signal band, i.e. the band for which the baseline height is calculated",
+               rasterDataNodeType = Band.class)
     private String signalBandName;
-    @Parameter(validator = NodeNameValidator.class)
+    @Parameter(description = "The name of the line height band in the target product",
+               validator = NodeNameValidator.class)
     private String lineHeightBandName;
-    @Parameter(defaultValue = "true", label = "Generate slope parameter")
+    @Parameter(description = "Activates or deactivates calculating the slope parameter",
+               defaultValue = "true",
+               label = "Generate slope parameter")
     private boolean slope;
-    @Parameter(validator = NodeNameValidator.class)
+    @Parameter(description = "The name of the slope band in the target product",
+               validator = NodeNameValidator.class)
     private String slopeBandName;
-    @Parameter(description = "A ROI-mask expression used to identify pixels of interest", converter = BooleanExpressionConverter.class)
+    @Parameter(description = "A ROI-mask expression used to identify pixels of interest",
+               converter = BooleanExpressionConverter.class)
     private String maskExpression;
-    @Parameter(defaultValue = "1.005")
+    @Parameter(description = "The cloud correction factor used during calculation",
+               defaultValue = "1.005")
     private float cloudCorrectionFactor;
-    @Parameter(defaultValue = "NaN", label = "Invalid FLH/MCI value",
+    @Parameter(defaultValue = "NaN",
+               label = "Invalid FLH/MCI value",
                description = "Value used to fill invalid FLH/MCI pixels")
     private float invalidFlhMciValue;
 
@@ -194,7 +205,7 @@ public class FlhMciOp extends PixelOperator {
         }
     }
 
-    private void validateParameters() throws OperatorException{
+    private void validateParameters() throws OperatorException {
         assertParameterBandNameValid(lowerBaselineBandName, "lowerBaselineBandName");
         assertParameterBandNameValid(signalBandName, "signalBandName");
         assertParameterBandNameValid(upperBaselineBandName, "upperBaselineBandName");
@@ -204,7 +215,7 @@ public class FlhMciOp extends PixelOperator {
     }
 
     private void assertParameterBandNameValid(String parameterValue, String parameterName) {
-        if(StringUtils.isNullOrEmpty(parameterValue)) {
+        if (StringUtils.isNullOrEmpty(parameterValue)) {
             throw new OperatorException(String.format("Parameter '%s' not specified", parameterName));
         }
     }

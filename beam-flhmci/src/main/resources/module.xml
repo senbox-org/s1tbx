@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0</b><br/>
+        [BEAM-1494] FLH/MCI operator misses parameter description<br/>
         [BEAM-1528] FLH/MCI operator does not set valid mask of output bands<br/>
         ]]>
     </changelog>
