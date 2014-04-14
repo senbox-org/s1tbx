@@ -26,7 +26,9 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manages the mapping between the satellite sensor bands and the appropriate SMAC coefficient sets.
@@ -56,6 +58,7 @@ public class SensorCoefficientManager {
 
     private List<SensorDb> sensors;
     private String locationPath;
+    private Map<AEROSOL_TYPE, String> aerosolTypeMap;
 
     /**
      * Constructs the object with default parameters.
@@ -125,12 +128,11 @@ public class SensorCoefficientManager {
     /**
      * Returns the sensor coefficient file URL for a given sensor and bandName name. Or <code>null</code> when the sensor or
      * bandName are not in the database.
-     *
-     * @param sensor      the sensor name
+     *  @param sensor      the sensor name
      * @param bandName        the bandName name
      * @param aerosolType the aerosol type
      */
-    public URL getCoefficientFile(String sensor, String bandName, String aerosolType) {
+    public URL getCoefficientFile(String sensor, String bandName, AEROSOL_TYPE aerosolType) {
         URL url = null;
         SensorDb sensorDb;
 
@@ -138,7 +140,7 @@ public class SensorCoefficientManager {
         if (sensorDb != null) {
             BandDb bandDb;
 
-            bandDb = sensorDb.getBand(bandName, aerosolType);
+            bandDb = sensorDb.getBand(bandName, aerosolTypeMap.get(aerosolType));
             if (bandDb == null) {
                 return null;
             }
@@ -165,6 +167,9 @@ public class SensorCoefficientManager {
      */
     private void init() {
         sensors = new ArrayList<>();
+        aerosolTypeMap = new HashMap<>();
+        aerosolTypeMap.put(AEROSOL_TYPE.CONTINENTAL, AER_CONT_NAME);
+        aerosolTypeMap.put(AEROSOL_TYPE.DESERT, AER_DES_NAME);
     }
 
     /**

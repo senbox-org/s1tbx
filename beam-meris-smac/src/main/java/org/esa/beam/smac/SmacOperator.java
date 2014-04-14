@@ -122,14 +122,11 @@ public class SmacOperator extends Operator {
     @Parameter(description = "Surface pressure", label = "Surface pressure", defaultValue = "1013.0", unit = "hPa")
     private Float surfPress = 1013.0F;
 
-    @Parameter(description = "Use MERIS ADS", label = "Use MERIS ADS", defaultValue = "false")
+    @Parameter(description = "Use ECMWF data in the MERIS ADS", label = "Use MERIS ECMWF data", defaultValue = "false")
     private Boolean useMerisADS = true;
 
-    @Parameter(description = "Aerosol type", label = "Aerosol type", notNull = true, valueSet = {
-            SensorCoefficientManager.AER_CONT_NAME,
-            SensorCoefficientManager.AER_DES_NAME
-    }, defaultValue = SensorCoefficientManager.AER_CONT_NAME)
-    private String aerosolType;
+    @Parameter(description = "Aerosol type", label = "Aerosol type", notNull = true, defaultValue = "CONTINENTAL")
+    private AEROSOL_TYPE aerosolType;
 
     @Parameter(description = "Default reflectance for invalid pixel", label = "Default reflectance for invalid pixel", defaultValue = "0.0")
     Float invalidPixel = 0.0F;
@@ -666,6 +663,7 @@ public class SmacOperator extends Operator {
         boolean success = false;
 
         try {
+
             url = getSensorCoefficientManager().getCoefficientFile(sensorType, bandName, aerosolType);
             if (url == null) {
                 handleError = true;

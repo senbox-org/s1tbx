@@ -16,118 +16,84 @@
 
 package org.esa.beam.smac;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestConfig;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
-public class SensorCoefficientManagerTest extends TestCase {
+import static org.junit.Assert.*;
 
-    private File _auxdataDir;
+public class SensorCoefficientManagerTest {
+
+    private File auxdataDir;
     private String oldAuxdataPath;
 
 
-    @Override
-     protected void setUp() throws Exception {
-         oldAuxdataPath = System.getProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, "");
-         String path = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "auxdata/smac").getPath();
-         System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, path);
+    @Before
+    public void setUp() throws Exception {
+        oldAuxdataPath = System.getProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, "");
+        String path = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "auxdata/smac").getPath();
+        System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, path);
         SmacOperator op = new SmacOperator();
         op.installAuxdata(); // just to extract auxdata
-         _auxdataDir = op.getAuxdataInstallDir();
-         assertEquals(path, _auxdataDir.getPath());
-     }
+        auxdataDir = op.getAuxdataInstallDir();
+        assertEquals(path, auxdataDir.getPath());
+    }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
     }
-    public static Test suite() {
-        return new TestSuite(SensorCoefficientManagerTest.class);
-    }
 
-    /**
-     * Tests the functionality of the constructors.
-     */
-    public void testSensorCoefficientManager() {
+    @Test
+    public void testSensorCoefficientManagerWithNoArgs() throws IOException {
         SensorCoefficientManager mgr = new SensorCoefficientManager();
 
         // when using default constructor, no file shall be returned upon request
-        assertNull(mgr.getCoefficientFile("MERIS", "radiance_1", "CONT"));
+        assertNull(mgr.getCoefficientFile("MERIS", "radiance_1", AEROSOL_TYPE.CONTINENTAL));
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testSensorCoefficientManagerWithNull() throws IOException {
         // the URL constructor shall not accept a null argument
-        try {
-            mgr = new SensorCoefficientManager(null);
-            fail("exception expected here");
-        } catch (IllegalArgumentException e) {
-        } catch (IOException e) {
-            fail("wrong exception type");
-        }
+        new SensorCoefficientManager(null);
+    }
 
-        // when insering a valid url, we shall retrieve a coefficient file
-        URL url = null;
-
-        try {
-//            url = new URL("file", "", _location);
-            url = _auxdataDir.toURI().toURL();
-        } catch (MalformedURLException e) {
-        }
-
-        try {
-            mgr = new SensorCoefficientManager(url);
-        } catch (IOException e) {
-        }
-        assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_2", "DES"));
+    @Test
+    public void testSensorCoefficientManagerWithValidURL() throws IOException {
+        // when inserting a valid url, we shall retrieve a coefficient file
+        URL url = auxdataDir.toURI().toURL();
+        SensorCoefficientManager mgr = new SensorCoefficientManager(url);
+        assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_2", AEROSOL_TYPE.DESERT));
 
     }
 
-    /**
-     * Tests the functionality of getCoefficientFIle
-     */
-    public void testGetCoefficientFile() {
-        URL url = null;
-        SensorCoefficientManager mgr;
-
-        try {
-//            url = new URL("file", "", _location);
-            url = _auxdataDir.toURI().toURL();
-        } catch (MalformedURLException e) {
-        }
-
-        try {
-            mgr = new SensorCoefficientManager(url);
-            assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_2", "DES"));
-        } catch (IOException e) {
-        }
+    @Test
+    public void testGetCoefficientFile() throws IOException {
+        URL url = auxdataDir.toURI().toURL();
+        SensorCoefficientManager mgr = new SensorCoefficientManager(url);
+        assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_2", AEROSOL_TYPE.DESERT));
     }
 
-    /**
-     * Tests the functionality for setUrl
-     */
-    public void testSetURL() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetURLWithNull() throws IOException {
         // it must not be possible to set a null argument
         SensorCoefficientManager mgr = new SensorCoefficientManager();
+        mgr.setURL(null);
+    }
 
-        try {
-            mgr.setURL(null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException | IOException e) {
-        }
+    @Test
+    public void testSetURLWithValidUrl() throws IOException {
+        SensorCoefficientManager mgr = new SensorCoefficientManager();
 
         // if we set a valid url - return something when we ask for it :-)
-        URL url;
-        try {
-//            url = new URL("file", "", _location);
-            url = _auxdataDir.toURI().toURL();
-            mgr.setURL(url);
-            assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_3", "CONT"));
-        } catch (IOException e) {
-        }
+        URL url = auxdataDir.toURI().toURL();
+        mgr.setURL(url);
+        assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_3", AEROSOL_TYPE.CONTINENTAL));
     }
 
 }
