@@ -1,5 +1,8 @@
 package org.jlinda.core.unwrapping.mcf;
 
+
+import cern.colt.matrix.DoubleFactory2D;
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.winvector.linalg.DenseVec;
@@ -15,13 +18,16 @@ import com.winvector.lp.impl.RevisedSimplexSolver;
 import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
+import org.jlinda.core.unwrapping.mcf.utils.ColtUtils;
 import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
 import org.jlinda.core.unwrapping.mcf.utils.SimulateData;
 import org.jlinda.core.unwrapping.mcf.utils.UnwrapUtils;
 import org.perf4j.StopWatch;
 import org.slf4j.LoggerFactory;
 
+import static cern.jet.math.Functions.bindArg2;
 import static org.jblas.DoubleMatrix.concatHorizontally;
+import static org.jlinda.core.unwrapping.mcf.utils.ColtUtils.setUpSparseMatrixFromIdx;
 import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
 
 /**
@@ -38,6 +44,7 @@ public class Unwrapper {
     private DoubleMatrix wrappedPhase;
     private DoubleMatrix unwrappedPhase;
 
+    private boolean sparseFlag = true;
     private String factoryName = "jblas";
     private LinalgFactory<?> factory;
     private boolean roundK = true;
@@ -169,21 +176,44 @@ public class Unwrapper {
             S2m = -S2p;
         */
 
-        // ToDo: Aeq matrix should be sparse from it's initialization, look into JblasMatrix factory for howto
-        // ...otherwise even a data set of eg 40x40 pixels will exhaust heap:
-        // ...    dimension of Aeq (equality constraints) matrix for 30x30 input is 1521x6240 matrix
-        // ...    dimension of Aeq (                    ) matrix for 50x50 input is 2401x9800
-        // ...    dimension of Aeq (                    ) matrix for 512x512 input is 261121x1046528
-        DoubleMatrix S1p = setUpMatrixFromIdx(nS0, nS1, ROW_I_J, COL_I_JP1).sub(setUpMatrixFromIdx(nS0, nS1, ROW_I_J, COL_IJ_1));
-        DoubleMatrix S1m = S1p.neg();
+        final int nObs;
+        final int nUnkn;
 
-        DoubleMatrix S2p = setUpMatrixFromIdx(nS0, nS2, ROW_I_J, COL_IP1_J).neg().add(setUpMatrixFromIdx(nS0, nS2, ROW_I_J, COL_IJ_2));
-        DoubleMatrix S2m = S2p.neg();
+        DoubleMatrix Aeq = null;
+        SparseDoubleMatrix2D Aeq_Sparse = null;
+        
+        if (!sparseFlag) {
 
-        DoubleMatrix Aeq = concatHorizontally(concatHorizontally(S1p, S1m), concatHorizontally(S2p, S2m));
+            // ToDo: Aeq matrix should be sparse from it's initialization, look into JblasMatrix factory for howto
+            // ...otherwise even a data set of eg 40x40 pixels will exhaust heap:
+            // ...    dimension of Aeq (equality constraints) matrix for 30x30 input is 1521x6240 matrix
+            // ...    dimension of Aeq (                    ) matrix for 50x50 input is 2401x9800
+            // ...    dimension of Aeq (                    ) matrix for 512x512 input is 261121x1046528
+            DoubleMatrix S1p = setUpMatrixFromIdx(nS0, nS1, ROW_I_J, COL_I_JP1).sub(setUpMatrixFromIdx(nS0, nS1, ROW_I_J, COL_IJ_1));
+            DoubleMatrix S1m = S1p.neg();
 
-        final int nObs = Aeq.columns;
-        final int nUnkn = Aeq.rows;
+            DoubleMatrix S2p = setUpMatrixFromIdx(nS0, nS2, ROW_I_J, COL_IP1_J).neg().add(setUpMatrixFromIdx(nS0, nS2, ROW_I_J, COL_IJ_2));
+            DoubleMatrix S2m = S2p.neg();
+
+            Aeq = concatHorizontally(concatHorizontally(S1p, S1m), concatHorizontally(S2p, S2m));
+
+            nObs = Aeq.columns;
+            nUnkn = Aeq.rows;
+            
+        } else {
+            // work with sparse matrices of colt instead of jblas doublematrix anyhow these are integers?
+            SparseDoubleMatrix2D S1p_Sparse = (SparseDoubleMatrix2D) setUpSparseMatrixFromIdx(nS0, nS1, ROW_I_J, COL_I_JP1).assign(setUpSparseMatrixFromIdx(nS0, nS1, ROW_I_J, COL_IJ_1), ColtUtils.subtract);
+            SparseDoubleMatrix2D S1m_Sparse = (SparseDoubleMatrix2D) S1p_Sparse.copy().assign(bindArg2(cern.jet.math.Functions.mult, -1));
+
+            SparseDoubleMatrix2D S2p_Sparse = (SparseDoubleMatrix2D) setUpSparseMatrixFromIdx(nS0, nS2, ROW_I_J, COL_IP1_J).assign(bindArg2(cern.jet.math.Functions.mult, -1)).assign(setUpSparseMatrixFromIdx(nS0, nS2, ROW_I_J, COL_IJ_2), ColtUtils.add);
+            SparseDoubleMatrix2D S2m_Sparse = (SparseDoubleMatrix2D) S2p_Sparse.copy().assign(bindArg2(cern.jet.math.Functions.mult, -1));
+
+            Aeq_Sparse = (SparseDoubleMatrix2D) DoubleFactory2D.sparse.appendColumns(DoubleFactory2D.sparse.appendColumns(S1p_Sparse, S1m_Sparse), DoubleFactory2D.sparse.appendColumns(S2p_Sparse, S2m_Sparse));
+
+            nObs = Aeq_Sparse.columns();
+            nUnkn = Aeq_Sparse.rows();
+            
+        }
 
         DoubleMatrix c1 = getMatrixFromRange(0, ny, 0, weight.columns, weight);
         DoubleMatrix c2 = getMatrixFromRange(0, weight.rows, 0, nx, weight);
@@ -201,19 +231,62 @@ public class Unwrapper {
         // repackage matrix from Jblas to Colt Sparse
         for (int k = 0; k < nUnkn; k++) {
             for (int l = 0; l < nObs; l++) {
-                if (Aeq.get(k, l) != 0) {
-                    m.set(k, l, Aeq.get(k, l));
+                if (sparseFlag) {
+                    if (Aeq_Sparse.getQuick(k, l) != 0) m.set(k, l, Aeq_Sparse.getQuick(k, l));
+                } else {
+                    if (Aeq.get(k, l) != 0) m.set(k, l, Aeq.get(k, l));
                 }
             }
         }
+
 
         final LPEQProb prob = new LPEQProb(m.columnMatrix(), beq.data, new DenseVec(cost.data));
 //        prob.printCPLEX(System.out);
         clockProb.stop();
         logger.debug("Total setup time: {} [sec]", (double) (clockProb.getElapsedTime()) / 1000);
 
+        final long solnStart = System.currentTimeMillis();
         final RevisedSimplexSolver solver = new RevisedSimplexSolver();
         final LPSoln soln = solver.solve(prob, null, tol, maxRounds, factory);
+        final long solnDone = System.currentTimeMillis();
+
+        if (logger.getLevel() == Level.TRACE) {
+            System.out.print("assignmentSize");
+            System.out.print("\t" + "nConstraints");
+            System.out.print("\t" + "dim");
+            System.out.print("\t" + "rows");
+            System.out.print("\t" + "inspections");
+            System.out.print("\t" + "pivots");
+            System.out.print("\t" + "totTimeMS");
+            System.out.print("\t" + "inspectionTimeMS");
+            System.out.print("\t" + "prePivotTimeMS");
+            System.out.print("\t" + "postPivotTimeMS");
+            System.out.print("\t" + "solnTimeMS");
+            System.out.println();
+
+            final long constraints = beq.data.length;
+            final long pivots = solver.pivots;
+            final long inspections = solver.inspections;
+            final long inspecionTimeMS = solver.inspectionTimeMS;
+            final long totalTimeMS = solver.totalTimeMS;
+            final long prePivotTimeMS = solver.prePivotTimeMS;
+            final long postPivotTimeMS = solver.postPivotTimeMS;
+            final long solnTimeMS = solnDone - solnStart;
+            solver.clearCounters();
+            System.out.print(ny);
+            System.out.print("\t" + constraints);
+            System.out.print("\t" + prob.nvars());
+            System.out.print("\t" + prob.rows());
+            System.out.print("\t" + inspections);
+            System.out.print("\t" + pivots);
+            System.out.print("\t" + totalTimeMS);
+            System.out.print("\t" + inspecionTimeMS);
+            System.out.print("\t" + prePivotTimeMS);
+            System.out.print("\t" + postPivotTimeMS);
+            System.out.print("\t" + solnTimeMS);
+            System.out.println();
+        }
+
 
         DoubleMatrix solution = new DoubleMatrix(nObs);
         for (int k = 0; k < soln.primalSolution.nIndices(); k++) {
@@ -279,7 +352,7 @@ public class Unwrapper {
 
     public static void main(String[] args) throws LPException {
 
-        final int rows = 16;
+        final int rows = 20;
         final int cols = rows;
 
         logger.trace("Start Unwrapping");

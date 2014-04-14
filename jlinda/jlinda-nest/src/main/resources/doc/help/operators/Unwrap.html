@@ -38,9 +38,49 @@
 <h3>Phase Unwrapping in NEST</h3>
 
 <p>
-    The phase unwrapping functionality is not implemented in NEST. The dedicated phase unwrapping modules for NEST are
-    in the development process, and are expected to be released by late 2012.
+    There are two methods to perform the phase unwrapping in NEST: 
+    
+<ol>
+    <li>
+        Using integrated phase unwrapping functionality.
+    </li>
+    <li>
+        Using 3rd party software.
+    </li>
+
+</ol>
+    
+<h4>Integrated phase unwrapping</h4>
+
+<p>
+    NEST version 5, brings the internal implementation of the phase unwrapping functionality. As all other 
+    interferometric functionality, the unwrapping support, is provided via 
+    <a href="https://github.com/ppolabs/jlinda/">jLinda</a> library.  
 </p>
+
+<p>
+    This unwrapping implementation is following the concept introduced by Costantini, [1]; where the unwrapping 
+    problem is formulated and solved as a minimum-cost flow problem on a network. 
+</p>
+
+<p>
+    Because of the framework restrictions, the unwrapping in NEST is performed as a two-stage process. First, the 
+    initial unwrapping is performed with the unwrap operator, results need to be saved, and then in a 
+    second stage, the unwrapping result is <i>stitched</i> into a smooth result. Specifically:
+</p>
+
+<dl>
+    <dt><a href="UnwrapOp.html">Uwrap</a></dt>
+    <dd>
+        First an independent unwrapping of tiles is performed using the Uwrap operator, and importantly, results need 
+        to be saved.
+    </dd>
+    <dt><a href="StitchOp.html">Stitch</a></dt>
+    <dd>
+        As a second step, independently unwrapped tiles are integrated using the Stitch operator. This operator 
+        <i>stitches</i> the unwrapped phases of all tiles to form a complete smooth image of unwrapped phase.
+    </dd>
+</dl>
 
 <h4>Interface to 3rd party software: SNAPHU</h4>
 
@@ -77,8 +117,42 @@
     </dd>
 </dl>
 
+<h3>Recommendations, guidelines and notes</h3>
+
+<dl>
+    <dt>Multilooking and Phase Filtering</dt>
+    <dd>
+        In order to obtain an optimal results of unwrapping it is recommended to multi-look (i.e., square) and phase-filter 
+        (i.e., increase signal-to-noise and smooth) input interferogram.
+    </dd>
+    <dt>Quality of unwrapping</dt>
+    <dd>
+        The quality and reliability of unwrapped results very much depends on the input coherence. If the input 
+        coherence is low, the user should <u>NOT</u> a reliable unwrapping results. For example, if an input 
+        interferogram is coherent only in some areas (e.g., "coherence islands"), the reliable results can be expected
+        only in those areas. Also see the next note, on InSAR being relative technique. 
+    </dd>
+    <dt>Interpretation of unwrapped results</dt>
+    <dd>
+        The interferometry is a <i>relative technique</i>, i.e., gives difference between pixels, rather than the 
+        absolute values. Thus the unwrapped results should also be interpreted as a relative. For example, 
+        height/displacement between two pixels is a relative height/displacement between those two pixels. To obtain 
+        absolute estimates, a tie point can be used, or assumptions on the signal. For correcting, and making results 
+        of unwrapping absolute a BandMaths operator can be used.
+    </dd>
+
+</dl>
 
 <h3>Further information</h3>
+
+<h4>Integrated unwrapper</h4>
+
+<p><strong>Implementation Reference:</strong></p>
+
+<p>[1] Costantini, M. (1998) A novel phase unwrapping method based on network programming. IEEE Tran. on 
+    Geoscience and Remote Sensing, 36, 813-821.</p>
+
+<h4>SNAPHU</h4>
 
 <p><strong>Phase unwrapping:</strong> For a general reference on phase unwrapping see book of
     <a href="http://books.google.nl/books/about/Two_dimensional_phase_unwrapping.html?id=pQtTAAAAMAAJ&redir_esc=y">

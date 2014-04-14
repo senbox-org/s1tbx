@@ -1,4 +1,4 @@
-package org.jlinda.nest.dat;
+package org.jlinda.nest.gpf;
 
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;

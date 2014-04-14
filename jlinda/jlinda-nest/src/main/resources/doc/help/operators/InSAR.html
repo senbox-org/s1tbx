@@ -1,8 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Help - InSAR</title>
-
-    <link rel="stylesheet" href="../style.css"></head>
-
+<html>
 <body>
 <table class="header">
     <tbody>
@@ -17,34 +14,90 @@
     </tbody>
 </table>
 
-<!--<h3>InSAR</h3><p>Interformetry will soon be available via a Java port of the Delft Object-oriented Radar Interferometric Software (<a class="wiki external" target="_blank" href="http://enterprise.lr.tudelft.nl/doris/" rel="external">DORIS</a>) implemented by TUDelft.</p><p>-->
-<!--Future NEST releases will incorporate an increasing amount of DORIS functionality.</p><hr>-->
-
-<h3>InSAR functionality of NEST</h3>
+<h3>Interferometric Functionality of NEST</h3>
 
 <p>
-    NEST-4B release brings the major update to interferometric functionality.
-    As algorithmic prototype the DORIS (Delft object-oriented radar
-    interferometric software) software has been used. Moreover, all
-    implemented algorithms are fully documented and described in the
-    literature and follow generally accepted best practices.
+    Since the 4B release, NEST support interferometric processing. The complete interferometric processing chain is
+    implemented.
 </p>
 
 <p>
-    The interferometric processing is setup in a similar way like for
-    the other functionalities of NEST. The set of interferometric
-    operators is designed and chained into the graph via the Graph
-    Processing Framework. Moreover, where needed some of the core
-    functionalities of NEST are improved to accommodate for the
-    interferometry requirements (e.g. extension of Warping function
-    with "phase preserving" and more accurate interpolation kernels).
+    The processing setup for InSAR is similar like for the other functionalities of NEST. The set of interferometric
+    operators is designed and chained into the graph via the Graph Processing Framework (GPF).
 </p>
 
-<!--<p>-->
-    <!--The&nbsp;interferometric functionalities currently are somewhat limited, though it provides enough features for the-->
-    <!--basic interferometric processing and analysis.-->
-<!--</p>-->
+<p>
+    For optimal interferometric processing, many of the core functionalities of NEST are improved and/or reimplemented
+    to accommodate for the InSAR requirements. Some of the extended modules are , e.g., Warping function extended with
+    <i>phase preserving</i> and more accurate interpolation kernels. While, the coregistration has been fully
+    reimplemented and optimized for interferometric applications.
+</p>
 
+
+<h4>Implementation Overview</h4>
+
+<p>Initially for InSAR functionality, as an algorithmic prototype the DORIS (Delft object-oriented radar interferometric
+    software) software has been used. However, in the course of development many of these algorithmic prototypes have
+    been further extended and completely reimplemented, and most of implementations significantly deviated from the
+    original. Because of these developments, and in order to streamline and simplify further developments a dedicated
+    library and application interface (API) for interferometric application is designed and
+    developed - <a href="https://github.com/ppolabs/jlinda/">jLinda (Java Library for Interferometric Data
+        Analysis)</a>.
+</p>
+
+<h5>InSAR Library Highlights</h5>
+
+<p>
+    Some of jLinda's highlights, in context of InSAR functionality of NEST:
+</p>
+
+<ul>
+    <li>
+        It provides <u>ALL</u> InSAR functionality to NEST.
+    </li>
+    <li>
+        The library is independent from NEST/BEAM core.
+    </li>
+    <li>
+        The NEST/BEAM libraries are only used in the construction of the operators and in forming of interferometric
+        graph.
+    </li>
+</ul>
+
+<p>
+    The architecture of interferometric modules of NEST is visualized in Figure 1.
+</p>
+
+<br>
+
+<div style="margin-left: 35px;">
+    <img style="" alt="" src="../images/jlinda_nest_flowchart.jpg">
+</div>
+
+<br>
+
+<div style="margin-left: 20px;">
+    <b>Figure 1.</b> Flowchart of implementation strategy of interferometric modules of NEST.<br>
+</div>
+
+<h5>Algorithmic Base</h5>
+
+<p>All implemented algorithms are fully documented, described in the literature, and follow a generally accepted
+    best practices.
+</p>
+
+<h5>Links and Further Resources</h5>
+
+<ul>
+    <li>
+        Web page and Code repository of jLinda - <a href="https://github.com/ppolabs/jlinda/">https://github.com/ppolabs/jlinda/</a> .
+    </li>
+</ul>
 
 <hr>
-</body></html>
+</body>
+
+<head><title>Help - InSAR</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+</html>

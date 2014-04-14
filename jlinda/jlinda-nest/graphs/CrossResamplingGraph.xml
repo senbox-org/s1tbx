@@ -1,0 +1,43 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file>input</file>
+    </parameters>
+  </node>
+  <node id="2-CrossResampling">
+    <operator>CrossResampling</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+        <warpPolynomialOrder>2</warpPolynomialOrder>
+        <interpolationMethod>Cubic convolution (6 points)</interpolationMethod>
+        <targetGeometry>ERS</targetGeometry>
+    </parameters>
+  </node>
+  <node id="3-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="2-CrossResampling"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>rsmp_image.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description>Resampling for Cross InSAR</Description>
+    <node id="1-Read">
+      <displayPosition y="104.0" x="96.0"/>
+    </node>
+    <node id="2-CrossResampling">
+      <displayPosition y="105.0" x="203.0"/>
+    </node>
+    <node id="3-Write">
+      <displayPosition y="105.0" x="300.0"/>
+    </node>
+  </applicationData>
+</graph>

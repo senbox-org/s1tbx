@@ -56,8 +56,8 @@ public class UnwrapOp extends Operator {
     private static final String PRODUCT_NAME = "unw_ifgs";
     public static final String PRODUCT_TAG = "_ifg_unw";
     private static final String UNW_PHASE_BAND_NAME = "unwrapped_phase";
-    private int tileWidth = 16;
-    private int tileHeight = 16;
+    private int tileWidth = 20;
+    private int tileHeight = 20;
 
     // method selector
     private boolean nativeMethod = false;
@@ -69,7 +69,7 @@ public class UnwrapOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            archFlavor();
+            // archFlavor(); // no checks for platform, java classes and LP libs to rule them all.....  
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();

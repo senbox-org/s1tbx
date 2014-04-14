@@ -39,7 +39,7 @@ import java.util.Map;
  * Image resampling for Cross Interferometry
  */
 @OperatorMetadata(alias = "CrossResampling",
-        category = "InSAR\\Tools",
+        category = "InSAR\\InSAR Coregistration",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate Resampling Polynomial using SAR Image Geometry, and Resample Input Images")
@@ -559,6 +559,7 @@ public class CrossResamplingOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(CrossResamplingOp.class);
+            setOperatorUI(CrossResamplingOpUI.class);
         }
     }
 

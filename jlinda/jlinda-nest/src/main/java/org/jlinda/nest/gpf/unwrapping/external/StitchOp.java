@@ -56,8 +56,8 @@ public class StitchOp extends Operator {
 
     private static final String UNW_PHASE_BAND_NAME = "unwrapped_phase";
 
-    private int tileWidth = 16;
-    private int tileHeight = 16;
+    private int tileWidth = 20;
+    private int tileHeight = 20;
     
     // 
     private String arch;

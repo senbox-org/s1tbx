@@ -60,13 +60,13 @@
     Basically this operator performs estimation of the resampling polynomial, and resampling of input image from the 
     source into the target geometry using a deterministic relationship between source/target geometries. In this 
     case, this deterministic, relationship is defined by ratios of azimuth resolution (governed by 
-    Pulse Repetition Frequeny (PRF)) and range resolution (governed by Range Sampling Rate (RSR)) - see Figure 1. 
+    Pulse Repetition Frequency (PRF)) and range resolution (governed by Range Sampling Rate (RSR)) - see Figure 1. 
     Ratios between source and target resolution is used to compute a deterministic offsets between geometries, 
     than these offsets are used to compute polynomial and resample geometries.
 </p>
 
 <br>
-<img style="" alt="" src="../images/ers_envisat_ratios.jpg">
+<div style="margin-left: 35px;"><img style="" alt="" src="../images/ers_envisat_ratios.jpg"></div>
 <br>
 <br>
 <div style="margin-left: 20px;"><b>Figure 1.</b> Ratio between Envisat ASAR and ERS 1/2 SAR geometries.<br></div>
@@ -75,14 +75,16 @@
 <h4>Known Issues</h4>
 
 <p>
-    Because of inconsistent orbit interpolation of <i>Apply Orbit Operator</i> of NEST, fringes in range direction might
-    be observed. This issue will be resolved in one of the future updates of the core modules of NEST.
+    Because of limited support for different types of orbits in <i>Apply Orbit Operator</i> of NEST, fringes in range 
+    direction might be observed. Specifically the range phase ramps can be observed because of the missing support for 
+    the <A HREF="http://www.deos.tudelft.nl/ers/precorbs/orbits/">ERS-2 EIGEN-GRACE01S precise orbits</A>. This issue 
+    will be addressed in one of the future updates of the core modules of NEST.
 </p>
 
 <p>
+    Alternatively, as a ad-hoc solution for this problem, the user can export the interferometric results from NEST, 
+    and post process them for removal of the phase ramp in 3rd party software (e.g., Matlab, Octave, etc).
 </p>
-
-
 
 <br>
 <br>

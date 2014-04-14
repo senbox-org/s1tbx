@@ -1,0 +1,40 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file>input</file>
+    </parameters>
+  </node>
+  <node id="2-Stitch">
+    <operator>Stitch</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters>
+    </parameters>
+  </node>
+  <node id="3-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="2-Stitch"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>final_unwrap_stack.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description>Stitching of Unwrapped Tiles</Description>
+    <node id="1-Read">
+      <displayPosition y="104.0" x="96.0"/>
+    </node>
+    <node id="2-Stitch">
+      <displayPosition y="105.0" x="203.0"/>
+    </node>
+    <node id="3-Write">
+      <displayPosition y="105.0" x="300.0"/>
+    </node>
+  </applicationData>
+</graph>

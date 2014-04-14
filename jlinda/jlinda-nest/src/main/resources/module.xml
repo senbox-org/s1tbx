@@ -138,7 +138,7 @@
         <action>
             <id>RangeFilterOp</id>
             <class>org.jlinda.nest.dat.RangeFilterAction</class>
-            <text>Range Filtering...</text>
+            <text>Range Filtering</text>
             <shortDescr>Filter stack of SAR images in RANGE direction</shortDescr>
             <placeBefore>org.jlinda.nest.dat.AzimuthFilterAction</placeBefore>
             <parent>spectral_filtering</parent>
@@ -161,14 +161,14 @@
             <parent>insar_tools</parent>
         </action>
 
-        <!--action>
+        <action>
             <id>CrossResamplingOp</id>
             <class>org.jlinda.nest.dat.CrossResamplingAction</class>
             <text>Cross Interferometry Resampling</text>
             <shortDescr>Spectral Resampling for Cross Interferometry Applications</shortDescr>
             <placeAfter>PhaseFilterOp</placeAfter>
             <parent>insar_tools</parent>
-        </action-->
+        </action>
 
         <action>
             <id>InSARMaster</id>
@@ -180,15 +180,33 @@
         </action>
 
         <!--/// UNWRAPPING ///-->
-        <!--<action>-->
-            <!--<id>SnaphuExportOp</id>-->
-            <!--<class>org.jlinda.nest.dat.snaphu.SnaphuExportAction</class>-->
-            <!--<text>Snaphu data export</text>-->
-            <!--<shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>-->
-            <!--<parent>unwrapping</parent>-->
-        <!--</action>-->
+        
+        <!--/// integrated unwrapping ///-->
         <action>
-            <id>SnaphuExport</id>
+            <id>UnwrapOp</id>
+            <helpId>Unwrap</helpId>
+            <class>org.jlinda.nest.dat.UnwrapAction</class>
+            <text>Unwrap tiles</text>
+            <dialogTitle>Unwrap input per tile</dialogTitle>
+            <shortDescr>Perform independent tile unwrapping of input interferogram</shortDescr>
+            <parent>unwrapping</parent>
+        </action>
+
+        <action>
+            <id>StitchOp</id>
+            <helpId>Unwrap</helpId>
+            <class>org.jlinda.nest.dat.StitchAction</class>
+            <text>Stitch unwrapped tiles</text>
+            <dialogTitle>Stitch unwrapped tiles</dialogTitle>
+            <shortDescr>Perform stitching of independently unwrapped interferogram tiles</shortDescr>
+            <parent>unwrapping</parent>
+            <placeAfter>UnwrapOp</placeAfter>
+            <separatorAfter>true</separatorAfter>
+        </action>
+        
+        <!--/// snaphu unwrapping ///-->
+        <action>
+            <id>SnaphuExportOp</id>
             <class>org.esa.nest.dat.actions.GraphAction</class>
             <helpId>Unwrap</helpId>
             <text>Snaphu data export</text>
@@ -197,6 +215,7 @@
             <targetProductNameSuffix>_snaphu</targetProductNameSuffix>
             <shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>
             <parent>unwrapping</parent>
+            <placeAfter>StitchOp</placeAfter>
         </action>
 
         <action>
@@ -206,6 +225,7 @@
             <text>Snaphu data import</text>
             <shortDescr>Import result of Snaphu to InSAR product</shortDescr>
             <parent>unwrapping</parent>
+            <placeAfter>SnaphuExportOp</placeAfter>
         </action>
 
         <action>
@@ -242,7 +262,21 @@
             <shortDescr>Perform InSAR Optimized Automatic Coregistration</shortDescr>
 	        <dialogTitle>InSAR Coregistration</dialogTitle>
             <graphFile>InSARCoregistrationGraph.xml</graphFile>
+            <placeAfter>CreateInSARStackOp</placeAfter>
+            <separatorAfter>true</separatorAfter>
         </action>
+        
+        <action>
+            <id>CrossResamplingOp</id>
+            <helpId>CrossResamplingOp</helpId>
+            <class>org.jlinda.nest.dat.CrossResamplingAction</class>
+            <text>Cross InSAR resampling</text>
+            <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
+            <placeAfter>InSARCoregistrationGraph</placeAfter>
+            <parent>insar_coregistration</parent>
+        </action>
+        
+        
         
     </extension>
 
