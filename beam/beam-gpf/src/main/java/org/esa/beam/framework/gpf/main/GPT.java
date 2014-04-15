@@ -16,6 +16,8 @@
 
 package org.esa.beam.framework.gpf.main;
 
+import com.bc.ceres.core.runtime.RuntimeConfig;
+import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import org.esa.beam.util.SystemUtils;
 
 import java.util.Locale;
@@ -29,11 +31,17 @@ import java.util.Locale;
  */
 public class GPT {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String... args) {
         try {
             run(args);
-        } catch (Exception e) {
-            System.err.println("\nError: " + e.getMessage());
+        } catch (Throwable e) {
+            String message;
+            if (e.getMessage() != null) {
+                message = e.getMessage();
+            } else {
+                message = e.getClass().getName();
+            }
+            System.err.println("\nError: " + message);
             System.exit(1);
         }
     }
@@ -44,6 +52,7 @@ public class GPT {
         }
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());
+		RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
         final CommandLineTool commandLineTool = new CommandLineTool();
         commandLineTool.run(args);
     }

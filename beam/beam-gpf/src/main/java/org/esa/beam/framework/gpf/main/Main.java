@@ -16,34 +16,14 @@
 
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
-import com.bc.ceres.core.runtime.RuntimeConfig;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
-
-import java.util.Locale;
-import java.util.logging.Logger;
-
 /**
- * The entry point for the GPF command-line tool.
- * For usage, see {@link org/esa/beam/framework/gpf/main/CommandLineUsage.txt}
- * or use the option "-h".
+ * @deprecated Since BEAM 4.10, use {@link GPT} instead.
  */
+@Deprecated
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        if (System.getProperty("ceres.context") == null) {
-            System.setProperty("ceres.context", "beam");
-        }
-        try {
-            Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
-            SystemUtils.init3rdPartyLibs(Main.class.getClassLoader());
-            RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
-            new CommandLineTool().run(args);
-        } catch (Exception e) {
-            System.out.println("\nError: " + e.getMessage());
-            System.exit(1);
-        }
+        GPT.main(args);
     }
 
 }
