@@ -208,7 +208,7 @@ public class ImageInfo implements Cloneable {
      * @return a copy of this object
      */
     @Override
-    public final Object clone() {
+    public final ImageInfo clone() {
         try {
             ImageInfo imageInfo = (ImageInfo) super.clone();
             if (colorPaletteDef != null) {

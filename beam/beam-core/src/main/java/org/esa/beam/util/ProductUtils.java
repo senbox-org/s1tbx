@@ -1418,7 +1418,7 @@ public class ProductUtils {
 
                 ImageInfo imageInfo = sourceBand.getImageInfo();
                 if (imageInfo != null) {
-                    targetBand.setImageInfo((ImageInfo)imageInfo.clone());
+                    targetBand.setImageInfo(imageInfo.clone());
                 }
             }
         }
