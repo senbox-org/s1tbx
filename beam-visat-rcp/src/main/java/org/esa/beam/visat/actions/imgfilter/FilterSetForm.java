@@ -141,7 +141,7 @@ public class FilterSetForm extends JPanel {
 
             }
         });
-        editButton.setToolTipText("Store the selected user defined filter");
+        saveButton.setToolTipText("Store the selected user defined filter");
 
 
         JToolBar toolBar = new JToolBar(SwingConstants.VERTICAL);
