@@ -729,6 +729,10 @@ public class ImageManager {
         return mli.getImage(level);
     }
 
+    public MultiLevelImage getMaskImage(final String expression, final Product product) {
+        return getMaskImage(expression, product, null);
+    }
+
     public MultiLevelImage getMaskImage(final String expression, final Product product, final RasterDataNode rasterDataNode) {
         synchronized (maskImageMap) {
             final MaskKey key = new MaskKey(product, expression);
