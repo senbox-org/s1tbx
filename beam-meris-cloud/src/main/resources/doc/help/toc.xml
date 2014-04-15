@@ -8,10 +8,12 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="Cloud Probability Processor" target="cloudScientificTool">
-            <tocitem text="Overview" target="cloudScientificTool"/>
-            <tocitem text="Algorithm Specification" target="cloudAlgorithmSpec"/>
-            <tocitem text="Processor Description" target="cloudProcessorDesc"/>
+        <tocitem text="Pre-Processing">
+            <tocitem text="Cloud Probability Processor" target="cloudScientificTool">
+                <tocitem text="Overview" target="cloudScientificTool"/>
+                <tocitem text="Algorithm Specification" target="cloudAlgorithmSpec"/>
+                <tocitem text="Processor Description" target="cloudProcessorDesc"/>
+            </tocitem>
         </tocitem>
     </tocitem>
 </toc>

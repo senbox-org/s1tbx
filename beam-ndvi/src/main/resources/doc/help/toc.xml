@@ -8,8 +8,10 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="BEAM NDVI Operator" target="NDVIOperator">
-            <tocitem text="Algorithm Specification" target="algorithm"/>
+        <tocitem text="Thematic Land Processing">
+            <tocitem text="BEAM NDVI Operator" target="NDVIOperator">
+                <tocitem text="Algorithm Specification" target="algorithm"/>
+            </tocitem>
         </tocitem>
     </tocitem>
 

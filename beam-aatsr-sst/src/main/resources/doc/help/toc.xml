@@ -5,11 +5,13 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="SST Processor" target="sstScientificTool">
-            <tocitem text="Overview" target="sstScientificTool"/>
-            <tocitem text="Algorithm Specification" target="sstAlgorithmSpec"/>
-            <tocitem text="Processor Description" target="sstProcessorDesc"/>
-            <tocitem text="Coefficient Files" target="sstCoefficientFiles"/>
+        <tocitem text="Thematic Water Processing">
+            <tocitem text="SST Processor" target="sstScientificTool">
+                <tocitem text="Overview" target="sstScientificTool"/>
+                <tocitem text="Algorithm Specification" target="sstAlgorithmSpec"/>
+                <tocitem text="Processor Description" target="sstProcessorDesc"/>
+                <tocitem text="Coefficient Files" target="sstCoefficientFiles"/>
+            </tocitem>
         </tocitem>
     </tocitem>
 
