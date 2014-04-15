@@ -1,106 +1,106 @@
 {
     "id": "ASA_APM_1PNPDE20040816_024450",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 901,
         "sceneHeight": 3828,
         "startTime": "16-AUG-2004 02:44:50.550298",
-        "endTime": "16-AUG-2004 02:45:33.772206",
+        "endTime": "16-AUG-2004 02:45:33.772168",
         "geoCoding": {
             "coordinates": [
                 {
                     "x": 388.0,
                     "y": 2057.0,
-                    "lat": 45.30585,
-                    "lon": -73.19829
+                    "lat": 45.30546,
+                    "lon": -73.19868
                 },
                 {
                     "x": 668.0,
                     "y": 2484.0,
-                    "lat": 45.622707,
-                    "lon": -73.00516
+                    "lat": 45.62232,
+                    "lon": -73.00555
                 }
             ],
-            "reverseAccuracy": 0.02
+            "reverseAccuracy": 0.13
         },
         "tiePointGrids": [
             {
                 "name": "slant_range_time",
                 "description": "2 way slant range time",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "90.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "90.1",
                 "subSamplingY": "132.0",
                 "expectedPixels": [
                     {
                         "x": 47,
                         "y": 682,
-                        "value": 6329548.5
+                        "value": 6329401.0
                     },
                     {
                         "x": 617,
                         "y": 3256,
-                        "value": 6504658.0
+                        "value": 6504503.0
                     }
                 ]
             },
             {
                 "name": "incident_angle",
                 "description": "Incident angle",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "90.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "90.1",
                 "subSamplingY": "132.0",
                 "expectedPixels": [
                     {
                         "x": 262,
                         "y": 983,
-                        "value": 36.781666
+                        "value": 36.779522
                     },
                     {
                         "x": 550,
                         "y": 1398,
-                        "value": 37.995274
+                        "value": 37.993206
                     }
                 ]
             },
             {
                 "name": "latitude",
                 "description": "Latitude of the tie points (WGS-84), positive N",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "90.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "90.1",
                 "subSamplingY": "132.0",
                 "expectedPixels": [
                     {
                         "x": 495,
                         "y": 2853,
-                        "value": 45.847786
+                        "value": 45.847393
                     },
                     {
                         "x": 548,
                         "y": 3554,
-                        "value": 46.31966
+                        "value": 46.31927
                     }
                 ]
             },
             {
                 "name": "longitude",
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "90.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "90.1",
                 "subSamplingY": "132.0",
                 "expectedPixels": [
                     {
                         "x": 142,
                         "y": 2549,
-                        "value": -73.51372
+                        "value": -73.51411
                     },
                     {
                         "x": 467,
                         "y": 3496,
-                        "value": -73.366234
+                        "value": -73.36662
                     }
                 ]
             }

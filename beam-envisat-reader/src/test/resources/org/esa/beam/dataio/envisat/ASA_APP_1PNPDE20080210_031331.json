@@ -1,106 +1,106 @@
 {
     "id": "ASA_APP_1PNPDE20080210_031331",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 6979,
         "sceneHeight": 8588,
         "startTime": "10-FEB-2008 03:13:31.268985",
-        "endTime": "10-FEB-2008 03:13:47.274810",
+        "endTime": "10-FEB-2008 03:13:47.274820",
         "geoCoding": {
             "coordinates": [
                 {
                     "x": 3010.0,
                     "y": 4616.0,
-                    "lat": 2.575684,
-                    "lon": 97.89827
+                    "lat": 2.575735,
+                    "lon": 97.8983
                 },
                 {
                     "x": 5181.0,
                     "y": 5572.0,
-                    "lat": 2.5224195,
-                    "lon": 97.636894
+                    "lat": 2.5224626,
+                    "lon": 97.63696
                 }
             ],
-            "reverseAccuracy": 0.401
+            "reverseAccuracy": 0.13
         },
         "tiePointGrids": [
             {
                 "name": "slant_range_time",
                 "description": "2 way slant range time",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "698.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "697.9",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
                         "x": 364,
                         "y": 1530,
-                        "value": 6017309.0
+                        "value": 6017287.5
                     },
                     {
                         "x": 4781,
                         "y": 7304,
-                        "value": 6217552.5
+                        "value": 6217529.0
                     }
                 ]
             },
             {
                 "name": "incident_angle",
                 "description": "Incident angle",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "698.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "697.9",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
                         "x": 2030,
                         "y": 2205,
-                        "value": 32.50352
+                        "value": 32.503128
                     },
                     {
                         "x": 4260,
                         "y": 3137,
-                        "value": 34.202656
+                        "value": 34.202286
                     }
                 ]
             },
             {
                 "name": "latitude",
                 "description": "Latitude of the tie points (WGS-84), positive N",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "698.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "697.9",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
                         "x": 3838,
                         "y": 6401,
-                        "value": 2.398394
+                        "value": 2.3984494
                     },
                     {
                         "x": 4245,
                         "y": 7973,
-                        "value": 2.2345643
+                        "value": 2.2346072
                     }
                 ]
             },
             {
                 "name": "longitude",
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "698.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "697.9",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
                         "x": 1104,
                         "y": 5720,
-                        "value": 98.08136
+                        "value": 98.08143
                     },
                     {
                         "x": 3623,
                         "y": 7845,
-                        "value": 97.75401
+                        "value": 97.75399
                     }
                 ]
             }

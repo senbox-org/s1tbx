@@ -5,102 +5,102 @@
         "sceneWidth": 5107,
         "sceneHeight": 29786,
         "startTime": "30-JUL-2002 09:59:10.496136",
-        "endTime": "30-JUL-2002 09:59:24.594939",
+        "endTime": "30-JUL-2002 09:59:24.594935",
         "geoCoding": {
             "coordinates": [
                 {
                     "x": 2202.0,
                     "y": 16011.0,
-                    "lat": 52.386196,
-                    "lon": 5.781744
+                    "lat": 52.38621,
+                    "lon": 5.7817225
                 },
                 {
                     "x": 3791.0,
                     "y": 19328.0,
-                    "lat": 52.34149,
-                    "lon": 5.383702
+                    "lat": 52.341488,
+                    "lon": 5.383818
                 }
             ],
-            "reverseAccuracy": 1.4
+            "reverseAccuracy": 1.5
         },
         "tiePointGrids": [
             {
                 "name": "slant_range_time",
                 "description": "2 way slant range time",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "511.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "510.7",
                 "subSamplingY": "2979.0",
                 "expectedPixels": [
                     {
                         "x": 266,
                         "y": 5306,
-                        "value": 5806386.0
+                        "value": 5806360.0
                     },
                     {
                         "x": 3498,
                         "y": 25335,
-                        "value": 5974652.0
+                        "value": 5974626.0
                     }
                 ]
             },
             {
                 "name": "incident_angle",
                 "description": "Incident angle",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "511.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "510.7",
                 "subSamplingY": "2979.0",
                 "expectedPixels": [
                     {
                         "x": 1485,
                         "y": 7650,
-                        "value": 27.472612
+                        "value": 27.472054
                     },
                     {
                         "x": 3117,
                         "y": 10880,
-                        "value": 29.239782
+                        "value": 29.239252
                     }
                 ]
             },
             {
                 "name": "latitude",
                 "description": "Latitude of the tie points (WGS-84), positive N",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "511.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "510.7",
                 "subSamplingY": "2979.0",
                 "expectedPixels": [
                     {
                         "x": 2809,
                         "y": 22200,
-                        "value": 52.23324
+                        "value": 52.23327
                     },
                     {
                         "x": 3106,
                         "y": 27655,
-                        "value": 52.09103
+                        "value": 52.091026
                     }
                 ]
             },
             {
                 "name": "longitude",
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "511.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "510.7",
                 "subSamplingY": "2979.0",
                 "expectedPixels": [
                     {
                         "x": 808,
                         "y": 19839,
-                        "value": 6.080978
+                        "value": 6.081107
                     },
                     {
                         "x": 2651,
                         "y": 27209,
-                        "value": 5.567811
+                        "value": 5.5675573
                     }
                 ]
             }

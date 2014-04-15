@@ -5,102 +5,102 @@
         "sceneWidth": 1471,
         "sceneHeight": 5535,
         "startTime": "16-AUG-2004 01:28:46.610626",
-        "endTime": "16-AUG-2004 01:29:48.746267",
+        "endTime": "16-AUG-2004 01:29:48.746269",
         "geoCoding": {
             "coordinates": [
                 {
                     "x": 634.0,
                     "y": 2975.0,
-                    "lat": 46.80282,
-                    "lon": 133.15617
+                    "lat": 46.803078,
+                    "lon": 133.15677
                 },
                 {
                     "x": 1092.0,
                     "y": 3591.0,
-                    "lat": 46.462738,
-                    "lon": 132.58934
+                    "lat": 46.463,
+                    "lon": 132.58992
                 }
             ],
-            "reverseAccuracy": 0.034
+            "reverseAccuracy": 0.11
         },
         "tiePointGrids": [
             {
                 "name": "slant_range_time",
                 "description": "2 way slant range time",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "147.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "147.1",
                 "subSamplingY": "135.0",
                 "expectedPixels": [
                     {
                         "x": 76,
                         "y": 986,
-                        "value": 5537404.5
+                        "value": 5537324.5
                     },
                     {
                         "x": 1007,
                         "y": 4708,
-                        "value": 5703131.5
+                        "value": 5703034.0
                     }
                 ]
             },
             {
                 "name": "incident_angle",
                 "description": "Incident angle",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "147.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "147.1",
                 "subSamplingY": "135.0",
                 "expectedPixels": [
                     {
                         "x": 427,
                         "y": 1421,
-                        "value": 20.690195
+                        "value": 20.68744
                     },
                     {
                         "x": 898,
                         "y": 2021,
-                        "value": 23.230219
+                        "value": 23.227585
                     }
                 ]
             },
             {
                 "name": "latitude",
                 "description": "Latitude of the tie points (WGS-84), positive N",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "147.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "147.1",
                 "subSamplingY": "135.0",
                 "expectedPixels": [
                     {
                         "x": 809,
                         "y": 4125,
-                        "value": 46.069958
+                        "value": 46.070213
                     },
                     {
                         "x": 894,
                         "y": 5139,
-                        "value": 45.41344
+                        "value": 45.4137
                     }
                 ]
             },
             {
                 "name": "longitude",
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "147.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "147.1",
                 "subSamplingY": "135.0",
                 "expectedPixels": [
                     {
                         "x": 232,
                         "y": 3686,
-                        "value": 133.38838
+                        "value": 133.38896
                     },
                     {
                         "x": 763,
                         "y": 5056,
-                        "value": 132.60147
+                        "value": 132.60204
                     }
                 ]
             }
@@ -155,8 +155,8 @@
                 "value": "A"
             },
             {
-                "path": "Abstracted Metadata/SRGR_Coefficients/srgr_coef_list[25]/coefficient[3]/srgr_coef",
-                "value": "6.183901746226184E-7"
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.25/coefficient.3/dop_coef",
+                "value": "-3.35419008E8"
             }
         ]
     }

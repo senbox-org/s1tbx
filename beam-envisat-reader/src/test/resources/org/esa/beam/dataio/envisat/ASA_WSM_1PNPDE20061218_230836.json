@@ -11,14 +11,14 @@
                 {
                     "x": 2489.0,
                     "y": 6095.0,
-                    "lat": -67.668785,
-                    "lon": 130.60754
+                    "lat": -67.66869,
+                    "lon": 130.60878
                 },
                 {
                     "x": 4284.0,
                     "y": 7358.0,
-                    "lat": -67.65672,
-                    "lon": 126.69637
+                    "lat": -67.65666,
+                    "lon": 126.697624
                 }
             ],
             "reverseAccuracy": 1.0
@@ -27,80 +27,80 @@
             {
                 "name": "slant_range_time",
                 "description": "2 way slant range time",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "577.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "577.1",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
                         "x": 301,
                         "y": 2020,
-                        "value": 5653475.5
+                        "value": 5653397.5
                     },
                     {
                         "x": 3953,
                         "y": 9645,
-                        "value": 6505935.5
+                        "value": 6505794.5
                     }
                 ]
             },
             {
                 "name": "incident_angle",
                 "description": "Incident angle",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "577.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "577.1",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
                         "x": 1678,
                         "y": 2912,
-                        "value": 25.481346
+                        "value": 25.47873
                     },
                     {
                         "x": 3523,
                         "y": 4142,
-                        "value": 34.247284
+                        "value": 34.245167
                     }
                 ]
             },
             {
                 "name": "latitude",
                 "description": "Latitude of the tie points (WGS-84), positive N",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "577.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "577.1",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
                         "x": 3174,
                         "y": 8452,
-                        "value": -68.70449
+                        "value": -68.70443
                     },
                     {
                         "x": 3510,
                         "y": 10528,
-                        "value": -69.6693
+                        "value": -69.66926
                     }
                 ]
             },
             {
                 "name": "longitude",
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "577.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "577.1",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
                         "x": 913,
                         "y": 7553,
-                        "value": 131.52176
+                        "value": 131.52307
                     },
                     {
                         "x": 2996,
                         "y": 10359,
-                        "value": 125.063
+                        "value": 125.06438
                     }
                 ]
             }
@@ -155,8 +155,8 @@
                 "value": "A"
             },
             {
-                "path": "Abstracted Metadata/SRGR_Coefficients/srgr_coef_list[13]/coefficient[3]/srgr_coef",
-                "value": "6.320182137642405E-7"
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.13/coefficient.3/dop_coef",
+                "value": "5.4590696E7"
             }
         ]
     }

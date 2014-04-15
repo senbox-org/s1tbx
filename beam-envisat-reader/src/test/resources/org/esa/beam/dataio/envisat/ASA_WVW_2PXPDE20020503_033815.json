@@ -29,12 +29,12 @@
         ],
         "metadata": [
             {
-                "path": "Abstracted Metadata/MISSION",
-                "value": "ENVISAT"
-            },
-            {
                 "path": "GEOLOCATION_GRID_ADS/GEOLOCATION_GRID_ADS.22/attach_flag",
                 "value": "0"
+            },
+            {
+                "path": "SPH/TREND_REMOVAL",
+                "value": "1"
             }
         ]
     }

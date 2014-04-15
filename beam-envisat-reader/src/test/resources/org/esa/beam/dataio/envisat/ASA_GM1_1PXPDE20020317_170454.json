@@ -1,106 +1,106 @@
 {
     "id": "ASA_GM1_1PXPDE20020317_170454",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 976,
         "sceneHeight": 2000,
         "startTime": "17-MAR-2002 17:04:54.027955",
-        "endTime": "17-MAR-2002 17:07:25.009827",
+        "endTime": "17-MAR-2002 17:07:25.009834",
         "geoCoding": {
             "coordinates": [
                 {
                     "x": 420.0,
                     "y": 1075.0,
-                    "lat": 55.617554,
-                    "lon": -100.144714
+                    "lat": 55.6198,
+                    "lon": -100.14444
                 },
                 {
                     "x": 724.0,
                     "y": 1297.0,
-                    "lat": 54.905388,
-                    "lon": -102.83594
+                    "lat": 54.90719,
+                    "lon": -102.83141
                 }
             ],
-            "reverseAccuracy": 0.47
+            "reverseAccuracy": 0.18
         },
         "tiePointGrids": [
             {
                 "name": "slant_range_time",
                 "description": "2 way slant range time",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "98.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "97.6",
                 "subSamplingY": "80.0",
                 "expectedPixels": [
                     {
                         "x": 50,
                         "y": 356,
-                        "value": 5484390.0
+                        "value": 5483924.0
                     },
                     {
                         "x": 668,
                         "y": 1701,
-                        "value": 6389759.0
+                        "value": 6388667.5
                     }
                 ]
             },
             {
                 "name": "incident_angle",
                 "description": "Incident angle",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "98.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "97.6",
                 "subSamplingY": "80.0",
                 "expectedPixels": [
                     {
                         "x": 283,
                         "y": 513,
-                        "value": 24.1305
+                        "value": 24.113512
                     },
                     {
                         "x": 595,
                         "y": 730,
-                        "value": 34.218185
+                        "value": 34.202072
                     }
                 ]
             },
             {
                 "name": "latitude",
                 "description": "Latitude of the tie points (WGS-84), positive N",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "98.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "97.6",
                 "subSamplingY": "80.0",
                 "expectedPixels": [
                     {
                         "x": 536,
                         "y": 1490,
-                        "value": 53.889885
+                        "value": 53.892612
                     },
                     {
                         "x": 593,
                         "y": 1856,
-                        "value": 52.321835
+                        "value": 52.32358
                     }
                 ]
             },
             {
                 "name": "longitude",
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
-                "offsetX": "0.0",
-                "offsetY": "0.0",
-                "subSamplingX": "98.0",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "97.6",
                 "subSamplingY": "80.0",
                 "expectedPixels": [
                     {
                         "x": 154,
                         "y": 1332,
-                        "value": -98.58718
+                        "value": -98.582535
                     },
                     {
                         "x": 506,
                         "y": 1827,
-                        "value": -101.96562
+                        "value": -101.97326
                     }
                 ]
             }
@@ -155,8 +155,8 @@
                 "value": "A"
             },
             {
-                "path": "Abstracted Metadata/SRGR_Coefficients/srgr_coef_list[16]/coefficient[3]/srgr_coef",
-                "value": "6.751736805199471E-7"
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.16/coefficient.3/dop_coef",
+                "value": "-8.24939456E8"
             }
         ]
     }
