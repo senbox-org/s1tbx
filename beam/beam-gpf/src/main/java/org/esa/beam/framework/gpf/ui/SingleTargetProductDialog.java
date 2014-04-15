@@ -46,7 +46,6 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Norman Fomferra
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
 public abstract class SingleTargetProductDialog extends ModelessDialog {
 
@@ -61,16 +60,21 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         this(appContext, title, buttonMask, helpID, new TargetProductSelectorModel());
     }
 
-    protected SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID,
-                                        TargetProductSelectorModel model) {
+    protected SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID, TargetProductSelectorModel model) {
+        this(appContext, title, buttonMask, helpID, model, false);
+    }
+
+    protected SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID, TargetProductSelectorModel model, boolean alwaysWriteOutput) {
         super(appContext.getApplicationWindow(), title, buttonMask, helpID);
         this.appContext = appContext;
-        targetProductSelector = new TargetProductSelector(model);
+        targetProductSelector = new TargetProductSelector(model, alwaysWriteOutput);
         String homeDirPath = SystemUtils.getUserHomeDir().getPath();
         String saveDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR,
                                                                        homeDirPath);
         targetProductSelector.getModel().setProductDir(new File(saveDir));
-        targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
+        if (!alwaysWriteOutput) {
+            targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
+        }
         targetProductSelector.getModel().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -195,7 +199,8 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 String message = MessageFormat.format(
                         "A product with the name ''{0}'' is already opened in {1}.\n\n" +
                         "Do you want to continue?",
-                        productName, appContext.getApplicationName());
+                        productName, appContext.getApplicationName()
+                );
                 final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
                                                                  getTitle(), JOptionPane.YES_NO_OPTION);
                 if (answer != JOptionPane.YES_OPTION) {
@@ -209,7 +214,8 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 String message = MessageFormat.format(
                         "The specified output file\n\"{0}\"\n already exists.\n\n" +
                         "Do you want to overwrite the existing file?",
-                        productFile.getPath());
+                        productFile.getPath()
+                );
                 final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
                                                                  getTitle(), JOptionPane.YES_NO_OPTION);
                 if (answer != JOptionPane.YES_OPTION) {
@@ -224,9 +230,10 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         File productFile = getTargetProductSelector().getModel().getProductFile();
         final String message = MessageFormat.format(
                 "The target product has been successfully written to\n{0}\n" +
-                "Total time spend for processing: {2}",
+                "Total time spend for processing: {1}",
                 formatFile(productFile),
-                formatDuration(saveTime));
+                formatDuration(saveTime)
+        );
         showSuppressibleInformationDialog(message, "saveInfo");
     }
 
@@ -235,7 +242,8 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 "The target product has successfully been created and opened in {0}.\n\n" +
                 "Actual processing of source to target data will be performed only on demand,\n" +
                 "for example, if the target product is saved or an image view is opened.",
-                appContext.getApplicationName());
+                appContext.getApplicationName()
+        );
         showSuppressibleInformationDialog(message, "openInAppInfo");
     }
 
@@ -248,7 +256,8 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 "Total time spend for processing: {2}\n",
                 formatFile(productFile),
                 appContext.getApplicationName(),
-                formatDuration(saveTime));
+                formatDuration(saveTime)
+        );
         showSuppressibleInformationDialog(message, "saveAndOpenInAppInfo");
     }
 
@@ -300,21 +309,25 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             Product product = null;
             try {
                 long t0 = System.currentTimeMillis();
-                Operator operator = null;
+                Operator execOp = null;
                 if (targetProduct.getProductReader() instanceof OperatorProductReader) {
                     final OperatorProductReader opReader = (OperatorProductReader) targetProduct.getProductReader();
-                    if (opReader.getOperatorContext().getOperator() instanceof Output) {
-                        operator = opReader.getOperatorContext().getOperator();
+                    Operator operator = opReader.getOperatorContext().getOperator();
+                    boolean autoWriteDisabled = operator instanceof Output
+                                                || operator.getSpi().getOperatorDescriptor().isAutoWriteDisabled();
+                    if (autoWriteDisabled) {
+                        execOp = operator;
                     }
                 }
-                if (operator == null) {
+                if (execOp == null) {
                     WriteOp writeOp = new WriteOp(targetProduct, model.getProductFile(), model.getFormatName());
                     writeOp.setDeleteOutputOnFailure(true);
                     writeOp.setWriteEntireTileRows(true);
                     writeOp.setClearCacheAfterRowWrite(false);
-                    operator = writeOp;
+                    execOp = writeOp;
                 }
-                final OperatorExecutor executor = OperatorExecutor.create(operator);
+
+                final OperatorExecutor executor = OperatorExecutor.create(execOp);
                 executor.execute(SubProgressMonitor.create(pm, 95));
 
                 saveTime = System.currentTimeMillis() - t0;
@@ -369,7 +382,6 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
      * other exeption types are treated as internal errors.
      *
      * @return The target product.
-     *
      * @throws Exception if an error occurs, an {@link OperatorException} is signaling "nominal" processing errors.
      */
     protected abstract Product createTargetProduct() throws Exception;

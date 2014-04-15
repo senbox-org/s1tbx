@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
@@ -157,6 +158,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
                    consumerNodeContext.getSourceProduct("alias"));
     }
 
+    @OperatorMetadata(alias="WrongTypeOperator")
     public static class WrongTypeOperator extends Operator {
 
         @TargetProduct
@@ -174,12 +176,13 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(WrongTypeOperator.class, "WrongTypeOperator");
+                super(WrongTypeOperator.class);
             }
 
         }
     }
 
+    @OperatorMetadata(alias="WrongBandsOperator")
     public static class WrongBandsOperator extends Operator {
         @TargetProduct
         private Product targetProduct;
@@ -198,11 +201,12 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(WrongBandsOperator.class, "WrongBandsOperator");
+                super(WrongBandsOperator.class);
             }
         }
     }
 
+    @OperatorMetadata(alias="GoodOperator")
     public static class GoodOperator extends Operator {
         @TargetProduct
         private Product targetProduct;
@@ -221,11 +225,12 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(GoodOperator.class, "GoodOperator");
+                super(GoodOperator.class);
             }
         }
     }
 
+    @OperatorMetadata(alias="ConsumerOperator")
     public static class ConsumerOperator extends Operator {
 
         @SourceProduct(type = "GoodType", bands = {"a", "b"})
@@ -246,11 +251,12 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(ConsumerOperator.class, "ConsumerOperator");
+                super(ConsumerOperator.class);
             }
         }
     }
 
+    @OperatorMetadata(alias="OptionalConsumerOperator")
     public static class OptionalConsumerOperator extends Operator {
 
         @SourceProduct(optional = true, type = "Optional", bands = {"c", "d"})
@@ -271,12 +277,13 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(OptionalConsumerOperator.class, "OptionalConsumerOperator");
+                super(OptionalConsumerOperator.class);
             }
 
         }
     }
 
+    @OperatorMetadata(alias="ConsumerWithAliasSourceOperator")
     public static class ConsumerWithAliasSourceOperator extends Operator {
 
         @SourceProduct(alias = "alias")
@@ -297,7 +304,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(ConsumerWithAliasSourceOperator.class, "ConsumerWithAliasSourceOperator");
+                super(ConsumerWithAliasSourceOperator.class);
             }
         }
     }

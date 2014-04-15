@@ -85,7 +85,13 @@ public abstract class Operator {
      */
     protected Operator() {
         context = new OperatorContext(this);
-        context.injectParameterDefaultValues();
+    }
+
+    /**
+     * Sets the operator parameters to their default values, if any.
+     */
+    public void setParameterDefaultValues() {
+        context.getParameterSet().setDefaultValues();
     }
 
     /**
@@ -324,7 +330,7 @@ public abstract class Operator {
      *
      * @param targetProduct The target product.
      */
-    protected final void setTargetProduct(Product targetProduct) {
+    public final void setTargetProduct(Product targetProduct) {
         context.setTargetProduct(targetProduct);
     }
 
@@ -356,6 +362,21 @@ public abstract class Operator {
      */
     public Object getParameter(String name) {
         return context.getParameter(name);
+    }
+
+    /**
+     * Gets the value for the parameter with the given name.
+     *
+     * @param name The parameter name.
+     * @param defaultValue The default value which is used in case {@link #getParameter(String)} returns {@code null}. May be {@code null}.
+     *
+     * @return The parameter value, or the given {@code defaultValue}.
+     *
+     * @since BEAM 5.0
+     */
+    public Object getParameter(String name, Object defaultValue) {
+        Object parameter = context.getParameter(name);
+        return parameter != null ? parameter : defaultValue;
     }
 
     /**

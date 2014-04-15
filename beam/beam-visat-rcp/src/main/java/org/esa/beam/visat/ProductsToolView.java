@@ -167,13 +167,13 @@ public class ProductsToolView extends AbstractToolView {
 
         @Override
         public void productAdded(final Product product) {
-            //Debug.trace("VisatApp: product added: " + product.getDisplayName());
+            Debug.trace("VisatApp: product added: " + product.getDisplayName());
             setSelectedProductNode(product);
         }
 
         @Override
         public void productRemoved(final Product product) {
-            //Debug.trace("VisatApp: product removed: " + product.getDisplayName());
+            Debug.trace("VisatApp: product removed: " + product.getDisplayName());
             if (visatApp.getSelectedProduct() != null && visatApp.getSelectedProduct() == product) {
                 visatApp.setSelectedProductNode((ProductNode) null);
             } else {

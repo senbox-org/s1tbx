@@ -17,7 +17,6 @@
 package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -33,7 +32,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
@@ -43,7 +41,6 @@ import org.esa.beam.util.math.MathUtils;
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
@@ -93,8 +90,9 @@ import java.util.Map;
                   version = "1.3",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Writes a data product to a file.")
-public class WriteOp extends Operator implements Output {
+                  description = "Writes a data product to a file.",
+                  autoWriteDisabled = true)
+public class WriteOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
@@ -124,19 +122,20 @@ public class WriteOp extends Operator implements Output {
                description = "If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.")
     private boolean clearCacheAfterRowWrite;
 
-    private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();
-    private final Map<Row, Tile[]> writeCache = new HashMap<Row, Tile[]>();
+    private boolean[][][] tilesWritten;
+    private final Map<Row, Tile[]> writeCache = new HashMap<>();
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
-    private boolean productFileWritten;
     private Dimension tileSize;
     private int tileCountX;
+    private int tileCountY;
 
     private boolean outputFileExists = false;
     private boolean incremental = false;
 
     public WriteOp() {
+        setParameterDefaultValues();
         setRequiresAllBands(true);
     }
 
@@ -202,7 +201,10 @@ public class WriteOp extends Operator implements Output {
         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + getFile());
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
         try {
-            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_BAND_COLUMN, pm);
+            if (clearCacheAfterRowWrite && writeEntireTileRows) {
+                operatorExecutor.setScheduleRowsSeparate(true);
+            }
+            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, "Writing...", pm);
 
             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
 
@@ -242,7 +244,7 @@ public class WriteOp extends Operator implements Output {
         productWriter.setFormatName(formatName);
         targetProduct.setProductWriter(productWriter);
         final Band[] bands = targetProduct.getBands();
-        writableBands = new ArrayList<Band>(bands.length);
+        writableBands = new ArrayList<>(bands.length);
         for (final Band band : bands) {
             band.getSourceImage(); // trigger source image creation
             if (productWriter.shouldWrite(band)) {
@@ -253,6 +255,8 @@ public class WriteOp extends Operator implements Output {
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
+        tileCountY = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
+        tilesWritten = new boolean[writableBands.size()][tileCountY][tileCountX];
         try {
             productWriter.writeProductNodes(targetProduct, file);
         } catch (IOException e) {
@@ -266,20 +270,21 @@ public class WriteOp extends Operator implements Output {
             return;
         }
         try {
-            synchronized (this) {
-                if (!productFileWritten) {
-                    productWriter.writeProductNodes(targetProduct, file);
-                    productFileWritten = true;
-                }
-            }
             final Rectangle rect = targetTile.getRectangle();
+            int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
+            int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
             if (writeEntireTileRows) {
-                int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
-                int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
                 Row row = new Row(targetBand, tileY);
-                Tile[] tileRow = updateTileRow(row, tileX, targetTile);
-                if (tileRow != null) {
-                    writeTileRow(targetBand, tileRow);
+                Tile[] tileRowToWrite = updateTileRow(row, tileX, targetTile);
+                if (tileRowToWrite != null) {
+                    writeTileRow(targetBand, tileRowToWrite);
+                }
+                markTileAsHandled(targetBand, tileX, tileY);
+                if (clearCacheAfterRowWrite && tileRowToWrite != null && isRowWrittenCompletely(tileY)) {
+                    TileCache tileCache = JAI.getDefaultInstance().getTileCache();
+                    if (tileCache != null) {
+                        tileCache.flush();
+                    }
                 }
             } else {
                 final ProductData rawSamples = targetTile.getRawSamples();
@@ -287,13 +292,19 @@ public class WriteOp extends Operator implements Output {
                     productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples,
                                                       pm);
                 }
+                markTileAsHandled(targetBand, tileX, tileY);
             }
-            markTileDone(targetBand, targetTile);
+            if (productWriter instanceof DimapProductWriter && isProductWrittenCompletely()) {
+                // If we get here all tiles are written
+                // we can update the header only for DIMAP, so rewrite it, to handle intermediate changes
+                synchronized (productWriter) {
+                    productWriter.writeProductNodes(targetProduct, file);
+                }
+            }
         } catch (Exception e) {
             if (deleteOutputOnFailure && !outputFileExists) {
                 try {
                     productWriter.deleteOutput();
-                    productFileWritten = false;
                 } catch (IOException ignored) {
                 }
             }
@@ -347,63 +358,35 @@ public class WriteOp extends Operator implements Output {
                     System.arraycopy(rawSamples, srcPos, sampleLine.getElems(), targetPos, width);
                     targetPos += width;
                 }
+
                 productWriter.writeBandRasterData(band, 0, y, sceneWidth, 1, sampleLine, ProgressMonitor.NULL);
             }
-            if (clearCacheAfterRowWrite) {
-                TileCache tileCache = JAI.getDefaultInstance().getTileCache();
-                if (tileCache != null) {
-                    tileCache.flush();
-                }
-            }
         }
     }
 
-    private void markTileDone(Band targetBand, Tile targetTile) throws IOException {
-        boolean done;
-        synchronized (todoLists) {
-            MultiLevelImage sourceImage = targetBand.getSourceImage();
-
-            final List<Point> currentTodoList = getTodoList(sourceImage);
-            currentTodoList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
-                                             sourceImage.YToTileY(targetTile.getMinY())));
-
-            done = isDone();
-        }
-        if (done) {
-            // If we get here all tiles are written
-            if (productWriter instanceof DimapProductWriter) {
-                // if we can update the header (only DIMAP) rewrite it!
-                synchronized (productWriter) {
-                    productWriter.writeProductNodes(targetProduct, file);
-                }
-            }
-        }
+    private void markTileAsHandled(Band targetBand, int tileX, int tileY) {
+        int bandIndex = writableBands.indexOf(targetBand);
+        tilesWritten[bandIndex][tileY][tileX] = true;
     }
 
-    private boolean isDone() {
-        for (List<Point> todoList : todoLists.values()) {
-            if (!todoList.isEmpty()) {
-                return false;
+    private boolean isRowWrittenCompletely(int rowNumber) {
+        for (int bandIndex = 0; bandIndex < writableBands.size(); bandIndex++) {
+            for (boolean aYTileWritten : tilesWritten[bandIndex][rowNumber]) {
+                if (!aYTileWritten) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
-
-    private List<Point> getTodoList(MultiLevelImage sourceImage) {
-        List<Point> todoList = todoLists.get(sourceImage);
-        if (todoList == null) {
-            final int numXTiles = sourceImage.getNumXTiles();
-            final int numYTiles = sourceImage.getNumYTiles();
-            todoList = new ArrayList<Point>(numXTiles * numYTiles);
-            for (int y = 0; y < numYTiles; y++) {
-                for (int x = 0; x < numXTiles; x++) {
-                    todoList.add(new Point(x, y));
-                }
+    private boolean isProductWrittenCompletely() {
+        for (int rowNumber = 0; rowNumber < tileCountY; rowNumber++) {
+            if (!isRowWrittenCompletely(rowNumber)) {
+                return false;
             }
-            todoLists.put(sourceImage, todoList);
         }
-        return todoList;
+        return true;
     }
 
     @Override
@@ -413,7 +396,6 @@ public class WriteOp extends Operator implements Output {
         } catch (IOException ignore) {
         }
         writableBands.clear();
-        todoLists.clear();
         writeCache.clear();
         super.dispose();
     }

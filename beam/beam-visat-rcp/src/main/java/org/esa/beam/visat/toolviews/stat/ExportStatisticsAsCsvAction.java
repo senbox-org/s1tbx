@@ -45,9 +45,9 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
 
     private static final String PROPERTY_KEY_EXPORT_DIR = "user.statistics.export.dir";
     private Mask[] selectedMasks;
-    private final StatisticalExportContext dataProvider;
+    private final StatisticsDataProvider dataProvider;
 
-    public ExportStatisticsAsCsvAction(StatisticalExportContext dataProvider) {
+    public ExportStatisticsAsCsvAction(StatisticsDataProvider dataProvider) {
         super("Export as CSV");
         this.dataProvider = dataProvider;
     }
@@ -73,9 +73,8 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
             return;
         }
         try {
-            final StringBuilder metadataFileName = new StringBuilder(FileUtils.getFilenameWithoutExtension(outputAsciiFile));
-            metadataFileName.append("_metadata.txt");
-            final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
+            final File metadataFile = new File(outputAsciiFile.getParent(),
+                                               FileUtils.getFilenameWithoutExtension(outputAsciiFile) + "_metadata.txt");
             metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
             csvOutputStream = new PrintStream(new FileOutputStream(outputAsciiFile));
 
@@ -110,7 +109,7 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
             metadataWriter.initialiseOutput(outputContext);
             csvStatisticsWriter.initialiseOutput(outputContext);
 
-            final Map<String, Number> statistics = new HashMap<String, Number>();
+            final Map<String, Number> statistics = new HashMap<>();
             final Histogram[] histograms = dataProvider.getHistograms();
             for (int i = 0; i < histograms.length; i++) {
                 final Histogram histogram = histograms[i];

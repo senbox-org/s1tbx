@@ -16,53 +16,69 @@
 
 package org.esa.beam.framework.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
+import org.junit.Test;
 
-public class OperatorSpiTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-    public void testNonAnnotatoedOpConstructionWithoutName() {
-        OperatorSpi operatorSpi = new OperatorSpi(NonAnnotatoedFooOp.class) {
+public class OperatorSpiTest {
+
+    @Test
+    public void testNonAnnotatedOperator() {
+        OperatorSpi operatorSpi = new OperatorSpi(NonAnnotatedFooOp.class) {
         };
-        assertSame(NonAnnotatoedFooOp.class, operatorSpi.getOperatorClass());
-        assertEquals("NonAnnotatoedFooOp", operatorSpi.getOperatorAlias());
+        assertNotNull(operatorSpi.getOperatorDescriptor());
+        assertEquals(NonAnnotatedFooOp.class.getName(), operatorSpi.getOperatorDescriptor().getName());
+        assertEquals("NonAnnotatedFooOp", operatorSpi.getOperatorDescriptor().getAlias());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getLabel());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getVersion());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getAuthors());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getDescription());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getCopyright());
+        assertEquals(NonAnnotatedFooOp.class, operatorSpi.getOperatorDescriptor().getOperatorClass());
+        assertNotNull(operatorSpi.getOperatorDescriptor().getSourceProductDescriptors());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getSourceProductsDescriptor());
+        assertNotNull(operatorSpi.getOperatorDescriptor().getParameterDescriptors());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getTargetProductDescriptor());
+        assertNotNull(operatorSpi.getOperatorDescriptor().getTargetPropertyDescriptors());
+
+        assertEquals("NonAnnotatedFooOp", operatorSpi.getOperatorAlias());
     }
 
-    public void testNonAnnotatoedOpConstructionWithName() {
-        OperatorSpi operatorSpi = new OperatorSpi(NonAnnotatoedFooOp.class, "foo") {
-        };
-        assertSame(NonAnnotatoedFooOp.class, operatorSpi.getOperatorClass());
-        assertEquals("foo", operatorSpi.getOperatorAlias());
-    }
-
-    public void testAnnotatoedOpConstructionWithoutName() throws NoSuchFieldException {
+    @Test
+    public void testAnnotatedOperator() {
         OperatorSpi operatorSpi = new OperatorSpi(AnnotatedFooOp.class) {
         };
-        assertSame(AnnotatedFooOp.class, operatorSpi.getOperatorClass());
-        assertEquals("FooFighters", operatorSpi.getOperatorAlias());
+        assertNotNull(operatorSpi.getOperatorDescriptor());
+        assertEquals(AnnotatedFooOp.class.getName(), operatorSpi.getOperatorDescriptor().getName());
+        assertEquals("fooop", operatorSpi.getOperatorDescriptor().getAlias());
+        assertEquals("Foo Operator", operatorSpi.getOperatorDescriptor().getLabel());
+        assertEquals("0.1", operatorSpi.getOperatorDescriptor().getVersion());
+        assertEquals("F.Bar", operatorSpi.getOperatorDescriptor().getAuthors());
+        assertEquals("This is a baz", operatorSpi.getOperatorDescriptor().getDescription());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getCopyright());
+        assertEquals(AnnotatedFooOp.class, operatorSpi.getOperatorDescriptor().getOperatorClass());
+        assertNotNull(operatorSpi.getOperatorDescriptor().getSourceProductDescriptors());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getSourceProductsDescriptor());
+        assertNotNull(operatorSpi.getOperatorDescriptor().getParameterDescriptors());
+        assertEquals(null, operatorSpi.getOperatorDescriptor().getTargetProductDescriptor());
+        assertNotNull(operatorSpi.getOperatorDescriptor().getTargetPropertyDescriptors());
 
-        OperatorClassDescriptor opDescriptor = new OperatorClassDescriptor(operatorSpi.getOperatorClass());
-        assertNotNull(opDescriptor.getOperatorMetadata());
-        assertNotNull(opDescriptor.getParameters());
-        assertEquals(1, opDescriptor.getParameters().size());
-        assertNotNull(opDescriptor.getParameters().get(AnnotatedFooOp.class.getDeclaredField("threshold")));
-        assertNotNull(opDescriptor.getSourceProductMap());
-        assertEquals(1, opDescriptor.getSourceProductMap().size());
-        assertNotNull(opDescriptor.getSourceProductMap().get(AnnotatedFooOp.class.getDeclaredField("input")));
+        assertEquals("fooop", operatorSpi.getOperatorAlias());
     }
 
-    public static class NonAnnotatoedFooOp extends Operator {
+    public static class NonAnnotatedFooOp extends Operator {
 
         @Override
         public void initialize() throws OperatorException {
         }
     }
 
-    @OperatorMetadata(alias = "FooFighters")
+    @OperatorMetadata(alias = "fooop", label="Foo Operator", version ="0.1", authors = "F.Bar", description = "This is a baz")
     public static class AnnotatedFooOp extends Operator {
         @SourceProduct
         Product input;

@@ -25,7 +25,6 @@ import java.util.Enumeration;
 
 public class TableViewPagePanel extends PagePanel {
 
-    private AbstractButton switchToChartButton;
     private JTable table;
     private final Icon iconForSwitchToChartButton;
 
@@ -36,7 +35,7 @@ public class TableViewPagePanel extends PagePanel {
 
     @Override
     protected void initComponents() {
-        switchToChartButton = ToolButtonFactory.createButton(iconForSwitchToChartButton, false);
+        final AbstractButton switchToChartButton = ToolButtonFactory.createButton(iconForSwitchToChartButton, false);
         switchToChartButton.setToolTipText("Switch to Chart View");
         switchToChartButton.setName("switchToChartButton");
         switchToChartButton.setEnabled(hasAlternativeView());

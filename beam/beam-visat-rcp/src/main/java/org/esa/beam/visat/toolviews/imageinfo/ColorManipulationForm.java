@@ -48,17 +48,12 @@ import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -87,7 +82,6 @@ class ColorManipulationForm {
     private final static String FILE_EXTENSION = ".cpd";
     private VisatApp visatApp;
     private PropertyMap preferences;
-    private AbstractButton applyButton;
     private AbstractButton resetButton;
     private AbstractButton multiApplyButton;
     private AbstractButton importButton;
@@ -158,15 +152,6 @@ class ColorManipulationForm {
 
     public ImageInfo getImageInfo() {
         return imageInfo;
-    }
-
-
-    ChangeListener createApplyEnablerChangeListener() {
-        return new ApplyEnablerCL();
-    }
-
-    TableModelListener createApplyEnablerTableModelListener() {
-        return new ApplyEnablerTML();
     }
 
     private void setProductSceneView(final ProductSceneView productSceneView) {
@@ -300,30 +285,30 @@ class ColorManipulationForm {
         return toolView.getDescriptor();
     }
 
+    public ActionListener wrapWithAutoApplyActionListener(final ActionListener actionListener) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actionListener.actionPerformed(e);
+                applyChanges();
+            }
+        };
+    }
+
     private void initContentPanel() {
 
         moreOptionsPane = new MoreOptionsPane(this);
 
-        applyButton = new JButton("Apply");
-        applyButton.setName("ApplyButton");
-        applyButton.setMnemonic('A');
-        applyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                applyChanges();
-            }
-        });
-
         resetButton = createButton("icons/Undo24.gif");
         resetButton.setName("ResetButton");
         resetButton.setToolTipText("Reset to defaults"); /*I18N*/
-        resetButton.addActionListener(new ActionListener() {
+        resetButton.addActionListener(wrapWithAutoApplyActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 resetToDefaults();
             }
-        });
+        }));
 
         multiApplyButton = createButton("icons/MultiAssignBands24.gif");
         multiApplyButton.setName("MultiApplyButton");
@@ -343,6 +328,7 @@ class ColorManipulationForm {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 importColorPaletteDef();
+                applyChanges();
             }
         });
         importButton.setEnabled(true);
@@ -386,7 +372,6 @@ class ColorManipulationForm {
 
     public void setApplyEnabled(final boolean enabled) {
         final boolean canApply = productSceneView != null;
-        applyButton.setEnabled(canApply && enabled);
         multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
     }
 
@@ -396,10 +381,7 @@ class ColorManipulationForm {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 1.0;
-        gbc.gridwidth = 2;
-        gbc.insets.bottom = 3;
-        gbc.gridy = 1;
-        toolButtonsPanel.add(applyButton, gbc);
+        gbc.gridy = 0;
         gbc.insets.bottom = 0;
         gbc.gridwidth = 1;
         gbc.gridy++;
@@ -456,7 +438,7 @@ class ColorManipulationForm {
     }
 
 
-    private void applyChanges() {
+    void applyChanges() {
         setApplyEnabled(false);
         if (productSceneView != null) {
             try {
@@ -482,7 +464,6 @@ class ColorManipulationForm {
         if (productSceneView != null) {
             setImageInfoCopy(createDefaultImageInfo());
             childForm.resetFormModel(getProductSceneView());
-            applyButton.setEnabled(true);
         }
     }
 
@@ -494,7 +475,7 @@ class ColorManipulationForm {
         final Product selectedProduct = productSceneView.getProduct();
         final ProductManager productManager = selectedProduct.getProductManager();
         final RasterDataNode[] protectedRasters = productSceneView.getRasters();
-        final ArrayList<Band> availableBandList = new ArrayList<Band>();
+        final ArrayList<Band> availableBandList = new ArrayList<>();
         for (int i = 0; i < productManager.getProductCount(); i++) {
             final Product product = productManager.getProduct(i);
             final Band[] bands = product.getBands();
@@ -530,7 +511,7 @@ class ColorManipulationForm {
                                                         getToolViewDescriptor().getHelpId(),
                                                         availableBands,
                                                         bandsToBeModified);
-        final List<Band> modifiedRasterList = new ArrayList<Band>(availableBands.length);
+        final List<Band> modifiedRasterList = new ArrayList<>(availableBands.length);
         if (bandChooser.show() == BandChooser.ID_OK) {
             bandsToBeModified = bandChooser.getSelectedBands();
             for (final Band band : bandsToBeModified) {
@@ -556,7 +537,7 @@ class ColorManipulationForm {
         if (ioDir == null) {
             if (preferences != null) {
                 ioDir = new File(
-                        preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
+                            preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
             } else {
                 ioDir = getSystemAuxdataDir();
             }
@@ -630,7 +611,8 @@ class ColorManipulationForm {
                                                    "Automatically distribute points of\n" +
                                                    "colour palette between min/max?",
                                                    "Import Colour Palette",
-                                                   JOptionPane.YES_NO_CANCEL_OPTION);
+                                                   JOptionPane.YES_NO_CANCEL_OPTION
+        );
         if (answer == JOptionPane.YES_OPTION) {
             return Boolean.TRUE;
         } else if (answer == JOptionPane.NO_OPTION) {
@@ -647,8 +629,8 @@ class ColorManipulationForm {
     private void exportColorPaletteDef() {
         final ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
-            // Normaly this code is unreacable because, the export Button
-            // is disabled if the _contrastStretchPane have no ImageInfo.
+            // Normaly this code is unreacable because, the export Button should be
+            // disabled if the color manipulation form have no ImageInfo.
             return;
         }
         final BeamFileChooser fileChooser = new BeamFileChooser();
@@ -805,23 +787,6 @@ class ColorManipulationForm {
 
         private Container getContent(InternalFrameEvent e) {
             return e.getInternalFrame().getContentPane();
-        }
-    }
-
-    private class ApplyEnablerCL implements ChangeListener {
-
-        @Override
-        public void stateChanged(ChangeEvent e) {
-            setApplyEnabled(true);
-        }
-    }
-
-
-    private class ApplyEnablerTML implements TableModelListener {
-
-        @Override
-        public void tableChanged(TableModelEvent e) {
-            setApplyEnabled(true);
         }
     }
 

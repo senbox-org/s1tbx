@@ -26,13 +26,12 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.framework.dataio.ProductCache;
 
 import javax.media.jai.PlanarImage;
 import java.lang.reflect.Field;
 
 /**
- * Default implementation for {@link org.esa.beam.framework.gpf.internal.OperatorContext}.
+ * @since Public since BEAM 4.10.3.
  */
 public class NodeContext {
 
@@ -123,7 +122,7 @@ public class NodeContext {
             this.operator.setLogger(graphContext.getLogger());
             // this.operator.setConfiguration(node.getConfiguration());
         } catch (OperatorException e) {
-            throw new GraphException("Failed to create instance of operator '" + node.getOperatorName() + "'");
+            throw new GraphException("Failed to create instance of operator '" + node.getOperatorName() + "'", e);
         }
     }
 
@@ -134,9 +133,7 @@ public class NodeContext {
             operatorContext = (OperatorContext) field.get(operator);
             operatorContext.setId(node.getId());
             field.setAccessible(false);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -148,10 +145,8 @@ public class NodeContext {
             operator = null;
         }
         if (targetProduct != null) {
-            if(targetProduct.getFileLocation() == null || ProductCache.instance().getProduct(targetProduct.getFileLocation()) == null) {
-                targetProduct.dispose();
-                targetProduct = null;
-            }
+            targetProduct.dispose();
+            targetProduct = null;
         }
     }
 }

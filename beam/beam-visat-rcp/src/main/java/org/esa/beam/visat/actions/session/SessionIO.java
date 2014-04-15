@@ -45,11 +45,8 @@ public abstract class SessionIO {
 
     public Session readSession(File file)  throws Exception {
         Assert.notNull(file, "file");
-        final FileReader reader = new FileReader(file);
-        try {
+        try (FileReader reader = new FileReader(file)) {
             return readSession(reader);
-        } finally {
-            reader.close();
         }
     }
 
@@ -58,11 +55,8 @@ public abstract class SessionIO {
     public void writeSession(Session session, File file)  throws Exception {
         Assert.notNull(session, "session");
         Assert.notNull(file, "file");
-        final FileWriter writer = new FileWriter(file);
-        try {
+        try (FileWriter writer = new FileWriter(file)) {
             writeSession(session, writer);
-        } finally {
-            writer.close();
         }
     }
 

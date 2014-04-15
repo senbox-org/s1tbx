@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,8 @@
 
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BasicPixelGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -42,8 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -53,6 +52,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class AttachPixelGeoCodingAction extends ExecCommand {
@@ -82,7 +82,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
 
         final VisatApp visatApp = VisatApp.getApp();
         final Product product = visatApp.getSelectedProduct();
-        final PixelGeoCodingSetupDialog setupDialog = new PixelGeoCodingSetupDialog(visatApp.getMainFrame(),
+        final Window mainFrame = visatApp.getMainFrame();
+        final PixelGeoCodingSetupDialog setupDialog = new PixelGeoCodingSetupDialog(mainFrame,
                                                                                     ATTACH_TITLE,
                                                                                     "pixelGeoCodingSetup",
                                                                                     product);   /*I18N*/
@@ -107,7 +108,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
             final String message = MessageFormat.format("This operation requires to load at least {0} M\n" +
                                                         "of additional data into memory.\n\n" +
                                                         "Do you really want to continue?",
-                                                        requiredMegas);   /*I18N*/
+                                                        requiredMegas
+            );   /*I18N*/
             final int answer = visatApp.showQuestionDialog(ATTACH_TITLE,
                                                            message, null);
 
@@ -117,47 +119,43 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
             }
         }
 
-        final SwingWorker<Throwable, Object> swingWorker = new SwingWorker<Throwable, Object>() {
+        final ProgressMonitorSwingWorker<Void, Void> swingWorker = new ProgressMonitorSwingWorker<Void, Void>(mainFrame, ATTACH_TITLE) {
 
             @Override
-            protected Throwable doInBackground() throws Exception {
-                try {
-                    DialogProgressMonitor dialogPm = new DialogProgressMonitor(visatApp.getMainFrame(), ATTACH_TITLE,
-                                                                               Dialog.ModalityType.APPLICATION_MODAL);
-                    final GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask,
-                                                                                           searchRadius,
-                                                                                           dialogPm);
-                    product.setGeoCoding(pixelGeoCoding);
-                } catch (Throwable e) {
-                    return e;
-                }
+            protected Void doInBackground(ProgressMonitor pm) throws Exception {
+                final GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(latBand,
+                                                                                       lonBand,
+                                                                                       validMask,
+                                                                                       searchRadius,
+                                                                                       pm);
+                product.setGeoCoding(pixelGeoCoding);
                 return null;
             }
 
             @Override
             public void done() {
-                UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
-                Throwable value = null;
+                UIUtils.setRootFrameDefaultCursor(mainFrame);
                 try {
-                    value = get();
-                } catch (Exception e) {
-                    value = e;
-                }
-                if (value instanceof IOException) {
-                    visatApp.showErrorDialog(ATTACH_TITLE,
-                                             "An I/O error occurred:\n" + ((IOException) value).getMessage());
-                } else if (value instanceof Throwable) {
-                    visatApp.showErrorDialog(ATTACH_TITLE,
-                                             "An internal error occurred:\n" + ((Throwable) value).getMessage());
-                } else {
+                    get();
                     visatApp.showInfoDialog(ATTACH_TITLE, "Pixel geo-coding has been attached.", null);
+                } catch (Exception e) {
+                    Throwable cause = e;
+                    if (e instanceof ExecutionException) {
+                        cause = e.getCause();
+                    }
+                    String msg = "An internal error occurred:\n" + e.getMessage();
+                    if (cause instanceof IOException) {
+                        msg = "An I/O error occurred:\n" + e.getMessage();
+                    }
+                    visatApp.showErrorDialog(ATTACH_TITLE,msg);
+                } finally {
+                    visatApp.updateState();
                 }
-                visatApp.updateState();
             }
         };
 
-        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
-        swingWorker.execute();
+        UIUtils.setRootFrameWaitCursor(mainFrame);
+        swingWorker.executeWithBlocking();
     }
 
     private static class PixelGeoCodingSetupDialog extends ModalDialog {
@@ -165,16 +163,16 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         private String _selectedLonBand;
         private String _selectedLatBand;
         private String[] _bandNames;
-        private JComboBox _lonBox;
-        private JComboBox _latBox;
+        private JComboBox<String> _lonBox;
+        private JComboBox<String> _latBox;
         private Product _product;
         private JTextField _validMaskField;
         private JSpinner _radiusSpinner;
-        private final Integer _defaultRadius = new Integer(6);
-        private final Integer _minRadius = new Integer(0);
-        private final Integer _maxRadius = new Integer(99);
-        private final Integer _bigRadiusStep = new Integer(0);
-        private final Integer _smallRadiusStep = new Integer(1);
+        private final int _defaultRadius = 6;
+        private final int _minRadius = 0;
+        private final int _maxRadius = 99;
+        private final int _bigRadiusStep = 0;
+        private final int _smallRadiusStep = 1;
 
         public PixelGeoCodingSetupDialog(final Window parent, final String title,
                                          final String helpID, final Product product) {
@@ -241,8 +239,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
             final JLabel latLabel = new JLabel("Latitude band:");       /*I18N*/
             final JLabel radiusLabel = new JLabel("Search radius:");    /*I18N*/
             final JLabel maskLabel = new JLabel("Valid mask:");         /*I18N*/
-            _lonBox = new JComboBox(_bandNames);
-            _latBox = new JComboBox(_bandNames);
+            _lonBox = new JComboBox<>(_bandNames);
+            _latBox = new JComboBox<>(_bandNames);
             doPreSelection(_lonBox, "lon");
             doPreSelection(_latBox, "lat");
             _radiusSpinner = UIUtils.createSpinner(_defaultRadius, _minRadius, _maxRadius,
@@ -333,8 +331,7 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         }
 
         private String getBandNameContaining(final String toFind) {
-            for (int i = 0; i < _bandNames.length; i++) {
-                final String bandName = _bandNames[i];
+            for (final String bandName : _bandNames) {
                 if (bandName.contains(toFind)) {
                     return bandName;
                 }
@@ -343,8 +340,7 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         }
 
         private String findBandName(final String bandName) {
-            for (int i = 0; i < _bandNames.length; i++) {
-                final String band = _bandNames[i];
+            for (final String band : _bandNames) {
                 if (band.equals(bandName)) {
                     return band;
                 }

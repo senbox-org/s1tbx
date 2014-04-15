@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -25,10 +24,14 @@ import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for class {@link TargetProductSelectorModel}.
@@ -36,24 +39,25 @@ import java.util.Locale;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class TargetProductSelectorModelTest extends TestCase {
+public class TargetProductSelectorModelTest {
 
     private TargetProductSelectorModel model;
     private DummyTestProductWriterPlugIn writerPlugIn;
 
-
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         writerPlugIn = new DummyTestProductWriterPlugIn();
         ProductIOPlugInManager.getInstance().addWriterPlugIn(writerPlugIn);
         model = new TargetProductSelectorModel();
     }
 
+    @Test
     public void testSetGetProductName() {
         model.setProductName("Obelix");
         assertEquals("Obelix", model.getProductName());
     }
 
+    @Test
     public void testSetGetInvalidProductName() {
         assertNull(model.getProductName());
         try {
@@ -64,12 +68,14 @@ public class TargetProductSelectorModelTest extends TestCase {
         }
         assertNull(model.getProductName());
     }
-    
+
+    @Test
     public void testSetGetFormatName() {
         model.setFormatName("Majestix");
         assertEquals("Majestix", model.getFormatName());
     }
 
+    @Test
     public void testGetFileName() {
         model.setProductName("Obelix");
         assertEquals("Obelix", model.getProductName());
@@ -86,6 +92,7 @@ public class TargetProductSelectorModelTest extends TestCase {
         assertEquals("Idefix.x", model.getProductFileName());
     }
 
+    @Test
     public void testSetGetDirectory() {
         final File directory = new File("Gallien");
         model.setProductDir(directory);
@@ -99,6 +106,7 @@ public class TargetProductSelectorModelTest extends TestCase {
         assertEquals(new File("Gallien", "Obelix.x"), model.getProductFile());
     }
 
+    @Test
     public void testSelections() {
         assertTrue(model.isSaveToFileSelected());
         assertTrue(model.isOpenInAppSelected());

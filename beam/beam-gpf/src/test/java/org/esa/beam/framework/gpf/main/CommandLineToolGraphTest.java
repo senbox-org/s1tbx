@@ -21,19 +21,23 @@ import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.Node;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
-import java.util.HashMap;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class CommandLineToolGraphTest extends TestCase {
 
@@ -94,7 +98,7 @@ public class CommandLineToolGraphTest extends TestCase {
                   "g=graph.xml;e=chain1;",
                   "${sourceProduct}", null,
                   "${sourceProduct2}", null,
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "${threshold}",
@@ -108,7 +112,7 @@ public class CommandLineToolGraphTest extends TestCase {
                   "g=graph.xml;e=chain1;",
                   "${sourceProduct}", null,
                   "${sourceProduct2}", null,
-                  "WriteProduct$node2", "target.dim", "BEAM-DIMAP", "2.5",
+                  "WriteOp@node2", "target.dim", "BEAM-DIMAP", "2.5",
                   "a+b/c"
         );
     }
@@ -117,9 +121,9 @@ public class CommandLineToolGraphTest extends TestCase {
         testGraph(new String[]{"graph.xml", "-Pexpression=a+b/c", "-Pthreshold=2.5", "ernie.dim", "idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0", "ernie.dim",
-                  "ReadProduct$1", "idefix.dim",
-                  "WriteProduct$node2", "target.dim", "BEAM-DIMAP", "2.5",
+                  "ReadOp@sourceProduct", "ernie.dim",
+                  "ReadOp@sourceProduct.2", "idefix.dim",
+                  "WriteOp@node2", "target.dim", "BEAM-DIMAP", "2.5",
                   "a+b/c"
         );
     }
@@ -134,11 +138,11 @@ public class CommandLineToolGraphTest extends TestCase {
         },
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0",
+                  "ReadOp@sourceProduct",
                   "ernie.dim",
-                  "ReadProduct$1",
+                  "ReadOp@sourceProduct2",
                   "idefix.dim",
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "2.5",
@@ -156,11 +160,11 @@ public class CommandLineToolGraphTest extends TestCase {
         },
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0",
+                  "ReadOp@sourceProduct",
                   "ernie.dim",
-                  "ReadProduct$1",
+                  "ReadOp@sourceProduct2",
                   "idefix.dim",
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "-0.5125",
@@ -179,11 +183,11 @@ public class CommandLineToolGraphTest extends TestCase {
         },
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0",
+                  "ReadOp@sourceProduct",
                   "ernie.dim",
-                  "ReadProduct$1",
+                  "ReadOp@sourceProduct2",
                   "idefix.dim",
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "-0.5125",
@@ -279,79 +283,95 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
+        public Graph readGraph(String filepath, Map<String, String> templateVariables) throws IOException, GraphException {
 
             logString += "g=" + filepath + ";";
             String xml;
             if ("graph.xml".equals(filepath)) {
                 xml = "<graph id=\"chain1\">" +
-                      "<version>1.0</version>\n" +
-                      "<header>\n" +
-                      "<target refid=\"node2\"/>\n" +
-                      "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
-                      "<source name=\"sourceProduct2\"/>\n" +
-                      "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
-                      "<parameter name=\"expression\" type=\"String\"/>\n" +
-                      "</header>\n" +
-                      "<node id=\"node1\">" +
-                      "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
-                      "  <sources>\n" +
-                      "    <input>${sourceProduct}</input>\n" +
-                      "  </sources>\n" +
-                      "  <parameters>\n" +
-                      "    <threshold>${threshold}</threshold>\n" +
-                      "  </parameters>\n" +
-                      "</node>" +
-                      "<node id=\"node2\">" +
-                      "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
-                      "  <sources>\n" +
-                      "    <input1 refid=\"node1\"/>\n" +
-                      "    <input2>${sourceProduct2}</input2>\n" +
-                      "  </sources>\n" +
-                      "  <parameters>\n" +
-                      "    <expression>${expression}</expression>\n" +
-                      "  </parameters>\n" +
-                      "</node>" +
-                      "</graph>";
+                        "<version>1.0</version>\n" +
+                        "<header>\n" +
+                        "<target refid=\"node2\"/>\n" +
+                        "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
+                        "<source name=\"sourceProduct2\"/>\n" +
+                        "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
+                        "<parameter name=\"expression\" type=\"String\"/>\n" +
+                        "</header>\n" +
+                        "<node id=\"node1\">" +
+                        "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
+                        "  <sources>\n" +
+                        "    <input>${sourceProduct}</input>\n" +
+                        "  </sources>\n" +
+                        "  <parameters>\n" +
+                        "    <threshold>${threshold}</threshold>\n" +
+                        "  </parameters>\n" +
+                        "</node>" +
+                        "<node id=\"node2\">" +
+                        "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
+                        "  <sources>\n" +
+                        "    <input1 refid=\"node1\"/>\n" +
+                        "    <input2>${sourceProduct2}</input2>\n" +
+                        "  </sources>\n" +
+                        "  <parameters>\n" +
+                        "    <expression>${expression}</expression>\n" +
+                        "  </parameters>\n" +
+                        "</node>" +
+                        "</graph>";
             } else if ("graphWithOutput.xml".equals(filepath)) {
                 xml = "<graph id=\"chain1\">" +
-                      "<version>1.0</version>\n" +
-                      "<node id=\"node1\">" +
-                      "  <operator>org.esa.beam.framework.gpf.TestOps$OpImplementingOutput$Spi</operator>\n" +
-                      "</node>" +
-                      "</graph>";
+                        "<version>1.0</version>\n" +
+                        "<node id=\"node1\">" +
+                        "  <operator>org.esa.beam.framework.gpf.TestOps$OpImplementingOutput$Spi</operator>\n" +
+                        "</node>" +
+                        "</graph>";
             } else {
                 throw new IllegalArgumentException(
                         "Path to graph file must be either 'graph.xml' or 'graphWithOutput.xml'");
             }
-            return GraphIO.read(new StringReader(xml), parameterMap);
+            return GraphIO.read(new StringReader(xml), templateVariables);
         }
 
         @Override
-        public void executeGraph(Graph graph) throws GraphException {
+        public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
             logString += "e=" + graph.getId() + ";";
             executedGraph = graph;
         }
 
 
         @Override
-        public Product createOpProduct(String opName, Map<String, Object> parameters,
-                                       Map<String, Product> sourceProducts) throws OperatorException {
-            fail("did not expect to come here");
-            return null;
+        public Reader createReader(String fileName) throws FileNotFoundException {
+            return new StringReader("expression=sqrt(x*x + y*y)\n" +
+                                            "threshold=-0.5125");
         }
 
         @Override
-        public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
-            HashMap<String, String> hashMap = new HashMap<String, String>();
-            hashMap.put("expression", "sqrt(x*x + y*y)");
-            hashMap.put("threshold", "-0.5125");
-            return hashMap;
+        public Writer createWriter(String fileName) throws IOException {
+            return new StringWriter();
+        }
+
+        @Override
+        public String[] list(String path) throws IOException {
+            return new String[0];
         }
 
         @Override
         public void print(String m) {
             this.m += m;
+        }
+
+        @Override
+        public Logger getLogger() {
+            return Logger.getLogger("test");
+        }
+
+        @Override
+        public boolean fileExists(String fileName) {
+            return false;
+        }
+
+        @Override
+        public boolean isFile(String path) {
+            return true;
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -54,13 +54,14 @@ class ReprojectionDialog extends SingleTargetProductDialog {
 
         ParameterUpdater parameterUpdater = new ReprojectionParameterUpdater();
 
-        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass(),
+        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(),
                                                                                  null,
                                                                                  null,
                                                                                  parameterUpdater);
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                     operatorSpi.getOperatorClass(),
+                                                     operatorSpi.getOperatorDescriptor(),
                                                      parameterSupport,
+                                                     appContext,
                                                      helpID);
 
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
@@ -96,7 +97,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
             if (!demDescriptor.isDemInstalled()) {
                 final boolean ok = demDescriptor.installDemFiles(getParent());
                 if (ok) {
-                    // close dialog becuase DEM will be installed first
+                    // close dialog because DEM will be installed first
                     close();
                 }
                 return false;
@@ -108,7 +109,7 @@ class ReprojectionDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
         final Map<String, Product> productMap = form.getProductMap();
-        final Map<String, Object> parameterMap = new HashMap<String, Object>();
+        final Map<String, Object> parameterMap = new HashMap<>();
         form.updateParameterMap(parameterMap);
         return GPF.createProduct(OPERATOR_NAME, parameterMap, productMap);
     }

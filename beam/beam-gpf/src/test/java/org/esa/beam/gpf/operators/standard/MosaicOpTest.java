@@ -81,6 +81,8 @@ public class MosaicOpTest {
     @Test
     public void testMosaickingSimple() throws IOException {
         final MosaicOp op = new MosaicOp();
+        op.setParameterDefaultValues();
+
         op.setSourceProducts(new Product[]{product1, product2, product3});
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
@@ -109,6 +111,7 @@ public class MosaicOpTest {
     @Test
     public void testMosaickingWithConditions() {
         final MosaicOp op = new MosaicOp();
+        op.setParameterDefaultValues();
         op.setSourceProducts(new Product[]{product1, product2, product3});
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
@@ -152,6 +155,7 @@ public class MosaicOpTest {
         product1Copy.getBand("b1").setValidPixelExpression("flag == 1");
 
         final MosaicOp op = new MosaicOp();
+        op.setParameterDefaultValues();
         op.setSourceProducts(new Product[]{product1Copy, product2, product3});
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
@@ -185,6 +189,7 @@ public class MosaicOpTest {
     @Test
     public void testMosaickingUpdate() throws IOException {
         final MosaicOp mosaicOp = new MosaicOp();
+        mosaicOp.setParameterDefaultValues();
         mosaicOp.setSourceProducts(new Product[]{product1, product2});
         mosaicOp.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
@@ -230,6 +235,7 @@ public class MosaicOpTest {
 
 
         final MosaicOp mosaicUpdateOp = new MosaicOp();
+        mosaicUpdateOp.setParameterDefaultValues();
         mosaicUpdateOp.setSourceProducts(new Product[]{product3});
         mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
 

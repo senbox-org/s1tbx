@@ -26,14 +26,13 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.util.ProductUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,8 +52,9 @@ import java.io.IOException;
 @OperatorMetadata(alias = "Meris.N1Patcher",
                   description = "Copies an existing N1 file and replaces the data for the radiance bands",
                   version = "1.1",
-                  authors = "Marco Zuehlke, Olaf Danne, Marco Peters")
-public class N1PatcherOp extends MerisBasisOp implements Output {
+                  authors = "Marco Zuehlke, Olaf Danne, Marco Peters",
+                  autoWriteDisabled = true)
+public class N1PatcherOp extends MerisBasisOp {
 
     // MPH:
     private static final int MPH_PRODUCTNAME_OFFSET = 9;

@@ -73,7 +73,9 @@ public abstract class BaseOperatorUI implements OperatorUI {
     public void setSourceProducts(final Product[] products) {
         if(sourceProducts == null || !Arrays.equals(sourceProducts, products)) {
             sourceProducts = products;
-            initParameters();
+            if(paramMap != null) {
+                initParameters();
+            }
         }
     }
 

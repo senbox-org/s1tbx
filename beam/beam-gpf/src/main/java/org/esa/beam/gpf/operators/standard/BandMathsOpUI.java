@@ -67,7 +67,7 @@ public class BandMathsOpUI extends BaseOperatorUI {
             try {
                 paramBand.setValueAsText(bandDesc.name);
                 paramBandUnit.setValueAsText(bandDesc.unit);
-                paramNoDataValue.setValueAsText(bandDesc.noDataValue);
+                paramNoDataValue.setValueAsText(String.valueOf(bandDesc.noDataValue));
                 paramExpression.setValueAsText(bandDesc.expression);
             } catch(Exception e) {
                 //
@@ -104,7 +104,7 @@ public class BandMathsOpUI extends BaseOperatorUI {
 
         bandDesc.name = paramBand.getValueAsText();
         bandDesc.unit = paramBandUnit.getValueAsText();
-        bandDesc.noDataValue = paramNoDataValue.getValueAsText();
+        bandDesc.noDataValue = Double.parseDouble(paramNoDataValue.getValueAsText());
         bandDesc.expression = paramExpression.getValueAsText();
 
         final BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
@@ -272,10 +272,6 @@ public class BandMathsOpUI extends BaseOperatorUI {
         String expression = paramExpression.getValueAsText();
         if (expression == null || expression.length() == 0) {
             return false;
-        }
-
-        if(sourceProducts != null) {
-            expression = BandMathsOp.SubstitutePlaceHolders(sourceProducts, expression);
         }
 
         final int defaultIndex = 0;//Arrays.asList(products).indexOf(_visatApp.getSelectedProduct());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,21 +16,25 @@
 
 package org.esa.beam.framework.gpf.internal;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-public class TileImplTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class TileImplTest {
 
     private static final int W = 16;
     private static final int H = 8;
     private static final int N = W * H;
     private static final int N05 = N / 2;
 
+    @Test
     public void testSignedAndUnsignedByteScaledSamples() {
         Tile tile;
         float[] samples;
@@ -74,6 +78,7 @@ public class TileImplTest extends TestCase {
         assertEquals((N - 1) * 0.1F, tile.getSampleFloat(W - 1, H - 1), 1.0e-5F);
     }
 
+    @Test
     public void testSignedAndUnsignedByteUnscaledSamples() {
         Tile tile;
         int[] samples;
@@ -119,6 +124,11 @@ public class TileImplTest extends TestCase {
 
     }
 
+    // Note: NF ignored this test, because I have removed the automatic cropping of out-of-range samples.
+    // Cropping is something that should be done in a user-specific way.
+    //
+    @Ignore
+    @Test
     public void testSetSamplePreventsOverflow() {
         Product product = new Product("n", "t", 1, 1);
         Band band = product.addBand("x", ProductData.TYPE_INT8);
@@ -139,6 +149,7 @@ public class TileImplTest extends TestCase {
         assertEquals(minRawValue * scalingFactor, scaledTile.getSampleDouble(0, 0), 1.0e-6);
     }
 
+    @Test
     public void testGetSamplesFloat() {
         Tile tile;
         float[] samples;
@@ -186,6 +197,7 @@ public class TileImplTest extends TestCase {
         assertEquals(320.0F, samples[N - 1], 1.0e-5F);
     }
 
+    @Test
     public void testGetSamplesDouble() {
         Tile tile;
         double[] samples;
@@ -212,6 +224,7 @@ public class TileImplTest extends TestCase {
         assertEquals(128.1F, samples[N - 1], 1.0e-5F);
     }
 
+    @Test
     public void testSetSamples() {
         Tile tile = createScaledTileWithNaNs(ProductData.TYPE_UINT16, 2.5, 7.5);
 

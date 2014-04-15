@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -108,7 +108,8 @@ public class ShowImageViewRGBAction extends ExecCommand {
             }
         };
         visatApp.setStatusBarMessage("Creating RGB image view...");  /*I18N*/
-        visatApp.getExecutorService().submit(worker);
+        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
+        worker.execute();
     }
 
     public JInternalFrame openInternalFrame(final ProductSceneView view) {
@@ -138,10 +139,9 @@ public class ShowImageViewRGBAction extends ExecCommand {
         private boolean dataLoaded;
     }
 
-    private static ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions,
+    private ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions,
                                                          ProgressMonitor pm) throws Exception {
         final VisatApp visatApp = VisatApp.getApp();
-        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
         RGBBand[] rgbBands = null;
         boolean errorOccurred = false;
         ProductSceneImage productSceneImage = null;

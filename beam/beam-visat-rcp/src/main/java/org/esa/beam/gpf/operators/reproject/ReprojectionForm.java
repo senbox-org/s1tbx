@@ -254,7 +254,7 @@ class ReprojectionForm extends JTabbedPane {
     private JPanel createIOPanel() {
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(0);
+        tableLayout.setTableWeightY(0.0);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTablePadding(3, 3);
 

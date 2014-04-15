@@ -114,7 +114,7 @@ public class SourceProductSelector {
             }
         });
 
-        productFilter = new AllProductFilter();
+        productFilter = ProductFilter.ALL;
         selectionContext = new ComboBoxSelectionContext(productNameComboBox);
 
         productManagerListener = new ProductManager.Listener() {
@@ -396,14 +396,6 @@ public class SourceProductSelector {
 
         @Override
         public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        }
-    }
-
-    private static class AllProductFilter implements ProductFilter {
-
-        @Override
-        public boolean accept(Product product) {
-            return true;
         }
     }
 }

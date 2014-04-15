@@ -71,7 +71,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.esa.beam.visat.VisatApp.*;
+import static com.bc.ceres.swing.TableLayout.cell;
+import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_INCREMENTAL;
+import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS;
+import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_HEADERS;
+import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_HISTORY;
+import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL;
+import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY;
+import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_DEBUG_ENABLED;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_ECHO;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_ENABLED;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_LEVEL;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_PREFIX;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_FONT_NAME;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_FONT_SIZE;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_LAF;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_GEOLOCATION_EPS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_LOW_MEMORY_LIMIT;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_INCREMENTAL;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HEADERS;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HISTORY;
+import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED;
+import static org.esa.beam.visat.VisatApp.getApp;
 
 public class VisatPreferencesDialog extends ConfigDialog {
 
@@ -497,9 +529,9 @@ public class VisatPreferencesDialog extends ConfigDialog {
             pageUI.add(paramOffsetY.getEditor().getEditorComponent());
 
             tableLayout.setRowPadding(2, new Insets(10, 0, 4, 4));
-            pageUI.add(paramShowDecimals.getEditor().getEditorComponent(), new TableLayout.Cell(2, 0, 1, 3));
+            pageUI.add(paramShowDecimals.getEditor().getEditorComponent(), cell(2, 0, 1, 3));
             tableLayout.setRowPadding(3, new Insets(10, 0, 4, 4));
-            pageUI.add(paramGeolocationAsDecimal.getEditor().getEditorComponent(), new TableLayout.Cell(3, 0, 1, 3));
+            pageUI.add(paramGeolocationAsDecimal.getEditor().getEditorComponent(), cell(3, 0, 1, 3));
 
             setPageUI(createPageUIContentPane(pageUI));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,7 +22,6 @@ import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.OperatorMenu;
 import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
@@ -49,16 +48,16 @@ class MosaicDialog extends SingleTargetProductDialog {
         form = new MosaicForm(selector, appContext);
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Mosaic");
-        Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
 
         MosaicFormModel formModel = form.getFormModel();
-        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorClass,
+        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(),
                                                                                  formModel.getPropertySet(),
                                                                                  formModel.getParameterMap(),
                                                                                  null);
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                     operatorClass,
+                                                     operatorSpi.getOperatorDescriptor(),
                                                      parameterSupport,
+                                                     appContext,
                                                      helpID);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }

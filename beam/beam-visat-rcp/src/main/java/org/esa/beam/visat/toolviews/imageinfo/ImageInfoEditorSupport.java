@@ -32,25 +32,27 @@ class ImageInfoEditorSupport {
 
     protected ImageInfoEditorSupport(final ImageInfoEditor2 imageInfoEditor) {
 
+        final ColorManipulationForm form = imageInfoEditor.getParentForm();
+
         autoStretch95Button = createButton("icons/Auto95Percent24.gif");
         autoStretch95Button.setName("AutoStretch95Button");
         autoStretch95Button.setToolTipText("Auto-adjust to 95% of all pixels"); /*I18N*/
-        autoStretch95Button.addActionListener(new ActionListener() {
+        autoStretch95Button.addActionListener(form.wrapWithAutoApplyActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.compute95Percent();
             }
-        });
+        }));
 
         autoStretch100Button = createButton("icons/Auto100Percent24.gif");
         autoStretch100Button.setName("AutoStretch100Button");
         autoStretch100Button.setToolTipText("Auto-adjust to 100% of all pixels"); /*I18N*/
-        autoStretch100Button.addActionListener(new ActionListener() {
+        autoStretch100Button.addActionListener(form.wrapWithAutoApplyActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.compute100Percent();
             }
-        });
+        }));
 
         zoomInVButton = createButton("icons/ZoomIn24V.gif");
         zoomInVButton.setName("zoomInVButton");

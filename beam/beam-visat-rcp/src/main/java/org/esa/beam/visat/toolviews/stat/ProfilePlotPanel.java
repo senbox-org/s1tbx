@@ -16,12 +16,21 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TransectProfileData;
+import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -47,8 +56,17 @@ import org.jfree.ui.RectangleInsets;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -170,8 +188,8 @@ class ProfilePlotPanel extends ChartPagePanel {
         } else {
             model = new DefaultTableModel();
         }
-        final TableViewPagePanel alternativPanel = (TableViewPagePanel)getAlternativeView();
-        alternativPanel.setModel(model);
+        final TableViewPagePanel alternativePanel = (TableViewPagePanel)getAlternativeView();
+        alternativePanel.setModel(model);
         super.showAlternativeView();
     }
 
@@ -233,7 +251,7 @@ class ProfilePlotPanel extends ChartPagePanel {
         domainAxis.addChangeListener(axisListener);
         rangeAxis.addChangeListener(axisListener);
 
-        intervalMarkers = new HashSet<IntervalMarker>();
+        intervalMarkers = new HashSet<>();
 
         xAxisRangeControl = new AxisRangeControl("X-Axis");
         yAxisRangeControl = new AxisRangeControl("Y-Axis");
@@ -500,7 +518,7 @@ class ProfilePlotPanel extends ChartPagePanel {
 
         chart.getXYPlot().getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(), DEFAULT_SAMPLE_DATASET_NAME, false));
 
-        boolean markSegments = (Boolean) (xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS));
+        boolean markSegments = xAxisRangeControl.getBindingContext().getPropertySet().getValue(PROPERTY_NAME_MARK_SEGMENTS);
         if (markSegments && profileData != null && profileData.getNumShapeVertices() > 1) {
             final int[] shapeVertexIndexes = profileData.getShapeVertexIndexes();
             removeIntervalMarkers();

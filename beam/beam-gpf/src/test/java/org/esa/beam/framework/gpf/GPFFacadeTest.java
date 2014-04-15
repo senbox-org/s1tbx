@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -26,11 +27,14 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +42,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 
@@ -89,7 +94,7 @@ public class GPFFacadeTest {
         fooOp = makeFooOp(parameters);
         assertEquals(44, fooOp.intParam);
         assertEquals(0.441, fooOp.doubleParam, 1e-7);
-        assertTrue(Arrays.equals(new float[] {0.2f, 0.4f, 0.8f}, fooOp.floatArrayParam));
+        assertTrue(Arrays.equals(new float[]{0.2f, 0.4f, 0.8f}, fooOp.floatArrayParam));
         assertEquals("Banana", fooOp.stringParam);
         assertEquals(true, fooOp.booleanParam);
 
@@ -102,7 +107,7 @@ public class GPFFacadeTest {
         fooOp = makeFooOp(parameters);
         assertEquals(42, fooOp.intParam);
         assertEquals(0.421, fooOp.doubleParam, 1e-7);
-        assertTrue(Arrays.equals(new float[] {0.1f, 0.2f, 0.5f}, fooOp.floatArrayParam));
+        assertTrue(Arrays.equals(new float[]{0.1f, 0.2f, 0.5f}, fooOp.floatArrayParam));
         assertEquals("Mexico", fooOp.stringParam);
         assertEquals(true, fooOp.booleanParam);
     }
@@ -332,6 +337,70 @@ public class GPFFacadeTest {
 
         public FoosOpSpi() {
             super(FoosOp.class);
+        }
+    }
+
+    @Test
+    public void testWriteProduct() throws Exception {
+        StackOp stackOp = new StackOp();
+        Product source = new Product("name", "type", 1000, 1000);
+        source.setPreferredTileSize(200, 200);
+        stackOp.setSourceProduct(source);
+        Product targetProduct = stackOp.getTargetProduct();
+        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
+        try {
+            outputFile.getParentFile().mkdirs();
+            GPF.writeProduct(targetProduct, outputFile, "BEAM-DIMAP", false, true, ProgressMonitor.NULL);
+        } finally {
+            FileUtils.deleteTree(outputFile.getParentFile());
+        }
+        assertEquals(5*5, stackOp.computeTileStackCounter.get());
+    }
+
+    @Test
+    public void testWriteProductWithCacheClearing() throws Exception {
+        StackOp stackOp = new StackOp();
+        Product source = new Product("name", "type", 1000, 1000);
+        source.setPreferredTileSize(200, 200);
+        stackOp.setSourceProduct(source);
+        Product targetProduct = stackOp.getTargetProduct();
+        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
+        try {
+            outputFile.getParentFile().mkdirs();
+            GPF.writeProduct(targetProduct, outputFile, "BEAM-DIMAP", true, true, ProgressMonitor.NULL);
+        } finally {
+            FileUtils.deleteTree(outputFile.getParentFile());
+        }
+        assertEquals(5*5, stackOp.computeTileStackCounter.get());
+    }
+
+    private static class StackOp extends Operator {
+
+        AtomicInteger computeTileStackCounter = new AtomicInteger(0);
+        Dimension tileSize;
+
+        @Override
+        public void initialize() throws OperatorException {
+            Product sourceProduct = getSourceProduct();
+            tileSize = sourceProduct.getPreferredTileSize();
+            Product product = new Product("name", "type", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+            product.addBand("A", ProductData.TYPE_FLOAT32);
+            product.addBand("B", ProductData.TYPE_FLOAT32);
+            setTargetProduct(product);
+        }
+
+        @Override
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+            //logTileIndex(targetRectangle.x, targetRectangle.y);
+            computeTileStackCounter.incrementAndGet();
+            Arrays.fill(targetTiles.get(getTargetProduct().getBand("A")).getDataBufferFloat(), 5f);
+            Arrays.fill(targetTiles.get(getTargetProduct().getBand("B")).getDataBufferFloat(), 7f);
+        }
+
+        private void logTileIndex(int x, int y) {
+            int tileX = MathUtils.floorInt(x / (double) tileSize.width);
+            int tileY = MathUtils.floorInt(y / (double) tileSize.height);
+            System.out.println("tileY = " + tileY + "  tileX = " + tileX);
         }
     }
 }

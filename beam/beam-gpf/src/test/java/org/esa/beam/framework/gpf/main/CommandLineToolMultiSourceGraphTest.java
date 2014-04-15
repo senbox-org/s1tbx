@@ -19,22 +19,29 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.Node;
-import static org.junit.Assert.*;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collections;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class CommandLineToolMultiSourceGraphTest {
 
@@ -47,7 +54,7 @@ public class CommandLineToolMultiSourceGraphTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP5_SPI);
     }
 
-    @BeforeClass
+    @AfterClass
     public static void tearDownTest() {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP5_SPI);
     }
@@ -61,59 +68,74 @@ public class CommandLineToolMultiSourceGraphTest {
     @Test
     public void testGraphWithTwoSources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "ernie.dim");
-        map.put("ReadProduct$1", "idefix.dim");
+        // todo - generated source IDs are not logical (mz,nf 2012.04.14)
+        // we would expect that this one is also valid:
+        // map.put("ReadOp@sourceProduct.1", "ernie.dim");
+
+        map.put("ReadOp@sourceProduct", "ernie.dim");
+        map.put("ReadOp@sourceProduct.2", "idefix.dim");
         testGraph(new String[]{"graph.xml", "ernie.dim", "idefix.dim"},
                   4,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1", "target.dim", "BEAM-DIMAP"
+                  "WriteOp@node1", "target.dim", "BEAM-DIMAP"
         );
     }
 
     @Test
     public void testGraphWithWith3Sources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "ernie.dim");
-        map.put("ReadProduct$1", "idefix.dim");
-        map.put("ReadProduct$2", "obelix.dim");
+        // todo - generated source IDs are not logical (mz,nf 2012.04.14)
+        // we would expect that this one is also valid:
+        // map.put("ReadOp@sourceProduct.1", "ernie.dim");
+
+        map.put("ReadOp@sourceProduct", "ernie.dim");
+        map.put("ReadOp@sourceProduct.2", "idefix.dim");
+        map.put("ReadOp@sourceProduct.3", "obelix.dim");
         testGraph(new String[]{"graph.xml", "ernie.dim", "idefix.dim", "obelix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1", "target.dim", "BEAM-DIMAP"
+                  "WriteOp@node1", "target.dim", "BEAM-DIMAP"
         );
     }
 
     @Test
     public void testGraphWith2SourcesAndOneNamedSource() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "vincent.dim");
-        map.put("ReadProduct$1", "ernie.dim");
-        map.put("ReadProduct$2", "idefix.dim");
 
-        testGraph(new String[]{"graph.xml","-SVincent=vincent.dim", "ernie.dim","idefix.dim"},
+        // todo - generated source IDs are not logical (mz,nf 2012.04.14)
+        // we would expect:
+//        map.put("ReadOp@Vincent", "vincent.dim");
+//        map.put("ReadOp@sourceProduct.2", "ernie.dim");
+//        map.put("ReadOp@sourceProduct.3", "idefix.dim");
+
+        map.put("ReadOp@Vincent", "vincent.dim");
+        map.put("ReadOp@sourceProduct", "ernie.dim");
+        map.put("ReadOp@sourceProduct.2", "idefix.dim");
+
+        testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "ernie.dim", "idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1",
+                  "WriteOp@node1",
                   "target.dim",
                   "BEAM-DIMAP"
         );
     }
-    
+
     @Test
     public void testGraphWithOnlyNamedSources() throws Exception {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put("ReadProduct$0", "vincent.dim");
-        map.put("ReadProduct$1", "ernie.dim");
-        map.put("ReadProduct$2", "idefix.dim");
+        map.put("ReadOp@Vincent", "vincent.dim");
+        map.put("ReadOp@ernie", "ernie.dim");
+        map.put("ReadOp@idefix", "idefix.dim");
 
-        testGraph(new String[]{"graph.xml","-SVincent=vincent.dim", "-Sernie=ernie.dim","-Sidefix=idefix.dim"},
+        testGraph(new String[]{"graph.xml", "-SVincent=vincent.dim", "-Sernie=ernie.dim", "-Sidefix=idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
                   map,
-                  "WriteProduct$node1",
+                  "WriteOp@node1",
                   "target.dim",
                   "BEAM-DIMAP"
         );
@@ -123,7 +145,7 @@ public class CommandLineToolMultiSourceGraphTest {
     private void testGraph(String[] args,
                            int expectedNodeCount,
                            String expectedLog,
-                           Map<String, String> expectedSourceNodeIdFilpathMap,
+                           Map<String, String> expectedSourceNodeIdFilePathMap,
                            String expectedTargetNodeId,
                            String expectedTargetFilepath,
                            String expectedTargetFormat) throws Exception {
@@ -135,12 +157,13 @@ public class CommandLineToolMultiSourceGraphTest {
         assertNotNull(executedGraph);
         assertEquals(expectedNodeCount, executedGraph.getNodeCount());
 
-        for (Map.Entry<String, String> entry : expectedSourceNodeIdFilpathMap.entrySet()) {
-            String expectedSourceFilepath = entry.getValue();
-            if (expectedSourceFilepath != null) {
-                Node generatedReaderNode1 = executedGraph.getNode(entry.getKey());
-                assertNotNull(generatedReaderNode1);
-                assertEquals(expectedSourceFilepath,
+        for (Map.Entry<String, String> entry : expectedSourceNodeIdFilePathMap.entrySet()) {
+            String expectedSourceFilePath = entry.getValue();
+            if (expectedSourceFilePath != null) {
+                final String key = entry.getKey();
+                Node generatedReaderNode1 = executedGraph.getNode(key);
+                assertNotNull("Source ID not found: " + key, generatedReaderNode1);
+                assertEquals(expectedSourceFilePath,
                              generatedReaderNode1.getConfiguration().getChild("file").getValue());
             }
 
@@ -181,45 +204,63 @@ public class CommandLineToolMultiSourceGraphTest {
         }
 
         @Override
-        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
+        public Graph readGraph(String filepath, Map<String, String> templateVariables) throws IOException, GraphException {
 
             logString += "g=" + filepath + ";";
 
             String xml =
                     "<graph id=\"chain1\">" +
-                    "<version>1.0</version>\n" +
-                    "<node id=\"node1\">" +
-                    "  <operator>org.esa.beam.framework.gpf.TestOps$Op5$Spi</operator>\n" +
-                    "  <sources>\n" +
-                    "    <sourceProducts>${sourceProducts}</sourceProducts>\n" +
-                    "  </sources>\n" +
-                    "</node>" +
-                    "</graph>";
+                            "<version>1.0</version>\n" +
+                            "<node id=\"node1\">" +
+                            "  <operator>org.esa.beam.framework.gpf.TestOps$Op5$Spi</operator>\n" +
+                            "  <sources>\n" +
+                            "    <sourceProducts>${sourceProducts}</sourceProducts>\n" +
+                            "  </sources>\n" +
+                            "</node>" +
+                            "</graph>";
 
-            return GraphIO.read(new StringReader(xml), parameterMap);
+            return GraphIO.read(new StringReader(xml), templateVariables);
         }
 
         @Override
-        public void executeGraph(Graph graph) throws GraphException {
+        public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
             logString += "e=" + graph.getId() + ";";
             executedGraph = graph;
         }
 
 
         @Override
-        public Product createOpProduct(String opName, Map<String, Object> parameters,
-                                       Map<String, Product> sourceProducts) throws OperatorException {
-            fail("did not expect to come here");
-            return null;
-        }
-
-        @Override
-        public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
-            return Collections.emptyMap();
-        }
-
-        @Override
         public void print(String m) {
+        }
+
+        @Override
+        public Logger getLogger() {
+            return Logger.getLogger("test");
+        }
+
+        @Override
+        public Reader createReader(String fileName) throws FileNotFoundException {
+            return new StringReader(fileName);
+        }
+
+        @Override
+        public Writer createWriter(String fileName) throws IOException {
+            return new StringWriter();
+        }
+
+        @Override
+        public String[] list(String path) throws IOException {
+            return new String[0];
+        }
+
+        @Override
+        public boolean isFile(String path) {
+            return true;
+        }
+
+        @Override
+        public boolean fileExists(String fileName) {
+            return false;
         }
     }
 }

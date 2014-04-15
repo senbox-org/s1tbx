@@ -26,6 +26,7 @@ import org.esa.beam.framework.ui.ImageInfoEditorModel;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
@@ -46,7 +47,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     private final RasterDataNode[] initialChannelSources;
     private final RasterDataNode[] currentChannelSources;
     private final List<RasterDataNode> channelSourcesList;
-    private final ChangeListener applyEnablerCL;
+    private final ChangeListener changeListener;
     private final BindingContext bindingContext;
     private final MoreOptionsForm moreOptionsForm;
 
@@ -63,8 +64,20 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
         imageInfoEditor = new ImageInfoEditor2(parentForm);
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
-        applyEnablerCL = parentForm.createApplyEnablerChangeListener();
-        moreOptionsForm = new MoreOptionsForm(parentForm, true);
+
+        final boolean[] fired = new boolean[1];
+        changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (!fired[0]) {
+                    fired[0] = true;
+                    parentForm.applyChanges();
+                    fired[0] = false;
+                }
+            }
+        };
+
+                moreOptionsForm = new MoreOptionsForm(parentForm, true);
         models = new ImageInfoEditorModel3B[3];
         initialChannelSources = new RasterDataNode[3];
         currentChannelSources = new RasterDataNode[3];
@@ -158,7 +171,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     public void handleFormHidden(ProductSceneView productSceneView) {
         ImageInfoEditorModel model = imageInfoEditor.getModel();
         if (model != null) {
-            model.removeChangeListener(applyEnablerCL);
+            model.removeChangeListener(changeListener);
         }
         imageInfoEditor.setModel(null);
         channelSourcesList.clear();
@@ -181,9 +194,6 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         appendToChannelSources(availableBands);
 
         for (int i = 0; i < models.length; i++) {
-            if (models[i] != null) {
-                models[i].removeChangeListener(applyEnablerCL);
-            }
             ImageInfoEditorModel3B oldModel = models[i];
             models[i] = new ImageInfoEditorModel3B(parentForm.getImageInfo(), i);
             Continuous1BandGraphicalForm.setDisplayProperties(models[i], currentChannelSources[i]);
@@ -193,7 +203,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
                 models[i].setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
             }
 
-            models[i].addChangeListener(applyEnablerCL);
+            models[i].addChangeListener(changeListener);
         }
 
         final String[] sourceNames = new String[channelSourcesList.size()];
@@ -297,7 +307,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
                 models[channel] = new ImageInfoEditorModel3B(imageInfo, channel);
                 Continuous1BandGraphicalForm.setDisplayProperties(models[channel], newChannelSource);
                 acknowledgeChannel();
-                this.parentForm.setApplyEnabled(true);
+                this.parentForm.applyChanges();
             } else {
                 final Object value = evt.getOldValue();
                 moreOptionsForm.getBindingContext().getBinding(CHANNEL_SOURCE_NAME_PROPERTY).setPropertyValue(value == null ? "" : value);

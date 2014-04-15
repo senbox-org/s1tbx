@@ -40,9 +40,10 @@ import org.esa.beam.framework.ui.application.support.DefaultApplicationDescripto
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandGroup;
 import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.framework.ui.command.CommandMenuUtils;
+import org.esa.beam.framework.ui.command.CommandMenuInserter;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.command.DefaultCommandManager;
+import org.esa.beam.framework.ui.command.DefaultCommandMenuInserter;
 import org.esa.beam.framework.ui.command.DefaultCommandUIFactory;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.Debug;
@@ -151,6 +152,7 @@ public class BasicApp {
 
     private CommandManager commandManager;
     private CommandUIFactory commandUIFactory;
+    private CommandMenuInserter commandMenuInserter;
     private MainFrame mainFrame; // <JIDE/>
     private CommandBar mainToolBar;  // <JIDE/>
     private com.jidesoft.status.StatusBar statusBar; // <JIDE/>
@@ -212,7 +214,6 @@ public class BasicApp {
      *                         application does not use resource bundles
      * @param appLoggerName    the logger name for the application logging, can be <code>null</code> if the application
      *                         does not use logging
-     *
      * @see java.util.ResourceBundle
      */
     protected BasicApp(String appName,
@@ -296,7 +297,6 @@ public class BasicApp {
      * (if any) is closed.</li> </ol>
      *
      * @param pm a progress monitor, e.g. for splash-screen
-     *
      * @throws Exception if an error occurs
      */
     public void startUp(ProgressMonitor pm) throws Exception {
@@ -451,6 +451,7 @@ public class BasicApp {
         commandManager = new DefaultCommandManager();
         commandUIFactory = new DefaultCommandUIFactory();
         commandUIFactory.setCommandManager(commandManager);
+        commandMenuInserter = new DefaultCommandMenuInserter(commandManager);
     }
 
     private void initMainFrame() {
@@ -627,7 +628,6 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
-     *
      * @throws Exception if an error occurs
      */
     protected void initClient(ProgressMonitor pm) throws Exception {
@@ -641,7 +641,6 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
-     *
      * @throws Exception if an error occurs
      */
     protected void initClientUI(ProgressMonitor pm) throws Exception {
@@ -746,8 +745,8 @@ public class BasicApp {
 
     /**
      * @return The path where application images such as toolbar icons are stored.
-     *         The returned path is relative to this
-     *         application's class path.
+     * The returned path is relative to this
+     * application's class path.
      */
     public String getImageResourcePath() {
         return _IMAGE_RESOURCE_PATH;
@@ -755,10 +754,10 @@ public class BasicApp {
 
     /**
      * @return The <code>LabelStatusBarItem</code> component used for displaying status messages.
-     *         <p> If the application does notr have
-     *         a status bar, <code>null</code> should be returned.
-     *         <p> The default implementation searches for a label the
-     *         status bar and returns it.
+     * <p> If the application does notr have
+     * a status bar, <code>null</code> should be returned.
+     * <p> The default implementation searches for a label the
+     * status bar and returns it.
      */
     private LabelStatusBarItem getStatusBarLabel() {
         if (statusBar != null) {
@@ -908,15 +907,15 @@ public class BasicApp {
 
     protected final void insertCommandMenuItem(Command command) {
         JMenu menu = null;
-        Object parent = command.getParent();
+        String parent = command.getParent();
         if (parent != null) {
-            menu = findMenu(parent.toString());
+            menu = findMenu(parent);
         }
         if (menu == null) {
-            menu = createNewMenu(parent); // @todo 3 nf/nf - "tools" = getDefaultMenuName()
+            menu = createNewMenu(parent);
         }
         if (menu != null) {
-            CommandMenuUtils.insertCommandMenuItem(menu, command, getCommandManager());
+            commandMenuInserter.insertCommandIntoMenu(command, menu);
         }
     }
 
@@ -1268,7 +1267,6 @@ public class BasicApp {
      * @param title      a dialog-box title
      * @param dirsOnly   whether or not to select only directories
      * @param fileFilter the file filter to be used, can be <code>null</code>
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileOpenDialog(String title, boolean dirsOnly, FileFilter fileFilter) {
@@ -1282,7 +1280,6 @@ public class BasicApp {
      * @param dirsOnly           whether or not to select only directories
      * @param fileFilter         the file filter to be used, can be <code>null</code>
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileOpenDialog(String title,
@@ -1331,7 +1328,6 @@ public class BasicApp {
      * @param fileFilter       the file filter to be used, can be <code>null</code>
      * @param defaultExtension the extension used as default
      * @param fileName         the initial filename
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1356,7 +1352,6 @@ public class BasicApp {
      * @param defaultExtension   the extension used as default
      * @param fileName           the initial filename
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
-     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1386,7 +1381,8 @@ public class BasicApp {
                                                                    file),
                                                            MessageFormat.format("{0} - {1}", getAppName(), title),
                                                            JOptionPane.YES_NO_CANCEL_OPTION,
-                                                           JOptionPane.WARNING_MESSAGE);
+                                                           JOptionPane.WARNING_MESSAGE
+                );
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {
@@ -1460,7 +1456,6 @@ public class BasicApp {
      * deregistered using the <code>{@link #unregisterJob}</code> method.
      *
      * @param job any job-like object
-     *
      * @deprecated No longer used
      */
     public final synchronized void registerJob(Object job) {
@@ -1472,7 +1467,6 @@ public class BasicApp {
      * <code>{@link #registerJob}</code> method have been deregistered.
      *
      * @param job any job-like object
-     *
      * @deprecated No longer used
      */
     public final synchronized void unregisterJob(Object job) {
@@ -1537,12 +1531,14 @@ public class BasicApp {
 
     public final void showOutOfMemoryErrorDialog(String message) {
         showErrorDialog("Out of Memory",
-                String.format("%s is out of memory.\n%s\n\n" +
-                        "You can try to release memory by closing products or image views which\n" +
-                        "you currently not really need.\n" +
-                        "If this does not help, you can increase the amount of virtual memory\n" +
-                        "as described on the BEAM website at http://envisat.esa.int/services/beam/.",
-                        getAppName(), message));
+                        String.format("%s is out of memory.\n%s\n\n" +
+                                      "You can try to release memory by closing products or image views which\n" +
+                                      "you currently not really need.\n" +
+                                      "If this does not help, you can increase the amount of virtual memory\n" +
+                                      "as described on the BEAM website at http://envisat.esa.int/services/beam/.",
+                                      getAppName(), message
+                        )
+        );
     }
 
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {
@@ -1574,17 +1570,19 @@ public class BasicApp {
                                                             message,
                                                             getAppName() + " - " + title,
                                                             allowCancel
-                                                            ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                            : JOptionPane.YES_NO_OPTION,
-                                                            JOptionPane.QUESTION_MESSAGE);
+                                                                    ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                                    : JOptionPane.YES_NO_OPTION,
+                                                            JOptionPane.QUESTION_MESSAGE
+            );
         } else {
             return JOptionPane.showConfirmDialog(getMainFrame(),
                                                  message,
                                                  getAppName() + " - " + title,
                                                  allowCancel
-                                                 ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                 : JOptionPane.YES_NO_OPTION,
-                                                 JOptionPane.QUESTION_MESSAGE);
+                                                         ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                         : JOptionPane.YES_NO_OPTION,
+                                                 JOptionPane.QUESTION_MESSAGE
+            );
         }
     }
 
@@ -1647,9 +1645,7 @@ public class BasicApp {
      * file does not exists, the question dialog does not comes up.
      *
      * @param file the file to check for existance
-     *
-     * @return <code>true</code> if the user confirmes the dialog with 'yes' or the given file does not exist.
-     *
+     * @return <code>true</code> if the user confirms the dialog with 'yes' or the given file does not exist.
      * @throws IllegalArgumentException if <code>file</code> is <code>null</code>
      */
     public final boolean promptForOverwrite(File file) {
@@ -1661,7 +1657,8 @@ public class BasicApp {
                                         "The file\n"
                                         + "'" + file.getPath() + "'\n"
                                         + "already exists.\n\n"
-                                        + "Do you really want to overwrite it?\n", null);
+                                        + "Do you really want to overwrite it?\n", null
+        );
         return answer == JOptionPane.YES_OPTION;
     }
 

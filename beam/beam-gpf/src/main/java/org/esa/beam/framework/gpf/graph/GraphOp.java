@@ -50,7 +50,7 @@ public class GraphOp extends Operator {
 
     private void setOperatorParameters(Graph graph, OperatorContext operatorContext) {
         // todo - implement me, this code here is not adequate - we need the graph's header in order to get the GraphOp's parameters
-        Map<String, Object> parameters = operatorContext.getParameters();
+        Map<String, Object> parameters = operatorContext.getParameterMap();
         if (parameters == null) {
             parameters = new HashMap<String, Object>();
         }
@@ -59,7 +59,7 @@ public class GraphOp extends Operator {
             //TODO use them, convert them.....
         }
         fillMapFromConfiguration(parameters);
-        operatorContext.setParameters(parameters);
+        operatorContext.setParameterMap(parameters);
     }
 
     private void fillMapFromConfiguration(Map<String, Object> parameters) {

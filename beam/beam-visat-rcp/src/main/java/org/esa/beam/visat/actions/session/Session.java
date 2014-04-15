@@ -57,6 +57,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
 
+
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
 import java.awt.Container;

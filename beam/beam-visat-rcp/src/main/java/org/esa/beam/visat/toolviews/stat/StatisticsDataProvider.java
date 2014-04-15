@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
- *
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,20 +9,28 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.framework.gpf.experimental;
+package org.esa.beam.visat.toolviews.stat;
+
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+
+import javax.media.jai.Histogram;
 
 /**
- * This is a marker interface which can be used by implementations of {@link org.esa.beam.framework.gpf.Operator} class
- * in order to indicate that the {@code Operator} marked by this interface takes care of the input itself and thus,
- * the framework shall not consider it as an operator that requires a source product from another operator.
- * <p/>
- * <i>Important Note: This class is not part of the official API, we may remove or rename it later.</i>
- *
+ * @author Thomas Storm
  */
-public interface Input {
+interface StatisticsDataProvider {
+
+    RasterDataNode getRasterDataNode();
+
+    Histogram[] getHistograms();
+
+    ProductNodeGroup<VectorDataNode> getVectorDataNodeGroup();
+
 }

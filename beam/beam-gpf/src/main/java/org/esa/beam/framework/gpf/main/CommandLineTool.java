@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,49 +20,71 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.ServiceRegistry;
-import org.esa.beam.framework.dataio.ProductIO;
+import com.bc.ceres.metadata.MetadataResourceEngine;
+import com.bc.ceres.resource.Resource;
+import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
+import com.thoughtworks.xstream.io.xml.XppDomWriter;
+import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
+import org.apache.velocity.VelocityContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.Node;
+import org.esa.beam.framework.gpf.graph.NodeContext;
 import org.esa.beam.framework.gpf.graph.NodeSource;
+import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.beam.util.StopWatch;
-import org.esa.nest.util.VersionUtil;
-import org.esa.nest.util.ProductFunctions;
-import org.esa.nest.util.ProcessTimeMonitor;
+import org.esa.beam.util.io.FileUtils;
+import org.xmlpull.mxp1.MXParser;
 
 import javax.media.jai.JAI;
+import java.awt.Rectangle;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.MessageFormat;
-import java.util.Map.Entry;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The common command-line tool for the GPF.
  * For usage, see {@link org/esa/beam/framework/gpf/main/CommandLineUsage.txt}.
  */
-class CommandLineTool {
+class CommandLineTool implements GraphProcessingObserver {
 
     static final String TOOL_NAME = "gpt";
-    static final String DEFAULT_TARGET_FILEPATH = "./target.dim";
-    static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
-    static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
-    static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
+    static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
+    static final String READ_OP_ID_PREFIX = "ReadOp@";
+    public static final String WRITE_OP_ID_PREFIX = "WriteOp@";
 
     private final CommandLineContext commandLineContext;
+    //    private final VelocityContext velocityContext;
+    private final MetadataResourceEngine metadataResourceEngine;
+    private CommandLineArgs commandLineArgs;
 
     static {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
@@ -82,39 +104,43 @@ class CommandLineTool {
      */
     CommandLineTool(CommandLineContext commandLineContext) {
         this.commandLineContext = commandLineContext;
+        this.metadataResourceEngine = new MetadataResourceEngine(commandLineContext);
     }
 
-    void run(String[] args) throws Exception {
-
-        CommandLineArgs lineArgs = new CommandLineArgs(args);
+    void run(String... args) throws Exception {
+        boolean stackTraceDumpEnabled = CommandLineArgs.isStackTraceDumpEnabled(args);
         try {
-            lineArgs.parseArguments();
-
-            VersionUtil.getVersion("GPT");
-
-            if (lineArgs.isHelpRequested()) {
-                if (lineArgs.getOperatorName() != null) {
-                    commandLineContext.print(CommandLineUsage.getUsageTextForOperator(lineArgs.getOperatorName()));
-                } else if (lineArgs.getGraphFilepath() != null) {
-                    commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilepath(),
-                                                                                   commandLineContext));
-                } else {
-                    commandLineContext.print(CommandLineUsage.getUsageText());
-                }
+            commandLineArgs = CommandLineArgs.parseArgs(args);
+            if (commandLineArgs.isHelpRequested()) {
+                printHelp();
                 return;
-            } else if(lineArgs.isPrintAllHelpRequested()) {
+            } else if(commandLineArgs.isPrintAllHelpRequested()) {
                 printAllHelp();
             }
-            run(lineArgs);
+            run();
+        } catch (Error | RuntimeException e) {
+            e.printStackTrace(System.err);
+            throw e;
         } catch (Exception e) {
-            if (lineArgs.isStackTraceDump()) {
+            if (stackTraceDumpEnabled) {
                 e.printStackTrace(System.err);
             }
             throw e;
         }
     }
 
-    private void printAllHelp() {
+    private void printHelp() {
+        if (commandLineArgs.getOperatorName() != null) {
+            commandLineContext.print(CommandLineUsage.getUsageTextForOperator(commandLineArgs.getOperatorName()));
+        } else if (commandLineArgs.getGraphFilePath() != null) {
+            commandLineContext.print(CommandLineUsage.getUsageTextForGraph(commandLineArgs.getGraphFilePath(),
+                                                                           commandLineContext));
+        } else {
+            commandLineContext.print(CommandLineUsage.getUsageText());
+        }
+    }
+
+	private void printAllHelp() {
         commandLineContext.print(CommandLineUsage.getUsageText());
 
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
@@ -136,273 +162,258 @@ class CommandLineTool {
         }
     }
 
-    private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException, GraphException {
-        long memoryCapacity = lineArgs.getTileCacheCapacity();
-        if (memoryCapacity > 0) {
+    private void run() throws Exception {
+        initializeJAI();
+        initVelocityContext();
+        readMetadata();
+        runGraphOrOperator();
+        runVelocityTemplates();
+    }
+
+    private void initializeJAI() {
+        long tileCacheCapacity = commandLineArgs.getTileCacheCapacity();
+        int tileSchedulerParallelism = commandLineArgs.getTileSchedulerParallelism();
+        if (tileCacheCapacity > 0) {
             JAI.enableDefaultTileCache();
-            JAI.getDefaultInstance().getTileCache().setMemoryCapacity(memoryCapacity);
+            JAI.getDefaultInstance().getTileCache().setMemoryCapacity(tileCacheCapacity);
         } else {
             JAI.getDefaultInstance().getTileCache().setMemoryCapacity(0L);
             JAI.disableDefaultTileCache();
         }
-        int parallelism = lineArgs.getTileSchedulerParallelism();
-        if (parallelism > 0) {
-            JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
+        if (tileSchedulerParallelism > 0) {
+            JAI.getDefaultInstance().getTileScheduler().setParallelism(tileSchedulerParallelism);
         }
-        BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile cache size is {0} MB", JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024*1024)));
-        BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile scheduler parallelism is {0}", JAI.getDefaultInstance().getTileScheduler().getParallelism()));
+        final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
+        commandLineContext.getLogger().info(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
+        final int schedulerParallelism = JAI.getDefaultInstance().getTileScheduler().getParallelism();
+        commandLineContext.getLogger().info(
+                MessageFormat.format("JAI tile scheduler parallelism is {0}", schedulerParallelism));
+    }
 
-        final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
-        timeMonitor.start();
+    private void initVelocityContext() throws Exception {
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        velocityContext.put("system", System.getProperties());
+        velocityContext.put("softwareName", "BEAM gpt");
+        velocityContext.put("softwareVersion", System.getProperty("beam.version", ""));
+        velocityContext.put("commandLineArgs", commandLineArgs);
 
-        if (lineArgs.getOperatorName() != null) {
+        // Derived properties (shortcuts).
+        // Check if we really want them, if so, we have to maintain them in the future (nf)
+        File targetFile = new File(commandLineArgs.getTargetFilePath());
+        File parentFile = targetFile.getParentFile();
+        velocityContext.put("targetFile", targetFile);
+        velocityContext.put("targetDir", parentFile != null ? parentFile : new File("."));
+        velocityContext.put("targetBaseName", FileUtils.getFilenameWithoutExtension(targetFile));
+        velocityContext.put("targetName", targetFile.getName());
+        velocityContext.put("targetFormat", commandLineArgs.getTargetFormatName());
+
+        // Check if we also put the following into the context?
+        // Actually no, because this puts the ontext in an unknown state, because we don't know which are the key's names (nf)
+        //velocityContext.putAll(commandLineArgs.getParameterMap());
+        //velocityContext.putAll(commandLineArgs.getTargetFilePathMap());
+        //velocityContext.putAll(commandLineArgs.getSourceFilePathMap());
+    }
+
+    private void readMetadata() throws Exception {
+        if (commandLineArgs.getMetadataFilePath() != null) {
+            readMetadata(commandLineArgs.getMetadataFilePath(), true);
+        } else {
+            readMetadata(CommandLineArgs.DEFAULT_METADATA_FILEPATH, false);
+        }
+        readSourceMetadataFiles();
+    }
+
+    private void readMetadata(String path, boolean fail) throws Exception {
+        try {
+            metadataResourceEngine.readResource("metadata", path);
+        } catch (Exception e) {
+            if (fail) {
+                throw e;
+            }
+            final String message = String.format("Failed to read metadata file '%s': %s", path, e.getMessage());
+            if (commandLineContext.fileExists(path)) {
+                logSevereProblem(message, e);
+            }
+        }
+    }
+
+    void readSourceMetadataFiles() {
+        final SortedMap<String, String> sourceFilePathMap = commandLineArgs.getSourceFilePathMap();
+        for (String sourceId : sourceFilePathMap.keySet()) {
+            final String sourcePath = sourceFilePathMap.get(sourceId);
+            try {
+                metadataResourceEngine.readRelatedResource(sourceId, sourcePath);
+            } catch (IOException e) {
+                String msgPattern = "Failed to load metadata file associated with '%s = %s': %s";
+                logSevereProblem(String.format(msgPattern, sourceId, sourcePath, e.getMessage()), e);
+            }
+        }
+    }
+
+    private void runGraphOrOperator() throws Exception {
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        velocityContext.put("processingStartTime", DATETIME_FORMAT.format(new Date()));
+        if (commandLineArgs.getOperatorName() != null) {
             // Operator name given: parameters and sources are parsed from command-line args
-            Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
-            Map<String, Object> parameters = getParameterMap(lineArgs);
-            String opName = lineArgs.getOperatorName();
-            Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
-            String filePath = lineArgs.getTargetFilepath();
-            String formatName = lineArgs.getTargetFormatName();
-            writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());
-        } else if (lineArgs.getGraphFilepath() != null) {
+            runOperator();
+        } else if (commandLineArgs.getGraphFilePath() != null) {
             // Path to Graph XML given: parameters and sources are parsed from command-line args
-            Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
-            Map<String, String> parameters = new TreeMap<String, String>(sourceNodeIdMap);
-            if (lineArgs.getParameterFilepath() != null) {
-                parameters.putAll(readParameterFile(lineArgs.getParameterFilepath()));
-            }
-            parameters.putAll(lineArgs.getParameterMap());
-            Graph graph = readGraph(lineArgs.getGraphFilepath(), parameters);
-            Node lastNode = graph.getNode(graph.getNodeCount() - 1);
-            SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
+            runGraph();
+        }
+        velocityContext.put("processingStopTime", DATETIME_FORMAT.format(new Date()));
+    }
 
-            // For each source path add a ReadOp to the graph
-            String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
-            final Node readerNode = findNode(graph, readOperatorAlias);
-            for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
-                String sourceId = entry.getKey();
-                String sourceFilepath = entry.getValue();
-                String sourceNodeId = sourceNodeIdMap.get(sourceId);
-                final DomElement param = new DefaultDomElement("parameters");
-                param.createChild("file").setValue(sourceFilepath);
-                if(readerNode != null) {
-                    final Node n = graph.getNode(sourceId);
-                    if(n != null) {
-                        n.setConfiguration(param);
-                    } else { //if(sourceId.equals(GPF.SOURCE_PRODUCT_FIELD_NAME)) {
-                        readerNode.setConfiguration(param);
-                    }
-                } else if (graph.getNode(sourceNodeId) == null) {
+    private void runOperator() throws Exception {
+        Map<String, String> parameterMap = getRawParameterMap();
+        String operatorName = commandLineArgs.getOperatorName();
+        Map<String, Product> sourceProducts = getSourceProductMap();
+        Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap, sourceProducts);
 
-                    Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
-                    sourceNode.setConfiguration(param);
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new OperatorException(String.format("Unknown operator name '%s'.", operatorName));
+        }
+        Operator operator = operatorSpi.createOperator(parameters, sourceProducts);
 
-                    graph.addNode(sourceNode);
-                }
-            }
-            final SortedMap<String, String> parameterMap = lineArgs.getParameterMap();
-            for (Entry<String, String> entry : parameterMap.entrySet()) {
-                String name = entry.getKey();
-                String value = entry.getValue();
-                for(Node node : graph.getNodes()) {
-                    final DomElement param = node.getConfiguration();
-                    findAndReplace(param, name, value);
-                }
-            }
+        // Force call to Operator.initialize()
+        Product targetProduct = operator.getTargetProduct();
 
-            // If the graph's last node isn't a WriteOp, then add one
-            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
-            final Node writerNode = findNode(graph, writeOperatorAlias);
-            if (writerNode == null) {
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        boolean autoWriteDisabled = operator instanceof Output
+                                      || operatorDescriptor.isAutoWriteDisabled();
+        if (autoWriteDisabled) {
+            // operator has its own output management, we "execute" by pulling at tiles
+            final OperatorExecutor executor = OperatorExecutor.create(operator);
+            executor.execute(ProgressMonitor.NULL);
+        } else {
+            // framework writes target product
+            String filePath = commandLineArgs.getTargetFilePath();
+            String formatName = commandLineArgs.getTargetFormatName();
+            writeProduct(targetProduct, filePath, formatName, commandLineArgs.isClearCacheAfterRowWrite());
+        }
+
+        // Fill velocity context with operator metadata
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        if (operator != null) {
+            velocityContext.put("operator", operator);
+            velocityContext.put("operatorSpi", operatorSpi);
+            velocityContext.put("operatorMetadata", operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class));
+            velocityContext.put("operatorDescriptor", operatorSpi.getOperatorDescriptor());
+        }
+        velocityContext.put("operatorName", operatorName);
+        velocityContext.put("parameters", parameters); // Check if we should use parameterMap here (nf)
+        velocityContext.put("sourceProduct", sourceProducts.get("sourceProduct"));
+        velocityContext.put("sourceProducts", sourceProducts); // Check if we should use an array here (nf)
+        velocityContext.put("targetProduct", targetProduct);
+        velocityContext.put("targetProducts", new Product[]{targetProduct});
+    }
+
+    private void runGraph() throws Exception {
+        final OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+
+        Map<String, String> templateVariables = getRawParameterMap();
+
+        Map<String, String> sourceNodeIdMap = getSourceNodeIdMap();
+        templateVariables.putAll(sourceNodeIdMap);
+        // todo - use Velocity and the current Velocity context for reading the graph XML! (nf, 20120610)
+        Graph graph = readGraph(commandLineArgs.getGraphFilePath(), templateVariables);
+        Node lastNode = graph.getNode(graph.getNodeCount() - 1);
+        SortedMap<String, String> sourceFilePathsMap = commandLineArgs.getSourceFilePathMap();
+
+        // For each source path add a ReadOp to the graph
+        String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
+        for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
+            String sourceId = entry.getKey();
+            String sourceFilePath = entry.getValue();
+            String sourceNodeId = sourceNodeIdMap.get(sourceId);
+            if (graph.getNode(sourceNodeId) == null) {
 
                 DomElement configuration = new DefaultDomElement("parameters");
-                configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
-                configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
-                configuration.createChild("clearCacheAfterRowWrite").setValue(Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
+                configuration.createChild("file").setValue(sourceFilePath);
 
-                Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
-                targetNode.addSource(new NodeSource("source", lastNode.getId()));
-                targetNode.setConfiguration(configuration);
+                Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
+                sourceNode.setConfiguration(configuration);
 
-                graph.addNode(targetNode);
-            } else {
-                final DomElement param = writerNode.getConfiguration();
-                String targetPath = lineArgs.getTargetFilepath();
-                if(targetPath == null && !lineArgs.getTargetFilepathMap().isEmpty()) {
-                    final String key = lineArgs.getTargetFilepathMap().firstKey();
-                    targetPath = lineArgs.getTargetFilepathMap().get(key);    
-                }
-
-                if(targetPath != null) {
-                    findAndReplace(param, "file", targetPath);
-                }
-                if(lineArgs.getTargetFormatName() != null) {
-                    findAndReplace(param, "formatName", lineArgs.getTargetFormatName());
-                }
-            }
-
-            final ProductSetData[] productSetDataList = findProductSetStacks(graph, "ProductSet-Reader", lineArgs.getInFolderPath());
-
-            if(productSetDataList.length != 0) {
-                replaceAllProductSets(graph, productSetDataList);
-                executeGraph(graph);
-            } else {
-                executeGraph(graph);
+                graph.addNode(sourceNode);
             }
         }
-        final long duration = timeMonitor.stop();
-        System.out.println("Processing completed in "+ ProcessTimeMonitor.formatDuration(duration));
-    }
 
-    private static void findAndReplace(final DomElement param, final String name, final String value) {
-        for(DomElement elem : param.getChildren()) {
-            if(elem.getName().equals(name)) {
-                elem.setValue(value);
-            }
+        final String operatorName = lastNode.getOperatorName();
+        final OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new GraphException(String.format("Unknown operator name '%s'.", operatorName));
         }
-    }
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
 
-    private static Node findNode(final Graph graph, final String alias) {
-        for(Node n : graph.getNodes()) {
-            if(n.getOperatorName().equals(alias))
-                return n;
-        }
-        return null;
-    }
-
-    private static ProductSetData[] findProductSetStacks(final Graph graph, final String readerName, final String fileListPath)
-                                                        throws GraphException {
-
-        final String SEPARATOR = ",";
-        final String SEPARATOR_ESC = "\\u002C"; // Unicode escape repr. of ','
-        final ArrayList<ProductSetData> productSetDataList = new ArrayList<ProductSetData>();
-
-        for(Node n : graph.getNodes()) {
-            if(n.getOperatorName().equalsIgnoreCase(readerName)) {
-                final ProductSetData psData = new ProductSetData();
-                psData.nodeID = n.getId();
-
-                boolean usingFileListPath = false;
-                if(fileListPath != null) {
-                    final File inputFolder = new File(fileListPath);
-                    if(inputFolder.isDirectory() && inputFolder.exists()) {
-                        usingFileListPath = true;
-                        ProductFunctions.scanForValidProducts(inputFolder, psData.fileList);
-                    }
-                }
-
-                if(!usingFileListPath) {
-                    final DomElement config = n.getConfiguration();
-                    final DomElement[] params = config.getChildren();
-                    for(DomElement p : params) {
-                        if(p.getName().equals("fileList")) {
-                            if(p.getValue() == null)
-                                throw new GraphException(readerName+" fileList is empty");
-
-                            final StringTokenizer st = new StringTokenizer(p.getValue(), SEPARATOR);
-                            final int length = st.countTokens();
-                            for (int i = 0; i < length; i++) {
-                                final String str = st.nextToken().replace(SEPARATOR_ESC, SEPARATOR);
-                                psData.fileList.add(str);
-                            }
-                            break;
-                        }
-                    }
-                }
-                if(psData.fileList.size() == 0)
-                    throw new GraphException("no input products found in "+fileListPath);
-
-                productSetDataList.add(psData);
-            }
-        }
-        return productSetDataList.toArray(new ProductSetData[productSetDataList.size()]);
-    }
-
-    private static void replaceAllProductSets(final Graph graph, final ProductSetData[] productSetDataList)
-                                              throws GraphException {
-        int cnt = 0;
-        for(ProductSetData psData : productSetDataList) {
-
-            final Node psNode = graph.getNode(psData.nodeID);
-            for(String filePath : psData.fileList) {
-
-                ReplaceProductSetWithReaders(graph, psNode, "inserted--"+psNode.getId()+"--"+ cnt++, filePath);
-            }
-            if(!psData.fileList.isEmpty()) {
-                for(Node n : graph.getNodes()) {
-                    disconnectNodeSource(n, psNode.getId());        
-                }
-                graph.removeNode(psNode.getId());
-            }
-        }
-    }
-
-    private static void ReplaceProductSetWithReaders(final Graph graph, final Node psNode, final String id, String value) {
-
-        final Node newNode = new Node(id, OperatorSpi.getOperatorAlias(ReadOp.class));
-        final XppDomElement config = new XppDomElement("parameters");
-        final XppDomElement fileParam = new XppDomElement("file");
-        fileParam.setValue(value);
-        config.addChild(fileParam);
-        newNode.setConfiguration(config);
-
-        graph.addNode(newNode);
-        switchConnections(graph, newNode, psNode);
-    }
-
-    private static void switchConnections(final Graph graph, final Node newNode, final Node oldNode) {
-        for(Node n : graph.getNodes()) {
-            if(isNodeSource(n, oldNode)) {
-                final NodeSource ns = new NodeSource("sourceProduct", newNode.getId());
-                n.addSource(ns);
-            }
-        }
-    }
-
-    private static void disconnectNodeSource(final Node node, final String id) {
-        for (NodeSource ns : node.getSources()) {
-            if (ns.getSourceNodeId().equals(id)) {
-                node.removeSource(ns);
-            }
-        }
-    }
-
-    private static boolean isNodeSource(final Node node, final Node source) {
-
-        final NodeSource[] sources = node.getSources();
-        for (NodeSource ns : sources) {
-            if (ns.getSourceNodeId().equals(source.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, IOException {
-        Map<String, String> parameterMap = new HashMap<String, String>();
-        if (lineArgs.getParameterFilepath() != null) {
-            parameterMap = readParameterFile(lineArgs.getParameterFilepath());
+        boolean autoWriteDisabled = false;
+        if (Output.class.isAssignableFrom(operatorSpi.getOperatorClass())
+            || operatorDescriptor != null && operatorDescriptor.isAutoWriteDisabled()) {
+            autoWriteDisabled = true;
         }
 
-        String operatorName = lineArgs.getOperatorName();
-        parameterMap.putAll(lineArgs.getParameterMap());
-        return convertParameterMap(operatorName, parameterMap);
+        if (!autoWriteDisabled) {
+            // Auto-writing is permitted, so add a WriteOp as last node
+            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
+
+            DomElement configuration = new DefaultDomElement("parameters");
+            configuration.createChild("file").setValue(commandLineArgs.getTargetFilePath());
+            configuration.createChild("formatName").setValue(commandLineArgs.getTargetFormatName());
+            configuration.createChild("clearCacheAfterRowWrite").setValue(
+                    Boolean.toString(commandLineArgs.isClearCacheAfterRowWrite()));
+
+            Node targetNode = new Node(WRITE_OP_ID_PREFIX + lastNode.getId(), writeOperatorAlias);
+            targetNode.addSource(new NodeSource("source", lastNode.getId()));
+            targetNode.setConfiguration(configuration);
+
+            graph.addNode(targetNode);
+        }
+
+        executeGraph(graph);
+
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        File graphFile = new File(commandLineArgs.getGraphFilePath());
+        velocityContext.put("graph", graph);
+
+        metadataResourceEngine.readResource("graphXml", graphFile.getPath());
     }
 
-    private static Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
-                                                                                                                  ValidationException {
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
+    private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap,
+                                                    Map<String, Product> sourceProductMap) throws ValidationException {
+        HashMap<String, Object> parameters = new HashMap<>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
-                                                                                                          parameters);
+                                                                                                          parameters,
+                                                                                                          sourceProductMap);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
+
+        // handle xml parameters
+        Object parametersObject = metadataResourceEngine.getVelocityContext().get("parameterFile");
+        if (parametersObject instanceof Resource) {
+            Resource parametersResource = (Resource) parametersObject;
+            if (parametersResource.isXml()) {
+                OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+                OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+                Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
+                DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
+                                                                           new ParameterDescriptorFactory());
+
+                DomElement parametersElement = createDomElement(parametersResource.getContent());
+                try {
+                    domConverter.convertDomToValue(parametersElement, container);
+                } catch (ConversionException e) {
+                    String msgPattern = "Can not convert XML parameters for operator '%s'. Reason: %s";
+                    throw new RuntimeException(String.format(msgPattern, operatorName, e.getMessage()), e);
+                }
+            }
+        }
+
         for (Entry<String, String> entry : parameterMap.entrySet()) {
             String paramName = entry.getKey();
             String paramValue = entry.getValue();
-            final Property model = container.getProperty(paramName);
-            if (model != null) {
-                model.setValueFromText(paramValue);
+            final Property property = container.getProperty(paramName);
+            if (property != null) {
+                property.setValueFromText(paramValue);
             } else {
                 throw new RuntimeException(String.format(
                         "Parameter '%s' is not known by operator '%s'", paramName, operatorName));
@@ -411,20 +422,29 @@ class CommandLineTool {
         return parameters;
     }
 
-    private Map<String, Product> getSourceProductMap(CommandLineArgs lineArgs) throws IOException {
-        SortedMap<File, Product> fileToProductMap = new TreeMap<File, Product>();
-        SortedMap<String, Product> productMap = new TreeMap<String, Product>();
-        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+    private static DomElement createDomElement(String xml) {
+        XppDomWriter domWriter = new XppDomWriter();
+        new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml), new MXParser()), domWriter);
+        XppDom xppDom = domWriter.getConfiguration();
+        return new XppDomElement(xppDom);
+    }
+
+    private Map<String, Product> getSourceProductMap() throws IOException {
+        SortedMap<File, Product> fileToProductMap = new TreeMap<>();
+        SortedMap<String, Product> productMap = new TreeMap<>();
+        SortedMap<String, String> sourceFilePathsMap = commandLineArgs.getSourceFilePathMap();
+        for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
-            String sourceFilepath = entry.getValue();
-            Product product = addProduct(sourceFilepath, fileToProductMap);
+            String sourceFilePath = entry.getValue();
+            Product product = addProduct(sourceFilePath, fileToProductMap);
             productMap.put(sourceId, product);
         }
         return productMap;
     }
 
-    private Product addProduct(String sourceFilepath, Map<File, Product> fileToProductMap) throws IOException {
+
+    private Product addProduct(String sourceFilepath,
+                               Map<File, Product> fileToProductMap) throws IOException {
         File sourceFile = new File(sourceFilepath).getCanonicalFile();
         Product product = fileToProductMap.get(sourceFile);
         if (product == null) {
@@ -438,59 +458,186 @@ class CommandLineTool {
         return product;
     }
 
-    private static Map<String, String> getSourceNodeIdMap(CommandLineArgs lineArgs) throws IOException {
-        SortedMap<File, String> fileToNodeIdMap = new TreeMap<File, String>();
-        SortedMap<String, String> nodeIdMap = new TreeMap<String, String>();
-        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+    // TODO - also use this scheme in the GPF GUIs (nf, 2012-03-02)
+    // See also [BEAM-1375] Allow gpt to use template variables in parameter files
+    private Map<String, String> getRawParameterMap() throws Exception {
+        Map<String, String> parameterMap;
+        String parameterFilePath = commandLineArgs.getParameterFilePath();
+        if (parameterFilePath != null) {
+            // put command line parameters in the Velocity context so that we can reference them in the parameters file
+            VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+            velocityContext.put("parameters", commandLineArgs.getParameterMap());
+
+            Resource parameterFile = metadataResourceEngine.readResource("parameterFile", parameterFilePath);
+            Map<String, String> configFilemap = parameterFile.getMap();
+            if (!parameterFile.isXml()) {
+                configFilemap.putAll(commandLineArgs.getParameterMap());
+            }
+            parameterMap = configFilemap;
+        } else {
+            parameterMap = new HashMap<>();
+        }
+
+        // CLI parameters shall always overwrite file parameters
+        parameterMap.putAll(commandLineArgs.getParameterMap());
+        metadataResourceEngine.getVelocityContext().put("parameters", parameterMap);
+        return parameterMap;
+    }
+
+    private Map<String, String> getSourceNodeIdMap() throws IOException {
+        SortedMap<File, String> fileToNodeIdMap = new TreeMap<>();
+        SortedMap<String, String> nodeIdMap = new TreeMap<>();
+        SortedMap<String, String> sourceFilePathsMap = commandLineArgs.getSourceFilePathMap();
+        for (Entry<String, String> entry : sourceFilePathsMap.entrySet()) {
             String sourceId = entry.getKey();
-            String sourceFilepath = entry.getValue();
-            String nodeId = addNodeId(sourceFilepath, fileToNodeIdMap);
+            String sourceFilePath = entry.getValue();
+            String nodeId = addNodeId(sourceId, sourceFilePath, fileToNodeIdMap);
             nodeIdMap.put(sourceId, nodeId);
         }
         return nodeIdMap;
     }
 
-    private static String addNodeId(String sourceFilepath, Map<File, String> fileToNodeId) throws IOException {
-        File sourceFile = new File(sourceFilepath).getCanonicalFile();
+    private String addNodeId(String sourceId, String sourceFilePath,
+                             Map<File, String> fileToNodeId) throws IOException {
+        File sourceFile = new File(sourceFilePath).getCanonicalFile();
         String nodeId = fileToNodeId.get(sourceFile);
         if (nodeId == null) {
-            nodeId = "ReadProduct$" + fileToNodeId.size();
+            nodeId = READ_OP_ID_PREFIX + sourceId;
             fileToNodeId.put(sourceFile, nodeId);
         }
         return nodeId;
     }
 
-    Product readProduct(String productFilepath) throws IOException {
-        return commandLineContext.readProduct(productFilepath);
+    Product readProduct(String filePath) throws IOException {
+        return commandLineContext.readProduct(filePath);
     }
 
-    void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws
-                                                                                                                  IOException {
+    void writeProduct(Product targetProduct, String filePath, String formatName,
+                      boolean clearCacheAfterRowWrite) throws IOException {
         commandLineContext.writeProduct(targetProduct, filePath, formatName, clearCacheAfterRowWrite);
     }
 
-    Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
-        return commandLineContext.readGraph(filepath, parameterMap);
+    Graph readGraph(String filePath, Map<String, String> templateVariables) throws IOException, GraphException {
+        return commandLineContext.readGraph(filePath, templateVariables);
     }
 
     void executeGraph(Graph graph) throws GraphException {
-        final StopWatch stopWatch = new StopWatch();
-        commandLineContext.executeGraph(graph);
-        stopWatch.stopAndTrace("Processing completed in ");
+        commandLineContext.executeGraph(graph, this);
     }
 
-    Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
-        return commandLineContext.readParameterFile(propertiesFilepath);
+    private void runVelocityTemplates() {
+        String velocityDirPath = commandLineArgs.getVelocityTemplateDirPath();
+        File velocityDir;
+        boolean velocityDirPathGiven;
+        if (velocityDirPath != null) {
+            velocityDir = new File(velocityDirPath);
+            velocityDirPathGiven = true;
+        } else {
+            velocityDir = new File(CommandLineArgs.DEFAULT_VELOCITY_TEMPLATE_DIRPATH);
+            velocityDirPathGiven = false;
+        }
+
+        String[] templateNames = velocityDir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(CommandLineArgs.VELOCITY_TEMPLATE_EXTENSION);
+            }
+        });
+
+        Logger logger = commandLineContext.getLogger();
+
+        if (templateNames == null) {
+            if (velocityDirPathGiven) {
+                String msgPattern = "Velocity template directory '%s' does not exist or inaccessible";
+                logger.severe(String.format(msgPattern, velocityDir));
+            }
+            return;
+        }
+
+        if (templateNames.length == 0) {
+            if (velocityDirPathGiven) {
+                String msgPattern = "Velocity template directory '%s' does not contain any templates (*.vm)";
+                logger.warning(String.format(msgPattern, velocityDir));
+            }
+            return;
+        }
+
+
+        // It can happen that we have no target file when the operator implements the Output interface
+        if (!commandLineContext.isFile(commandLineArgs.getTargetFilePath())) {
+            if (velocityDirPathGiven) {
+                String msgPattern = "Target file '%s' does not exist, but is required to process velocity templates";
+                logger.warning(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
+            }
+            return;
+        }
+
+        for (String templateName : templateNames) {
+            try {
+                String templatePath = velocityDir + "/" + templateName;
+
+                String msgPattern = "Processing metadata template " + templatePath;
+                logger.info(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
+
+                metadataResourceEngine.writeRelatedResource(templatePath,
+                                                            commandLineArgs.getTargetFilePath());
+            } catch (IOException e) {
+                String msgPattern = "Can't write related resource using template file '%s': %s";
+                logSevereProblem(String.format(msgPattern, templateName, e.getMessage()), e);
+            }
+        }
     }
 
-    private Product createOpProduct(String opName, Map<String, Object> parameters,
-                                    Map<String, Product> sourceProducts) throws OperatorException {
-        return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
+    private void logSevereProblem(String message, Exception e) {
+        if (commandLineArgs.isStackTraceDump()) {
+            commandLineContext.getLogger().log(Level.SEVERE, message, e);
+        } else {
+            commandLineContext.getLogger().severe(message);
+        }
     }
 
-    private static class ProductSetData {
-        String nodeID = null;
-        final ArrayList<String> fileList = new ArrayList<String>();
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //  GraphProcessingObserver impl
+
+    @Override
+    public void graphProcessingStarted(GraphContext graphContext) {
     }
+
+    @Override
+    public void graphProcessingStopped(GraphContext graphContext) {
+        VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
+        velocityContext.put("graph", graphContext.getGraph());
+        Product[] outputProducts = graphContext.getOutputProducts();
+        if (outputProducts.length >= 1) {
+            velocityContext.put("targetProduct", outputProducts[0]);
+        }
+        velocityContext.put("targetProducts", outputProducts);
+
+        Product sourceProduct = null;
+        Map<String, Product> sourceProducts = new HashMap<>();
+        for (Node node : graphContext.getGraph().getNodes()) {
+            final NodeContext nodeContext = graphContext.getNodeContext(node);
+            if (nodeContext.getOperator() instanceof ReadOp) {
+                final Product product = nodeContext.getOperator().getTargetProduct();
+                if (sourceProduct == null) {
+                    sourceProduct = product;
+                }
+                if (node.getId().startsWith(READ_OP_ID_PREFIX)) {
+                    final String sourceId = node.getId().substring(READ_OP_ID_PREFIX.length());
+                    sourceProducts.put(sourceId, product);
+                }
+            }
+        }
+        velocityContext.put("sourceProduct", sourceProduct);
+        velocityContext.put("sourceProducts", sourceProducts);
+    }
+
+    @Override
+    public void tileProcessingStarted(GraphContext graphContext, Rectangle tileRectangle) {
+    }
+
+    @Override
+    public void tileProcessingStopped(GraphContext graphContext, Rectangle tileRectangle) {
+    }
+
 }

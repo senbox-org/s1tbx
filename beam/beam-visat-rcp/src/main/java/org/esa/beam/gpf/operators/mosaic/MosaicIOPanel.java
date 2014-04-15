@@ -85,8 +85,7 @@ class MosaicIOPanel extends JPanel {
             @Override
             protected JFileChooser createFileChooserDialog() {
                 final JFileChooser fileChooser = super.createFileChooserDialog();
-                fileChooser.setDialogTitle("Mosaic - Open Source Product(s)"); /*I18N*/
-
+                fileChooser.setDialogTitle("Mosaic - Open Source Product(s)");
                 return fileChooser;
             }
         };
@@ -134,6 +133,7 @@ class MosaicIOPanel extends JPanel {
                             }
                         }
                     }
+
                     propertySet.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);
                 } catch (OperatorException e) {
                     appContext.handleError("Selected product cannot be used for update mode.", e);

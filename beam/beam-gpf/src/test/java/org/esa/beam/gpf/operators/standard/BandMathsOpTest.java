@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,8 +21,11 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -31,33 +34,41 @@ import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.CRS;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BandMathsOpTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class BandMathsOpTest {
 
     private OperatorSpi bandMathsSpi;
     private ReadOp.Spi readSpi;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         readSpi = new ReadOp.Spi();
         bandMathsSpi = new BandMathsOp.Spi();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(readSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(bandMathsSpi);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(bandMathsSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(readSpi);
     }
 
+    @Test
     public void testSimplestCase() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
@@ -78,16 +89,25 @@ public class BandMathsOpTest extends TestCase {
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 1.0f);
         assertTrue(Arrays.equals(expectedValues, floatValues));
+
+        assertNotNull(targetProduct.getStartTime());
+        assertEquals(sourceProduct.getStartTime(), targetProduct.getStartTime());
+        assertNotNull(targetProduct.getEndTime());
+        assertEquals(sourceProduct.getEndTime(), targetProduct.getEndTime());
     }
 
+    @Test
     public void testGeoCodingIsCopied() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8, "simpleUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
-        final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4),
-                                                     new AffineTransform());
+        CoordinateReferenceSystem decode = CRS.decode("EPSG:32632");
+        Rectangle imageBounds = new Rectangle(4, 4);
+        AffineTransform imageToMap = new AffineTransform();
+        final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
+
         sourceProduct.setGeoCoding(geoCoding);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
@@ -95,10 +115,11 @@ public class BandMathsOpTest extends TestCase {
         assertNotNull(targetProduct.getGeoCoding());
     }
 
+    @Test
     public void testSimplestCaseWithFactoryMethod() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
 
-        BandMathsOp bandMathsOp = BandMathsOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
+        BandMathsOp bandMathsOp = createBooleanExpressionBand(sourceProduct, "band1 > 0");
         assertNotNull(bandMathsOp);
 
         Product targetProduct = bandMathsOp.getTargetProduct();
@@ -115,10 +136,12 @@ public class BandMathsOpTest extends TestCase {
         assertTrue(Arrays.equals(expectedValues, intValues));
     }
 
+    @Test
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32, "milliUnits");
+        bandDescriptors[1] = createBandDescription("bBandName", "band3.raw & 64", ProductData.TYPESTRING_INT32, "noUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
@@ -135,8 +158,16 @@ public class BandMathsOpTest extends TestCase {
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 3.0f);
         assertTrue(Arrays.equals(expectedValues, floatValues));
+
+        Band bband = targetProduct.getBand("bBandName");
+        int[] intValues = new int[16];
+        bband.readPixels(0, 0, 4, 4, intValues, ProgressMonitor.NULL);
+        int[] expectedIntValues = new int[16];
+        Arrays.fill(expectedValues, (3 & 64));
+        assertTrue(Arrays.equals(expectedIntValues, intValues));
     }
 
+    @Test
     public void testTwoSourceBandsOneTargetBand() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -154,6 +185,7 @@ public class BandMathsOpTest extends TestCase {
         assertTrue(Arrays.equals(expectedValues, actualValues));
     }
 
+    @Test
     public void testTwoSourceBandsTwoTargetBands() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -184,6 +216,7 @@ public class BandMathsOpTest extends TestCase {
         assertTrue(Arrays.equals(expectedIntValues, actualIntValues));
     }
 
+    @Test
     public void testTwoSourceProductsOneTargetBand() throws Exception {
         Product sourceProduct1 = createTestProduct(4, 4);
         Product sourceProduct2 = createTestProduct(4, 4);
@@ -204,6 +237,51 @@ public class BandMathsOpTest extends TestCase {
         assertTrue(Arrays.equals(expectedValues, actualValues));
     }
 
+    @Test
+    public void testTwoSourceProductsWithNames() throws Exception {
+        HashMap<String, Product> productMap = new HashMap<String, Product>();
+        productMap.put("numberOne", createTestProduct(4, 4));
+        productMap.put("numberTwo", createTestProduct(4, 4));
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "$numberOne.band1 + $numberTwo.band2",
+                                                   ProductData.TYPESTRING_FLOAT32, "milliUnit");
+        parameters.put("targetBands", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, productMap);
+        Band band = targetProduct.getBand("aBandName");
+
+        float[] actualValues = new float[16];
+        band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 3.5f);
+        assertTrue(Arrays.equals(expectedValues, actualValues));
+    }
+
+    @Test
+    public void testDivisionByZero() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band1/0.0", ProductData.TYPESTRING_FLOAT32, "bigUnits");
+        parameters.put("targetBands", bandDescriptors);
+        Product sourceProduct = createTestProduct(4, 4);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
+
+        assertNotNull(targetProduct);
+        Band band = targetProduct.getBand("aBandName");
+        assertNotNull(band);
+        assertEquals("aDescription", band.getDescription());
+        assertEquals("bigUnits", band.getUnit());
+        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
+
+        float[] floatValues = new float[16];
+        band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, Float.NaN);
+        assertTrue(Arrays.equals(expectedValues, floatValues));
+    }
+
+    @Test
     public void testGraph() throws Exception {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
         Class<BandMathsOp> opType = BandMathsOp.class;
@@ -243,9 +321,9 @@ public class BandMathsOpTest extends TestCase {
 
         InputStreamReader inputStreamReader = new InputStreamReader(getClass().getResourceAsStream("BandMathsOpParameters.xml"));
         String expectedXML = FileUtils.readText(inputStreamReader).trim();
-        DefaultDomElement bibo = new DefaultDomElement("bibo");
-        domConverter.convertValueToDom(parameterSet, bibo);
-        assertEquals(expectedXML, bibo.toXml().trim());
+        DefaultDomElement parameters = new DefaultDomElement("parameters");
+        domConverter.convertValueToDom(parameterSet, parameters);
+        assertEquals(expectedXML, parameters.toXml().trim());
     }
 
     private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit) {
@@ -259,7 +337,7 @@ public class BandMathsOpTest extends TestCase {
     }
 
 
-    private static Product createTestProduct(int w, int h) {
+    private static Product createTestProduct(int w, int h) throws ParseException {
         Product testProduct = new Product("p", "t", w, h);
         Band band1 = testProduct.addBand("band1", ProductData.TYPE_INT32);
         int[] intValues = new int[w * h];
@@ -276,6 +354,23 @@ public class BandMathsOpTest extends TestCase {
         short[] shortValues = new short[w * h];
         Arrays.fill(shortValues, (short) 6);
         band3.setData(ProductData.createInstance(shortValues));
+
+        testProduct.setStartTime(ProductData.UTC.parse("01-APR-2011 11:22:33"));
+        testProduct.setEndTime(ProductData.UTC.parse("02-APR-2011 11:22:33"));
         return testProduct;
     }
+
+    public static BandMathsOp createBooleanExpressionBand(Product sourceProduct, String expression) {
+        BandMathsOp.BandDescriptor bandDescriptor = new BandMathsOp.BandDescriptor();
+        bandDescriptor.name = "band1";
+        bandDescriptor.expression = expression;
+        bandDescriptor.type = ProductData.TYPESTRING_INT8;
+
+        BandMathsOp bandMathsOp = new BandMathsOp();
+        bandMathsOp.setSourceProduct(sourceProduct);
+        bandMathsOp.setTargetBandDescriptors(bandDescriptor);
+        return bandMathsOp;
+    }
+
+
 }

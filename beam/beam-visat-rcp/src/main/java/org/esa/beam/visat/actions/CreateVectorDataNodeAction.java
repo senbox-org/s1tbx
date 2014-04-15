@@ -54,7 +54,6 @@ public class CreateVectorDataNodeAction extends ExecCommand {
     private static final String KEY_VECTOR_DATA_INITIAL_NAME = "geometry.initialName";
 
 
-    // todo - add help (nf)
     private static final String HELP_ID = "vectorDataManagement";
     private static int numItems = 1;
 

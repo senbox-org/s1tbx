@@ -52,13 +52,13 @@ import java.util.Set;
 class PutStatisticsIntoVectorDataAction extends AbstractAction {
 
     private Mask[] selectedMasks;
-    private final Map<SimpleFeatureType, VectorDataNode> featureType2VDN = new HashMap<SimpleFeatureType, VectorDataNode>();
-    private final Map<SimpleFeatureType, Set<Mask>> featureType2Mask = new HashMap<SimpleFeatureType, Set<Mask>>();
-    private final Map<Mask, Histogram> mask2Histogram = new HashMap<Mask, Histogram>();
-    private final Map<Mask, String> mask2RegionName = new HashMap<Mask, String>();
-    private final StatisticalExportContext provider;
+    private final Map<SimpleFeatureType, VectorDataNode> featureType2VDN = new HashMap<>();
+    private final Map<SimpleFeatureType, Set<Mask>> featureType2Mask = new HashMap<>();
+    private final Map<Mask, Histogram> mask2Histogram = new HashMap<>();
+    private final Map<Mask, String> mask2RegionName = new HashMap<>();
+    private final StatisticsDataProvider provider;
 
-    PutStatisticsIntoVectorDataAction(StatisticalExportContext provider) {
+    PutStatisticsIntoVectorDataAction(StatisticsDataProvider provider) {
         super("Put statistics into vector data");
         this.provider = provider;
     }
@@ -117,7 +117,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
                                     "total"
                             }));
             for (final Mask mask : getMasks(featureType)) {
-                HashMap<String, Number> statistics = new HashMap<String, Number>();
+                HashMap<String, Number> statistics = new HashMap<>();
                 Histogram histogram = getHistogram(mask);
                 statistics.put("minimum", histogram.getLowValue(0));
                 statistics.put("maximum", histogram.getHighValue(0));
@@ -191,7 +191,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         if (!hasSelectedMasks()) {
             return new SimpleFeatureType[0];
         }
-        List<SimpleFeatureType> result = new ArrayList<SimpleFeatureType>();
+        List<SimpleFeatureType> result = new ArrayList<>();
         final Histogram[] histograms = provider.getHistograms();
         for (int i = 0; i < selectedMasks.length; i++) {
             final Mask selectedMask = selectedMasks[i];

@@ -10,16 +10,10 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.internal.DefaultTileIterator;
-import org.esa.beam.framework.gpf.internal.TileImpl;
 import org.esa.beam.util.BitSetter;
-import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.*;
-import java.awt.image.ComponentSampleModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.Rectangle;
 import java.util.Iterator;
 
 
@@ -118,7 +112,6 @@ public class DirectDriverTest extends TestCase {
             this.width = rectangle.width;
             this.height = rectangle.height;
             this.target = target;
-            // todo - optimize getSample()/setSample() methods by using a Closure that either honours scaling / signedByte. (nf 04.2010)
             this.scaled = rasterDataNode.isScalingApplied();
             this.signedByte = rasterDataNode.getDataType() == ProductData.TYPE_INT8;
 
@@ -156,8 +149,6 @@ public class DirectDriverTest extends TestCase {
 
         @Override
         public boolean isSampleValid(int x, int y) {
-            // todo - THIS IS VERY INEFFICIENT! (nf - 04.2010)
-            // fixme - read flag directly from a validMaskTile:TileImpl (nf - 04.2010)
             return rasterDataNode.isPixelValid(x, y);
         }
 
@@ -264,9 +255,71 @@ public class DirectDriverTest extends TestCase {
         }
 
         @Override
+        public byte[] getSamplesByte() {
+            if (getRasterDataNode().isValidMaskUsed()) {
+                final int size = width * height;
+                final byte[] samples = new byte[size];
+                int i = 0;
+                for (int y = minY; y <= maxY; y++) {
+                    for (int x = minX; x <= maxX; x++) {
+                        samples[i++] = isSampleValid(x, y) ? (byte)getSampleInt(x, y) : 0;
+                    }
+                }
+                return samples;
+            } else {
+                final ProductData data = getRawSamples();
+                if (!scaled && (data.getType() == ProductData.TYPE_INT8 || data.getType() == ProductData.TYPE_UINT8)) {
+                    return (byte[]) data.getElems();
+                }
+                final int size = data.getNumElems();
+                final byte[] samples = new byte[size];
+                if (scaled) {
+                    for (int i = 0; i < size; i++) {
+                        samples[i] = (byte) toGeoPhysical(data.getElemIntAt(i));
+                    }
+                } else {
+                    for (int i = 0; i < size; i++) {
+                        samples[i] = (byte)data.getElemIntAt(i);
+                    }
+                }
+                return samples;
+            }
+        }
+
+        @Override
+        public short[] getSamplesShort() {
+            if (getRasterDataNode().isValidMaskUsed()) {
+                final int size = width * height;
+                final short[] samples = new short[size];
+                int i = 0;
+                for (int y = minY; y <= maxY; y++) {
+                    for (int x = minX; x <= maxX; x++) {
+                        samples[i++] = isSampleValid(x, y) ? (short)getSampleInt(x, y) : 0;
+                    }
+                }
+                return samples;
+            } else {
+                final ProductData data = getRawSamples();
+                if (!scaled && (data.getType() == ProductData.TYPE_INT16 || data.getType() == ProductData.TYPE_UINT16)) {
+                    return (short[]) data.getElems();
+                }
+                final int size = data.getNumElems();
+                final short[] samples = new short[size];
+                if (scaled) {
+                    for (int i = 0; i < size; i++) {
+                        samples[i] = (short) toGeoPhysical(data.getElemIntAt(i));
+                    }
+                } else {
+                    for (int i = 0; i < size; i++) {
+                        samples[i] = (short) data.getElemIntAt(i);
+                    }
+                }
+                return samples;
+            }
+        }
+
+        @Override
         public int[] getSamplesInt() {
-            // todo - urgently need benchmarks. performance may be poor (nf 04.2010)
-            // todo - directly read this data from RasterDataNode.geophysicalImage once it masks out NaN correctly  (nf 04.2010)
             if (getRasterDataNode().isValidMaskUsed()) {
                 final int size = width * height;
                 final int[] samples = new int[size];
@@ -279,7 +332,7 @@ public class DirectDriverTest extends TestCase {
                 return samples;
             } else {
                 final ProductData data = getRawSamples();
-                if (!scaled && data.getType() == ProductData.TYPE_INT32) {
+                if (!scaled && (data.getType() == ProductData.TYPE_INT32 || data.getType() == ProductData.TYPE_UINT32)) {
                     return (int[]) data.getElems();
                 }
                 final int size = data.getNumElems();
@@ -299,8 +352,6 @@ public class DirectDriverTest extends TestCase {
 
         @Override
         public float[] getSamplesFloat() {
-            // todo - urgently need benchmarks. performance may be poor (nf 04.2010)
-            // todo - directly read this data from RasterDataNode.geophysicalImage once it masks out NaN correctly  (nf 04.2010)
             if (getRasterDataNode().isValidMaskUsed()) {
                 final int size = width * height;
                 final float[] samples = new float[size];
@@ -333,8 +384,6 @@ public class DirectDriverTest extends TestCase {
 
         @Override
         public double[] getSamplesDouble() {
-            // todo - urgently need benchmarks. performance may be poor (nf 04.2010)
-            // todo - directly read this data from RasterDataNode.geophysicalImage once it masks out NaN correctly  (nf 04.2010)
             if (getRasterDataNode().isValidMaskUsed()) {
                 final int size = width * height;
                 final double[] samples = new double[size];
@@ -362,6 +411,26 @@ public class DirectDriverTest extends TestCase {
                     }
                 }
                 return samples;
+            }
+        }
+
+        @Override
+        public void setSamples(byte[] samples) {
+            int i = 0;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    setSample(x, y, samples[i++]);
+                }
+            }
+        }
+
+        @Override
+        public void setSamples(short[] samples) {
+            int i = 0;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    setSample(x, y, samples[i++]);
+                }
             }
         }
 

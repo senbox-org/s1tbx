@@ -56,7 +56,7 @@ public class VisatMain implements RuntimeRunnable {
      * @throws Exception if an error occurs
      */
     @Override
-    public void run(Object argument, ProgressMonitor progressMonitor) throws Exception {
+    public void run(Object argument, final ProgressMonitor progressMonitor) throws Exception {
 
         String[] args = new String[0];
         if (argument instanceof String[]) {
@@ -85,7 +85,7 @@ public class VisatMain implements RuntimeRunnable {
         }
 
         boolean debugEnabled = false;
-        ArrayList<String> productFilepathList = new ArrayList<String>();
+        final ArrayList<String> productFilepathList = new ArrayList<>();
         String sessionFile = null;
         for (String arg : args) {
             if (arg.startsWith("-")) {
@@ -114,10 +114,20 @@ public class VisatMain implements RuntimeRunnable {
             });
         }
 
-        VisatApp app = createApplication(applicationDescriptor);
-        app.startUp(progressMonitor);
-        openSession(app, sessionFile);
-        openProducts(app, productFilepathList);
+        final String finalSessionFile = sessionFile;
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final VisatApp app = createApplication(applicationDescriptor);
+                    app.startUp(progressMonitor);
+                    openSession(app, finalSessionFile);
+                    openProducts(app, productFilepathList);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     protected VisatApp createApplication(ApplicationDescriptor applicationDescriptor) {

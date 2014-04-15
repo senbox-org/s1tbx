@@ -16,11 +16,13 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
@@ -42,17 +44,21 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.descriptor.AnnotationOperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.PropertySetDescriptorFactory;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
 import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -60,17 +66,21 @@ import org.esa.beam.util.logging.BeamLogManager;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.TileCache;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -109,7 +119,6 @@ public class OperatorContext {
     private Logger logger;
     private boolean cancelled;
     private boolean disposed;
-    private Map<String, Object> parameters;
     private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
@@ -122,9 +131,9 @@ public class OperatorContext {
         this.operator = operator;
         this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
         this.computeTileStackMethodUsable = canOperatorComputeTileStack(operator.getClass());
-        this.sourceProductList = new ArrayList<Product>(3);
-        this.sourceProductMap = new HashMap<String, Product>(3);
-        this.targetPropertyMap = new HashMap<String, Object>(3);
+        this.sourceProductList = new ArrayList<>(3);
+        this.sourceProductMap = new HashMap<>(3);
+        this.targetPropertyMap = new HashMap<>(3);
         this.logger = BeamLogManager.getSystemLogger();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
 
@@ -168,7 +177,9 @@ public class OperatorContext {
 
     public String getId() {
         if (id == null) {
-            id = getOperatorSpi().getOperatorAlias() + '$' + Long.toHexString(System.currentTimeMillis()).toUpperCase();
+            OperatorDescriptor descriptor = getOperatorSpi().getOperatorDescriptor();
+            String aliasName = descriptor.getAlias() != null ? descriptor.getAlias() : descriptor.getName();
+            id = aliasName + '$' + Long.toHexString(System.currentTimeMillis()).toUpperCase();
         }
         return id;
     }
@@ -197,6 +208,7 @@ public class OperatorContext {
                 sourceProductList.add(product);
             }
             sourceProductMap.put(id, product);
+            updatePropertyDescriptors(); // the source product is used if the property is of type RasterDataNodeType
         }
     }
 
@@ -228,7 +240,7 @@ public class OperatorContext {
 
     public String getSourceProductId(Product product) {
         Set<Map.Entry<String, Product>> entrySet = sourceProductMap.entrySet();
-        List<String> mappedIds = new ArrayList<String>();
+        List<String> mappedIds = new ArrayList<>();
         for (Map.Entry<String, Product> entry : entrySet) {
             //noinspection ObjectEquality
             if (entry.getValue() == product) {
@@ -300,30 +312,48 @@ public class OperatorContext {
 
     public Object getParameter(String name) {
         Assert.notNull(name, "name");
-        if (parameters == null) {
-            return null;
-        }
-        return parameters.get(name);
+        return getParameterSet().getValue(name);
     }
 
     public void setParameter(String name, Object value) {
         Assert.notNull(name, "name");
-        if (value != null) {
-            if (parameters == null) {
-                parameters = new HashMap<String, Object>();
+        PropertySet paramSet = getParameterSet();
+        if(paramSet.isPropertyDefined(name)) {
+            Property property = paramSet.getProperty(name);
+            if (value != null) {
+                setPropertyValue(value, property);
+            } else {
+                paramSet.removeProperty(property);
             }
-            parameters.put(name, value);
-        } else if (parameters != null) {
-            parameters.remove(name);
         }
     }
 
-    public Map<String, Object> getParameters() {
-        return parameters;
+    private void setPropertyValue(Object value, Property property) {
+        try {
+            if (value instanceof String && !String.class.isAssignableFrom(property.getType())) {
+                property.setValueFromText((String) value);
+            } else {
+                property.setValue(value);
+            }
+        } catch (ValidationException e) {
+            throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
+        }
     }
 
-    public void setParameters(Map<String, Object> parameters) {
-        this.parameters = new HashMap<String, Object>(parameters);
+    public Map<String, Object> getParameterMap() {
+        PropertySet paramSet = getParameterSet();
+        Property[] properties = paramSet.getProperties();
+        Map<String, Object> parameterMap = new HashMap<>();
+        for (Property property : properties) {
+            parameterMap.put(property.getName(), property.getValue());
+        }
+        return parameterMap;
+    }
+
+    public void setParameterMap(Map<String, Object> parameters) {
+        for (Entry<String, Object> entry : parameters.entrySet()) {
+            setParameter(entry.getKey(), entry.getValue());
+        }
     }
 
     public RenderingHints getRenderingHints() {
@@ -390,7 +420,6 @@ public class OperatorContext {
     public void dispose() {
         if (!disposed) {
             disposed = true;
-            parameters = null;
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
@@ -442,14 +471,13 @@ public class OperatorContext {
 
     private void initializeOperator() throws OperatorException {
         Assert.state(targetProduct == null, "targetProduct == null");
-        Assert.state(operator != null, "operator != null");
         Assert.state(!initialising, "!initialising, attempt to call getTargetProduct() from within initialise()?");
 
         try {
             initialising = true;
             if (!(operator instanceof GraphOp)) {
                 initSourceProductFields();
-                injectParameterValues();
+                updatePropertyDescriptors();
                 injectConfiguration();
             }
             operator.initialize();
@@ -468,8 +496,7 @@ public class OperatorContext {
      * Updates this operator forcing it to recreate the target product.
      * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs.
      * @since BEAM 4.8
      */
     public void updateOperator() throws OperatorException {
@@ -478,10 +505,25 @@ public class OperatorContext {
     }
 
 
-    private PropertySet getParameterSet() {
+    public PropertySet getParameterSet() {
         if (parameterSet == null) {
-            PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-            parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
+            if (operatorSpi == null) {
+                PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+                parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
+            }else {
+                OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+                PropertySetDescriptor propertySetDescriptor;
+                try {
+                    propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor, sourceProductMap);
+                } catch (ConversionException e) {
+                    throw new OperatorException(e);
+                }
+                if (operatorDescriptor instanceof AnnotationOperatorDescriptor) {
+                    parameterSet = PropertyContainer.createObjectBacked(operator, propertySetDescriptor);
+                }else{
+                    parameterSet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), propertySetDescriptor);
+                }
+            }
         }
         return parameterSet;
     }
@@ -522,29 +564,39 @@ public class OperatorContext {
         Module module = operatorSpi.getModule();
         if (module == null) {
             logger.warning("Could not read module information");
-        }else {
+        } else {
             ProductData nameValue = ProductData.createInstance(module.getSymbolicName());
             targetNodeME.addAttribute(new MetadataAttribute("moduleName", nameValue, false));
 
             ProductData versionValue = ProductData.createInstance(module.getVersion().toString());
             targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", versionValue, false));
         }
-        OperatorMetadata operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (operatorMetadata != null) {
-            ProductData purposeValue = ProductData.createInstance(operatorMetadata.description());
-            targetNodeME.addAttribute(new MetadataAttribute("purpose", purposeValue, false));
-            ProductData authorsValue = ProductData.createInstance(operatorMetadata.authors());
-            targetNodeME.addAttribute(new MetadataAttribute("authors", authorsValue, false));
-            ProductData opVersionValue = ProductData.createInstance(operatorMetadata.version());
-            targetNodeME.addAttribute(new MetadataAttribute("version", opVersionValue, false));
-            ProductData copyrightValue = ProductData.createInstance(operatorMetadata.copyright());
-            targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
+
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(opName);
+        OperatorDescriptor operatorDescriptor;
+        if (operatorSpi != null) {
+            operatorDescriptor = operatorSpi.getOperatorDescriptor();
+            if (operatorDescriptor.getDescription() != null) {
+                ProductData purposeValue = ProductData.createInstance(operatorDescriptor.getDescription());
+                targetNodeME.addAttribute(new MetadataAttribute("purpose", purposeValue, false));
+            }
+            if (operatorDescriptor.getAuthors() != null) {
+                ProductData authorsValue = ProductData.createInstance(operatorDescriptor.getAuthors());
+                targetNodeME.addAttribute(new MetadataAttribute("authors", authorsValue, false));
+            }
+            if (operatorDescriptor.getVersion() != null) {
+                ProductData opVersionValue = ProductData.createInstance(operatorDescriptor.getVersion());
+                targetNodeME.addAttribute(new MetadataAttribute("version", opVersionValue, false));
+            }
+            if (operatorDescriptor.getCopyright() != null) {
+                ProductData copyrightValue = ProductData.createInstance(operatorDescriptor.getCopyright());
+                targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
+            }
         }
 
 
-        final MetadataElement targetSourcesME = new MetadataElement("sources");
-
-        // NESTMOD
+        List<MetadataAttribute> sourceAttributeList = new ArrayList<>(context.sourceProductList.size() * 2);
         //for (Product sourceProduct : context.sourceProductList) {
         //    final String sourceId = context.getSourceProductId(sourceProduct);
 	    for (String sourceId : context.sourceProductMap.keySet()) {
@@ -562,6 +614,16 @@ public class OperatorContext {
             final MetadataAttribute sourceAttribute = new MetadataAttribute(sourceId,
                                                                             ProductData.createInstance(sourceNodeId),
                                                                             false);
+            sourceAttributeList.add(sourceAttribute);
+        }
+        final MetadataElement targetSourcesME = new MetadataElement("sources");
+        Collections.sort(sourceAttributeList, new Comparator<MetadataAttribute>() {
+            @Override
+            public int compare(MetadataAttribute ma1, MetadataAttribute ma2) {
+                return ma1.getName().compareTo(ma2.getName());
+            }
+        });
+        for (MetadataAttribute sourceAttribute : sourceAttributeList) {
             targetSourcesME.addAttribute(sourceAttribute);
         }
         targetNodeME.addElement(targetSourcesME);
@@ -580,13 +642,13 @@ public class OperatorContext {
     }
 
     private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
-        final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(
+        final HashMap<String, List<DomElement>> map = new HashMap<>(
                 parentDE.getChildCount() + 5);
         for (DomElement childDE : parentDE.getChildren()) {
             final String name = childDE.getName();
             List<DomElement> elementList = map.get(name);
             if (elementList == null) {
-                elementList = new ArrayList<DomElement>(3);
+                elementList = new ArrayList<>(3);
                 map.put(name, elementList);
             }
             elementList.add(childDE);
@@ -642,9 +704,16 @@ public class OperatorContext {
             int height = targetProduct.getSceneRasterHeight();
             locks = OperatorImageTileStack.createLocks(width, height, tileSize);
         }
-        targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
+        targetImageMap = new HashMap<>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
             // Only register non-virtual bands
+            // Actually it should not be necessary to distinguish between regular and not regular bands.
+            // What does 'regular' actually mean?
+            // Here the question is if the operator needs to compute the data.
+            // Actually there should only one implementation of Band and it should be declared final.
+            // Virtual, filtered and all other types can be implemented by simply exchanging the source image.
+            // Instead of deriving the band class, a band should have an associated type. It would serve the same purpose
+            // as the type we already have for layers.
             if (isRegularBand(targetBand)) {
 
                 OperatorImage opImage = getOwnedOperatorImage(targetBand);
@@ -670,8 +739,25 @@ public class OperatorContext {
                         targetBand.setSourceImage(image);
                     }
                 } else {
+                    // Someone has added a band whose image comes from another operator that
+                    // has already been initialised.
                     targetBand.getSourceImage().reset();
                     targetImageMap.put(targetBand, opImage);
+                }
+            } else {
+                final Operator operator = getOperator();
+                // The WriteOp needs to be called for VirtualBands in order to write them as real bands, where necessary (NetCDF-CF).
+                // For other operators it should not be called
+                if (operator instanceof WriteOp) {
+                    targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
+                        @Override
+                        protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+                            Band targetBand = getTargetBand();
+                            tile.setRect(targetBand.getGeophysicalImage().getData(destRect));
+                            TileImpl targetTile = new TileImpl(targetBand, tile, destRect, false);
+                            operator.computeTile(targetBand, targetTile, ProgressMonitor.NULL);
+                        }
+                    });
                 }
             }
 
@@ -731,7 +817,7 @@ public class OperatorContext {
         if (targetProduct.getProductReader() == null) {
             targetProduct.setProductReader(new OperatorProductReader(this));
         }
-        if (renderingHints != null && GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
+        if (GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
             targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
         }
     }
@@ -890,20 +976,20 @@ public class OperatorContext {
     }
 
     private Product[] getUnnamedProducts() {
-        final Map<String, Product> map = new HashMap<String, Product>(sourceProductMap);
+        final Map<String, Product> map = new HashMap<>(sourceProductMap);
         final Field[] sourceProductFields = getAnnotatedSourceProductFields(operator);
         for (Field sourceProductField : sourceProductFields) {
             final SourceProduct annotation = sourceProductField.getAnnotation(SourceProduct.class);
             map.remove(sourceProductField.getName());
             map.remove(annotation.alias());
         }
-        Set<Product> productSet = new HashSet<Product>(map.values());
+        Set<Product> productSet = new HashSet<>(map.values());
         return productSet.toArray(new Product[productSet.size()]);
     }
 
     private static Field[] getAnnotatedSourceProductFields(Operator operator1) {
         Field[] declaredFields = operator1.getClass().getDeclaredFields();
-        List<Field> fieldList = new ArrayList<Field>();
+        List<Field> fieldList = new ArrayList<>();
         for (Field declaredField : declaredFields) {
             SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
             //noinspection VariableNotUsedInsideIf
@@ -989,7 +1075,7 @@ public class OperatorContext {
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
             try {
-                configureOperator(operator, configuration);
+                configureOperator(configuration);
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
@@ -998,65 +1084,38 @@ public class OperatorContext {
         }
     }
 
-    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration)
+    private void configureOperator(OperatorConfiguration operatorConfiguration)
             throws ValidationException, ConversionException {
-        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
-        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
-        PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(operator,
-                                                                                   parameterDescriptorFactory);
+
+        Class<? extends Operator> operatorType = getOperatorSpi().getOperatorDescriptor().getOperatorClass();
+        ParameterDescriptorFactory descriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+        PropertySetDescriptor propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
+
+        DefaultDomConverter domConverter = new DefaultDomConverter(operatorType, descriptorFactory, propertySetDescriptor);
+        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), getParameterSet());
+
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
-            Property property = propertyContainer.getProperty(reference.getParameterName());
+            Property property = getParameterSet().getProperty(reference.getParameterName());
             property.setValue(reference.getValue());
         }
     }
 
-    public void injectParameterDefaultValues() throws OperatorException {
-        getParameterSet().setDefaultValues();
-    }
-
-    private void injectParameterValues() throws OperatorException {
-        if (parameters != null) {
-            for (String parameterName : parameters.keySet()) {
-                final Property property = getParameterSet().getProperty(parameterName);
-                if (property == null) {
-                    // Note: "Unknown parameter" exception commented out by Norman on 09.02.2011
-                    // Intention is to reuse parameter maps for multiple operators. (see OpParameterInitialisationTest)
-                    // Clients of GPF should test parameter compatibility before calling GPF.createProduct() methods.
-                    // todo - must add to OperatorSpi (nf,mp,mz,rq - 09.02.2011)
-                    //    ProductDescriptor getSourceProductDescriptors();
-                    //    PropertyDescriptor[] getParameterDescriptors();
-                    //    PropertyDescriptor[] getTargetPropertyDescriptors();
-                    //    ProductDescriptor getTargetProductDescriptor();
-
-                    //throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
-                    continue;
+    void updatePropertyDescriptors() throws OperatorException {
+        Property[] properties = getParameterSet().getProperties();
+        for (Property property : properties) {
+            PropertyDescriptor descriptor = property.getDescriptor();
+            if (descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
+                Product sourceProduct = sourceProductList.get(0);
+                if (sourceProduct == null) {
+                    throw new OperatorException(formatExceptionMessage("No source product."));
                 }
-                try {
-                    PropertyDescriptor descriptor = property.getDescriptor();
-                    if (descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
-                        Product sourceProduct = sourceProductList.get(0);
-                        if (sourceProduct == null) {
-                            throw new OperatorException(formatExceptionMessage("No source product."));
-                        }
-                        Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
-                        Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                        final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
-                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType,
-                                                                       includeEmptyValue);
-                        ValueSet valueSet = new ValueSet(names);
-                        descriptor.setValueSet(valueSet);
-                    }
-                    Object paramValue = parameters.get(parameterName);
-                    if (paramValue instanceof String && !String.class.isAssignableFrom(property.getType())) {
-                        property.setValueFromText((String) paramValue);
-                    } else {
-                        property.setValue(paramValue);
-                    }
-                } catch (ValidationException e) {
-                    throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
-                }
+                Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+                Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
+                final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
+                String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType, includeEmptyValue);
+                ValueSet valueSet = new ValueSet(names);
+                descriptor.setValueSet(valueSet);
             }
         }
     }

@@ -27,19 +27,29 @@ import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
 import com.bc.ceres.binding.converters.EnumConverter;
-import junit.framework.TestCase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ParameterDescriptorFactoryTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-    private PropertyContainer propertyContainer;
+public class ParameterDescriptorFactoryTest {
 
-    @Override
-    public void setUp() {
+    private static PropertyContainer propertyContainer;
+
+    @BeforeClass
+    public static void setUp() {
         ParameterDescriptorFactory pdf = new ParameterDescriptorFactory();
         TestPojo testPojo = new TestPojo();
         propertyContainer = PropertyContainer.createObjectBacked(testPojo, pdf);
     }
 
+    @Test
     public void testPercentageField() throws Exception {
         final String PERCENTAGE = "percentage";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(PERCENTAGE);
@@ -47,14 +57,13 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         assertNull(propertyDescriptor.getAlias());
         assertEquals(0.0, propertyDescriptor.getDefaultValue());
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
-        assertEquals("", propertyDescriptor.getDescription());
-        assertEquals(false, propertyDescriptor.getItemsInlined());
+        assertEquals(null, propertyDescriptor.getDescription());
         assertEquals("Percentage", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
         assertEquals(null, propertyDescriptor.getItemAlias());
         assertEquals("double", propertyDescriptor.getType().getName());
-        assertEquals("", propertyDescriptor.getUnit());
+        assertEquals(null, propertyDescriptor.getUnit());
         assertNull(propertyDescriptor.getValidator());
         assertEquals("(0,100]", propertyDescriptor.getValueRange().toString());
         assertEquals(0.0, propertyDescriptor.getValueRange().getMin(), 0.000001);
@@ -62,6 +71,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         assertEquals(null, propertyDescriptor.getValueSet());
     }
 
+    @Test
     public void testThresholdField() throws Exception {
         final String FIELD_NAME = "threshold";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(FIELD_NAME);
@@ -69,14 +79,13 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         assertNull(propertyDescriptor.getAlias());
         assertEquals(0.0, propertyDescriptor.getDefaultValue());
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
-        assertEquals("", propertyDescriptor.getDescription());
-        assertEquals(false, propertyDescriptor.getItemsInlined());
+        assertEquals(null, propertyDescriptor.getDescription());
         assertEquals("a nice desciption", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
         assertEquals(null, propertyDescriptor.getItemAlias());
         assertFalse(propertyDescriptor.getType().isArray());
-        assertEquals("", propertyDescriptor.getUnit());
+        assertEquals(null, propertyDescriptor.getUnit());
         assertNull(propertyDescriptor.getValidator());
         assertEquals(null, propertyDescriptor.getValueRange());
         assertNotNull(propertyDescriptor.getValueSet());
@@ -96,6 +105,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testThresholdArrayField() throws Exception {
         final String fieldName = "thresholdArray";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(fieldName);
@@ -103,8 +113,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         assertNull(propertyDescriptor.getAlias());
         assertEquals(null, propertyDescriptor.getDefaultValue());
         assertSame(ArrayConverter.class, propertyDescriptor.getConverter().getClass());
-        assertEquals("", propertyDescriptor.getDescription());
-        assertEquals(false, propertyDescriptor.getItemsInlined());
+        assertEquals(null, propertyDescriptor.getDescription());
         assertEquals("Threshold array", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
@@ -112,7 +121,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         Class<?> type = propertyDescriptor.getType();
         assertTrue(type.isArray());
         assertEquals(Double.TYPE, type.getComponentType());
-        assertEquals("", propertyDescriptor.getUnit());
+        assertEquals(null, propertyDescriptor.getUnit());
         assertNull(propertyDescriptor.getValidator());
         assertEquals(null, propertyDescriptor.getValueRange());
         assertNotNull(propertyDescriptor.getValueSet());
@@ -132,6 +141,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testThresholdFail() {
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("threshold");
         PropertyAccessor propertyAccessor = new DefaultPropertyAccessor();
@@ -145,6 +155,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testEnums() {
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("aPValue");
         assertEquals("aPValue", propertyDescriptor.getName());

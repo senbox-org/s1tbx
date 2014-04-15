@@ -28,7 +28,7 @@ import org.esa.beam.visat.actions.AbstractVisatAction;
  */
 public class OrthorectificationAction extends AbstractVisatAction {
 
-    private ModelessDialog dialog;
+    private ReprojectionDialog dialog;
 
     @Override
     public void actionPerformed(CommandEvent event) {

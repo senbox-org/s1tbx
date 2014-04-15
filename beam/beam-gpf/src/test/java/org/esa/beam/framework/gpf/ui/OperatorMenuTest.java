@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,13 +16,17 @@
 
 package org.esa.beam.framework.gpf.ui;
 
+import org.esa.beam.HeadlessTestRunner;
 import org.esa.beam.framework.gpf.GPF;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+@RunWith(HeadlessTestRunner.class)
 public class OperatorMenuTest {
 
     private static OperatorParameterSupportTest.TestOpSpi testOpSpi;
@@ -40,16 +44,14 @@ public class OperatorMenuTest {
 
 
     @Test
-    public void testOperatorDescription() throws Exception {
-        final OperatorMenu support = new OperatorMenu(null, OperatorParameterSupportTest.TestOp.class, null, "");
+    public void testOperatorAboutText() throws Exception {
+        DefaultAppContext appContext = new DefaultAppContext("test");
+
+        final OperatorMenu support = new OperatorMenu(null, testOpSpi.getOperatorDescriptor(), null, appContext, "");
 
         assertEquals("Tester", support.getOperatorName());
 
-        String operatorDescription = support.getOperatorDescription();
-        assertFalse(operatorDescription.isEmpty());
-        assertTrue(operatorDescription.contains("<tr><td><b>Full name:</b></td><td><code>org.esa.beam.framework.gpf.ui.OperatorParameterSupportTest$TestOp</code></td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Authors:</b></td><td>Nobody</td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Version:</b></td><td>42</td></tr>"));
-        assertTrue(operatorDescription.contains("<tr><td><b>Purpose:</b></td><td>This is very stupid operator.</td></tr>"));
+        String operatorDescription = support.getOperatorAboutText();
+        assertTrue(operatorDescription.length() > 80);
     }
 }

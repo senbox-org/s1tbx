@@ -1,0 +1,39 @@
+<operator>
+    <name>com.acme.StatsOp</name>
+    <alias>stats</alias>
+
+    <sourceProducts>
+        <count>-1</count>
+        <bands>
+            <string>band_1</string>
+            <string>band_2</string>
+            <string>band_3</string>
+        </bands>
+    </sourceProducts>
+
+    <parameters>
+        <parameter>
+            <name>startDate</name>
+            <dataType>java.util.Date</dataType>
+        </parameter>
+        <parameter>
+            <name>endDate</name>
+            <dataType>java.util.Date</dataType>
+        </parameter>
+        <parameter>
+            <name>resolution</name>
+            <dataType>double</dataType>
+        </parameter>
+    </parameters>
+
+    <targetProperties>
+        <targetProperty>
+            <name>count</name>
+            <dataType>int</dataType>
+        </targetProperty>
+        <targetProperty>
+            <name>monthlyAvg</name>
+            <dataType>double</dataType>
+        </targetProperty>
+    </targetProperties>
+</operator>

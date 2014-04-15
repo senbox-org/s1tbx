@@ -48,7 +48,7 @@ public class LayerManagerToolView extends AbstractLayerToolView {
 
     @Override
     protected JComponent createControl() {
-        layerManagerMap = new WeakHashMap<ProductSceneView, LayerManagerForm>();
+        layerManagerMap = new WeakHashMap<>();
         selectionContext = new LayerSelectionContext();
         return super.createControl();
     }
@@ -67,7 +67,7 @@ public class LayerManagerToolView extends AbstractLayerToolView {
     protected void layerSelectionChanged(Layer oldLayer, Layer selectedLayer) {
         if (activeForm != null) {
             activeForm.updateFormControl();
-            selectionContext.fireSelectionChange(new DefaultSelection<Layer>(selectedLayer));
+            selectionContext.fireSelectionChange(new DefaultSelection<>(selectedLayer));
         }
     }
 
@@ -118,7 +118,7 @@ public class LayerManagerToolView extends AbstractLayerToolView {
         public Selection getSelection() {
             Layer selectedLayer = getSelectedLayer();
             if (selectedLayer != null) {
-                return new DefaultSelection<Layer>(selectedLayer);
+                return new DefaultSelection<>(selectedLayer);
             } else {
                 return DefaultSelection.EMPTY;
             }

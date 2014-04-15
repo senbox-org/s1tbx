@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,51 +18,57 @@ package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
-import java.util.HashMap;
+import java.io.Writer;
 import java.util.Map;
-import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * The default command line context.
  */
 class DefaultCommandLineContext implements CommandLineContext {
+
     @Override
     public Product readProduct(String productFilepath) throws IOException {
-        Product product;
-        product = ProductIO.readProduct(productFilepath);
+        final File input = new File(productFilepath);
+        final ProductReader productReader = ProductIO.getProductReaderForInput(input);
+        if (productReader == null) {
+            throw new OperatorException("No product reader found for '" + productFilepath + "'");
+        }
+        Product product = productReader.readProductNodes(input, null);
+        if (product.getProductReader() == null) {
+            product.setProductReader(productReader);
+        }
         return product;
     }
 
     @Override
     public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
-        WriteOp writeOp = new WriteOp(targetProduct, new File(filePath), formatName);
-        writeOp.setDeleteOutputOnFailure(true);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
-        writeOp.writeProduct(ProgressMonitor.NULL);
+        GPF.writeProduct(targetProduct, new File(filePath), formatName, clearCacheAfterRowWrite, false, ProgressMonitor.NULL);
     }
 
     @Override
-    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException {
-        FileReader fileReader = new FileReader(filepath);
+    public Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException {
+        Reader fileReader = createReader(filePath);
         Graph graph;
         try {
-            graph = GraphIO.read(fileReader, parameterMap);
+            graph = GraphIO.read(fileReader, templateVariables);
         } finally {
             fileReader.close();
         }
@@ -70,48 +76,51 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     @Override
-    public void executeGraph(Graph graph) throws GraphException {
+    public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
         GraphProcessor processor = new GraphProcessor();
+        if (observer != null) {
+            processor.addObserver(observer);
+        }
         processor.executeGraph(graph, ProgressMonitor.NULL);
-    }
-
-    @Override
-    public Map<String, String> readParameterFile(String filepath) throws IOException {
-        File file = new File(filepath);
-        String fileContent = FileUtils.readText(file);
-        if (fileContent.contains("<parameters>") && fileContent.contains("</parameters>")) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("gpt.xml.parameters", fileContent);
-            return map;
-        } else {
-            return readProperies(fileContent);
-        }
-    }
-
-    private Map<String, String> readProperies(String fileContent) throws IOException {
-        Properties properties = new Properties();
-        Reader reader = new StringReader(fileContent);
-        HashMap<String, String> hashMap;
-        try {
-            properties.load(reader);
-            hashMap = new HashMap<String, String>();
-            for (Object object : properties.keySet()) {
-                String key = object.toString();
-                hashMap.put(key, properties.getProperty(key));
-            }
-        } finally {
-            reader.close();
-        }
-        return hashMap;
-    }
-
-    @Override
-    public Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
-        return GPF.createProduct(opName, parameters, sourceProducts);
     }
 
     @Override
     public void print(String m) {
         System.out.print(m);
+    }
+
+    @Override
+    public Logger getLogger() {
+        return BeamLogManager.getSystemLogger();
+    }
+
+    @Override
+    public Reader createReader(String textFilePath) throws FileNotFoundException {
+        return new FileReader(textFilePath);
+    }
+
+    @Override
+    public Writer createWriter(String fileName) throws IOException {
+        return new FileWriter(fileName);
+    }
+
+    @Override
+    public String[] list(String path) throws IOException {
+        File directory = new File(path);
+        if (directory.exists() && directory.isDirectory()) {
+            return directory.list();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean fileExists(String fileName) {
+        return new File(fileName).exists();
+    }
+
+    @Override
+    public boolean isFile(String path) {
+        return new File(path).isFile();
     }
 }

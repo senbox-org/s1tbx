@@ -38,8 +38,12 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorInterce
     @Override
     public boolean interactionAboutToStart(Interactor interactor, InputEvent inputEvent) {
         final ProductSceneView productSceneView = getProductSceneView(inputEvent);
+        return getActiveVectorDataLayer(productSceneView) != null;
+    }
+
+    static VectorDataLayer getActiveVectorDataLayer(ProductSceneView productSceneView) {
         if (productSceneView == null) {
-            return false;
+            return null;
         }
 
         final LayerFilter geometryFilter = VectorDataLayerFilterFactory.createGeometryFilter();
@@ -47,7 +51,7 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorInterce
         Layer layer = productSceneView.getSelectedLayer();
         if (geometryFilter.accept(layer)) {
             layer.setVisible(true);
-            return true;
+            return (VectorDataLayer) layer;
         }
 
         List<Layer> layers = LayerUtils.getChildLayers(productSceneView.getRootLayer(),
@@ -67,22 +71,22 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorInterce
         }
         if (vectorDataLayer == null) {
             // = Cancel
-            return false;
+            return null;
         }
         productSceneView.setSelectedLayer(vectorDataLayer);
         if (productSceneView.getSelectedLayer() == vectorDataLayer) {
             vectorDataLayer.setVisible(true);
-            return true;
+            return vectorDataLayer;
         }
-        return false;
+        return null;
     }
 
-    private VectorDataLayer showSelectLayerDialog(ProductSceneView productSceneView, List<Layer> layers) {
+    static private VectorDataLayer showSelectLayerDialog(ProductSceneView productSceneView, List<Layer> layers) {
         String[] layerNames = new String[layers.size()];
         for (int i = 0; i < layerNames.length; i++) {
             layerNames[i] = layers.get(i).getName();
         }
-        JList listBox = new JList(layerNames);
+        JList<String> listBox = new JList<>(layerNames);
         JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.add(new JLabel("Please select a vector data container:"), BorderLayout.NORTH);
         panel.add(new JScrollPane(listBox), BorderLayout.CENTER);

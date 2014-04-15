@@ -67,8 +67,7 @@ public class ProductImportAction extends ExecCommand {
     private String readerPlugInClassName;
     private String formatName;
     private String lastDirKey;
-    private boolean useAllFileFilter = false;
-    private boolean useFilesAndFolders = false;
+    private boolean useAllFileFilter;
 
     private ProductReaderPlugIn readerPlugIn;
     private ProductImportAction.ProductFileChooser fileChooser;
@@ -134,8 +133,6 @@ public class ProductImportAction extends ExecCommand {
         Boolean useAllFileFilterObj = getConfigBoolean(config, "useAllFileFilter");
         useAllFileFilter = useAllFileFilterObj != null ? useAllFileFilterObj : false;
 
-        final Boolean useFilesAndFoldersObj = getConfigBoolean(config, "useFilesAndFolders");
-        useFilesAndFolders = useFilesAndFoldersObj != null ? useFilesAndFoldersObj : false;
         String text = getText();
         if (text == null) {
             setText(getFormatName());
@@ -230,8 +227,6 @@ public class ProductImportAction extends ExecCommand {
             }
             HelpSys.enableHelpKey(fileChooser, getHelpId());
         }
-        if(useFilesAndFolders)
-                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setCurrentDirectory(currentDir);
 
         File file = null;
@@ -244,9 +239,6 @@ public class ProductImportAction extends ExecCommand {
             }
             if (result == JFileChooser.APPROVE_OPTION) {
                 if (file != null && !file.getName().trim().equals("")) {
-                    if(useFilesAndFolders && file.isDirectory()) {
-                        return file;
-                    }
                     if (!file.exists()) {
                         visatApp.showErrorDialog("File not found:\n" + file.getPath());
                         file = null;

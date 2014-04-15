@@ -62,9 +62,18 @@ class MosaicFormModel {
     public static final String PROPERTY_UPDATE_PRODUCT = "updateProduct";
     public static final String PROPERTY_UPDATE_MODE = "updateMode";
     public static final String PROPERTY_SHOW_SOURCE_PRODUCTS = "showSourceProducts";
+    public static final String PROPERTY_ELEVATION_MODEL_NAME = "elevationModelName";
+    public static final String PROPERTY_ORTHORECTIFY = "orthorectify";
+    public static final String PROPERTY_WEST_BOUND = "westBound";
+    public static final String PROPERTY_NORTH_BOUND = "northBound";
+    public static final String PROPERTY_EAST_BOUND = "eastBound";
+    public static final String PROPERTY_SOUTH_BOUND = "southBound";
+    public static final String PROPERTY_CRS = "crs";
+    public static final String PROPERTY_PIXEL_SIZE_X = "pixelSizeX";
+    public static final String PROPERTY_PIXEL_SIZE_Y = "pixelSizeY";
 
     private final PropertySet container;
-    private final Map<String, Object> parameterMap = new HashMap<String, Object>();
+    private final Map<String, Object> parameterMap = new HashMap<>();
     private final Map<File, Product> sourceProductMap = Collections.synchronizedMap(new HashMap<File, Product>());
     private final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
 
@@ -132,7 +141,7 @@ class MosaicFormModel {
     }
 
     Map<String, Product> getSourceProductMap() {
-        final HashMap<String, Product> map = new HashMap<String, Product>(sourceProductMap.size());
+        final HashMap<String, Product> map = new HashMap<>(sourceProductMap.size());
         for (final Product product : sourceProductMap.values()) {
             map.put(GPF.SOURCE_PRODUCT_FIELD_NAME + product.getRefNo(), product);
         }
@@ -200,8 +209,8 @@ class MosaicFormModel {
             final ReferencedEnvelope envelope = getTargetEnvelope();
             final Envelope mapEnvelope = envelope.transform(mapCRS, true);
 
-            final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
-            final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
+            final double pixelSizeX = (Double) getPropertyValue(PROPERTY_PIXEL_SIZE_X);
+            final double pixelSizeY = (Double) getPropertyValue(PROPERTY_PIXEL_SIZE_Y);
             final int w = MathUtils.floorInt(mapEnvelope.getSpan(0) / pixelSizeX);
             final int h = MathUtils.floorInt(mapEnvelope.getSpan(1) / pixelSizeY);
 

@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
@@ -37,12 +38,19 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     private ImageInfoTableModel tableModel;
     private JScrollPane contentPanel;
     private final MoreOptionsForm moreOptionsForm;
-    private final TableModelListener applyEnablerTML;
+    private TableModelListener tableModelListener;
 
-    public Continuous1BandTabularForm(ColorManipulationForm parentForm) {
+    public Continuous1BandTabularForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel();
-        applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
+        tableModelListener = new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                tableModel.removeTableModelListener(tableModelListener);
+                parentForm.applyChanges();
+                tableModel.addTableModelListener(tableModelListener);
+            }
+        };
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
 
         final JTable table = new JTable(tableModel);
@@ -63,12 +71,12 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         updateFormModel(productSceneView);
-        tableModel.addTableModelListener(applyEnablerTML);
+        tableModel.addTableModelListener(tableModelListener);
     }
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
-        tableModel.removeTableModelListener(applyEnablerTML);
+        tableModel.removeTableModelListener(tableModelListener);
     }
 
     @Override

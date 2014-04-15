@@ -10,7 +10,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,7 @@ class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
     public ScatterPlotTableModel(String rasterName, String correlativDataName, ScatterPlotPanel.ComputedData[] computedDatas) {
 
         this.computedDatas = computedDatas;
-        colNames = new ArrayList<String>();
+        colNames = new ArrayList<>();
         colNames.add("pixel_no");
         colNames.add("pixel_x");
         colNames.add("pixel_y");
@@ -40,7 +39,7 @@ class ScatterPlotTableModel extends AbstractTableModel implements CsvEncoder {
         colNames.add(correlativDataName + REF_SUFFIX);
 
         final int colStart = 8;
-        propertyIndices = new HashMap<Integer, Integer>();
+        propertyIndices = new HashMap<>();
 
         int validPropertyCount = 0;
         final Collection<Property> props = computedDatas[0].featureProperties;

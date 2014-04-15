@@ -81,6 +81,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -89,7 +90,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @author Marco Peters
  */
-class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, StatisticalExportContext {
+class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.ComputeMasks, StatisticsDataProvider {
 
     private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Statistics";
@@ -187,7 +188,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         final GridBagConstraints gbc = new GridBagConstraints();
         final JLabel label = new JLabel("Statistical accuracy:");
 
-
         accuracyModel = new AccuracyModel();
         final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(accuracyModel));
         final JTextField textField = new JTextField("3");
@@ -245,7 +245,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             resultText.append(createText(raster.getStx(), null));
             contentPanel.add(createStatPanel(raster.getStx(), null));
             histograms = new Histogram[]{raster.getStx().getHistogram()};
-            exportAsCsvAction = new ExportStatisticsAsCsvAction(null);
+            exportAsCsvAction = new ExportStatisticsAsCsvAction(this);
             putStatisticsIntoVectorDataAction = new PutStatisticsIntoVectorDataAction(this);
             exportButton.setEnabled(true);
         } else {
@@ -428,9 +428,16 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 final Component label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (value instanceof Float || value instanceof Double) {
                     setHorizontalTextPosition(RIGHT);
-                    setText(String.format("%.4f", ((Number) value).doubleValue()));
+                    setText(getFormattedValue((Number) value));
                 }
                 return label;
+            }
+
+            private String getFormattedValue(Number value) {
+                if (value.doubleValue() < 0.001 && value.doubleValue() > -0.001 && value.doubleValue() != 0.0) {
+                    return new DecimalFormat("0.####E0").format(value.doubleValue());
+                }
+                return String.format("%.4f", value.doubleValue());
             }
         });
         table.addMouseListener(popupHandler);

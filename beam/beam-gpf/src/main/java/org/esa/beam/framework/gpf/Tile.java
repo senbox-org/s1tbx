@@ -385,8 +385,37 @@ public interface Tile extends Iterable<Tile.Pos> {
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
      * <p/>
-     * <p>Sample values that are masked out (see {@link #isSampleValid(int, int)}) are returned as array elements
-     * having the value {@link Float#NaN}.</p>
+     * Sample values that are masked out (see {@link #isSampleValid(int, int)}) are set to zero.
+     *
+     * @return The (geo-)physical samples computed from the underlying raw data buffer.
+     *
+     * @see #setSamples(byte[])
+     * @since BEAM 5.0
+     */
+    byte[] getSamplesByte();
+
+    /**
+     * Gets the scaled, (geo-)physical array of {@code int} samples, copied from or directly returning the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p/>
+     * Sample values that are masked out (see {@link #isSampleValid(int, int)}) are set to zero.
+     *
+     * @return The (geo-)physical samples computed from the underlying raw data buffer.
+     *
+     * @see #setSamples(short[])
+     * @since BEAM 5.0
+     */
+    short[] getSamplesShort();
+
+    /**
+     * Gets the scaled, (geo-)physical array of {@code int} samples, copied from or directly returning the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p/>
+     * Sample values that are masked out (see {@link #isSampleValid(int, int)}) are set to zero.
      *
      * @return The (geo-)physical samples computed from the underlying raw data buffer.
      *
@@ -401,8 +430,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
      * <p/>
-     * <p>Sample values that are masked out (see {@link #isSampleValid(int, int)}) are returned as array elements
-     * having the value {@link Float#NaN}.</p>
+     * Sample values that are masked out (see {@link #isSampleValid(int, int)}) are set to {@link Float#NaN}.
      *
      * @return The (geo-)physical samples computed from the underlying raw data buffer.
      *
@@ -416,14 +444,37 @@ public interface Tile extends Iterable<Tile.Pos> {
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
      * <p/>
-     * <p>Sample values that are masked out (see {@link #isSampleValid(int, int)}) are returned as array elements
-     * having the value {@link Float#NaN}.</p>
+     * Sample values that are masked out (see {@link #isSampleValid(int, int)}) are set to {@link Double#NaN}.
      *
      * @return The (geo-)physical samples computed from the underlying raw data buffer.
      *
      * @see #setSamples(double[])
      */
     double[] getSamplesDouble();
+
+    /**
+     * Sets this tile's scaled, (geo-)physical samples as array of {@code floats}s.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     *
+     * @param samples The (geo-)physical samples to be set.
+     *
+     * @see #getSamplesByte()
+     * @since BEAM 5.0
+     */
+    void setSamples(byte[] samples);
+
+    /**
+     * Sets this tile's scaled, (geo-)physical samples as array of {@code floats}s.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     *
+     * @param samples The (geo-)physical samples to be set.
+     *
+     * @see #getSamplesShort()
+     * @since BEAM 5.0
+     */
+    void setSamples(short[] samples);
 
     /**
      * Sets this tile's scaled, (geo-)physical samples as array of {@code floats}s.

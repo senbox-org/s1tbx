@@ -121,20 +121,20 @@ public class CreateGeoCodingDisplacementBandsAction extends ExecCommand {
         }));
 
         final Band bandX = new Band("gc_displ_x", ProductData.TYPE_FLOAT32, width, height);
-        configureBand(bandX, (ImageInfo)blueToRedGrad.clone(), "pixels", "Geo-coding X-displacement");
+        configureBand(bandX, blueToRedGrad.clone(), "pixels", "Geo-coding X-displacement");
 
         final Band bandY = new Band("gc_displ_y", ProductData.TYPE_FLOAT32, width, height);
-        configureBand(bandY, (ImageInfo)blueToRedGrad.clone(), "pixels", "Geo-coding Y-displacement");
+        configureBand(bandY, blueToRedGrad.clone(), "pixels", "Geo-coding Y-displacement");
 
         final Band bandAmpl = new VirtualBand("gc_displ_ampl",
                                               ProductData.TYPE_FLOAT32, width, height,
                                               "ampl(gc_displ_x, gc_displ_y)");
-        configureBand(bandAmpl, (ImageInfo)amplGrad.clone(), "pixels", "Geo-coding displacement amplitude");
+        configureBand(bandAmpl, amplGrad.clone(), "pixels", "Geo-coding displacement amplitude");
 
         final Band bandPhase = new VirtualBand("gc_displ_phase",
                                                ProductData.TYPE_FLOAT32, width, height,
                                                "phase(gc_displ_x, gc_displ_y)");
-        configureBand(bandPhase, (ImageInfo)phaseGrad.clone(), "radians", "Geo-coding displacement phase");
+        configureBand(bandPhase, phaseGrad.clone(), "radians", "Geo-coding displacement phase");
 
         final float[] dataX = new float[width * height];
         final float[] dataY = new float[width * height];

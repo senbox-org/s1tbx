@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -138,14 +138,14 @@ public class BandMathsDialog extends ModalDialog {
 
         targetProduct.addBand(band);
 
-        if (!saveExpressionOnly) {
+        if (saveExpressionOnly) {
+            checkExpressionForExternalReferences(getExpression());
+        } else {
             String expression = getExpression();
             if (validMaskExpression != null && !validMaskExpression.isEmpty()) {
                 expression = "(" + validMaskExpression + ") ? (" + expression + ") : NaN";
             }
             band.setSourceImage(VirtualBand.createVirtualSourceImage(band, expression));
-        } else {
-            checkExpressionForExternalReferences(getExpression());
         }
 
         hide();
@@ -310,7 +310,7 @@ public class BandMathsDialog extends ModalDialog {
         descriptor.setNotEmpty(true);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_SAVE_EXPRESSION_ONLY);
-        descriptor.setDisplayName("Virtual (save expression only, don't write data)");
+        descriptor.setDisplayName("Virtual (save expression only, don't store data)");
         descriptor.setDefaultValue(Boolean.TRUE);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE_USED);

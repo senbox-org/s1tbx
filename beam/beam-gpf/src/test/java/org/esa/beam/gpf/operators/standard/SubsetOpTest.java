@@ -39,12 +39,18 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class SubsetOpTest {
 
@@ -110,7 +116,7 @@ public class SubsetOpTest {
         Product tp = GPF.createProduct("Subset", parameters, sp);
         assertNotNull(tp);
         assertEquals(100, tp.getSceneRasterWidth());
-        assertEquals(51, tp.getSceneRasterHeight());
+        assertEquals(50, tp.getSceneRasterHeight());
     }
 
 
@@ -137,9 +143,9 @@ public class SubsetOpTest {
 
         final Product tp = op.getTargetProduct();
         assertNotNull(tp);
-        assertEquals(new Rectangle(25, 25, 51, 51), op.getRegion());
-        assertEquals(51, tp.getSceneRasterWidth());
-        assertEquals(51, tp.getSceneRasterHeight());
+        assertEquals(new Rectangle(25, 25, 50, 50), op.getRegion());
+        assertEquals(50, tp.getSceneRasterWidth());
+        assertEquals(50, tp.getSceneRasterHeight());
         assertNotNull(tp.getBand("radiance_1"));
         assertNotNull(tp.getBand("radiance_3"));
     }
@@ -172,11 +178,11 @@ public class SubsetOpTest {
 
         // BBOX fully contained, with border=0
         rectangle = SubsetOp.computePixelRegion(product, createBBOX(0.0, 0.0, 10.0, 10.0), 0);
-        assertEquals(new Rectangle(50, 25, 11, 11), rectangle);
+        assertEquals(new Rectangle(50, 25, 10, 10), rectangle);
 
         // BBOX fully contained, with border=1
         rectangle = SubsetOp.computePixelRegion(product, createBBOX(0.0, 0.0, 10.0, 10.0), 1);
-        assertEquals(new Rectangle(49, 24, 13, 13), rectangle);
+        assertEquals(new Rectangle(49, 24, 12, 12), rectangle);
 
         // BBOX intersects product rect in upper left
         rectangle = SubsetOp.computePixelRegion(product, createBBOX(45.5, 20.5, 100.0, 50.0), 0);
@@ -228,6 +234,34 @@ public class SubsetOpTest {
         assertNotNull(meta2_1);
         final MetadataAttribute attrib2_1 = meta2_1.getAttribute("attrib2_1");
         assertEquals("meta2_1_value", attrib2_1.getData().getElemString());
+    }
+
+    @Test
+    public void testAvoidCopyMetadata() throws Exception {
+        final Product sp = createTestProduct(100, 100);
+        addMetadata(sp);
+        final String[] bandNames = {"radiance_1", "radiance_3"};
+
+        SubsetOp op = new SubsetOp();
+        op.setSourceProduct(sp);
+        op.setBandNames(bandNames);
+        op.setCopyMetadata(false);
+
+        assertSame(sp, op.getSourceProduct());
+        assertNotSame(bandNames, op.getBandNames());
+
+        Product tp = op.getTargetProduct();
+
+        assertEquals(2, tp.getNumBands());
+        assertNotNull(tp.getBand("radiance_1"));
+        assertNull(tp.getBand("radiance_2"));
+        assertNotNull(tp.getBand("radiance_3"));
+
+        final MetadataElement root = tp.getMetadataRoot();
+        assertNotNull(root);
+        assertFalse(root.containsElement("attribRoot"));
+        assertFalse(root.containsElement("meta1"));
+        assertFalse(root.containsElement("meta2"));
     }
 
     private static Polygon createBBOX(double x, double y, double w, double h) {

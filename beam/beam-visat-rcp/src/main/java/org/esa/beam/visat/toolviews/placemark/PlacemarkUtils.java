@@ -23,8 +23,7 @@ public class PlacemarkUtils {
         if (styleCss.contains(DefaultFigureStyle.FILL_COLOR.getName())) {
             return DefaultFigureStyle.createFromCss(styleCss).getFillColor();
         }
-        final FigureCollection figureCollection = view.getFigureEditor().getFigureCollection();
-        final Figure[] figures = figureCollection.getFigures();
+        final Figure[] figures = getFigures(view);
         for (Figure figure : figures) {
             if (figure instanceof SimpleFeaturePointFigure) {
                 final SimpleFeature simpleFeature = ((SimpleFeaturePointFigure) figure).getSimpleFeature();
@@ -34,6 +33,14 @@ public class PlacemarkUtils {
             }
         }
         return Color.BLUE;
+    }
+
+    private static Figure[] getFigures(ProductSceneView view) {
+        if (view == null) {
+            return new Figure[0];
+        }
+        final FigureCollection figureCollection = view.getFigureEditor().getFigureCollection();
+        return figureCollection.getFigures();
     }
 
 }

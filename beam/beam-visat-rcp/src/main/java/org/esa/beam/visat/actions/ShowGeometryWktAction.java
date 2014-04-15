@@ -50,7 +50,7 @@ import java.awt.BorderLayout;
  */
 public class ShowGeometryWktAction extends AbstractVisatAction implements SelectionChangeListener {
 
-    private static final String DLG_TITLE = "Geometry as WKT";
+    private static final String DLG_TITLE = "WKT from Geometry";
 
     private SelectionManager selectionManager;
 

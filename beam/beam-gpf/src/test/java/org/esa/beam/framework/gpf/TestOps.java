@@ -16,7 +16,12 @@
 
 package org.esa.beam.framework.gpf;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -26,11 +31,13 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
-import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.util.converters.JtsGeometryConverter;
+import org.geotools.referencing.CRS;
 
 import java.awt.Rectangle;
 import java.util.Map;
 
+@SuppressWarnings("UnusedDeclaration")
 public class TestOps {
 
     public static final int RASTER_WIDTH = 3;
@@ -99,10 +106,10 @@ public class TestOps {
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws
                                                                                                            OperatorException {
             //System.out.println("=====>>>>>> Op2.computeAllBands  start");
-            Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle);
+            getSourceTile(input.getBand("Op1A"), rectangle);
 
-            Tile tile2A = targetTiles.get(output.getBand("Op2A"));
-            Tile tile2B = targetTiles.get(output.getBand("Op2B"));
+            targetTiles.get(output.getBand("Op2A"));
+            targetTiles.get(output.getBand("Op2B"));
             //System.out.println("=====>>>>>> Op2.computeAllBands end");
 
             registerCall("Op2;");
@@ -157,14 +164,14 @@ public class TestOps {
                                                                                                            OperatorException {
             //System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
-            Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle);
-            Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle);
-            Tile tile2B = getSourceTile(input2.getBand("Op2B"), rectangle);
+            getSourceTile(input1.getBand("Op1A"), rectangle);
+            getSourceTile(input2.getBand("Op2A"), rectangle);
+            getSourceTile(input2.getBand("Op2B"), rectangle);
 
-            Tile tile3A = targetTiles.get(output.getBand("Op3A"));
-            Tile tile3B = targetTiles.get(output.getBand("Op3B"));
-            Tile tile3C = targetTiles.get(output.getBand("Op3C"));
-            Tile tile3D = targetTiles.get(output.getBand("Op3D"));
+            targetTiles.get(output.getBand("Op3A"));
+            targetTiles.get(output.getBand("Op3B"));
+            targetTiles.get(output.getBand("Op3C"));
+            targetTiles.get(output.getBand("Op3D"));
             registerCall("Op3;");
 
             //System.out.println("=====>>>>>> Op3.computeAllBands  end");
@@ -246,8 +253,8 @@ public class TestOps {
         }
     }
 
-    @OperatorMetadata(alias = "OutputOp")
-    public static class OpImplementingOutput extends Operator implements Output {
+    @OperatorMetadata(alias = "OutputOp", autoWriteDisabled = true)
+    public static class OpImplementingOutput extends Operator {
 
         @TargetProduct
         private Product targetProduct;
@@ -260,15 +267,65 @@ public class TestOps {
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
-            //System.out.println("=====>>>>>> Op4.computeBand  start");
+            //System.out.println("=====>>>>>> OutputOp.computeBand  start");
             registerCall("OutputOp;");
-            //System.out.println("=====>>>>>> Op4.computeBand  end");
+            //System.out.println("=====>>>>>> OutputOp.computeBand  end");
         }
 
         public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(OpImplementingOutput.class);
+            }
+        }
+    }
+
+    @OperatorMetadata(alias = "OpWithConverter")
+    public static class OpParameterConverter extends Operator {
+
+        @Parameter(converter = JtsGeometryConverter.class)
+        private Geometry parameterWithConverter;
+
+        @Parameter(domConverter = TestDomConverter.class)
+        private CRS parameterWithDomConverter;
+
+        @TargetProduct
+        private Product targetProduct;
+
+        @Override
+        public void initialize() {
+            targetProduct = new Product("OpWithConverter", "Converting", RASTER_WIDTH, RASTER_HEIGHT);
+            targetProduct.addBand(new Band("region", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+        }
+
+        @Override
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
+            registerCall("OpWithConverter;");
+        }
+
+        public static class Spi extends OperatorSpi {
+
+            public Spi() {
+                super(OpParameterConverter.class);
+            }
+        }
+
+        public static class TestDomConverter implements DomConverter {
+
+
+            @Override
+            public Class<?> getValueType() {
+                return null;
+            }
+
+            @Override
+            public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException, ValidationException {
+                return null;
+            }
+
+            @Override
+            public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
+
             }
         }
     }

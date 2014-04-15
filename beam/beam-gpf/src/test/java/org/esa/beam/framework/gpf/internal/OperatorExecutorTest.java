@@ -238,8 +238,7 @@ public class OperatorExecutorTest {
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
-        System.setProperty("beam.gpf.executionOrder", "SCHEDULE_ROW_COLUMN_BAND");
-        operatorExecutor.execute(OperatorExecutor.ExecutionOrder.PULL_ROW_BAND_COLUMN, ProgressMonitor.NULL);
+        operatorExecutor.execute(OperatorExecutor.ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, ProgressMonitor.NULL);
 
         assertEquals(13, recordingTileScheduler.recordedCalls.size());
 

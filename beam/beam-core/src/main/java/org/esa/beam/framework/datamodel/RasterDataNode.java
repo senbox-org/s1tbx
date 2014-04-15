@@ -2025,7 +2025,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
             synchronized (this) {
                 if (!isValidMaskImageSet() && isValidMaskUsed()) {
-                    validMaskImage = ImageManager.getInstance().getMaskImage(getValidMaskExpression(), getProduct());
+                    validMaskImage = ImageManager.getInstance().getMaskImage(getValidMaskExpression(), getProduct(), this);
                     //validMaskImage = ImageManager.getInstance().createValidMaskMultiLevelImage(this);    //NESTMOD
                 }
             }

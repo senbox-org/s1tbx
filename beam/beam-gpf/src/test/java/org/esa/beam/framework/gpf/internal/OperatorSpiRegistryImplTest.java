@@ -16,29 +16,86 @@
 
 package org.esa.beam.framework.gpf.internal;
 
-import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.GPF;
+import com.bc.ceres.core.ServiceRegistry;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * A registry for operator SPI instances.
- *
- * @author Marco Zuehlke
- * @version $Revision$ $Date$
- * @since 4.1
- */
-public class OperatorSpiRegistryImplTest extends TestCase {
+import java.util.Set;
 
-    public void testAlias() {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+public class OperatorSpiRegistryImplTest {
+
+    private OperatorSpiRegistry registry;
+
+    @Before
+    public void setUp() throws Exception {
+        registry = new OperatorSpiRegistryImpl();
+        Set<OperatorSpi> alreadyRegisteredSpis = registry.getOperatorSpis();
+        for (OperatorSpi alreadyRegisteredSpi : alreadyRegisteredSpis) {
+            registry.removeOperatorSpi(alreadyRegisteredSpi);
+        }
+    }
+
+    @Test
+    public void testAddRemoveWithAndWithoutAlias() {
         DummyOp.Spi spi = new DummyOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-        assertSame(spi, GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(DummyOp.Spi.class.getName()));
-        assertSame(spi, GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Heino"));
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-        assertNull(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(DummyOp.Spi.class.getName()));
-        assertNull(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Heino"));
+
+        assertTrue(registry.addOperatorSpi(spi));
+        assertFalse(registry.addOperatorSpi(spi));
+        assertSame(spi, registry.getOperatorSpi(DummyOp.Spi.class.getName()));
+        assertSame(spi, registry.getOperatorSpi("Heino"));
+
+        Set<OperatorSpi> operatorSpis = registry.getOperatorSpis();
+        assertEquals(1, operatorSpis.size());
+        assertTrue(operatorSpis.contains(spi));
+
+        assertTrue(registry.removeOperatorSpi(spi));
+        assertFalse(registry.removeOperatorSpi(spi));
+        assertNull(registry.getOperatorSpi(DummyOp.Spi.class.getName()));
+        assertNull(registry.getOperatorSpi("Heino"));
+    }
+
+    @Test
+    public void testMultipleSpiInstanceOfSameClass() {
+
+        DummyOp.Spi heino1 = new DummyOp.Spi();
+        DummyOp.Spi heino2 = new DummyOp.Spi();
+        DummyOp.Spi heino3 = new DummyOp.Spi();
+
+        assertTrue(registry.addOperatorSpi("Heino1", heino1));
+        assertTrue(registry.addOperatorSpi("Heino2", heino2));
+        assertTrue(registry.addOperatorSpi("Heino3", heino3));
+
+        assertFalse(registry.addOperatorSpi("Heino1", heino1));
+        assertFalse(registry.addOperatorSpi("Heino2", heino2));
+        assertFalse(registry.addOperatorSpi("Heino3", heino3));
+
+        assertSame(heino1, registry.getOperatorSpi("Heino1"));
+        assertSame(heino2, registry.getOperatorSpi("Heino2"));
+        assertSame(heino3, registry.getOperatorSpi("Heino3"));
+
+        // We can't use the ServiceRegistry for keeping the services in this case, because all three
+        // have the same class name (= key)
+        ServiceRegistry<OperatorSpi> serviceRegistry = registry.getServiceRegistry();
+        Set<OperatorSpi> services = serviceRegistry.getServices();
+        assertFalse(services.contains(heino1));
+        assertFalse(services.contains(heino2));
+        assertFalse(services.contains(heino3));
+
+        Set<OperatorSpi> operatorSpis = registry.getOperatorSpis();
+        assertEquals(3, operatorSpis.size());
+        assertTrue(operatorSpis.contains(heino1));
+        assertTrue(operatorSpis.contains(heino2));
+        assertTrue(operatorSpis.contains(heino3));
     }
 
     @OperatorMetadata(alias = "Heino")

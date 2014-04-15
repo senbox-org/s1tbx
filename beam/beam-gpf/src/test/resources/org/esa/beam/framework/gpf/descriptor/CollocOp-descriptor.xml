@@ -1,0 +1,35 @@
+<operator>
+    <name>com.acme.CollocOp</name>
+    <alias>colloc</alias>
+    <label>Collocation</label>
+    <internal>true</internal>
+
+    <namedSourceProducts>
+        <sourceProduct>
+            <name>masterProduct</name>
+            <alias>master</alias>
+        </sourceProduct>
+        <sourceProduct>
+            <optional>true</optional>
+            <name>slaveProduct</name>
+            <alias>slave</alias>
+        </sourceProduct>
+    </namedSourceProducts>
+
+    <parameters>
+        <parameter>
+            <name>threshold</name>
+            <dataType>double</dataType>
+        </parameter>
+        <parameter>
+            <name>ignoreInvalids</name>
+            <dataType>boolean</dataType>
+        </parameter>
+        <parameter>
+            <name>algorithmName</name>
+            <dataType>java.lang.String</dataType>
+        </parameter>
+    </parameters>
+
+    <targetProduct/>
+</operator>

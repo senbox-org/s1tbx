@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,8 +18,9 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.Guardian;
@@ -28,7 +29,6 @@ import org.esa.beam.util.SystemUtils;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class GPF {
      * both width and height positive.
      */
     public static final RenderingHints.Key KEY_TILE_SIZE =
-            new RenderingKey<Dimension>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
+            new RenderingKey<>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
                 @Override
                 public boolean isValid(Dimension val) {
                     return val.width > 0 && val.height > 0;
@@ -218,28 +218,28 @@ public class GPF {
                                         RenderingHints renderingHints) throws OperatorException {
         Map<String, Product> sourceProductMap = NO_SOURCES;
         if (sourceProducts.length > 0) {
-            sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
             if (operatorSpi == null) {
                 throw new OperatorException(
                         String.format("Unknown operator '%s'. Note that operator aliases are case sensitive.",
                                       operatorName));
             }
-            Field[] declaredFields = operatorSpi.getOperatorClass().getDeclaredFields();
-            for (Field declaredField : declaredFields) {
-                SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
-                if (sourceProductAnnotation != null) {
-                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME, sourceProducts[0]);
-                }
-                SourceProducts sourceProductsAnnotation = declaredField.getAnnotation(SourceProducts.class);
-                if (sourceProductsAnnotation != null) {
-                    for (int i = 0; i < sourceProducts.length; i++) {
-                        Product sourceProduct = sourceProducts[i];
-                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + "." + (i + 1), sourceProduct);
-                        // kept for backward compatibility
-                        // since BEAM 4.9 the pattern above is preferred
-                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
-                    }
+
+            sourceProductMap = new HashMap<>(sourceProducts.length * 3);
+            OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+            SourceProductDescriptor[] sourceProductDescriptors = operatorDescriptor.getSourceProductDescriptors();
+            if(sourceProductDescriptors.length > 0) {
+                sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME, sourceProducts[0]);
+            }
+
+            SourceProductsDescriptor sourceProductsDescriptor = operatorDescriptor.getSourceProductsDescriptor();
+            if(sourceProductsDescriptor != null) {
+                for (int i = 0; i < sourceProducts.length; i++) {
+                    Product sourceProduct = sourceProducts[i];
+                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + "." + (i + 1), sourceProduct);
+                    // kept for backward compatibility
+                    // since BEAM 4.9 the pattern above is preferred
+                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
                 }
             }
         }
@@ -382,27 +382,33 @@ public class GPF {
      * @param pm          a monitor to inform the user about progress
      */
     public static void writeProduct(Product product, File file, String formatName, boolean incremental, ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(product, file, formatName);
-        writeOp.setDeleteOutputOnFailure(true);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.setClearCacheAfterRowWrite(true);
-        writeOp.setIncremental(incremental);
-        writeOp.writeProduct(pm);
+        writeProduct(product, file, formatName, false, incremental, pm);
     }
+
+    /**
+      * Writes a product with the specified format to the given file.
+      *
+      * @param product     the product
+      * @param file        the product file
+      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+      *                    "BEAM-DIMAP" will be used
+      * @param clearCacheAfterRowWrite if true, the internal tile cache is cleared after a tile row has been written.
+      * @param incremental switch the product writer in incremental mode or not.
+      * @param pm          a monitor to inform the user about progress
+      */
+     public static void writeProduct(Product product, File file, String formatName, boolean clearCacheAfterRowWrite, boolean incremental, ProgressMonitor pm) {
+         WriteOp writeOp = new WriteOp(product, file, formatName);
+         writeOp.setDeleteOutputOnFailure(true);
+         writeOp.setWriteEntireTileRows(true);
+         writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
+         writeOp.setIncremental(incremental);
+         writeOp.writeProduct(pm);
+     }
 
     static class RenderingKey<T> extends RenderingHints.Key {
 
         private final Class<T> objectClass;
         private final Validator<T> validator;
-
-        RenderingKey(int privateKey, Class<T> objectClass) {
-            this(privateKey, objectClass, new Validator<T>() {
-                @Override
-                public boolean isValid(T val) {
-                    return true;
-                }
-            });
-        }
 
         RenderingKey(int privateKey, Class<T> objectClass, Validator<T> validator) {
             super(privateKey);

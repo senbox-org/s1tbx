@@ -50,6 +50,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.ListCellRenderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -97,8 +98,8 @@ class DensityPlotPanel extends ChartPagePanel {
     private DataSourceConfig dataSourceConfig;
     private Property xBandProperty;
     private Property yBandProperty;
-    private JComboBox xBandList;
-    private JComboBox yBandList;
+    private JComboBox<ListCellRenderer> xBandList;
+    private JComboBox<ListCellRenderer> yBandList;
 
     private static AxisRangeControl[] axisRangeControls = new AxisRangeControl[2];
     private IndexColorModel toggledColorModel;
@@ -106,7 +107,6 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private ChartPanel densityPlotDisplay;
     private XYImagePlot plot;
-    private PlotAreaSelectionTool plotAreaSelectionTool;
     private static final Color backgroundColor = new Color(255, 255, 255, 0);
     private boolean plotColorsInverted;
     private JCheckBox toggleColorCheckBox;
@@ -147,7 +147,7 @@ class DensityPlotPanel extends ChartPagePanel {
         if (!(sourceNode instanceof Mask)) {
             return;
         }
-        final String maskName = ((Mask) sourceNode).getName();
+        final String maskName = sourceNode.getName();
         if (roiMask.getName().equals(maskName)) {
             updateComponents();
         }
@@ -188,7 +188,7 @@ class DensityPlotPanel extends ChartPagePanel {
         dataSourceConfig = new DataSourceConfig();
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
 
-        xBandList = new JComboBox();
+        xBandList = new JComboBox<>();
         xBandList.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -202,7 +202,7 @@ class DensityPlotPanel extends ChartPagePanel {
         bindingContext.bind(PROPERTY_NAME_X_BAND, xBandList);
         xBandProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_X_BAND);
 
-        yBandList = new JComboBox();
+        yBandList = new JComboBox<>();
         yBandList.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -457,7 +457,7 @@ class DensityPlotPanel extends ChartPagePanel {
                     plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "X", false));
                     plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Y", false));
                     toggleColorCheckBox.setEnabled(true);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException | CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
@@ -465,23 +465,7 @@ class DensityPlotPanel extends ChartPagePanel {
                             /*I18N*/
                             CHART_TITLE, /*I18N*/
                             JOptionPane.ERROR_MESSAGE);
-                } catch (CancellationException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
-                                                          "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
-                                                          "An error occurred:\n" +
-                                                          e.getCause().getMessage(),
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
-                } catch (IllegalArgumentException e) {
+                } catch (ExecutionException | IllegalArgumentException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
@@ -510,7 +494,7 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private RasterDataNode[] createAvailableBandList() {
         final Product product = getProduct();
-        final List<RasterDataNode> availableBandList = new ArrayList<RasterDataNode>(17);
+        final List<RasterDataNode> availableBandList = new ArrayList<>(17);
         if (product != null) {
             for (int i = 0; i < product.getNumBands(); i++) {
                 availableBandList.add(product.getBandAt(i));

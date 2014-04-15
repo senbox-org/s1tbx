@@ -724,12 +724,12 @@ public class ImageManager {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public RenderedImage getMaskImage(final Product product, final String expression, int level) {
-        MultiLevelImage mli = getMaskImage(expression, product);
+    public RenderedImage getMaskImage(final Product product, final RasterDataNode rasterDataNode, final String expression, int level) {
+        MultiLevelImage mli = getMaskImage(expression, product, rasterDataNode);
         return mli.getImage(level);
     }
 
-    public MultiLevelImage getMaskImage(final String expression, final Product product) {
+    public MultiLevelImage getMaskImage(final String expression, final Product product, final RasterDataNode rasterDataNode) {
         synchronized (maskImageMap) {
             final MaskKey key = new MaskKey(product, expression);
             MultiLevelImage mli = maskImageMap.get(key);
@@ -738,9 +738,15 @@ public class ImageManager {
 
                     @Override
                     public RenderedImage createImage(int level) {
+                        int width = product.getSceneRasterWidth();
+                        int height = product.getSceneRasterHeight();
+                        if(rasterDataNode != null) {
+                            width = rasterDataNode.getRasterWidth();
+                            height = rasterDataNode.getRasterHeight();
+                        }
                         return VirtualBandOpImage.createMask(expression,
                                                              product,
-                                                             product.getSceneRasterWidth(), product.getSceneRasterHeight(),
+                                                             width, height,
                                                              ResolutionLevel.create(getModel(), level));
                     }
                 };
@@ -823,7 +829,7 @@ public class ImageManager {
 
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask,
                                               int level) {
-        RenderedImage image = getMaskImage(product, expression, level);
+        RenderedImage image = getMaskImage(product, null, expression, level);
         return createColoredMaskImage(color, image, invertMask);
     }
 

@@ -16,7 +16,12 @@
 
 package org.esa.beam.framework.gpf.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Marks the target product field of an {@link org.esa.beam.framework.gpf.Operator Operator}.
@@ -27,6 +32,12 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface TargetProduct {
+    /**
+     * @return A human-readable version of the name to be used in user interfaces.
+     *         Defaults to the empty string (= not set).
+     */
+    String label() default "";
+
     /**
      * @return A brief description of the target product.
      *         Defaults to the empty string (= not set).
