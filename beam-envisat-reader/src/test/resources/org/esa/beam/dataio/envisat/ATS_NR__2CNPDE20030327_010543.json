@@ -9,25 +9,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 62.5,
-                    "y": 165.5,
-                    "lat": 6.155774,
-                    "lon": 132.65126
+                    "x": 220.0,
+                    "y": 270.0,
+                    "lat": 4.885184,
+                    "lon": 133.99171
                 },
                 {
-                    "x": 119.5,
-                    "y": 187.5,
-                    "lat": 5.849734,
-                    "lon": 133.11139
-                },
-                {
-                    "x": 506.5,
-                    "y": 375.5,
-                    "lat": 3.4178152,
-                    "lon": 136.1462
+                    "x": 380.0,
+                    "y": 327.0,
+                    "lat": 4.040528,
+                    "lon": 135.3911
                 }
             ],
-            "reverseAccuracy": 0.07
+            "reverseAccuracy": 0.05
         },
         "flagCodings": [
             {
@@ -112,23 +106,18 @@
                 "description": "Latitudes",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 6.155774
+                        "x": 26,
+                        "y": 89,
+                        "value": 6.894981
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 5.849734
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 3.4178152
+                        "x": 350,
+                        "y": 428,
+                        "value": 3.1995294
                     }
                 ]
             },
@@ -137,23 +126,18 @@
                 "description": "Longitudes",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 132.65126
+                        "x": 148,
+                        "y": 129,
+                        "value": 133.59026
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 133.11139
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 136.1462
+                        "x": 312,
+                        "y": 184,
+                        "value": 135.0352
                     }
                 ]
             },
@@ -162,23 +146,18 @@
                 "description": "Latitude corrections, nadir view",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 0.0
-                    },
-                    {
-                        "x": 119,
-                        "y": 187,
-                        "value": 0.0
-                    },
-                    {
-                        "x": 506,
+                        "x": 281,
                         "y": 375,
-                        "value": -3.3918777E-4
+                        "value": 0.0
+                    },
+                    {
+                        "x": 311,
+                        "y": 467,
+                        "value": 0.0
                     }
                 ]
             },
@@ -187,23 +166,18 @@
                 "description": "Longitude corrections, nadir view",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
+                        "x": 81,
+                        "y": 335,
                         "value": 0.0
                     },
                     {
-                        "x": 119,
-                        "y": 187,
+                        "x": 265,
+                        "y": 460,
                         "value": 0.0
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": -3.3918777E-4
                     }
                 ]
             },
@@ -212,23 +186,18 @@
                 "description": "Latitude corrections, forward view",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
+                        "x": 387,
+                        "y": 244,
                         "value": 0.0
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 0.0
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": -3.3918777E-4
+                        "x": 486,
+                        "y": 244,
+                        "value": -0.012222405
                     }
                 ]
             },
@@ -237,23 +206,18 @@
                 "description": "Longitude corrections, forward view",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
+                        "x": 174,
+                        "y": 453,
                         "value": 0.0
                     },
                     {
-                        "x": 119,
-                        "y": 187,
+                        "x": 5,
+                        "y": 237,
                         "value": 0.0
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": -3.3918777E-4
                     }
                 ]
             },
@@ -262,23 +226,18 @@
                 "description": "Topographic altitude",
                 "offsetX": "-19.0",
                 "offsetY": "0.0",
-                "subSamplingX": "25.0",
+                "subSamplingX": "23.272728",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": -3870.929
+                        "x": 167,
+                        "y": 99,
+                        "value": -1455.785
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": -3398.6418
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": -5193.328
+                        "x": 139,
+                        "y": 21,
+                        "value": -3503.3494
                     }
                 ]
             },
@@ -287,23 +246,18 @@
                 "description": "Solar elevation nadir view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 57.60855
+                        "x": 497,
+                        "y": 304,
+                        "value": 61.252064
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 58.12459
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 61.34875
+                        "x": 293,
+                        "y": 361,
+                        "value": 59.489025
                     }
                 ]
             },
@@ -312,23 +266,18 @@
                 "description": "Satellite elevation nadir view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 73.85178
+                        "x": 118,
+                        "y": 250,
+                        "value": 78.427635
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 78.734436
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 68.56702
+                        "x": 164,
+                        "y": 364,
+                        "value": 82.19814
                     }
                 ]
             },
@@ -337,23 +286,18 @@
                 "description": "Solar azimuth nadir view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 95.30362
+                        "x": 183,
+                        "y": 251,
+                        "value": 93.92683
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 94.936386
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 91.325485
+                        "x": 206,
+                        "y": 222,
+                        "value": 94.33305
                     }
                 ]
             },
@@ -362,23 +306,18 @@
                 "description": "Satellite azimuth nadir view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 85.98625
+                        "x": 294,
+                        "y": 46,
+                        "value": -46.010162
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 91.244194
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": -54.189175
+                        "x": 330,
+                        "y": 7,
+                        "value": -71.21145
                     }
                 ]
             },
@@ -387,23 +326,18 @@
                 "description": "Solar elevation forward view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 57.115467
+                        "x": 499,
+                        "y": 185,
+                        "value": 60.9213
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 57.596867
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 60.918488
+                        "x": 486,
+                        "y": 476,
+                        "value": 60.498962
                     }
                 ]
             },
@@ -412,23 +346,18 @@
                 "description": "Satellite elevation forward view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 36.090736
+                        "x": 56,
+                        "y": 227,
+                        "value": 36.19021
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 35.388874
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 37.446526
+                        "x": 292,
+                        "y": 283,
+                        "value": 34.83355
                     }
                 ]
             },
@@ -437,23 +366,18 @@
                 "description": "Solar azimuth forward view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 95.1919
+                        "x": 258,
+                        "y": 262,
+                        "value": 93.55943
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 94.81782
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 91.27807
+                        "x": 230,
+                        "y": 292,
+                        "value": 93.160194
                     }
                 ]
             },
@@ -462,23 +386,18 @@
                 "description": "Satellite azimuth forward view",
                 "offsetX": "6.0",
                 "offsetY": "0.0",
-                "subSamplingX": "50.0",
+                "subSamplingX": "51.2",
                 "subSamplingY": "32.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 24.894331
+                        "x": 7,
+                        "y": 214,
+                        "value": 29.076117
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 20.967472
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": -4.6419787
+                        "x": 35,
+                        "y": 500,
+                        "value": 27.100168
                     }
                 ]
             }
@@ -494,19 +413,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 301.78
-                    },
-                    {
-                        "x": 119,
-                        "y": 187,
-                        "value": 301.84
-                    },
-                    {
-                        "x": 506,
+                        "x": 151,
                         "y": 375,
-                        "value": 302.41998
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 411,
+                        "y": 371,
+                        "value": "NaN"
                     }
                 ]
             },
@@ -520,18 +434,13 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 301.03
+                        "x": 427,
+                        "y": 476,
+                        "value": "NaN"
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 301.3
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
+                        "x": 127,
+                        "y": 268,
                         "value": "NaN"
                     }
                 ]
@@ -546,19 +455,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": "NaN"
+                        "x": 312,
+                        "y": 131,
+                        "value": 268.69998
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": "NaN"
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": "NaN"
+                        "x": 283,
+                        "y": 76,
+                        "value": 252.65999
                     }
                 ]
             },
@@ -572,19 +476,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": "NaN"
+                        "x": 243,
+                        "y": 281,
+                        "value": 0.0
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": "NaN"
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": "NaN"
+                        "x": 48,
+                        "y": 428,
+                        "value": 0.0
                     }
                 ]
             },
@@ -598,18 +497,13 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
+                        "x": 49,
+                        "y": 39,
                         "value": "NaN"
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": "NaN"
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
+                        "x": 232,
+                        "y": 340,
                         "value": "NaN"
                     }
                 ]
@@ -623,18 +517,13 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
+                        "x": 238,
+                        "y": 451,
                         "value": "NaN"
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": "NaN"
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
+                        "x": 444,
+                        "y": 302,
                         "value": "NaN"
                     }
                 ]
@@ -648,19 +537,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 62,
-                        "y": 165,
-                        "value": 581.0
+                        "x": 492,
+                        "y": 192,
+                        "value": 4385.0
                     },
                     {
-                        "x": 119,
-                        "y": 187,
-                        "value": 517.0
-                    },
-                    {
-                        "x": 506,
-                        "y": 375,
-                        "value": 2369.0
+                        "x": 44,
+                        "y": 268,
+                        "value": 4385.0
                     }
                 ]
             }
@@ -763,12 +647,12 @@
         ],
         "metadata": [
             {
-                "path": "GEOLOCATION_ADS/GEOLOCATION_ADS.9/lat_corr_forv",
-                "value": "-16959,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-16959"
+                "path": "FWARD_VIEW_SOLAR_ANGLES_ADS/FWARD_VIEW_SOLAR_ANGLES_ADS.10/tie_pt_sat_azi",
+                "value": "-4581,-674,2859,6208,9370,12438,15508,18579,21841,25389,29220"
             },
             {
-                "path": "NADIR_VIEW_SOLAR_ANGLES_ADS/NADIR_VIEW_SOLAR_ANGLES_ADS.1/attach_flag",
-                "value": "0"
+                "path": "SPH/LAST_MID_LONG",
+                "value": "133740326"
             }
         ]
     }
