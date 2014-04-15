@@ -15,6 +15,8 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import static org.esa.beam.framework.datamodel.ColorPaletteDef.Point;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import org.junit.*;
@@ -45,63 +47,45 @@ public class ColorPaletteDefTest {
         assertEquals(Color.GRAY, cpd.getPointAt(1).getColor());
         assertEquals(Color.WHITE, cpd.getPointAt(2).getColor());
 
-        cpd = new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                    new ColorPaletteDef.Point(100, Color.ORANGE),
-                    new ColorPaletteDef.Point(200, Color.MAGENTA),
-                    new ColorPaletteDef.Point(500, Color.BLUE),
-                    new ColorPaletteDef.Point(600, Color.WHITE)
+        cpd = new ColorPaletteDef(new Point[]{
+                    new Point(100, Color.ORANGE),
+                    new Point(200, Color.MAGENTA),
+                    new Point(500, Color.BLUE),
+                    new Point(600, Color.WHITE)
         });
         assertEquals(4, cpd.getNumPoints());
         assertEquals(256, cpd.getNumColors());
 
 
-        cpd = new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                    new ColorPaletteDef.Point(100, Color.ORANGE),
-                    new ColorPaletteDef.Point(200, Color.MAGENTA),
-                    new ColorPaletteDef.Point(500, Color.BLUE),
-                    new ColorPaletteDef.Point(600, Color.WHITE)
+        cpd = new ColorPaletteDef(new Point[]{
+                    new Point(100, Color.ORANGE),
+                    new Point(200, Color.MAGENTA),
+                    new Point(500, Color.BLUE),
+                    new Point(600, Color.WHITE)
         }, 512);
         assertEquals(4, cpd.getNumPoints());
         assertEquals(512, cpd.getNumColors());
     }
 
     @Test
-    public void testPaletteCreation_numPointsEqualsNumColors() {
+    public void testCreateClone_andEquals() {
+        //preparation
+        final Point[] points = {
+                    new Point(1, Color.black),
+                    new Point(2, Color.red),
+                    new Point(3, Color.green),
+                    new Point(4, Color.blue),
+                    new Point(5, Color.white),
+        };
+        final ColorPaletteDef cpd = new ColorPaletteDef(points, 256);
+        cpd.setDiscrete(true);
+        cpd.setAutoDistribute(true);
 
-        final ColorPaletteDef cpd = new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                    new ColorPaletteDef.Point(100, Color.ORANGE),
-                    new ColorPaletteDef.Point(200, Color.MAGENTA),
-                    new ColorPaletteDef.Point(300, Color.RED),
-                    new ColorPaletteDef.Point(400, Color.GREEN),
-        }, 4);
+        //execution
+        final ColorPaletteDef clone = (ColorPaletteDef) cpd.clone();
 
-        final Color[] palette = cpd.createColorPalette(Scaling.IDENTITY);
-        assertNotNull(palette);
-        assertEquals(4, palette.length);
-        assertEquals(Color.ORANGE, palette[0]);
-        assertEquals(Color.MAGENTA, palette[1]);
-        assertEquals(Color.RED, palette[2]);
-        assertEquals(Color.GREEN, palette[3]);
+        //verification
+        assertTrue(cpd.equals(clone));
     }
 
-    @Test
-    public void testPaletteCreation_morePointsThanNumColors() {
-        final ColorPaletteDef cpd = new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                    new ColorPaletteDef.Point(100, Color.WHITE),
-                    new ColorPaletteDef.Point(200, Color.BLUE),
-                    new ColorPaletteDef.Point(300, Color.RED),
-                    new ColorPaletteDef.Point(400, Color.GREEN),
-        }, 7);
-
-        final Color[] palette = cpd.createColorPalette(Scaling.IDENTITY);
-        assertNotNull(palette);
-        assertEquals(7, palette.length);
-        assertEquals(new Color(255, 255, 255), palette[0]);
-        assertEquals(new Color(128, 128, 255), palette[1]);
-        assertEquals(new Color(0, 0, 255), palette[2]);
-        assertEquals(new Color(128, 0, 128), palette[3]);
-        assertEquals(new Color(255, 0, 0), palette[4]);
-        assertEquals(new Color(128, 128, 0), palette[5]);
-        assertEquals(new Color(0, 255, 0), palette[6]);
-    }
 }

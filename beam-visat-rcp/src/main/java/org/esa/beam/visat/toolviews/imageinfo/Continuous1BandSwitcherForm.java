@@ -36,22 +36,22 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
     private JRadioButton tabularButton;
     private Continuous1BandTabularForm tabularPaletteEditorForm;
-//    private JRadioButton basicButton;
-//    private Continuous1BandBasicForm basicPaletteEditorForm;
+    private JRadioButton basicButton;
+    private Continuous1BandBasicForm basicPaletteEditorForm;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         childForm = EmptyImageInfoForm.INSTANCE;
-//        basicButton = new JRadioButton("Basic");
+        basicButton = new JRadioButton("Basic");
         graphicalButton = new JRadioButton("Sliders");
         tabularButton = new JRadioButton("Table");
         final ButtonGroup editorGroup = new ButtonGroup();
-//        editorGroup.add(basicButton);
+        editorGroup.add(basicButton);
         editorGroup.add(graphicalButton);
         editorGroup.add(tabularButton);
         graphicalButton.setSelected(true);
         final SwitcherActionListener switcherActionListener = new SwitcherActionListener();
-//        basicButton.addActionListener(switcherActionListener);
+        basicButton.addActionListener(switcherActionListener);
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
         discreteColorsCheckBox = new JCheckBox("Discrete colors");
@@ -63,6 +63,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
         final JPanel editorSwitcherPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
         editorSwitcherPanel.add(new JLabel("Editor:"));
+        editorSwitcherPanel.add(basicButton);
         editorSwitcherPanel.add(graphicalButton);
         editorSwitcherPanel.add(tabularButton);
 
@@ -117,8 +118,8 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         parentForm.getImageInfo().getColorPaletteDef().setDiscrete(discreteColorsCheckBox.isSelected());
         if (childForm == graphicalPaletteEditorForm) {
             graphicalPaletteEditorForm.getImageInfoEditor().getModel().fireStateChanged();
-//        } else if (childForm == basicPaletteEditorForm){
-//            basicPaletteEditorForm.getBasicColorEditor().updateColorRamp(null, parentForm.getImageInfo().getColorPaletteDef());
+        } else if (childForm == basicPaletteEditorForm){
+            basicPaletteEditorForm.renderDiscrete(discreteColorsCheckBox.isSelected());
         }
         parentForm.applyChanges();
     }
@@ -131,11 +132,11 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
             }
             newForm = tabularPaletteEditorForm;
-//        } else if (basicButton.isSelected()){
-//            if (basicPaletteEditorForm == null) {
-//                basicPaletteEditorForm = new Continuous1BandBasicForm(parentForm);
-//            }
-//            newForm = basicPaletteEditorForm;
+        } else if (basicButton.isSelected()){
+            if (basicPaletteEditorForm == null) {
+                basicPaletteEditorForm = new Continuous1BandBasicForm(parentForm);
+            }
+            newForm = basicPaletteEditorForm;
         } else {
             if (graphicalPaletteEditorForm == null) {
                 graphicalPaletteEditorForm = new Continuous1BandGraphicalForm(parentForm);

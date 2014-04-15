@@ -533,7 +533,7 @@ class ColorManipulationForm {
         ioDir = dir;
     }
 
-    private File getIODir() {
+    protected File getIODir() {
         if (ioDir == null) {
             if (preferences != null) {
                 ioDir = new File(
