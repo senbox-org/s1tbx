@@ -37,6 +37,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface Parameter {
+
     /**
      * @return An alias name for the parameter.
      *         Defaults to the empty string (= not set).
@@ -47,18 +48,8 @@ public @interface Parameter {
      * @return An alias name for the elements of a parameter array.
      *         Forces element-wise array conversion from and to DOM representation.
      *         Defaults to the empty string (= not set).
-     * @see #itemsInlined()
      */
     String itemAlias() default "";
-
-    /**
-     * @return If {@code true} items of parameter array values are inlined (not
-     *         enclosed by the parameter name) in the DOM representation of the
-     *         array. In this case also an ({@code itemAlias} has to be set.
-     *         Defaults to {@code false}.
-     * @see #itemAlias()
-     */
-    boolean itemsInlined() default false;
 
     /**
      * Gets the parameter's default value.
@@ -73,7 +64,7 @@ public @interface Parameter {
     String defaultValue() default "";
 
     /**
-     * @return A parameter label.
+     * @return A human-readable version of the name to be used in user interfaces.
      *         Defaults to the empty string (= not set).
      */
     String label() default "";
@@ -176,4 +167,13 @@ public @interface Parameter {
      * @return The raster data node type.
      */
     Class<? extends RasterDataNode> rasterDataNodeType() default RasterDataNode.class;
+
+
+    /**
+     * @return An arbitrary Boolean value which will be ignored.
+     * @see #itemAlias()#
+     * @deprecated Since BEAM 5. Not used anymore. No replacement.
+     */
+    @Deprecated
+    boolean itemsInlined() default false;
 }

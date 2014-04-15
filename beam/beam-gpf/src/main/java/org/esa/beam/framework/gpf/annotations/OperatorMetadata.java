@@ -32,6 +32,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface OperatorMetadata {
+
+    /**
+     * @return A human-readable version of the name to be used in user interfaces.
+     * Defaults to the empty string (= not set).
+     */
+    String label() default "";
+
     /**
      * @return An alias name for the operator.
      */
@@ -39,37 +46,54 @@ public @interface OperatorMetadata {
 
     /**
      * @return The version of the operator.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String version() default "";
 
     /**
      * @return The author(s) of the operator.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String authors() default "";
 
     /**
      * @return The copyright notice for the operator code.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String copyright() default "";
 
     /**
      * @return A brief description of the operator's purpose.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String description() default "";
 
+    /**
+     * @return The category/context where the operator is used.
+     * Defaults to the empty string (= not set).
+     */
+    String category() default "";
+
+    /**
+     * The GPF framework usually writes the target product of either single operators or processing graphs to the file
+     * system when executed from the GPT command-line interface or the operator GUI.
+     * <p/>
+     * If the {@code autoWriteDisabled} property is set, this default behaviour is switched off and hence,
+     * the operator or graph is responsible for outputting any computed results.
+     * <p/>
+     * Setting this property on an operator will only be useful, if it either does not generate a new target
+     * {@link org.esa.beam.framework.datamodel.Product Product} and/or if it
+     * does its own outputting of non-{@code Product} targets to external files.
+     *
+     * @return If {@code true}, the framework will prevent automatic writing of the target product to the file system.
+     * @since BEAM 5.0
+     */
+    boolean autoWriteDisabled() default false;
 
     /**
      * @return If {@code true}, this operator is considered for internal use only and thus
-     *         may not be exposed in user interfaces.
+     * may not be exposed in user interfaces.
      */
     boolean internal() default false;
 
-	/** @return A Category to group the operator in.
-     *         Defaults to the empty string (= not set).
-     */
-    String category() default "";
 }
