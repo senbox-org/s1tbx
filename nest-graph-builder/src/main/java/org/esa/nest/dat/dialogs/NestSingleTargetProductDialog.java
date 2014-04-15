@@ -19,6 +19,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
@@ -58,18 +59,16 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
 
     private final OperatorUI opUI;
     private JLabel statusLabel;
+    private JComponent parametersPanel;
 
     public NestSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
         super(operatorName, appContext, title, helpID);
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
-        if (operatorSpi == null) {
-            throw new IllegalArgumentException("operatorName " + operatorName);
-        }
 
         opUI = operatorSpi.createOperatorUI();
 
-        addParameters(operatorSpi, appContext, helpID);
+        addParameters();
 
         getJDialog().setMinimumSize(new Dimension(450, 450));
         getJDialog().setIconImage(ResourceUtils.esaPlanetIcon.getImage());
@@ -79,17 +78,8 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         this.getJDialog().getContentPane().add(statusLabel, BorderLayout.NORTH);
     }
 
-    @Override
-    protected void addParametersPane(final OperatorSpi operatorSpi, final AppContext appContext, final String helpID) {
-        //ignore
-    }
-
-    private void addParameters(final OperatorSpi operatorSpi, final AppContext appContext, final String helpID) {
-        //OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-        //                                             operatorSpi.getOperatorClass(),
-        //                                             parameterSupport,
-        //                                             helpID);
-        final PropertySet propertyContainer = parameterSupport.getPopertySet();
+    private void addParameters() {
+        final PropertySet propertySet = parameterSupport.getPropertySet();
         final List<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
 
         if(sourceProductSelectorList.isEmpty()) {
@@ -101,7 +91,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                 @Override
                 public void selectionChanged(SelectionChangeEvent event) {
                     final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
-                    if(selectedProduct != null) {
+                    if(selectedProduct != null ) { //&& form != null) {
                         final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
                         targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
                         opUI.setSourceProducts(new Product[] { selectedProduct });
@@ -110,9 +100,9 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
             });
         }
 
-        if (propertyContainer.getProperties().length > 0) {
+        if (propertySet.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
-                Property[] properties = propertyContainer.getProperties();
+                Property[] properties = propertySet.getProperties();
                 List<PropertyDescriptor> rdnTypeProperties = new ArrayList<PropertyDescriptor>(properties.length);
                 for (Property property : properties) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
@@ -123,14 +113,16 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                 rasterDataNodeTypeProperties = rdnTypeProperties.toArray(
                         new PropertyDescriptor[rdnTypeProperties.size()]);
             }
-
-            final JComponent paremetersPanel = opUI.CreateOpTab(operatorName, parameterSupport.getParameterMap(), appContext);
-
-            paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-            this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
-
-            //getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
         }
+    }
+
+    protected void initForm() {
+        form = new JTabbedPane();
+        form.add("I/O Parameters", ioParametersPanel);
+
+        parametersPanel = opUI.CreateOpTab(operatorName, parameterSupport.getParameterMap(), appContext);
+        parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        form.add("Processing Parameters", new JScrollPane(parametersPanel));
     }
 
     @Override

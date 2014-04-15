@@ -38,6 +38,12 @@ public class OperatorAction extends DefaultOperatorAction {
     private boolean disable = false;
 
     @Override
+    public void actionPerformed(CommandEvent event) {
+        ModelessDialog dialog = createOperatorDialog();
+        dialog.show();
+    }
+
+    @Override
     public void configure(ConfigurationElement config) throws CoreException {
         super.configure(config);
         iconName = getConfigString(config, "icon");

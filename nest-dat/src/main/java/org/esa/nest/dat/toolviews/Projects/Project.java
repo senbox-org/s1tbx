@@ -430,7 +430,7 @@ public class Project extends Observable {
                                 }
                                 final File destFile = new File(importedFolder.getPath(), product.getName());
 
-                                VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false, false);
+                                VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
                             }
                         } catch(Exception e) {
                             VisatApp.getApp().showErrorDialog(e.getMessage());
