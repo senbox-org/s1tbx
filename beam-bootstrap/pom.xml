@@ -200,12 +200,6 @@
             <version>1.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.esa.beam.smos</groupId>
-            <artifactId>smos-reader</artifactId>
-            <version>2.4-SNAPSHOT</version>
-        </dependency>
-
 <!--
         <dependency>
             <groupId>org.esa.beam</groupId>
