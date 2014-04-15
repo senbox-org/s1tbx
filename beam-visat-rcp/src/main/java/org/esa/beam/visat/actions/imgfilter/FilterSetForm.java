@@ -103,6 +103,7 @@ public class FilterSetForm extends JPanel {
                 ((FilterTreeModel) filterTree.getModel()).addFilterModel(filter, filterTree.getSelectionPath());
             }
         });
+        addButton.setToolTipText("Add user defined filter");
 
 
         removeButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/list-remove.png"));
@@ -112,6 +113,7 @@ public class FilterSetForm extends JPanel {
                 ((FilterTreeModel) filterTree.getModel()).removeFilterModel((Filter) filterTree.getSelectionPath().getLastPathComponent());
             }
         });
+        removeButton.setToolTipText("Remove user defined filter");
 
         editButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/document-properties.png"));
         editButton.addActionListener(new ActionListener() {
@@ -124,6 +126,7 @@ public class FilterSetForm extends JPanel {
 
             }
         });
+        editButton.setToolTipText("Edit/Show properties of selected filter");
 
         saveButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/document-save.png"));
         saveButton.addActionListener(new ActionListener() {
@@ -138,6 +141,8 @@ public class FilterSetForm extends JPanel {
 
             }
         });
+        editButton.setToolTipText("Store the selected user defined filter");
+
 
         JToolBar toolBar = new JToolBar(SwingConstants.VERTICAL);
         toolBar.setFloatable(false);
