@@ -42,6 +42,8 @@ import java.awt.image.Raster;
  * 4. Immediate Execution<br/>
  * 5. Configurable with respect to e.g. parallelism, execution order<br/>
  * </p>
+ * <p/>
+ * <i>Important Note: This class is not part of the official API, we may remove or rename it at any time.</i>
  *
  * @author Marco Zuehlke
  * @author Norman Fomferra

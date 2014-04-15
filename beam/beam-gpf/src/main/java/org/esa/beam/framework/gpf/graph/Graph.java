@@ -40,12 +40,6 @@ public class Graph {
     private List<ApplicationData> applicationData;
 
 
-    public Graph() {
-        this.id = "graph";
-        version = CURRENT_VERSION;
-        init();
-    }
-
     /**
      * Constructs an empty graph with the given <code>id</code>.
      *
