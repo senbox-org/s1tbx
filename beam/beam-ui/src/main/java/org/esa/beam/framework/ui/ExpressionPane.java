@@ -54,6 +54,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -107,6 +108,7 @@ public class ExpressionPane extends JPanel {
 
     private static final String[] OPERATOR_PATTERNS = new String[]{
             "@ ? @ : @",
+            "if @ then @ else @",
             "@ || @",
             "@ or @",
             "@ && @",
@@ -182,10 +184,10 @@ public class ExpressionPane extends JPanel {
      */
     public ExpressionPane(boolean requiresBoolExpr, Parser parser, PropertyMap preferences) {
         super(new BorderLayout(4, 4));
-        undoBuffer = new Stack<String>();
+        undoBuffer = new Stack<>();
         this.parser = parser;
         booleanExpressionPreferred = requiresBoolExpr;
-        history = new LinkedList<String>();
+        history = new LinkedList<>();
         historyIndex = -1;
         emptyExpressionAllowed = true;
         setPreferences(preferences);
@@ -469,11 +471,11 @@ public class ExpressionPane extends JPanel {
         return button;
     }
 
-    private JComboBox createInsertComboBox(final String title, final String[] patterns) {
-        ArrayList<String> itemList = new ArrayList<String>();
+    private JComboBox<String> createInsertComboBox(final String title, final String[] patterns) {
+        ArrayList<String> itemList = new ArrayList<>();
         itemList.add(title);
         itemList.addAll(Arrays.asList(patterns));
-        final JComboBox comboBox = new JComboBox(itemList.toArray());
+        final JComboBox<String> comboBox = new JComboBox<>(itemList.toArray(new String[itemList.size()]));
         comboBox.setFont(insertCompFont);
         comboBox.setEditable(false);
         comboBox.setForeground(insertCompColor);
@@ -494,16 +496,14 @@ public class ExpressionPane extends JPanel {
     }
 
     public JList createPatternList(final String[] patterns) {
-        final JList patternList = new JList(patterns);
+        final JList<String> patternList = new JList<>(patterns);
         patternList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        final ListCellRenderer cellRenderer = patternList.getCellRenderer();
+        final ListCellRenderer<? super String> cellRenderer = patternList.getCellRenderer();
         final Border cellBorder = BorderFactory.createEtchedBorder();
-        patternList.setCellRenderer(new ListCellRenderer() {
+        patternList.setCellRenderer(new ListCellRenderer<String>() {
 
-            public Component getListCellRendererComponent(JList list,
-                                                          Object value,
-                                                          int index,
-                                                          boolean isSelected,
+            @Override
+            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected,
                                                           boolean cellHasFocus) {
                 final Component component = cellRenderer.getListCellRendererComponent(list, value, index, isSelected,
                                                                                       cellHasFocus);
@@ -640,9 +640,9 @@ public class ExpressionPane extends JPanel {
 
         final JButton parenButton = createInsertButton("(@)");
         parenButton.setName("parenButton");
-        final JComboBox functBox = createInsertComboBox("Functions...", functionNames);
-        final JComboBox operBox = createInsertComboBox("Operators...", OPERATOR_PATTERNS);
-        final JComboBox constBox = createInsertComboBox("Constants...", CONSTANT_LITERALS);
+        final JComboBox<String> functBox = createInsertComboBox("Functions...", functionNames);
+        final JComboBox<String> operBox = createInsertComboBox("Operators...", OPERATOR_PATTERNS);
+        final JComboBox<String> constBox = createInsertComboBox("Constants...", CONSTANT_LITERALS);
         functBox.setName("functBox");
         operBox.setName("operBox");
         constBox.setName("constBox");
@@ -675,16 +675,14 @@ public class ExpressionPane extends JPanel {
         }
         // remove double values
         Set<String> set = new HashSet<String>();
-        for (String functionName : functionNames) {
-            set.add(functionName);
-        }
+        Collections.addAll(set, functionNames);
         functionNames = set.toArray(new String[set.size()]);
         Arrays.sort(functionNames);
         return functionNames;
     }
 
     private static String createFunctionTemplate(Function function) {
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
         sb.append(function.getName());
         sb.append("(");
         for (int i = 0; i < function.getNumArgs(); i++) {
@@ -804,7 +802,7 @@ public class ExpressionPane extends JPanel {
     }
 
     public static String getParamTypeString(String name, Term[] args) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(name);
         sb.append('(');
         for (int i = 0; i < args.length; i++) {
@@ -832,7 +830,7 @@ public class ExpressionPane extends JPanel {
         protected void createUI() {
             selAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SelectAll24.gif"), false);
             selAllButton.setName("selAllButton");
-            selAllButton.setToolTipText("Select all"); /*I18N*/
+            selAllButton.setToolTipText("Select all");
             selAllButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -842,7 +840,7 @@ public class ExpressionPane extends JPanel {
 
             clearButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Remove24.gif"), false);
             clearButton.setName("clearButton");
-            clearButton.setToolTipText("Clear");   /*I18N*/
+            clearButton.setToolTipText("Clear");
             clearButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -853,7 +851,7 @@ public class ExpressionPane extends JPanel {
 
             undoButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Undo24.gif"), false);
             undoButton.setName("undoButton");
-            undoButton.setToolTipText("Undo");   /*I18N*/
+            undoButton.setToolTipText("Undo");
             undoButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -863,7 +861,7 @@ public class ExpressionPane extends JPanel {
 
             historyUpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/HistoryUp24.gif"), false);
             historyUpButton.setName("historyUpButton");
-            historyUpButton.setToolTipText("Scroll history up");   /*I18N*/
+            historyUpButton.setToolTipText("Scroll history up");
             historyUpButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (history.size() > 0 && historyIndex < history.size()) {
@@ -876,7 +874,7 @@ public class ExpressionPane extends JPanel {
             historyDownButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/HistoryDown24.gif"),
                                                                false);
             historyDownButton.setName("historyDownButton");
-            historyDownButton.setToolTipText("Scroll history down");  /*I18N*/
+            historyDownButton.setToolTipText("Scroll history down");
             historyDownButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (history.size() > 0 && historyIndex >= 0) {

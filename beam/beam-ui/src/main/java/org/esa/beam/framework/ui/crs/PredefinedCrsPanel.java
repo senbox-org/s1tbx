@@ -96,11 +96,11 @@ class PredefinedCrsPanel extends JPanel {
         setLayout(tableLayout);
         tableLayout.setTableFill(Fill.BOTH);
         tableLayout.setTableAnchor(Anchor.NORTHWEST);
-        tableLayout.setTableWeightX(1);
+        tableLayout.setTableWeightX(1.0);
         tableLayout.setTablePadding(4, 4);
 
-        tableLayout.setRowWeightY(0, 0);        // no weight Y for first row
-        tableLayout.setCellWeightX(0, 0, 0);    // filter label; no grow in X
+        tableLayout.setRowWeightY(0, 0.0);        // no weight Y for first row
+        tableLayout.setCellWeightX(0, 0, 0.0);    // filter label; no grow in X
         tableLayout.setRowWeightY(1, 1.0);      // second row grow in Y
         tableLayout.setCellColspan(1, 0, 2);    // CRS list; spans 2 cols
         tableLayout.setCellRowspan(1, 2, 2);    // info area; spans 2 rows
