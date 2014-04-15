@@ -16,17 +16,21 @@
 
 package org.esa.beam.dataio.netcdf.nc;
 
+import com.bc.ceres.core.Assert;
 import edu.ucar.ral.nujan.netcdf.NhDimension;
 import edu.ucar.ral.nujan.netcdf.NhException;
 import edu.ucar.ral.nujan.netcdf.NhFileWriter;
 import edu.ucar.ral.nujan.netcdf.NhGroup;
 import edu.ucar.ral.nujan.netcdf.NhVariable;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.StringUtils;
 import ucar.ma2.DataType;
 
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhFileWriter}.
@@ -103,7 +107,7 @@ public class N4FileWriteable implements NFileWriteable {
 
     @Override
     public NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dimensions) throws
-            IOException {
+                                                                                                                          IOException {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         int nhType = N4DataType.convert(dataType, unsigned);
         String[] dims = dimensions.split(" ");
@@ -118,7 +122,7 @@ public class N4FileWriteable implements NFileWriteable {
             // compute tile size so that number of tiles is considerably smaller than Short.MAX_VALUE
             int imageWidth = nhDims[1].getLength();
             int imageHeight = nhDims[0].getLength();
-            long imageSize = (long)imageHeight * imageWidth;
+            long imageSize = (long) imageHeight * imageWidth;
             for (int scalingFactor = 2; imageSize / (chunkLens[0] * chunkLens[1]) > Short.MAX_VALUE / 2; scalingFactor *= 2) {
                 chunkLens[0] = tileSize.height * scalingFactor;
                 chunkLens[1] = tileSize.width * scalingFactor;
@@ -152,6 +156,18 @@ public class N4FileWriteable implements NFileWriteable {
     }
 
     @Override
+    public boolean isNameValid(String name) {
+        Assert.argument(StringUtils.isNotNullAndNotEmpty(name), "name");
+        // copied from nujan sources edu.ucar.ral.nujan.netcdf.NhGroup.checkName()
+        return Pattern.matches("^[_a-zA-Z][-_: a-zA-Z0-9]*$", name);
+    }
+
+    @Override
+    public String makeNameValid(String name) {
+        return convertToValidName(name);
+    }
+
+    @Override
     public void create() throws IOException {
         try {
             nhFileWriter.endDefine();
@@ -167,5 +183,25 @@ public class N4FileWriteable implements NFileWriteable {
         } catch (NhException e) {
             throw new IOException(e);
         }
+    }
+
+    static String convertToValidName(String name) {
+        Assert.argument(StringUtils.isNotNullAndNotEmpty(name), "name");
+        String firstCharExpr = "[_a-zA-Z]";
+        char replacementChar = '_';
+        StringBuilder sb = new StringBuilder(name);
+        if (!Pattern.matches(firstCharExpr, name.substring(0, 1))) {
+            sb.setCharAt(0, replacementChar);
+        }
+        char[] chars = name.toCharArray();
+        String subsequentCharExpr = "[-_: a-zA-Z0-9]";
+        for (int i = 1; i < chars.length; i++) {
+            char aChar = chars[i];
+            if (!Pattern.matches(subsequentCharExpr, String.valueOf(aChar))) {
+                aChar = '_';
+            }
+            sb.setCharAt(i, aChar);
+        }
+        return sb.toString();
     }
 }

@@ -125,14 +125,14 @@ public class BeamMetadataPart extends ProfilePartIO {
         if (root != null) {
             final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
             final NVariable variable = ncFile.addScalarVariable(METADATA_VARIABLE, DataType.BYTE);
-            writeMetadataElement(root, variable, "");
+            writeMetadataElement(ncFile, root, variable, "");
         }
     }
 
-    private void writeMetadataElement(MetadataElement element, NVariable ncVariable, String prefix) throws IOException {
+    private void writeMetadataElement(NFileWriteable ncFile, MetadataElement element, NVariable ncVariable, String prefix) throws IOException {
         for (int i = 0; i < element.getNumAttributes(); i++) {
             MetadataAttribute attribute = element.getAttributeAt(i);
-            writeMetadataAttribute(attribute, ncVariable, prefix);
+            writeMetadataAttribute(ncFile, attribute, ncVariable, prefix);
         }
         for (int i = 0; i < element.getNumElements(); i++) {
             MetadataElement subElement = element.getElementAt(i);
@@ -144,7 +144,7 @@ public class BeamMetadataPart extends ProfilePartIO {
                 } else {
                     name = prefix + SPLITTER + subElementName;
                 }
-                writeMetadataElement(subElement, ncVariable, name);
+                writeMetadataElement(ncFile, subElement, ncVariable, name);
             }
         }
     }
@@ -154,14 +154,18 @@ public class BeamMetadataPart extends ProfilePartIO {
                 MetadataUtils.VARIABLE_ATTRIBUTES.equals(subElementName);
     }
 
-    private void writeMetadataAttribute(MetadataAttribute metadataAttr, NVariable ncVariable, String prefix) throws IOException {
+    private void writeMetadataAttribute(NFileWriteable ncFile, MetadataAttribute metadataAttr, NVariable ncVariable, String prefix) throws IOException {
         final ProductData productData = metadataAttr.getData();
-        final String ncAttributeName;
+        String ncAttributeName;
         if (prefix.isEmpty()) {
             ncAttributeName = metadataAttr.getName();
         } else {
             ncAttributeName = prefix + SPLITTER + metadataAttr.getName();
         }
+        if(!ncFile.isNameValid(ncAttributeName)) {
+            ncAttributeName = ncFile.makeNameValid(ncAttributeName);
+        }
+
         if (productData instanceof ProductData.ASCII || productData instanceof ProductData.UTC) {
             ncVariable.addAttribute(ncAttributeName, productData.getElemString());
         } else {

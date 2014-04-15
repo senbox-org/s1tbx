@@ -42,6 +42,10 @@ public interface NFileWriteable {
 
     NVariable findVariable(String variableName);
 
+    boolean isNameValid(String name);
+
+    String makeNameValid(String name);
+
     void create() throws IOException;
 
     void close() throws IOException;

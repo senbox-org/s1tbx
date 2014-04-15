@@ -81,6 +81,16 @@ public class N3FileWriteable implements NFileWriteable {
         return variable != null ? new N3Variable(variable, netcdfFileWriteable) : null;
     }
 
+    @Override
+    public boolean isNameValid(String name) {
+        return true;
+    }
+
+    @Override
+    public String makeNameValid(String name) {
+        return name;
+    }
+
 
     @Override
     public void create() throws IOException {

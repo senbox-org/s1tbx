@@ -117,8 +117,11 @@ public class BeamBandPart extends ProfilePartIO {
             }
 
             final DataType ncDataType = DataTypeUtils.getNetcdfDataType(dataType);
-            String variableName = ReaderUtils.getVariableName(band);
             java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(p);
+            String variableName = ReaderUtils.getVariableName(band);
+            if(!ncFile.isNameValid(variableName)) {
+                variableName = ncFile.makeNameValid(variableName);
+            }
             final NVariable variable = ncFile.addVariable(variableName, ncDataType, tileSize, dimensions);
             CfBandPart.writeCfBandAttributes(band, variable);
             writeBeamBandAttributes(band, variable);
