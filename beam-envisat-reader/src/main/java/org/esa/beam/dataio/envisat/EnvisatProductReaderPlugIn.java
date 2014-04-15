@@ -62,7 +62,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Gets the default file extensions associated with each of the format names returned by the <code>{@link
-     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
+     * #getFormatNames}</code> method. <p>The string array returned shall always have the same length as the array
      * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
      * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
      *
@@ -78,7 +78,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
-     * @param name the local for the given decription string, if <code>null</code> the default locale is used
+     * @param name the local for the given description string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
