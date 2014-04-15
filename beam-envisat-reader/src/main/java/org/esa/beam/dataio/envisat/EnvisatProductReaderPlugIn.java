@@ -106,8 +106,11 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
         } else if (input instanceof File) {
             final File inputFile = (File) input;
             final String fileName = inputFile.getName().toUpperCase();
-            if (fileName.endsWith(".N1"))
-                return DecodeQualification.INTENDED;
+            for (String ext : EnvisatConstants.EXTENSIONS) {
+                if (fileName.endsWith(ext) || fileName.endsWith(ext+".ZIP") || fileName.endsWith(ext+".GZ")) {
+                    return DecodeQualification.INTENDED;
+                }
+            }
             if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
                 return DecodeQualification.UNABLE;
 
