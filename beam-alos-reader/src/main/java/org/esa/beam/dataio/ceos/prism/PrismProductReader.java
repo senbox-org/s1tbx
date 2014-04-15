@@ -106,9 +106,6 @@ public class PrismProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         final ProductReaderPlugIn readerPlugIn = getReaderPlugIn();
         final Object input = getInput();
-        if (readerPlugIn.getDecodeQualification(input) == DecodeQualification.UNABLE) {
-            throw new IOException("Unsupported product format."); /*I18N*/
-        }
         final File fileFromInput = CeosHelper.getFileFromInput(getInput());
         final Product product;
         try {
