@@ -5,7 +5,9 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="Collocation Tool" target="collocation">
+        <tocitem text="Geometric Operations">
+            <tocitem text="Collocation Tool" target="collocation">
+            </tocitem>
         </tocitem>
     </tocitem>
 </toc>

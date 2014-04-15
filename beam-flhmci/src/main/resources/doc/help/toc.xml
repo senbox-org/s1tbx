@@ -8,10 +8,12 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="FLH/MCI Processor" target="flhMciScientificTool">
-            <tocitem text="Overview" target="flhMciScientificTool"/>
-            <tocitem text="Algorithm Specification" target="flhMciAlgorithmSpec"/>
-            <tocitem text="Processor Description" target="flhMciProcessorDesc"/>
+        <tocitem text="Thematic Water Processing">
+            <tocitem text="FLH/MCI Processor" target="flhMciScientificTool">
+                <tocitem text="Overview" target="flhMciScientificTool"/>
+                <tocitem text="Algorithm Specification" target="flhMciAlgorithmSpec"/>
+                <tocitem text="Processor Description" target="flhMciProcessorDesc"/>
+            </tocitem>
         </tocitem>
     </tocitem>
 </toc>

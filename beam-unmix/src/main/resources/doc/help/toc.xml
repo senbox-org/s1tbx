@@ -5,6 +5,8 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="Spectral Unmixing Tool" target="spectralUnmixing"/>
+        <tocitem text="Image Analysis">
+            <tocitem text="Spectral Unmixing Tool" target="spectralUnmixing"/>
+        </tocitem>
     </tocitem>
 </toc>

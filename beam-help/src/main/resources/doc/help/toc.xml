@@ -95,32 +95,15 @@
                 <tocitem text="Compute Mask Area" target="computeMaskArea"/>
             </tocitem>
 
-            <tocitem text="Product Generation Tools">
+            <tocitem text="Utilities">
                 <tocitem text="Band Maths" target="bandArithmetic"/>
                 <tocitem text="Band Maths Expression Editor" target="expressionEditor"/>
-                <tocitem text="Data Flip" target="dataFlip"/>
-
-                <tocitem text="Reprojection" target="reprojectionAction">
-                    <tocitem text="Reprojection Dialog" target="reprojectionAction"/>
-                    <tocitem text="Resampling Methods" target="resamplingMethods"/>
-                </tocitem>
-                <tocitem text="Orthorectification" target="orthorectificationAction">
-                    <tocitem text="Orthorectification Dialog" target="orthorectificationAction"/>
-                    <tocitem text="Orthorectification Algorithm" target="orthorectificationAlgo"/>
-                    <tocitem text="GETASSE30 Elevation Model" target="demGETASSE30"/>
-                    <tocitem text="Create DEM-related Bands" target="createDemRelatedBands"/>
-                </tocitem>
-                <tocitem text="Mosaic" target="mosaicAction">
-                    <tocitem text="Mosaic Dialog" target="mosaicAction"/>
-                    <tocitem text="Mosaic Algorithm Description" target="mosaicAlgo"/>
-                </tocitem>
-
                 <tocitem text="Attach Pixel-based Geo-Coding" target="pixelGeoCodingSetup"/>
                 <tocitem text="Create DEM-related Bands" target="createDemRelatedBands"/>
                 <tocitem text="Create ASAR NRCS Bands" target="createAsarNrcsBands"/>
                 <tocitem text="Create Filtered Band" target="createFilteredBand"/>
-                <tocitem text="Data Processors" target="dataProcessors"/>
             </tocitem>
+
             <tocitem text="Module Manager" target="moduleManager"/>
         </tocitem>
 
@@ -143,6 +126,31 @@
     </tocitem>
 
     <tocitem text="Data Processors">
+        <tocitem text="Pre-Processing">
+        </tocitem>
+        <tocitem text="Thematic Water Processing">
+        </tocitem>
+        <tocitem text="Thematic Land Processing">
+        </tocitem>
+        <tocitem text="Image Analysis">
+        </tocitem>
+        <tocitem text="Geometric Operations">
+            <tocitem text="Reprojection" target="reprojectionAction">
+                <tocitem text="Reprojection Dialog" target="reprojectionAction"/>
+                <tocitem text="Resampling Methods" target="resamplingMethods"/>
+            </tocitem>
+            <tocitem text="Orthorectification" target="orthorectificationAction">
+                <tocitem text="Orthorectification Dialog" target="orthorectificationAction"/>
+                <tocitem text="Orthorectification Algorithm" target="orthorectificationAlgo"/>
+                <tocitem text="GETASSE30 Elevation Model" target="demGETASSE30"/>
+            </tocitem>
+            <tocitem text="Mosaic" target="mosaicAction">
+                <tocitem text="Mosaic Dialog" target="mosaicAction"/>
+                <tocitem text="Mosaic Algorithm Description" target="mosaicAlgo"/>
+            </tocitem>
+            <tocitem text="Data Flip" target="dataFlip"/>
+        </tocitem>
+
     </tocitem>
 
 </toc>
