@@ -3,7 +3,9 @@ package org.esa.beam.visat.actions.imgfilter;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 
 /**
- * Created by Norman on 20.03.2014.
+ * Filter editors are used to get/set a filter and can be displayed.
+ *
+ * @author Norman
  */
 public interface FilterEditor {
 

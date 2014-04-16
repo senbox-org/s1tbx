@@ -4,13 +4,19 @@ import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSetStore;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.BorderLayout;
 
 /**
+ * A form used too edit and display multiple {@link FilterSet}s arranged in a {@code JTabbedPane}.
+ *
  * @author Norman
  */
 public class FilterSetsForm extends JPanel implements FilterSetForm.Listener {
@@ -49,10 +55,12 @@ public class FilterSetsForm extends JPanel implements FilterSetForm.Listener {
         JPanel namePanel = new JPanel(new BorderLayout(2, 2));
         namePanel.add(new JLabel("Band name:"), BorderLayout.WEST);
         namePanel.add(targetBandNameField, BorderLayout.CENTER);
+        namePanel.setToolTipText("The target band name");
 
         JPanel iterPanel = new JPanel(new BorderLayout(2, 2));
         iterPanel.add(new JLabel("Number of iterations:"), BorderLayout.WEST);
         iterPanel.add(iterationCountComboBox, BorderLayout.CENTER);
+        iterPanel.setToolTipText("The number of times the filter will selected be applied to the source band");
 
         JPanel inputPanel = new JPanel(new BorderLayout(2, 2));
         inputPanel.add(namePanel, BorderLayout.NORTH);

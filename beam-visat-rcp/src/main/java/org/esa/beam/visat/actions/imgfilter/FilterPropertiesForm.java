@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A tabular editor form for a filter's properties.
+ *
  * @author Norman
  */
 public class FilterPropertiesForm extends JPanel implements PropertyChangeListener, Filter.Listener {
@@ -76,6 +78,17 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 this.filter.addListener(this);
                 PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(this.filter);
                 propertyContainer.getDescriptor("tags").setConverter(new TagsConverter());
+
+                propertyContainer.getDescriptor("operation").setDescription("<html>The image filter operation.<br/>CONVOLVE uses a real-valued kernel matrix.<br/>Other operations have Boolean matrices.");
+                propertyContainer.getDescriptor("tags").setDescription("<html>Tags are used categorise and group filters.<br/>Use a comma to separate multiple tags.");
+                propertyContainer.getDescriptor("name").setDescription("The filter's display name");
+                propertyContainer.getDescriptor("shorthand").setDescription("A shorthand for the name, used as default band name suffix");
+                propertyContainer.getDescriptor("kernelQuotient").setDescription("<html>Inverse scaling factor, will be used<br/>to pre-multiply the kernel matrix before convolution");
+                propertyContainer.getDescriptor("kernelWidth").setDescription("<html>Width of the kernel matrix<br/>(editing not supported here, use the graphical editor)");
+                propertyContainer.getDescriptor("kernelHeight").setDescription("<html>Height of the kernel matrix<br/>(editing not supported here, use the graphical editor)");
+                propertyContainer.getDescriptor("kernelOffsetX").setDescription("<html>Offset in X of the kernel matrix' 'key element'<br/>(editing not yet supported, will always be kernel center)");
+                propertyContainer.getDescriptor("kernelOffsetY").setDescription("<html>Offset in Y of the kernel matrix' 'key element'<br/>(editing not yet supported, will always be kernel center)");
+
                 propertyContainer.addPropertyChangeListener(this);
                 bindingContext = new BindingContext(propertyContainer);
                 bindingContext.addPropertyChangeListener(this);

@@ -4,11 +4,17 @@ import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.SingleValueConverter;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import static java.lang.Math.*;
+import static java.lang.Math.exp;
+import static java.lang.Math.floor;
+import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 /**
  * @author Norman
@@ -241,7 +247,8 @@ public class Filter {
 
     public void fillRectangle(double fillValue) {
         Arrays.fill(kernelElements, fillValue);
-        this.kernelQuotient = operation == Operation.CONVOLVE ? kernelWidth * kernelHeight * fillValue : 1;
+        double v = kernelWidth * kernelHeight * fillValue;
+        this.kernelQuotient = operation == Operation.CONVOLVE ? (v != 0.0 ? v : 1.0) : 1.0;
         notifyChange("kernelElements");
     }
 
@@ -429,6 +436,9 @@ public class Filter {
         }
         if (listeners == null) {
             listeners = new ArrayList<>();
+        }
+        if (kernelQuotient == 0.0) {
+            kernelQuotient = 1.0;
         }
         return this;
     }

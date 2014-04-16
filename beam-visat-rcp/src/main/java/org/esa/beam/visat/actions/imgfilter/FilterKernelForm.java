@@ -2,16 +2,39 @@ package org.esa.beam.visat.actions.imgfilter;
 
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 /**
+ * A form containing a {link @FilterKernelCanvas} and components to change size and fill value of the kernel.
+ *
  * @author Norman
  */
 public class FilterKernelForm extends JPanel implements Filter.Listener {
@@ -21,7 +44,8 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
     private FilterKernelCanvas kernelCanvas;
     private JSpinner kernelWidthSpinner;
     private JSpinner kernelHeightSpinner;
-    private JComboBox<Number> fillValueCombo;
+    private JComboBox fillValueCombo;
+    private double fillValue;
 
     private final DefaultComboBoxModel<Number> structuringFillValueModel = new DefaultComboBoxModel<>(new Number[]{0, 1});
     private final DefaultComboBoxModel<Number> kernelFillValueModel = new DefaultComboBoxModel<>(new Number[]{-5., -4., -3., -2., -1., 0., 1., 2., 3., 4., 5.});
@@ -31,7 +55,18 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
         setBorder(new EmptyBorder(4, 4, 4, 4));
 
         this.filter = null;
+        this.fillValue = 0.0;
         setFilter(filter);
+    }
+
+    public double getFillValue() {
+        return fillValue;
+    }
+
+    public void setFillValue(double fillValue) {
+        double fillValueOld = this.fillValue;
+        this.fillValue = fillValue;
+        firePropertyChange("fillValue", fillValueOld, fillValue);
     }
 
     @Override
@@ -102,7 +137,6 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
         }
 
         kernelCanvas = new FilterKernelCanvas(filter);
-        kernelCanvas.setFillValue(0.0);
 
         if (canvasMouseListener == null) {
             canvasMouseListener = new CanvasMouseListener();
@@ -118,19 +152,20 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
                 fillValueCombo = new JComboBox(structuringFillValueModel);
                 ((JTextField) fillValueCombo.getEditor().getEditorComponent()).setColumns(1);
                 fillValueCombo.setEditable(false);
-                fillValueCombo.setSelectedItem((int) kernelCanvas.getFillValue());
+                fillValueCombo.setSelectedItem((int) getFillValue());
             } else {
                 fillValueCombo = new JComboBox(kernelFillValueModel);
                 ((JTextField) fillValueCombo.getEditor().getEditorComponent()).setColumns(3);
                 fillValueCombo.setEditable(true);
-                fillValueCombo.setSelectedItem(kernelCanvas.getFillValue());
+                fillValueCombo.setSelectedItem(getFillValue());
             }
             fillValueCombo.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
-                    kernelCanvas.setFillValue(((Number) fillValueCombo.getSelectedItem()).doubleValue());
+                    setFillValue(((Number) fillValueCombo.getSelectedItem()).doubleValue());
                 }
             });
+            fillValueCombo.setToolTipText("Value that will be used to set a kernel element when clicking into the matrix");
 
             kernelWidthSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
             kernelWidthSpinner.setValue(filter.getKernelHeight());
@@ -141,6 +176,8 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
                     filter.setKernelSize(kernelWidth, filter.getKernelHeight());
                 }
             });
+            kernelWidthSpinner.setToolTipText("Width of the kernel (number of matrix columns)");
+
 
             kernelHeightSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
             kernelHeightSpinner.setValue(filter.getKernelWidth());
@@ -151,6 +188,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
                     filter.setKernelSize(filter.getKernelWidth(), kernelHeight);
                 }
             });
+            kernelHeightSpinner.setToolTipText("Height of the kernel (number of matrix rows)");
 
             JToolBar toolBar = new JToolBar(JToolBar.HORIZONTAL);
             toolBar.setFloatable(false);
@@ -212,7 +250,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
         private void setElement(FilterKernelCanvas kernelCanvas, MouseEvent e) {
             int index = kernelCanvas.getKernelElementIndex(e.getX(), e.getY());
             if (index >= 0) {
-                kernelCanvas.getFilter().setKernelElement(index, kernelCanvas.getFillValue());
+                kernelCanvas.getFilter().setKernelElement(index, getFillValue());
             }
         }
     }
@@ -266,7 +304,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
 
         popupMenu.addSeparator();
 
-        final double fillValue = kernelCanvas.getFillValue();
+        final double fillValue = getFillValue();
         String fillValueText = fillValue == (int) fillValue ? String.valueOf((int) fillValue) : String.valueOf(fillValue);
 
         JMenuItem fillRectangleItem = new JMenuItem(String.format("Fill Rectangle by <%s>", fillValueText));
@@ -325,8 +363,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             try {
                 String data = (String) transfer.getTransferData(DataFlavor.stringFlavor);
                 enabled = Filter.isKernelDataText(data);
-            } catch (UnsupportedFlavorException ignored) {
-            } catch (IOException ignored) {
+            } catch (UnsupportedFlavorException | IOException ignored) {
             }
         }
         return enabled;

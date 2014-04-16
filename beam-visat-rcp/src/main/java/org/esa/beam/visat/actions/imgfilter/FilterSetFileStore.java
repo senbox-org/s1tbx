@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Class used to store/reload user-defined image filters.
+ *
  * @author Norman
  */
 public class FilterSetFileStore implements FilterSetStore {

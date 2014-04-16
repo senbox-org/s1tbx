@@ -3,7 +3,7 @@ package org.esa.beam.visat.actions.imgfilter;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
+ * The internal model for a {@code JTree} displaying a {@link FilterSet}.
+ *
  * @author Norman
  */
 class FilterTreeModel implements TreeModel, FilterSet.Listener {

@@ -2,12 +2,20 @@ package org.esa.beam.visat.actions.imgfilter;
 
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JDialog;
+import javax.swing.JTabbedPane;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.prefs.Preferences;
 
+/**
+ * Represents a window that lets users inspect and edit a single image {@link Filter}.
+ *
+ * @author Norman
+ */
 public class FilterWindow implements FilterEditor {
 
     private Window parentWindow;

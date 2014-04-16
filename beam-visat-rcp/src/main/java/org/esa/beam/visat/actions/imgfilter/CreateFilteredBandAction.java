@@ -15,7 +15,14 @@
  */
 package org.esa.beam.visat.actions.imgfilter;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
+import org.esa.beam.framework.datamodel.FilterBand;
+import org.esa.beam.framework.datamodel.GeneralFilterBand;
+import org.esa.beam.framework.datamodel.Kernel;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -25,7 +32,8 @@ import org.esa.beam.visat.actions.imgfilter.model.Filter;
 
 
 /**
- * Installs commands into VISAT which lets a user attach a {@link org.esa.beam.framework.datamodel.PixelGeoCoding} based on pixels rather than tie points to the current product.
+ * The action that lets users select existing or define new image filters.
+ * It opens the {@link org.esa.beam.visat.actions.imgfilter.CreateFilteredBandDialog}.
  *
  * @author Norman Fomferra
  */

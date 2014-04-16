@@ -5,15 +5,30 @@ import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSetStore;
 
-import javax.swing.*;
+import javax.swing.DropMode;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
-import java.awt.dnd.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -21,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A form used too edit and display a single {@link FilterSet} in a {@code JTree}.
+ *
  * @author Norman
  */
 public class FilterSetForm extends JPanel {
@@ -103,7 +120,7 @@ public class FilterSetForm extends JPanel {
                 ((FilterTreeModel) filterTree.getModel()).addFilterModel(filter, filterTree.getSelectionPath());
             }
         });
-        addButton.setToolTipText("Add user defined filter");
+        addButton.setToolTipText("Add user-defined filter");
 
 
         removeButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/list-remove.png"));
@@ -113,7 +130,7 @@ public class FilterSetForm extends JPanel {
                 ((FilterTreeModel) filterTree.getModel()).removeFilterModel((Filter) filterTree.getSelectionPath().getLastPathComponent());
             }
         });
-        removeButton.setToolTipText("Remove user defined filter");
+        removeButton.setToolTipText("Remove user-defined filter");
 
         editButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/document-properties.png"));
         editButton.addActionListener(new ActionListener() {
@@ -126,7 +143,7 @@ public class FilterSetForm extends JPanel {
 
             }
         });
-        editButton.setToolTipText("Edit/Show properties of selected filter");
+        editButton.setToolTipText("Show or edit properties of selected filter");
 
         saveButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/document-save.png"));
         saveButton.addActionListener(new ActionListener() {
@@ -141,7 +158,7 @@ public class FilterSetForm extends JPanel {
 
             }
         });
-        saveButton.setToolTipText("Store the selected user defined filter");
+        saveButton.setToolTipText("Store the selected user-defined filter");
 
 
         JToolBar toolBar = new JToolBar(SwingConstants.VERTICAL);

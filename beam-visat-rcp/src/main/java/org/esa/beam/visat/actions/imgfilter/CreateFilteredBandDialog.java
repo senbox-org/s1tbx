@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Norman on 20.03.2014.
+ * The dialog that lets users select existing or define new image filters.
+ *
+ * @author Norman
  */
 public class CreateFilteredBandDialog extends ModalDialog implements FilterSetForm.Listener {
 

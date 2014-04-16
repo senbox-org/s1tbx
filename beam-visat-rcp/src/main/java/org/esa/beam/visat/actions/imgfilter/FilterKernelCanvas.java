@@ -2,20 +2,27 @@ package org.esa.beam.visat.actions.imgfilter;
 
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.geom.Rectangle2D;
 
 
+/**
+ * A canvas that displays the filter's kernel matrix.
+ *
+ * @author Norman
+ */
 public class FilterKernelCanvas extends JPanel implements Filter.Listener {
 
     private final Filter filter;
-    private double fillValue;
     private double maxAbsElementValue;
 
     public FilterKernelCanvas(Filter filter) {
         this.filter = filter;
-        this.fillValue = 0;
         setFont(new Font("Verdana", Font.PLAIN, 10));
         this.filter.addListener(this);
         maxAbsElementValue = -1;
@@ -23,16 +30,6 @@ public class FilterKernelCanvas extends JPanel implements Filter.Listener {
 
     public Filter getFilter() {
         return filter;
-    }
-
-    public double getFillValue() {
-        return fillValue;
-    }
-
-    public void setFillValue(double fillValue) {
-        double fillValueOld = this.fillValue;
-        this.fillValue = fillValue;
-        firePropertyChange("fillValue", fillValueOld, fillValue);
     }
 
     @Override
