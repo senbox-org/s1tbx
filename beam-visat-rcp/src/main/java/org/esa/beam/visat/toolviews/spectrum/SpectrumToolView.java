@@ -207,19 +207,17 @@ public class SpectrumToolView extends AbstractToolView {
         boolean hasProduct = getCurrentProduct() != null;
         boolean hasSelectedPins = hasView && getCurrentView().getSelectedPins().length > 0;
         boolean hasPins = hasProduct && getCurrentProduct().getPinGroup().getNodeCount() > 0;
-        boolean chartHandlerHasDiagram = chartHandler.hasDiagram();
         filterButton.setEnabled(hasProduct);
         showSpectrumForCursorButton.setEnabled(hasView);
         showSpectraForSelectedPinsButton.setEnabled(hasSelectedPins);
         showSpectraForAllPinsButton.setEnabled(hasPins);
-        showGridButton.setEnabled(chartHandlerHasDiagram);
+        showGridButton.setEnabled(hasView);
 // todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
 //        showAveragePinSpectrumButton.setEnabled(hasPins); // todo - hasSpectraGraphs
 //        showGraphPointsButton.setEnabled(chartHandlerHasDiagram);
         chartPanel.setEnabled(hasProduct);    // todo - hasSpectraGraphs
-        if (chartHandlerHasDiagram) {
-            showGridButton.setSelected(true);
-        }
+        showGridButton.setSelected(hasView);
+        chartHandler.setGridVisible(showGridButton.isSelected());
     }
 
     @Override
