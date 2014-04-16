@@ -94,6 +94,8 @@ class MoreOptionsForm {
             addRow(histogramMatchingLabel, histogramMatchingBox);
             bindingContext.addPropertyChangeListener(HISTOGRAM_MATCHING_PROPERTY, pcl);
         }
+
+        addRow(new JCheckBox("Discrete"));
     }
 
     private ImageInfo getImageInfo() {

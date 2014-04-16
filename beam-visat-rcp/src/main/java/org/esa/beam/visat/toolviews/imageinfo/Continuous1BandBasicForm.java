@@ -16,6 +16,7 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -24,43 +25,65 @@ import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 class Continuous1BandBasicForm implements ColorManipulationChildForm {
 
     public static final Scaling POW10_SCALING = new Pow10Scaling();
+    public static final Scaling LOG10_SCALING = new Log10Scaling();
 
     private final ColorManipulationForm parentForm;
     private final JPanel contentPanel;
     private final AbstractButton logDisplayButton;
     private final MoreOptionsForm moreOptionsForm;
     private final ColorPaletteChooser colorPaletteChooser;
+    private boolean shouldFireChooserEvent;
 
     Continuous1BandBasicForm(final ColorManipulationForm parentForm) {
+        ColorPalettesManager.loadAvailableColorPalettes(parentForm.getIODir());
+
         this.parentForm = parentForm;
 
-        contentPanel = new JPanel(new BorderLayout(2, 2));
+        final TableLayout layout = new TableLayout();
+        layout.setTableWeightX(1.0);
+        layout.setTableWeightY(1.0);
+        layout.setTablePadding(2, 2);
+        layout.setCellPadding(0, 0, new Insets(10, 2, 2, 2));
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableAnchor(TableLayout.Anchor.NORTH);
+
+        final JPanel editorPanel = new JPanel(layout);
+        editorPanel.add(new JLabel("Predefined Color Palette:"));
         colorPaletteChooser = new ColorPaletteChooser();
-        contentPanel.add(colorPaletteChooser, BorderLayout.NORTH);
+        editorPanel.add(colorPaletteChooser);
+
+        contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(editorPanel, BorderLayout.NORTH);
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
+
+        shouldFireChooserEvent = true;
 
         colorPaletteChooser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final ColorPaletteDef selectedCPD = colorPaletteChooser.getSelectedColorPaletteDefinition();
-                final ImageInfo currentInfo = parentForm.getImageInfo();
-                final ColorPaletteDef currentCPD = currentInfo.getColorPaletteDef();
-                final ColorPaletteDef deepCopy = selectedCPD.createDeepCopy();
-                deepCopy.setDiscrete(currentCPD.isDiscrete());
-                final double min = currentCPD.getMinDisplaySample();
-                final double max = currentCPD.getMaxDisplaySample();
-                final boolean autoDistribute = true;
-                currentInfo.setColorPaletteDef(deepCopy, min, max, autoDistribute);
-                parentForm.applyChanges();
+                if (shouldFireChooserEvent) {
+                    final ColorPaletteDef selectedCPD = colorPaletteChooser.getSelectedColorPaletteDefinition();
+                    final ImageInfo currentInfo = parentForm.getImageInfo();
+                    final ColorPaletteDef currentCPD = currentInfo.getColorPaletteDef();
+                    final ColorPaletteDef deepCopy = selectedCPD.createDeepCopy();
+                    deepCopy.setDiscrete(currentCPD.isDiscrete());
+                    final double min = currentCPD.getMinDisplaySample();
+                    final double max = currentCPD.getMaxDisplaySample();
+                    final boolean autoDistribute = true;
+                    currentInfo.setColorPaletteDef(deepCopy, min, max, autoDistribute);
+                    parentForm.applyChanges();
+                }
             }
         });
 
@@ -70,8 +93,9 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         logDisplayButton.addActionListener(parentForm.wrapWithAutoApplyActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                colorPaletteChooser.setLog10Display(logDisplayButton.isSelected());
-                parentForm.getImageInfo().setLogScaled(logDisplayButton.isSelected());
+                final boolean logScaled = logDisplayButton.isSelected();
+                colorPaletteChooser.setLog10Display(logScaled);
+                parentForm.getImageInfo().setLogScaled(logScaled);
                 parentForm.applyChanges();
             }
         }));
@@ -101,7 +125,9 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
 
         colorPaletteChooser.setLog10Display(logScaled);
         colorPaletteChooser.setDiscreteDisplay(discrete);
+        shouldFireChooserEvent = false;
         colorPaletteChooser.setSelectedColorPaletteDefinition(cpd);
+        shouldFireChooserEvent = true;
 
         logDisplayButton.setSelected(logScaled);
         parentForm.revalidateToolViewPaneControl();

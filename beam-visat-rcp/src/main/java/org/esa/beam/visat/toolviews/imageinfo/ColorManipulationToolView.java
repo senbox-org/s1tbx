@@ -33,7 +33,6 @@ public class ColorManipulationToolView extends AbstractToolView {
     @Override
     protected JComponent createControl() {
         ColorManipulationForm cmf = new ColorManipulationForm(this);
-        ColorPalettesManager.loadAvailableColorPalettes(cmf.getIODir());
         return cmf.getContentPanel();
     }
 }

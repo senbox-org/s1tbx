@@ -9,12 +9,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.border.EmptyBorder;
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -47,13 +49,17 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
     public ColorPaletteDef getSelectedColorPaletteDefinition() {
         final int selectedIndex = getSelectedIndex();
         final ComboBoxModel<ColorPaletteWrapper> model = getModel();
-        return model.getElementAt(selectedIndex).cpd;
+        final ColorPaletteWrapper colorPaletteWrapper = model.getElementAt(selectedIndex);
+        final ColorPaletteDef cpd = colorPaletteWrapper.cpd;
+        cpd.getPointAt(0).setLabel(colorPaletteWrapper.name);
+        return cpd;
     }
 
     public void setSelectedColorPaletteDefinition(ColorPaletteDef cpd) {
+        final String name = cpd.getPointAt(0).getLabel();
         final ComboBoxModel<ColorPaletteWrapper> model = getModel();
         for (int i = 0; i < model.getSize(); i++) {
-            if (model.getElementAt(i).cpd == cpd) {
+            if (model.getElementAt(i).name == name) {
                 setSelectedIndex(i);
                 return;
             }
@@ -85,13 +91,23 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
             @Override
             public Component getListCellRendererComponent(JList<? extends ColorPaletteWrapper> list, ColorPaletteWrapper value, int index, boolean isSelected, boolean cellHasFocus) {
                 final ImageIcon icon = new ImageIcon();
-                final BufferedImage image = new BufferedImage(180, 15, BufferedImage.TYPE_INT_RGB);
+                final int width = Math.max(list.getSize().width, 180);
+                final BufferedImage image = new BufferedImage(width, 15, BufferedImage.TYPE_INT_RGB);
                 drawPalette(image.createGraphics(), value.cpd, new Dimension(image.getWidth(), image.getHeight()));
                 icon.setImage(image);
+
+                final Font font = getFont();
+                final Font smaller = font.deriveFont(font.getSize() * 0.85f);
+
                 final JLabel jLabel = new JLabel(value.name);
-                jLabel.setIcon(icon);
-                jLabel.setBorder(new EmptyBorder(1, 1, 1, 1));
-                return jLabel;
+                jLabel.setFont(smaller);
+//                jLabel.setIcon(icon);
+//                jLabel.setBorder(new EmptyBorder(1, 1, 1, 1));
+//                return jLabel;
+                final JPanel palettePanel = new JPanel(new BorderLayout(0, 2));
+                palettePanel.add(jLabel, BorderLayout.NORTH);
+                palettePanel.add(new JLabel(icon), BorderLayout.CENTER);
+                return palettePanel;
             }
         };
     }
