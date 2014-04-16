@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
           <b>Changes in 5.0</b><br/>
+          [BEAM-1509]  Mosaic tool does not initiate the download of the selected DEM <br/>
           [BEAM-1642] Create geometry from WKT<br/>
           [BEAM-753]  Manual adjustment of axes in spectrum view<br/>
           [BEAM-1060] make y-axis of spectrum view user defined<br/>

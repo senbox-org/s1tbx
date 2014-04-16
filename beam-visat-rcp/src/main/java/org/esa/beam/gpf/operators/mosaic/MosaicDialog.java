@@ -21,6 +21,8 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ui.OperatorMenu;
@@ -90,7 +92,9 @@ class MosaicDialog extends SingleTargetProductDialog {
             showErrorDialog("No variables or conditions specified.");
             return false;
         }
-
+        if (!verifyDEM(mosaicModel)) {
+            return false;
+        }
         return true;
     }
 
@@ -174,6 +178,27 @@ class MosaicDialog extends SingleTargetProductDialog {
         if (sourceProductMap == null || sourceProductMap.isEmpty()) {
             showErrorDialog("No source products specified.");
             return false;
+        }
+        return true;
+    }
+
+    private boolean verifyDEM(MosaicFormModel formModel) {
+        String externalDemName = formModel.getElevationModelName();
+        if (externalDemName != null) {
+            final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
+            final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(externalDemName);
+            if (demDescriptor == null) {
+                showErrorDialog("The DEM '" + externalDemName + "' is not supported.");
+                return false;
+            }
+            if (demDescriptor.isInstallingDem()) {
+                showErrorDialog("The DEM '" + externalDemName + "' is currently being installed.");
+                return false;
+            }
+            if (!demDescriptor.isDemInstalled()) {
+                demDescriptor.installDemFiles(getParent());
+                return false;
+            }
         }
         return true;
     }

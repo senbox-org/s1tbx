@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -257,5 +257,13 @@ class MosaicFormModel {
 
     public WorldMapPaneDataModel getWorldMapModel() {
         return worldMapModel;
+    }
+
+    public String getElevationModelName() {
+        boolean orthorectify = (boolean) getPropertyValue(PROPERTY_ORTHORECTIFY);
+        if (orthorectify) {
+            return (String) getPropertyValue(PROPERTY_ELEVATION_MODEL_NAME);
+        }
+        return null;
     }
 }
