@@ -20,6 +20,9 @@
         <module>beam-gpf</module>
     </dependency>
     <dependency>
+        <module>beam-meris-radiometry</module>
+    </dependency>
+    <dependency>
         <module>pfa-core</module>
     </dependency>
 

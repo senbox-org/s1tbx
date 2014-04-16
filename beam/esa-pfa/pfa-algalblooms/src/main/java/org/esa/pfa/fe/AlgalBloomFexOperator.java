@@ -19,7 +19,6 @@ package org.esa.pfa.fe;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.beam.classif.CcNnHsOp;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
@@ -58,7 +57,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @author Ralf Quast
  */
-@OperatorMetadata(alias = "AlgalBloomFex", version = "1.1", suppressWrite = true)
+@OperatorMetadata(alias = "AlgalBloomFex", version = "1.1", autoWriteDisabled = true)
 public class AlgalBloomFexOperator extends FexOperator {
 
     public static final String R_EXPR = "log(0.05 + 0.35 * reflec_2 + 0.60 * reflec_5 + reflec_6 + 0.13 * reflec_7)";
@@ -132,8 +131,6 @@ public class AlgalBloomFexOperator extends FexOperator {
     private double minClumpiness;
     @Parameter(defaultValue = "1.005", description = "Cloud correction factor for MCI/FLH computation")
     private double cloudCorrectionFactor;
-    @Parameter(defaultValue = "true")
-    private boolean useFrontsCloudMask;
     @Parameter(defaultValue = "8", description = "Number of successful cloudiness tests for Fronts cloud mask")
     private int frontsCloudMaskThreshold;
     @Parameter(defaultValue = "0.00005", description = "Threshold for counting pixels whose absolute spatial FLH gradient is higher than the threshold")
@@ -300,8 +297,8 @@ public class AlgalBloomFexOperator extends FexOperator {
     }
 
     private void addFlhGradientBands(Product featureProduct) {
-        featureProduct.addBand(new ConvolutionFilterBand("flh_average", featureProduct.getBand("flh"), new Kernel(3, 3, 1.0 / 9.0, new double[]{1, 1, 1, 1, 1, 1, 1, 1, 1})));
-        featureProduct.addBand(new ConvolutionFilterBand("flh_gradient", featureProduct.getBand("flh_average"), new Kernel(3, 3, 1.0 / 9.0, new double[]{-1, -2, -1, 0, 0, 0, 1, 2, 1})));
+        featureProduct.addBand(new ConvolutionFilterBand("flh_average", featureProduct.getBand("flh"), new Kernel(3, 3, 1.0 / 9.0, new double[]{1, 1, 1, 1, 1, 1, 1, 1, 1}), 1));
+        featureProduct.addBand(new ConvolutionFilterBand("flh_gradient", featureProduct.getBand("flh_average"), new Kernel(3, 3, 1.0 / 9.0, new double[]{-1, -2, -1, 0, 0, 0, 1, 2, 1}), 1));
         featureProduct.addMask("flh_high_gradient", "abs(flh_gradient) > " + flhGradientThreshold, "", Color.RED, 0.5);
     }
 
@@ -329,27 +326,10 @@ public class AlgalBloomFexOperator extends FexOperator {
      * @return intermediate waste product for later disposal.
      */
     private Product addMasks(Product product) {
-        final Product cloudProduct;
-        if (useFrontsCloudMask) {
-            cloudProduct = createFrontsCloudMaskProduct(product);
-
-            ProductUtils.copyBand("cloud_data_ori_or_flag", cloudProduct, product, true);
-            ProductUtils.copyMasks(cloudProduct, product);
-            addRoiMask(product, FEX_CLOUD_MASK_3_NAME);
-        } else {
-            final CcNnHsOp ccNnHsOp = createSchillerCloudMaskOperator(product);
-            cloudProduct = ccNnHsOp.getTargetProduct();
-
-            ProductUtils.copyBand("cl_wat_3_val", cloudProduct, product, true);
-            product.addMask(FEX_CLOUD_MASK_1_NAME, FEX_CLOUD_MASK_1_VALUE,
-                            "Special MERIS L1B cloud mask for PFA (magic wand)", Color.YELLOW,
-                            0.5);
-            product.addMask(FEX_CLOUD_MASK_2_NAME, FEX_CLOUD_MASK_2_VALUE,
-                            "Special MERIS L1B cloud mask for PFA (Schiller NN)", Color.ORANGE,
-                            0.5);
-            addRoiMask(product, FEX_CLOUD_MASK_1_NAME);
-        }
-
+        final Product cloudProduct = createFrontsCloudMaskProduct(product);
+        ProductUtils.copyBand("cloud_data_ori_or_flag", cloudProduct, product, true);
+        ProductUtils.copyMasks(cloudProduct, product);
+        addRoiMask(product, FEX_CLOUD_MASK_3_NAME);
         return cloudProduct;
     }
 
@@ -358,14 +338,6 @@ public class AlgalBloomFexOperator extends FexOperator {
         featureProduct.addMask(FEX_ROI_MASK_NAME, roiExpr,
                                "ROI for pixels used for the feature extraction", Color.green,
                                0.5);
-    }
-
-    private CcNnHsOp createSchillerCloudMaskOperator(Product product) {
-        final CcNnHsOp ccNnHsOp = new CcNnHsOp();
-        ccNnHsOp.setSourceProduct(product);
-        ccNnHsOp.setValidPixelExpression(FEX_VALID_MASK);
-        ccNnHsOp.setAlgorithmName(CcNnHsOp.ALGORITHM_2013_05_09);
-        return ccNnHsOp;
     }
 
     private Product createFrontsCloudMaskProduct(Product product) {

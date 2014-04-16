@@ -26,7 +26,6 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -44,8 +43,8 @@ import java.util.HashMap;
  *
  * @author Norman Fomferra
  */
-@OperatorMetadata(alias = "FexOp", version = "1.0")//, suppressWrite = true)
-public abstract class FexOperator extends Operator implements Output {
+@OperatorMetadata(alias = "FexOp", version = "1.0", autoWriteDisabled = true)
+public abstract class FexOperator extends Operator {
 
     public static final AttributeType[] STX_ATTRIBUTE_TYPES = new AttributeType[]{
             new AttributeType("mean", "Mean value of valid feature pixels", Double.class),

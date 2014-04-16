@@ -213,8 +213,8 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     @Override
     public void notifyNewClassifier(SearchToolStub classifier) {
+        retrievedPatches = new Patch[0];
         if (isControlCreated()) {
-            retrievedPatches = new Patch[0];
             drawer.update(retrievedPatches);
             updateControls();
         }
@@ -222,8 +222,8 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
 
     @Override
     public void notifyDeleteClassifier(SearchToolStub classifier) {
+        retrievedPatches = new Patch[0];
         if (isControlCreated()) {
-            retrievedPatches = new Patch[0];
             drawer.update(retrievedPatches);
             updateControls();
         }
@@ -246,9 +246,12 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
             listenToPatches();
 
             accuracy = 0;
-            drawer.update(retrievedPatches);
 
-            updateControls();
+            if (isControlCreated()) {
+                drawer.update(retrievedPatches);
+                updateControls();
+            }
+
         } catch (Exception e) {
             VisatApp.getApp().handleUnknownException(e);
         }
@@ -263,7 +266,9 @@ public class CBIRRetrievedImagesToolView extends AbstractToolView implements Act
             }
         }
         accuracy = cnt;
-        updateControls();
+        if (isControlCreated()) {
+            updateControls();
+        }
     }
 
     private class RetrievedPatchContextMenuFactory extends PatchContextMenuFactory {

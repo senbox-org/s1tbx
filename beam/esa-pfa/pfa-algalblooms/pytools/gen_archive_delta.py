@@ -56,26 +56,26 @@ def run(archive_path, output_path, image_name, rgb_channels):
             print(' reading:', inp_dim_file)
             p = beampy.ProductIO.readProduct(inp_dim_file)
 
-            b1 = p.getBand(rgb_channels[0])
-            b2 = p.getBand(rgb_channels[1])
-            b3 = p.getBand(rgb_channels[2])
+            #b1 = p.getBand(rgb_channels[0])
+            #b2 = p.getBand(rgb_channels[1])
+            #b3 = p.getBand(rgb_channels[2])
 
-            rgb_bands = jpy.array(beampy.Band, 3)
-            rgb_bands[0] = p.getBand(rgb_channels[0])
-            rgb_bands[1] = p.getBand(rgb_channels[1])
-            rgb_bands[2] = p.getBand(rgb_channels[2])
-
-            for band in rgb_bands:
-                band.getImageInfo(ProgressMonitor.NULL)
-
-            im = ImageManager.getInstance()
-            imageInfo = im.getImageInfo([b1, b2, b3])
-            image = im.createColoredBandImage(rgb_bands, imageInfo, 0)
-
-            out_image_path = os.path.join(out_patch_dir, image_name)
-
-            print(' writing:', out_image_path)
-            ImageIO.write(image, 'PNG', File(out_image_path))
+            #rgb_bands = jpy.array(beampy.Band, 3)
+            #rgb_bands[0] = p.getBand(rgb_channels[0])
+            #rgb_bands[1] = p.getBand(rgb_channels[1])
+            #rgb_bands[2] = p.getBand(rgb_channels[2])
+            #
+            #for band in rgb_bands:
+            #    band.getImageInfo(ProgressMonitor.NULL)
+            #
+            #im = ImageManager.getInstance()
+            #imageInfo = im.getImageInfo([b1, b2, b3])
+            #image = im.createColoredBandImage(rgb_bands, imageInfo, 0)
+            #
+            #out_image_path = os.path.join(out_patch_dir, image_name)
+            #
+            #print(' writing:', out_image_path)
+            #ImageIO.write(image, 'PNG', File(out_image_path))
 
             w = p.getSceneRasterWidth()
             h = p.getSceneRasterHeight()
@@ -83,8 +83,20 @@ def run(archive_path, output_path, image_name, rgb_channels):
             flh = numpy.zeros(w * h, dtype=numpy.float32)
             mci = numpy.zeros(w * h, dtype=numpy.float32)
 
+            flhValid = numpy.zeros(w * h, dtype=numpy.uint8)
+            mciValid = numpy.zeros(w * h, dtype=numpy.uint8)
+
             p.getBand('flh').readPixels(0, 0, w, h, flh)
             p.getBand('mci').readPixels(0, 0, w, h, mci)
+
+            p.getBand('flh').readValidMask(0, 0, w, h, flhValid)
+            p.getBand('mci').readValidMask(0, 0, w, h, mciValid)
+
+            flh = numpy.where(flhValid != 0, flh, numpy.nan)
+            mci = numpy.where(mciValid != 0, mci, numpy.nan)
+
+            #print(patch_entry + ': flhValid = ', flhValid)
+            #print(patch_entry + ': flh      = ', flh)
 
             out_data_dir = os.path.join(out_patch_dir, 'patch.data')
             if not os.path.exists(out_data_dir): os.mkdir(out_data_dir)
@@ -111,16 +123,15 @@ def write_raw_data(file, data, w, h):
         f.write('file type = ENVI Standard\n')
         f.write('data type = 4\n')
         f.write('interleave = bsq\n')
-        f.write('byte order = 1\n')
+        f.write('byte order = 0\n')
         f.write('wavelength = {559.69403}\n')
         f.write('data gain values = {1.0}\n')
         f.write('data offset values = {0.0}\n')
 
+    if BIG_ENDIAN: data.byteswap()
     with open(file + '.img', 'wb') as f:
-        if BIG_ENDIAN: data.byteswap()
         data.tofile(f)
-        if BIG_ENDIAN: data.byteswap()
-
+    if BIG_ENDIAN: data.byteswap()
 
 
 parser = argparse.ArgumentParser(description='Generate extra quicklook images for an existing feature ARCHIVE.')

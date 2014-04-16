@@ -21,9 +21,9 @@
     <modules>
         <module>pfa-core</module>
         <module>pfa-database</module>
+        <module>pfa-algalblooms</module>
         <module>pfa-gui</module>
         <module>pfa-sar-fex</module>
-        <!--module>pfa-algalblooms</module-->
     </modules>
 
     <dependencyManagement>
@@ -53,17 +53,17 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-                <version>5.0.1-4.10.4</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envisat-reader</artifactId>
-                <version>5.0-1.5</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>1.1</version>
+                <version>${beam.version}</version>
             </dependency>
 
             <!--  JUnit -->
@@ -91,34 +91,23 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>2.4</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-			
-			<plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.16</version>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
                     <configuration>
-                        <enableAssertions>false</enableAssertions>
-                        <skip>true</skip>
-                        <printSummary>true</printSummary>
-                        <useFile>false</useFile>
-                        <includes>
-                            <include>**/*Test.java</include>
-                        </includes>
-                        <systemProperties>
-                            <property>
-                                <name>org.esa.beam.testdata.out</name>
-                                <value>target/test-data</value>
-                            </property>
-                        </systemProperties>
-                        <argLine>-Xmx512M -enableassertions</argLine>
+                      <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                      </descriptors>
                     </configuration>
-                </plugin>
+            </plugin>
         </plugins>
     </build>
 
