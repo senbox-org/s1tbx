@@ -23,7 +23,6 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.BindingProblem;
 import com.bc.ceres.swing.binding.BindingProblemListener;
 import com.bc.ceres.swing.binding.ComponentAdapter;
-import com.bc.ceres.swing.binding.internal.BindingProblemImpl;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
@@ -129,13 +128,16 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     @Override
     public void adjustComponents() {
         if (!adjustingComponents) {
-            try {
-                adjustingComponents = true;
-                componentAdapter.adjustComponents();
-                // Now property is in sync with UI
-                clearProblem();
-            } finally {
-                adjustingComponents = false;
+            // Make sure, componentAdapter is not already unbound
+            if (componentAdapter.getBinding() != null) {
+                try {
+                    adjustingComponents = true;
+                    componentAdapter.adjustComponents();
+                    // Now property is in sync with UI
+                    clearProblem();
+                } finally {
+                    adjustingComponents = false;
+                }
             }
         }
     }
