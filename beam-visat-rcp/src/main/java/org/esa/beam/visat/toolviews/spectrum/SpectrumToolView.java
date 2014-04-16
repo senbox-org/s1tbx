@@ -316,6 +316,24 @@ public class SpectrumToolView extends AbstractToolView {
         domainAxisAdjustmentIsFrozen = false;
         chartPanel = new ChartPanel(chart);
         chartHandler = new ChartHandler(chart);
+        final XYPlotMarker plotMarker = new XYPlotMarker(chartPanel, new XYPlotMarker.Listener() {
+            @Override
+            public void pointSelected(XYDataset xyDataset, int seriesIndex, Point2D dataPoint) {
+                if (hasDiagram()) {
+                    if (cursorSynchronizer == null) {
+                        cursorSynchronizer = new CursorSynchronizer(VisatApp.getApp());
+                    }
+                    if (!cursorSynchronizer.isEnabled()) {
+                        cursorSynchronizer.setEnabled(true);
+                    }
+                }
+            }
+
+            @Override
+            public void pointDeselected() {
+                cursorSynchronizer.setEnabled(false);
+            }
+        });
 
         titleBase = getDescriptor().getTitle();
         filterButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Filter24.gif"), false);
@@ -348,6 +366,8 @@ public class SpectrumToolView extends AbstractToolView {
             public void actionPerformed(ActionEvent e) {
                 if (isShowingSpectraForAllPins()) {
                     showSpectraForAllPinsButton.setSelected(false);
+                } else if (!isShowingSpectraForSelectedPins()) {
+                    plotMarker.setInvisible();
                 }
                 recreateChart();
             }
@@ -356,12 +376,14 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectraForSelectedPinsButton.setToolTipText("Show spectra for selected pins.");
 
         showSpectraForAllPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/PinSpectra24.gif"),
-                true);
+                                                                     true);
         showSpectraForAllPinsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (isShowingSpectraForSelectedPins()) {
                     showSpectraForSelectedPinsButton.setSelected(false);
+                } else if (!isShowingSpectraForAllPins()) {
+                    plotMarker.setInvisible();
                 }
                 recreateChart();
             }
@@ -402,7 +424,7 @@ public class SpectrumToolView extends AbstractToolView {
 //        showGraphPointsButton.setToolTipText("Show graph points grid.");
 
         AbstractButton exportSpectraButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"),
-                false);
+                                                                            false);
         exportSpectraButton.addActionListener(new SpectraExportAction(this));
         exportSpectraButton.setToolTipText("Export spectra to text file.");
         exportSpectraButton.setName("exportSpectraButton");
@@ -452,24 +474,7 @@ public class SpectrumToolView extends AbstractToolView {
         chartPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)));
-        chartPanel.addChartMouseListener(new XYPlotMarker(chartPanel, new XYPlotMarker.Listener() {
-            @Override
-            public void pointSelected(XYDataset xyDataset, int seriesIndex, Point2D dataPoint) {
-                if (hasDiagram()) {
-                    if (cursorSynchronizer == null) {
-                        cursorSynchronizer = new CursorSynchronizer(VisatApp.getApp());
-                    }
-                    if (!cursorSynchronizer.isEnabled()) {
-                        cursorSynchronizer.setEnabled(true);
-                    }
-                }
-            }
-
-            @Override
-            public void pointDeselected() {
-                cursorSynchronizer.setEnabled(false);
-            }
-        }));
+        chartPanel.addChartMouseListener(plotMarker);
 
         JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -948,7 +953,7 @@ public class SpectrumToolView extends AbstractToolView {
                 if (plotBounds.getLowerBound() > 0 && newBounds.getLowerBound() < currentBounds.getLowerBound() ||
                         newBounds.getUpperBound() > currentBounds.getUpperBound()) {
                     currentBounds = new Range(Math.min(currentBounds.getLowerBound(), newBounds.getLowerBound()),
-                            Math.max(currentBounds.getUpperBound(), newBounds.getUpperBound()));
+                                              Math.max(currentBounds.getUpperBound(), newBounds.getUpperBound()));
                 }
             }
             return currentBounds;
@@ -958,7 +963,7 @@ public class SpectrumToolView extends AbstractToolView {
             double range = bounds.getLength();
             double delta = range * relativePlotInset;
             return new Range(Math.max(0, bounds.getLowerBound() - delta),
-                    bounds.getUpperBound() + delta);
+                             bounds.getUpperBound() + delta);
         }
 
         private void fillDatasetWithCursorSeries(List<DisplayableSpectrum> spectra, XYSeriesCollection dataset, JFreeChart chart) {
@@ -1150,9 +1155,9 @@ public class SpectrumToolView extends AbstractToolView {
             Stroke lineStyle = spectrum.getLineStyle();
             Shape symbol = spectrum.getScaledShape();
             return new LegendItem(legendLabel, legendLabel, legendLabel, legendLabel,
-                    true, symbol, false,
-                    paint, true, paint, outlineStroke,
-                    true, lineShape, lineStyle, paint);
+                                  true, symbol, false,
+                                  paint, true, paint, outlineStroke,
+                                  true, lineShape, lineStyle, paint);
         }
 
     }
