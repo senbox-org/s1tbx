@@ -70,12 +70,20 @@ public class XYPlotMarker implements ChartMouseListener {
         this.outlinePaint = outlinePaint;
     }
 
-    @Override
-    public void chartMouseClicked(ChartMouseEvent event) {
-        boolean overlayRemoved = removeOverlay();
+    public void setInvisible() {
+        removeDataset();
+        removeOverlay();
+    }
 
+    private void removeDataset() {
         xyDataset = null;
         seriesIndex = -1;
+    }
+
+    @Override
+    public void chartMouseClicked(ChartMouseEvent event) {
+        removeDataset();
+        final boolean overlayRemoved = removeOverlay();
 
         XYPlot plot = chartPanel.getChart().getXYPlot();
 
