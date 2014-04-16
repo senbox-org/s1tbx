@@ -1,18 +1,24 @@
 package com.bc.ceres.swing;
 
+import com.jidesoft.utils.Lm;
+
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.util.List;
 
 public class GridGuiTest {
     public static void main(String[] args) {
+        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -20,39 +26,54 @@ public class GridGuiTest {
             e.printStackTrace();
         }
 
-        Grid grid = new Grid(4, true); /* {
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+                                              createGridPanel(),
+                                              createGridPanel());
+
+        JFrame frame = new JFrame(Grid.class.getSimpleName());
+        frame.getContentPane().add(splitPane, BorderLayout.WEST);
+        frame.getContentPane().add(createGridPanel(), BorderLayout.CENTER);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setSize(340, 340);
+        frame.setVisible(true);
+    }
+
+    private static JPanel createGridPanel() {
+        Grid grid = new Grid(4, true) /* {
             @Override
             protected JCheckBox createHeaderRowSelector() {
-                return new TristateCheckBox();
+                TristateCheckBox tristateCheckBox = new TristateCheckBox();
+                tristateCheckBox.setMixed(true);
+                tristateCheckBox.set
+                return tristateCheckBox;
             }
 
             @Override
-            protected void adjustHeaderRowSelector(JCheckBox checkBox, int selectedDataRowCount) {
-                TristateCheckBox tristateCheckBox = (TristateCheckBox) checkBox;
+            protected void adjustHeaderRowSelector(JCheckBox headerRowSelector, int selectedDataRowCount) {
+                TristateCheckBox tristateCheckBox = (TristateCheckBox) headerRowSelector;
                 if (selectedDataRowCount == 0) {
                     tristateCheckBox.setState(TristateCheckBox.STATE_UNSELECTED);
-                } else if (selectedDataRowCount == getRowCount() - 1) {
+                } else if (selectedDataRowCount == getDataRowCount()) {
                     tristateCheckBox.setState(TristateCheckBox.STATE_SELECTED);
                 } else {
                     tristateCheckBox.setState(TristateCheckBox.STATE_MIXED);
                 }
                 System.out.println("tristateCheckBox.state = " + tristateCheckBox.getState());
             }
-        };*/
+        }*/;
         grid.getLayout().setTablePadding(4, 2);
         grid.getLayout().setColumnFill(1, TableLayout.Fill.HORIZONTAL);
         grid.getLayout().setColumnWeightX(1, 1.0);
-        grid.setHeaderRow(new JLabel("<html><b>Name</b>"), new JLabel("<html><b>Letter</b>"), new JLabel("<html><b>Units</b>"));
-
+        grid.setHeaderRow(new JLabel("<html><b>Name</b>"),
+                          new JLabel("<html><b>Method</b>"),
+                          new JLabel("<html><b>Parameters</b>"));
         GridControlBar gridControlBar = new GridControlBar(GridControlBar.HORIZONTAL, grid, new MyController());
 
-        JFrame frame = new JFrame(Grid.class.getSimpleName());
-        frame.getContentPane().add(new JScrollPane(grid), BorderLayout.CENTER);
-        //frame.getContentPane().add(new JScrollPane(grid), BorderLayout.NORTH);
-        frame.getContentPane().add(gridControlBar, BorderLayout.SOUTH);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(340, 340);
-        frame.setVisible(true);
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
+        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        panel.add(new JScrollPane(grid), BorderLayout.CENTER);
+        panel.add(gridControlBar, BorderLayout.SOUTH);
+        return panel;
     }
 
 

@@ -19,8 +19,12 @@ package com.bc.ceres.binding.dom;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.DefaultPropertySetDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
@@ -44,11 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class DefaultDomConverterTest {
 
@@ -176,6 +176,25 @@ public class DefaultDomConverterTest {
         value.fileField = null;
         convertValueToDom(value, dom);
         assertEquals(expectedXml, getXml(dom));
+    }
+
+    @Test
+    public void testArrayInitIfAlreadyInitialized() throws Exception {
+        final String parameters = ""
+                                  + "<parameters>\n"
+                                  + "  <targetBands>\n"
+                                  + "    <band>band_a</band>\n"
+                                  + "    <band>band_b</band>\n"
+                                  + "    <band>band_c</band>\n"
+                                  + "  </targetBands>\n"
+                                  + "  <targetBand>notImportant</targetBand>\n"
+                                  + "  <defaultBandName>ignored</defaultBandName>\n"
+                                  + "</parameters>";
+        final XppDom dom = createDom(parameters);
+        AnnotatedPojo annotatedPojo = new AnnotatedPojo();
+        annotatedPojo.targetBandNames = new String[]{"band_1","band_2"};
+        convertDomToValue(dom, annotatedPojo);
+        assertArrayEquals(new String[]{"band_a", "band_b", "band_c"}, annotatedPojo.targetBandNames);
     }
 
     @Test

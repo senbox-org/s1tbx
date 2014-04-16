@@ -447,14 +447,12 @@ public class DefaultDomConverter implements DomConverter {
         public Object convertDomToValue(DomElement childElement, Object value) throws ConversionException, ValidationException {
             // if and only if an itemAlias is set, we parse the array element-wise
             DomElement[] itemElements = childElement.getChildren(itemName);
-            if (value == null) {
+            if (value == null || itemElements.length != Array.getLength(value)) {
                 value = Array.newInstance(itemType, itemElements.length);
             } else if (value.getClass().getComponentType() == null) {
                 throw new ConversionException(String.format("Incompatible value type: array of type '%s' expected", itemType.getName()));
             } else if (!itemType.isAssignableFrom(value.getClass().getComponentType())) {
                 throw new ConversionException(String.format("Incompatible array item type: expected '%s', got '%s'", itemType.getName(), value.getClass().getComponentType()));
-            } else if (itemElements.length != Array.getLength(value)) {
-                throw new ConversionException(String.format("Illegal array length: expected %d, got %d", itemElements.length, Array.getLength(value)));
             }
             for (int i = 0; i < itemElements.length; i++) {
                 Object item = itemConverter.convertDomToValue(itemElements[i], null);
