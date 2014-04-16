@@ -89,7 +89,7 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext.bind("kernelWidth", kernelWidthField);
                 bindingContext.bind("kernelHeight", kernelHeightField);
 
-                Enablement.Condition editableCondition = new Enablement.Condition() {
+                                Enablement.Condition editableCondition = new Enablement.Condition() {
                     @Override
                     public boolean evaluate(BindingContext bindingContext) {
                         return bindingContext.getPropertySet().getValue("editable");
@@ -107,10 +107,12 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext.bindEnabledState("shorthand", true, editableCondition);
                 bindingContext.bindEnabledState("tags", true, editableCondition);
                 bindingContext.bindEnabledState("kernelQuotient", true, editableConvolutionCondition);
-                bindingContext.bindEnabledState("kernelOffsetX", false, TRUE_CONDITION);
-                bindingContext.bindEnabledState("kernelOffsetY", false, TRUE_CONDITION);
+                // width and height are disabled here, because user shall use intended spinners
                 bindingContext.bindEnabledState("kernelWidth", false, TRUE_CONDITION);
                 bindingContext.bindEnabledState("kernelHeight", false, TRUE_CONDITION);
+                // offsetX and offsetY are disabled here, because com.bc.ceres.jai.opimage.GeneralFilterOpImage does not support it so far
+                bindingContext.bindEnabledState("kernelOffsetX", false, TRUE_CONDITION);
+                bindingContext.bindEnabledState("kernelOffsetY", false, TRUE_CONDITION);
                 bindingContext.adjustComponents();
             } else {
                 clearComponents();
