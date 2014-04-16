@@ -89,7 +89,7 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext.bind("kernelWidth", kernelWidthField);
                 bindingContext.bind("kernelHeight", kernelHeightField);
 
-                                Enablement.Condition editableCondition = new Enablement.Condition() {
+                Enablement.Condition editableCondition = new Enablement.Condition() {
                     @Override
                     public boolean evaluate(BindingContext bindingContext) {
                         return bindingContext.getPropertySet().getValue("editable");
