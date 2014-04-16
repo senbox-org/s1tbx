@@ -16,13 +16,18 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -30,7 +35,6 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
     private final ColorManipulationForm parentForm;
     private JPanel contentPanel;
-    private JCheckBox discreteColorsCheckBox;
     private ColorManipulationChildForm childForm;
     private JRadioButton graphicalButton;
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
@@ -54,12 +58,6 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         basicButton.addActionListener(switcherActionListener);
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
-        discreteColorsCheckBox = new JCheckBox("Discrete colors");
-        discreteColorsCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                setDiscreteColorsMode();
-            }
-        });
 
         final JPanel editorSwitcherPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
         editorSwitcherPanel.add(new JLabel("Editor:"));
@@ -69,7 +67,6 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
         final JPanel northPanel = new JPanel(new BorderLayout(2, 2));
         northPanel.add(editorSwitcherPanel, BorderLayout.WEST);
-        northPanel.add(discreteColorsCheckBox, BorderLayout.EAST);
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(northPanel, BorderLayout.NORTH);
@@ -78,10 +75,6 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         switchForm(productSceneView);
-        ImageInfo imageInfo = parentForm.getImageInfo();
-        if (imageInfo != null) {
-            discreteColorsCheckBox.setSelected(imageInfo.getColorPaletteDef().isDiscrete());
-        }
     }
 
     @Override
@@ -114,16 +107,6 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         return childForm.getRasters();
     }
 
-    private void setDiscreteColorsMode() {
-        parentForm.getImageInfo().getColorPaletteDef().setDiscrete(discreteColorsCheckBox.isSelected());
-        if (childForm == graphicalPaletteEditorForm) {
-            graphicalPaletteEditorForm.getImageInfoEditor().getModel().fireStateChanged();
-        } else if (childForm == basicPaletteEditorForm){
-            basicPaletteEditorForm.renderDiscrete(discreteColorsCheckBox.isSelected());
-        }
-        parentForm.applyChanges();
-    }
-
     private void switchForm(ProductSceneView productSceneView) {
         final ColorManipulationChildForm oldForm = childForm;
         final ColorManipulationChildForm newForm;
@@ -132,7 +115,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
             }
             newForm = tabularPaletteEditorForm;
-        } else if (basicButton.isSelected()){
+        } else if (basicButton.isSelected()) {
             if (basicPaletteEditorForm == null) {
                 basicPaletteEditorForm = new Continuous1BandBasicForm(parentForm);
             }
@@ -171,6 +154,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
     }
 
     private class SwitcherActionListener implements ActionListener {
+
         @Override
         public void actionPerformed(ActionEvent e) {
             switchForm(parentForm.getProductSceneView());

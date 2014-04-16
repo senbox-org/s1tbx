@@ -92,7 +92,7 @@ public class ImageInfo implements Cloneable {
      * Gets the color palette definition as used for images created from single bands.
      *
      * @return The color palette definition. Can be {@code null}.
-     *         In this case {@link #getRgbChannelDef()} is non-null.
+     * In this case {@link #getRgbChannelDef()} is non-null.
      */
     public ColorPaletteDef getColorPaletteDef() {
         return colorPaletteDef;
@@ -102,7 +102,7 @@ public class ImageInfo implements Cloneable {
      * Gets the RGB(A) channel definition as used for images created from 3 tp 4 bands.
      *
      * @return The RGB(A) channel definition.
-     *         Can be {@code null}. In this case {@link #getColorPaletteDef()} is non-null.
+     * Can be {@code null}. In this case {@link #getColorPaletteDef()} is non-null.
      */
     public RGBChannelDef getRgbChannelDef() {
         return rgbChannelDef;
@@ -295,6 +295,7 @@ public class ImageInfo implements Cloneable {
             for (int i = 0; i < sourceCPD.getNumPoints(); i++) {
                 targetCPD.getPointAt(i).setSample(a + b * sourceCPD.getPointAt(i).getSample());
                 targetCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
+                targetCPD.getPointAt(i).setLabel(sourceCPD.getPointAt(i).getLabel());
             }
         } else {
             targetCPD.setPoints(sourceCPD.getPoints().clone());
@@ -318,6 +319,7 @@ public class ImageInfo implements Cloneable {
      * Converts a string to a histogram matching.
      *
      * @param mode the histogram matching string
+     *
      * @return the histogram matching. {@link ImageInfo.HistogramMatching#None} if {@code maode} is not "Equalize" or "Normalize".
      */
     public static ImageInfo.HistogramMatching getHistogramMatching(String mode) {
