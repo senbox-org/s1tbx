@@ -9,7 +9,8 @@
     </description>
     <changelog>
         <![CDATA[
-
+           <b>Changes in 5.0</b><br/>
+           [BEAM-784] - Help should mention that SMAC is intended for land<br/>
         ]]>
     </changelog>
 
