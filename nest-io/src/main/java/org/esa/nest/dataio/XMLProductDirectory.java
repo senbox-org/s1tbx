@@ -54,8 +54,8 @@ public class XMLProductDirectory {
     protected int sceneWidth = 0;
     protected int sceneHeight = 0;
 
-    protected transient final Map<String, ImageIOFile> bandImageFileMap = new HashMap<String, ImageIOFile>(1);
-    protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<Band, ImageIOFile.BandInfo>(3);
+    protected transient final Map<String, ImageIOFile> bandImageFileMap = new HashMap<>(1);
+    protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
 
     protected XMLProductDirectory(final File headerFile, final File imageFolder) {
         Guardian.assertNotNull("headerFile", headerFile);
@@ -72,7 +72,9 @@ public class XMLProductDirectory {
         final File[] fileList = imgFolder.listFiles();
         if(fileList != null) {
             for (File file : fileList) {
-                addImageFile(file);
+                if(file.isFile()) {
+                    addImageFile(file);
+                }
             }
         }
     }
@@ -121,7 +123,7 @@ public class XMLProductDirectory {
         return product;
     }
 
-    public ImageIOFile.BandInfo getBandInfo(Band destBand) {
+    public ImageIOFile.BandInfo getBandInfo(final Band destBand) {
         return bandMap.get(destBand);
     }
 

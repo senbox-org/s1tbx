@@ -16,7 +16,6 @@
 package org.esa.nest.dataio.sentinel1;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -42,7 +41,7 @@ import java.io.IOException;
  */
 public class Sentinel1ProductReader extends SARReader {
 
-    protected Sentinel1ProductDirectory dataDir = null;
+    protected Sentinel1Directory dataDir = null;
 
     /**
      * Constructs a new abstract product reader.
@@ -88,7 +87,12 @@ public class Sentinel1ProductReader extends SARReader {
         Product product;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            dataDir = new Sentinel1ProductDirectory(fileFromInput, new File(fileFromInput.getParentFile(), "measurement"));
+            final File baseFolder = fileFromInput.getParentFile();
+            if(Sentinel1ProductReaderPlugIn.isLevel1(baseFolder) || Sentinel1ProductReaderPlugIn.isLevel2(baseFolder)) {
+                dataDir = new Sentinel1Level1Directory(fileFromInput, new File(baseFolder, "measurement"));
+            } else if(Sentinel1ProductReaderPlugIn.isLevel0(baseFolder)) {
+                dataDir = new Sentinel1Level0Directory(fileFromInput, baseFolder);
+            }
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
             product.getGcpGroup();

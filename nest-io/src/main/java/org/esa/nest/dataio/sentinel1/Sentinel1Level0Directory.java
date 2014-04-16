@@ -17,7 +17,6 @@ package org.esa.nest.dataio.sentinel1;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.SARReader;
@@ -43,13 +42,12 @@ import java.util.StringTokenizer;
  * This class represents a product directory.
  *
  */
-public class Sentinel1ProductDirectory extends XMLProductDirectory {
+public class Sentinel1Level0Directory extends XMLProductDirectory implements Sentinel1Directory {
 
-    private final transient Map<String, String> imgBandMetadataMap = new HashMap<String, String>(4);
-    private Sentinel1OCNReader OCNReader = null;
+    private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
-    public Sentinel1ProductDirectory(final File headerFile, final File imageFolder) {
+    public Sentinel1Level0Directory(final File headerFile, final File imageFolder) {
         super(headerFile, imageFolder);
     }
 
@@ -58,10 +56,6 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         if (name.endsWith("tiff")) {
             final ImageIOFile img = new ImageIOFile(file);
             bandImageFileMap.put(img.getName(), img);
-        } else if(name.endsWith(".nc")) {
-            if(OCNReader == null )
-                OCNReader = new Sentinel1OCNReader(this);
-            OCNReader.addImageFile(file, name);
         }
     }
 
@@ -173,12 +167,13 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             } else if(id.equals("processing")) {
                 final MetadataElement processing = findElement(metadataObject, "processing");
                 final MetadataElement facility = processing.getElement("facility");
-                final MetadataElement software = facility.getElement("software");
-                final String org = facility.getAttributeString("organisation");
-                final String name = software.getAttributeString("name");
-                final String version = software.getAttributeString("version");
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org+' '+name+' '+version);
-
+                if(facility != null) {
+                    final MetadataElement software = facility.getElement("software");
+                    final String org = facility.getAttributeString("organisation");
+                    final String name = software.getAttributeString("name");
+                    final String version = software.getAttributeString("version");
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org+' '+name+' '+version);
+                }
                 final ProductData.UTC start = getTime(processing, "start");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, start);
             } else if(id.equals("acquisitionPeriod")) {
@@ -226,12 +221,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
 
                 String productType = "unknown";
-                if(OCNReader != null) {
-                    productType = "OCN";
-                } else {
                     if(generalProductInformation != null)
                         productType = generalProductInformation.getAttributeString("productType", defStr);
-                }
+
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if(productType.contains("SLC")) {
@@ -241,203 +233,6 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
                 }
-            }
-        }
-
-        // get metadata for each band
-        addBandAbstractedMetadata(product, absRoot, origProdRoot);
-        addCalibrationAbstractedMetadata(origProdRoot);
-        addNoiseAbstractedMetadata(origProdRoot);
-
-        determineProductDimensions(product, absRoot);
-    }
-
-    private void determineProductDimensions(final Product product, final MetadataElement absRoot) throws IOException {
-        int width = 0, height = 0;
-        int totalWidth = 0, totalHeight = 0;
-        for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
-            final ImageIOFile img = stringImageIOFileEntry.getValue();
-            final String imgName = img.getName().toLowerCase();
-            final String bandMetadataName = imgBandMetadataMap.get(imgName);
-            if(bandMetadataName == null)
-                throw new IOException("Metadata for measurement dataset "+imgName+" not found");
-            final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
-
-            width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
-            height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
-            totalWidth += width;
-            totalHeight += height;
-        }
-        if(isSLC() && isTOPSAR()) {  // approximate does not account for overlap
-            product.setSceneDimensions(totalWidth, totalHeight);
-        } else {
-            product.setSceneDimensions(width, height);
-        }
-    }
-
-    private void addBandAbstractedMetadata(final Product product, final MetadataElement absRoot,
-                                           final MetadataElement origProdRoot) throws IOException {
-
-        MetadataElement annotationElement = origProdRoot.getElement("annotation");
-        if(annotationElement == null) {
-            annotationElement = new MetadataElement("annotation");
-            origProdRoot.addElement(annotationElement);
-        }
-        final File annotationFolder = new File(getBaseDir(), "annotation");
-        final File[] files = annotationFolder.listFiles();
-        if(files == null && OCNReader != null) {
-            // add netcdf metadata for OCN products
-            OCNReader.addNetCDFMetadata(product, annotationElement);
-            return;
-        }
-
-        // collect range and azimuth spacing
-        double rangeSpacingTotal = 0;
-        double azimuthSpacingTotal = 0;
-        boolean commonMetadataRetrieved = false;
-
-        int numBands = 0;
-        for(File metadataFile : files) {
-            if(!metadataFile.isFile())
-                continue;
-
-            Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
-            final Element rootElement = xmlDoc.getRootElement();
-            final MetadataElement nameElem = new MetadataElement(metadataFile.getName());
-            annotationElement.addElement(nameElem);
-            AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
-
-            final MetadataElement prodElem = nameElem.getElement("product");
-            final MetadataElement adsHeader = prodElem.getElement("adsHeader");
-
-            final String swath = adsHeader.getAttributeString("swath");
-            final String pol = adsHeader.getAttributeString("polarisation");
-
-            final ProductData.UTC startTime = getTime(adsHeader, "startTime");
-            final ProductData.UTC stopTime = getTime(adsHeader, "stopTime");
-
-            final String bandRootName = AbstractMetadata.BAND_PREFIX+swath +'_'+ pol;
-            final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
-            final String imgName = FileUtils.exchangeExtension(metadataFile.getName(), ".tiff");
-            imgBandMetadataMap.put(imgName, bandRootName);
-
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile.getName());
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
-
-            final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
-            final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
-
-            rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
-            azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
-
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.line_time_interval,
-                    imageInformation.getAttributeDouble("azimuthTimeInterval"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_samples_per_line,
-                    imageInformation.getAttributeInt("numberOfSamples"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_output_lines,
-                    imageInformation.getAttributeInt("numberOfLines"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
-                    imageInformation.getAttributeString("pixelValue").toUpperCase());
-
-            if (swath.contains("1")) {
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                        imageInformation.getAttributeDouble("slantRangeTime")* Constants.halfLightSpeed);
-            }
-
-            if(!commonMetadataRetrieved) {
-                // these should be the same for all swaths
-                // set to absRoot
-
-                final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
-                final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
-
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                        productInformation.getAttributeDouble("radarFrequency"));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                        imageInformation.getAttributeDouble("azimuthTimeInterval"));
-
-                final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
-                final MetadataElement swathProcParamsList = processingInformation.getElement("swathProcParamsList");
-                final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
-                final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
-                final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
-
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                        rangeProcessing.getAttributeDouble("numberOfLooks"));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                        azimuthProcessing.getAttributeDouble("numberOfLooks"));
-
-                if(!isTOPSAR() || !isSLC()) {
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                            imageInformation.getAttributeInt("numberOfLines"));
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                            imageInformation.getAttributeInt("numberOfSamples"));
-                }
-
-                addOrbitStateVectors(absRoot, generalAnnotation.getElement("orbitList"));
-                addSRGRCoefficients(absRoot, prodElem.getElement("coordinateConversion"));
-                addDopplerCentroidCoefficients(absRoot, prodElem.getElement("dopplerCentroid"));
-
-                commonMetadataRetrieved = true;
-            }
-
-            ++numBands;
-        }
-
-        // set average to absRoot
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                rangeSpacingTotal / (double)numBands);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                azimuthSpacingTotal / (double)numBands);
-    }
-
-    private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
-
-        MetadataElement calibrationElement = origProdRoot.getElement("calibration");
-        if(calibrationElement == null) {
-            calibrationElement = new MetadataElement("calibration");
-            origProdRoot.addElement(calibrationElement);
-        }
-        final File calFolder = new File(getBaseDir(), "annotation"+File.separator+"calibration");
-        final File[] files = calFolder.listFiles();
-        if(files == null) return;
-
-        for(File metadataFile : files) {
-            if(metadataFile.getName().startsWith("calibration")) {
-
-                Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
-                final Element rootElement = xmlDoc.getRootElement();
-                final String name = metadataFile.getName().replace("calibration-","");
-                final MetadataElement nameElem = new MetadataElement(name);
-                calibrationElement.addElement(nameElem);
-                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
-            }
-        }
-    }
-
-    private void addNoiseAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
-
-        MetadataElement noiseElement = origProdRoot.getElement("noise");
-        if(noiseElement == null) {
-            noiseElement = new MetadataElement("noise");
-            origProdRoot.addElement(noiseElement);
-        }
-        final File calFolder = new File(getBaseDir(), "annotation"+File.separator+"calibration");
-        final File[] files = calFolder.listFiles();
-        if(files == null) return;
-
-        for(File metadataFile : files) {
-            if(metadataFile.getName().startsWith("noise")) {
-
-                Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
-                final Element rootElement = xmlDoc.getRootElement();
-                final String name = metadataFile.getName().replace("noise-","");
-                final MetadataElement nameElem = new MetadataElement(name);
-                noiseElement.addElement(nameElem);
-                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
             }
         }
     }
@@ -459,128 +254,6 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             }
         }
         return null;
-    }
-
-    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitList) {
-        final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
-
-        final MetadataElement[] stateVectorElems = orbitList.getElements();
-        for(int i=1; i <= stateVectorElems.length; ++i) {
-            addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i-1], i);
-        }
-
-        // set state vector time
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
-                equalElems(AbstractMetadata.NO_METADATA_UTC)) {
-
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                ReaderUtils.getTime(stateVectorElems[0], "time", AbstractMetadata.dateFormat));
-        }
-    }
-
-    private static void addVector(final String name, final MetadataElement orbitVectorListElem,
-                                  final MetadataElement orbitElem, final int num) {
-        final MetadataElement orbitVectorElem = new MetadataElement(name+num);
-
-        final MetadataElement positionElem = orbitElem.getElement("position");
-        final MetadataElement velocityElem = orbitElem.getElement("velocity");
-
-        orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(orbitElem, "time", AbstractMetadata.dateFormat));
-
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                positionElem.getAttributeDouble("x", 0));
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                positionElem.getAttributeDouble("y", 0));
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                positionElem.getAttributeDouble("z", 0));
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                velocityElem.getAttributeDouble("x", 0));
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                velocityElem.getAttributeDouble("y", 0));
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                velocityElem.getAttributeDouble("z", 0));
-
-        orbitVectorListElem.addElement(orbitVectorElem);
-    }
-
-    private static void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement coordinateConversion) {
-        if(coordinateConversion == null) return;
-        final MetadataElement coordinateConversionList = coordinateConversion.getElement("coordinateConversionList");
-        if(coordinateConversionList == null) return;
-
-        final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
-
-        int listCnt = 1;
-        for(MetadataElement elem : coordinateConversionList.getElements()) {
-            final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list+'.'+listCnt);
-            srgrCoefficientsElem.addElement(srgrListElem);
-            ++listCnt;
-
-            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", AbstractMetadata.dateFormat);
-            srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
-
-            final double grOrigin = elem.getAttributeDouble("gr0", 0);
-            AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                    ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
-            AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
-
-            final String coeffStr = elem.getElement("grsrCoefficients").getAttributeString("grsrCoefficients", "");
-            if(!coeffStr.isEmpty()) {
-                final StringTokenizer st = new StringTokenizer(coeffStr);
-                int cnt = 1;
-                while(st.hasMoreTokens()) {
-                    final double coefValue = Double.parseDouble(st.nextToken());
-
-                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
-                    srgrListElem.addElement(coefElem);
-                    ++cnt;
-                    AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                            ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
-                    AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, coefValue);
-                }
-            }
-        }
-    }
-
-    private static void addDopplerCentroidCoefficients(
-            final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
-        if(dopplerCentroid == null) return;
-        final MetadataElement dcEstimateList = dopplerCentroid.getElement("dcEstimateList");
-        if(dcEstimateList == null) return;
-
-        final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
-
-        int listCnt = 1;
-        for(MetadataElement elem : dcEstimateList.getElements()) {
-            final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list+'.'+listCnt);
-            dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
-            ++listCnt;
-
-            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", AbstractMetadata.dateFormat);
-            dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
-
-            final double refTime = elem.getAttributeDouble("t0", 0)*1e9; // s to ns
-            AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
-            AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
-
-            final String coeffStr = elem.getElement("geometryDcPolynomial").getAttributeString("geometryDcPolynomial", "");
-            if(!coeffStr.isEmpty()) {
-                final StringTokenizer st = new StringTokenizer(coeffStr);
-                int cnt = 1;
-                while(st.hasMoreTokens()) {
-                    final double coefValue = Double.parseDouble(st.nextToken());
-
-                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
-                    dopplerListElem.addElement(coefElem);
-                    ++cnt;
-                    AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
-                    AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
-                }
-            }
-        }
     }
 
     @Override
@@ -814,9 +487,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
     }
 
     protected String getProductType() {
-        if(OCNReader != null)
-            return "Level-2 OCN";
-        return "Level-1";
+        return "Level-0";
     }
 
     private static void getListInEvenlySpacedGrid(

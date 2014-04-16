@@ -27,7 +27,6 @@ import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.NcRasterDim;
 import org.esa.nest.dataio.netcdf.NetCDFUtils;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.ReaderUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -43,9 +42,9 @@ import java.util.Set;
  */
 public class Sentinel1OCNReader {
     private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<String, NetcdfFile>(1);
-    private final Sentinel1ProductDirectory dataDir;
+    private final Sentinel1Level1Directory dataDir;
 
-    public Sentinel1OCNReader(final Sentinel1ProductDirectory dataDir) {
+    public Sentinel1OCNReader(final Sentinel1Level1Directory dataDir) {
         this.dataDir = dataDir;
     }
 

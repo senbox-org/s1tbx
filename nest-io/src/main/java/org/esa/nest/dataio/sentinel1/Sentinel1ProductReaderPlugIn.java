@@ -46,28 +46,44 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         final String filename = file.getName().toUpperCase();
         if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX)  &&
                 filename.endsWith(Sentinel1Constants.getIndicationKey())) {
-            // check annotation files that start with S1
-            final File annotationFolder = new File(file.getParentFile(), "annotation");
-            if(annotationFolder.exists()) {
-                return checkFolder(annotationFolder);
-            } else {
-                final File measurementFolder = new File(file.getParentFile(), "measurement");
-                return checkFolder(measurementFolder);
-            }
+            final File baseFolder = file.getParentFile();
+            if(isLevel1(baseFolder) || isLevel2(baseFolder) || isLevel0(baseFolder))
+                return DecodeQualification.INTENDED;
         }
         return DecodeQualification.UNABLE;
     }
 
-    private static DecodeQualification checkFolder(final File folder) {
+    public static boolean isLevel1(final File baseFolder) {
+        final File annotationFolder = new File(baseFolder, "annotation");
+        if(annotationFolder.exists()) {
+            return checkFolder(annotationFolder, ".xml");
+        }
+        final File measurementFolder = new File(baseFolder, "measurement");
+        return measurementFolder.exists() && checkFolder(measurementFolder, ".tiff");
+    }
+
+    public static boolean isLevel2(final File baseFolder) {
+        final File measurementFolder = new File(baseFolder, "measurement");
+        return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
+    }
+
+    public static boolean isLevel0(final File baseFolder) {
+        return checkFolder(baseFolder, ".dat");
+    }
+
+    private static boolean checkFolder(final File folder, final String extension) {
         final File[] files = folder.listFiles();
         if(files != null) {
             for(File f : files) {
-                if(f.isFile() && (f.getName().startsWith("s1") || f.getName().startsWith("asa") || f.getName().startsWith("rs2"))) {
-                    return DecodeQualification.INTENDED;
+                final String name = f.getName().toLowerCase();
+                if(f.isFile() && (name.startsWith("s1") || name.startsWith("asa") || name.startsWith("rs2"))) {
+                    if(extension == null || name.endsWith(extension)) {
+                        return true;
+                    }
                 }
             }
         }
-        return DecodeQualification.UNABLE;
+        return false;
     }
 
     /**
