@@ -8,9 +8,14 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
@@ -102,8 +107,8 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext.bindEnabledState("shorthand", true, editableCondition);
                 bindingContext.bindEnabledState("tags", true, editableCondition);
                 bindingContext.bindEnabledState("kernelQuotient", true, editableConvolutionCondition);
-                bindingContext.bindEnabledState("kernelOffsetX", true, TRUE_CONDITION);
-                bindingContext.bindEnabledState("kernelOffsetY", true, TRUE_CONDITION);
+                bindingContext.bindEnabledState("kernelOffsetX", false, TRUE_CONDITION);
+                bindingContext.bindEnabledState("kernelOffsetY", false, TRUE_CONDITION);
                 bindingContext.bindEnabledState("kernelWidth", false, TRUE_CONDITION);
                 bindingContext.bindEnabledState("kernelHeight", false, TRUE_CONDITION);
                 bindingContext.adjustComponents();
