@@ -4,6 +4,7 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
@@ -13,13 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -42,7 +40,8 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
     private BindingContext bindingContext;
 
     public FilterPropertiesForm(Filter filter) {
-        super(new GridBagLayout());
+        // super(new GridBagLayout());
+        super(new TableLayout());
         setBorder(new EmptyBorder(4, 4, 4, 4));
         createUI();
         setFilter(filter);
@@ -54,8 +53,7 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
 
     public void setFilter(Filter filter) {
 
-        Filter filterOld = this.filter;
-        if (filterOld != filter) {
+        if (this.filter != filter) {
             if (this.filter != null) {
                 this.filter.removeListener(this);
             }
@@ -73,9 +71,10 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext = null;
             }
 
+            Filter oldFilter = this.filter;
             this.filter = filter;
+
             if (this.filter != null) {
-                this.filter.addListener(this);
                 PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(this.filter);
                 propertyContainer.getDescriptor("tags").setConverter(new TagsConverter());
 
@@ -89,9 +88,7 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 propertyContainer.getDescriptor("kernelOffsetX").setDescription("<html>Offset in X of the kernel matrix' 'key element'<br/>(editing not yet supported, will always be kernel center)");
                 propertyContainer.getDescriptor("kernelOffsetY").setDescription("<html>Offset in Y of the kernel matrix' 'key element'<br/>(editing not yet supported, will always be kernel center)");
 
-                propertyContainer.addPropertyChangeListener(this);
                 bindingContext = new BindingContext(propertyContainer);
-                bindingContext.addPropertyChangeListener(this);
                 bindingContext.bind("operation", operationComboBox);
                 bindingContext.bind("name", nameField);
                 bindingContext.bind("shorthand", shorthandField);
@@ -127,22 +124,30 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
                 bindingContext.bindEnabledState("kernelOffsetX", false, TRUE_CONDITION);
                 bindingContext.bindEnabledState("kernelOffsetY", false, TRUE_CONDITION);
                 bindingContext.adjustComponents();
+
+                bindingContext.addPropertyChangeListener(this);
+
+                this.filter.addListener(this);
             } else {
                 clearComponents();
             }
 
-            firePropertyChange("filterModel", filterOld, this.filter);
+            firePropertyChange("filter", oldFilter, this.filter);
         }
     }
 
     @Override
-    public void filterModelChanged(Filter filter, String propertyName) {
-        bindingContext.adjustComponents();
+    public void filterChanged(Filter filter, String propertyName) {
+        if (this.filter == filter) {
+            bindingContext.adjustComponents();
+        }
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        this.filter.notifyChange(evt.getPropertyName());
+        if (this.filter != null) {
+            this.filter.fireChange(evt.getPropertyName());
+        }
     }
 
     private void clearComponents() {
@@ -158,15 +163,53 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
     }
 
     void createUI() {
+        operationComboBox = new JComboBox<>(Filter.Operation.values());
         nameField = new JTextField(12);
         shorthandField = new JTextField(6);
         tagsField = new JTextField(16);
-        operationComboBox = new JComboBox<>(Filter.Operation.values());
         kernelQuotientField = new JTextField(8);
         kernelOffsetXField = new JTextField(8);
         kernelOffsetYField = new JTextField(8);
         kernelWidthField = new JTextField(8);
         kernelHeightField = new JTextField(8);
+
+        TableLayout layout = (TableLayout) getLayout();
+        layout.setColumnCount(2);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
+        layout.setTableWeightX(0.5);
+        layout.setTablePadding(2, 2);
+
+        int row = 0;
+        add(new JLabel("Operation:"), TableLayout.cell(row, 0));
+        add(operationComboBox, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Name:"), TableLayout.cell(row, 0));
+        add(nameField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Shorthand:"), TableLayout.cell(row, 0));
+        add(shorthandField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Tags:"), TableLayout.cell(row, 0));
+        add(tagsField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Kernel quotient:"), TableLayout.cell(row, 0));
+        add(kernelQuotientField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Kernel offset X:"), TableLayout.cell(row, 0));
+        add(kernelOffsetXField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Kernel offset Y:"), TableLayout.cell(row, 0));
+        add(kernelOffsetYField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Kernel width:"), TableLayout.cell(row, 0));
+        add(kernelWidthField, TableLayout.cell(row, 1));
+        row++;
+        add(new JLabel("Kernel height:"), TableLayout.cell(row, 0));
+        add(kernelHeightField, TableLayout.cell(row, 1));
+
+        
+        /*
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -229,29 +272,50 @@ public class FilterPropertiesForm extends JPanel implements PropertyChangeListen
         add(new JLabel("Kernel height:"), gbc);
         gbc.gridx = 1;
         add(kernelHeightField, gbc);
-
+        */
     }
 
     private static class TagsConverter implements Converter<Object> {
+
+        public static final HashSet<String> EMPTY_TAGS = new HashSet<>();
+
         @Override
         public Class<?> getValueType() {
-            return Set.class;
+            return HashSet.class;
         }
 
         @Override
-        public Object parse(String text) throws ConversionException {
-            return new HashSet<>(Arrays.asList(text.split(",")));
+        public HashSet<String> parse(String text) throws ConversionException {
+            if (text == null || text.isEmpty()) {
+                return EMPTY_TAGS;
+            }
+            String[] tagArray = text.split(",");
+            HashSet<String> tags = new LinkedHashSet<>();
+            for (String rawTag : tagArray) {
+                String tag = rawTag.trim();
+                if (!tag.isEmpty()) {
+                    tags.add(tag);
+                }
+            }
+            return tags;
         }
 
         @Override
         public String format(Object value) {
-            Set<String> set = (Set<String>) value;
-            StringBuilder sb = new StringBuilder();
-            for (String s : set) {
-                if (sb.length() > 0) sb.append(",");
-                sb.append(s);
+            if (value instanceof Set) {
+                Set<String> set = (Set<String>) value;
+                if (!set.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (String s : set) {
+                        if (sb.length() > 0) {
+                            sb.append(",");
+                        }
+                        sb.append(s);
+                    }
+                    return sb.toString();
+                }
             }
-            return sb.toString();
+            return null;
         }
     }
 

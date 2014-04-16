@@ -33,7 +33,7 @@ public class FilterKernelCanvas extends JPanel implements Filter.Listener {
     }
 
     @Override
-    public void filterModelChanged(Filter filter, String propertyName) {
+    public void filterChanged(Filter filter, String propertyName) {
         updateMaxAbsElementValue();
         repaint();
     }

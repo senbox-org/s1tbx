@@ -38,39 +38,43 @@ public class FilterSet implements Filter.Listener {
         this.editable = editable;
     }
 
-    public int getFilterModelCount() {
+    public int getFilterCount() {
         return filters.size();
     }
 
-    public Filter getFilterModel(int index) {
+    public Filter getFilter(int index) {
         return filters.get(index);
     }
 
-    public List<Filter> getFilterModels() {
+    public List<Filter> getFilters() {
         return filters;
     }
 
-    public int getFilterModelIndex(Filter filter) {
+    public boolean containsFilter(Filter filter) {
+        return filters.contains(filter);
+    }
+
+    public int getFilterIndex(Filter filter) {
         return filters.indexOf(filter);
     }
 
-    public void addFilterModels(String tag, Filter... filters) {
+    public void addFilter(String tag, Filter... filters) {
         for (Filter filter : filters) {
             filter.getTags().add(tag);
-            addFilterModel(filter);
+            addFilter(filter);
         }
     }
 
-    public void addFilterModel(Filter filter) {
+    public void addFilter(Filter filter) {
         filters.add(filter);
         filter.addListener(this);
-        notifyFilterModelAdded(filter);
+        fireFilterAdded(filter);
     }
 
-    public void removeFilterModel(Filter filter) {
+    public void removeFilter(Filter filter) {
         if (filters.remove(filter)) {
             filter.removeListener(this);
-            notifyFilterModelRemoved(filter);
+            fireFilterModelRemoved(filter);
         }
     }
 
@@ -96,25 +100,25 @@ public class FilterSet implements Filter.Listener {
     }
 
     @Override
-    public void filterModelChanged(Filter filter, String propertyName) {
-        notifyFilterModelChanged(filter, propertyName);
+    public void filterChanged(Filter filter, String propertyName) {
+        fireFilterChanged(filter, propertyName);
     }
 
-    void notifyFilterModelChanged(Filter filter, String propertyName) {
+    void fireFilterChanged(Filter filter, String propertyName) {
         for (Listener listener : listeners) {
-            listener.filterModelChanged(this, filter, propertyName);
+            listener.filterChanged(this, filter, propertyName);
         }
     }
 
-    void notifyFilterModelAdded(Filter filter) {
+    void fireFilterAdded(Filter filter) {
         for (Listener listener : listeners) {
-            listener.filterModelAdded(this, filter);
+            listener.filterAdded(this, filter);
         }
     }
 
-    void notifyFilterModelRemoved(Filter filter) {
+    void fireFilterModelRemoved(Filter filter) {
         for (Listener listener : listeners) {
-            listener.filterModelRemoved(this, filter);
+            listener.filterRemoved(this, filter);
         }
     }
 
@@ -127,10 +131,10 @@ public class FilterSet implements Filter.Listener {
     }
 
     public interface Listener {
-        void filterModelAdded(FilterSet filterSet, Filter filter);
+        void filterAdded(FilterSet filterSet, Filter filter);
 
-        void filterModelRemoved(FilterSet filterSet, Filter filter);
+        void filterRemoved(FilterSet filterSet, Filter filter);
 
-        void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName);
+        void filterChanged(FilterSet filterSet, Filter filter, String propertyName);
     }
 }

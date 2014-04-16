@@ -43,7 +43,6 @@ import java.util.List;
 public class FilterSetForm extends JPanel {
 
     private FilterSet filterSet;
-
     private JButton addButton;
     private JButton removeButton;
     private JButton editButton;
@@ -63,17 +62,17 @@ public class FilterSetForm extends JPanel {
         this.filterSet = filterSet;
         this.filterSet.addListener(new FilterSet.Listener() {
             @Override
-            public void filterModelAdded(FilterSet filterSet, Filter filter) {
+            public void filterAdded(FilterSet filterSet, Filter filter) {
                 setModified(true);
             }
 
             @Override
-            public void filterModelRemoved(FilterSet filterSet, Filter filter) {
+            public void filterRemoved(FilterSet filterSet, Filter filter) {
                 setModified(true);
             }
 
             @Override
-            public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+            public void filterChanged(FilterSet filterSet, Filter filter, String propertyName) {
                 setModified(true);
             }
         });
@@ -104,7 +103,7 @@ public class FilterSetForm extends JPanel {
     public Filter getSelectedFilterModel() {
         TreePath selectionPath = filterTree.getSelectionPath();
         if (selectionPath != null) {
-            return getFilterModel(selectionPath);
+            return getFilterForSelectionPath(selectionPath);
         }
         return null;
     }
@@ -121,7 +120,6 @@ public class FilterSetForm extends JPanel {
             }
         });
         addButton.setToolTipText("Add user-defined filter");
-
 
         removeButton = new JButton(UIUtils.loadImageIcon("/com/bc/ceres/swing/actions/icons_22x22/list-remove.png"));
         removeButton.addActionListener(new ActionListener() {
@@ -160,7 +158,6 @@ public class FilterSetForm extends JPanel {
         });
         saveButton.setToolTipText("Store the selected user-defined filter");
 
-
         JToolBar toolBar = new JToolBar(SwingConstants.VERTICAL);
         toolBar.setFloatable(false);
         toolBar.setBorderPainted(false);
@@ -178,9 +175,19 @@ public class FilterSetForm extends JPanel {
             public void valueChanged(TreeSelectionEvent e) {
                 updateState();
                 TreePath selectionPath = filterTree.getSelectionPath();
-                Filter filter = getFilterModel(selectionPath);
-                filterEditor.setFilter(filter);
-                notifyFilterModelSelected(filter);
+                System.out.println("TreeSelectionListener.valueChanged: selectionPath = " + selectionPath);
+                Filter selectedFilter = getFilterForSelectionPath(selectionPath);
+                if (selectedFilter != null) {
+                    filterEditor.setFilter(selectedFilter);
+                    fireFilterSelected(selectedFilter);
+                } else {
+                    // selectedFilter == null: We will clear editor only, if the currently displayed filter
+                    // is still contained in our filter set (otherwise the selection change may have occurred due to a removal).
+                    Filter displayedFilter = filterEditor.getFilter();
+                    if (!filterSet.containsFilter(displayedFilter)) {
+                        filterEditor.setFilter(null);
+                    }
+                }
             }
         });
         filterTree.setCellRenderer(new MyDefaultTreeCellRenderer());
@@ -195,7 +202,7 @@ public class FilterSetForm extends JPanel {
         updateState();
     }
 
-    private Filter getFilterModel(TreePath selectionPath) {
+    private Filter getFilterForSelectionPath(TreePath selectionPath) {
         if (selectionPath != null) {
             Object lastPathComponent = selectionPath.getLastPathComponent();
             if (lastPathComponent instanceof Filter) {
@@ -276,14 +283,13 @@ public class FilterSetForm extends JPanel {
         }
     }
 
-    void notifyFilterModelSelected(Filter filter) {
+    void fireFilterSelected(Filter filter) {
         for (Listener listener : listeners) {
-            listener.filterModelSelected(filterSet, filter);
+            listener.filterSelected(filterSet, filter);
         }
     }
 
     public interface Listener extends FilterSet.Listener {
-        void filterModelSelected(FilterSet filterSet, Filter filter);
+        void filterSelected(FilterSet filterSet, Filter filter);
     }
-
 }

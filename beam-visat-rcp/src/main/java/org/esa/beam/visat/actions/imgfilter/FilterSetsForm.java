@@ -45,7 +45,7 @@ public class FilterSetsForm extends JPanel implements FilterSetForm.Listener {
             public void stateChanged(ChangeEvent e) {
                 FilterSetForm filterSetForm = (FilterSetForm) tabbedPane.getSelectedComponent();
                 Filter selectedFilter = filterSetForm.getSelectedFilterModel();
-                filterSetForm.notifyFilterModelSelected(selectedFilter);
+                filterSetForm.fireFilterSelected(selectedFilter);
             }
         });
 
@@ -85,7 +85,7 @@ public class FilterSetsForm extends JPanel implements FilterSetForm.Listener {
     }
 
     @Override
-    public void filterModelSelected(FilterSet filterSet, Filter filter) {
+    public void filterSelected(FilterSet filterSet, Filter filter) {
         if (this.selectedFilter != filter) {
             this.selectedFilter = filter;
             updateBandNameField();
@@ -93,19 +93,19 @@ public class FilterSetsForm extends JPanel implements FilterSetForm.Listener {
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+    public void filterChanged(FilterSet filterSet, Filter filter, String propertyName) {
         if (this.selectedFilter == filter) {
             updateBandNameField();
         }
     }
 
     @Override
-    public void filterModelAdded(FilterSet filterSet, Filter filter) {
+    public void filterAdded(FilterSet filterSet, Filter filter) {
 
     }
 
     @Override
-    public void filterModelRemoved(FilterSet filterSet, Filter filter) {
+    public void filterRemoved(FilterSet filterSet, Filter filter) {
 
     }
 

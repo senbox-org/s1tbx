@@ -35,13 +35,13 @@ public class CreateFilteredBandDialog extends ModalDialog implements FilterSetFo
         this.product = product;
 
         FilterSet systemFilterSet = new FilterSet("System", false);
-        systemFilterSet.addFilterModels("Detect Lines", StandardFilters.LINE_DETECTION_FILTERS);
-        systemFilterSet.addFilterModels("Detect Gradients (Emboss)", StandardFilters.GRADIENT_DETECTION_FILTERS);
-        systemFilterSet.addFilterModels("Smooth and Blurr", StandardFilters.SMOOTHING_FILTERS);
-        systemFilterSet.addFilterModels("Sharpen", StandardFilters.SHARPENING_FILTERS);
-        systemFilterSet.addFilterModels("Enhance Discontinuities", StandardFilters.LAPLACIAN_FILTERS);
-        systemFilterSet.addFilterModels("Non-Linear Filters", StandardFilters.NON_LINEAR_FILTERS);
-        systemFilterSet.addFilterModels("Morphological Filters", StandardFilters.MORPHOLOGICAL_FILTERS);
+        systemFilterSet.addFilter("Detect Lines", StandardFilters.LINE_DETECTION_FILTERS);
+        systemFilterSet.addFilter("Detect Gradients (Emboss)", StandardFilters.GRADIENT_DETECTION_FILTERS);
+        systemFilterSet.addFilter("Smooth and Blurr", StandardFilters.SMOOTHING_FILTERS);
+        systemFilterSet.addFilter("Sharpen", StandardFilters.SHARPENING_FILTERS);
+        systemFilterSet.addFilter("Enhance Discontinuities", StandardFilters.LAPLACIAN_FILTERS);
+        systemFilterSet.addFilter("Non-Linear Filters", StandardFilters.NON_LINEAR_FILTERS);
+        systemFilterSet.addFilter("Morphological Filters", StandardFilters.MORPHOLOGICAL_FILTERS);
 
         filterSetStore = new FilterSetFileStore(getFiltersDir());
         try {
@@ -108,22 +108,22 @@ public class CreateFilteredBandDialog extends ModalDialog implements FilterSetFo
     }
 
     @Override
-    public void filterModelSelected(FilterSet filterSet, Filter filter) {
+    public void filterSelected(FilterSet filterSet, Filter filter) {
         System.out.println("filterModelSelected: filterModel = " + filter);
     }
 
     @Override
-    public void filterModelAdded(FilterSet filterSet, Filter filter) {
+    public void filterAdded(FilterSet filterSet, Filter filter) {
         System.out.println("filterModelAdded: filterModel = " + filter);
     }
 
     @Override
-    public void filterModelRemoved(FilterSet filterSet, Filter filter) {
+    public void filterRemoved(FilterSet filterSet, Filter filter) {
         System.out.println("filterModelRemoved: filterModel = " + filter);
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+    public void filterChanged(FilterSet filterSet, Filter filter, String propertyName) {
         System.out.println("filterModelChanged: filterModel = " + filter + ", propertyName = \"" + propertyName + "\"");
     }
 

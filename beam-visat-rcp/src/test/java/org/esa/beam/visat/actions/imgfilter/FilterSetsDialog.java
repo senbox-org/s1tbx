@@ -3,8 +3,9 @@ package org.esa.beam.visat.actions.imgfilter;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JDialog;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.io.File;
 
 /**
@@ -39,22 +40,22 @@ public class FilterSetsDialog implements FilterSetForm.Listener {
     }
 
     @Override
-    public void filterModelSelected(FilterSet filterSet, Filter filter) {
+    public void filterSelected(FilterSet filterSet, Filter filter) {
         System.out.println("filterModelSelected: filterModel = " + filter);
     }
 
     @Override
-    public void filterModelAdded(FilterSet filterSet, Filter filter) {
+    public void filterAdded(FilterSet filterSet, Filter filter) {
         System.out.println("filterModelAdded: filterModel = " + filter);
     }
 
     @Override
-    public void filterModelRemoved(FilterSet filterSet, Filter filter) {
+    public void filterRemoved(FilterSet filterSet, Filter filter) {
         System.out.println("filterModelRemoved: filterModel = " + filter);
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+    public void filterChanged(FilterSet filterSet, Filter filter, String propertyName) {
         System.out.println("filterModelChanged: filterModel = " + filter);
     }
 

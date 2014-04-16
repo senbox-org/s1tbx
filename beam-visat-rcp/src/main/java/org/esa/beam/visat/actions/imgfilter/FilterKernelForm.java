@@ -70,7 +70,11 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
     }
 
     @Override
-    public void filterModelChanged(Filter filter, String propertyName) {
+    public void filterChanged(Filter filter, String propertyName) {
+
+        if (this.filter != filter) {
+            return;
+        }
 
         boolean structureElement = filter.getOperation() != Filter.Operation.CONVOLVE;
         fillValueCombo.setModel(structureElement ? structuringFillValueModel : kernelFillValueModel);
@@ -106,14 +110,13 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             }
 
             this.filter = filter;
+            initUI();
 
             if (this.filter != null) {
                 this.filter.addListener(this);
             }
 
-            initUI();
-
-            firePropertyChange("filterModel", filterOld, this.filter);
+            firePropertyChange("filter", filterOld, this.filter);
         }
     }
 
@@ -219,6 +222,8 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             FilterKernelCanvas kernelCanvas = (FilterKernelCanvas) e.getComponent();
             if (e.isPopupTrigger()) {
                 showPopup(e, kernelCanvas);
+            } else {
+                kernelCanvas.getFilter().adjustKernelQuotient();
             }
         }
 
@@ -283,6 +288,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
                 try {
                     String data = (String) transfer.getTransferData(DataFlavor.stringFlavor);
                     kernelCanvas.getFilter().setKernelElementsFromText(data);
+                    kernelCanvas.getFilter().adjustKernelQuotient();
                 } catch (Error | RuntimeException e1) {
                     e1.printStackTrace();
                     throw e1;
@@ -312,6 +318,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 kernelCanvas.getFilter().fillRectangle(fillValue);
+                kernelCanvas.getFilter().adjustKernelQuotient();
             }
         });
         popupMenu.add(fillRectangleItem);
@@ -321,6 +328,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 kernelCanvas.getFilter().fillEllipse(fillValue);
+                kernelCanvas.getFilter().adjustKernelQuotient();
             }
         });
         popupMenu.add(fillEllipseItem);
@@ -330,6 +338,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 kernelCanvas.getFilter().fillGaussian();
+                kernelCanvas.getFilter().adjustKernelQuotient();
             }
         });
         popupMenu.add(fillGaussItem);
@@ -339,6 +348,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 kernelCanvas.getFilter().fillLaplacian();
+                kernelCanvas.getFilter().adjustKernelQuotient();
             }
         });
         popupMenu.add(fillLaplaceItem);
@@ -348,6 +358,7 @@ public class FilterKernelForm extends JPanel implements Filter.Listener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 kernelCanvas.getFilter().fillRandom();
+                kernelCanvas.getFilter().adjustKernelQuotient();
             }
         });
         popupMenu.add(fillRandomItem);

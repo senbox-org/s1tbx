@@ -109,7 +109,7 @@ public class Filter {
     public void setName(String name) {
         if (!name.equals(this.name)) {
             this.name = name;
-            notifyChange("name");
+            fireChange("name");
         }
     }
 
@@ -120,7 +120,7 @@ public class Filter {
     public void setShorthand(String shorthand) {
         if (!shorthand.equals(this.shorthand)) {
             this.shorthand = shorthand;
-            notifyChange("shorthand");
+            fireChange("shorthand");
         }
     }
 
@@ -131,7 +131,7 @@ public class Filter {
     public void setOperation(Operation operation) {
         if (operation != this.operation) {
             this.operation = operation;
-            notifyChange("operation");
+            fireChange("operation");
         }
     }
 
@@ -142,7 +142,7 @@ public class Filter {
     public void setEditable(boolean editable) {
         if (editable != this.editable) {
             this.editable = editable;
-            notifyChange("editable");
+            fireChange("editable");
         }
     }
 
@@ -157,7 +157,7 @@ public class Filter {
     private void setTags(HashSet<String> tags) {
         if (!tags.equals(this.tags)) {
             this.tags = tags;
-            notifyChange("tags");
+            fireChange("tags");
         }
     }
 
@@ -176,7 +176,7 @@ public class Filter {
     public void setKernelElement(int index, double value) {
         if (value != kernelElements[index]) {
             kernelElements[index] = value;
-            notifyChange("kernelElements");
+            fireChange("kernelElements");
         }
     }
 
@@ -190,7 +190,7 @@ public class Filter {
                 throw new IllegalArgumentException("kernelElements.length != kernelWidth * kernelHeight");
             }
             this.kernelElements = kernelElements;
-            notifyChange("kernelElements");
+            fireChange("kernelElements");
         }
     }
 
@@ -222,14 +222,13 @@ public class Filter {
             this.kernelOffsetX = width / 2;
             this.kernelOffsetY = height / 2;
             this.kernelElements = elements;
-            notifyChange("kernelSize");
+            fireChange("kernelSize");
         }
     }
 
     public void fill(FillFunction fillFunction) {
         int w = kernelWidth;
         int h = kernelHeight;
-        double sum = 0;
         double x0 = -0.5 * (w - 1);
         double y0 = -0.5 * (h - 1);
         for (int j = 0; j < h; j++) {
@@ -238,18 +237,14 @@ public class Filter {
                 double y = y0 + j;
                 double v = fillFunction.compute(x, y, w, h);
                 this.kernelElements[j * w + i] = v;
-                sum += v;
             }
         }
-        this.kernelQuotient = operation == Operation.CONVOLVE ? sum : 1.0;
-        notifyChange("kernelElements");
+        fireChange("kernelElements");
     }
 
     public void fillRectangle(double fillValue) {
         Arrays.fill(kernelElements, fillValue);
-        double v = kernelWidth * kernelHeight * fillValue;
-        this.kernelQuotient = operation == Operation.CONVOLVE ? (v != 0.0 ? v : 1.0) : 1.0;
-        notifyChange("kernelElements");
+        fireChange("kernelElements");
     }
 
     public void fillEllipse(final double fillValue) {
@@ -308,7 +303,19 @@ public class Filter {
     public void setKernelQuotient(double kernelQuotient) {
         if (kernelQuotient != this.kernelQuotient) {
             this.kernelQuotient = kernelQuotient;
-            notifyChange("kernelQuotient");
+            fireChange("kernelQuotient");
+        }
+    }
+
+    public void adjustKernelQuotient() {
+        if (operation == Operation.CONVOLVE) {
+            double sum = 0.0;
+            for (double v : kernelElements) {
+                sum += v;
+            }
+            setKernelQuotient(sum != 0 ? sum : 1.0);
+        } else {
+            setKernelQuotient(1.0);
         }
     }
 
@@ -324,7 +331,7 @@ public class Filter {
         if (kernelOffsetX != this.kernelOffsetX || kernelOffsetY != this.kernelOffsetY) {
             this.kernelOffsetX = kernelOffsetX;
             this.kernelOffsetY = kernelOffsetY;
-            notifyChange("kernelOffset");
+            fireChange("kernelOffset");
         }
     }
 
@@ -453,9 +460,10 @@ public class Filter {
         return strings != null;
     }
 
-    public void notifyChange(String propertyName) {
+    public void fireChange(String propertyName) {
+        Listener[] listeners = this.listeners.toArray(new Listener[this.listeners.size()]);
         for (Listener listener : listeners) {
-            listener.filterModelChanged(this, propertyName);
+            listener.filterChanged(this, propertyName);
         }
     }
 
@@ -468,7 +476,7 @@ public class Filter {
     }
 
     public interface Listener {
-        void filterModelChanged(Filter filter, String propertyName);
+        void filterChanged(Filter filter, String propertyName);
     }
 
     interface FillFunction {

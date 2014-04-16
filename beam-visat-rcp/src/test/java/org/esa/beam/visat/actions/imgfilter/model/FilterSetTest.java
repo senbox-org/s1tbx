@@ -14,8 +14,8 @@ public class FilterSetTest {
     public void testXml() throws Exception {
 
         FilterSet filterSet = new FilterSet("Test", true);
-        filterSet.addFilterModel(new Filter("Wraw", "w", 2, 3, new double[]{1, 2, 3, 2, 3, 4}, 2.0));
-        filterSet.addFilterModel(new Filter("Gruul", "g", Filter.Operation.ERODE, 4, 2));
+        filterSet.addFilter(new Filter("Wraw", "w", 2, 3, new double[]{1, 2, 3, 2, 3, 4}, 2.0));
+        filterSet.addFilter(new Filter("Gruul", "g", Filter.Operation.ERODE, 4, 2));
 
         XStream xStream = filterSet.createXStream();
         String xml = xStream.toXML(filterSet);

@@ -3,7 +3,6 @@ package org.esa.beam.visat.actions.imgfilter;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 
-import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -22,7 +21,6 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     private final Root root;
     private final ArrayList<TreeModelListener> listeners;
     private final FilterSet filterSet;
-    private Group anyGroup;
 
     public FilterTreeModel(FilterSet filterSet) {
         this.filterSet = filterSet;
@@ -40,30 +38,30 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
                 filter.getTags().add(group.name);
             }
         }
-        filterSet.addFilterModel(filter);
+        filterSet.addFilter(filter);
     }
 
     public void removeFilterModel(Filter filter) {
-        filterSet.removeFilterModel(filter);
+        filterSet.removeFilter(filter);
     }
 
     @Override
-    public void filterModelAdded(FilterSet filterSet, Filter filter) {
+    public void filterAdded(FilterSet filterSet, Filter filter) {
         insertTreeNodes(filter);
     }
 
     @Override
-    public void filterModelRemoved(FilterSet filterSet, Filter filter) {
+    public void filterRemoved(FilterSet filterSet, Filter filter) {
         removeTreeNodes(filter);
     }
 
     @Override
-    public void filterModelChanged(FilterSet filterSet, Filter filter, String propertyName) {
+    public void filterChanged(FilterSet filterSet, Filter filter, String propertyName) {
         if ("tags".equals(propertyName)) {
             createTreeNodes();
-            notifyTreeStructureChanged();
+            fireTreeStructureChanged();
         } else {
-            notifyTreeNodesChanged(filter);
+            fireTreeNodesChanged(filter);
         }
     }
 
@@ -130,52 +128,60 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         listeners.remove(l);
     }
 
-    private void insertTreeNodes(Filter filter) {
+    private synchronized void insertTreeNodes(Filter filter) {
 
         HashSet<String> remainingTags = new HashSet<>(filter.getTags());
 
-        if (filter.getTags().isEmpty()) {
-            if (anyGroup == null) {
-                anyGroup = new Group("Any");
-                root.groups.add(anyGroup);
-                notifyTreeNodeInserted(root.groups.size() - 1, anyGroup);
+        if (filter.getTags().isEmpty()
+            || filter.getTags().contains(root.any.name )) {
+            Group group = root.any;
+            if (!root.groups.contains(group)) {
+                _addGroup(group);
             }
-            anyGroup.filters.add(filter);
-            notifyTreeNodeInserted(anyGroup, anyGroup.filters.size() - 1, filter);
+            _addFilter(group, filter);
+            remainingTags.remove(group.name);
+            if (remainingTags.isEmpty()) {
+                return;
+            }
         }
 
         for (Group group : root.groups) {
-            if (filter.getTags().contains(group.name)) {
-                group.filters.add(filter);
-                notifyTreeNodeInserted(group, group.filters.size() - 1, filter);
+            if (filter.getTags().contains(group.name)
+                || filter.getTags().isEmpty() && group == root.any) {
+                _addFilter(group, filter);
                 remainingTags.remove(group.name);
             }
         }
 
         for (String remainingTag : remainingTags) {
             Group group = new Group(remainingTag);
-            root.groups.add(group);
-            notifyTreeNodeInserted(root.groups.size() - 1, group);
-
-            group.filters.add(filter);
-            notifyTreeNodeInserted(group, group.filters.size() - 1, filter);
+            _addGroup(group);
+            _addFilter(group, filter);
         }
     }
 
-    private void removeTreeNodes(Filter filter) {
+    private void _addGroup(Group group) {
+        root.groups.add(group);
+        fireTreeNodeInserted(root.groups.size() - 1, group);
+    }
+
+    private void _addFilter(Group group, Filter filter) {
+        group.filters.add(filter);
+        fireTreeNodeInserted(group, group.filters.size() - 1, filter);
+    }
+
+    private synchronized void removeTreeNodes(Filter filter) {
         int groupIndex = 0;
         while (groupIndex < root.groups.size()) {
             Group group = root.groups.get(groupIndex);
             int filterIndex = group.filters.indexOf(filter);
             if (filterIndex >= 0) {
                 group.filters.remove(filterIndex);
-                if (group.filters.isEmpty() && group != anyGroup) {
+                if (group.filters.isEmpty() && group != root.any) {
                     root.groups.remove(groupIndex);
-                    notifyTreeNodeRemoved(groupIndex, group);
-                    //notifyTreeNodeRemoved(group, filterIndex, filterModel);
-                    //groupIndex++;
+                    fireTreeNodeRemoved(groupIndex, group);
                 } else {
-                    notifyTreeNodeRemoved(group, filterIndex, filter);
+                    fireTreeNodeRemoved(group, filterIndex, filter);
                     groupIndex++;
                 }
             } else {
@@ -184,61 +190,55 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         }
     }
 
-    private void notifyTreeNodeInserted(int groupIndex, Group group) {
-        notifyTreeNodesInserted(new TreeModelEvent(this, getPath(root), new int[]{groupIndex}, new Object[]{group}));
+    private void fireTreeNodeInserted(int groupIndex, Group group) {
+        fireTreeNodesInserted(new TreeModelEvent(this, getPath(root), new int[]{groupIndex}, new Object[]{group}));
     }
 
-    private void notifyTreeNodeInserted(Group group, int filterIndex, Filter filter) {
-        notifyTreeNodesInserted(new TreeModelEvent(this, getPath(root, group), new int[]{filterIndex}, new Object[]{filter}));
+    private void fireTreeNodeInserted(Group group, int filterIndex, Filter filter) {
+        fireTreeNodesInserted(new TreeModelEvent(this, getPath(root, group), new int[]{filterIndex}, new Object[]{filter}));
     }
 
-    private void notifyTreeNodesInserted(TreeModelEvent treeModelEvent) {
+    private void fireTreeNodesInserted(TreeModelEvent treeModelEvent) {
         for (TreeModelListener listener : listeners) {
             listener.treeNodesInserted(treeModelEvent);
         }
     }
 
-    private void notifyTreeNodeRemoved(int groupIndex, Group group) {
-        notifyTreeNodesRemoved(new TreeModelEvent(this, getPath(root), new int[]{groupIndex}, new Object[]{group}));
+    private void fireTreeNodeRemoved(int groupIndex, Group group) {
+        fireTreeNodesRemoved(new TreeModelEvent(this, getPath(root), new int[]{groupIndex}, new Object[]{group}));
     }
 
-    private void notifyTreeNodeRemoved(Group group, int filterIndex, Filter filter) {
-        notifyTreeNodesRemoved(new TreeModelEvent(this, getPath(root, group), new int[]{filterIndex}, new Object[]{filter}));
+    private void fireTreeNodeRemoved(Group group, int filterIndex, Filter filter) {
+        fireTreeNodesRemoved(new TreeModelEvent(this, getPath(root, group), new int[]{filterIndex}, new Object[]{filter}));
     }
 
-    private void notifyTreeNodesRemoved(TreeModelEvent treeModelEvent) {
-        boolean eventDispatchThread = SwingUtilities.isEventDispatchThread();
-        System.out.println("eventDispatchThread = " + eventDispatchThread);
+    private void fireTreeNodesRemoved(TreeModelEvent treeModelEvent) {
         for (TreeModelListener listener : listeners) {
             listener.treeNodesRemoved(treeModelEvent);
         }
     }
 
-    private void notifyTreeNodesChanged(Filter filterModel) {
+    private void fireTreeNodesChanged(Filter filterModel) {
         for (Group group : root.groups) {
             for (Filter filter : group.filters) {
                 if (filter == filterModel) {
-                    notifyTreeNodeChanged(group, filterModel);
+                    fireTreeNodeChanged(group, filterModel);
                 }
             }
         }
     }
 
-    private void notifyTreeNodeChanged(Group group, Filter filter) {
-        notifyTreeNodesChanged(new TreeModelEvent(this, getPath(root, group, filter)));
+    private void fireTreeNodeChanged(Group group, Filter filter) {
+        fireTreeNodesChanged(new TreeModelEvent(this, getPath(root, group, filter)));
     }
 
-    private void notifyTreeNodeChanged(TreePath treePath) {
-        notifyTreeNodesChanged(new TreeModelEvent(this, treePath));
-    }
-
-    private void notifyTreeNodesChanged(TreeModelEvent treeModelEvent) {
+    private void fireTreeNodesChanged(TreeModelEvent treeModelEvent) {
         for (TreeModelListener listener : listeners) {
             listener.treeNodesChanged(treeModelEvent);
         }
     }
 
-    public void notifyTreeStructureChanged() {
+    public void fireTreeStructureChanged() {
         TreeModelEvent treeModelEvent = new TreeModelEvent(this, getPath(root));
         for (TreeModelListener listener : listeners) {
             listener.treeStructureChanged(treeModelEvent);
@@ -250,15 +250,17 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
     }
 
     private void createTreeNodes() {
+        root.any.filters.clear();
         root.groups.clear();
-        List<Filter> filters = filterSet.getFilterModels();
+        List<Filter> filters = filterSet.getFilters();
         for (Filter filter : filters) {
             insertTreeNodes(filter);
         }
     }
 
     public static class Root {
-        ArrayList<Group> groups;
+        final Group any = new Group("Any");
+        final List<Group> groups;
 
         private Root() {
             this.groups = new ArrayList<>();
@@ -270,18 +272,39 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         }
     }
 
-    public static class Group {
+    public static class Group implements Comparable<Group> {
+
         final String name;
+        final String nameLC;
         final List<Filter> filters;
 
         private Group(String name) {
             this.name = name;
+            this.nameLC = name.toLowerCase();
             filters = new ArrayList<>();
         }
 
         @Override
         public String toString() {
             return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Group group = (Group) o;
+            return name.equalsIgnoreCase(group.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return nameLC.hashCode();
+        }
+
+        @Override
+        public int compareTo(Group group) {
+            return name.compareToIgnoreCase(group.name);
         }
     }
 
