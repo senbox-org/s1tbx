@@ -1,6 +1,6 @@
 {
     "id": "MER_RR__1PTACR20080617_090305",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "intended",
     "expectedContent": {
         "sceneWidth": 1121,
         "sceneHeight": 15025,
@@ -9,19 +9,25 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 483.0,
-                    "y": 8076.0,
-                    "lat": 24.412216,
-                    "lon": 11.404432
+                    "x": 567.5,
+                    "y": 7279.5,
+                    "lat": 32.512077,
+                    "lon": 14.452243
                 },
                 {
-                    "x": 832.0,
-                    "y": 9749.0,
-                    "lat": 6.2445836,
-                    "lon": 10.600653
+                    "x": 237.5,
+                    "y": 10494.5,
+                    "lat": -0.32887214,
+                    "lon": 3.4539807
+                },
+                {
+                    "x": 21.559532,
+                    "y": 0.2768627,
+                    "lat": 70.70763,
+                    "lon": -174.92566
                 }
             ],
-            "reverseAccuracy": 0.08
+            "reverseAccuracy": 0.05
         },
         "flagCodings": [
             {
@@ -76,18 +82,23 @@
                 "description": "Latitude of the tie points (WGS-84), positive N",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 58,
-                        "y": 2676,
-                        "value": 80.5344
+                        "x": 567,
+                        "y": 7279,
+                        "value": 32.512077
                     },
                     {
-                        "x": 767,
-                        "y": 12780,
-                        "value": -25.229599
+                        "x": 237,
+                        "y": 10494,
+                        "value": -0.32887214
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 70.710014
                     }
                 ]
             },
@@ -96,18 +107,23 @@
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 326,
-                        "y": 3859,
-                        "value": 26.984158
+                        "x": 567,
+                        "y": 7279,
+                        "value": 14.452243
                     },
                     {
-                        "x": 684,
-                        "y": 5488,
-                        "value": 22.59461
+                        "x": 237,
+                        "y": 10494,
+                        "value": 3.4539807
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": -174.92558
                     }
                 ]
             },
@@ -116,18 +132,23 @@
                 "description": "Digital elevation model altitude",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 616,
-                        "y": 11198,
-                        "value": -5212.164
+                        "x": 567,
+                        "y": 7279,
+                        "value": 86.77734
                     },
                     {
-                        "x": 681,
-                        "y": 13950,
-                        "value": -4694.7144
+                        "x": 237,
+                        "y": 10494,
+                        "value": -4116.4375
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": -63.375
                     }
                 ]
             },
@@ -136,17 +157,22 @@
                 "description": "Digital elevation model roughness",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 177,
-                        "y": 10007,
+                        "x": 567,
+                        "y": 7279,
+                        "value": 23.730469
+                    },
+                    {
+                        "x": 237,
+                        "y": 10494,
                         "value": 0.0
                     },
                     {
-                        "x": 581,
-                        "y": 13725,
+                        "x": 21,
+                        "y": 0,
                         "value": 0.0
                     }
                 ]
@@ -156,17 +182,22 @@
                 "description": "Digital elevation model latitude corrections",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 847,
-                        "y": 7281,
+                        "x": 567,
+                        "y": 7279,
+                        "value": 2.0507812E-6
+                    },
+                    {
+                        "x": 237,
+                        "y": 10494,
                         "value": 0.0
                     },
                     {
-                        "x": 1065,
-                        "y": 7300,
+                        "x": 21,
+                        "y": 0,
                         "value": 0.0
                     }
                 ]
@@ -176,18 +207,23 @@
                 "description": "Digital elevation model longitude corrections",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 381,
-                        "y": 13513,
+                        "x": 567,
+                        "y": 7279,
+                        "value": 9.84375E-6
+                    },
+                    {
+                        "x": 237,
+                        "y": 10494,
                         "value": 0.0
                     },
                     {
-                        "x": 11,
-                        "y": 7073,
-                        "value": -0.0072049233
+                        "x": 21,
+                        "y": 0,
+                        "value": 0.0
                     }
                 ]
             },
@@ -196,18 +232,23 @@
                 "description": "Sun zenith angle",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 367,
-                        "y": 2961,
-                        "value": 53.15362
+                        "x": 567,
+                        "y": 7279,
+                        "value": 23.563395
                     },
                     {
-                        "x": 306,
-                        "y": 648,
-                        "value": 74.74352
+                        "x": 237,
+                        "y": 10494,
+                        "value": 40.13495
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 81.92577
                     }
                 ]
             },
@@ -216,18 +257,23 @@
                 "description": "Sun azimuth angles",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 1089,
-                        "y": 9086,
-                        "value": 60.61418
+                        "x": 567,
+                        "y": 7279,
+                        "value": 106.47413
                     },
                     {
-                        "x": 641,
-                        "y": 10769,
-                        "value": 45.515137
+                        "x": 237,
+                        "y": 10494,
+                        "value": 51.475636
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 323.95526
                     }
                 ]
             },
@@ -236,18 +282,23 @@
                 "description": "Viewing zenith angles",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 260,
-                        "y": 7475,
-                        "value": 24.22765
+                        "x": 567,
+                        "y": 7279,
+                        "value": 0.59483546
                     },
                     {
-                        "x": 359,
-                        "y": 10856,
-                        "value": 16.693586
+                        "x": 237,
+                        "y": 10494,
+                        "value": 25.88103
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 39.348835
                     }
                 ]
             },
@@ -256,18 +307,23 @@
                 "description": "Viewing azimuth angles",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 401,
-                        "y": 7485,
-                        "value": 102.421074
+                        "x": 567,
+                        "y": 7279,
+                        "value": 223.49277
                     },
                     {
-                        "x": 451,
-                        "y": 6645,
-                        "value": 103.23165
+                        "x": 237,
+                        "y": 10494,
+                        "value": 102.49323
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 257.24442
                     }
                 ]
             },
@@ -276,18 +332,23 @@
                 "description": "Zonal wind",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 644,
-                        "y": 1379,
-                        "value": -5.4803185
+                        "x": 567,
+                        "y": 7279,
+                        "value": -5.5750003
                     },
                     {
-                        "x": 723,
-                        "y": 237,
-                        "value": -5.223054
+                        "x": 237,
+                        "y": 10494,
+                        "value": -0.26875
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 1.96875
                     }
                 ]
             },
@@ -296,18 +357,23 @@
                 "description": "Meridional wind",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 1093,
-                        "y": 5518,
-                        "value": 0.6151776
+                        "x": 567,
+                        "y": 7279,
+                        "value": 3.6937501
                     },
                     {
-                        "x": 1065,
-                        "y": 14219,
-                        "value": -8.753028
+                        "x": 237,
+                        "y": 10494,
+                        "value": 4.5187507
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": -1.96875
                     }
                 ]
             },
@@ -316,18 +382,23 @@
                 "description": "Mean sea level pressure",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 124,
-                        "y": 6789,
-                        "value": 1010.87805
+                        "x": 567,
+                        "y": 7279,
+                        "value": 1015.1938
                     },
                     {
-                        "x": 639,
-                        "y": 8450,
-                        "value": 1009.09735
+                        "x": 237,
+                        "y": 10494,
+                        "value": 1013.60004
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 1016.83124
                     }
                 ]
             },
@@ -336,18 +407,23 @@
                 "description": "Total ozone",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
                         "x": 567,
-                        "y": 7837,
-                        "value": 277.158
+                        "y": 7279,
+                        "value": 292.60156
                     },
                     {
-                        "x": 505,
-                        "y": 8729,
-                        "value": 279.89816
+                        "x": 237,
+                        "y": 10494,
+                        "value": 277.19812
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 310.1231
                     }
                 ]
             },
@@ -356,18 +432,23 @@
                 "description": "Relative humidity",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "16.014286",
+                "subSamplingX": "16.0",
                 "subSamplingY": "16.0",
                 "expectedPixels": [
                     {
-                        "x": 16,
-                        "y": 6380,
-                        "value": 78.27887
+                        "x": 567,
+                        "y": 7279,
+                        "value": 19.042187
                     },
                     {
-                        "x": 78,
-                        "y": 14917,
-                        "value": 76.50091
+                        "x": 237,
+                        "y": 10494,
+                        "value": 88.614845
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 93.106255
                     }
                 ]
             }
@@ -383,14 +464,19 @@
                 "spectralBandwidth": "9.937",
                 "expectedPixels": [
                     {
-                        "x": 332,
-                        "y": 11195,
-                        "value": 197.43669
+                        "x": 567,
+                        "y": 7279,
+                        "value": 81.93841
                     },
                     {
-                        "x": 900,
-                        "y": 11064,
-                        "value": 76.58512
+                        "x": 237,
+                        "y": 10494,
+                        "value": 78.46114
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 50.955685
                     }
                 ]
             },
@@ -404,14 +490,19 @@
                 "spectralBandwidth": "9.946",
                 "expectedPixels": [
                     {
-                        "x": 935,
-                        "y": 14206,
-                        "value": 68.18036
+                        "x": 567,
+                        "y": 7279,
+                        "value": 81.487724
                     },
                     {
-                        "x": 278,
-                        "y": 7990,
-                        "value": 107.48745
+                        "x": 237,
+                        "y": 10494,
+                        "value": 69.63303
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 54.91541
                     }
                 ]
             },
@@ -425,14 +516,19 @@
                 "spectralBandwidth": "9.957001",
                 "expectedPixels": [
                     {
-                        "x": 684,
-                        "y": 3907,
-                        "value": 31.75265
+                        "x": 567,
+                        "y": 7279,
+                        "value": 76.572426
                     },
                     {
-                        "x": 619,
-                        "y": 2268,
-                        "value": 218.8975
+                        "x": 237,
+                        "y": 10494,
+                        "value": 53.20683
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 54.457935
                     }
                 ]
             },
@@ -446,14 +542,19 @@
                 "spectralBandwidth": "9.961",
                 "expectedPixels": [
                     {
-                        "x": 533,
-                        "y": 8400,
-                        "value": 116.39215
+                        "x": 567,
+                        "y": 7279,
+                        "value": 76.24585
                     },
                     {
-                        "x": 106,
-                        "y": 12768,
-                        "value": 57.799965
+                        "x": 237,
+                        "y": 10494,
+                        "value": 45.89525
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 51.879723
                     }
                 ]
             },
@@ -467,14 +568,19 @@
                 "spectralBandwidth": "9.97",
                 "expectedPixels": [
                     {
-                        "x": 107,
-                        "y": 1168,
-                        "value": 126.711105
+                        "x": 567,
+                        "y": 7279,
+                        "value": 80.70812
                     },
                     {
-                        "x": 510,
-                        "y": 10161,
-                        "value": 229.68835
+                        "x": 237,
+                        "y": 10494,
+                        "value": 31.337254
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 41.898067
                     }
                 ]
             },
@@ -488,14 +594,19 @@
                 "spectralBandwidth": "9.979",
                 "expectedPixels": [
                     {
-                        "x": 521,
-                        "y": 13451,
-                        "value": 8.278193
+                        "x": 567,
+                        "y": 7279,
+                        "value": 83.45336
                     },
                     {
-                        "x": 972,
-                        "y": 9015,
-                        "value": 42.889393
+                        "x": 237,
+                        "y": 10494,
+                        "value": 21.256369
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 36.48628
                     }
                 ]
             },
@@ -509,14 +620,19 @@
                 "spectralBandwidth": "9.985001",
                 "expectedPixels": [
                     {
-                        "x": 1078,
-                        "y": 5724,
-                        "value": 24.25588
+                        "x": 567,
+                        "y": 7279,
+                        "value": 84.38197
                     },
                     {
-                        "x": 98,
-                        "y": 8003,
-                        "value": 93.33926
+                        "x": 237,
+                        "y": 10494,
+                        "value": 17.455742
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 38.534115
                     }
                 ]
             },
@@ -530,14 +646,19 @@
                 "spectralBandwidth": "7.4880004",
                 "expectedPixels": [
                     {
-                        "x": 824,
-                        "y": 8938,
-                        "value": 133.46576
+                        "x": 567,
+                        "y": 7279,
+                        "value": 83.685814
                     },
                     {
-                        "x": 1094,
-                        "y": 2794,
-                        "value": 150.18626
+                        "x": 237,
+                        "y": 10494,
+                        "value": 16.10997
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 38.325356
                     }
                 ]
             },
@@ -551,14 +672,19 @@
                 "spectralBandwidth": "9.992001",
                 "expectedPixels": [
                     {
-                        "x": 516,
-                        "y": 3921,
-                        "value": 176.11496
+                        "x": 567,
+                        "y": 7279,
+                        "value": 92.615715
                     },
                     {
-                        "x": 256,
-                        "y": 9731,
-                        "value": 91.10787
+                        "x": 237,
+                        "y": 10494,
+                        "value": 13.475965
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 35.86651
                     }
                 ]
             },
@@ -572,14 +698,19 @@
                 "spectralBandwidth": "7.4950004",
                 "expectedPixels": [
                     {
-                        "x": 717,
-                        "y": 6574,
-                        "value": 39.84865
+                        "x": 567,
+                        "y": 7279,
+                        "value": 118.6275
                     },
                     {
-                        "x": 595,
-                        "y": 8521,
-                        "value": 179.41858
+                        "x": 237,
+                        "y": 10494,
+                        "value": 11.342006
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 33.332848
                     }
                 ]
             },
@@ -593,14 +724,19 @@
                 "spectralBandwidth": "3.7440002",
                 "expectedPixels": [
                     {
-                        "x": 443,
-                        "y": 3213,
-                        "value": 4.800266
+                        "x": 567,
+                        "y": 7279,
+                        "value": 37.63018
                     },
                     {
-                        "x": 312,
-                        "y": 13353,
-                        "value": 29.307352
+                        "x": 237,
+                        "y": 10494,
+                        "value": 4.250143
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 7.888052
                     }
                 ]
             },
@@ -614,14 +750,19 @@
                 "spectralBandwidth": "15.010001",
                 "expectedPixels": [
                     {
-                        "x": 1060,
-                        "y": 8714,
-                        "value": 180.39194
+                        "x": 567,
+                        "y": 7279,
+                        "value": 115.255554
                     },
                     {
-                        "x": 849,
-                        "y": 4930,
-                        "value": 88.33789
+                        "x": 237,
+                        "y": 10494,
+                        "value": 9.898871
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 30.7646
                     }
                 ]
             },
@@ -635,14 +776,19 @@
                 "spectralBandwidth": "20.047",
                 "expectedPixels": [
                     {
-                        "x": 628,
-                        "y": 4370,
-                        "value": 85.986626
+                        "x": 567,
+                        "y": 7279,
+                        "value": 101.4409
                     },
                     {
-                        "x": 929,
-                        "y": 13083,
-                        "value": 6.077924
+                        "x": 237,
+                        "y": 10494,
+                        "value": 6.7283683
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 24.517847
                     }
                 ]
             },
@@ -656,14 +802,19 @@
                 "spectralBandwidth": "10.018001",
                 "expectedPixels": [
                     {
-                        "x": 121,
-                        "y": 13328,
-                        "value": 2.6917388
+                        "x": 567,
+                        "y": 7279,
+                        "value": 98.73372
                     },
                     {
-                        "x": 385,
-                        "y": 12232,
-                        "value": 3.698852
+                        "x": 237,
+                        "y": 10494,
+                        "value": 6.1281314
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 23.084255
                     }
                 ]
             },
@@ -677,14 +828,19 @@
                 "spectralBandwidth": "10.02",
                 "expectedPixels": [
                     {
-                        "x": 204,
-                        "y": 10403,
-                        "value": 4.159808
+                        "x": 567,
+                        "y": 7279,
+                        "value": 69.46228
                     },
                     {
-                        "x": 664,
-                        "y": 8250,
-                        "value": 69.92931
+                        "x": 237,
+                        "y": 10494,
+                        "value": 3.8937109
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 15.515107
                     }
                 ]
             },
@@ -697,14 +853,19 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 230,
-                        "y": 4599,
-                        "value": 34.0
+                        "x": 567,
+                        "y": 7279,
+                        "value": 16.0
                     },
                     {
-                        "x": 459,
-                        "y": 12976,
+                        "x": 237,
+                        "y": 10494,
                         "value": 0.0
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 34.0
                     }
                 ]
             },
@@ -717,14 +878,19 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 786,
-                        "y": 13484,
-                        "value": 241.0
+                        "x": 567,
+                        "y": 7279,
+                        "value": 454.0
                     },
                     {
-                        "x": 333,
-                        "y": 14915,
-                        "value": 681.0
+                        "x": 237,
+                        "y": 10494,
+                        "value": 775.0
+                    },
+                    {
+                        "x": 21,
+                        "y": 0,
+                        "value": 923.0
                     }
                 ]
             }
@@ -787,12 +953,12 @@
         ],
         "metadata": [
             {
-                "path": "Quality_ADS/Quality_ADS.14/dsr_time",
-                "value": "17-JUN-2008 09:07:58.109367"
+                "path": "DSD/DSD.17/NUM_RECORDS",
+                "value": "15025"
             },
             {
-                "path": "Quality_ADS/Quality_ADS.55/dsr_time",
-                "value": "17-JUN-2008 09:23:21.694386"
+                "path": "Quality_ADS/Quality_ADS.7/dsr_time",
+                "value": "17-JUN-2008 09:05:20.424119"
             }
         ]
     }

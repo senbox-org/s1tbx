@@ -11,8 +11,8 @@
                 {
                     "x": 3010.0,
                     "y": 4616.0,
-                    "lat": 2.575735,
-                    "lon": 97.8983
+                    "lat": 2.5757275,
+                    "lon": 97.89833
                 },
                 {
                     "x": 5181.0,
@@ -21,26 +21,46 @@
                     "lon": 97.63696
                 }
             ],
-            "reverseAccuracy": 0.13
+            "reverseAccuracy": 0.4
         },
         "tiePointGrids": [
             {
-                "name": "slant_range_time",
-                "description": "2 way slant range time",
+                "name": "samples",
+                "description": "range sample",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "697.9",
+                "subSamplingX": "698.0",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
                         "x": 364,
                         "y": 1530,
-                        "value": 6017287.5
+                        "value": 365.0
                     },
                     {
                         "x": 4781,
                         "y": 7304,
-                        "value": 6217529.0
+                        "value": 4782.0
+                    }
+                ]
+            },
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "698.0",
+                "subSamplingY": "804.0",
+                "expectedPixels": [
+                    {
+                        "x": 2030,
+                        "y": 2205,
+                        "value": 6090627.5
+                    },
+                    {
+                        "x": 4260,
+                        "y": 3137,
+                        "value": 6192958.5
                     }
                 ]
             },
@@ -49,18 +69,18 @@
                 "description": "Incident angle",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "697.9",
+                "subSamplingX": "698.0",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
-                        "x": 2030,
-                        "y": 2205,
-                        "value": 32.503128
+                        "x": 3838,
+                        "y": 6401,
+                        "value": 33.878574
                     },
                     {
-                        "x": 4260,
-                        "y": 3137,
-                        "value": 34.202286
+                        "x": 4245,
+                        "y": 7973,
+                        "value": 34.1835
                     }
                 ]
             },
@@ -69,18 +89,18 @@
                 "description": "Latitude of the tie points (WGS-84), positive N",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "697.9",
+                "subSamplingX": "698.0",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
-                        "x": 3838,
-                        "y": 6401,
-                        "value": 2.3984494
+                        "x": 1104,
+                        "y": 5720,
+                        "value": 2.4076915
                     },
                     {
-                        "x": 4245,
-                        "y": 7973,
-                        "value": 2.2346072
+                        "x": 3623,
+                        "y": 7845,
+                        "value": 2.2337034
                     }
                 ]
             },
@@ -89,18 +109,18 @@
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "697.9",
+                "subSamplingX": "698.0",
                 "subSamplingY": "804.0",
                 "expectedPixels": [
                     {
-                        "x": 1104,
-                        "y": 5720,
-                        "value": 98.08143
+                        "x": 5277,
+                        "y": 4161,
+                        "value": 97.6599
                     },
                     {
-                        "x": 3623,
-                        "y": 7845,
-                        "value": 97.75399
+                        "x": 6635,
+                        "y": 4172,
+                        "value": 97.51049
                     }
                 ]
             }
@@ -116,14 +136,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 5277,
-                        "y": 4161,
-                        "value": 320.0
+                        "x": 2375,
+                        "y": 7724,
+                        "value": 223.0
                     },
                     {
-                        "x": 6635,
-                        "y": 4172,
-                        "value": 126.0
+                        "x": 69,
+                        "y": 4042,
+                        "value": 444.0
                     }
                 ]
             },
@@ -137,14 +157,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 2375,
-                        "y": 7724,
-                        "value": 49729.0
+                        "x": 2285,
+                        "y": 1692,
+                        "value": 113569.0
                     },
                     {
-                        "x": 69,
-                        "y": 4042,
-                        "value": 197136.0
+                        "x": 1906,
+                        "y": 370,
+                        "value": 254016.0
                     }
                 ]
             },
@@ -158,14 +178,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 2285,
-                        "y": 1692,
-                        "value": 188.0
+                        "x": 6779,
+                        "y": 5193,
+                        "value": 47.0
                     },
                     {
-                        "x": 1906,
-                        "y": 370,
-                        "value": 258.0
+                        "x": 3994,
+                        "y": 6155,
+                        "value": 223.0
                     }
                 ]
             },
@@ -179,26 +199,26 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 6779,
-                        "y": 5193,
-                        "value": 2209.0
+                        "x": 1618,
+                        "y": 4272,
+                        "value": 17689.0
                     },
                     {
-                        "x": 3994,
-                        "y": 6155,
-                        "value": 49729.0
+                        "x": 2240,
+                        "y": 6205,
+                        "value": 1225.0
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "DSD/DSD.9/FILE_NAME",
-                "value": ""
+                "path": "MDS1_SQ_ADS/thresh_input_std_dev",
+                "value": "0.15"
             },
             {
-                "path": "CHIRP_PARAMS_ADS/CHIRP_PARAMS_ADS.1/ASAR_Chirp_ADSR.sd//cal_pulse_info_IODD_3K.15.avg_cal",
-                "value": "1.3555053,0.008407506,0.39909485"
+                "path": "MDS2_SQ_ADS/thresh_input_mean",
+                "value": "0.2"
             }
         ]
     }

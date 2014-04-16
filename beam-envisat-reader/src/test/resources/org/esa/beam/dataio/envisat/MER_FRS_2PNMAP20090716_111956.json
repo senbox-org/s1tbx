@@ -1,6 +1,6 @@
 {
     "id": "MER_FRS_2PNMAP20090716_111956",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "intended",
     "expectedContent": {
         "sceneWidth": 4481,
         "sceneHeight": 3713,
@@ -11,14 +11,14 @@
                 {
                     "x": 1932.0,
                     "y": 1995.0,
-                    "lat": 35.656227,
-                    "lon": -15.087899
+                    "lat": 35.656,
+                    "lon": -15.086696
                 },
                 {
                     "x": 3326.0,
                     "y": 2409.0,
-                    "lat": 33.783634,
-                    "lon": -11.58129
+                    "lat": 33.78318,
+                    "lon": -11.57928
                 }
             ],
             "reverseAccuracy": 0.06
@@ -191,18 +191,18 @@
                 "description": "Latitude of the tie points (WGS-84), positive N",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 233,
                         "y": 661,
-                        "value": 39.92552
+                        "value": 39.9255
                     },
                     {
                         "x": 3069,
                         "y": 3158,
-                        "value": 32.00345
+                        "value": 32.003044
                     }
                 ]
             },
@@ -211,18 +211,18 @@
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 1303,
                         "y": 953,
-                        "value": -16.12061
+                        "value": -16.11976
                     },
                     {
                         "x": 2735,
                         "y": 1356,
-                        "value": -12.326467
+                        "value": -12.324745
                     }
                 ]
             },
@@ -231,18 +231,18 @@
                 "description": "Digital elevation model altitude",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 2464,
                         "y": 2767,
-                        "value": -4416.609
+                        "value": -4416.8047
                     },
                     {
                         "x": 2725,
                         "y": 3447,
-                        "value": -3524.2747
+                        "value": -3520.7788
                     }
                 ]
             },
@@ -251,7 +251,7 @@
                 "description": "Digital elevation model roughness",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
@@ -271,7 +271,7 @@
                 "description": "Digital elevation model latitude corrections",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
@@ -291,7 +291,7 @@
                 "description": "Digital elevation model longitude corrections",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
@@ -311,18 +311,18 @@
                 "description": "Sun zenith angle",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 1467,
                         "y": 731,
-                        "value": 29.112366
+                        "value": 29.111637
                     },
                     {
                         "x": 1224,
                         "y": 160,
-                        "value": 30.201614
+                        "value": 30.201015
                     }
                 ]
             },
@@ -331,18 +331,18 @@
                 "description": "Sun azimuth angles",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 4353,
                         "y": 2245,
-                        "value": 119.925835
+                        "value": 119.92858
                     },
                     {
                         "x": 2564,
                         "y": 2661,
-                        "value": 112.7962
+                        "value": 112.7975
                     }
                 ]
             },
@@ -351,18 +351,18 @@
                 "description": "Viewing zenith angles",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 1039,
                         "y": 1847,
-                        "value": 24.212484
+                        "value": 24.208242
                     },
                     {
                         "x": 1438,
                         "y": 2682,
-                        "value": 16.631998
+                        "value": 16.625652
                     }
                 ]
             },
@@ -371,18 +371,18 @@
                 "description": "Viewing azimuth angles",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 1604,
                         "y": 1849,
-                        "value": 102.65663
+                        "value": 102.65723
                     },
                     {
                         "x": 1805,
                         "y": 1642,
-                        "value": 103.028206
+                        "value": 103.028885
                     }
                 ]
             },
@@ -391,18 +391,18 @@
                 "description": "Zonal wind",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 2575,
                         "y": 341,
-                        "value": 1.9348072
+                        "value": 1.9375
                     },
                     {
                         "x": 2891,
                         "y": 58,
-                        "value": 3.4657722
+                        "value": 3.4687011
                     }
                 ]
             },
@@ -411,18 +411,18 @@
                 "description": "Meridional wind",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 4369,
                         "y": 1363,
-                        "value": -4.563864
+                        "value": -4.55625
                     },
                     {
                         "x": 4257,
                         "y": 3513,
-                        "value": -6.642393
+                        "value": -6.631519
                     }
                 ]
             },
@@ -431,18 +431,18 @@
                 "description": "Mean sea level pressure",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 496,
                         "y": 1677,
-                        "value": 1027.5049
+                        "value": 1027.5048
                     },
                     {
                         "x": 2558,
                         "y": 2088,
-                        "value": 1024.604
+                        "value": 1024.6031
                     }
                 ]
             },
@@ -451,18 +451,18 @@
                 "description": "Total ozone",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 2266,
                         "y": 1936,
-                        "value": 306.96045
+                        "value": 306.95352
                     },
                     {
                         "x": 2019,
                         "y": 2157,
-                        "value": 308.05646
+                        "value": 308.0505
                     }
                 ]
             },
@@ -471,18 +471,18 @@
                 "description": "Relative humidity",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "64.01428",
+                "subSamplingX": "64.0",
                 "subSamplingY": "64.0",
                 "expectedPixels": [
                     {
                         "x": 64,
                         "y": 1576,
-                        "value": 86.77489
+                        "value": 86.775
                     },
                     {
                         "x": 314,
                         "y": 3686,
-                        "value": 62.659992
+                        "value": 62.660057
                     }
                 ]
             }
@@ -828,7 +828,7 @@
                 "name": "yellow_subs",
                 "description": "Yellow substance",
                 "geophysicalUnit": "1/m",
-                "noDataValue": "0.002809364951381436",
+                "noDataValue": "0.0028093649513814363",
                 "noDataValueUsed": "false",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",

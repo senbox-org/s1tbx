@@ -25,22 +25,42 @@
         },
         "tiePointGrids": [
             {
-                "name": "slant_range_time",
-                "description": "2 way slant range time",
+                "name": "samples",
+                "description": "range sample",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "577.1",
+                "subSamplingX": "577.0",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
                         "x": 301,
                         "y": 2020,
-                        "value": 5653397.5
+                        "value": 302.0
                     },
                     {
                         "x": 3953,
                         "y": 9645,
-                        "value": 6505794.5
+                        "value": 3954.0
+                    }
+                ]
+            },
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "577.0",
+                "subSamplingY": "540.0",
+                "expectedPixels": [
+                    {
+                        "x": 1678,
+                        "y": 2912,
+                        "value": 5911365.5
+                    },
+                    {
+                        "x": 3523,
+                        "y": 4142,
+                        "value": 6374764.0
                     }
                 ]
             },
@@ -49,18 +69,18 @@
                 "description": "Incident angle",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "577.1",
+                "subSamplingX": "577.0",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
-                        "x": 1678,
-                        "y": 2912,
-                        "value": 25.47873
+                        "x": 3174,
+                        "y": 8452,
+                        "value": 32.676445
                     },
                     {
-                        "x": 3523,
-                        "y": 4142,
-                        "value": 34.245167
+                        "x": 3510,
+                        "y": 10528,
+                        "value": 34.1909
                     }
                 ]
             },
@@ -69,18 +89,18 @@
                 "description": "Latitude of the tie points (WGS-84), positive N",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "577.1",
+                "subSamplingX": "577.0",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
-                        "x": 3174,
-                        "y": 8452,
-                        "value": -68.70443
+                        "x": 913,
+                        "y": 7553,
+                        "value": -69.08686
                     },
                     {
-                        "x": 3510,
-                        "y": 10528,
-                        "value": -69.66926
+                        "x": 2996,
+                        "y": 10359,
+                        "value": -69.80108
                     }
                 ]
             },
@@ -89,18 +109,18 @@
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "577.1",
+                "subSamplingX": "577.0",
                 "subSamplingY": "540.0",
                 "expectedPixels": [
                     {
-                        "x": 913,
-                        "y": 7553,
-                        "value": 131.52307
+                        "x": 4363,
+                        "y": 5495,
+                        "value": 128.55225
                     },
                     {
-                        "x": 2996,
-                        "y": 10359,
-                        "value": 125.06438
+                        "x": 5486,
+                        "y": 5509,
+                        "value": 127.02458
                     }
                 ]
             }
@@ -116,14 +136,14 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 4363,
-                        "y": 5495,
-                        "value": 220.0
+                        "x": 1964,
+                        "y": 10199,
+                        "value": 515.0
                     },
                     {
-                        "x": 5486,
-                        "y": 5509,
-                        "value": 352.0
+                        "x": 57,
+                        "y": 5338,
+                        "value": 933.0
                     }
                 ]
             },
@@ -137,26 +157,26 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 1964,
-                        "y": 10199,
-                        "value": 265225.0
+                        "x": 1889,
+                        "y": 2235,
+                        "value": 579121.0
                     },
                     {
-                        "x": 57,
-                        "y": 5338,
-                        "value": 870489.0
+                        "x": 1576,
+                        "y": 489,
+                        "value": 1833316.0
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "DSD/DSD.4/DATASET_TYPE",
-                "value": "A"
+                "path": "GEOLOCATION_GRID_ADS/GEOLOCATION_GRID_ADS.13/ASAR_Geo_Grid_ADSR.sd//first_line_tie_points.longs",
+                "value": "134065120,133141478,132237169,131351661,130484233,129634185,128800911,127983922,127182846,126397415,125627454"
             },
             {
-                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.13/coefficient.3/dop_coef",
-                "value": "5.4590696E7"
+                "path": "SR_GR_ADS/SR_GR_ADS.5/slant_range_time",
+                "value": "5606462.5"
             }
         ]
     }

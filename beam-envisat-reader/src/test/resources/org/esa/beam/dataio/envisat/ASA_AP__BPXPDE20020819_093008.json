@@ -11,17 +11,17 @@
                 {
                     "x": 212.0,
                     "y": 991.0,
-                    "lat": 51.68186,
-                    "lon": 13.97302
+                    "lat": 51.681453,
+                    "lon": 13.975931
                 },
                 {
                     "x": 365.0,
                     "y": 1197.0,
-                    "lat": 51.34413,
-                    "lon": 13.341741
+                    "lat": 51.344135,
+                    "lon": 13.341742
                 }
             ],
-            "reverseAccuracy": 0.36
+            "reverseAccuracy": 0.6
         },
         "tiePointGrids": [
             {
@@ -29,18 +29,18 @@
                 "description": "2 way slant range time",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "49.2",
+                "subSamplingX": "50.0",
                 "subSamplingY": "450.0",
                 "expectedPixels": [
                     {
                         "x": 25,
                         "y": 328,
-                        "value": 5564820.5
+                        "value": 5564824.0
                     },
                     {
                         "x": 337,
                         "y": 1569,
-                        "value": 5739627.5
+                        "value": 5739660.0
                     }
                 ]
             },
@@ -49,18 +49,18 @@
                 "description": "Incident angle",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "49.2",
+                "subSamplingX": "50.0",
                 "subSamplingY": "450.0",
                 "expectedPixels": [
                     {
                         "x": 143,
                         "y": 473,
-                        "value": 21.32956
+                        "value": 21.329423
                     },
                     {
                         "x": 300,
                         "y": 673,
-                        "value": 23.856804
+                        "value": 23.857133
                     }
                 ]
             },
@@ -69,18 +69,18 @@
                 "description": "Latitude of the tie points (WGS-84), positive N",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "49.2",
+                "subSamplingX": "50.0",
                 "subSamplingY": "450.0",
                 "expectedPixels": [
                     {
                         "x": 270,
                         "y": 1375,
-                        "value": 50.95121
+                        "value": 50.950141
                     },
                     {
                         "x": 299,
                         "y": 1713,
-                        "value": 50.29813
+                        "value": 50.298099
                     }
                 ]
             },
@@ -89,18 +89,18 @@
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "49.2",
+                "subSamplingX": "50.0",
                 "subSamplingY": "450.0",
                 "expectedPixels": [
                     {
                         "x": 77,
                         "y": 1228,
-                        "value": 14.21815
+                        "value": 14.218149
                     },
                     {
                         "x": 255,
                         "y": 1685,
-                        "value": 13.336009
+                        "value": 13.347052
                     }
                 ]
             }

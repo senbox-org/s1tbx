@@ -18,29 +18,49 @@
                     "x": 7543.0,
                     "y": 6431.0,
                     "lat": 50.986977,
-                    "lon": 14.213073
+                    "lon": 14.213075
                 }
             ],
-            "reverseAccuracy": 0.45
+            "reverseAccuracy": 0.5
         },
         "tiePointGrids": [
             {
-                "name": "slant_range_time",
-                "description": "2 way slant range time",
+                "name": "samples",
+                "description": "range sample",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "1016.1",
+                "subSamplingX": "1016.0",
                 "subSamplingY": "826.0",
                 "expectedPixels": [
                     {
                         "x": 530,
                         "y": 1765,
-                        "value": 5845288.0
+                        "value": 531.0
                     },
                     {
                         "x": 6961,
                         "y": 8430,
-                        "value": 5582544.0
+                        "value": 6962.0
+                    }
+                ]
+            },
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "1016.0",
+                "subSamplingY": "826.0",
+                "expectedPixels": [
+                    {
+                        "x": 2955,
+                        "y": 2545,
+                        "value": 5752529.5
+                    },
+                    {
+                        "x": 6203,
+                        "y": 3620,
+                        "value": 5639585.0
                     }
                 ]
             },
@@ -49,18 +69,18 @@
                 "description": "Incident angle",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "1016.1",
+                "subSamplingX": "1016.0",
                 "subSamplingY": "826.0",
                 "expectedPixels": [
                     {
-                        "x": 2955,
-                        "y": 2545,
-                        "value": 24.841078
+                        "x": 5588,
+                        "y": 7387,
+                        "value": 21.56029
                     },
                     {
-                        "x": 6203,
-                        "y": 3620,
-                        "value": 21.830173
+                        "x": 6181,
+                        "y": 9201,
+                        "value": 20.646488
                     }
                 ]
             },
@@ -69,18 +89,18 @@
                 "description": "Latitude of the tie points (WGS-84), positive N",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "1016.1",
+                "subSamplingX": "1016.0",
                 "subSamplingY": "826.0",
                 "expectedPixels": [
                     {
-                        "x": 5588,
-                        "y": 7387,
-                        "value": 50.876625
+                        "x": 1608,
+                        "y": 6601,
+                        "value": 50.95594
                     },
                     {
-                        "x": 6181,
-                        "y": 9201,
-                        "value": 50.67374
+                        "x": 5275,
+                        "y": 9053,
+                        "value": 50.68885
                     }
                 ]
             },
@@ -89,18 +109,18 @@
                 "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
                 "offsetX": "0.5",
                 "offsetY": "0.5",
-                "subSamplingX": "1016.1",
+                "subSamplingX": "1016.0",
                 "subSamplingY": "826.0",
                 "expectedPixels": [
                     {
-                        "x": 1608,
-                        "y": 6601,
-                        "value": 13.15729
+                        "x": 7683,
+                        "y": 4803,
+                        "value": 14.235074
                     },
                     {
-                        "x": 5275,
-                        "y": 9053,
-                        "value": 13.816753
+                        "x": 9660,
+                        "y": 4815,
+                        "value": 14.588428
                     }
                 ]
             }
@@ -110,27 +130,6 @@
                 "name": "Amplitude_HV",
                 "description": "Alternating Polarization Geocoded Image",
                 "geophysicalUnit": "amplitude",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "true",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 7683,
-                        "y": 4803,
-                        "value": 161.0
-                    },
-                    {
-                        "x": 9660,
-                        "y": 4815,
-                        "value": "NaN"
-                    }
-                ]
-            },
-            {
-                "name": "Intensity_HV",
-                "description": "Intensity Image",
-                "geophysicalUnit": "intensity",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
@@ -149,9 +148,9 @@
                 ]
             },
             {
-                "name": "Amplitude_HH",
-                "description": "Alternating Polarization Geocoded Image",
-                "geophysicalUnit": "amplitude",
+                "name": "Intensity_HV",
+                "description": "Intensity Image",
+                "geophysicalUnit": "intensity",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
@@ -160,19 +159,19 @@
                     {
                         "x": 3327,
                         "y": 1953,
-                        "value": 1019.0
+                        "value": 85849.0
                     },
                     {
                         "x": 2775,
                         "y": 428,
-                        "value": 445.0
+                        "value": 249001.0
                     }
                 ]
             },
             {
-                "name": "Intensity_HH",
-                "description": "Intensity Image",
-                "geophysicalUnit": "intensity",
+                "name": "Amplitude_HH",
+                "description": "Alternating Polarization Geocoded Image",
+                "geophysicalUnit": "amplitude",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
@@ -186,19 +185,40 @@
                     {
                         "x": 5815,
                         "y": 7104,
-                        "value": 1703025.0
+                        "value": 1305.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_HH",
+                "description": "Intensity Image",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2357,
+                        "y": 4930,
+                        "value": 139876.0
+                    },
+                    {
+                        "x": 3262,
+                        "y": 7161,
+                        "value": 804609.0
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "DSD/DSD.9/FILE_NAME",
-                "value": ""
+                "path": "MDS2_SQ_ADS/exp_input_mean",
+                "value": "0.0"
             },
             {
-                "path": "ANTENNA_ELEV_PATTERN_ADS/ANTENNA_ELEV_PATTERN_ADS.1/beam_id",
-                "value": "NS "
+                "path": "MDS2_SQ_ADS/thresh_chirp_islr",
+                "value": "-5.0"
             }
         ]
     }
