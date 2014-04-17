@@ -59,11 +59,14 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -186,12 +189,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private JPanel createAccuracyPanel() {
         final JPanel accuracyPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
-        final JLabel label = new JLabel("Statistical accuracy:");
+        final JLabel label = new JLabel("Histogram accuracy:");
 
         accuracyModel = new AccuracyModel();
         final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(accuracyModel));
-        final JTextField textField = new JTextField("3");
-        bindingContext.bind("accuracy", textField);
+        final SpinnerNumberModel accuracyNumberModel = new SpinnerNumberModel(accuracyModel.accuracy, 0, Util.MAX_ACCURACY, 1);
+        final JSpinner accuracySpinner = new JSpinner(accuracyNumberModel);
+        ((JSpinner.DefaultEditor) accuracySpinner.getEditor()).getTextField().setEditable(false);
+        bindingContext.bind("accuracy", accuracySpinner);
         final JCheckBox checkBox = new JCheckBox("Auto accuracy");
         bindingContext.bind("useAutoAccuracy", checkBox);
 
@@ -199,13 +204,13 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         final PropertyDescriptor accuracyDescriptor = bindingContext.getPropertySet().getDescriptor("accuracy");
         accuracyDescriptor.setValidator(rangeValidator);
 
-        checkBox.setSelected(true);
+        checkBox.setSelected(accuracyModel.useAutoAccuracy);
 
         bindingContext.getPropertySet().getProperty("useAutoAccuracy").addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 label.setEnabled(!checkBox.isSelected());
-                textField.setEnabled(!checkBox.isSelected());
+                accuracySpinner.setEnabled(!checkBox.isSelected());
                 if (checkBox.isSelected()) {
                     bindingContext.getBinding("accuracy").setPropertyValue(3);
                 }
@@ -214,19 +219,19 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         });
 
         label.setEnabled(false);
-        textField.setEnabled(false);
-        textField.setToolTipText("Specify the number of significant figures you want to retrieve.");
-        textField.addActionListener(new ActionListener() {
+        accuracySpinner.setEnabled(false);
+        accuracySpinner.setToolTipText("Specify the number of histogram bins (#bins: 10^accuracy).");
+        accuracySpinner.addChangeListener(new ChangeListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void stateChanged(ChangeEvent e) {
                 computePanel.updateEnablement();
             }
         });
 
-        GridBagUtils.addToPanel(accuracyPanel, new TitledSeparator("Statistical accuracy", SwingConstants.CENTER), gbc, "fill=HORIZONTAL, weightx=1.0,anchor=NORTH,gridwidth=2");
+        GridBagUtils.addToPanel(accuracyPanel, new TitledSeparator("Histogram accuracy", SwingConstants.CENTER), gbc, "fill=HORIZONTAL, weightx=1.0,anchor=NORTH,gridwidth=2");
         GridBagUtils.addToPanel(accuracyPanel, checkBox, gbc, "gridy=1,insets.left=5,insets.top=2");
         GridBagUtils.addToPanel(accuracyPanel, label, gbc, "gridy=2, insets.left=26,weightx=0.0,fill=NONE,anchor=WEST,gridwidth=1");
-        GridBagUtils.addToPanel(accuracyPanel, textField, gbc, "gridx=1,weightx=1.0,fill=HORIZONTAL,insets.right=5,insets.left=5");
+        GridBagUtils.addToPanel(accuracyPanel, accuracySpinner, gbc, "gridx=1,weightx=1.0,fill=HORIZONTAL,insets.right=5,insets.left=5");
         return accuracyPanel;
     }
 
