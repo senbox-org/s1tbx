@@ -634,12 +634,13 @@ class MosaicExpressionsPanel extends JPanel {
             }
         }
         table.removeEditor();
+        int[] selectedRows = rows.clone();
         for (int i = rows.length - 1; i > -1; i--) {
             int row = rows[i];
             ((DefaultTableModel) table.getModel()).moveRow(row, row, row + 1);
-            rows[i]++;
+            selectedRows[i] = row + 1;
         }
-        selectRows(table, rows);
+        selectRows(table, selectedRows);
     }
 
     private static void moveRowsUp(final JTable table, final int[] rows) {
@@ -649,10 +650,13 @@ class MosaicExpressionsPanel extends JPanel {
             }
         }
         table.removeEditor();
-        for (int row : rows) {
+        int[] selectedRows = rows.clone();
+        for (int i = 0; i < rows.length; i++) {
+            int row = rows[i];
             ((DefaultTableModel) table.getModel()).moveRow(row, row, row - 1);
+            selectedRows[i] = row - 1;
         }
-        selectRows(table, rows);
+        selectRows(table, selectedRows);
     }
 
     private static void removeRows(final JTable table, final int[] rows) {
