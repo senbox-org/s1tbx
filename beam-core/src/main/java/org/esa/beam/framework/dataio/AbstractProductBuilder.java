@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -76,12 +76,6 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
         setNewProductName(name != null ? name : sourceProduct.getName());
         setNewProductDesc(desc != null ? desc : sourceProduct.getDescription());
         final Product product = readProductNodes(sourceProduct, subsetDef);
-        if (sourceProduct.getQuicklookBandName() != null
-                && product.getQuicklookBandName() == null
-                && product.containsBand(sourceProduct.getQuicklookBandName())) {
-            product.setQuicklookBandName(sourceProduct.getQuicklookBandName());
-        }
-        product.setAutoGrouping(sourceProduct.getAutoGrouping());
         product.setModified(true);
         return product;
     }

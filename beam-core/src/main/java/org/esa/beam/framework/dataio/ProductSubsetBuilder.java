@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -331,6 +331,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);
+        if (sourceProduct.getQuicklookBandName() != null
+            && product.getQuicklookBandName() == null
+            && product.containsBand(sourceProduct.getQuicklookBandName())) {
+            product.setQuicklookBandName(sourceProduct.getQuicklookBandName());
+        }
+        product.setAutoGrouping(sourceProduct.getAutoGrouping());
 
         return product;
     }

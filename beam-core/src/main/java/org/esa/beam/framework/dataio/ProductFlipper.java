@@ -290,6 +290,13 @@ public class ProductFlipper extends AbstractProductBuilder {
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
         product.setStartTime(sourceProduct.getStartTime());
         product.setEndTime(sourceProduct.getEndTime());
+        if (sourceProduct.getQuicklookBandName() != null
+            && product.getQuicklookBandName() == null
+            && product.containsBand(sourceProduct.getQuicklookBandName())) {
+            product.setQuicklookBandName(sourceProduct.getQuicklookBandName());
+        }
+        product.setAutoGrouping(sourceProduct.getAutoGrouping());
+
         return product;
     }
 

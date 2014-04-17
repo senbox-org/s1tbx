@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,13 +44,7 @@ import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SubsetOpTest {
 
@@ -107,7 +101,7 @@ public class SubsetOpTest {
                 new Coordinate(-5, 5),
         }), null);
 
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("geoRegion", polygon.toText());
         parameters.put("fullSwath", true);
         final Product sp = createTestProduct(100, 100);
@@ -197,6 +191,23 @@ public class SubsetOpTest {
         assertEquals(true, rectangle.isEmpty());
     }
 
+    @Test
+    public void testAutoGrouping() throws Exception {
+        final Product sp = createTestProduct(100, 100);
+        sp.setAutoGrouping("radiance");
+        final String[] bandNames = {"radiance_1", "radiance_3"};
+
+        SubsetOp op = new SubsetOp();
+        op.setSourceProduct(sp);
+        op.setBandNames(bandNames);
+
+        Product tp = op.getTargetProduct();
+        assertEquals(2, tp.getNumBands());
+        Product.AutoGrouping autoGrouping = tp.getAutoGrouping();
+        assertNotNull(autoGrouping);
+        assertEquals(1, autoGrouping.size());
+        assertArrayEquals(new String[]{"radiance"}, autoGrouping.get(0));
+    }
 
     @Test
     public void testCopyMetadata() throws Exception {
