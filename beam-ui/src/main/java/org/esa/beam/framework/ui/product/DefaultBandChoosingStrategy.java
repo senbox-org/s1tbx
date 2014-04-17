@@ -76,10 +76,11 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
         }
         checkBoxes = new JCheckBox[length];
         final JPanel checkersPane = GridBagUtils.createPanel();
-        final GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=4,anchor=WEST,fill=HORIZONTAL");
+        final GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=4,anchor=NORTHWEST,fill=HORIZONTAL");
         final ActionListener checkListener = createActionListener();
         addBandCheckers(new StringBuffer(), checkersPane, gbc, checkListener);
         addTiePointCheckers(new StringBuffer(), checkersPane, gbc, checkListener);
+        GridBagUtils.addVerticalFiller(checkersPane, gbc);
         return checkersPane;
     }
 
