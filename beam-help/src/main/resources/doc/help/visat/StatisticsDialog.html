@@ -63,10 +63,15 @@ The set of statistical information displayed comprises:
 </p>
 
 <p>
-    The section "Statistical accuracy" allows the user to specify the accuracy with which the statistics shall be
-    computed. Higher numbers indicate a higher accuracy but may lead to a considerably longer computation time. More
-    precisely, this parameter determines the number of bin cells used for computing the histogram: the number of bin
-    cells is computed by <b>10^a</b> with <b>a</b> the parameter. This value must be between 0 and 7.
+    The section "Statistical accuracy" allows the user to specify the accuracy with which the histogram shall be
+    computed.
+    Higher numbers indicate a higher accuracy but may lead to a considerably longer computation time.
+    More precisely, this parameter determines the number of bin cells used for computing the histogram: the number of
+    bin cells is computed by <b>10^a</b> with <b>a</b> the parameter.
+    As the median and the percentile thresholds are derived from the histogram, the accuracy also influences these
+    measures.
+    The parameter value must be between 0 (histogram with one single bin) and 6 (histogram with 1,000,000 bins).
+    When auto accuracy is enabled, the accuracy is set to 3.
 </p>
 
 <p>
