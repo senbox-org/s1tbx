@@ -17,7 +17,17 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.TreeCellExtender;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
@@ -26,7 +36,10 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.product.tree.AbstractTN;
 import org.esa.beam.framework.ui.product.tree.ProductTreeModel;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -35,18 +48,31 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.*;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * A tree-view component for multiple <code>Product</code>s. Clients can register one or more
@@ -420,7 +446,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         if (band.getSpectralWavelength() == Math.round(band.getSpectralWavelength())) {
                             text = String.format("%s (%d nm)", productNode.getName(), (int) band.getSpectralWavelength());
                         } else {
-                            text = String.format("%s (%f nm)", productNode.getName(), band.getSpectralWavelength());
+                            text = String.format("%s (%s nm)", productNode.getName(), String.valueOf(band.getSpectralWavelength()));
                         }
 
                         toolTipBuffer.append(", wavelength = ");
