@@ -55,11 +55,13 @@ public class DefaultBandChoosingStrategy implements BandChoosingStrategy {
 
     @Override
     public Band[] getSelectedBands() {
+        checkSelectedBandsAndGrids();
         return selectedBands;
     }
 
     @Override
     public TiePointGrid[] getSelectedTiePointGrids() {
+        checkSelectedBandsAndGrids();
         return selectedTiePointGrids;
     }
 
