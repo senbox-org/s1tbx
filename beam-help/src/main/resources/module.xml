@@ -34,6 +34,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0</b><br/>
+        [BEAM-1643] Improve 'Accuracy' option in Statistics tool window
         [BEAM-1547] BEAM Help documentation for "Define Subset" dialog has not been updated<br/>
         [BEAM-1550] Link in help to general.html does not work<br/>
         ]]>
