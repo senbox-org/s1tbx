@@ -284,8 +284,9 @@ public class OperatorMenu {
             }
             JTextArea textArea = new JTextArea(parameterXml);
             textArea.setEditable(false);
-            textArea.setPreferredSize(new Dimension(360, 360));
-            showInformationDialog(getOperatorName() + " Parameters", new JScrollPane(textArea));
+            JScrollPane textAreaScrollPane = new JScrollPane(textArea);
+            textAreaScrollPane.setPreferredSize(new Dimension(360, 360));
+            showInformationDialog(getOperatorName() + " Parameters", textAreaScrollPane);
         }
 
         @Override
