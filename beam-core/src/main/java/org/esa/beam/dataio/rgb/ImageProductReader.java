@@ -24,10 +24,15 @@ import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.jai.SingleBandedSampleModel;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandSelectDescriptor;
 import javax.media.jai.operator.FileLoadDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
+import java.awt.RenderingHints;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.SampleModel;
@@ -75,7 +80,10 @@ public class ImageProductReader extends AbstractProductReader {
         product.setDescription(String.format("Image (%s, %s)", colorSpace.getClass().getSimpleName(), sampleModel.getClass().getSimpleName()));
         int numBands = sourceImage.getNumBands();
         for (int i = 0; i < numBands; i++) {
-            RenderedOp bandImage = BandSelectDescriptor.create(sourceImage, new int[]{i}, null);
+            RenderedOp bandImage = getBandSourceImage(i);
+            if (i == 0){
+                product.setPreferredTileSize(bandImage.getTileWidth(), bandImage.getTileHeight());
+            }
             String bandName;
             if (numBands == 1) {
                 bandName = GRAY_BAND_NAME;
@@ -111,6 +119,23 @@ public class ImageProductReader extends AbstractProductReader {
         }
 
         return product;
+    }
+
+    private RenderedOp getBandSourceImage(int i) {
+        RenderedOp bandImage = BandSelectDescriptor.create(sourceImage, new int[]{i}, null);
+        int tileWidth =  bandImage.getTileWidth();
+        int tileHeight = bandImage.getTileHeight();
+        ImageLayout imageLayout = new ImageLayout();
+        boolean noSourceImageTiling = tileWidth == bandImage.getWidth() && tileHeight == bandImage.getHeight();
+        if (noSourceImageTiling) {
+            tileWidth = Math.min(bandImage.getWidth(), 512);
+            tileHeight = Math.min(bandImage.getHeight(), 512);
+            imageLayout.setTileWidth(tileWidth);
+            imageLayout.setTileHeight(tileHeight);
+        }
+        imageLayout.setSampleModel(new SingleBandedSampleModel(bandImage.getSampleModel().getDataType(), tileWidth, tileHeight));
+        bandImage = FormatDescriptor.create(bandImage, bandImage.getSampleModel().getDataType(), new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout));
+        return bandImage;
     }
 
     @Override
