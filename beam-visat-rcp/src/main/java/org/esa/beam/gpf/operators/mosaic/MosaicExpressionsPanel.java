@@ -360,7 +360,8 @@ class MosaicExpressionsPanel extends JPanel {
                                                                     null,
                                                                     allBands, /*I18N*/
                                                                     existingBands.toArray(
-                                                                            new Band[existingBands.size()]));
+                                                                            new Band[existingBands.size()]), true
+                    );
                     if (bandChooser.show() == ModalDialog.ID_OK) {
                         final Band[] selectedBands = bandChooser.getSelectedBands();
                         for (Band selectedBand : selectedBands) {

@@ -207,7 +207,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             BandChooser bandChooser = new BandChooser(getPaneWindow(),
                                                       "Available Bands And Tie Point Grids",
                                                       getDescriptor().getHelpId(), false,
-                                                      allBands, selectedBands, allGrids, selectedGrids);
+                                                      allBands, selectedBands, allGrids, selectedGrids, true);
             if (bandChooser.show() == ModalDialog.ID_OK) {
                 selectedBands = bandChooser.getSelectedBands();
                 selectedGrids = bandChooser.getSelectedTiePointGrids();

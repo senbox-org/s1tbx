@@ -510,7 +510,7 @@ class ColorManipulationForm {
                                                         "Apply to other bands", /*I18N*/
                                                         getToolViewDescriptor().getHelpId(),
                                                         availableBands,
-                                                        bandsToBeModified);
+                                                        bandsToBeModified, false);
         final List<Band> modifiedRasterList = new ArrayList<>(availableBands.length);
         if (bandChooser.show() == BandChooser.ID_OK) {
             bandsToBeModified = bandChooser.getSelectedBands();

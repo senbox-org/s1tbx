@@ -557,7 +557,7 @@ class MagicWandForm {
                                                   "",
                                                   bands,
                                                   oldBandSet.toArray(new Band[oldBandSet.size()]),
-                                                  product.getAutoGrouping());
+                                                  product.getAutoGrouping(), true);
 
         if (bandChooser.show() == ModalDialog.ID_OK) {
             Band[] newBands = bandChooser.getSelectedBands();

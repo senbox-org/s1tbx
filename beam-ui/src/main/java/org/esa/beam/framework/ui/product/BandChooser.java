@@ -1,12 +1,12 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.TableLayout;
-import javax.swing.AbstractButton;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.ModalDialog;
 
+import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,10 +25,13 @@ public class BandChooser extends ModalDialog implements LoadSaveRasterDataNodesC
 
     private final boolean selectAtLeastOneBand;
     private BandChoosingStrategy strategy;
+    private boolean addLoadSaveConfigurationButtons;
 
     public BandChooser(Window parent, String title, String helpID,
-                       Band[] allBands, Band[] selectedBands, Product.AutoGrouping autoGrouping) {
+                       Band[] allBands, Band[] selectedBands, Product.AutoGrouping autoGrouping,
+                       boolean addLoadSaveConfigurationButtons) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
+        this.addLoadSaveConfigurationButtons = addLoadSaveConfigurationButtons;
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, null);
         strategy = new GroupedBandChoosingStrategy(allBands, selectedBands, null, null, autoGrouping, multipleProducts);
         selectAtLeastOneBand = false;
@@ -36,14 +39,16 @@ public class BandChooser extends ModalDialog implements LoadSaveRasterDataNodesC
     }
 
     public BandChooser(Window parent, String title, String helpID,
-                       Band[] allBands, Band[] selectedBands) {
-        this(parent, title, helpID, true, allBands, selectedBands, null, null);
+                       Band[] allBands, Band[] selectedBands, boolean addLoadSaveConfigurationButtons) {
+        this(parent, title, helpID, true, allBands, selectedBands, null, null, addLoadSaveConfigurationButtons);
     }
 
     public BandChooser(Window parent, String title, String helpID, boolean selectAtLeastOneBand,
                        Band[] allBands, Band[] selectedBands,
-                       TiePointGrid[] allTiePointGrids, TiePointGrid[] selectedTiePointGrids) {
+                       TiePointGrid[] allTiePointGrids, TiePointGrid[] selectedTiePointGrids,
+                       boolean addLoadSaveConfigurationButtons) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
+        this.addLoadSaveConfigurationButtons = addLoadSaveConfigurationButtons;
         boolean multipleProducts = bandsAndGridsFromMoreThanOneProduct(allBands, allTiePointGrids);
         strategy = new DefaultBandChoosingStrategy(allBands, selectedBands, allTiePointGrids, selectedTiePointGrids,
                                                    multipleProducts);
@@ -97,15 +102,17 @@ public class BandChooser extends ModalDialog implements LoadSaveRasterDataNodesC
         checkPane.add(selectAllCheckBox, BorderLayout.WEST);
         checkPane.add(selectNoneCheckBox, BorderLayout.CENTER);
 
-        LoadSaveRasterDataNodesConfigurationsProvider provider = new LoadSaveRasterDataNodesConfigurationsProvider(this);
-        AbstractButton loadButton = provider.getLoadButton();
-        AbstractButton saveButton = provider.getSaveButton();
         TableLayout layout = new TableLayout(1);
         layout.setTablePadding(4, 4);
         JPanel buttonPanel = new JPanel(layout);
-        buttonPanel.add(loadButton);
-        buttonPanel.add(saveButton);
-        buttonPanel.add(layout.createVerticalSpacer());
+        if (addLoadSaveConfigurationButtons) {
+            LoadSaveRasterDataNodesConfigurationsProvider provider = new LoadSaveRasterDataNodesConfigurationsProvider(this);
+            AbstractButton loadButton = provider.getLoadButton();
+            AbstractButton saveButton = provider.getSaveButton();
+            buttonPanel.add(loadButton);
+            buttonPanel.add(saveButton);
+            buttonPanel.add(layout.createVerticalSpacer());
+        }
 
         final JPanel content = new JPanel(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(checkersPane);
