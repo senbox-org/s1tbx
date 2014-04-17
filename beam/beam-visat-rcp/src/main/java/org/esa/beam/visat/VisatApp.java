@@ -371,7 +371,7 @@ public class VisatApp extends BasicApp implements AppContext {
             getMainFrame().getDockingManager().setHideFloatingFramesOnSwitchOutOfApplication(true);
             getMainFrame().getDockingManager().setHideFloatingFramesWhenDeactivate(false);
 
-            desktopPane = new TabbedDesktopPane();
+            desktopPane = createDesktop();
 
             applicationPage = new VisatApplicationPage(getMainFrame(),
                                                        getCommandManager(),
@@ -396,6 +396,10 @@ public class VisatApp extends BasicApp implements AppContext {
         } finally {
             pm.done();
         }
+    }
+
+    protected TabbedDesktopPane createDesktop() {
+        return new TabbedDesktopPane();
     }
 
     private void loadCommands() {
