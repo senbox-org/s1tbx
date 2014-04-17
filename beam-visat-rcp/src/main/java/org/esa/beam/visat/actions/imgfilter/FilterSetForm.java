@@ -6,6 +6,8 @@ import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSetStore;
 
 import javax.swing.DropMode;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -296,6 +298,8 @@ public class FilterSetForm extends JPanel {
 
     private static class MyDefaultTreeCellRenderer extends DefaultTreeCellRenderer {
 
+        private final static Icon seIcon = new ImageIcon(FilterSetForm.class.getResource("se.png"));
+        private final static Icon kernelIcon =  new ImageIcon(FilterSetForm.class.getResource("kernel.png"));
         private Font plainFont;
         private Font boldFont;
 
@@ -308,7 +312,12 @@ public class FilterSetForm extends JPanel {
                 boldFont = c.getFont().deriveFont(Font.BOLD);
             }
             c.setFont(leaf ? plainFont : boldFont);
-            c.setIcon(null);
+            if (value instanceof Filter) {
+                Filter filter = (Filter) value;
+                c.setIcon(filter.getOperation() == Filter.Operation.CONVOLVE ? kernelIcon : seIcon);
+            } else {
+                c.setIcon(null);
+            }
             return c;
         }
     }
