@@ -33,7 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -70,9 +70,9 @@ class BinningVariablesPanel2 extends JPanel {
         JideSplitPane splitPane = new JideSplitPane(JideSplitPane.VERTICAL_SPLIT);
         splitPane.setProportionalLayout(true);
         splitPane.setShowGripper(true);
-        splitPane.add(createVariablePanel());
         splitPane.add(createAggregatorPanel());
-        splitPane.setProportions(new double[] {0.3});
+        splitPane.add(createVariablePanel());
+        splitPane.setProportions(new double[]{0.7});
         return splitPane;
     }
 
@@ -152,7 +152,7 @@ class BinningVariablesPanel2 extends JPanel {
         validPixelExpressionLabel.setToolTipText("Only those pixels matching this expression are considered");
         targetHeightLabel.setToolTipText("<html>The number of rows of the <b>maximum</b> target grid</html>");
         resolutionLabel.setToolTipText("The spatial resolution, directly depending on #rows");
-        supersamplingLabel.setToolTipText("Every input pixel is subdivided into n x n subpixels in order to reduce or avoid Moiré effect");
+        supersamplingLabel.setToolTipText("Every input pixel is subdivided into n x n sub-pixels in order to reduce or avoid the Moiré effect");
 
         TableLayout layout = new TableLayout(3);
         layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -184,7 +184,7 @@ class BinningVariablesPanel2 extends JPanel {
 
     private static int computeNumRows(double resolution) {
         final double RE = 6378.145;
-        int numRows = (int) ((RE * Math.PI) / resolution) + 1 ;
+        int numRows = (int) ((RE * Math.PI) / resolution) + 1;
         return numRows % 2 == 0 ? numRows : numRows + 1;
     }
 
@@ -230,9 +230,9 @@ class BinningVariablesPanel2 extends JPanel {
         return null;
     }
 
-    private static JPanel createVariablePanel() {
+    private  JPanel createVariablePanel() {
         Grid grid = new Grid(4, true);
-        grid.getLayout().setTablePadding(4, 2);
+        grid.getLayout().setTablePadding(2, 1);
         grid.getLayout().setColumnFill(2, TableLayout.Fill.HORIZONTAL);
         grid.getLayout().setColumnWeightX(2, 1.0);
         grid.setHeaderRow(/*1*/ new JLabel("Name"),
@@ -243,13 +243,9 @@ class BinningVariablesPanel2 extends JPanel {
         JScrollPane scrollPane = new JScrollPane(grid);
         scrollPane.setBorder(null);
 
-        JPanel titlePanel = new JPanel(new BorderLayout(4, 4));
-        titlePanel.add(new JLabel("Computed sources (optional):"), BorderLayout.WEST);
-        titlePanel.add(gridControlBar, BorderLayout.EAST);
-
-        JPanel panel = new JPanel(new BorderLayout(4, 4));
-        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel.add(titlePanel, BorderLayout.NORTH);
+        JPanel panel = new JPanel(new BorderLayout(2,2));
+        panel.setBorder(new TitledBorder("Extra Source Bands (optional)"));
+        panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
@@ -283,7 +279,7 @@ class BinningVariablesPanel2 extends JPanel {
 
     private static JPanel createAggregatorPanel() {
         Grid grid = new Grid(6, true);
-        grid.getLayout().setTablePadding(5, 2);
+        grid.getLayout().setTablePadding(2, 1);
         grid.getLayout().setColumnFill(1, TableLayout.Fill.HORIZONTAL);
         grid.getLayout().setColumnWeightX(1, 0.5);
         grid.getLayout().setColumnFill(4, TableLayout.Fill.HORIZONTAL);
@@ -295,16 +291,12 @@ class BinningVariablesPanel2 extends JPanel {
                           /*5*/ null);
         GridControlBar gridControlBar = new GridControlBar(GridControlBar.HORIZONTAL, grid, new AggregatorController());
 
-        JPanel titlePanel = new JPanel(new BorderLayout(4, 4));
-        titlePanel.add(new JLabel("Target bands:"), BorderLayout.WEST);
-        titlePanel.add(gridControlBar, BorderLayout.EAST);
-
         JScrollPane scrollPane = new JScrollPane(grid);
         scrollPane.setBorder(null);
 
-        JPanel panel = new JPanel(new BorderLayout(4, 4));
-        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel.add(titlePanel, BorderLayout.NORTH);
+        JPanel panel = new JPanel(new BorderLayout(2,2));
+        panel.setBorder(new TitledBorder("Target Bands"));
+        panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
