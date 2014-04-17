@@ -30,7 +30,7 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         createTreeNodes();
     }
 
-    public void addFilterModel(Filter filter, TreePath selectionPath) {
+    public void addFilter(Filter filter, TreePath selectionPath) {
         if (selectionPath != null) {
             Object[] path = selectionPath.getPath();
             if (path.length >= 2) {
@@ -41,8 +41,19 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         filterSet.addFilter(filter);
     }
 
-    public void removeFilterModel(Filter filter) {
+    public void removeFilter(Filter filter) {
         filterSet.removeFilter(filter);
+    }
+
+    public TreePath getFilterPath(Filter filter) {
+        for (Group group : root.groups) {
+            for (Filter filter1 : group.filters) {
+                if (filter1 == filter) {
+                    return new TreePath(new Object[] {root, group, filter});
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -218,11 +229,11 @@ class FilterTreeModel implements TreeModel, FilterSet.Listener {
         }
     }
 
-    private void fireTreeNodesChanged(Filter filterModel) {
+    private void fireTreeNodesChanged(Filter filter) {
         for (Group group : root.groups) {
-            for (Filter filter : group.filters) {
-                if (filter == filterModel) {
-                    fireTreeNodeChanged(group, filterModel);
+            for (Filter filter1 : group.filters) {
+                if (filter1 == filter) {
+                    fireTreeNodeChanged(group, filter);
                 }
             }
         }

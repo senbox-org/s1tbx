@@ -15,6 +15,8 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -116,7 +118,10 @@ public class FilterSetForm extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 Filter filter = Filter.create(5);
                 filter.setEditable(true);
-                ((FilterTreeModel) filterTree.getModel()).addFilterModel(filter, filterTree.getSelectionPath());
+                FilterTreeModel model = (FilterTreeModel) filterTree.getModel();
+                model.addFilter(filter, filterTree.getSelectionPath());
+                TreePath filterPath = model.getFilterPath(filter);
+                filterTree.setSelectionPath(filterPath);
             }
         });
         addButton.setToolTipText("Add user-defined filter");
@@ -125,7 +130,7 @@ public class FilterSetForm extends JPanel {
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((FilterTreeModel) filterTree.getModel()).removeFilterModel((Filter) filterTree.getSelectionPath().getLastPathComponent());
+                ((FilterTreeModel) filterTree.getModel()).removeFilter((Filter) filterTree.getSelectionPath().getLastPathComponent());
             }
         });
         removeButton.setToolTipText("Remove user-defined filter");
@@ -192,6 +197,31 @@ public class FilterSetForm extends JPanel {
         });
         filterTree.setCellRenderer(new MyDefaultTreeCellRenderer());
         filterTree.putClientProperty("JTree.lineStyle", "Angled");
+
+        filterTree.getModel().addTreeModelListener(new TreeModelListener() {
+            @Override
+            public void treeNodesChanged(TreeModelEvent e) {
+            }
+
+            @Override
+            public void treeNodesInserted(TreeModelEvent e) {
+            }
+
+            @Override
+            public void treeNodesRemoved(TreeModelEvent e) {
+            }
+
+            @Override
+            public void treeStructureChanged(TreeModelEvent e) {
+                Filter filter = filterEditor.getFilter();
+                if (filter != null) {
+                    FilterTreeModel model = (FilterTreeModel) filterTree.getModel();
+                    TreePath filterPath = model.getFilterPath(filter);
+                    filterTree.expandPath(filterPath);
+                    filterTree.setSelectionPath(filterPath);
+                }
+            }
+        });
 
         //installTreeDragAndDrop();
         expandAllTreeNodes();
