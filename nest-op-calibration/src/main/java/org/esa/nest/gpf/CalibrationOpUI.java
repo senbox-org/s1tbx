@@ -262,29 +262,47 @@ public class CalibrationOpUI extends BaseOperatorUI {
             externalAuxFile.setText(extFile.getAbsolutePath());
         }
 
-        saveInComplex = (Boolean)paramMap.get("outputImageInComplex");
-        saveInComplexCheckBox.setSelected(saveInComplex);
-
-        saveInDb = (Boolean)paramMap.get("outputImageScaleInDb");
-        saveInDbCheckBox.setSelected(saveInDb);
-
-        createGamma0VirtualBand = (Boolean)paramMap.get("createGammaBand");
-        createGamma0VirtualBandCheckBox.setSelected(createGamma0VirtualBand);
-
-        createBeta0VirtualBand = (Boolean)paramMap.get("createBetaBand");
-        createBeta0VirtualBandCheckBox.setSelected(createBeta0VirtualBand);
-
-        outputSigmaBand = (Boolean)paramMap.get("outputSigmaBand");
-        outputSigmaBandCheckBox.setSelected(outputSigmaBand);
-
-        outputGammaBand = (Boolean)paramMap.get("outputGammaBand");
-        outputGammaBandCheckBox.setSelected(outputGammaBand);
-
-        outputBetaBand = (Boolean)paramMap.get("outputBetaBand");
-        outputBetaBandCheckBox.setSelected(outputBetaBand);
-
-        outputDNBand = (Boolean)paramMap.get("outputDNBand");
-        outputDNBandCheckBox.setSelected(outputDNBand);
+        Boolean paramVal;
+        paramVal = (Boolean)paramMap.get("outputImageInComplex");
+        if(paramVal != null) {
+            saveInComplex = paramVal;
+            saveInComplexCheckBox.setSelected(saveInComplex);
+        }
+        paramVal = (Boolean)paramMap.get("outputImageScaleInDb");
+        if(paramVal != null) {
+            saveInDb = paramVal;
+            saveInDbCheckBox.setSelected(saveInDb);
+        }
+        paramVal = (Boolean)paramMap.get("createGammaBand");
+        if(paramVal != null) {
+            createGamma0VirtualBand = paramVal;
+            createGamma0VirtualBandCheckBox.setSelected(createGamma0VirtualBand);
+        }
+        paramVal = (Boolean)paramMap.get("createBetaBand");
+        if(paramVal != null) {
+            createBeta0VirtualBand = paramVal;
+            createBeta0VirtualBandCheckBox.setSelected(createBeta0VirtualBand);
+        }
+        paramVal = (Boolean)paramMap.get("outputSigmaBand");
+        if(paramVal != null) {
+            outputSigmaBand = paramVal;
+            outputSigmaBandCheckBox.setSelected(outputSigmaBand);
+        }
+        paramVal = (Boolean)paramMap.get("outputGammaBand");
+        if(paramVal != null) {
+            outputGammaBand = paramVal;
+            outputGammaBandCheckBox.setSelected(outputGammaBand);
+        }
+        paramVal = (Boolean)paramMap.get("outputBetaBand");
+        if(paramVal != null) {
+            outputBetaBand = paramVal;
+            outputBetaBandCheckBox.setSelected(outputBetaBand);
+        }
+        paramVal = (Boolean)paramMap.get("outputDNBand");
+        if(paramVal != null) {
+            outputDNBand = paramVal;
+            outputDNBandCheckBox.setSelected(outputDNBand);
+        }
     }
 
     @Override

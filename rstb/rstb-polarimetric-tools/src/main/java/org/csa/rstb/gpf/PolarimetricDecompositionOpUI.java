@@ -126,29 +126,47 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
         decomposition.setSelectedItem(paramMap.get("decomposition"));
         windowSize.setText(String.valueOf(paramMap.get("windowSize")));
 
-        outputHAAlpha = (Boolean)paramMap.get("outputHAAlpha");
-        outputHAAlphaCheckBox.getModel().setPressed(outputHAAlpha);
-
-        outputBetaDeltaGammaLambda = (Boolean)paramMap.get("outputBetaDeltaGammaLambda");
-        outputBetaDeltaGammaLambdaCheckBox.getModel().setPressed(outputBetaDeltaGammaLambda);
-
-        outputAlpha123 = (Boolean)paramMap.get("outputAlpha123");
-        outputAlpha123CheckBox.getModel().setPressed(outputAlpha123);
-
-        outputLambda123 = (Boolean)paramMap.get("outputLambda123");
-        outputLambda123CheckBox.getModel().setPressed(outputLambda123);
-
-        outputTouziParamSet0 = (Boolean)paramMap.get("outputTouziParamSet0");
-        outputTouziParamSet0CheckBox.getModel().setPressed(outputTouziParamSet0);
-
-        outputTouziParamSet1 = (Boolean)paramMap.get("outputTouziParamSet1");
-        outputTouziParamSet1CheckBox.getModel().setPressed(outputTouziParamSet1);
-
-        outputTouziParamSet2 = (Boolean)paramMap.get("outputTouziParamSet2");
-        outputTouziParamSet2CheckBox.getModel().setPressed(outputTouziParamSet2);
-
-        outputTouziParamSet3 = (Boolean)paramMap.get("outputTouziParamSet3");
-        outputTouziParamSet3CheckBox.getModel().setPressed(outputTouziParamSet3);
+        Boolean paramVal;
+        paramVal = (Boolean)paramMap.get("outputHAAlpha");
+        if(paramVal != null) {
+            outputHAAlpha = paramVal;
+            outputHAAlphaCheckBox.getModel().setPressed(outputHAAlpha);
+        }
+        paramVal = (Boolean)paramMap.get("outputBetaDeltaGammaLambda");
+        if(paramVal != null) {
+            outputBetaDeltaGammaLambda = paramVal;
+            outputBetaDeltaGammaLambdaCheckBox.getModel().setPressed(outputBetaDeltaGammaLambda);
+        }
+        paramVal = (Boolean)paramMap.get("outputAlpha123");
+        if(paramVal != null) {
+            outputAlpha123 = paramVal;
+            outputAlpha123CheckBox.getModel().setPressed(outputAlpha123);
+        }
+        paramVal = (Boolean)paramMap.get("outputLambda123");
+        if(paramVal != null) {
+            outputLambda123 = paramVal;
+            outputLambda123CheckBox.getModel().setPressed(outputLambda123);
+        }
+        paramVal = (Boolean)paramMap.get("outputTouziParamSet0");
+        if(paramVal != null) {
+            outputTouziParamSet0 = paramVal;
+            outputTouziParamSet0CheckBox.getModel().setPressed(outputTouziParamSet0);
+        }
+        paramVal = (Boolean)paramMap.get("outputTouziParamSet1");
+        if(paramVal != null) {
+            outputTouziParamSet1 = paramVal;
+            outputTouziParamSet1CheckBox.getModel().setPressed(outputTouziParamSet1);
+        }
+        paramVal = (Boolean)paramMap.get("outputTouziParamSet2");
+        if(paramVal != null) {
+            outputTouziParamSet2 = paramVal;
+            outputTouziParamSet2CheckBox.getModel().setPressed(outputTouziParamSet2);
+        }
+        paramVal = (Boolean)paramMap.get("outputTouziParamSet3");
+        if(paramVal != null) {
+            outputTouziParamSet3 = paramVal;
+            outputTouziParamSet3CheckBox.getModel().setPressed(outputTouziParamSet3);
+        }
     }
 
     @Override

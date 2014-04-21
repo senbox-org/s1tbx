@@ -343,38 +343,46 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
         }
 
-        nodataValueAtSea = (Boolean)paramMap.get("nodataValueAtSea");
-        if(nodataValueAtSea != null) {
+        Boolean paramVal;
+        paramVal = (Boolean)paramMap.get("nodataValueAtSea");
+        if(paramVal != null) {
+            nodataValueAtSea = paramVal;
             nodataValueAtSeaCheckBox.setSelected(nodataValueAtSea);
         }
 
-        saveDEM = (Boolean)paramMap.get("saveDEM");
-        if(saveDEM != null) {
+        paramVal = (Boolean)paramMap.get("saveDEM");
+        if(paramVal != null) {
+            saveDEM = paramVal;
             saveDEMCheckBox.setSelected(saveDEM);
         }
 
-        saveIncidenceAngleFromEllipsoid = (Boolean)paramMap.get("saveIncidenceAngleFromEllipsoid");
-        if(saveIncidenceAngleFromEllipsoid != null) {
+        paramVal = (Boolean)paramMap.get("saveIncidenceAngleFromEllipsoid");
+        if(paramVal != null) {
+            saveIncidenceAngleFromEllipsoid = paramVal;
             saveIncidenceAngleFromEllipsoidCheckBox.setSelected(saveIncidenceAngleFromEllipsoid);
         }
 
-        saveLocalIncidenceAngle = (Boolean)paramMap.get("saveLocalIncidenceAngle");
-        if(saveLocalIncidenceAngle != null) {
+        paramVal = (Boolean)paramMap.get("saveLocalIncidenceAngle");
+        if(paramVal != null) {
+            saveLocalIncidenceAngle = paramVal;
             saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
         }
 
-        saveProjectedLocalIncidenceAngle = (Boolean)paramMap.get("saveProjectedLocalIncidenceAngle");
-        if(saveProjectedLocalIncidenceAngle != null) {
+        paramVal = (Boolean)paramMap.get("saveProjectedLocalIncidenceAngle");
+        if(paramVal != null) {
+            saveProjectedLocalIncidenceAngle = paramVal;
             saveProjectedLocalIncidenceAngleCheckBox.setSelected(saveProjectedLocalIncidenceAngle);
         }
 
-        saveSelectedSourceBand = (Boolean)paramMap.get("saveSelectedSourceBand");
-        if(saveSelectedSourceBand != null) {
+        paramVal = (Boolean)paramMap.get("saveSelectedSourceBand");
+        if(paramVal != null) {
+            saveSelectedSourceBand = paramVal;
             saveSelectedSourceBandCheckBox.setSelected(saveSelectedSourceBand);
         }
 
-        applyRadiometricNormalization = (Boolean)paramMap.get("applyRadiometricNormalization");
-        if(applyRadiometricNormalization != null) {
+        paramVal = (Boolean)paramMap.get("applyRadiometricNormalization");
+        if(paramVal != null) {
+            applyRadiometricNormalization = paramVal;
             applyRadiometricNormalizationCheckBox.setSelected(applyRadiometricNormalization);
 
             incidenceAngleForGamma0.setEnabled(applyRadiometricNormalization);
@@ -384,18 +392,21 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveBetaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
         }
 
-        saveBetaNought = (Boolean)paramMap.get("saveBetaNought");
-        if(saveBetaNought != null) {
+        paramVal = (Boolean)paramMap.get("saveBetaNought");
+        if(paramVal != null) {
+            saveBetaNought = paramVal;
             saveBetaNoughtCheckBox.setSelected(saveBetaNought);
         }
 
-        saveGammaNought = (Boolean)paramMap.get("saveGammaNought");
-        if(saveGammaNought != null) {
+        paramVal = (Boolean)paramMap.get("saveGammaNought");
+        if(paramVal != null) {
+            saveGammaNought = paramVal;
             saveGammaNoughtCheckBox.setSelected(saveGammaNought);
         }
 
-        saveSigmaNought = (Boolean)paramMap.get("saveSigmaNought");
-        if(saveSigmaNought != null) {
+        paramVal = (Boolean)paramMap.get("saveSigmaNought");
+        if(paramVal != null) {
+            saveSigmaNought = paramVal;
             saveSigmaNoughtCheckBox.setSelected(saveSigmaNought);
         }
 
