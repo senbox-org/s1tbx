@@ -19,12 +19,12 @@ package com.bc.ceres.binding;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
-import com.bc.ceres.binding.converters.StringConverter;
 
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A property is composed of a {@link PropertyDescriptor} (static type description) and
@@ -140,31 +140,10 @@ public class Property {
                                                                    e.getMessage()),
                                               e);
             }
-            try {
-                setValue(value);
-            } catch(ValidationException e) {
-                handleStringArray(text, converter);
-            }
+            setValue(value);
         } else {
             setValue(text);
         }
-    }
-
-    private void handleStringArray(final String text, final Converter converter) throws ValidationException {
-        if(text.startsWith("[") && text.endsWith("]") && converter instanceof StringConverter) {
-            String[] array = csvToArray(text.substring(1, text.length()-1));
-            setValue(array);
-        }
-    }
-
-    private static String[] csvToArray(String csvString) {
-        //Guardian.assertNotNullOrEmpty("csvString", csvString);
-        final StringTokenizer tokenizer = new StringTokenizer(csvString, ",");
-        final List<String> strList = new ArrayList<String>(tokenizer.countTokens());
-        while (tokenizer.hasMoreTokens()) {
-            strList.add(tokenizer.nextToken());
-        }
-        return strList.toArray(new String[strList.size()]);
     }
 
     public String getName() {
@@ -186,7 +165,7 @@ public class Property {
     public void setValue(Object value) throws ValidationException {
         Object oldValue = getValue();
         if (equalObjects(oldValue, value)) {
-            //return; //NESTMOD
+            return;
         }
         // todo - test cast castToPropertyType() - needed for Python API, nf 25.06.2013
         // value = castToPropertyType(value);

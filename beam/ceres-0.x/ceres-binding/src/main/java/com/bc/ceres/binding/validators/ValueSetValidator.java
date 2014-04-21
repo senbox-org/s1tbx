@@ -34,10 +34,8 @@ public class ValueSetValidator implements Validator {
     public void validateValue(Property property, Object value) throws ValidationException {
         if (value != null || propertyDescriptor.isNotNull()) {
             if (!propertyDescriptor.getValueSet().contains(value)) {
-                
-		//NESTMOD
-		//throw new ValidationException(MessageFormat.format("Value for ''{0}'' is invalid: ''{1}''",
-                //                                                   property.getDescriptor().getDisplayName(), value));
+                throw new ValidationException(MessageFormat.format("Value for ''{0}'' is invalid: ''{1}''",
+                                                                   property.getDescriptor().getDisplayName(), value));
             }
         }
     }
