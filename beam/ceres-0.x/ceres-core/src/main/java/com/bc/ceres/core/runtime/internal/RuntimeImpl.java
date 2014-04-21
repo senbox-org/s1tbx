@@ -112,8 +112,6 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
         }
         running = true;
 
-        addSystemProperties();
-
         progressMonitor.beginTask("Starting runtime", 100);
         getLogger().info(MessageFormat.format("Starting runtime for context [{0}]...", getContextId()));
         logRuntimeConfig();
@@ -154,32 +152,6 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
         return config.getContextId();
     }
 
-    //NESTMOD
-    private void addSystemProperties() {
-        //locate native libraries
-        final File appHome = new File(config.getHomeDirPath());
-        File jhdf = new File(appHome, "libjhdf.so");
-        File jhdf5 = new File(appHome, "libjhdf5.so");
-        if(isWindowsOS()) {
-            jhdf = new File(appHome, "jhdf.dll");
-            jhdf5 = new File(appHome, "jhdf5.dll");
-        } if(isMacOS()) {
-            jhdf = new File(appHome, "libjhdf.jnilib");
-            jhdf5 = new File(appHome, "libjhdf5.jnilib");
-        }
-        System.setProperty("ncsa.hdf.hdflib.HDFLibrary.hdflib", jhdf.getAbsolutePath());
-        System.setProperty("ncsa.hdf.hdf5lib.H5.hdf5lib", jhdf5.getAbsolutePath());
-    }
-
-    private static boolean isWindowsOS() {
-        final String osName = System.getProperty("os.name");
-        return (osName.toLowerCase().contains("win"));
-    }
-
-    private static boolean isMacOS() {
-        final String osName = System.getProperty("os.name");
-        return (osName.toLowerCase().contains("mac"));
-    }
 
     private void dispose() {
         systemModule = null;
