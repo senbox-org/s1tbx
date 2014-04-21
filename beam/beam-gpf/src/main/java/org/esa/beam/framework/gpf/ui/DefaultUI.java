@@ -21,6 +21,8 @@ public class DefaultUI extends BaseOperatorUI {
         initializeOperatorUI(operatorName, parameterMap);
         final BindingContext context = new BindingContext(valueContainer);
 
+        initParameters();
+
         final PropertyPane parametersPane = new PropertyPane(context);
         return new JScrollPane(parametersPane.createPanel());
     }
