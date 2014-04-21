@@ -1,0 +1,75 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-meris-radiometry</symbolicName>
+    <version>5.0</version>
+    <name>MERIS L1b Radiometric Correction</name>
+
+    <description>
+        Performs radiometric corrections on MERIS L1b data products.
+    </description>
+
+    <changelog>
+        <![CDATA[
+        <b>Changes in 5.0</b><br/>
+        [BEAM-1460] Component enablement in Radiometry Processor Dialog is wrong<br/>
+        [BEAM-1481] Explain the radiometric correction files<br/>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Processing,MERIS</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <parent>processing.preProcessing</parent>
+            <id>merisRadiometryCorrection</id>
+            <text>MERIS Radiometric Correction...</text>
+            <class>org.esa.beam.meris.radiometry.visat.MerisRadiometryCorrectionAction</class>
+            <shortDescr>Performs radiometric corrections on a MERIS L1b data product.</shortDescr>
+            <mnemonic>E</mnemonic>
+            <helpId>merisRadiometryCorrection</helpId>
+        </action>
+
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/radiometryCorrection.hs</path>
+        </helpSet>
+    </extension>
+
+</module>
