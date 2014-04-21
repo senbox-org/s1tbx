@@ -23,21 +23,17 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.math.Range;
 
 import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +47,10 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     private final MoreOptionsForm moreOptionsForm;
     private final ColorPaletteChooser colorPaletteChooser;
     private boolean shouldFireChooserEvent;
+    private final JFormattedTextField minField;
+    private final JFormattedTextField maxField;
+
+    private enum RangeKey {FromPaletteSource, FromData, FromMinMaxFields, FromCurrentPalette}
 
     Continuous1BandBasicForm(final ColorManipulationForm parentForm) {
         ColorPalettesManager.loadAvailableColorPalettes(parentForm.getIODir());
@@ -61,100 +61,52 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         layout.setTableWeightX(1.0);
         layout.setTableWeightY(1.0);
         layout.setTablePadding(2, 2);
-        layout.setCellPadding(0, 0, new Insets(10, 2, 2, 2));
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setTableAnchor(TableLayout.Anchor.NORTH);
-
-
-        final JRadioButton fromFile = new JRadioButton("load color palette from file");
-        final JRadioButton fromCurrent = new JRadioButton("redistribute to current palette min/max");
-        final JRadioButton fromData = new JRadioButton("redistribute to data min/max");
-        final JRadioButton fromUserDefined = new JRadioButton("set user defined min/max");
-
-        final ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(fromFile);
-        buttonGroup.add(fromCurrent);
-        buttonGroup.add(fromData);
-        buttonGroup.add(fromUserDefined);
-
-        fromFile.setSelected(true);
+        layout.setCellPadding(0, 0, new Insets(8, 2, 2, 2));
+        layout.setCellPadding(2, 0, new Insets(13, 2, 5, 2));
 
         final JPanel editorPanel = new JPanel(layout);
-        editorPanel.add(fromFile);
-        editorPanel.add(fromCurrent);
-        editorPanel.add(fromData);
-        editorPanel.add(fromUserDefined);
-        final JPanel userMinMaxPanel = new JPanel(new BorderLayout());
-        final JPanel filler = new JPanel();
-        filler.setMinimumSize(new Dimension(40, 2));
-        filler.setPreferredSize(new Dimension(40, 2));
-        userMinMaxPanel.add(filler, BorderLayout.WEST);
-
-        final JFormattedTextField minField = getNumberTextField(0.00001);
-        final JFormattedTextField maxField = getNumberTextField(1);
-
-        final GridLayout gridLayout = new GridLayout(2, 2);
-        gridLayout.setHgap(5);
-        final JPanel grid = new JPanel(gridLayout);
-        grid.add(new JLabel("min"));
-        grid.add(new JLabel("max"));
-        grid.add(minField);
-        grid.add(maxField);
-        userMinMaxPanel.add(grid);
-
-        enableChildComponents(grid, false);
-
-        fromUserDefined.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                enableChildComponents(grid, fromUserDefined.isSelected());
-            }
-        });
-
-        editorPanel.add(userMinMaxPanel);
-        editorPanel.add(new JLabel(" "));
-        editorPanel.add(new JLabel("Predefined Color Palette:"));
+        editorPanel.add(new JLabel("Colour bar:"));
         colorPaletteChooser = new ColorPaletteChooser();
         editorPanel.add(colorPaletteChooser);
+        editorPanel.add(new JLabel("Display range"));
+
+        minField = getNumberTextField(0.00001);
+        maxField = getNumberTextField(1);
+
+        final JPanel minPanel = new JPanel(new BorderLayout(5, 2));
+        minPanel.add(new JLabel("Min:"), BorderLayout.WEST);
+        minPanel.add(minField, BorderLayout.SOUTH);
+        final JPanel maxPanel = new JPanel(new BorderLayout(5, 2));
+        maxPanel.add(new JLabel("Max:"), BorderLayout.EAST);
+        maxPanel.add(maxField, BorderLayout.SOUTH);
+
+        final JPanel minMaxPanel = new JPanel(new BorderLayout(5, 5));
+        minMaxPanel.add(minPanel, BorderLayout.WEST);
+        minMaxPanel.add(maxPanel, BorderLayout.EAST);
+        editorPanel.add(minMaxPanel);
+
+        final JButton fromFile = new JButton("Range from File");
+        final JButton fromData = new JButton("Range from Data");
+
+        final JPanel buttonPanel = new JPanel(new BorderLayout(5, 10));
+        buttonPanel.add(fromFile, BorderLayout.WEST);
+        buttonPanel.add(fromData, BorderLayout.EAST);
+        editorPanel.add(new JLabel(" "));
+        editorPanel.add(buttonPanel);
+
+        shouldFireChooserEvent = true;
+
+        colorPaletteChooser.addActionListener(createListener(RangeKey.FromCurrentPalette));
+        minField.addActionListener(createListener(RangeKey.FromMinMaxFields));
+        maxField.addActionListener(createListener(RangeKey.FromMinMaxFields));
+        fromFile.addActionListener(createListener(RangeKey.FromPaletteSource));
+        fromData.addActionListener(createListener(RangeKey.FromData));
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(editorPanel, BorderLayout.NORTH);
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
-
-
-        shouldFireChooserEvent = true;
-
-        colorPaletteChooser.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (shouldFireChooserEvent) {
-                    final ColorPaletteDef selectedCPD = colorPaletteChooser.getSelectedColorPaletteDefinition();
-                    final ImageInfo currentInfo = parentForm.getImageInfo();
-                    final ColorPaletteDef currentCPD = currentInfo.getColorPaletteDef();
-                    final ColorPaletteDef deepCopy = selectedCPD.createDeepCopy();
-                    deepCopy.setDiscrete(currentCPD.isDiscrete());
-                    final double min;
-                    final double max;
-                    if (fromCurrent.isSelected()) {
-                        min = currentCPD.getMinDisplaySample();
-                        max = currentCPD.getMaxDisplaySample();
-                    } else if (fromFile.isSelected()) {
-                        min = selectedCPD.getMinDisplaySample();
-                        max = selectedCPD.getMaxDisplaySample();
-                    } else if (fromData.isSelected()) {
-                        final Stx stx = parentForm.getStx(parentForm.getProductSceneView().getRaster());
-                        min = stx.getMinimum();
-                        max = stx.getMaximum();
-                    } else {
-                        min = (double) minField.getValue();
-                        max = (double) maxField.getValue();
-                    }
-                    final boolean autoDistribute = true;
-                    currentInfo.setColorPaletteDef(deepCopy, min, max, autoDistribute);
-                    parentForm.applyChanges();
-                }
-            }
-        });
 
         logDisplayButton = ImageInfoEditorSupport.createToggleButton("icons/LogDisplay24.png");
         logDisplayButton.setName("logDisplayButton");
@@ -168,21 +120,6 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
                 parentForm.applyChanges();
             }
         }));
-    }
-
-    private JFormattedTextField getNumberTextField(double value) {
-        final NumberFormatter formatter = new NumberFormatter(new DecimalFormat("0.0############"));
-        formatter.setValueClass(Double.class); // to ensure that double values are returned
-        final JFormattedTextField minField = new JFormattedTextField(formatter);
-        minField.setValue(value);
-        return minField;
-    }
-
-    private void enableChildComponents(Container container, boolean enabled) {
-        final Component[] components = container.getComponents();
-        for (Component component : components) {
-            component.setEnabled(enabled);
-        }
     }
 
     @Override
@@ -216,6 +153,8 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         moreOptionsForm.setDiscreteColorsMode(discrete);
         logDisplayButton.setSelected(logScaled);
         parentForm.revalidateToolViewPaneControl();
+        minField.setValue(cpd.getMinDisplaySample());
+        maxField.setValue(cpd.getMaxDisplaySample());
     }
 
     @Override
@@ -246,5 +185,65 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         return new AbstractButton[]{
                     logDisplayButton,
         };
+    }
+
+    private ActionListener createListener(final RangeKey key) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applyChanges(key);
+            }
+        };
+    }
+
+    private JFormattedTextField getNumberTextField(double value) {
+        final NumberFormatter formatter = new NumberFormatter(new DecimalFormat("0.0############"));
+        formatter.setValueClass(Double.class); // to ensure that double values are returned
+        final JFormattedTextField numberField = new JFormattedTextField(formatter);
+        numberField.setValue(value);
+        final Dimension preferredSize = numberField.getPreferredSize();
+        preferredSize.width = 70;
+        numberField.setPreferredSize(preferredSize);
+        return numberField;
+    }
+
+    private void applyChanges(RangeKey key) {
+        if (shouldFireChooserEvent) {
+            final ColorPaletteDef selectedCPD = colorPaletteChooser.getSelectedColorPaletteDefinition();
+            final ImageInfo currentInfo = parentForm.getImageInfo();
+            final ColorPaletteDef currentCPD = currentInfo.getColorPaletteDef();
+            final ColorPaletteDef deepCopy = selectedCPD.createDeepCopy();
+            deepCopy.setDiscrete(currentCPD.isDiscrete());
+
+            final double min;
+            final double max;
+            final ColorPaletteDef cpd;
+            switch (key) {
+            case FromPaletteSource:
+                final Range rangeFromFile = colorPaletteChooser.getRangeFromFile();
+                min = rangeFromFile.getMin();
+                max = rangeFromFile.getMax();
+                cpd = currentCPD;
+                break;
+            case FromData:
+                final Stx stx = parentForm.getStx(parentForm.getProductSceneView().getRaster());
+                min = stx.getMinimum();
+                max = stx.getMaximum();
+                cpd = currentCPD;
+                break;
+            case FromMinMaxFields:
+                min = (double) minField.getValue();
+                max = (double) maxField.getValue();
+                cpd = currentCPD;
+                break;
+            default:
+                min = currentCPD.getMinDisplaySample();
+                max = currentCPD.getMaxDisplaySample();
+                cpd = deepCopy;
+            }
+            final boolean autoDistribute = true;
+            currentInfo.setColorPaletteDef(cpd, min, max, autoDistribute);
+            parentForm.applyChanges();
+        }
     }
 }

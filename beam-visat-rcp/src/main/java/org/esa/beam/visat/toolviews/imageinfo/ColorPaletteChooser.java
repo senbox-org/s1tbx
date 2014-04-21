@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.math.Range;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
@@ -23,7 +24,7 @@ import java.util.Vector;
 
 class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrapper> {
 
-    private final String USER_DEFINED = "user defined";
+    private final String DERIVED_FROM = "derived from";
     private boolean discreteDisplay;
     private boolean log10Display;
 
@@ -34,7 +35,7 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
     }
 
     public void removeUserDefinedPalette() {
-        if (getItemAt(0).name.startsWith(USER_DEFINED)) {
+        if (getItemAt(0).name.startsWith(DERIVED_FROM)) {
             removeItemAt(0);
         }
     }
@@ -62,7 +63,7 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
 
     private void setUserDefinedPalette(ColorPaletteDef userPalette) {
         final String suffix = userPalette.getFirstPoint().getLabel();
-        final ColorPaletteWrapper item = new ColorPaletteWrapper(USER_DEFINED + " (" + suffix + ")", userPalette);
+        final ColorPaletteWrapper item = new ColorPaletteWrapper(DERIVED_FROM + " (" + suffix + ")", userPalette);
         insertItemAt(item, 0);
         setSelectedIndex(0);
     }
@@ -142,6 +143,32 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
     public void setDiscreteDisplay(boolean discreteDisplay) {
         this.discreteDisplay = discreteDisplay;
         repaint();
+    }
+
+    public Range getRangeFromFile() {
+        final ComboBoxModel<ColorPaletteWrapper> model = getModel();
+        final int selectedIndex = getSelectedIndex();
+        final ColorPaletteWrapper paletteWrapper = model.getElementAt(selectedIndex);
+        String name = paletteWrapper.name;
+        final ColorPaletteDef cpd;
+        if (name.startsWith(DERIVED_FROM)) {
+            name = name.substring(DERIVED_FROM.length() + 2, name.length() - 1).trim();
+            cpd = findColorPalette(name);
+        } else {
+            cpd = paletteWrapper.cpd;
+        }
+        return new Range(cpd.getMinDisplaySample(), cpd.getMaxDisplaySample());
+    }
+
+    private ColorPaletteDef findColorPalette(String name) {
+        final ComboBoxModel<ColorPaletteWrapper> model = getModel();
+        for (int i = 0; i < model.getSize(); i++) {
+            final ColorPaletteWrapper paletteWrapper = model.getElementAt(i);
+            if (paletteWrapper.name.equals(name)) {
+                return paletteWrapper.cpd;
+            }
+        }
+        return null;
     }
 
     public static final class ColorPaletteWrapper {
