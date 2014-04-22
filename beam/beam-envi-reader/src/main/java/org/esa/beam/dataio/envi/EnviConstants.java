@@ -15,8 +15,15 @@ public class EnviConstants {
     public static final String HEADER_KEY_PROJECTION_INFO = "projection info";
     public static final String HEADER_KEY_WAVELENGTH_UNITS = "wavelength units";
     public static final String HEADER_KEY_WAVELENGTH = "wavelength";
+    public static final String HEADER_KEY_FWHM = "fwhm";
     public static final String HEADER_KEY_BAND_NAMES = "band names";
+    public static final String HEADER_KEY_DATA_OFFSET_VALUES = "data offset values";
+    public static final String HEADER_KEY_DATA_GAIN_VALUES = "data gain values";
+    public static final String HEADER_KEY_DATA_IGNORE_VALUE = "data ignore value";
     public static final String HEADER_KEY_DESCRIPTION = "description";
+    public static final String HEADER_KEY_CLASSES = "classes";
+    public static final String HEADER_KEY_CLASS_LOOKUP = "class lookup";
+    public static final String HEADER_KEY_CLASS_NAMES = "class names";
     public static final String FIRST_LINE = "ENVI";
     public static final String FORMAT_NAME = "ENVI";
     public static final String DESCRIPTION = "ENVI Data Products";
