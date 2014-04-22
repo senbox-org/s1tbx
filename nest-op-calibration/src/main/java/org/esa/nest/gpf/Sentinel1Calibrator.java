@@ -498,32 +498,34 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
         double dn, dn2, i, q;
-        int index;
+        int srcIdx, tgtIdx;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
+            tgtIndex.calculateStride(y);
             final double[] lut = new double[w];
             computeTileCalibrationLUTs(y, x0, y0, w, h, calInfo, targetBandName, lut);
 
             for (int x = x0; x < maxX; ++x) {
                 final int xx = x - x0;
-                index = srcIndex.getIndex(x);
-
+                srcIdx = srcIndex.getIndex(x);
+                tgtIdx = tgtIndex.getIndex(x);
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(index);
+                    dn = srcData1.getElemDoubleAt(srcIdx);
                     dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-                    i = srcData1.getElemDoubleAt(index);
-                    q = srcData2.getElemDoubleAt(index);
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
                     dn2 = i * i + q * q;
                 } else {
                     throw new OperatorException("Calibration: unhandled unit");
                 }
 
-                trgData.setElemDoubleAt(index, dn2 / lut[xx]);
+                trgData.setElemDoubleAt(tgtIdx, dn2 / lut[xx]);
             }
         }
     }
