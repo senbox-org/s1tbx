@@ -448,11 +448,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final MetadataElement imageAnnotationElem = productElem.getElement("imageAnnotation");
             final MetadataElement processingInformationElem = imageAnnotationElem.getElement("processingInformation");
             if (removeThermalNoise) {
-                processingInformationElem.getAttribute("thermalNoiseCorrectionPerformed").getData().setElemBoolean(true);
+                processingInformationElem.getAttribute("thermalNoiseCorrectionPerformed").getData().setElems("true");
             }
 
             if (reIntroduceThermalNoise) {
-                processingInformationElem.getAttribute("thermalNoiseCorrectionPerformed").getData().setElemBoolean(false);
+                processingInformationElem.getAttribute("thermalNoiseCorrectionPerformed").getData().setElems("false");
             }
         }
     }
