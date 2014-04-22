@@ -1,14 +1,18 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class EnviProductReaderAcceptanceTest extends TestCase {
+import static org.junit.Assert.fail;
+
+public class EnviProductReaderAcceptanceTest {
 
     public void not_____testReadCorrectHeaderImgPair() throws IOException {
         final StringBuffer headerContent = new StringBuffer();
@@ -30,6 +34,7 @@ public class EnviProductReaderAcceptanceTest extends TestCase {
         // @todo 2 tb/** what exactly does this test check for???
     }
 
+    @Test
     public void testReadHeader_ImgMissing() throws IOException {
         StringBuffer headerContent = new StringBuffer();
 
@@ -51,12 +56,14 @@ public class EnviProductReaderAcceptanceTest extends TestCase {
     private File headerFile;
     private File imageFile;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         headerFile = null;
         imageFile = null;
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (headerFile != null) {
             if (!headerFile.delete()) {
                 fail("unable to delete: " + headerFile.getCanonicalPath());

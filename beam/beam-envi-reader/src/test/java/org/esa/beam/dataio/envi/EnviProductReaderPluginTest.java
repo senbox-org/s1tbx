@@ -1,9 +1,11 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
@@ -14,9 +16,12 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static org.junit.Assert.*;
 
-public class EnviProductReaderPluginTest extends TestCase {
 
+public class EnviProductReaderPluginTest {
+
+    @Test
     public void testGetDefaultFileExtensions() {
         final String[] defaultFileExtensions = readerPlugIn.getDefaultFileExtensions();
         assertEquals(2, defaultFileExtensions.length);
@@ -24,6 +29,7 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(".zip", defaultFileExtensions[1]);
     }
 
+    @Test
     public void testInputTypes() {
         final Class[] inputTypes = readerPlugIn.getInputTypes();
         assertNotNull(inputTypes);
@@ -32,10 +38,12 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(File.class, inputTypes[1]);
     }
 
+    @Test
     public void testDecodeQualfication_wrongObject() {
         assertEquals(DecodeQualification.UNABLE, readerPlugIn.getDecodeQualification(new Double(23.8)));
     }
 
+    @Test
     public void testDecodeQualfication_Stream_success() {
         final String line = EnviConstants.FIRST_LINE + "dklfj\n234j\nsdf\tsdf\tsdaf\n";
         final ByteArrayInputStream bais = new ByteArrayInputStream(line.getBytes());
@@ -43,6 +51,7 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(DecodeQualification.SUITABLE, readerPlugIn.getDecodeQualification(stReader));
     }
 
+    @Test
     public void testDecodeQualfication_Stream_fail_invalid() {
         final String lines = "This is no success!";
         final ByteArrayInputStream bais = new ByteArrayInputStream(lines.getBytes());
@@ -50,6 +59,7 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(DecodeQualification.UNABLE, readerPlugIn.getDecodeQualification(stReader));
     }
 
+    @Test
     public void testDecodeQualification_File_success() throws IOException {
         final String line = EnviConstants.FIRST_LINE + "dklfj\n234j\nsdf\tsdf\tsdaf\n";
         writeToTestFile(line);
@@ -57,12 +67,14 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(DecodeQualification.SUITABLE, readerPlugIn.getDecodeQualification(headerFile));
     }
 
+    @Test
     public void testDecodeQualification_File_failure() throws IOException {
         writeToTestFile("blaberrhabarber");
 
         assertEquals(DecodeQualification.UNABLE, readerPlugIn.getDecodeQualification(headerFile));
     }
 
+    @Test
     public void testDecodeQualification_String_success() throws IOException {
         final String line = EnviConstants.FIRST_LINE + "dklfj\n234j\nsdf\tsdf\tsdaf\n";
         writeToTestFile(line);
@@ -70,12 +82,14 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(DecodeQualification.SUITABLE, readerPlugIn.getDecodeQualification(headerFile.getName()));
     }
 
+    @Test
     public void testDecodeQualification_String_failure() throws IOException {
         writeToTestFile("blaberrhabarber");
 
         assertEquals(DecodeQualification.UNABLE, readerPlugIn.getDecodeQualification(headerFile.getName()));
     }
 
+    @Test
     public void testDecodeQualification_ZipFile_success() throws IOException {
         final String line = EnviConstants.FIRST_LINE + "dklfj\n234j\nsdf\tsdf\tsdaf\n";
         writeToZipTestFile(line, true);
@@ -83,12 +97,14 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(DecodeQualification.SUITABLE, readerPlugIn.getDecodeQualification(headerFile));
     }
 
+    @Test
     public void testDecodeQualification_ZipFile_failure() throws IOException {
         writeToZipTestFile("blaberrhabarber", true);
 
         assertEquals(DecodeQualification.UNABLE, readerPlugIn.getDecodeQualification(headerFile));
     }
 
+    @Test
     public void testDecodeQualification_ZipFile_failureNotEnoughEntries() throws IOException {
         final String line = EnviConstants.FIRST_LINE + "dklfj\n234j\nsdf\tsdf\tsdaf\n";
         writeToZipTestFile(line, false);
@@ -96,12 +112,14 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(DecodeQualification.UNABLE, readerPlugIn.getDecodeQualification(headerFile));
     }
 
+    @Test
     public void testCreateReaderInstance() {
         final ProductReader reader = readerPlugIn.createReaderInstance();
         assertNotNull(reader);
         assertSame(EnviProductReader.class, reader.getClass());
     }
 
+    @Test
     public void testGetInputFile() {
         final String inputFileName = "test.file";
 
@@ -113,6 +131,7 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertEquals(inputFileName, file.getName());
     }
 
+    @Test
     public void testIsCompressedFile() {
         File file = new File("envi.file");
         assertFalse(EnviProductReaderPlugIn.isCompressedFile(file));
@@ -121,16 +140,19 @@ public class EnviProductReaderPluginTest extends TestCase {
         assertTrue(EnviProductReaderPlugIn.isCompressedFile(file));
     }
 
+    @Test
     public void testGetFormatNames() {
         final String[] formatNames = readerPlugIn.getFormatNames();
         assertEquals(1, formatNames.length);
         assertEquals("ENVI", formatNames[0]);
     }
 
+    @Test
     public void testGetDescription() {
         assertEquals("ENVI Data Products", readerPlugIn.getDescription(null));
     }
 
+    @Test
     public void testGetProductFileFilter() {
         final BeamFileFilter beamFileFilter = readerPlugIn.getProductFileFilter();
 
@@ -149,11 +171,13 @@ public class EnviProductReaderPluginTest extends TestCase {
     private EnviProductReaderPlugIn readerPlugIn;
     private File headerFile;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         readerPlugIn = new EnviProductReaderPlugIn();
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (headerFile != null) {
             if (!headerFile.delete()) {
                 fail("unable to delete testdata: " + headerFile.getName());

@@ -1,10 +1,13 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Test;
 
-public class DataTypeUtilsTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class DataTypeUtilsTest {
+
+    @Test
     public void testMapToBEAM() {
         assertEquals(ProductData.TYPE_UINT8, DataTypeUtils.toBeam(EnviConstants.TYPE_ID_BYTE));
         assertEquals(ProductData.TYPE_INT16, DataTypeUtils.toBeam(EnviConstants.TYPE_ID_INT16));
@@ -21,6 +24,7 @@ public class DataTypeUtilsTest extends TestCase {
         assertEquals(ProductData.TYPE_UNDEFINED, DataTypeUtils.toBeam(-11));
     }
 
+    @Test
     public void testGetSizeInBytes() {
         assertEquals(1, DataTypeUtils.getSizeInBytes(EnviConstants.TYPE_ID_BYTE));
         assertEquals(2, DataTypeUtils.getSizeInBytes(EnviConstants.TYPE_ID_INT16));

@@ -1,25 +1,26 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.io.FileUtils;
+import org.junit.After;
+import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.ParseException;
 
-public class EnviProductReaderTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class EnviProductReaderTest {
 
     private Product product;
 
+    @Test
     public void testParseBandNames_emptyBandnameProperty() throws IOException {
-        final StringReader reader = new StringReader("band names = {}"); // empty bandname property
+        final StringReader reader = new StringReader(HeaderTest.createMandatoryHeader() + "band names = {}"); // empty bandname property
         final Header header = new Header(new BufferedReader(reader));
 
         final String[] bandNames = EnviProductReader.getBandNames(header);
@@ -28,8 +29,9 @@ public class EnviProductReaderTest extends TestCase {
         assertEquals("Band", bandNames[0]);
     }
 
+    @Test
     public void testParseBandNames_noBandnameProperty() throws IOException {
-        final StringReader reader = new StringReader(""); // no bandname property
+        final StringReader reader = new StringReader(HeaderTest.createMandatoryHeader()); // no bandname property
         final Header header = new Header(new BufferedReader(reader));
 
         final String[] bandNames = EnviProductReader.getBandNames(header);
@@ -38,8 +40,9 @@ public class EnviProductReaderTest extends TestCase {
         assertEquals("Band", bandNames[0]);
     }
 
+    @Test
     public void testParseBandNames_withBandnameProperty() throws IOException {
-        final StringReader reader = new StringReader("band names = { myband_1, myband_2}");
+        final StringReader reader = new StringReader(HeaderTest.createMandatoryHeader() + "band names = { myband_1, myband_2}");
         final Header header = new Header(new BufferedReader(reader));
 
         final String[] bandNames = EnviProductReader.getBandNames(header);
@@ -49,8 +52,9 @@ public class EnviProductReaderTest extends TestCase {
         assertEquals("myband_2", bandNames[1]);
     }
 
+    @Test
     public void testParseBandNames_withBandNumberProperty() throws IOException {
-        final StringReader reader = new StringReader("bands = 3");
+        final StringReader reader = new StringReader(HeaderTest.createMandatoryHeader() + "bands = 3");
         final Header header = new Header(new BufferedReader(reader));
 
         final String[] bandNames = EnviProductReader.getBandNames(header);
@@ -61,6 +65,7 @@ public class EnviProductReaderTest extends TestCase {
         assertEquals("Band_3", bandNames[2]);
     }
 
+    @Test
     public void testReadProductNodes_WithoutSensingStartStop() throws IOException, ParseException {
         final String sensingStartStop = "";
         final String headerContent = createHeaderFileContent(sensingStartStop);
@@ -99,6 +104,7 @@ public class EnviProductReaderTest extends TestCase {
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
     }
 
+    @Test
     public void testReadProductNodes_WithInvalidSensingStart() throws IOException {
         // valid DATE_FORMAT_PATTERN = "dd-MMM-yyyy HH:mm:ss";
         final String start = Header.SENSING_START;
@@ -116,6 +122,7 @@ public class EnviProductReaderTest extends TestCase {
         }
     }
 
+    @Test
     public void testReadProductNodes_WithInvalidSensingStop() throws IOException {
         // valid DATE_FORMAT_PATTERN = "dd-MMM-yyyy HH:mm:ss";
         final String start = Header.SENSING_START;
@@ -133,6 +140,7 @@ public class EnviProductReaderTest extends TestCase {
         }
     }
 
+    @Test
     public void testReadProductNodes_WithValidSensingStartStop() throws IOException {
         // valid DATE_FORMAT_PATTERN = "dd-MMM-yyyy HH:mm:ss";
         final String start = Header.SENSING_START;
@@ -174,8 +182,22 @@ public class EnviProductReaderTest extends TestCase {
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81aug15b.n07-VIg", band4.getDescription());
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15a.n07-VIg", band5.getDescription());
         assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
+
+        Band[] allBands = product.getBands();
+        for (Band band : allBands) {
+            assertTrue(band.isNoDataValueUsed());
+            assertEquals(42, band.getNoDataValue(), 1e-9);
+        }
+        assertEquals(100f, band1.getSpectralWavelength(), 1e-5);
+        assertEquals(10f, band1.getSpectralBandwidth(), 1e-5);
+
+        assertEquals(1, product.getIndexCodingGroup().getNodeCount());
+        IndexCoding indexCoding = product.getIndexCodingGroup().get(0);
+        assertEquals("classification", indexCoding.getName());
+        assertArrayEquals(new String[]{"classA", "classB"}, indexCoding.getIndexNames());
     }
 
+    @Test
     public void testReadProductNodes_WithoutSensingStop() throws IOException {
         // valid DATE_FORMAT_PATTERN = "dd-MMM-yyyy HH:mm:ss";
         final String sensingStartStop = Header.SENSING_START + " = 16-jan-1998 5:6:7";
@@ -189,6 +211,31 @@ public class EnviProductReaderTest extends TestCase {
         assertNotNull(product);
         assertEquals("16-JAN-1998 05:06:07.000000", product.getStartTime().format());
         assertEquals(null, product.getEndTime());
+    }
+
+    @Test
+    public void testMetadata() throws IOException {
+        final String headerContent = createHeaderFileContent("");
+        final File headerFile = createHeaderAndImageFile(headerContent, PRODUCT_NAME);
+
+        final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
+        final ProductReader reader = plugIn.createReaderInstance();
+        product = reader.readProductNodes(headerFile, null);
+
+        assertNotNull(product);
+        MetadataElement metadataRoot = product.getMetadataRoot();
+        assertEquals(1, metadataRoot.getNumElements());
+        MetadataElement headerElem = metadataRoot.getElementAt(0);
+        assertNotNull(headerElem);
+        assertEquals("Header", headerElem.getName());
+        String[] attributeNames = headerElem.getAttributeNames();
+        String[] expected = new String[]{
+                "description", "samples", "lines", "bands", "header offset", "file type",
+                "data type", "interleave", "sensor type", "byte order", "data ignore value", "map info",
+                "projection info", "wavelength", "fwhm", "wavelength units", "band names",
+                "classes", "class lookup", "class names"
+        };
+        assertArrayEquals(expected, attributeNames);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -228,9 +275,12 @@ public class EnviProductReaderTest extends TestCase {
         pw.println(EnviConstants.HEADER_KEY_INTERLEAVE + " = " + INTERLEAVE);
         pw.println(EnviConstants.HEADER_KEY_SENSOR_TYPE + " = " + SENSOR_TYPE);
         pw.println(EnviConstants.HEADER_KEY_BYTE_ORDER + " = " + BYTE_ORDER);
+        pw.println(EnviConstants.HEADER_KEY_DATA_IGNORE_VALUE + " = 42");
         pw.println();
         pw.println(EnviConstants.HEADER_KEY_MAP_INFO + " = {" + MAP_INFO + "}");
         pw.println(EnviConstants.HEADER_KEY_PROJECTION_INFO + " ={" + PROJECTION_INFO + "}");
+        pw.println(EnviConstants.HEADER_KEY_WAVELENGTH + " = {100,200,300,400,500,600}");
+        pw.println(EnviConstants.HEADER_KEY_FWHM + " = {10,20,30,30,20,10}");
         pw.println(EnviConstants.HEADER_KEY_WAVELENGTH_UNITS + " = " + WAVELENGTH_UNITS);
         pw.println(EnviConstants.HEADER_KEY_BAND_NAMES + " = {");
         pw.println(" _/data/molly/AVHRR/samer/SA81jul15a.n07-VIg,");
@@ -239,6 +289,9 @@ public class EnviProductReaderTest extends TestCase {
         pw.println(" /data/molly/AVHRR/samer/SA81aug15b.n07-VIg,");
         pw.println(" /data/molly/AVHRR/samer/SA81sep15a.n07-VIg,");
         pw.println(" /data/molly/AVHRR/samer/SA81sep15b.n07-VIg }");
+        pw.println(EnviConstants.HEADER_KEY_CLASSES + " = 2");
+        pw.println(EnviConstants.HEADER_KEY_CLASS_LOOKUP + " = {0,   0,   0, 255,   0,   0}");
+        pw.println(EnviConstants.HEADER_KEY_CLASS_NAMES + " = {classA, classB}");
         pw.flush();
         return writer.toString();
     }
@@ -261,12 +314,13 @@ public class EnviProductReaderTest extends TestCase {
         return headerFile;
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (product != null) {
             product.dispose();
         }
         if (tDir != null) {
-            TestUtils.deleteFileTree(tDir);
+            FileUtils.deleteTree(tDir);
         }
     }
 

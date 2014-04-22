@@ -4,27 +4,24 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.envi.Header.BeamProperties;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.TreeNode;
 import org.esa.beam.util.io.FileUtils;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,18 +29,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteOrder;
 import java.text.ParseException;
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.*;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.nio.ByteOrder;
-import java.awt.geom.AffineTransform;
-import java.awt.*;
 
-// @todo 2 tb/** use header offset information in file positioning
-// @todo 2 tb/** evaluate file type information and react accordingly
-// @todo 2 tb/** evaluate data type information and react accordingly
 
 public class EnviProductReader extends AbstractProductReader {
 
@@ -96,7 +88,9 @@ public class EnviProductReader extends AbstractProductReader {
             final Product product = new Product(productName, header.getSensorType(), header.getNumSamples(),
                                                 header.getNumLines());
             product.setProductReader(this);
+            product.setFileLocation(inputFile);
             product.setDescription(header.getDescription());
+            product.getMetadataRoot().addElement(header.getAsMetadata());
 
             initGeoCoding(product, header);
             initBands(inputFile, product, header);
@@ -106,8 +100,6 @@ public class EnviProductReader extends AbstractProductReader {
             // imageInputStream must be initialized last
             initializeInputStreamForBandData(inputFile, header.getJavaByteOrder());
 	        initMetadata(product, inputFile);
-            product.setFileLocation(inputFile);
-            
             return product;
         } finally {
             if (headerReader != null) {
@@ -134,67 +126,93 @@ public class EnviProductReader extends AbstractProductReader {
         final int sourceMinY = sourceOffsetY;
         final int sourceMaxX = sourceOffsetX + sourceWidth - 1;
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
-        final Product product = destBand.getProduct();
+        Product product = destBand.getProduct();
         final int sourceRasterWidth = product.getSceneRasterWidth();
-        final long bandOffset = bandStreamPositionMap.get(destBand);
         final ImageInputStream imageInputStream = imageInputStreamMap.get(destBand);
-
         final int elemSize = destBuffer.getElemSize();
 
-        pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
-        // For each scan in the data source
-        try {
-            int destPos = 0;
-            Header header = headerMap.get(destBand);
-            String interleave = header.getInterleave();
-            if (interleave.equalsIgnoreCase("bil")) {
-                // band interleaved by line
-                final int lineSizeInBytes = header.getNumSamples() * elemSize;
-                final int headerOffset = header.getHeaderOffset();
-                int numBands = product.getNumBands();
-                final int bandIndex = product.getBandIndex(destBand.getName());
+        Header header = headerMap.get(destBand);
+        final int headerOffset = header.getHeaderOffset();
+        final int bandIndex = product.getBandIndex(destBand.getName());
 
+        String interleave = header.getInterleave();
+        if ("bil".equalsIgnoreCase(interleave)) {
+            // band interleaved by line
+            final long lineSizeInBytes = header.getNumSamples() * elemSize;
+            int numBands = product.getNumBands();
+
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            try {
+                int destPos = 0;
                 for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final long sourcePosY = sourceY * sourceRasterWidth;
                     synchronized (imageInputStream) {
-                        final long lineStartPos = headerOffset + sourceY * numBands * lineSizeInBytes + bandIndex * lineSizeInBytes;
+                        long lineStartPos = headerOffset + sourceY * numBands * lineSizeInBytes + bandIndex * lineSizeInBytes;
                         imageInputStream.seek(lineStartPos + elemSize * sourceMinX);
                         destBuffer.readFrom(destPos, destWidth, imageInputStream);
                         destPos += destWidth;
                     }
                     pm.worked(1);
                 }
-            } else if (interleave.equalsIgnoreCase("bip")) {
-                // band interleaved by pixel
-                throw new UnsupportedOperationException("BIP not supported");
-            } else {
+            } finally {
+                pm.done();
+            }
+        } else if ("bip".equalsIgnoreCase(interleave)) {
+            // band interleaved by pixel
+            int numBands = product.getNumBands();
+            final long lineSizeInBytes = header.getNumSamples() * numBands * elemSize;
+            ProductData lineData = ProductData.createInstance(destBuffer.getType(), sourceWidth * numBands);
 
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            try {
+                int destPos = 0;
                 for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final long sourcePosY = sourceY * sourceRasterWidth;
                     synchronized (imageInputStream) {
-                        if (sourceStepX == 1) {
-                            imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceMinX));
-                            destBuffer.readFrom(destPos, destWidth, imageInputStream);
-                            destPos += destWidth;
-                        } else {
-                            for (int sourceX = sourceMinX; sourceX <= sourceMaxX; sourceX += sourceStepX) {
-                                imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceX));
-                                destBuffer.readFrom(destPos, 1, imageInputStream);
-                                destPos++;
-                            }
-                        }
+                        long lineStartPos = headerOffset + sourceY * lineSizeInBytes;
+                        imageInputStream.seek(lineStartPos + elemSize * sourceMinX * numBands);
+                        lineData.readFrom(0, sourceWidth * numBands, imageInputStream);
+                    }
+                    for (int x = 0; x < sourceWidth; x++) {
+                        destBuffer.setElemDoubleAt(destPos++, lineData.getElemDoubleAt(x * numBands + bandIndex));
                     }
                     pm.worked(1);
                 }
+            } finally {
+                pm.done();
             }
-        } finally {
-            pm.done();
+        } else {
+            // band sequential (bsq), the default
+            final long bandStartPosition = bandStreamPositionMap.get(destBand);
+
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            try {
+                int destPos = 0;
+                for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+                    final long sourcePosY = (long)sourceY * (long)sourceRasterWidth;
+                    synchronized (imageInputStream) {
+                        long pos = bandStartPosition + elemSize * (sourcePosY + sourceMinX);
+                        try {
+                            imageInputStream.seek(pos);
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.printf("pos=%d%n", pos);
+                            throw e;
+                        }
+                        destBuffer.readFrom(destPos, destWidth, imageInputStream);
+                        destPos += destWidth;
+                    }
+                    pm.worked(1);
+                }
+            } finally {
+                pm.done();
+            }
         }
     }
 
@@ -218,16 +236,16 @@ public class EnviProductReader extends AbstractProductReader {
         try {
             final File headerFile = EnviProductReaderPlugIn.getInputFile(getInput());
             File parentDir = headerFile.getParentFile();
-            final TreeNode<File> root = new TreeNode<File>(parentDir.getCanonicalPath());
+            final TreeNode<File> root = new TreeNode<>(parentDir.getCanonicalPath());
             root.setContent(parentDir);
 
-            final TreeNode<File> header = new TreeNode<File>(headerFile.getName());
+            final TreeNode<File> header = new TreeNode<>(headerFile.getName());
             header.setContent(headerFile);
             root.addChild(header);
 
             if (productZip == null) {
                 final File imageFile = getEnviImageFile(headerFile);
-                final TreeNode<File> image = new TreeNode<File>(imageFile.getName());
+                final TreeNode<File> image = new TreeNode<>(imageFile.getName());
                 image.setContent(imageFile);
                 root.addChild(image);
             }
@@ -250,7 +268,7 @@ public class EnviProductReader extends AbstractProductReader {
         return imageInputStream;
     }
 
-    public static void applyBeamProperties(Product product, BeamProperties beamProperties) throws IOException {
+    protected static void applyBeamProperties(Product product, BeamProperties beamProperties) throws IOException {
         if (beamProperties == null) {
             return;
         }
@@ -316,14 +334,10 @@ public class EnviProductReader extends AbstractProductReader {
 
     private static ImageInputStream createImageStreamFromFile(final File file) throws IOException {
         final File imageFile = getEnviImageFile(file);
-
-        if (!imageFile.exists()) {
-            throw new FileNotFoundException("file not found: <" + imageFile + ">");
-        }
         return new FileImageInputStream(imageFile);
     }
 
-    public static void initGeoCoding(final Product product, final Header header) {
+    protected void initGeoCoding(final Product product, final Header header) {
         final EnviMapInfo enviMapInfo = header.getMapInfo();
         if (enviMapInfo == null) {
             return;
@@ -354,7 +368,6 @@ public class EnviProductReader extends AbstractProductReader {
                         crs = factory.createProjectedCRS("EPSG:" + (WGS84_UTM_zone_S_BASE + zone));
                     }
                 }
-            } catch (NoSuchAuthorityCodeException ignore) {
             } catch (FactoryException ignore) {
             }
         }
@@ -371,12 +384,11 @@ public class EnviProductReader extends AbstractProductReader {
                 GeoCoding geoCoding = new CrsGeoCoding(crs, rect, i2m);
 
                 product.setGeoCoding(geoCoding);
-            } catch (FactoryException fe) {
+            } catch (FactoryException | TransformException fe) {
                 Debug.trace(fe);
-            } catch (TransformException te) {
-                Debug.trace(te);
             }
         }
+
     }
 
     /*
@@ -389,7 +401,7 @@ public class EnviProductReader extends AbstractProductReader {
      *
      * @throws IOException on disk IO failures
      */
-    public static BufferedReader getHeaderReader(File inputFile) throws IOException {
+    protected BufferedReader getHeaderReader(File inputFile) throws IOException {
         if (EnviProductReaderPlugIn.isCompressedFile(inputFile)) {
             ZipFile zipFile;
             ZipEntry zipEntry;
@@ -424,18 +436,23 @@ public class EnviProductReader extends AbstractProductReader {
         return null;
     }
 
-    public void initBands(File inputFile, Product product, Header header) throws IOException {
+    protected void initBands(File inputFile, Product product, Header header) throws IOException {
         final int enviDataType = header.getDataType();
         final int dataType = DataTypeUtils.toBeam(enviDataType);
+        Double dataIgnoreValue = header.getDataIgnoreValue();
+
         final int sizeInBytes = DataTypeUtils.getSizeInBytes(enviDataType);
         final int bandSizeInBytes = header.getNumSamples() * header.getNumLines() * sizeInBytes;
-
         final int headerOffset = header.getHeaderOffset();
 
         final String[] bandNames = getBandNames(header);
+        float[] wavelength = getWavelength(header, bandNames.length);
+        float[] bandwidth = getBandwidth(header, bandNames.length);
+        double[] offsets = getOffsetValues(bandNames.length, header);
+        final double[] gains = getGainValues(bandNames.length, header);
         for (int i = 0; i < bandNames.length; i++) {
             final String originalBandName = bandNames[i];
-            String validBandName;
+            final String validBandName;
             final String description;
             if (ProductNode.isValidNodeName(originalBandName)) {
                 validBandName = originalBandName;
@@ -444,23 +461,18 @@ public class EnviProductReader extends AbstractProductReader {
                 validBandName = createValidNodeName(originalBandName);
                 description = "non formatted band name: " + originalBandName;
             }
-            validBandName = formatBandName(validBandName);
-
             final Band band = new Band(validBandName,
                                        dataType,
                                        product.getSceneRasterWidth(),
                                        product.getSceneRasterHeight());
             band.setDescription(description);
-
-            final String name = validBandName.toLowerCase();
-            if(name.contains("real")) {
-                band.setUnit("real");
-            } else if(name.contains("imag") && !name.contains("image") && !name.contains("imagary")) {
-                band.setUnit("imaginary");
-            } else if(name.contains("phase")) {
-                band.setUnit("phase");
-            } else {
-                band.setUnit("amplitude");
+            band.setSpectralWavelength(wavelength[i]);
+            band.setSpectralBandwidth(bandwidth[i]);
+            band.setScalingOffset(offsets[i]);
+            band.setScalingFactor(gains[i]);
+            if (dataIgnoreValue != null) {
+                band.setNoDataValueUsed(true);
+                band.setNoDataValue(dataIgnoreValue);
             }
             product.addBand(band);
 
@@ -469,12 +481,62 @@ public class EnviProductReader extends AbstractProductReader {
             imageInputStreamMap.put(band, initializeInputStreamForBandData(inputFile, header.getJavaByteOrder()));
             headerMap.put(band, header);
         }
+
+        int numClasses = header.getNumClasses();
+        String[] classNames = header.getClassNmaes();
+        if (numClasses > 0 && classNames.length == numClasses) {
+            final IndexCoding indexCoding = new IndexCoding("classification");
+            for (int i = 0; i < numClasses; i++) {
+                indexCoding.addIndex(classNames[i], i, "");
+            }
+            product.getIndexCodingGroup().add(indexCoding);
+            Band[] bands = product.getBands();
+            for (Band band : bands) {
+                band.setSampleCoding(indexCoding);
+            }
+
+            int[] classRGB = header.getClassColorRGB();
+            if (classRGB.length == numClasses * 3) {
+                final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numClasses];
+                for (int i = 0; i < numClasses; i++) {
+                    Color color = new Color(classRGB[i*3], classRGB[i*3 + 1], classRGB[i*3 + 2]);
+                    points[i] = new ColorPaletteDef.Point(i, color, classNames[i]);
+                }
+                ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(points, points.length));
+                for (Band band : bands) {
+                    band.setImageInfo(imageInfo);
+                }
+            }
+        }
     }
 
-    protected static String[] getBandNames(final Header header) {
+    private double[] getOffsetValues(final int numBands, final Header header) {
+        double[] dataOffsetValues = header.getDataOffsetValues();
+        if (dataOffsetValues.length == 0) {
+            dataOffsetValues = new double[numBands];
+            Arrays.fill(dataOffsetValues, 0.0);
+            return dataOffsetValues;
+
+        } else {
+            return dataOffsetValues;
+        }
+    }
+
+    private double[] getGainValues(final int numBands, final Header header) {
+        double[] dataGainValues = header.getDataGainValues();
+        if (dataGainValues.length == 0) {
+            dataGainValues = new double[numBands];
+            Arrays.fill(dataGainValues, 1.0);
+            return dataGainValues;
+        } else {
+            return dataGainValues;
+        }
+    }
+
+    static String[] getBandNames(final Header header) {
         String[] bandNames = header.getBandNames();
         // there must be at least 1 bandname because in DIMAP-Files are no bandnames given.
-        if (bandNames == null || bandNames.length == 0) {
+        if (bandNames.length == 0) {
             int numBands = header.getNumBands();
             if (numBands == 0) {
                 return new String[]{"Band"};
@@ -490,15 +552,21 @@ public class EnviProductReader extends AbstractProductReader {
         }
     }
 
-    private static float[] getWavelength(Header header, String[] bandNames) {
-        float[] wavelengths = new float[bandNames.length];
-        String[] wavelengthsStrings = header.getWavelengths();
-        String wavelengthsUnit = header.getWavelengthsUnit();
+    private float[] getWavelength(Header header, int numBands) {
+        return transformWavelength(header.getWavelengths(), header.getWavelengthsUnit(), numBands);
+    }
+
+    private float[] getBandwidth(Header header, int numBands) {
+        return transformWavelength(header.getFWHM(), header.getWavelengthsUnit(), numBands);
+    }
+
+    private float[] transformWavelength(String[] wavelengthsStrings, String wavelengthsUnit, int numBands) {
+        float[] wavelengths = new float[numBands];
         int scaleFactor = 1;
         if (wavelengthsUnit != null && wavelengthsUnit.equalsIgnoreCase("Micrometers")) {
             scaleFactor = 1000;
         }
-        if (wavelengthsStrings != null && wavelengthsStrings.length == bandNames.length) {
+        if (wavelengthsStrings != null && wavelengthsStrings.length == numBands) {
             for (int i = 0; i < wavelengthsStrings.length; i++) {
                 wavelengths[i] = Float.parseFloat(wavelengthsStrings[i]) * scaleFactor;
             }
@@ -514,12 +582,6 @@ public class EnviProductReader extends AbstractProductReader {
         while (name.endsWith("_")) {
             name = name.substring(0, name.length() - 1);
         }
-        return name;
-    }
-
-    private static String formatBandName(String name) {
-        if(name.endsWith(".bin"))
-            name = name.substring(0, name.lastIndexOf(".bin"));
         return name;
     }
 }

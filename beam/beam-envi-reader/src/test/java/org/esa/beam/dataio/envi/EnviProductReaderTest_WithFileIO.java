@@ -1,29 +1,35 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
+import org.esa.beam.util.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-public class EnviProductReaderTest_WithFileIO extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class EnviProductReaderTest_WithFileIO {
 
     private File tempDir;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         final String ioTempDir = System.getProperty("java.io.tmpdir");
         tempDir = new File(ioTempDir, "tempEnviProductReaderTest");
         if (tempDir.exists()) {
-            TestUtils.deleteFileTree(tempDir);
+            FileUtils.deleteTree(tempDir);
         }
         assertEquals(true, tempDir.mkdir());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        TestUtils.deleteFileTree(tempDir);
+    @After
+    public void tearDown() throws Exception {
+        FileUtils.deleteTree(tempDir);
     }
 
+    @Test
     public void testCreateEnviImageFile() throws IOException {
         doTest("envifile.hdr", "envifile.img");
         doTest("envifile.img.hdr", "envifile.img");
@@ -51,7 +57,7 @@ public class EnviProductReaderTest_WithFileIO extends TestCase {
         final File imgFile = new File(tempDir, imgFilename);
         assertEquals(true, imgFile.createNewFile());
 
-        assertEquals(imgFile, EnviProductReader.getEnviImageFile(hdrFile));
+        assertEquals(imgFile.getCanonicalFile(), EnviProductReader.getEnviImageFile(hdrFile).getCanonicalFile());
         // cleanup
         imgFile.delete();
         hdrFile.delete();
