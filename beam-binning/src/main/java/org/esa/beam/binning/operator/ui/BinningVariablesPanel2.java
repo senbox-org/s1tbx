@@ -18,7 +18,7 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.Grid;
-import com.bc.ceres.swing.GridControlBar;
+import com.bc.ceres.swing.ListControlBar;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.framework.datamodel.Product;
@@ -45,7 +45,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
 
 /**
  * The panel in the binning operator UI which allows for specifying the configuration of binning variables.
@@ -230,7 +229,7 @@ class BinningVariablesPanel2 extends JPanel {
         return null;
     }
 
-    private  JPanel createVariablePanel() {
+    private JPanel createVariablePanel() {
         Grid grid = new Grid(4, true);
         grid.getLayout().setTablePadding(2, 1);
         grid.getLayout().setColumnFill(2, TableLayout.Fill.HORIZONTAL);
@@ -238,41 +237,49 @@ class BinningVariablesPanel2 extends JPanel {
         grid.setHeaderRow(/*1*/ new JLabel("Name"),
                           /*2*/ new JLabel("Expression"),
                           /*3*/ null);
-        GridControlBar gridControlBar = new GridControlBar(GridControlBar.HORIZONTAL, grid, new VariableController());
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new VariableController(grid));
 
         JScrollPane scrollPane = new JScrollPane(grid);
         scrollPane.setBorder(null);
 
-        JPanel panel = new JPanel(new BorderLayout(2,2));
+        JPanel panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(new TitledBorder("Extra Source Bands (optional)"));
         panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
 
-    private static class VariableController implements GridControlBar.Controller {
+    private static class VariableController implements ListControlBar.ListController {
+
+        final Grid grid;
+
+        private VariableController(Grid grid) {
+            this.grid = grid;
+        }
 
         @Override
-        public JComponent[] newDataRow(final GridControlBar gridControlBar) {
-            return new JComponent[]{
-                    /*1*/ new JTextField(10),
-                    /*2*/ new JTextField(24),
-                    /*3*/ new JButton("...")
+        public boolean addRow(int index) {
+            JComponent[] components = {
+                                /*1*/ new JTextField(10),
+                                /*2*/ new JTextField(24),
+                                /*3*/ new JButton("...")
             };
-        }
-
-        @Override
-        public boolean removeDataRows(GridControlBar gridControlBar, List<Integer> selectedIndexes) {
+            grid.addDataRow(components);
             return true;
         }
 
         @Override
-        public boolean moveDataRowUp(GridControlBar gridControlBar, int selectedIndex) {
+        public boolean removeRows(int[] indices) {
             return true;
         }
 
         @Override
-        public boolean moveDataRowDown(GridControlBar gridControlBar, int selectedIndex) {
+        public boolean moveRowUp(int index) {
+            return true;
+        }
+
+        @Override
+        public boolean moveRowDown(int index) {
             return true;
         }
     }
@@ -289,48 +296,56 @@ class BinningVariablesPanel2 extends JPanel {
                           /*3*/ new JLabel("Aggregator"),
                           /*4*/ new JLabel("Parameters"),
                           /*5*/ null);
-        GridControlBar gridControlBar = new GridControlBar(GridControlBar.HORIZONTAL, grid, new AggregatorController());
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorController(grid));
 
         JScrollPane scrollPane = new JScrollPane(grid);
         scrollPane.setBorder(null);
 
-        JPanel panel = new JPanel(new BorderLayout(2,2));
+        JPanel panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(new TitledBorder("Target Bands"));
         panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
 
-    private static class AggregatorController implements GridControlBar.Controller {
+    private static class AggregatorController implements ListControlBar.ListController {
 
         final static String[] sourceValueSet = {"Ene", "Mene", "Muh"};
         final static String[] aggregatorValueSet = {"AVG", "ON_MAX_SET", "MIN_MAX"};
 
+        final Grid grid;
+
+        private AggregatorController(Grid grid) {
+            this.grid = grid;
+        }
+
         @Override
-        public JComponent[] newDataRow(final GridControlBar gridControlBar) {
+        public boolean addRow(int index) {
             JComboBox<String> sourceComboBox = new JComboBox<>(sourceValueSet);
             JComboBox<String> aggregatorComboBox = new JComboBox<>(aggregatorValueSet);
-            return new JComponent[]{
-                    /*1*/ new JTextField(8),
-                    /*2*/ sourceComboBox,
-                    /*3*/ aggregatorComboBox,
-                    /*4*/ new JTextField(24),
-                    /*5*/ new JButton("...")
+            JComponent[] components = {
+                                /*1*/ new JTextField(8),
+                                /*2*/ sourceComboBox,
+                                /*3*/ aggregatorComboBox,
+                                /*4*/ new JTextField(24),
+                                /*5*/ new JButton("...")
             };
-        }
-
-        @Override
-        public boolean removeDataRows(GridControlBar gridControlBar, List<Integer> selectedIndexes) {
+            grid.addDataRow(components);
             return true;
         }
 
         @Override
-        public boolean moveDataRowUp(GridControlBar gridControlBar, int selectedIndex) {
+        public boolean removeRows(int[] indices) {
             return true;
         }
 
         @Override
-        public boolean moveDataRowDown(GridControlBar gridControlBar, int selectedIndex) {
+        public boolean moveRowUp(int index) {
+            return true;
+        }
+
+        @Override
+        public boolean moveRowDown(int index) {
             return true;
         }
     }
