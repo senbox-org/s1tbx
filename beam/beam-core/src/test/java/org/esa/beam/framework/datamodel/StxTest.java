@@ -31,29 +31,29 @@ public class StxTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorMinIsNan() throws Exception {
-        new Stx(Double.NaN, 1.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, new Histogram(256, -1, 1, 1), 0);
+        new Stx(Double.NaN, 1.0, Double.NaN, Double.NaN, false, false, new Histogram(256, -1, 1, 1), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorMaxIsNan() throws Exception {
-        new Stx(0.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, new Histogram(256, -1, 1, 1), 0);
+        new Stx(0.0, Double.NaN, Double.NaN, Double.NaN, false, false, new Histogram(256, -1, 1, 1), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorResolutionLevelIsInvalid() throws Exception {
-        new Stx(0.0, 1.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, new Histogram(256, -1, 1, 1), -2);
+        new Stx(0.0, 1.0, Double.NaN, Double.NaN, false, false, new Histogram(256, -1, 1, 1), -2);
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructorHistogramIsNull() throws Exception {
-        new Stx(0.0, 1.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, (Histogram) null, 0);
+        new Stx(0.0, 1.0, Double.NaN, Double.NaN, false, false, (Histogram) null, 0);
     }
 
     @Test
     public void testConstructor() throws Exception {
         final Histogram histogram = new Histogram(256, -1, 1, 1);
 
-        final Stx stx = new Stx(-1.0, 1.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, histogram, 0);
+        final Stx stx = new Stx(-1.0, 1.0, Double.NaN, Double.NaN, false, false, histogram, 0);
 
         assertEquals(-1.0, stx.getMinimum(), 1E-10);
         assertEquals(1.0, stx.getMaximum(), 1E-10);

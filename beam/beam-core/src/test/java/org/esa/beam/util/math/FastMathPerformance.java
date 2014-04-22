@@ -18,8 +18,8 @@ package org.esa.beam.util.math;
 
 import org.apache.commons.math3.util.FastMath;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +30,11 @@ import java.util.Locale;
  * Not enabled by default, as the class does not end in Test.
  * <p/>
  * Invoke by running<br/>
- * {@code mvn test -Dtest=FastMathTestPerformance}<br/>
+ * {@code mvn test -Dtest=org.esa.beam.util.math.FastMathPerformance}<br/>
  * or by running<br/>
- * {@code mvn test -Dtest=FastMathTestPerformance -DargLine="-DtestRuns=1234 -server"}<br/>
+ * {@code mvn test -Dtest=org.esa.beam.util.math.FastMathPerformance -DargLine="-DtestRuns=1234 -server"}<br/>
  */
+
 public class FastMathPerformance {
     private static final int RUNS = Integer.parseInt(System.getProperty("testRuns", "10000000"));
     private static final double F1 = 1d / RUNS;
@@ -73,6 +74,7 @@ public class FastMathPerformance {
     }
 
     @Test
+    @Ignore
     public void test() {
         for (int i = 0; i < 10; ++i) {
             testLog();
