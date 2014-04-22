@@ -48,12 +48,26 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
         removeThermalNoiseCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 removeThermalNoise = (e.getStateChange() == ItemEvent.SELECTED);
+                if (removeThermalNoise) {
+                    reIntroduceThermalNoise = false;
+                    reIntroduceThermalNoiseCheckBox.setSelected(false);
+                } else {
+                    reIntroduceThermalNoise = true;
+                    reIntroduceThermalNoiseCheckBox.setSelected(true);
+                }
             }
         });
 
         reIntroduceThermalNoiseCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 reIntroduceThermalNoise = (e.getStateChange() == ItemEvent.SELECTED);
+                if (reIntroduceThermalNoise) {
+                    removeThermalNoise = false;
+                    removeThermalNoiseCheckBox.setSelected(false);
+                } else {
+                    removeThermalNoise = true;
+                    removeThermalNoiseCheckBox.setSelected(true);
+                }
             }
         });
 
