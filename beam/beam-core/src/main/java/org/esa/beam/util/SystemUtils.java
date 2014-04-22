@@ -16,7 +16,6 @@
 package org.esa.beam.util;
 
 import com.bc.ceres.core.runtime.RuntimeContext;
-import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
@@ -30,12 +29,16 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -128,22 +131,6 @@ public class SystemUtils {
      * @return the current working directory, never <code>null</code>
      */
     public static File getUserHomeDir() {
-        final File home = getBeamHomeDir();
-        if(home.exists()) {
-            try {
-                final String context = getApplicationContextId();
-                final Properties config = loadConfig(new File(home, "config/"+context+".config"));
-                final String appTmpFolderStr = config.getProperty(context+".application_tmp_folder");
-                if(appTmpFolderStr != null) {
-                    final File appTmpFolder = new File(appTmpFolderStr);
-                    if(!appTmpFolder.exists())
-                        appTmpFolder.mkdirs();
-                    return appTmpFolder;
-                }
-            } catch(Exception e) {
-                //
-            }
-        }
         return new File(System.getProperty("user.home", "."));
     }
 
@@ -231,12 +218,6 @@ public class SystemUtils {
      */
     public static File getCurrentWorkingDir() {
         return new File(System.getProperty("user.dir", "."));
-    }
-
-    private static Properties loadConfig(final File config) throws IOException {
-        final Properties configProp = new Properties();
-        configProp.load(new FileInputStream(config));
-        return configProp;
     }
 
     /**
