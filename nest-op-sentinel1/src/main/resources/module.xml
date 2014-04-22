@@ -48,7 +48,7 @@
             <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
             <id>RemoveThermalNoiseOp</id>
             <helpId>RemoveThermalNoiseOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -58,7 +58,7 @@
             <dialogTitle>Remove Thermal Noise operator</dialogTitle>
             <shortDescr>Remove thermal noise from product</shortDescr>
             <targetProductNameSuffix>_thermal_noise_corrected</targetProductNameSuffix>
-        </action>
+        </action-->
 
         <!--action>
             <id>MergeSlices</id>
