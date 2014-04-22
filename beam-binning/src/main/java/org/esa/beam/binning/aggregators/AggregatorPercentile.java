@@ -125,12 +125,7 @@ public class AggregatorPercentile extends AbstractAggregator {
 
     @Override
     public void computeOutput(Vector temporalVector, WritableVector outputVector) {
-        float value = temporalVector.get(0);
-        if (!Float.isNaN(value)) {
-            outputVector.set(0, value);
-        } else {
-            outputVector.set(0, Float.NaN);
-        }
+        outputVector.set(0, temporalVector.get(0));
     }
 
     @Override
