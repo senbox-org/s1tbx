@@ -10,8 +10,8 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.nest.dataio.FileImageOutputStreamExtImpl;
 
+import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.io.*;
 import java.util.HashMap;
@@ -228,7 +228,7 @@ public class EnviProductWriter extends AbstractProductWriter {
     }
 
     protected ImageOutputStream createImageOutputStream(Band band) throws IOException {
-        return new FileImageOutputStreamExtImpl(getValidImageFile(band));
+        return new FileImageOutputStream(getValidImageFile(band));
     }
 
     private static long getImageFileSize(RasterDataNode band) {

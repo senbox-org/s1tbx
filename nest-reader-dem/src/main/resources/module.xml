@@ -16,6 +16,9 @@
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
+	<dependency>
+        <module>nest-io</module>
+    </dependency>
     <dependency>
         <module>beam-geotiff</module>
     </dependency>
