@@ -4,12 +4,11 @@ import org.junit.Test;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import java.util.Arrays;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 public class GridTest {
     @Test
@@ -23,7 +22,7 @@ public class GridTest {
 
         assertEquals(false, grid.isRowSelected(0));
         assertEquals(0, grid.getSelectedDataRowCount());
-        assertTrue(grid.getSelectedDataRowIndexes().isEmpty());
+        assertArrayEquals(asArray(), grid.getSelectedDataRowIndexes());
     }
 
     @Test
@@ -127,7 +126,7 @@ public class GridTest {
         grid.addDataRow(c4, c5, c6);
         grid.addDataRow(new JLabel(), new JLabel(), new JLabel());
 
-        grid.removeDataRows(Arrays.asList(2, 4));
+        grid.removeDataRows(asArray(2, 4));
 
         assertEquals(2, grid.getDataRowCount());
         assertEquals(3, grid.getRowCount());
@@ -148,7 +147,7 @@ public class GridTest {
         Grid grid = new Grid(4, true);
 
         MySelectionListener listener = new MySelectionListener();
-        grid.addSelectionListener(listener);
+        grid.getSelectionModel().addListener(listener);
 
         grid.addDataRow(new JLabel(), new JLabel(), new JLabel());
         grid.addDataRow(new JLabel(), new JLabel(), new JLabel());
@@ -156,22 +155,22 @@ public class GridTest {
 
         assertEquals(0, grid.getSelectedDataRowCount());
         assertEquals(-1, grid.getSelectedDataRowIndex());
-        assertTrue(grid.getSelectedDataRowIndexes().isEmpty());
+        assertArrayEquals(asArray(), grid.getSelectedDataRowIndexes());
 
-        ((JCheckBox) grid.getComponent(2, 0)).setSelected(true);
+        ((JCheckBox) grid.getComponent(2, 0)).doClick();
 
         assertEquals(1, grid.getSelectedDataRowCount());
         assertEquals(2, grid.getSelectedDataRowIndex());
-        assertEquals(Arrays.asList(2), grid.getSelectedDataRowIndexes());
+        assertArrayEquals(asArray(2), grid.getSelectedDataRowIndexes());
 
-        ((JCheckBox) grid.getComponent(1, 0)).setSelected(true);
-        ((JCheckBox) grid.getComponent(3, 0)).setSelected(true);
+        ((JCheckBox) grid.getComponent(1, 0)).doClick();
+        ((JCheckBox) grid.getComponent(3, 0)).doClick();
 
         assertEquals(3, grid.getSelectedDataRowCount());
         assertEquals(1, grid.getSelectedDataRowIndex());
-        assertEquals(Arrays.asList(1, 2, 3), grid.getSelectedDataRowIndexes());
+        assertArrayEquals(asArray(1, 2, 3), grid.getSelectedDataRowIndexes());
 
-        assertEquals(0, listener.count);
+        assertEquals(3, listener.count);
     }
 
     @Test
@@ -179,7 +178,7 @@ public class GridTest {
         Grid grid = new Grid(4, true);
 
         MySelectionListener listener = new MySelectionListener();
-        grid.addSelectionListener(listener);
+        grid.getSelectionModel().addListener(listener);
 
         grid.addDataRow(new JLabel(), new JLabel(), new JLabel());
         grid.addDataRow(new JLabel(), new JLabel(), new JLabel());
@@ -187,28 +186,32 @@ public class GridTest {
 
         assertEquals(0, grid.getSelectedDataRowCount());
         assertEquals(-1, grid.getSelectedDataRowIndex());
-        assertTrue(grid.getSelectedDataRowIndexes().isEmpty());
+        assertArrayEquals(asArray(), grid.getSelectedDataRowIndexes());
 
-        grid.setSelectedDataRowIndexes(Arrays.asList(2));
+        grid.setSelectedDataRowIndexes(2);
 
         assertEquals(1, grid.getSelectedDataRowCount());
         assertEquals(2, grid.getSelectedDataRowIndex());
-        assertEquals(Arrays.asList(2), grid.getSelectedDataRowIndexes());
+        assertArrayEquals(asArray(2), grid.getSelectedDataRowIndexes());
 
-        grid.setSelectedDataRowIndexes(Arrays.asList(1, 2, 3));
+        grid.setSelectedDataRowIndexes(1, 2, 3);
 
         assertEquals(3, grid.getSelectedDataRowCount());
         assertEquals(1, grid.getSelectedDataRowIndex());
-        assertEquals(Arrays.asList(1, 2, 3), grid.getSelectedDataRowIndexes());
+        assertArrayEquals(asArray(1, 2, 3), grid.getSelectedDataRowIndexes());
 
         assertEquals(2, listener.count);
     }
 
-    private static class MySelectionListener implements Grid.SelectionListener {
+   static  int [] asArray(int ... array) {
+        return array;
+    }
+
+    private static class MySelectionListener implements GridSelectionModel.Listener {
         int count;
 
         @Override
-        public void selectionStateChanged(Grid grid) {
+        public void gridSelectionChanged(GridSelectionModel.Event event) {
             count++;
         }
     }

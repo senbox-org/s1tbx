@@ -80,6 +80,12 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
         return listControlBar;
     }
 
+    public static ListControlBar create(int orientation, Grid grid, ListController listController, String... actionIds) {
+        ListControlBar listControlBar = new ListControlBar(orientation, actionIds);
+        listControlBar.setListModelAdapter(new GridAdapter(listControlBar, grid, listController));
+        return listControlBar;
+    }
+
     public Action getAction(String actionId) {
         return actionMap.get(actionId);
     }
@@ -326,21 +332,21 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
             listControlBar.updateState();
         }
 
-        private void installModelListener(ListModel oldListModel, ListModel newListModel) {
-            if (oldListModel != null) {
-                oldListModel.removeListDataListener(this);
+        private void installModelListener(ListModel oldModel, ListModel newModel) {
+            if (oldModel != null) {
+                oldModel.removeListDataListener(this);
             }
-            if (newListModel != null) {
-                newListModel.addListDataListener(this);
+            if (newModel != null) {
+                newModel.addListDataListener(this);
             }
         }
 
         private class ModelChangeListener implements PropertyChangeListener {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                ListModel oldListModel = (ListModel) evt.getOldValue();
-                ListModel newListModel = (ListModel) evt.getNewValue();
-                installModelListener(oldListModel, newListModel);
+                ListModel oldModel = (ListModel) evt.getOldValue();
+                ListModel newModel = (ListModel) evt.getNewValue();
+                installModelListener(oldModel, newModel);
             }
         }
     }
@@ -389,42 +395,96 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
             listControlBar.updateState();
         }
 
-        private void installModelListener(TableModel oldTableModel, TableModel newTableModel) {
-            if (oldTableModel != null) {
-                oldTableModel.removeTableModelListener(this);
+        private void installModelListener(TableModel oldModel, TableModel newModel) {
+            if (oldModel != null) {
+                oldModel.removeTableModelListener(this);
             }
-            if (newTableModel != null) {
-                newTableModel.addTableModelListener(this);
+            if (newModel != null) {
+                newModel.addTableModelListener(this);
             }
         }
 
-        private void installSelectionModelListener(ListSelectionModel oldTableModel, ListSelectionModel newTableModel) {
-            if (oldTableModel != null) {
-                oldTableModel.removeListSelectionListener(this);
+        private void installSelectionModelListener(ListSelectionModel oldModel, ListSelectionModel newModel) {
+            if (oldModel != null) {
+                oldModel.removeListSelectionListener(this);
             }
-            if (newTableModel != null) {
-                newTableModel.addListSelectionListener(this);
+            if (newModel != null) {
+                newModel.addListSelectionListener(this);
             }
         }
 
         private class ModelChangeListener implements PropertyChangeListener {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                TableModel oldTableModel = (TableModel) evt.getOldValue();
-                TableModel newTableModel = (TableModel) evt.getNewValue();
-                installModelListener(oldTableModel, newTableModel);
+                TableModel oldModel = (TableModel) evt.getOldValue();
+                TableModel newModel = (TableModel) evt.getNewValue();
+                installModelListener(oldModel, newModel);
             }
         }
 
         private class SelectionModelChangeListener implements PropertyChangeListener {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                ListSelectionModel oldTableModel = (ListSelectionModel) evt.getOldValue();
-                ListSelectionModel newTableModel = (ListSelectionModel) evt.getNewValue();
-                installSelectionModelListener(oldTableModel, newTableModel);
+                ListSelectionModel oldModel = (ListSelectionModel) evt.getOldValue();
+                ListSelectionModel newModel = (ListSelectionModel) evt.getNewValue();
+                installSelectionModelListener(oldModel, newModel);
+            }
+        }
+    }
+
+    private static class GridAdapter extends AbstractListModelAdapter implements GridSelectionModel.Listener {
+        private final ListControlBar listControlBar;
+        private final Grid grid;
+
+        public GridAdapter(ListControlBar listControlBar, Grid grid, ListController listController) {
+            super(listController);
+            this.listControlBar = listControlBar;
+            this.grid = grid;
+            installSelectionModelListener(null, grid.getSelectionModel());
+            this.grid.addPropertyChangeListener("selectionModel", new SelectionModelChangeListener());
+        }
+
+        @Override
+        public int getRowCount() {
+            return grid.getDataRowCount();
+        }
+
+        @Override
+        public int getMinSelectedRowIndex() {
+            return grid.getSelectionModel().getMinSelectedRowIndex();
+        }
+
+        @Override
+        public int getMaxSelectedRowIndex() {
+            return grid.getSelectionModel().getMinSelectedRowIndex();
+        }
+
+        @Override
+        public int[] getSelectedRowIndices() {
+            return grid.getSelectionModel().getSelectedRowIndices();
+        }
+
+        @Override
+        public void gridSelectionChanged(GridSelectionModel.Event event) {
+            listControlBar.updateState();
+        }
+
+        private void installSelectionModelListener(GridSelectionModel oldModel, GridSelectionModel newModel) {
+            if (oldModel != null) {
+                oldModel.removeListener(this);
+            }
+            if (newModel != null) {
+                newModel.addListener(this);
             }
         }
 
+        private class SelectionModelChangeListener implements PropertyChangeListener {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                GridSelectionModel oldModel = (GridSelectionModel) evt.getOldValue();
+                GridSelectionModel newModel = (GridSelectionModel) evt.getNewValue();
+                installSelectionModelListener(oldModel, newModel);
+            }
+        }
     }
-
 }

@@ -17,18 +17,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-public class Grid extends JPanel {
+public class Grid extends JPanel implements GridSelectionModel.Listener {
 
-    public interface SelectionListener {
-        void selectionStateChanged(Grid grid);
-    }
-
-    private final boolean showSelectionColumn;
     private final List<List<JComponent>> componentRows;
-    private final List<SelectionListener> selectionListeners;
-    private int dataRowSelectorStateChangeCount;
-    private JPanel filler;
+    private final JPanel filler;
+    private GridSelectionModel selectionModel;
+    private boolean showSelectionColumn;
 
     public Grid(int columnCount, boolean showSelectionColumn) {
         this(new TableLayout(columnCount), showSelectionColumn);
@@ -39,8 +37,8 @@ public class Grid extends JPanel {
         this.showSelectionColumn = showSelectionColumn;
         this.componentRows = new ArrayList<>();
         this.componentRows.add(new ArrayList<>(Arrays.asList(new JComponent[tableLayout.getColumnCount()])));
-        this.selectionListeners = new ArrayList<>();
-
+        this.selectionModel = new DefaultGridSelectionModel();
+        this.selectionModel.addListener(this);
         filler = new JPanel();
         addFiller();
     }
@@ -67,6 +65,50 @@ public class Grid extends JPanel {
         }
         super.setLayout(tableLayout);
     }
+
+    public GridSelectionModel getSelectionModel() {
+        return selectionModel;
+    }
+
+    public void setSelectionModel(GridSelectionModel selectionModel) {
+        GridSelectionModel oldSelectionModel = this.selectionModel;
+        if (oldSelectionModel != selectionModel) {
+            if (oldSelectionModel != null) {
+                oldSelectionModel.removeListener(this);
+            }
+            this.selectionModel = selectionModel;
+            if (this.selectionModel != null) {
+                this.selectionModel.addListener(this);
+            }
+            firePropertyChange("selectionModel", oldSelectionModel, this.selectionModel);
+        }
+    }
+
+    public boolean getShowSelectionColumn() {
+        return showSelectionColumn;
+    }
+
+    public void setShowSelectionColumn(boolean showSelectionColumn) {
+        boolean oldShowSelectionColumn = this.showSelectionColumn;
+        if (oldShowSelectionColumn != showSelectionColumn) {
+            this.showSelectionColumn = showSelectionColumn;
+            for (List<JComponent> componentRow : componentRows) {
+                JComponent component = componentRow.get(0);
+                if (component != null) {
+                    component.setVisible(this.showSelectionColumn);
+                }
+            }
+            fireComponentsChanged();
+            firePropertyChange("showSelectionColumn", oldShowSelectionColumn, showSelectionColumn);
+        }
+    }
+
+    @Override
+    public void gridSelectionChanged(GridSelectionModel.Event event) {
+        adjustHeaderRowSelector();
+        adjustDataRowSelectors();
+    }
+
 
     public int getColumnCount() {
         return getLayout().getColumnCount();
@@ -101,20 +143,17 @@ public class Grid extends JPanel {
     public void setHeaderRow(JComponent... components) {
         checkColumnCount(components);
         List<JComponent> headerRow = new ArrayList<>(components.length + 1);
-        if (showSelectionColumn) {
             JCheckBox headerRowSelector = createHeaderRowSelector();
             if (headerRowSelector != null) {
+                headerRowSelector.setVisible(showSelectionColumn);
                 headerRowSelector.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        onHeaderRowSelectorStateChange(e);
+                        onHeaderRowSelectorAction();
                     }
                 });
             }
             headerRow.add(headerRowSelector);
-        } else {
-            headerRow.add(null);
-        }
         Collections.addAll(headerRow, components);
         addComponentRowIntern(headerRow, 0);
         componentRows.set(0, headerRow);
@@ -128,20 +167,17 @@ public class Grid extends JPanel {
         removeFiller();
 
         List<JComponent> dataRow = new ArrayList<>(components.length + 1);
-        if (showSelectionColumn) {
             JCheckBox dataRowSelector = createDataRowSelector();
             if (dataRowSelector != null) {
+                dataRowSelector.setVisible(showSelectionColumn);
                 dataRowSelector.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        onDataRowSelectorStateChange(e);
+                        onDataRowSelectorAction();
                     }
                 });
             }
             dataRow.add(dataRowSelector);
-        } else {
-            dataRow.add(null);
-        }
         Collections.addAll(dataRow, components);
 
         addComponentRowIntern(dataRow, componentRows.size());
@@ -169,8 +205,8 @@ public class Grid extends JPanel {
         }
     }
 
-    public void removeDataRows(List<Integer> rowIndexes) {
-        if (rowIndexes.isEmpty()) {
+    public void removeDataRows(int... rowIndexes) {
+        if (rowIndexes.length == 0) {
             return;
         }
 
@@ -189,7 +225,7 @@ public class Grid extends JPanel {
             offset++;
         }
 
-        int rowIndex = rowIndexes.get(0);
+        int rowIndex = rowIndexes[0];
         // Re-add remaining components, so that they are inserted at correct row positions
         for (int i = rowIndex; i < componentRows.size(); i++) {
             addComponentRowIntern(componentRows.get(i), i);
@@ -198,12 +234,15 @@ public class Grid extends JPanel {
         addFiller();
         fireComponentsChanged();
         if (selectedCount > 0) {
-            fireSelectionChange();
+            for (int index : rowIndexes) {
+                selectionModel.removeSelectedRowIndex(index);
+            }
         }
     }
 
     public void moveDataRowUp(int rowIndex) {
         Assert.argument(rowIndex >= 2, "rowIndex");
+        boolean selected = selectionModel.isRowSelected(rowIndex);
         List<JComponent> componentRow = componentRows.remove(rowIndex);
         componentRows.add(rowIndex - 1, componentRow);
         for (int i = rowIndex - 1; i < componentRows.size(); i++) {
@@ -212,11 +251,16 @@ public class Grid extends JPanel {
             addComponentRowIntern(componentRowToUpdate, i);
         }
         fireComponentsChanged();
-        fireSelectionChange();
+        if (selected) {
+            selectionModel.removeSelectedRowIndex(rowIndex);
+            selectionModel.addSelectedRowIndex(rowIndex - 1);
+        }
+
     }
 
     public void moveDataRowDown(int rowIndex) {
         Assert.argument(rowIndex < componentRows.size() - 1, "rowIndex");
+        boolean selected = selectionModel.isRowSelected(rowIndex);
         List<JComponent> componentRow = componentRows.remove(rowIndex);
         componentRows.add(rowIndex + 1, componentRow);
         for (int i = rowIndex; i < componentRows.size(); i++) {
@@ -225,74 +269,35 @@ public class Grid extends JPanel {
             addComponentRowIntern(componentRowToUpdate, i);
         }
         fireComponentsChanged();
-        fireSelectionChange();
+        if (selected) {
+            selectionModel.removeSelectedRowIndex(rowIndex);
+            selectionModel.addSelectedRowIndex(rowIndex + 1);
+        }
     }
 
     public boolean isRowSelected(int rowIndex) {
-        Component component = componentRows.get(rowIndex).get(0);
-        if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
-            return checkBox.isSelected();
-        }
-        return false;
+        return selectionModel.isRowSelected(rowIndex);
     }
 
     public int getSelectedDataRowCount() {
-        int count = 0;
-        for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
-            if (isRowSelected(rowIndex)) {
-                count++;
-            }
-        }
-        return count;
+        return selectionModel.getSelectedRowCount();
     }
 
     public int getSelectedDataRowIndex() {
-        for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
-            if (isRowSelected(rowIndex)) {
-                return rowIndex;
-            }
-        }
-        return -1;
+        return selectionModel.getMinSelectedRowIndex();
     }
 
-    public List<Integer> getSelectedDataRowIndexes() {
-        List<Integer> rowIndices = new ArrayList<>(componentRows.size());
-        for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
-            if (isRowSelected(rowIndex)) {
-                rowIndices.add(rowIndex);
-            }
-        }
-        return rowIndices;
+    public int[] getSelectedDataRowIndexes() {
+        return selectionModel.getSelectedRowIndices();
     }
 
-    public void setSelectedDataRowIndexes(List<Integer> selectedRowIndexes) {
-        List<Integer> oldSelectedRowIndexes = getSelectedDataRowIndexes();
-        if (oldSelectedRowIndexes.size() != selectedRowIndexes.size()
-            || !oldSelectedRowIndexes.equals(selectedRowIndexes)) {
-            dataRowSelectorStateChangeCount = 0;
-            for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
-                setSelectionIntern(rowIndex, selectedRowIndexes.contains(rowIndex));
-            }
-            if (dataRowSelectorStateChangeCount > 0) {
-                fireSelectionChange();
-            }
-        }
-    }
-
-    public void addSelectionListener(SelectionListener selectionListener) {
-        selectionListeners.add(selectionListener);
-    }
-
-    public void removeSelectionListener(SelectionListener selectionListener) {
-        selectionListeners.remove(selectionListener);
+    public void setSelectedDataRowIndexes(int ... selectedRowIndexes) {
+        selectionModel.setSelectedRowIndices(selectedRowIndexes);
     }
 
     protected void fireSelectionChange() {
         adjustHeaderRowSelector();
-        for (SelectionListener selectionListener : selectionListeners) {
-            selectionListener.selectionStateChanged(this);
-        }
+        selectionModel.fireChange(new GridSelectionModel.Event(selectionModel));
     }
 
     protected void adjustHeaderRowSelector(JCheckBox headerRowSelector, int selectedDataRowCount) {
@@ -312,22 +317,24 @@ public class Grid extends JPanel {
         return new JCheckBox();
     }
 
-    private void onHeaderRowSelectorStateChange(ActionEvent e) {
+    private void onHeaderRowSelectorAction() {
         JCheckBox checkBox = (JCheckBox) componentRows.get(0).get(0);
         setAllDataRowsSelected(checkBox.isSelected());
     }
 
-    private void onDataRowSelectorStateChange(ActionEvent e) {
-        fireSelectionChange();
+    private void onDataRowSelectorAction() {
+        adjustSelectionModel();
     }
 
     private void setAllDataRowsSelected(boolean selected) {
-        dataRowSelectorStateChangeCount = 0;
-        for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
-            setSelectionIntern(rowIndex, selected);
-        }
-        if (dataRowSelectorStateChangeCount > 0) {
-            fireSelectionChange();
+        if (selected) {
+            int[] rowIndices = new int[componentRows.size() - 1];
+            for (int i = 0; i < rowIndices.length; i++) {
+                rowIndices[i] = i + 1;
+            }
+            selectionModel.setSelectedRowIndices(rowIndices);
+        }  else {
+            selectionModel.setSelectedRowIndices();
         }
     }
 
@@ -339,6 +346,35 @@ public class Grid extends JPanel {
         }
     }
 
+
+    private void adjustDataRowSelectors() {
+        for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
+            Component component = componentRows.get(rowIndex).get(0);
+            if (component instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) component;
+                checkBox.setSelected(selectionModel.isRowSelected(rowIndex));
+            }
+        }
+    }
+
+    private void adjustSelectionModel() {
+        ArrayList<Integer> integers = new ArrayList<>();
+        for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
+            Component component = componentRows.get(rowIndex).get(0);
+            if (component instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.isSelected()) {
+                    integers.add(rowIndex);
+                }
+            }
+        }
+        int[] rowIndices = new int[integers.size()];
+        for (int i = 0; i < rowIndices.length; i++) {
+           rowIndices[i] = integers.get(i);
+        }
+        selectionModel.setSelectedRowIndices(rowIndices);
+    }
+
     private void addComponentRowIntern(List<JComponent> componentRow, int rowIndex) {
         for (int colIndex = 0; colIndex < componentRow.size(); colIndex++) {
             JComponent component = componentRow.get(colIndex);
@@ -348,7 +384,7 @@ public class Grid extends JPanel {
                     addHeaderBorder(component);
                 }
                 add(component, TableLayout.cell(rowIndex, colIndex));
-                System.out.println("added at (" + rowIndex + "," + colIndex + "): " + component.getClass().getSimpleName());
+                //System.out.println("added at (" + rowIndex + "," + colIndex + "): " + component.getClass().getSimpleName());
             }
         }
     }
@@ -357,17 +393,6 @@ public class Grid extends JPanel {
         for (JComponent component : componentRow) {
             if (component != null) {
                 remove(component);
-            }
-        }
-    }
-
-    private void setSelectionIntern(Integer rowIndex, boolean selected) {
-        Component component = componentRows.get(rowIndex).get(0);
-        if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
-            if (checkBox.isSelected() != selected) {
-                checkBox.setSelected(selected);
-                dataRowSelectorStateChangeCount++;
             }
         }
     }
@@ -426,6 +451,94 @@ public class Grid extends JPanel {
         @Override
         public boolean isBorderOpaque() {
             return true;
+        }
+    }
+
+    public static class DefaultGridSelectionModel implements GridSelectionModel {
+
+        private final SortedSet<Integer> rowIndices;
+
+        private final List<Listener> listeners;
+
+        public DefaultGridSelectionModel() {
+            rowIndices = new TreeSet<>();
+            listeners = new ArrayList<>();
+        }
+
+        @Override
+        public int getSelectedRowCount() {
+            return rowIndices.size();
+        }
+
+        @Override
+        public boolean isRowSelected(int rowIndex) {
+            return rowIndices.contains(rowIndex);
+        }
+
+        @Override
+        public int getMinSelectedRowIndex() {
+            return rowIndices.isEmpty() ? -1 : rowIndices.first();
+        }
+
+        @Override
+        public int getMaxSelectedRowIndex() {
+            return rowIndices.isEmpty() ? -1 : rowIndices.last();
+        }
+
+        @Override
+        public int[] getSelectedRowIndices() {
+            Integer[] integers = rowIndices.toArray(new Integer[rowIndices.size()]);
+            int[] indices = new int[integers.length];
+            for (int i = 0; i < integers.length; i++) {
+                indices[i] = integers[i];
+            }
+            return indices;
+        }
+
+        @Override
+        public void setSelectedRowIndices(int[] rowIndices) {
+            Set<Integer> newRowIndices = new TreeSet<>();
+            for (int rowIndex : rowIndices) {
+                newRowIndices.add(rowIndex);
+            }
+            if (!newRowIndices.equals(this.rowIndices)) {
+                this.rowIndices.clear();
+                this.rowIndices.addAll(newRowIndices);
+                fireChange(new Event(this));
+            }
+        }
+
+        @Override
+        public void addSelectedRowIndex(int rowIndex) {
+            if (!rowIndices.contains(rowIndex)) {
+                rowIndices.add(rowIndex);
+                fireChange(new Event(this));
+            }
+        }
+
+        @Override
+        public void removeSelectedRowIndex(int rowIndex) {
+            if (rowIndices.contains(rowIndex)) {
+                rowIndices.remove(rowIndex);
+                fireChange(new Event(this));
+            }
+        }
+
+        @Override
+        public void addListener(Listener listener) {
+            listeners.add(listener);
+        }
+
+        @Override
+        public void removeListener(Listener listener) {
+            listeners.remove(listener);
+        }
+
+        @Override
+        public void fireChange(Event event) {
+            for (GridSelectionModel.Listener listener : listeners) {
+                listener.gridSelectionChanged(event);
+            }
         }
     }
 }

@@ -3,7 +3,6 @@ package com.bc.ceres.swing;
 import com.jidesoft.utils.Lm;
 
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,7 +13,6 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.util.List;
 
 public class GridGuiTest {
     public static void main(String[] args) {
@@ -38,7 +36,7 @@ public class GridGuiTest {
         frame.setVisible(true);
     }
 
-    private static JPanel createGridPanel() {
+    static JPanel createGridPanel() {
         Grid grid = new Grid(4, true) /* {
             @Override
             protected JCheckBox createHeaderRowSelector() {
@@ -67,7 +65,7 @@ public class GridGuiTest {
         grid.setHeaderRow(new JLabel("<html><b>Name</b>"),
                           new JLabel("<html><b>Method</b>"),
                           new JLabel("<html><b>Parameters</b>"));
-        GridControlBar gridControlBar = new GridControlBar(GridControlBar.HORIZONTAL, grid, new MyController());
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new GridController(grid));
 
         JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -77,28 +75,44 @@ public class GridGuiTest {
     }
 
 
-    private static class MyController implements GridControlBar.Controller {
+    static class GridController implements ListControlBar.ListController {
+
+        final Grid grid;
 
         final static Object[] valueSet = {genName(), genName(), genName(), genName(), genName()};
 
-        @Override
-        public JComponent[] newDataRow(final GridControlBar gridControlBar) {
-            return new JComponent[]{new JTextField(genName(), 8), new JComboBox<>(valueSet), new JLabel(genName())};
+        private GridController(Grid grid) {
+            this.grid = grid;
         }
 
         @Override
-        public boolean removeDataRows(GridControlBar gridControlBar, List<Integer> selectedIndexes) {
+        public boolean addRow(int index) {
+            grid.addDataRow(new JTextField(genName(), 8), new JComboBox<>(valueSet), new JLabel(genName()));
             return true;
         }
 
         @Override
-        public boolean moveDataRowUp(GridControlBar gridControlBar, int selectedIndex) {
+        public boolean removeRows(int[] indices) {
+            grid.removeDataRows(indices);
             return true;
         }
 
         @Override
-        public boolean moveDataRowDown(GridControlBar gridControlBar, int selectedIndex) {
-            return true;
+        public boolean moveRowUp(int index) {
+            if (index >= 2) {
+                grid.moveDataRowUp(index);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean moveRowDown(int index) {
+            if (index < grid.getDataRowCount()) {
+                grid.moveDataRowDown(index);
+                return true;
+            }
+            return false;
         }
     }
 

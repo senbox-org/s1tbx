@@ -25,10 +25,10 @@ public class ListControlBarTest {
         }
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
-                                              createListPanel(),
+                                              GridGuiTest.createGridPanel(),
                                               createListPanel());
 
-        JFrame frame = new JFrame(Grid.class.getSimpleName());
+        JFrame frame = new JFrame(ListControlBarTest.class.getSimpleName());
         frame.getContentPane().add(splitPane, BorderLayout.WEST);
         frame.getContentPane().add(createTablePanel(), BorderLayout.CENTER);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
