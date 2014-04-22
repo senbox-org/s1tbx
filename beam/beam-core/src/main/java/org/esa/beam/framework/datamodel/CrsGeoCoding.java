@@ -229,8 +229,23 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return geoPos;
     }
 
+    @Override
+    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+        if (pixelPos == null) {
+            pixelPos = new PixelPos();
+        }
+        try {
+            DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
+            DirectPosition directPixelPos = geoToImage.transform(directGeoPos, null);
+            pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
+        } catch (Exception ignored) {
+            pixelPos.setInvalid();
+        }
+        return pixelPos;
+    }
+
     public final void getPixels(final int x1, final int y1, final int w, final int h,
-                                  final float[] latPixels, final float[] lonPixels) {
+                                final float[] latPixels, final float[] lonPixels) {
         final DirectPosition2D directPixPos = new DirectPosition2D();
         final DirectPosition directGeoPos = new GeneralDirectPosition(0,0);
         final int x2 = x1 + w;
@@ -251,21 +266,6 @@ public class CrsGeoCoding extends AbstractGeoCoding {
                 ++pos;
             }
         }
-    }
-
-    @Override
-    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        if (pixelPos == null) {
-            pixelPos = new PixelPos();
-        }
-        try {
-            DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
-            DirectPosition directPixelPos = geoToImage.transform(directGeoPos, null);
-            pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
-        } catch (Exception ignored) {
-            pixelPos.setInvalid();
-        }
-        return pixelPos;
     }
 
     @Override
