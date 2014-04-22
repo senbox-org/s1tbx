@@ -71,6 +71,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class ModuleManagerPane extends JPanel {
+
     public static final Runnable NO_DONE_HANDLER = new Runnable() {
         public void run() {
         }
@@ -94,7 +95,7 @@ public class ModuleManagerPane extends JPanel {
 
     private boolean syncPerformed;
 
-    private JComboBox categories;
+    private JComboBox<CaselessKey> categories;
     private Set<CaselessKey> categoriesSet;
     private InfoPane infoPane;
     private JTabbedPane tabbedPane;
@@ -119,7 +120,7 @@ public class ModuleManagerPane extends JPanel {
         this.updateAction = new UpdateAction();
         this.uninstallAction = new UninstallAction();
         this.selectAllAction = new SelectAllAction();
-        this.categoriesSet = new HashSet<CaselessKey>(20);
+        this.categoriesSet = new HashSet<>(20);
 
         repositoryTroubleShootingMessage = "";
 
@@ -238,7 +239,9 @@ public class ModuleManagerPane extends JPanel {
                                                                   // "Funding",
                                                                   "Version",
                                                                   "State",
-                                                                  "Action"});
+                                                                  "Action"
+                                                          }
+        );
 
         updatableModulesTableModel = new ModuleTableModel(moduleManager.getUpdatableModuleItems(),
                                                           new String[]{
@@ -248,7 +251,9 @@ public class ModuleManagerPane extends JPanel {
                                                                   "New Version",
                                                                   "Date",
                                                                   "Size",
-                                                                  "Action"});
+                                                                  "Action"
+                                                          }
+        );
 
         availableModulesTableModel = new ModuleTableModel(moduleManager.getAvailableModuleItems(),
                                                           new String[]{
@@ -257,7 +262,9 @@ public class ModuleManagerPane extends JPanel {
                                                                   "Version",
                                                                   "Date",
                                                                   "Size",
-                                                                  "Action"});
+                                                                  "Action"
+                                                          }
+        );
 
         JTable installedModulesTable = createModuleTable(installedModulesTableModel);
         installedModulesTable.setName("installedModulesTable");
@@ -304,7 +311,7 @@ public class ModuleManagerPane extends JPanel {
         clearButton.setName("clearButton");
         actionBar.add(clearButton);
 
-        categories = new JComboBox();
+        categories = new JComboBox<CaselessKey>();
         categories.setName("categoriesComboBox");
         categories.setEditable(true);
         categories.setSelectedItem("");
@@ -387,13 +394,13 @@ public class ModuleManagerPane extends JPanel {
                         success = get();
                     } catch (InterruptedException e) {
                         showErrorDialog("Update action(s) failed:\n" + e.getMessage() + "\n" +
-                                "No changes will be performed." +'\n'+
-                                "Try running the software as administrator");
+                                        "No changes will be performed.\n" +
+                                        "Try running the software as administrator.");
                         return;
                     } catch (ExecutionException e) {
                         showErrorDialog("Update action(s) failed:\n" + e.getCause().getMessage() + "\n" +
-                                "No changes will be performed." +'\n'+
-                                "Try running the software as administrator");
+                                        "No changes will be performed.\n" +
+                                        "Try running the software as administrator.");
                         return;
                     }
 
@@ -401,7 +408,7 @@ public class ModuleManagerPane extends JPanel {
                         showInfoDialog("Changes will be effective after restart.");
                     } else {
                         showErrorDialog("Update action(s) canceled.\n" +
-                                "No changes will be performed.");
+                                        "No changes will be performed.");
                     }
                 } finally {
                     doneHandler.run();
@@ -415,7 +422,7 @@ public class ModuleManagerPane extends JPanel {
     }
 
     private ArrayList<ModuleItem> createActionList() {
-        final ArrayList<ModuleItem> actionList = new ArrayList<ModuleItem>(10);
+        final ArrayList<ModuleItem> actionList = new ArrayList<>(10);
         for (ModuleItem moduleItem : moduleManager.getInstalledModuleItems()) {
             if (moduleItem.getAction() == ModuleItem.Action.UNINSTALL) {
                 actionList.add(moduleItem);
@@ -518,7 +525,7 @@ public class ModuleManagerPane extends JPanel {
 
     static ModuleItem[] filterModuleItems(ModuleItem[] moduleItems, String filter) {
         if (!filter.isEmpty()) {
-            ArrayList<ModuleItem> filteredModuleItems = new ArrayList<ModuleItem>(moduleItems.length);
+            ArrayList<ModuleItem> filteredModuleItems = new ArrayList<>(moduleItems.length);
             for (ModuleItem moduleItem : moduleItems) {
                 if (matchesCategory(moduleItem, filter)) {
                     filteredModuleItems.add(moduleItem);
@@ -560,7 +567,7 @@ public class ModuleManagerPane extends JPanel {
         CaselessKey[] keys = categoriesSet.toArray(new CaselessKey[categoriesSet.size()]);
         Arrays.sort(keys);
         Object selectedItem = categories.getSelectedItem().toString();
-        categories.setModel(new DefaultComboBoxModel(keys));
+        categories.setModel(new DefaultComboBoxModel<>(keys));
         categories.setSelectedItem(selectedItem);
     }
 
@@ -610,8 +617,8 @@ public class ModuleManagerPane extends JPanel {
                     updateEnabled = false;
                 }
                 if (isAvailableModule(selectedModuleItem)
-                        || selectedModuleItem.getModule().getState().equals(ModuleState.UNINSTALLED)
-                        || isCategory(selectedModuleItem.getModule(), "System")) {
+                    || selectedModuleItem.getModule().getState().equals(ModuleState.UNINSTALLED)
+                    || isCategory(selectedModuleItem.getModule(), "System")) {
                     uninstallEnabled = false;
                 }
             }
@@ -644,12 +651,12 @@ public class ModuleManagerPane extends JPanel {
 
     private static boolean isAvailableModule(ModuleItem selectedModuleItem) {
         return selectedModuleItem.getRepositoryModule() != null &&
-                selectedModuleItem.getModule() == selectedModuleItem.getRepositoryModule();
+               selectedModuleItem.getModule() == selectedModuleItem.getRepositoryModule();
     }
 
     private static boolean isModuleUpdate(ModuleItem selectedModuleItem) {
         return selectedModuleItem.getRepositoryModule() != null &&
-                selectedModuleItem.getModule() != selectedModuleItem.getRepositoryModule();
+               selectedModuleItem.getModule() != selectedModuleItem.getRepositoryModule();
     }
 
     private ModuleItem[] getSelectedModuleItems() {
@@ -869,7 +876,7 @@ public class ModuleManagerPane extends JPanel {
     static class MissingModuleDependency {
 
         Dependency dependency;
-        List<Module> modules = new ArrayList<Module>(10);
+        List<Module> modules = new ArrayList<>(10);
 
         public MissingModuleDependency(Dependency dependency) {
             this.dependency = dependency;
@@ -922,6 +929,7 @@ public class ModuleManagerPane extends JPanel {
     }
 
     public static interface HelpHandler {
+
         void configureHelpButton(JButton helpButton);
     }
 
