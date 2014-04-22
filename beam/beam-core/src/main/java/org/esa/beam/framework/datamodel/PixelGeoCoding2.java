@@ -284,10 +284,16 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             } else {
                 dataProvider.getGeoPosInteger(x0, y0, geoPos);
             }
+            if (!geoPos.isValid()) {
+                if (formerGeocoding != null && formerGeocoding.canGetGeoPos()) {
+                    formerGeocoding.getGeoPos(pixelPos, geoPos);
+                } else {
+                    pixelPosEstimator.getGeoPos(pixelPos, geoPos);
+                }
+            }
         }
         return geoPos;
     }
-
 
     private boolean pixelPosIsInsideRasterWH(PixelPos pixelPos) {
         final float x = pixelPos.x;
