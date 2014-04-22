@@ -31,10 +31,6 @@ public abstract class AbstractAggregator implements Aggregator {
     private final String[] temporalFeatureNames;
     private final String[] outputFeatureNames;
 
-    protected AbstractAggregator(String name, String[] featureNames) {
-        this(name, featureNames, featureNames, featureNames);
-    }
-
     protected AbstractAggregator(String name,
                                  String[] spatialFeatureNames,
                                  String[] temporalFeatureNames,
@@ -42,7 +38,7 @@ public abstract class AbstractAggregator implements Aggregator {
         this.name = name;
         this.spatialFeatureNames = spatialFeatureNames;
         this.temporalFeatureNames = temporalFeatureNames;
-        this.outputFeatureNames = replaceBrackets(outputFeatureNames);
+        this.outputFeatureNames = outputFeatureNames;
     }
 
     @Override
@@ -82,14 +78,5 @@ public abstract class AbstractAggregator implements Aggregator {
             }
         }
         return featureNames.toArray(new String[featureNames.size()]);
-    }
-
-    private String[] replaceBrackets(String[] outputFeatureNames) {
-        String[] result = new String[outputFeatureNames.length];
-        for (int i = 0; i < outputFeatureNames.length; i++) {
-            String outFeatureName = outputFeatureNames[i];
-            result[i] = outFeatureName.replace("<", "").replace(">", "");
-        }
-        return result;
     }
 }
