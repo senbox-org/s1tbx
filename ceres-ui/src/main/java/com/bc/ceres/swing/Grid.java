@@ -2,25 +2,21 @@ package com.bc.ceres.swing;
 
 import com.bc.ceres.core.Assert;
 
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.Border;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.LayoutManager;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
+/**
+ * A panel that contains other components arranged in form of a table.
+ * It's layout manager is a {@link com.bc.ceres.swing.TableLayout}.
+ *
+ * @author Norman
+ * @since Ceres 0.14
+ */
 public class Grid extends JPanel implements GridSelectionModel.Listener {
 
     private final List<List<JComponent>> componentRows;
@@ -103,15 +99,12 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         }
     }
 
-    @Override
-    public void gridSelectionChanged(GridSelectionModel.Event event) {
-        adjustHeaderRowSelector();
-        adjustDataRowSelectors();
-    }
-
-
     public int getColumnCount() {
         return getLayout().getColumnCount();
+    }
+
+    public int getDataColumnCount() {
+        return getColumnCount() - 1;
     }
 
     public int getRowCount() {
@@ -119,7 +112,7 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
     }
 
     public int getDataRowCount() {
-        return componentRows.size() - 1;
+        return  getRowCount() - 1;
     }
 
     public JComponent getComponent(int rowIndex, int colIndex) {
@@ -140,20 +133,29 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         return oldComponent;
     }
 
+    public int findRowIndex(JComponent component) {
+        return findRowIndex(component, 0);
+    }
+
+    public int findDataRowIndex(JComponent component) {
+        int rowIndex = findRowIndex(component, 1);
+        return rowIndex >= 1 ? rowIndex - 1 : -1;
+    }
+
     public void setHeaderRow(JComponent... components) {
         checkColumnCount(components);
         List<JComponent> headerRow = new ArrayList<>(components.length + 1);
-            JCheckBox headerRowSelector = createHeaderRowSelector();
-            if (headerRowSelector != null) {
-                headerRowSelector.setVisible(showSelectionColumn);
-                headerRowSelector.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        onHeaderRowSelectorAction();
-                    }
-                });
-            }
-            headerRow.add(headerRowSelector);
+        AbstractButton headerRowSelector = createHeaderRowSelector();
+        if (headerRowSelector != null) {
+            headerRowSelector.setVisible(showSelectionColumn);
+            headerRowSelector.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    onHeaderRowSelectorAction();
+                }
+            });
+        }
+        headerRow.add(headerRowSelector);
         Collections.addAll(headerRow, components);
         addComponentRowIntern(headerRow, 0);
         componentRows.set(0, headerRow);
@@ -167,17 +169,17 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         removeFiller();
 
         List<JComponent> dataRow = new ArrayList<>(components.length + 1);
-            JCheckBox dataRowSelector = createDataRowSelector();
-            if (dataRowSelector != null) {
-                dataRowSelector.setVisible(showSelectionColumn);
-                dataRowSelector.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        onDataRowSelectorAction();
-                    }
-                });
-            }
-            dataRow.add(dataRowSelector);
+        AbstractButton dataRowSelector = createDataRowSelector();
+        if (dataRowSelector != null) {
+            dataRowSelector.setVisible(showSelectionColumn);
+            dataRowSelector.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    onDataRowSelectorAction();
+                }
+            });
+        }
+        dataRow.add(dataRowSelector);
         Collections.addAll(dataRow, components);
 
         addComponentRowIntern(dataRow, componentRows.size());
@@ -187,10 +189,11 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         adjustHeaderRowSelector();
     }
 
-    public void removeDataRow(int rowIndex) {
-        Assert.argument(rowIndex >= 1, "rowIndex");
+    public void removeDataRow(int dataRowIndex) {
+        Assert.argument(dataRowIndex >= 0, "dataRowIndex");
+        int rowIndex = dataRowIndex + 1;
         removeFiller();
-        boolean rowSelected = isRowSelected(rowIndex);
+        boolean rowSelected = isDataRowSelected(rowIndex);
         List<JComponent> componentRow = componentRows.get(rowIndex);
         removeComponentRowIntern(componentRow);
         componentRows.remove(rowIndex);
@@ -201,12 +204,12 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         addFiller();
         fireComponentsChanged();
         if (rowSelected) {
-            fireSelectionChange();
+            selectionModel.removeSelectedRowIndex(dataRowIndex);
         }
     }
 
-    public void removeDataRows(int... rowIndexes) {
-        if (rowIndexes.length == 0) {
+    public void removeDataRows(int... dataRowIndexes) {
+        if (dataRowIndexes.length == 0) {
             return;
         }
 
@@ -214,35 +217,36 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
 
         int offset = 0;
         int selectedCount = 0;
-        for (int i : rowIndexes) {
-            Assert.argument(i >= 1, "rowIndexes");
-            int rowIndex = i - offset;
+        for (int dataRowIndex : dataRowIndexes) {
+            Assert.argument(dataRowIndex >= 0, "rowIndexes");
+            int rowIndex = dataRowIndex + 1 - offset;
             Assert.state(rowIndex >= 1, "rowIndex");
-            selectedCount += isRowSelected(rowIndex) ? 1 : 0;
+            selectedCount += isDataRowSelected(dataRowIndex) ? 1 : 0;
             List<JComponent> componentRow = componentRows.get(rowIndex);
             removeComponentRowIntern(componentRow);
             componentRows.remove(rowIndex);
             offset++;
         }
 
-        int rowIndex = rowIndexes[0];
+        int rowIndex0 = dataRowIndexes[0] + 1;
         // Re-add remaining components, so that they are inserted at correct row positions
-        for (int i = rowIndex; i < componentRows.size(); i++) {
-            addComponentRowIntern(componentRows.get(i), i);
+        for (int rowIndex = rowIndex0; rowIndex < componentRows.size(); rowIndex++) {
+            addComponentRowIntern(componentRows.get(rowIndex), rowIndex);
         }
 
         addFiller();
         fireComponentsChanged();
         if (selectedCount > 0) {
-            for (int index : rowIndexes) {
-                selectionModel.removeSelectedRowIndex(index);
+            for (int dataRowIndex : dataRowIndexes) {
+                selectionModel.removeSelectedRowIndex(dataRowIndex);
             }
         }
     }
 
-    public void moveDataRowUp(int rowIndex) {
-        Assert.argument(rowIndex >= 2, "rowIndex");
-        boolean selected = selectionModel.isRowSelected(rowIndex);
+    public void moveDataRowUp(int dataRowIndex) {
+        Assert.argument(dataRowIndex >= 1, "dataRowIndex");
+        int rowIndex = dataRowIndex + 1;
+        boolean selected = selectionModel.isRowSelected(dataRowIndex);
         List<JComponent> componentRow = componentRows.remove(rowIndex);
         componentRows.add(rowIndex - 1, componentRow);
         for (int i = rowIndex - 1; i < componentRows.size(); i++) {
@@ -252,15 +256,15 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         }
         fireComponentsChanged();
         if (selected) {
-            selectionModel.removeSelectedRowIndex(rowIndex);
-            selectionModel.addSelectedRowIndex(rowIndex - 1);
+            selectionModel.removeSelectedRowIndex(dataRowIndex);
+            selectionModel.addSelectedRowIndex(dataRowIndex - 1);
         }
-
     }
 
-    public void moveDataRowDown(int rowIndex) {
-        Assert.argument(rowIndex < componentRows.size() - 1, "rowIndex");
-        boolean selected = selectionModel.isRowSelected(rowIndex);
+    public void moveDataRowDown(int dataRowIndex) {
+        Assert.argument(dataRowIndex < getDataRowCount() - 1, "dataRowIndex");
+        int rowIndex = dataRowIndex + 1;
+        boolean selected = selectionModel.isRowSelected(dataRowIndex);
         List<JComponent> componentRow = componentRows.remove(rowIndex);
         componentRows.add(rowIndex + 1, componentRow);
         for (int i = rowIndex; i < componentRows.size(); i++) {
@@ -270,13 +274,13 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         }
         fireComponentsChanged();
         if (selected) {
-            selectionModel.removeSelectedRowIndex(rowIndex);
-            selectionModel.addSelectedRowIndex(rowIndex + 1);
+            selectionModel.removeSelectedRowIndex(dataRowIndex);
+            selectionModel.addSelectedRowIndex(dataRowIndex + 1);
         }
     }
 
-    public boolean isRowSelected(int rowIndex) {
-        return selectionModel.isRowSelected(rowIndex);
+    public boolean isDataRowSelected(int dataRowIndex) {
+        return selectionModel.isRowSelected(dataRowIndex);
     }
 
     public int getSelectedDataRowCount() {
@@ -291,35 +295,39 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         return selectionModel.getSelectedRowIndices();
     }
 
-    public void setSelectedDataRowIndexes(int ... selectedRowIndexes) {
-        selectionModel.setSelectedRowIndices(selectedRowIndexes);
+    public void setSelectedDataRowIndexes(int... dataRowIndexes) {
+        selectionModel.setSelectedRowIndices(dataRowIndexes);
     }
 
-    protected void fireSelectionChange() {
+    @Override
+    public void gridSelectionChanged(GridSelectionModel.Event event) {
+        int[] selectedRowIndices = selectionModel.getSelectedRowIndices();
+        System.out.println("selectedRowIndices = " + Arrays.toString(selectedRowIndices));
         adjustHeaderRowSelector();
-        selectionModel.fireChange(new GridSelectionModel.Event(selectionModel));
+        adjustDataRowSelectors();
     }
 
-    protected void adjustHeaderRowSelector(JCheckBox headerRowSelector, int selectedDataRowCount) {
-        headerRowSelector.setSelected(getDataRowCount() > 0 && selectedDataRowCount == getDataRowCount());
-        headerRowSelector.setEnabled(getDataRowCount() > 0);
+    protected void adjustHeaderRowSelector(AbstractButton headerRowSelector, int selectedDataRowCount) {
+        int dataRowCount = getDataRowCount();
+        headerRowSelector.setSelected(dataRowCount > 0 && selectedDataRowCount == dataRowCount);
+        headerRowSelector.setEnabled(dataRowCount > 0);
     }
 
     protected Border createHeaderCellBorder() {
         return new HeaderBorder();
     }
 
-    protected JCheckBox createHeaderRowSelector() {
+    protected AbstractButton createHeaderRowSelector() {
         return new JCheckBox();
     }
 
-    protected JCheckBox createDataRowSelector() {
+    protected AbstractButton createDataRowSelector() {
         return new JCheckBox();
     }
 
     private void onHeaderRowSelectorAction() {
-        JCheckBox checkBox = (JCheckBox) componentRows.get(0).get(0);
-        setAllDataRowsSelected(checkBox.isSelected());
+        AbstractButton button = (AbstractButton) componentRows.get(0).get(0);
+        setAllDataRowsSelected(button.isSelected());
     }
 
     private void onDataRowSelectorAction() {
@@ -328,21 +336,22 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
 
     private void setAllDataRowsSelected(boolean selected) {
         if (selected) {
-            int[] rowIndices = new int[componentRows.size() - 1];
-            for (int i = 0; i < rowIndices.length; i++) {
-                rowIndices[i] = i + 1;
+            int dataRowCount = getDataRowCount();
+            int[] dataRowIndices = new int[dataRowCount];
+            for (int i = 0; i < dataRowIndices.length; i++) {
+                dataRowIndices[i] = i;
             }
-            selectionModel.setSelectedRowIndices(rowIndices);
-        }  else {
+            selectionModel.setSelectedRowIndices(dataRowIndices);
+        } else {
             selectionModel.setSelectedRowIndices();
         }
     }
 
     private void adjustHeaderRowSelector() {
         JComponent component = componentRows.get(0).get(0);
-        if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
-            adjustHeaderRowSelector(checkBox, getSelectedDataRowCount());
+        if (component instanceof AbstractButton) {
+            AbstractButton button = (AbstractButton) component;
+            adjustHeaderRowSelector(button, getSelectedDataRowCount());
         }
     }
 
@@ -350,29 +359,30 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
     private void adjustDataRowSelectors() {
         for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
             Component component = componentRows.get(rowIndex).get(0);
-            if (component instanceof JCheckBox) {
-                JCheckBox checkBox = (JCheckBox) component;
-                checkBox.setSelected(selectionModel.isRowSelected(rowIndex));
+            if (component instanceof AbstractButton) {
+                AbstractButton button = (AbstractButton) component;
+                int dataRowIndex = rowIndex - 1;
+                button.setSelected(isDataRowSelected(dataRowIndex));
             }
         }
     }
 
     private void adjustSelectionModel() {
-        ArrayList<Integer> integers = new ArrayList<>();
+        ArrayList<Integer> dataRowIndexList = new ArrayList<>();
         for (int rowIndex = 1; rowIndex < componentRows.size(); rowIndex++) {
             Component component = componentRows.get(rowIndex).get(0);
-            if (component instanceof JCheckBox) {
-                JCheckBox checkBox = (JCheckBox) component;
-                if (checkBox.isSelected()) {
-                    integers.add(rowIndex);
+            if (component instanceof AbstractButton) {
+                AbstractButton button = (AbstractButton) component;
+                if (button.isSelected()) {
+                    dataRowIndexList.add(rowIndex - 1);
                 }
             }
         }
-        int[] rowIndices = new int[integers.size()];
-        for (int i = 0; i < rowIndices.length; i++) {
-           rowIndices[i] = integers.get(i);
+        int[] dataRowIndices = new int[dataRowIndexList.size()];
+        for (int i = 0; i < dataRowIndices.length; i++) {
+            dataRowIndices[i] = dataRowIndexList.get(i);
         }
-        selectionModel.setSelectedRowIndices(rowIndices);
+        selectionModel.setSelectedRowIndices(dataRowIndices);
     }
 
     private void addComponentRowIntern(List<JComponent> componentRow, int rowIndex) {
@@ -421,14 +431,14 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
 
     private int lastFillerRow = -1;
 
-    public void addFiller() {
+    private void addFiller() {
         lastFillerRow = getRowCount();
         getLayout().setCellWeightY(lastFillerRow, 0, 1.0);
         getLayout().setCellFill(lastFillerRow, 0, TableLayout.Fill.VERTICAL);
         add(filler, TableLayout.cell(lastFillerRow, 0));
     }
 
-    public void removeFiller() {
+    private void removeFiller() {
         if (lastFillerRow >= 0) {
             getLayout().setCellWeightY(lastFillerRow, 0, null);
             getLayout().setCellFill(lastFillerRow, 0, null);
@@ -436,10 +446,23 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         remove(filler);
     }
 
+    private int findRowIndex(JComponent component, int rowOffset) {
+        for (int rowIndex = rowOffset; rowIndex < componentRows.size(); rowIndex++) {
+            List<JComponent> componentRow = componentRows.get(rowIndex);
+            for (JComponent jComponent : componentRow) {
+                if (jComponent != null && jComponent == component) {
+                    return rowIndex;
+                }
+            }
+        }
+        return -1;
+    }
+
+
     private static class HeaderBorder implements Border {
         @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.setColor(c.getForeground());
+            g.setColor(c.getForeground().brighter());
             g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
         }
 
@@ -496,7 +519,7 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         }
 
         @Override
-        public void setSelectedRowIndices(int[] rowIndices) {
+        public void setSelectedRowIndices(int ... rowIndices) {
             Set<Integer> newRowIndices = new TreeSet<>();
             for (int rowIndex : rowIndices) {
                 newRowIndices.add(rowIndex);

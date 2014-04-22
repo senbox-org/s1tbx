@@ -2,13 +2,9 @@ package com.bc.ceres.swing;
 
 import org.junit.Test;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
+import javax.swing.*;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class GridTest {
     @Test
@@ -20,7 +16,7 @@ public class GridTest {
         assertEquals(1, grid.getRowCount());
         assertEquals(null, grid.getComponent(0, 0));
 
-        assertEquals(false, grid.isRowSelected(0));
+        assertEquals(false, grid.isDataRowSelected(0));
         assertEquals(0, grid.getSelectedDataRowCount());
         assertArrayEquals(asArray(), grid.getSelectedDataRowIndexes());
     }
@@ -94,7 +90,7 @@ public class GridTest {
         grid.addDataRow(c1, c2, c3);
         grid.addDataRow(c4, c5, c6);
 
-        grid.removeDataRow(1);
+        grid.removeDataRow(0);
 
         assertEquals(1, grid.getDataRowCount());
         assertEquals(2, grid.getRowCount());
@@ -104,7 +100,7 @@ public class GridTest {
         assertSame(c5, grid.getComponent(1, 2));
         assertSame(c6, grid.getComponent(1, 3));
 
-        grid.removeDataRow(1);
+        grid.removeDataRow(0);
 
         assertEquals(0, grid.getDataRowCount());
         assertEquals(1, grid.getRowCount());
@@ -126,7 +122,7 @@ public class GridTest {
         grid.addDataRow(c4, c5, c6);
         grid.addDataRow(new JLabel(), new JLabel(), new JLabel());
 
-        grid.removeDataRows(asArray(2, 4));
+        grid.removeDataRows(1, 3);
 
         assertEquals(2, grid.getDataRowCount());
         assertEquals(3, grid.getRowCount());
@@ -160,15 +156,15 @@ public class GridTest {
         ((JCheckBox) grid.getComponent(2, 0)).doClick();
 
         assertEquals(1, grid.getSelectedDataRowCount());
-        assertEquals(2, grid.getSelectedDataRowIndex());
-        assertArrayEquals(asArray(2), grid.getSelectedDataRowIndexes());
+        assertEquals(1, grid.getSelectedDataRowIndex());
+        assertArrayEquals(asArray(1), grid.getSelectedDataRowIndexes());
 
         ((JCheckBox) grid.getComponent(1, 0)).doClick();
         ((JCheckBox) grid.getComponent(3, 0)).doClick();
 
         assertEquals(3, grid.getSelectedDataRowCount());
-        assertEquals(1, grid.getSelectedDataRowIndex());
-        assertArrayEquals(asArray(1, 2, 3), grid.getSelectedDataRowIndexes());
+        assertEquals(0, grid.getSelectedDataRowIndex());
+        assertArrayEquals(asArray(0, 1, 2), grid.getSelectedDataRowIndexes());
 
         assertEquals(3, listener.count);
     }

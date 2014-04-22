@@ -2,17 +2,9 @@ package com.bc.ceres.swing;
 
 import com.jidesoft.utils.Lm;
 
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
+import java.awt.*;
 
 public class GridGuiTest {
     public static void main(String[] args) {
@@ -99,20 +91,14 @@ public class GridGuiTest {
 
         @Override
         public boolean moveRowUp(int index) {
-            if (index >= 2) {
-                grid.moveDataRowUp(index);
-                return true;
-            }
-            return false;
+            grid.moveDataRowUp(index);
+            return true;
         }
 
         @Override
         public boolean moveRowDown(int index) {
-            if (index < grid.getDataRowCount()) {
-                grid.moveDataRowDown(index);
-                return true;
-            }
-            return false;
+            grid.moveDataRowDown(index);
+            return true;
         }
     }
 
