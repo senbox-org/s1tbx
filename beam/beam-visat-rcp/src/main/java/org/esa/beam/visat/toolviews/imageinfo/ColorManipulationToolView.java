@@ -21,7 +21,7 @@ import javax.swing.JComponent;
 
 
 /**
- * The contrast stretch window.
+ * The color manipulation tool window.
  */
 public class ColorManipulationToolView extends AbstractToolView {
 
@@ -32,7 +32,7 @@ public class ColorManipulationToolView extends AbstractToolView {
 
     @Override
     protected JComponent createControl() {
-        ColorManipulationForm colorManipulationForm = new ColorManipulationForm(this);
-        return colorManipulationForm.getContentPanel();
+        ColorManipulationForm cmf = new ColorManipulationForm(this);
+        return cmf.getContentPanel();
     }
 }

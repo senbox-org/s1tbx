@@ -207,7 +207,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             BandChooser bandChooser = new BandChooser(getPaneWindow(),
                                                       "Available Bands And Tie Point Grids",
                                                       getDescriptor().getHelpId(), false,
-                                                      allBands, selectedBands, allGrids, selectedGrids);
+                                                      allBands, selectedBands, allGrids, selectedGrids, true);
             if (bandChooser.show() == ModalDialog.ID_OK) {
                 selectedBands = bandChooser.getSelectedBands();
                 selectedGrids = bandChooser.getSelectedTiePointGrids();
@@ -1057,11 +1057,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            ProductSceneView sceneView = getSceneView();
-            if (sceneView == null) {
-                return;
-            }
-
             if (e.getValueIsAdjusting() || e.getFirstIndex() == -1 || synchronizingPlacemarkSelectedState) {
                 return;
             }
@@ -1077,11 +1072,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         selectedPlacemarks.add(placemark);
                     }
                 }
-                Placemark[] placemarkArray = selectedPlacemarks.toArray(new Placemark[selectedPlacemarks.size()]);
-                if (getPlacemarkDescriptor() instanceof PinDescriptor) {
-                    sceneView.selectPins(placemarkArray);
-                } else {
-                    sceneView.selectGcps(placemarkArray);
+                ProductSceneView sceneView = getSceneView();
+                if (sceneView != null) {
+                    Placemark[] placemarkArray = selectedPlacemarks.toArray(new Placemark[selectedPlacemarks.size()]);
+                    if (getPlacemarkDescriptor() instanceof PinDescriptor) {
+                        sceneView.selectPins(placemarkArray);
+                    } else {
+                        sceneView.selectGcps(placemarkArray);
+                    }
                 }
             } finally {
                 updateUIState();

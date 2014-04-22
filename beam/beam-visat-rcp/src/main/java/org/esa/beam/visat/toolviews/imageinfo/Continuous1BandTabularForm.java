@@ -24,13 +24,17 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
 
 class Continuous1BandTabularForm implements ColorManipulationChildForm {
+
     private static final String[] COLUMN_NAMES = new String[]{"Colour", "Value"};
     private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{Color.class, Double.class};
 
@@ -82,6 +86,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         tableModel.fireTableDataChanged();
+        moreOptionsForm.setDiscreteColorsMode(parentForm.getImageInfo().getColorPaletteDef().isDiscrete());
     }
 
     @Override

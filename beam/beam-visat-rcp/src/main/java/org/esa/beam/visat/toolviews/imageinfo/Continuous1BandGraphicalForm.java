@@ -17,18 +17,17 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
-import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -82,10 +81,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         return contentPanel;
     }
 
-    public ImageInfoEditor getImageInfoEditor() {
-        return imageInfoEditor;
-    }
-
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         updateFormModel(productSceneView);
@@ -101,7 +96,8 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         final ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
-        final ImageInfoEditorModel newModel = new ImageInfoEditorModel1B(parentForm.getImageInfo());
+        final ImageInfo imageInfo = parentForm.getImageInfo();
+        final ImageInfoEditorModel newModel = new ImageInfoEditorModel1B(imageInfo);
         imageInfoEditor.setModel(newModel);
 
         final RasterDataNode raster = productSceneView.getRaster();
@@ -116,6 +112,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
             imageInfoEditor.computeZoomInToSliderLimits();
         }
 
+        moreOptionsForm.setDiscreteColorsMode(imageInfo.getColorPaletteDef().isDiscrete());
         logDisplayButton.setSelected(newModel.getImageInfo().isLogScaled());
         parentForm.revalidateToolViewPaneControl();
     }
