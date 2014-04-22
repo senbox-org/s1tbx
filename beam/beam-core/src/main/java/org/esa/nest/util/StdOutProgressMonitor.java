@@ -9,6 +9,7 @@ public final class StdOutProgressMonitor {
     private int lastMinPercentComplete = minorStep;
     private int lastMajPercentComplete = majorStep;
     private final int max;
+    private boolean percentWritten = false;
 
     public StdOutProgressMonitor(final int max) {
         this.max = max;
@@ -21,6 +22,7 @@ public final class StdOutProgressMonitor {
             if(percentComplete > lastMajPercentComplete) {
                 System.out.print(lastMajPercentComplete + "%");
                 lastMajPercentComplete = ((percentComplete / majorStep) * majorStep) + majorStep;
+                percentWritten = true;
             } else {
                 System.out.print(".");
             }
@@ -28,7 +30,9 @@ public final class StdOutProgressMonitor {
     }
 
     public void done() {
-        System.out.println("100%");
+        if(percentWritten) {
+            System.out.println("100%");
+        }
     }
 
 }
