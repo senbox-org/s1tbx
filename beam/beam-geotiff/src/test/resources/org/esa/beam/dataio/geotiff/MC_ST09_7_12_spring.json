@@ -1,0 +1,132 @@
+{
+    "id": "MC_ST09_7_12_spring",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 35175,
+        "sceneHeight": 7059,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 15171.0,
+                    "y": 3794.0,
+                    "lat": 49.76003,
+                    "lon": 35.78101
+                },
+                {
+                    "x": 26115.0,
+                    "y": 4580.0,
+                    "lat": 47.5767,
+                    "lon": 66.18101
+                }
+            ],
+            "reverseAccuracy": 0.002
+        },
+        "bands": [
+            {
+                "name": "band_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1835,
+                        "y": 1257,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 24098,
+                        "y": 6004,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "band_2",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 10232,
+                        "y": 1813,
+                        "value": 88.0
+                    },
+                    {
+                        "x": 21474,
+                        "y": 2578,
+                        "value": 131.0
+                    }
+                ]
+            },
+            {
+                "name": "band_3",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 19347,
+                        "y": 5261,
+                        "value": 214.0
+                    },
+                    {
+                        "x": 21398,
+                        "y": 6554,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "band_4",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 5567,
+                        "y": 4701,
+                        "value": 12.0
+                    },
+                    {
+                        "x": 18261,
+                        "y": 6448,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "band_5",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 26597,
+                        "y": 3420,
+                        "value": 26.0
+                    },
+                    {
+                        "x": 33443,
+                        "y": 3429,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GeogEllipsoidGeoKey",
+                "value": "Ellipse_WGS_84"
+            },
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTModelTypeGeoKey",
+                "value": "ModelTypeProjected"
+            }
+        ]
+    }
+}

@@ -1,0 +1,1087 @@
+{
+    "id": "GLOBCOVER-L4_LANDCOVER_200412-200606_V2.0_CLA",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 129600,
+        "sceneHeight": 64800,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 55898.0,
+                    "y": 34834.0,
+                    "lat": -6.759722,
+                    "lon": -24.729166
+                },
+                {
+                    "x": 96221.0,
+                    "y": 42049.0,
+                    "lat": -26.80139,
+                    "lon": 87.27917
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "indexCodings": [
+            {
+                "name": "color_map",
+                "samples": [
+                    {
+                        "name": "I  0",
+                        "value": 0
+                    },
+                    {
+                        "name": "I  1",
+                        "value": 1
+                    },
+                    {
+                        "name": "I  2",
+                        "value": 2
+                    },
+                    {
+                        "name": "I  3",
+                        "value": 3
+                    },
+                    {
+                        "name": "I  4",
+                        "value": 4
+                    },
+                    {
+                        "name": "I  5",
+                        "value": 5
+                    },
+                    {
+                        "name": "I  6",
+                        "value": 6
+                    },
+                    {
+                        "name": "I  7",
+                        "value": 7
+                    },
+                    {
+                        "name": "I  8",
+                        "value": 8
+                    },
+                    {
+                        "name": "I  9",
+                        "value": 9
+                    },
+                    {
+                        "name": "I 10",
+                        "value": 10
+                    },
+                    {
+                        "name": "I 11",
+                        "value": 11
+                    },
+                    {
+                        "name": "I 12",
+                        "value": 12
+                    },
+                    {
+                        "name": "I 13",
+                        "value": 13
+                    },
+                    {
+                        "name": "I 14",
+                        "value": 14
+                    },
+                    {
+                        "name": "I 15",
+                        "value": 15
+                    },
+                    {
+                        "name": "I 16",
+                        "value": 16
+                    },
+                    {
+                        "name": "I 17",
+                        "value": 17
+                    },
+                    {
+                        "name": "I 18",
+                        "value": 18
+                    },
+                    {
+                        "name": "I 19",
+                        "value": 19
+                    },
+                    {
+                        "name": "I 20",
+                        "value": 20
+                    },
+                    {
+                        "name": "I 21",
+                        "value": 21
+                    },
+                    {
+                        "name": "I 22",
+                        "value": 22
+                    },
+                    {
+                        "name": "I 23",
+                        "value": 23
+                    },
+                    {
+                        "name": "I 24",
+                        "value": 24
+                    },
+                    {
+                        "name": "I 25",
+                        "value": 25
+                    },
+                    {
+                        "name": "I 26",
+                        "value": 26
+                    },
+                    {
+                        "name": "I 27",
+                        "value": 27
+                    },
+                    {
+                        "name": "I 28",
+                        "value": 28
+                    },
+                    {
+                        "name": "I 29",
+                        "value": 29
+                    },
+                    {
+                        "name": "I 30",
+                        "value": 30
+                    },
+                    {
+                        "name": "I 31",
+                        "value": 31
+                    },
+                    {
+                        "name": "I 32",
+                        "value": 32
+                    },
+                    {
+                        "name": "I 33",
+                        "value": 33
+                    },
+                    {
+                        "name": "I 34",
+                        "value": 34
+                    },
+                    {
+                        "name": "I 35",
+                        "value": 35
+                    },
+                    {
+                        "name": "I 36",
+                        "value": 36
+                    },
+                    {
+                        "name": "I 37",
+                        "value": 37
+                    },
+                    {
+                        "name": "I 38",
+                        "value": 38
+                    },
+                    {
+                        "name": "I 39",
+                        "value": 39
+                    },
+                    {
+                        "name": "I 40",
+                        "value": 40
+                    },
+                    {
+                        "name": "I 41",
+                        "value": 41
+                    },
+                    {
+                        "name": "I 42",
+                        "value": 42
+                    },
+                    {
+                        "name": "I 43",
+                        "value": 43
+                    },
+                    {
+                        "name": "I 44",
+                        "value": 44
+                    },
+                    {
+                        "name": "I 45",
+                        "value": 45
+                    },
+                    {
+                        "name": "I 46",
+                        "value": 46
+                    },
+                    {
+                        "name": "I 47",
+                        "value": 47
+                    },
+                    {
+                        "name": "I 48",
+                        "value": 48
+                    },
+                    {
+                        "name": "I 49",
+                        "value": 49
+                    },
+                    {
+                        "name": "I 50",
+                        "value": 50
+                    },
+                    {
+                        "name": "I 51",
+                        "value": 51
+                    },
+                    {
+                        "name": "I 52",
+                        "value": 52
+                    },
+                    {
+                        "name": "I 53",
+                        "value": 53
+                    },
+                    {
+                        "name": "I 54",
+                        "value": 54
+                    },
+                    {
+                        "name": "I 55",
+                        "value": 55
+                    },
+                    {
+                        "name": "I 56",
+                        "value": 56
+                    },
+                    {
+                        "name": "I 57",
+                        "value": 57
+                    },
+                    {
+                        "name": "I 58",
+                        "value": 58
+                    },
+                    {
+                        "name": "I 59",
+                        "value": 59
+                    },
+                    {
+                        "name": "I 60",
+                        "value": 60
+                    },
+                    {
+                        "name": "I 61",
+                        "value": 61
+                    },
+                    {
+                        "name": "I 62",
+                        "value": 62
+                    },
+                    {
+                        "name": "I 63",
+                        "value": 63
+                    },
+                    {
+                        "name": "I 64",
+                        "value": 64
+                    },
+                    {
+                        "name": "I 65",
+                        "value": 65
+                    },
+                    {
+                        "name": "I 66",
+                        "value": 66
+                    },
+                    {
+                        "name": "I 67",
+                        "value": 67
+                    },
+                    {
+                        "name": "I 68",
+                        "value": 68
+                    },
+                    {
+                        "name": "I 69",
+                        "value": 69
+                    },
+                    {
+                        "name": "I 70",
+                        "value": 70
+                    },
+                    {
+                        "name": "I 71",
+                        "value": 71
+                    },
+                    {
+                        "name": "I 72",
+                        "value": 72
+                    },
+                    {
+                        "name": "I 73",
+                        "value": 73
+                    },
+                    {
+                        "name": "I 74",
+                        "value": 74
+                    },
+                    {
+                        "name": "I 75",
+                        "value": 75
+                    },
+                    {
+                        "name": "I 76",
+                        "value": 76
+                    },
+                    {
+                        "name": "I 77",
+                        "value": 77
+                    },
+                    {
+                        "name": "I 78",
+                        "value": 78
+                    },
+                    {
+                        "name": "I 79",
+                        "value": 79
+                    },
+                    {
+                        "name": "I 80",
+                        "value": 80
+                    },
+                    {
+                        "name": "I 81",
+                        "value": 81
+                    },
+                    {
+                        "name": "I 82",
+                        "value": 82
+                    },
+                    {
+                        "name": "I 83",
+                        "value": 83
+                    },
+                    {
+                        "name": "I 84",
+                        "value": 84
+                    },
+                    {
+                        "name": "I 85",
+                        "value": 85
+                    },
+                    {
+                        "name": "I 86",
+                        "value": 86
+                    },
+                    {
+                        "name": "I 87",
+                        "value": 87
+                    },
+                    {
+                        "name": "I 88",
+                        "value": 88
+                    },
+                    {
+                        "name": "I 89",
+                        "value": 89
+                    },
+                    {
+                        "name": "I 90",
+                        "value": 90
+                    },
+                    {
+                        "name": "I 91",
+                        "value": 91
+                    },
+                    {
+                        "name": "I 92",
+                        "value": 92
+                    },
+                    {
+                        "name": "I 93",
+                        "value": 93
+                    },
+                    {
+                        "name": "I 94",
+                        "value": 94
+                    },
+                    {
+                        "name": "I 95",
+                        "value": 95
+                    },
+                    {
+                        "name": "I 96",
+                        "value": 96
+                    },
+                    {
+                        "name": "I 97",
+                        "value": 97
+                    },
+                    {
+                        "name": "I 98",
+                        "value": 98
+                    },
+                    {
+                        "name": "I 99",
+                        "value": 99
+                    },
+                    {
+                        "name": "I100",
+                        "value": 100
+                    },
+                    {
+                        "name": "I101",
+                        "value": 101
+                    },
+                    {
+                        "name": "I102",
+                        "value": 102
+                    },
+                    {
+                        "name": "I103",
+                        "value": 103
+                    },
+                    {
+                        "name": "I104",
+                        "value": 104
+                    },
+                    {
+                        "name": "I105",
+                        "value": 105
+                    },
+                    {
+                        "name": "I106",
+                        "value": 106
+                    },
+                    {
+                        "name": "I107",
+                        "value": 107
+                    },
+                    {
+                        "name": "I108",
+                        "value": 108
+                    },
+                    {
+                        "name": "I109",
+                        "value": 109
+                    },
+                    {
+                        "name": "I110",
+                        "value": 110
+                    },
+                    {
+                        "name": "I111",
+                        "value": 111
+                    },
+                    {
+                        "name": "I112",
+                        "value": 112
+                    },
+                    {
+                        "name": "I113",
+                        "value": 113
+                    },
+                    {
+                        "name": "I114",
+                        "value": 114
+                    },
+                    {
+                        "name": "I115",
+                        "value": 115
+                    },
+                    {
+                        "name": "I116",
+                        "value": 116
+                    },
+                    {
+                        "name": "I117",
+                        "value": 117
+                    },
+                    {
+                        "name": "I118",
+                        "value": 118
+                    },
+                    {
+                        "name": "I119",
+                        "value": 119
+                    },
+                    {
+                        "name": "I120",
+                        "value": 120
+                    },
+                    {
+                        "name": "I121",
+                        "value": 121
+                    },
+                    {
+                        "name": "I122",
+                        "value": 122
+                    },
+                    {
+                        "name": "I123",
+                        "value": 123
+                    },
+                    {
+                        "name": "I124",
+                        "value": 124
+                    },
+                    {
+                        "name": "I125",
+                        "value": 125
+                    },
+                    {
+                        "name": "I126",
+                        "value": 126
+                    },
+                    {
+                        "name": "I127",
+                        "value": 127
+                    },
+                    {
+                        "name": "I128",
+                        "value": 128
+                    },
+                    {
+                        "name": "I129",
+                        "value": 129
+                    },
+                    {
+                        "name": "I130",
+                        "value": 130
+                    },
+                    {
+                        "name": "I131",
+                        "value": 131
+                    },
+                    {
+                        "name": "I132",
+                        "value": 132
+                    },
+                    {
+                        "name": "I133",
+                        "value": 133
+                    },
+                    {
+                        "name": "I134",
+                        "value": 134
+                    },
+                    {
+                        "name": "I135",
+                        "value": 135
+                    },
+                    {
+                        "name": "I136",
+                        "value": 136
+                    },
+                    {
+                        "name": "I137",
+                        "value": 137
+                    },
+                    {
+                        "name": "I138",
+                        "value": 138
+                    },
+                    {
+                        "name": "I139",
+                        "value": 139
+                    },
+                    {
+                        "name": "I140",
+                        "value": 140
+                    },
+                    {
+                        "name": "I141",
+                        "value": 141
+                    },
+                    {
+                        "name": "I142",
+                        "value": 142
+                    },
+                    {
+                        "name": "I143",
+                        "value": 143
+                    },
+                    {
+                        "name": "I144",
+                        "value": 144
+                    },
+                    {
+                        "name": "I145",
+                        "value": 145
+                    },
+                    {
+                        "name": "I146",
+                        "value": 146
+                    },
+                    {
+                        "name": "I147",
+                        "value": 147
+                    },
+                    {
+                        "name": "I148",
+                        "value": 148
+                    },
+                    {
+                        "name": "I149",
+                        "value": 149
+                    },
+                    {
+                        "name": "I150",
+                        "value": 150
+                    },
+                    {
+                        "name": "I151",
+                        "value": 151
+                    },
+                    {
+                        "name": "I152",
+                        "value": 152
+                    },
+                    {
+                        "name": "I153",
+                        "value": 153
+                    },
+                    {
+                        "name": "I154",
+                        "value": 154
+                    },
+                    {
+                        "name": "I155",
+                        "value": 155
+                    },
+                    {
+                        "name": "I156",
+                        "value": 156
+                    },
+                    {
+                        "name": "I157",
+                        "value": 157
+                    },
+                    {
+                        "name": "I158",
+                        "value": 158
+                    },
+                    {
+                        "name": "I159",
+                        "value": 159
+                    },
+                    {
+                        "name": "I160",
+                        "value": 160
+                    },
+                    {
+                        "name": "I161",
+                        "value": 161
+                    },
+                    {
+                        "name": "I162",
+                        "value": 162
+                    },
+                    {
+                        "name": "I163",
+                        "value": 163
+                    },
+                    {
+                        "name": "I164",
+                        "value": 164
+                    },
+                    {
+                        "name": "I165",
+                        "value": 165
+                    },
+                    {
+                        "name": "I166",
+                        "value": 166
+                    },
+                    {
+                        "name": "I167",
+                        "value": 167
+                    },
+                    {
+                        "name": "I168",
+                        "value": 168
+                    },
+                    {
+                        "name": "I169",
+                        "value": 169
+                    },
+                    {
+                        "name": "I170",
+                        "value": 170
+                    },
+                    {
+                        "name": "I171",
+                        "value": 171
+                    },
+                    {
+                        "name": "I172",
+                        "value": 172
+                    },
+                    {
+                        "name": "I173",
+                        "value": 173
+                    },
+                    {
+                        "name": "I174",
+                        "value": 174
+                    },
+                    {
+                        "name": "I175",
+                        "value": 175
+                    },
+                    {
+                        "name": "I176",
+                        "value": 176
+                    },
+                    {
+                        "name": "I177",
+                        "value": 177
+                    },
+                    {
+                        "name": "I178",
+                        "value": 178
+                    },
+                    {
+                        "name": "I179",
+                        "value": 179
+                    },
+                    {
+                        "name": "I180",
+                        "value": 180
+                    },
+                    {
+                        "name": "I181",
+                        "value": 181
+                    },
+                    {
+                        "name": "I182",
+                        "value": 182
+                    },
+                    {
+                        "name": "I183",
+                        "value": 183
+                    },
+                    {
+                        "name": "I184",
+                        "value": 184
+                    },
+                    {
+                        "name": "I185",
+                        "value": 185
+                    },
+                    {
+                        "name": "I186",
+                        "value": 186
+                    },
+                    {
+                        "name": "I187",
+                        "value": 187
+                    },
+                    {
+                        "name": "I188",
+                        "value": 188
+                    },
+                    {
+                        "name": "I189",
+                        "value": 189
+                    },
+                    {
+                        "name": "I190",
+                        "value": 190
+                    },
+                    {
+                        "name": "I191",
+                        "value": 191
+                    },
+                    {
+                        "name": "I192",
+                        "value": 192
+                    },
+                    {
+                        "name": "I193",
+                        "value": 193
+                    },
+                    {
+                        "name": "I194",
+                        "value": 194
+                    },
+                    {
+                        "name": "I195",
+                        "value": 195
+                    },
+                    {
+                        "name": "I196",
+                        "value": 196
+                    },
+                    {
+                        "name": "I197",
+                        "value": 197
+                    },
+                    {
+                        "name": "I198",
+                        "value": 198
+                    },
+                    {
+                        "name": "I199",
+                        "value": 199
+                    },
+                    {
+                        "name": "I200",
+                        "value": 200
+                    },
+                    {
+                        "name": "I201",
+                        "value": 201
+                    },
+                    {
+                        "name": "I202",
+                        "value": 202
+                    },
+                    {
+                        "name": "I203",
+                        "value": 203
+                    },
+                    {
+                        "name": "I204",
+                        "value": 204
+                    },
+                    {
+                        "name": "I205",
+                        "value": 205
+                    },
+                    {
+                        "name": "I206",
+                        "value": 206
+                    },
+                    {
+                        "name": "I207",
+                        "value": 207
+                    },
+                    {
+                        "name": "I208",
+                        "value": 208
+                    },
+                    {
+                        "name": "I209",
+                        "value": 209
+                    },
+                    {
+                        "name": "I210",
+                        "value": 210
+                    },
+                    {
+                        "name": "I211",
+                        "value": 211
+                    },
+                    {
+                        "name": "I212",
+                        "value": 212
+                    },
+                    {
+                        "name": "I213",
+                        "value": 213
+                    },
+                    {
+                        "name": "I214",
+                        "value": 214
+                    },
+                    {
+                        "name": "I215",
+                        "value": 215
+                    },
+                    {
+                        "name": "I216",
+                        "value": 216
+                    },
+                    {
+                        "name": "I217",
+                        "value": 217
+                    },
+                    {
+                        "name": "I218",
+                        "value": 218
+                    },
+                    {
+                        "name": "I219",
+                        "value": 219
+                    },
+                    {
+                        "name": "I220",
+                        "value": 220
+                    },
+                    {
+                        "name": "I221",
+                        "value": 221
+                    },
+                    {
+                        "name": "I222",
+                        "value": 222
+                    },
+                    {
+                        "name": "I223",
+                        "value": 223
+                    },
+                    {
+                        "name": "I224",
+                        "value": 224
+                    },
+                    {
+                        "name": "I225",
+                        "value": 225
+                    },
+                    {
+                        "name": "I226",
+                        "value": 226
+                    },
+                    {
+                        "name": "I227",
+                        "value": 227
+                    },
+                    {
+                        "name": "I228",
+                        "value": 228
+                    },
+                    {
+                        "name": "I229",
+                        "value": 229
+                    },
+                    {
+                        "name": "I230",
+                        "value": 230
+                    },
+                    {
+                        "name": "I231",
+                        "value": 231
+                    },
+                    {
+                        "name": "I232",
+                        "value": 232
+                    },
+                    {
+                        "name": "I233",
+                        "value": 233
+                    },
+                    {
+                        "name": "I234",
+                        "value": 234
+                    },
+                    {
+                        "name": "I235",
+                        "value": 235
+                    },
+                    {
+                        "name": "I236",
+                        "value": 236
+                    },
+                    {
+                        "name": "I237",
+                        "value": 237
+                    },
+                    {
+                        "name": "I238",
+                        "value": 238
+                    },
+                    {
+                        "name": "I239",
+                        "value": 239
+                    },
+                    {
+                        "name": "I240",
+                        "value": 240
+                    },
+                    {
+                        "name": "I241",
+                        "value": 241
+                    },
+                    {
+                        "name": "I242",
+                        "value": 242
+                    },
+                    {
+                        "name": "I243",
+                        "value": 243
+                    },
+                    {
+                        "name": "I244",
+                        "value": 244
+                    },
+                    {
+                        "name": "I245",
+                        "value": 245
+                    },
+                    {
+                        "name": "I246",
+                        "value": 246
+                    },
+                    {
+                        "name": "I247",
+                        "value": 247
+                    },
+                    {
+                        "name": "I248",
+                        "value": 248
+                    },
+                    {
+                        "name": "I249",
+                        "value": 249
+                    },
+                    {
+                        "name": "I250",
+                        "value": 250
+                    },
+                    {
+                        "name": "I251",
+                        "value": 251
+                    },
+                    {
+                        "name": "I252",
+                        "value": 252
+                    },
+                    {
+                        "name": "I253",
+                        "value": 253
+                    },
+                    {
+                        "name": "I254",
+                        "value": 254
+                    },
+                    {
+                        "name": "I255",
+                        "value": 255
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "band_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6762,
+                        "y": 11545,
+                        "value": 210.0
+                    },
+                    {
+                        "x": 88788,
+                        "y": 55118,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTRasterTypeGeoKey",
+                "value": "RasterPixelIsArea"
+            },
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GeogAngularUnitsGeoKey",
+                "value": "Angular_Degree"
+            }
+        ]
+    }
+}
