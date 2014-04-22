@@ -20,9 +20,11 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The <code>ProductIOPlugInManager</code> class is used to manage all registered reader and writer plug-ins.
@@ -135,8 +137,6 @@ public class ProductIOPlugInManager {
         return writerPlugIns.removeService(writerPlugIn);
     }
 
-    private static final String[] excludeFormats = { "Generic Binary"};
-
     /**
      * Returns a <code>String[]</code> which contains all the product writer format strings of registered product
      * writers, never Null. Returns never Null.
@@ -154,8 +154,6 @@ public class ProductIOPlugInManager {
             writer = (ProductIOPlugIn) iterator.next();
             formatNames = writer.getFormatNames();
             for (String formatName : formatNames) {
-                if(StringUtils.contains(excludeFormats, formatName))
-                    continue;
                 if (!formats.contains(formatName)) {
                     formats.add(formatName);
                 }
