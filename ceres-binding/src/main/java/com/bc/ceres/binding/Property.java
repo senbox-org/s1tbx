@@ -121,29 +121,20 @@ public class Property {
 
     public String getValueAsText() {
         final Converter converter = descriptor.getConverter(true);
-        if (converter != null) {
-            return converter.format(getValue());
-        } else {
-            return String.valueOf(getValue());
-        }
+        return converter.format(getValue());
     }
 
     public void setValueFromText(String text) throws ValidationException {
         final Converter converter = descriptor.getConverter(true);
-        if (converter != null) {
-            final Object value;
-            try {
-                value = converter.parse(text);
-            } catch (ConversionException e) {
-                throw new ValidationException(MessageFormat.format("Value for ''{0}'' is invalid.\n''{1}''",
-                                                                   getDescriptor().getDisplayName(),
-                                                                   e.getMessage()),
-                                              e);
-            }
-            setValue(value);
-        } else {
-            setValue(text);
+        final Object value;
+        try {
+            value = converter.parse(text);
+        } catch (ConversionException e) {
+            throw new ValidationException(MessageFormat.format("Value for ''{0}'' is invalid.\n''{1}''",
+                                                               getDescriptor().getDisplayName(),
+                                                               e.getMessage()), e );
         }
+        setValue(value);
     }
 
     public String getName() {
