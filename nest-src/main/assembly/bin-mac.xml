@@ -80,8 +80,6 @@
             <excludes>
 				<exclude>org.esa.nest:nest-bootstrap</exclude>
 				<exclude>org.esa.nest:nest-src</exclude>
-				<exclude>org.esa.nest.maven:maven-nest-dataio-archetype</exclude>
-				<exclude>org.esa.nest.maven:maven-nest-gpf-archetype</exclude>
                 <exclude>com.bc.ceres:ceres-*</exclude>
             </excludes>
 
@@ -114,7 +112,6 @@
 							<exclude>org.esa.nest:nest-ocean-tools</exclude>
 							<exclude>org.esa.nest:nest-reader-dem</exclude>
 							<exclude>org.esa.nest:nest-io</exclude>
-							<exclude>org.esa.nest:nest-io-sentinel1</exclude>
 							<exclude>org.esa.nest:nest-dat</exclude>
 							<exclude>org.jlinda:jlinda-core</exclude>
 							<exclude>org.esa.pfa:pfa-core</exclude>

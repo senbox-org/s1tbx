@@ -10,10 +10,7 @@
     <moduleSets>
         <moduleSet>
 			<excludes>
-				<exclude>org.esa.nest:nest-bootstrap</exclude>
-				<exclude>org.esa.nest.maven:maven-nest-dataio-archetype</exclude>
-				<exclude>org.esa.nest.maven:maven-nest-gpf-archetype</exclude>
-				
+				<exclude>org.esa.nest:nest-bootstrap</exclude>				
                 <exclude>com.bc.ceres:ceres-launcher</exclude>
             </excludes>
 			<sources>
