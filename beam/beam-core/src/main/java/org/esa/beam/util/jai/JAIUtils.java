@@ -803,12 +803,6 @@ public class JAIUtils {
                 return u;
             }
         }
-
-        // NESTMOD
-        final String configTileSize = System.getProperty("jai.tileSize");
-        if(configTileSize != null)
-            return Integer.parseInt(configTileSize);
-
         int minDelta = Integer.MAX_VALUE;
         int tileSize = -1;
         for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u -= granularity) {
