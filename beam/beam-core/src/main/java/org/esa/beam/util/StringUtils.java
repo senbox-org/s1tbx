@@ -586,9 +586,17 @@ public class StringUtils {
         return stringToArray(csvString, ",");
     }
 
+    /**
+     * Gets a String[] from the given comma separated value string given a delimiter.
+     *
+     * @param csvString the CSV (comma separated value) String.
+     * @param delim     the separator string, e.g. ","
+     * @return an array of strings created from the given comma separated value string, never <code>null</code>
+     * @throws IllegalArgumentException if the given Object is not an <code>array</code> or <code>null</code>.
+     */
     public static String[] stringToArray(final String csvString, final String delim) {
         final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
-        final List<String> strList = new ArrayList<String>(tokenizer.countTokens());
+        final List<String> strList = new ArrayList<>(tokenizer.countTokens());
         while (tokenizer.hasMoreTokens()) {
             strList.add(tokenizer.nextToken());
         }
@@ -805,11 +813,11 @@ public class StringUtils {
      * @param num the integer value
      * @param max the desired string length
      * @param c the inserted character
-     * @return
+     * @return padded number as string
      */
     public static String padNum(final int num, final int max, final char c) {
         final StringBuilder str = new StringBuilder(String.valueOf(num));
-        while(str.length() < max) {
+        while (str.length() < max) {
             str.insert(0, c);
         }
         return str.toString();
