@@ -63,6 +63,19 @@
         </action>
 
         <action>
+            <id>Sentinel1RemoveThermalNoiseOp</id>
+            <helpId>Sentinel1RemoveThermalNoiseOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Calibration</parent>
+            <text>Sentinel-1 Remove Thermal Noise</text>
+            <dialogTitle>Sentinel-1 Remove Thermal Noise</dialogTitle>
+            <shortDescr>Remove thermal noise for Sentinel-1 product</shortDescr>
+            <operatorName>Sentinel1RemoveThermalNoise</operatorName>
+            <targetProductNameSuffix>_noise_corr</targetProductNameSuffix>
+        </action>
+
+        <action>
             <id>importXCAProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>ENVISAT</formatName>
