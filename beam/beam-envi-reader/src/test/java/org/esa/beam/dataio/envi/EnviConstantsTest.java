@@ -1,9 +1,12 @@
 package org.esa.beam.dataio.envi;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class EnviConstantsTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class EnviConstantsTest {
+
+    @Test
     public void testTheConstants() {
         assertEquals("samples", EnviConstants.HEADER_KEY_SAMPLES);
         assertEquals("lines", EnviConstants.HEADER_KEY_LINES);

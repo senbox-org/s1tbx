@@ -23,11 +23,8 @@ public class EnviProductReaderPlugIn implements ProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(Object input) {
         if (input instanceof ImageInputStream) {
             return checkDecodeQualificationOnStream((ImageInputStream) input);
-        } else if (input instanceof File) {
-            return checkDecodeQualificationOnFile((File) input);
-        } else if (input instanceof String) {
-            final String fileName = (String) input;
-            return checkDecodeQualificationOnFile(new File(fileName));
+        } else if(input != null){
+            return checkDecodeQualificationOnFile(new File(input.toString()));
         }
         return DecodeQualification.UNABLE;
     }
@@ -67,13 +64,7 @@ public class EnviProductReaderPlugIn implements ProductReaderPlugIn {
     ///////////////////////////////////////////////////////////////////////////
 
     static File getInputFile(Object input) {
-        File file = null;
-        if (input instanceof String) {
-            file = new File((String) input);
-        } else if (input instanceof File) {
-            file = (File) input;
-        }
-        return file;
+        return new File(input.toString());
     }
 
 
