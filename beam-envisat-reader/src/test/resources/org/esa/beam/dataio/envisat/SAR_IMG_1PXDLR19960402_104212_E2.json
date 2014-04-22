@@ -1,4 +1,163 @@
 {
     "id": "SAR_IMG_1PXDLR19960402_104212_E2",
-    "decodeQualification": "UNABLE"
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 9607,
+        "sceneHeight": 10000,
+        "startTime": "02-APR-1996 10:42:12.585383",
+        "endTime": "02-APR-1996 10:42:28.329155",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 4143.0,
+                    "y": 5375.0,
+                    "lat": 6.1436214,
+                    "lon": -4.868245
+                },
+                {
+                    "x": 7132.0,
+                    "y": 6489.0,
+                    "lat": 6.0187654,
+                    "lon": -4.5302553
+                }
+            ],
+            "reverseAccuracy": 1.4135742
+        },
+        "tiePointGrids": [
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "961.0",
+                "subSamplingY": "834.0",
+                "expectedPixels": [
+                    {
+                        "x": 501,
+                        "y": 1781,
+                        "value": 5815423.0
+                    },
+                    {
+                        "x": 6581,
+                        "y": 8505,
+                        "value": 5565475.0
+                    }
+                ]
+            },
+            {
+                "name": "incident_angle",
+                "description": "Incident angle",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "961.0",
+                "subSamplingY": "834.0",
+                "expectedPixels": [
+                    {
+                        "x": 2794,
+                        "y": 2568,
+                        "value": 25.133554
+                    },
+                    {
+                        "x": 5865,
+                        "y": 3652,
+                        "value": 22.278086
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "961.0",
+                "subSamplingY": "834.0",
+                "expectedPixels": [
+                    {
+                        "x": 5284,
+                        "y": 7453,
+                        "value": 5.9091325
+                    },
+                    {
+                        "x": 5844,
+                        "y": 9284,
+                        "value": 5.702366
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "961.0",
+                "subSamplingY": "834.0",
+                "expectedPixels": [
+                    {
+                        "x": 1520,
+                        "y": 6660,
+                        "value": -5.1637144
+                    },
+                    {
+                        "x": 4987,
+                        "y": 9135,
+                        "value": -4.7716513
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "Amplitude",
+                "description": "Image Mode Geocoded Image",
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 7264,
+                        "y": 4846,
+                        "value": 401.0
+                    },
+                    {
+                        "x": 9134,
+                        "y": 4858,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Intensity",
+                "description": "Intensity",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3270,
+                        "y": 8994,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 95,
+                        "y": 4707,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "DSD/DSD.4/DATASET_TYPE",
+                "value": "A"
+            },
+            {
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.1/coefficient.3/dop_coef",
+                "value": "9.9871088E7"
+            }
+        ]
+    }
 }
