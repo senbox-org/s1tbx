@@ -266,10 +266,6 @@ public class DimapProductReader extends AbstractProductReader {
         } else {
             throw new IllegalArgumentException("unsupported input source: " + getInput());  /*I18N*/
         }
-        if (DecodeQualification.UNABLE.equals(getReaderPlugIn().getDecodeQualification(inputFile))) {
-            throw new IOException("Not a '" + DimapProductConstants.DIMAP_FORMAT_NAME + "' product."); /*I18N*/
-        }
-
         Debug.assertNotNull(inputFile); // super.readProductNodes should have checked getInput() != null already
         inputDir = inputFile.getParentFile();
         if (inputDir == null) {
