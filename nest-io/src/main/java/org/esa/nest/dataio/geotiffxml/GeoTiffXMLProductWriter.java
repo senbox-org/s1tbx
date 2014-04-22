@@ -57,7 +57,7 @@ public class GeoTiffXMLProductWriter extends GeoTiffProductWriter {
     private void writeMetadataXML() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
         File file = ReaderUtils.getFileFromInput(getOutput());
-        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(getOutputDir().getParentFile(),
+        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(outputFile.getParentFile(),
                 FileUtils.getFilenameWithoutExtension(file.getName())+".xml"));
     }
 }
