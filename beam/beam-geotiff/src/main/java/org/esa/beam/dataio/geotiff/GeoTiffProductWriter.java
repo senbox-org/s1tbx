@@ -40,7 +40,7 @@ import java.io.IOException;
  */
 public class GeoTiffProductWriter extends AbstractProductWriter {
 
-    private File outputFile;
+    protected File outputFile;
     private ImageOutputStream outputStream;
     private GeoTiffBandWriter bandWriter;
 
