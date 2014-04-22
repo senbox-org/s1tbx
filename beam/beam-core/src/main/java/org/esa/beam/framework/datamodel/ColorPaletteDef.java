@@ -16,7 +16,6 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
@@ -36,7 +35,7 @@ import java.util.Vector;
  * contained in the curve. This allows a better image interpretation because certain colors correspond to certain sample
  * values even if the curve points are used to create color gradient palettes.
  */
-public class ColorPaletteDef implements Cloneable {
+public class ColorPaletteDef implements Cloneable  {
 
     private final static String _PROPERTY_KEY_NUM_POINTS = "numPoints";
     private final static String _PROPERTY_KEY_COLOR = "color";
@@ -72,7 +71,7 @@ public class ColorPaletteDef implements Cloneable {
         Guardian.assertNotNull("points", points);
         Guardian.assertGreaterThan("points.length", points.length, 1);
         this.numColors = numColors;
-        this.points = new Vector<Point>(points.length);
+        this.points = new Vector<>(points.length);
         this.points.addAll(Arrays.asList(points));
         this.discrete = false;
     }
@@ -213,13 +212,16 @@ public class ColorPaletteDef implements Cloneable {
     public final Object clone() {
         try {
             ColorPaletteDef def = (ColorPaletteDef) super.clone();
-            Vector<Point> pointVector = new Vector<Point>();
+            Vector<Point> pointVector = new Vector<>();
             pointVector.setSize(points.size());
             for (int i = 0; i < points.size(); i++) {
                 Point point = points.get(i);
                 pointVector.set(i, point.createClone());
             }
             def.points = pointVector;
+            def.numColors = numColors;
+            def.discrete = discrete;
+            def.autoDistribute = autoDistribute;
             return def;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
@@ -324,7 +326,6 @@ public class ColorPaletteDef implements Cloneable {
     @Deprecated
     public Color[] createColorPalette(Scaling scaling) {
         // @todo 1 tb/tb take care of non-linear scalings 2014-03-26
-        Debug.assertTrue(getNumPoints() >= 2);
         final Color[] colorPalette = new Color[numColors];
         final double displayMin = getMinDisplaySample();
         final double displayMax = getMaxDisplaySample();
@@ -390,6 +391,43 @@ public class ColorPaletteDef implements Cloneable {
         return new Color(red, green, blue, alpha);
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ColorPaletteDef that = (ColorPaletteDef) o;
+
+        if (autoDistribute != that.autoDistribute) {
+            return false;
+        }
+        if (discrete != that.discrete) {
+            return false;
+        }
+        if (numColors != that.numColors) {
+            return false;
+        }
+        if (!points.equals(that.points)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = points.hashCode();
+        result = 31 * result + numColors;
+        result = 31 * result + (discrete ? 1 : 0);
+        result = 31 * result + (autoDistribute ? 1 : 0);
+        return result;
+    }
+
     public static class Point implements Cloneable {
 
         private double sample;
@@ -447,5 +485,39 @@ public class ColorPaletteDef implements Cloneable {
             return (Point) clone();
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Point point = (Point) o;
+
+            if (Double.compare(point.sample, sample) != 0) {
+                return false;
+            }
+            if (color != null ? !color.equals(point.color) : point.color != null) {
+                return false;
+            }
+            if (label != null ? !label.equals(point.label) : point.label != null) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            long temp;
+            temp = Double.doubleToLongBits(sample);
+            result = (int) (temp ^ (temp >>> 32));
+            result = 31 * result + (color != null ? color.hashCode() : 0);
+            result = 31 * result + (label != null ? label.hashCode() : 0);
+            return result;
+        }
     }
 }
