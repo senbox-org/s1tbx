@@ -27,7 +27,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
@@ -233,7 +234,7 @@ class BinningVariablesPanel2 extends JPanel {
     }
 
     private JPanel createVariablePanel() {
-        DefaultTableModel tableModel = new DefaultTableModel(null, new String[] {"Name", "Expression"});
+        DefaultTableModel tableModel = new DefaultTableModel(null, new String[]{"Name", "Expression"});
         JTable grid = new JTable(tableModel);
         ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new VariableController(grid));
 
@@ -278,69 +279,42 @@ class BinningVariablesPanel2 extends JPanel {
     }
 
     private static JPanel createAggregatorPanel() {
-        Grid grid = new Grid(6, true);
-        grid.getLayout().setTablePadding(2, 1);
-        grid.getLayout().setColumnFill(1, TableLayout.Fill.HORIZONTAL);
-        grid.getLayout().setColumnWeightX(1, 0.5);
+        final Grid grid = new Grid(6, false);
+        grid.getLayout().setTablePadding(4, 3);
+        grid.getLayout().setTableAnchor(TableLayout.Anchor.BASELINE);
+        grid.getLayout().setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        grid.getLayout().setColumnFill(2, TableLayout.Fill.HORIZONTAL);
+        grid.getLayout().setColumnFill(3, TableLayout.Fill.HORIZONTAL);
         grid.getLayout().setColumnFill(4, TableLayout.Fill.HORIZONTAL);
-        grid.getLayout().setColumnWeightX(4, 0.5);
-        grid.setHeaderRow(/*1*/ new JLabel("Target name"),
-                          /*2*/ new JLabel("Source"),
-                          /*3*/ new JLabel("Aggregator"),
-                          /*4*/ new JLabel("Parameters"),
-                          /*5*/ null);
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorController(grid));
+        grid.getLayout().setColumnWeightX(2, 1.0);
+        grid.getLayout().setColumnWeightX(3, 1.0);
+        grid.getLayout().setColumnWeightX(4, 1.0);
+        grid.setHeaderRow(
+                /*1*/ new JLabel("<html><b>Agg.</b>"),
+                /*2*/ new JLabel("<html><b>Source</b>"),
+                /*3*/ new JLabel("<html><b>Targets</b>"),
+                /*4*/ new JLabel("<html><b>Parameters</b>"),
+                /*5*/ null
+        );
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid));
 
-        JScrollPane scrollPane = new JScrollPane(grid);
-        scrollPane.setBorder(null);
+        final JCheckBox sel = new JCheckBox();
+        sel.setToolTipText("Show/hide selection column");
+        sel.setBorderPaintedFlat(true);
+        sel.setBorderPainted(false);
+        sel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                grid.setShowSelectionColumn(sel.isSelected());
+            }
+        });
+        gridControlBar.add(sel, 0);
 
-        JPanel panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(new TitledBorder("Target Bands"));
-        panel.add(gridControlBar, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
+        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        panel.add(new JScrollPane(grid), BorderLayout.CENTER);
+        panel.add(gridControlBar, BorderLayout.SOUTH);
         return panel;
-    }
-
-    private static class AggregatorController implements ListControlBar.ListController {
-
-        final static String[] sourceValueSet = {"Ene", "Mene", "Muh"};
-        final static String[] aggregatorValueSet = {"AVG", "ON_MAX_SET", "MIN_MAX"};
-
-        final Grid grid;
-
-        private AggregatorController(Grid grid) {
-            this.grid = grid;
-        }
-
-        @Override
-        public boolean addRow(int index) {
-            JComboBox<String> sourceComboBox = new JComboBox<>(sourceValueSet);
-            JComboBox<String> aggregatorComboBox = new JComboBox<>(aggregatorValueSet);
-            JComponent[] components = {
-                                /*1*/ new JTextField(8),
-                                /*2*/ sourceComboBox,
-                                /*3*/ aggregatorComboBox,
-                                /*4*/ new JTextField(24),
-                                /*5*/ new JButton("...")
-            };
-            grid.addDataRow(components);
-            return true;
-        }
-
-        @Override
-        public boolean removeRows(int[] indices) {
-            return true;
-        }
-
-        @Override
-        public boolean moveRowUp(int index) {
-            return true;
-        }
-
-        @Override
-        public boolean moveRowDown(int index) {
-            return true;
-        }
     }
 
 
