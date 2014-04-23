@@ -430,8 +430,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (productNode instanceof Band) {
                     Band band = (Band) productNode;
 
-					addDN(band, toolTipBuffer);
-
                     if (band.getSpectralWavelength() > 0.0) {
                         if (band.getSpectralWavelength() == Math.round(band.getSpectralWavelength())) {
                             text = String.format("%s (%d nm)", productNode.getName(), (int) band.getSpectralWavelength());
@@ -501,24 +499,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             }
 
             return this;
-        }
-    }
-
-    private static void addDN(Band band, StringBuilder toolTipBuffer) {
-        final Product product = band.getProduct();
-        if(product == null) return;
-        final MetadataElement absRoot = product.getMetadataRoot().getElement("Abstracted_Metadata");
-        boolean calibrated = false;
-        if(absRoot != null) {
-            calibrated = absRoot.getAttributeInt("abs_calibration_flag", 0) == 1;
-        }
-        if(!calibrated) {
-            final String unit = band.getUnit();
-            if(unit != null && unit.contains("amplitude")) {
-                toolTipBuffer.append(" DN");
-            } else if(unit != null && unit.contains("intensity")) {
-                toolTipBuffer.append(" DN^2");
-            }
         }
     }
 

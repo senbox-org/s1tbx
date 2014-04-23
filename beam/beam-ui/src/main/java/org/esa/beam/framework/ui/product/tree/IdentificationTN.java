@@ -10,7 +10,7 @@ class IdentificationTN extends AbstractTN {
         super(name, element, parent);
 
         final MetadataElement absRoot = element.getElement("Abstracted_Metadata");
-        if(absRoot != null)
+        if (absRoot != null)
             metadataElement = createIdentificationNodes(element, absRoot);
         else
             metadataElement = element;
@@ -38,7 +38,7 @@ class IdentificationTN extends AbstractTN {
         MetadataElement[] metadataElements = metadataElement.getElements();
         for (int i = 0, metadataElementsLength = metadataElements.length; i < metadataElementsLength; i++) {
             MetadataElement element = metadataElements[i];
-            if(element == metadataNode.getMetadataElement()) {
+            if (element == metadataNode.getMetadataElement()) {
                 return i;
             }
         }
@@ -56,8 +56,8 @@ class IdentificationTN extends AbstractTN {
         addIDNode(absRoot, identNode, "Orbit", "ABS_ORBIT");
 
         final MetadataElement slaveRoot = rootElement.getElement("Slave Metadata");
-        if(slaveRoot != null) {
-            for(MetadataElement slvElem : slaveRoot.getElements()) {
+        if (slaveRoot != null) {
+            for (MetadataElement slvElem : slaveRoot.getElements()) {
                 final MetadataElement slvNode = new MetadataElement(slvElem.getName());
                 addIDNode(slvElem, slvNode, "Mission", "MISSION");
                 addIDNode(slvElem, slvNode, "Type", "PRODUCT_TYPE");
@@ -74,7 +74,7 @@ class IdentificationTN extends AbstractTN {
     private static void addIDNode(final MetadataElement absRoot, final MetadataElement identNode,
                                   final String title, final String tag) {
         final MetadataAttribute attrib = absRoot.getAttribute(tag);
-        if(attrib == null) return;
+        if (attrib == null) return;
         final String value = title + ": " + attrib.getData().getElemString();
         final MetadataElement newAttrib = new MetadataElement(value);
         identNode.addElement(newAttrib);
