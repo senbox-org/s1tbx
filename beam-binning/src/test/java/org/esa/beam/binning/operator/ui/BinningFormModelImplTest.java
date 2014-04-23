@@ -17,6 +17,7 @@
 package org.esa.beam.binning.operator.ui;
 
 import org.esa.beam.binning.operator.BinningOp;
+import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.junit.Test;
 
@@ -47,6 +48,20 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testVariableConfigurationProperty() throws Exception {
+        final BinningFormModel binningFormModel = new BinningFormModelImpl();
+        assertArrayEquals(new VariableConfig[0], binningFormModel.getVariableConfigs());
+
+        final VariableConfig varConf = new VariableConfig();
+        varConf.setName("prefix");
+        varConf.setExpr("NOT algal_2");
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
+                                     new VariableConfig[]{varConf});
+
+        assertArrayEquals(new VariableConfig[]{varConf}, binningFormModel.getVariableConfigs());
+    }
+
+    @Test
+    public void testVariableSpecificationProperty() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModelImpl();
         assertArrayEquals(new TargetVariableSpec[0], binningFormModel.getTargetVariableSpecs());
 

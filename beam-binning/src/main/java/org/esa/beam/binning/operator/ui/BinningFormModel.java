@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.binning.operator.BinningOp;
+import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.beans.PropertyChangeListener;
@@ -63,6 +64,11 @@ interface BinningFormModel {
      * @return The variable configurations.
      */
     TargetVariableSpec[] getTargetVariableSpecs();
+
+    /**
+     * @return The variable configurations.
+     */
+    VariableConfig[] getVariableConfigs();
 
     /**
      * @return The selected target region.

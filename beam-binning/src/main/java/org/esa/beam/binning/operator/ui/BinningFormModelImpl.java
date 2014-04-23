@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.binning.operator.BinningOp;
+import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.BoundsInputPanel;
 import org.esa.beam.util.Debug;
@@ -85,6 +86,15 @@ class BinningFormModelImpl implements BinningFormModel {
             targetVariableSpecs = new TargetVariableSpec[0];
         }
         return targetVariableSpecs;
+    }
+
+    @Override
+    public VariableConfig[] getVariableConfigs() {
+        VariableConfig[] variableConfigs = getPropertyValue(PROPERTY_KEY_VARIABLE_CONFIGS);
+        if (variableConfigs == null) {
+            variableConfigs = new VariableConfig[0];
+        }
+        return variableConfigs;
     }
 
     @Override
