@@ -73,8 +73,14 @@ interface BinningFormModel {
 
     /**
      * @param product, The context product
+     * @param mustCloseContextProduct, {@code true}, if this product must be closed by the UI
      */
-    void setContextProduct(Product product);
+    void setContextProduct(Product product, boolean mustCloseContextProduct);
+
+    /**
+     * Close the context product, if it has to.
+     */
+    void closeContextProduct();
 
     /**
      * @return The variable configurations.

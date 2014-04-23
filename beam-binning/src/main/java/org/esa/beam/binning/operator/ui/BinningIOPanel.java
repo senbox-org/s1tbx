@@ -16,6 +16,7 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
@@ -61,6 +62,10 @@ class BinningIOPanel extends JPanel {
         init();
     }
 
+    void prepareClose() {
+        sourceProductList.clear();
+    }
+
     private void init() {
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
@@ -82,11 +87,15 @@ class BinningIOPanel extends JPanel {
         ListDataListener changeListener = new ListDataListener() {
 
             @Override
-            public void contentsChanged(ListDataEvent e) {
-
-                final Product[] sourceProducts = binningFormModel.getSourceProducts();
+            public void contentsChanged(ListDataEvent event) {
+                final Product[] sourceProducts = sourceProductList.getSourceProducts();
+                try {
+                    binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS, sourceProducts);
+                } catch (ValidationException e) {
+                    appContext.handleError("Unable to set source products.", e);
+                }
                 if (sourceProducts.length > 0) {
-                    binningFormModel.setContextProduct(sourceProducts[0]);
+                    binningFormModel.setContextProduct(sourceProducts[0], false);
                     return;
                 }
                 String[] sourceProductPath = binningFormModel.getSourceProductPath();
@@ -94,7 +103,7 @@ class BinningIOPanel extends JPanel {
                     openFirstProduct(sourceProductPath);
                     return;
                 }
-                binningFormModel.setContextProduct(null);
+                binningFormModel.setContextProduct(null, false);
             }
 
             @Override
@@ -151,7 +160,7 @@ class BinningIOPanel extends JPanel {
                 try {
                     Product firstProduct = get();
                     if (firstProduct != null) {
-                        binningFormModel.setContextProduct(firstProduct);
+                        binningFormModel.setContextProduct(firstProduct, true);
                     }
                 } catch (Exception ex) {
                     String msg = String.format("Cannot open source products.\n%s", ex.getMessage());
@@ -161,5 +170,4 @@ class BinningIOPanel extends JPanel {
         };
         worker.execute();
     }
-
 }

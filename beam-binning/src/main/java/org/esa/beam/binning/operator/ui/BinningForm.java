@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -30,8 +30,10 @@ import javax.swing.JTabbedPane;
  */
 class BinningForm extends JTabbedPane {
 
+    private final BinningIOPanel ioPanel;
+
     BinningForm(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelector) {
-        final JPanel ioPanel = new BinningIOPanel(appContext, binningFormModel, targetProductSelector);
+        ioPanel = new BinningIOPanel(appContext, binningFormModel, targetProductSelector);
         final JPanel regionPanel = new BinningFilterPanel(binningFormModel);
         final JPanel binningParametersPanel = new BinningVariablesPanel(appContext, binningFormModel);
         final JPanel binningParametersPanel2 = new BinningVariablesPanel2(appContext, binningFormModel);
@@ -39,5 +41,9 @@ class BinningForm extends JTabbedPane {
         addTab("Filter", regionPanel);
         addTab("Configuration", binningParametersPanel);
         addTab("Configuration 2", binningParametersPanel2);
+    }
+
+    void prepareClose() {
+        ioPanel.prepareClose();
     }
 }

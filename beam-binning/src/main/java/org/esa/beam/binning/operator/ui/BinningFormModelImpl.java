@@ -88,16 +88,23 @@ class BinningFormModelImpl implements BinningFormModel {
 
     @Override
     public Product getContextProduct() {
-        Product propertyValue = getPropertyValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT);
-        System.out.println("BinningFormModelImpl.getContextProduct old = [" + propertyValue + "]");
-        return propertyValue;
+        return getPropertyValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT);
     }
 
     @Override
-    public void setContextProduct(Product contextProduct) {
-        System.out.println("BinningFormModelImpl.setContextProduct old = [" + getContextProduct() + "]");
-        System.out.println("BinningFormModelImpl.setContextProduct new = [" + contextProduct + "]");
+    public void setContextProduct(Product contextProduct, boolean mustCloseContextProduct) {
+        closeContextProduct();
+        this.mustCloseContextProduct = mustCloseContextProduct;
         propertySet.setValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, contextProduct);
+    }
+
+    public void closeContextProduct() {
+        if (mustCloseContextProduct) {
+            Product currentContextProduct = getContextProduct();
+            if (currentContextProduct != null) {
+                currentContextProduct.dispose();
+            }
+        }
     }
 
     @Override

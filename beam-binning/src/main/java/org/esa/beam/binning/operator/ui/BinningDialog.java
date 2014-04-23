@@ -186,6 +186,13 @@ public class BinningDialog extends SingleTargetProductDialog {
         return super.show();
     }
 
+    @Override
+    public void hide() {
+        form.prepareClose();
+        formModel.closeContextProduct();
+        super.hide();
+    }
+
     private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {
 
         protected TargetProductCreator() {
