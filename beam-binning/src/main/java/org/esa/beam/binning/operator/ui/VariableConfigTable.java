@@ -22,7 +22,6 @@ import com.bc.ceres.binding.PropertyAccessorFactory;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
-import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.StringCellEditor;
@@ -30,8 +29,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
-import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
+import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSetWithMask;
+import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.AppContext;
@@ -302,7 +302,9 @@ class VariableConfigTable {
     }
 
     public void addNewRow() {
-        tableModel.setSpec(tableModel.getRowCount(), new TargetVariableSpec());
+        TargetVariableSpec spec = new TargetVariableSpec();
+        spec.aggregatorDescriptor = new AggregatorAverage.Descriptor();
+        tableModel.setSpec(tableModel.getRowCount(), spec);
     }
 
     public void removeSelectedRows() {
@@ -352,15 +354,39 @@ class VariableConfigTable {
         return filteredDescriptors;
     }
 
-    private static void openEditAggregationDialog(JTable table) {
+    private void openEditAggregationDialog(JTable table) {
         int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
         VariableTableModel model = (VariableTableModel) table.getModel();
-        EditAggregationDialog editAggregationDialog = new EditAggregationDialog(UIUtils.getRootWindow(table), model.getSpec(selectionIndex));
-        int result = editAggregationDialog.show();
-        if (result == EditAggregationDialog.ID_OK) {
-            TargetVariableSpec spec = editAggregationDialog.getSpec();
+        TargetVariableSpec targetVariableSpec = model.getSpec(selectionIndex);
+        if(targetVariableSpec == null) {
+            targetVariableSpec = new TargetVariableSpec();
+        }
+        AggregatorConfig aggregatorConfig = targetVariableSpec.aggregatorDescriptor.createConfig();
+        Product contextProduct = binningFormModel.getContextProduct();
+        String[] varNames = getVariableNames();
+        String[] bandNames = contextProduct.getBandNames();
+        String[] tiePointGridNames = contextProduct.getTiePointGridNames();
+        String[] maskNames = contextProduct.getMaskGroup().getNodeNames();
+        String[] sourceNames = StringUtils.addArrays(varNames, bandNames);
+        sourceNames = StringUtils.addArrays(sourceNames, tiePointGridNames);
+        sourceNames = StringUtils.addArrays(sourceNames, maskNames);
+
+
+        AggregatorConfigEditDialog editDialog = new AggregatorConfigEditDialog(UIUtils.getRootWindow(table), sourceNames, aggregatorConfig);
+        int result = editDialog.show();
+        if (result == AggregatorConfigEditDialog.ID_OK) {
+            TargetVariableSpec spec = editDialog.getSpec();
             model.setSpec(selectionIndex, spec);
         }
+    }
+
+    private String[] getVariableNames() {
+        VariableConfig[] variableConfigs = binningFormModel.getVariableConfigs();
+        String[] varNames = new String[variableConfigs.length];
+        for (int i = 0; i < variableConfigs.length; i++) {
+            varNames[i] = variableConfigs[i].getName();
+        }
+        return varNames;
     }
 
     private static class ClassFieldAccessorFactory implements PropertyAccessorFactory {
