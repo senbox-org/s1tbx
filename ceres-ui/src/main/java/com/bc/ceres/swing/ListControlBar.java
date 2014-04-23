@@ -3,6 +3,7 @@ package com.bc.ceres.swing;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
@@ -17,6 +18,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -90,6 +92,24 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
         return actionMap.get(actionId);
     }
 
+    public AbstractButton getActionComponent(String actionId) {
+        Action action = getAction(actionId);
+        return action != null ? getActionComponent(action) : null;
+    }
+
+    public AbstractButton getActionComponent(Action action) {
+        Component[] components = getComponents();
+        for (Component component : components) {
+            if (component instanceof AbstractButton) {
+                AbstractButton abstractButton = (AbstractButton) component;
+                if (abstractButton.getAction() == action) {
+                    return abstractButton;
+                }
+            }
+        }
+        return null;
+    }
+
     protected Action createAction(String actionId) {
         switch (actionId) {
             case ID_ADD:
@@ -159,6 +179,7 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
                 int maxSelectionIndex = listModelAdapter.getMaxSelectedRowIndex();
                 moveDownAction.setEnabled(maxSelectionIndex >= 0 && maxSelectionIndex < listModelAdapter.getRowCount() - 1);
             }
+            listModelAdapter.updateState(this);
         } else {
             if (addAction != null) {
                 addAction.setEnabled(false);
@@ -183,7 +204,7 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
 
         private AddAction() {
             putValue(Action.ACTION_COMMAND_KEY, ID_ADD);
-            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/com/bc/ceres/swing/update/icons/list-add.png")));
+            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("actions/icons_16x16/list-add.png")));
         }
 
         @Override
@@ -196,7 +217,7 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
 
         private RemoveAction() {
             putValue(Action.ACTION_COMMAND_KEY, ID_REMOVE);
-            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/com/bc/ceres/swing/update/icons/list-remove.png")));
+            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("actions/icons_16x16/list-remove.png")));
         }
 
         @Override
@@ -210,7 +231,7 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
 
         private MoveUpAction() {
             putValue(Action.ACTION_COMMAND_KEY, ID_MOVE_UP);
-            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/com/bc/ceres/swing/progress/icons/PanelUp12.png")));
+            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("actions/icons_16x16/go-up.png")));
         }
 
         @Override
@@ -223,7 +244,7 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
 
         private MoveDownAction() {
             putValue(Action.ACTION_COMMAND_KEY, ID_MOVE_DOWN);
-            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/com/bc/ceres/swing/progress/icons/PanelDown12.png")));
+            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("actions/icons_16x16/go-down.png")));
         }
 
         @Override
@@ -240,6 +261,15 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
         boolean moveRowUp(int index);
 
         boolean moveRowDown(int index);
+
+        void updateState(ListControlBar listControlBar);
+    }
+
+    public static abstract class AbstractListController implements ListController {
+
+        @Override
+        public void updateState(ListControlBar listControlBar) {
+        }
     }
 
     public interface ListModelAdapter extends ListController {
@@ -277,6 +307,11 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
         @Override
         public boolean moveRowDown(int index) {
             return controller.moveRowDown(index);
+        }
+
+        @Override
+        public void updateState(ListControlBar listControlBar) {
+            controller.updateState(listControlBar);
         }
     }
 
@@ -440,8 +475,12 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
             super(listController);
             this.listControlBar = listControlBar;
             this.grid = grid;
+
             installSelectionModelListener(null, grid.getSelectionModel());
             this.grid.addPropertyChangeListener("selectionModel", new SelectionModelChangeListener());
+
+            updateState(listControlBar);
+            this.grid.addPropertyChangeListener("showSelectionColumn", new ShowSelectionColumnChangeListener());
         }
 
         @Override
@@ -469,6 +508,30 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
             listControlBar.updateState();
         }
 
+        @Override
+        public void updateState(ListControlBar listControlBar) {
+            super.updateState(listControlBar);
+            //disableActionIfSelectionRowInvisible(ListControlBar.ID_REMOVE);
+            //disableActionIfSelectionRowInvisible(ListControlBar.ID_MOVE_UP);
+            //disableActionIfSelectionRowInvisible(ListControlBar.ID_MOVE_DOWN);
+            hideActionIfSelectionRowInvisible(ListControlBar.ID_REMOVE);
+            hideActionIfSelectionRowInvisible(ListControlBar.ID_MOVE_UP);
+            hideActionIfSelectionRowInvisible(ListControlBar.ID_MOVE_DOWN);
+        }
+
+        private void disableActionIfSelectionRowInvisible(String actionId) {
+            Action action = listControlBar.getAction(actionId);
+            if (action.isEnabled() && !grid.getShowSelectionColumn()) {
+                action.setEnabled(false);
+            }
+        }
+
+        private void hideActionIfSelectionRowInvisible(String actionId) {
+            Action action = listControlBar.getAction(actionId);
+            AbstractButton actionComponent = listControlBar.getActionComponent(action);
+            actionComponent.setVisible(grid.getShowSelectionColumn());
+        }
+
         private void installSelectionModelListener(GridSelectionModel oldModel, GridSelectionModel newModel) {
             if (oldModel != null) {
                 oldModel.removeListener(this);
@@ -484,6 +547,13 @@ public class ListControlBar extends JToolBar implements ListSelectionListener {
                 GridSelectionModel oldModel = (GridSelectionModel) evt.getOldValue();
                 GridSelectionModel newModel = (GridSelectionModel) evt.getNewValue();
                 installSelectionModelListener(oldModel, newModel);
+            }
+        }
+
+        private class ShowSelectionColumnChangeListener implements PropertyChangeListener {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateState(listControlBar);
             }
         }
     }

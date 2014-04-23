@@ -41,7 +41,7 @@ public class ListControlBarTest {
         final DefaultListModel<String> listModel = new DefaultListModel<>();
         final JList<String> list = new JList<>(listModel);
 
-        ListControlBar listControlBar = ListControlBar.create(JToolBar.VERTICAL, list, new ListControlBar.ListController() {
+        ListControlBar listControlBar = ListControlBar.create(JToolBar.VERTICAL, list, new ListControlBar.AbstractListController() {
             @Override
             public boolean addRow(int index) {
                 listModel.addElement(genName());
@@ -92,12 +92,12 @@ public class ListControlBarTest {
         final DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Target name", "Source", "Aggregator", "Parameters"}, 0);
         final JTable table = new JTable(tableModel);
 
-        ListControlBar listControlBar = ListControlBar.create(JToolBar.VERTICAL, table, new ListControlBar.ListController() {
+        ListControlBar listControlBar = ListControlBar.create(JToolBar.VERTICAL, table, new ListControlBar.AbstractListController() {
             @Override
             public boolean addRow(int index) {
-                tableModel.addRow(new Object[] {genName(), genName(), genName(), genName()});
+                tableModel.addRow(new Object[]{genName(), genName(), genName(), genName()});
                 table.getSelectionModel().clearSelection();
-                table.getSelectionModel().addSelectionInterval(tableModel.getRowCount()-1, tableModel.getRowCount()-1);
+                table.getSelectionModel().addSelectionInterval(tableModel.getRowCount() - 1, tableModel.getRowCount() - 1);
                 return true;
             }
 

@@ -31,6 +31,7 @@ import java.util.TreeSet;
  */
 public class Grid extends JPanel implements GridSelectionModel.Listener {
 
+    //private final List<RowSelector> rowSelectors;
     private final List<List<JComponent>> componentRows;
     private final JPanel filler;
     private GridSelectionModel selectionModel;
@@ -43,6 +44,7 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
     public Grid(TableLayout tableLayout, boolean showSelectionColumn) {
         super(tableLayout);
         this.showSelectionColumn = showSelectionColumn;
+        //this.rowSelectors = new ArrayList<>();
         this.componentRows = new ArrayList<>();
         this.componentRows.add(new ArrayList<>(Arrays.asList(new JComponent[tableLayout.getColumnCount()])));
         this.selectionModel = new DefaultGridSelectionModel();
@@ -499,6 +501,43 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
             return true;
         }
     }
+
+    /*
+    public interface RowSelector {
+        boolean isSelected();
+
+        void setSelected(boolean selected);
+
+        JComponent getEditorComponent();
+    }
+
+    public static class DefaultRowSelector implements RowSelector {
+        private AbstractButton button;
+
+        public DefaultRowSelector() {
+            this(new JCheckBox());
+        }
+
+        public DefaultRowSelector(AbstractButton button) {
+            this.button = button;
+        }
+
+        @Override
+        public boolean isSelected() {
+            return button.isSelected();
+        }
+
+        @Override
+        public void setSelected(boolean selected) {
+            button.setSelected(selected);
+        }
+
+        @Override
+        public AbstractButton getEditorComponent() {
+            return button;
+        }
+    }
+    */
 
     public static class DefaultGridSelectionModel implements GridSelectionModel {
 

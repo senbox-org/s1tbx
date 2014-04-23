@@ -2,9 +2,17 @@ package com.bc.ceres.swing;
 
 import com.jidesoft.utils.Lm;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
 
 public class GridGuiTest {
     public static void main(String[] args) {
@@ -67,7 +75,7 @@ public class GridGuiTest {
     }
 
 
-    static class GridController implements ListControlBar.ListController {
+    static class GridController extends ListControlBar.AbstractListController {
 
         final Grid grid;
 

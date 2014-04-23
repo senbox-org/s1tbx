@@ -1,8 +1,16 @@
 package com.bc.ceres.swing;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -62,7 +70,7 @@ public class GridGuiTest2 {
     }
 
 
-    static class GridController implements ListControlBar.ListController {
+    static class GridController extends ListControlBar.AbstractListController {
 
         final Grid grid;
 
