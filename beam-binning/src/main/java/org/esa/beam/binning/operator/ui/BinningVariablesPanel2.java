@@ -317,7 +317,7 @@ class BinningVariablesPanel2 extends JPanel {
         @Override
         public boolean addRow(int index) {
             final int rows = table.getRowCount();
-            addRow(table, new Object[]{"condition_" + rows, ""}); /*I18N*/
+            addRow(table, new Object[]{"variable_" + rows, ""}); /*I18N*/
             return true;
         }
 
