@@ -105,6 +105,8 @@ public class DatApp extends VisatApp {
         getMainFrame().setIconImage(ResourceUtils.nestIcon.getImage());
 
         updateGraphMenu();
+
+        postInit();
     }
 
     @Override
@@ -113,7 +115,6 @@ public class DatApp extends VisatApp {
         super.configureJaiTileCache();
     }
 
-    @Override
     protected void postInit() {
         try {
             final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");

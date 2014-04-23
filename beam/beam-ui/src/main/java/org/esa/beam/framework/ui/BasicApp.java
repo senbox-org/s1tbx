@@ -359,7 +359,6 @@ public class BasicApp {
         try {
             getMainFrame().setVisible(true);
             updateState();
- 			postInit(); // NESTMOD
  		} finally {
             startedUp = true;
             startingUp = false;
@@ -644,10 +643,6 @@ public class BasicApp {
      * @throws Exception if an error occurs
      */
     protected void initClientUI(ProgressMonitor pm) throws Exception {
-    }
-
-    // NESTMOD
-    protected void postInit() {
     }
 
     public MainFrame getMainFrame() {
