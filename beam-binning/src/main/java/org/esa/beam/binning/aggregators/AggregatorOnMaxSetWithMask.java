@@ -32,6 +32,7 @@ import java.util.Arrays;
 /**
  * An aggregator that sets an output if an input is maximal.
  */
+@Deprecated
 public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
 
     private final int maskIndex;
