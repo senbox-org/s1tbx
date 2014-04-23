@@ -914,15 +914,16 @@ public class BasicApp {
         }
     }
 
-    //NESTMOD
-    protected JMenu createNewMenu(Object parent) {
+    /**
+     * Create a new menu if the parent menu is not found
+     * @param parent name
+     * @return menu
+     */
+    protected JMenu createNewMenu(String parent) {
         if(parent == null)
             return findMenu("tools");
-        if(parent.toString().contains("ToolBar"))
-            return null;
-        final String name = parent.toString();
         final JMenuBar menuBar = getMainFrame().getJMenuBar();
-        final JMenu newMenu = createJMenu(name, name, name.charAt(0));
+        final JMenu newMenu = createJMenu(parent, parent, parent.charAt(0));
         menuBar.add(newMenu);
         return newMenu;
     }
