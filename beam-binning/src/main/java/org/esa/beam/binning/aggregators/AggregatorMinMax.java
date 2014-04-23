@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -142,6 +142,18 @@ public class AggregatorMinMax extends AbstractAggregator {
         @Override
         public AggregatorConfig createConfig() {
             return new Config();
+        }
+
+        @Override
+        public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
+            return aggregatorConfig.getSourceVarNames();
+        }
+
+        @Override
+        public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
+            Config config = (Config) aggregatorConfig;
+            String targetName = config.targetName != null ? config.targetName : config.varName;
+            return createFeatureNames(targetName, "min", "max");
         }
 
     }

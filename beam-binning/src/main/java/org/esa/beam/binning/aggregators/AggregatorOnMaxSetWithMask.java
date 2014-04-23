@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -215,6 +215,18 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
             } else {
                 return new AggregatorOnMaxSetWithMask(varCtx, config.targetName, config.onMaxName, config.maskName, config.setNames);
             }
+        }
+
+        @Override
+        public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
+            return aggregatorConfig.getSourceVarNames();
+        }
+
+        @Override
+        public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
+            Config config = (Config) aggregatorConfig;
+            String[] setNames = config.setNames == null ? new String[0] : config.setNames;
+            return createFeatures(config.targetName, setNames);
         }
     }
 }

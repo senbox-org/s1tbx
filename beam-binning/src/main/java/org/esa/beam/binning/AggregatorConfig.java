@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,6 +31,7 @@ public abstract class AggregatorConfig extends TypedConfig {
         super(aggregatorName);
     }
 
+    @Deprecated
     public abstract String[] getSourceVarNames();
 
 }

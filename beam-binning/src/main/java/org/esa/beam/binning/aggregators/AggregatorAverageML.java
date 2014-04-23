@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -53,7 +53,8 @@ public class AggregatorAverageML extends AbstractAggregator {
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
               outputSums ?
                       createFeatureNames(targetName, "sum", "sum_sq", "weights") :
-                      createFeatureNames(targetName, "mean", "sigma", "median", "mode"));
+                      createFeatureNames(targetName, "mean", "sigma", "median", "mode")
+        );
         this.outputSums = outputSums;
         this.varIndex = ctx.getVariableIndex(varName);
         this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.5);
@@ -127,12 +128,12 @@ public class AggregatorAverageML extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorAverageML{" +
-                "varIndex=" + varIndex +
-                ", weightFn=" + weightFn +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               "varIndex=" + varIndex +
+               ", weightFn=" + weightFn +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     public static class Config extends AggregatorConfig {
@@ -185,6 +186,21 @@ public class AggregatorAverageML extends AbstractAggregator {
             boolean outputSums = config.outputSums != null ? config.outputSums : false;
             String targetName = config.targetName != null ? config.targetName : config.varName;
             return new AggregatorAverageML(varCtx, targetName, config.varName, config.weightCoeff, outputSums);
+        }
+
+        @Override
+        public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
+            return aggregatorConfig.getSourceVarNames();
+        }
+
+        @Override
+        public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
+            Config config = ((Config) aggregatorConfig);
+            boolean outputSums = config.outputSums != null ? config.outputSums : false;
+            String targetName = config.targetName != null ? config.targetName : config.varName;
+            return outputSums ?
+                    createFeatureNames(targetName, "sum", "sum_sq", "weights") :
+                    createFeatureNames(targetName, "mean", "sigma", "median", "mode");
         }
     }
 }
