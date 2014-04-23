@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -45,7 +45,6 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Enables clients to create a component for choosing source products. The list of source products can arbitrarily be
@@ -72,14 +71,13 @@ import java.util.ArrayList;
 public class SourceProductList extends ComponentAdapter {
 
     private final AppContext appContext;
+    private final InputListModel listModel;
+    private final JList inputPathsList;
 
     private String lastOpenInputDir;
     private String lastOpenedFormat;
-    private JList inputPathsList;
-    private InputListModel listModel;
     private boolean xAxis;
     private JComponent[] components;
-    private final ArrayList<ListDataListener> listenersQueue;
 
     /**
      * Constructor.
@@ -89,11 +87,11 @@ public class SourceProductList extends ComponentAdapter {
      */
     public SourceProductList(AppContext appContext) {
         this.appContext = appContext;
+        this.listModel = new InputListModel();
+        this.inputPathsList = createInputPathsList(listModel);
         this.lastOpenInputDir = "org.esa.beam.framework.ui.product.lastOpenInputDir";
         this.lastOpenedFormat = "org.esa.beam.framework.ui.product.lastOpenedFormat";
         this.xAxis = true;
-        listenersQueue = new ArrayList<>();
-        listModel = new InputListModel();
     }
 
     /**
@@ -120,10 +118,6 @@ public class SourceProductList extends ComponentAdapter {
      */
     private JComponent[] createComponents() {
         JPanel listPanel = new JPanel(new BorderLayout());
-        for (ListDataListener listDataListener : listenersQueue) {
-            listModel.addListDataListener(listDataListener);
-        }
-        inputPathsList = createInputPathsList(listModel);
         final JScrollPane scrollPane = new JScrollPane(inputPathsList);
         scrollPane.setPreferredSize(new Dimension(100, 50));
         listPanel.add(scrollPane, BorderLayout.CENTER);
@@ -233,11 +227,7 @@ public class SourceProductList extends ComponentAdapter {
      * @param changeListener the listener to add
      */
     public void addChangeListener(ListDataListener changeListener) {
-        if (listModel == null) {
-            listenersQueue.add(changeListener);
-        } else {
-            listModel.addListDataListener(changeListener);
-        }
+        listModel.addListDataListener(changeListener);
     }
 
     /**
@@ -245,11 +235,7 @@ public class SourceProductList extends ComponentAdapter {
      * @param changeListener the listener to remove
      */
     public void removeChangeListener(ListDataListener changeListener) {
-        if (listModel == null) {
-            listenersQueue.remove(changeListener);
-        } else {
-            listModel.removeListDataListener(changeListener);
-        }
+        listModel.removeListDataListener(changeListener);
     }
 
     /**
