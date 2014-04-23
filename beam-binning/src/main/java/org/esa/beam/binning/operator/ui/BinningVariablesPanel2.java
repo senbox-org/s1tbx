@@ -30,10 +30,13 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -230,20 +233,15 @@ class BinningVariablesPanel2 extends JPanel {
     }
 
     private JPanel createVariablePanel() {
-        Grid grid = new Grid(4, true);
-        grid.getLayout().setTablePadding(2, 1);
-        grid.getLayout().setColumnFill(2, TableLayout.Fill.HORIZONTAL);
-        grid.getLayout().setColumnWeightX(2, 1.0);
-        grid.setHeaderRow(/*1*/ new JLabel("Name"),
-                          /*2*/ new JLabel("Expression"),
-                          /*3*/ null);
+        DefaultTableModel tableModel = new DefaultTableModel(null, new String[] {"Name", "Expression"});
+        JTable grid = new JTable(tableModel);
         ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new VariableController(grid));
 
         JScrollPane scrollPane = new JScrollPane(grid);
         scrollPane.setBorder(null);
 
         JPanel panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(new TitledBorder("Extra Source Bands (optional)"));
+        panel.setBorder(new TitledBorder("Variables (optional)"));
         panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
@@ -251,20 +249,15 @@ class BinningVariablesPanel2 extends JPanel {
 
     private static class VariableController implements ListControlBar.ListController {
 
-        final Grid grid;
+        final JTable table;
 
-        private VariableController(Grid grid) {
-            this.grid = grid;
+        private VariableController(JTable table) {
+            this.table = table;
         }
 
         @Override
         public boolean addRow(int index) {
-            JComponent[] components = {
-                                /*1*/ new JTextField(10),
-                                /*2*/ new JTextField(24),
-                                /*3*/ new JButton("...")
-            };
-            grid.addDataRow(components);
+            JOptionPane.showMessageDialog(table, "Edit me!");
             return true;
         }
 
