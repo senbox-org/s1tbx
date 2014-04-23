@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -211,6 +211,7 @@ public class BinningDialog extends SingleTargetProductDialog {
             parameters.put("maskExpr", binningConfig.getMaskExpr());
             parameters.put("numRows", binningConfig.getNumRows());
             parameters.put("superSampling", binningConfig.getSupersampling());
+            parameters.put("sourceProductPaths", formModel.getSourceProductPath());
 
             final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
 

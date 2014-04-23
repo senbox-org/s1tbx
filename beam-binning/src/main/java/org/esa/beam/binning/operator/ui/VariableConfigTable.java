@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -171,7 +171,7 @@ class VariableConfigTable {
                     binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
                         @Override
                         public void propertyChange(PropertyChangeEvent evt) {
-                            if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)) {
+                            if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT)) {
                                 editBandAction.updateEnablement();
                             }
                         }
@@ -419,12 +419,12 @@ class VariableConfigTable {
 
         @Override
         public boolean isEnabled() {
-            return binningFormModel.getSourceProducts().length > 0;
+            return binningFormModel.getContextProduct() != null;
         }
 
         @Override
         public void actionPerformed(ActionEvent ignored) {
-            Product product = binningFormModel.getSourceProducts()[0];
+            Product product = binningFormModel.getContextProduct();
             String[] bandNames = product.getBandNames();
             String[] tiePointGridNames = product.getTiePointGridNames();
             String[] maskNames = product.getMaskGroup().getNodeNames();
@@ -450,7 +450,7 @@ class VariableConfigTable {
         public boolean isEnabled() {
             final AggregatorDescriptor aggregatorDescriptor = tableModel.getSpec(table.getSelectedRow()).aggregatorDescriptor;
             boolean isOnMaxSetWithMask = aggregatorDescriptor != null && aggregatorDescriptor.getName().equals(AggregatorOnMaxSetWithMask.Descriptor.NAME);
-            return binningFormModel.getSourceProducts().length > 0 && !isOnMaxSetWithMask;
+            return binningFormModel.getContextProduct() != null && !isOnMaxSetWithMask;
         }
 
         @Override
@@ -465,7 +465,7 @@ class VariableConfigTable {
 
         private String editExpression(String expression) {
             final Product product;
-            product = binningFormModel.getSourceProducts()[0];
+            product = binningFormModel.getContextProduct();
             final ProductExpressionPane expressionPane = ProductExpressionPane.createGeneralExpressionPane(
                     new Product[]{product}, product, appContext.getPreferences());
             expressionPane.setCode(expression);

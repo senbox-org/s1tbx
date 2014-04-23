@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -46,6 +46,7 @@ interface BinningFormModel {
     static final String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
     static final String PROPERTY_KEY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
+    static final String PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT = "contextSourceProduct";
 
     static int DEFAULT_NUM_ROWS = 2160;
 
@@ -56,9 +57,24 @@ interface BinningFormModel {
     BindingContext getBindingContext();
 
     /**
-     * @return The source products of this binning operation, never <code>null</code>.
+     * @return The source products of this binning operation, never <code>null</code>, but can be empty.
      */
     Product[] getSourceProducts();
+
+    /**
+     * @return A comma-separated list of file paths specifying the source products.
+     */
+    String[] getSourceProductPath();
+
+    /**
+     * @return A product use to initialize the context.
+     */
+    Product getContextProduct();
+
+    /**
+     * @param product, The context product
+     */
+    void setContextProduct(Product product);
 
     /**
      * @return The variable configurations.

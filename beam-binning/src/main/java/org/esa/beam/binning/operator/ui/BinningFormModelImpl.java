@@ -51,6 +51,7 @@ class BinningFormModelImpl implements BinningFormModel {
 
     private PropertySet propertySet;
     private BindingContext bindingContext;
+    private boolean mustCloseContextProduct = true;
 
     public BinningFormModelImpl() {
         propertySet = new PropertyContainer();
@@ -67,6 +68,7 @@ class BinningFormModelImpl implements BinningFormModel {
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));
         propertySet.setDefaultValues();
     }
 
@@ -77,6 +79,25 @@ class BinningFormModelImpl implements BinningFormModel {
             return new Product[0];
         }
         return products;
+    }
+
+    @Override
+    public String[] getSourceProductPath() {
+        return getPropertyValue(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS);
+    }
+
+    @Override
+    public Product getContextProduct() {
+        Product propertyValue = getPropertyValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT);
+        System.out.println("BinningFormModelImpl.getContextProduct old = [" + propertyValue + "]");
+        return propertyValue;
+    }
+
+    @Override
+    public void setContextProduct(Product contextProduct) {
+        System.out.println("BinningFormModelImpl.setContextProduct old = [" + getContextProduct() + "]");
+        System.out.println("BinningFormModelImpl.setContextProduct new = [" + contextProduct + "]");
+        propertySet.setValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, contextProduct);
     }
 
     @Override

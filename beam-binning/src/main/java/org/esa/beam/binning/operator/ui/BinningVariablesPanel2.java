@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -103,8 +103,7 @@ class BinningVariablesPanel2 extends JPanel {
         binningFormModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCTS)
-                        || evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS)) {
+                if (evt.getPropertyName().equals(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT)) {
                     validPixelExpressionButton.setEnabled(hasSourceProducts());
                 }
             }
@@ -228,11 +227,11 @@ class BinningVariablesPanel2 extends JPanel {
     }
 
     private boolean hasSourceProducts() {
-        return binningFormModel.getSourceProducts().length > 0;
+        return binningFormModel.getContextProduct() != null;
     }
 
     private String editExpression(String expression) {
-        final Product product = binningFormModel.getSourceProducts()[0];
+        final Product product = binningFormModel.getContextProduct();
         if (product == null) {
             return null;
         }
@@ -351,7 +350,7 @@ class BinningVariablesPanel2 extends JPanel {
 
     private int editExpression(String[] value, final boolean booleanExpected) {
         Product product;
-        product = binningFormModel.getSourceProducts()[0];
+        product = binningFormModel.getContextProduct();
         if (product == null) {
             final String msg = "No source product specified.";
             appContext.handleError(msg, new IllegalStateException(msg));
