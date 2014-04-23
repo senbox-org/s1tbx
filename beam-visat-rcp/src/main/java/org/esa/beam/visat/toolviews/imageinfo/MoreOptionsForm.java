@@ -25,7 +25,6 @@ import com.jidesoft.combobox.ColorComboBox;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.ColorComboBoxAdapter;
 
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -34,8 +33,6 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -43,7 +40,6 @@ class MoreOptionsForm {
 
     static final String NO_DATA_COLOR_PROPERTY = "noDataColor";
     static final String HISTOGRAM_MATCHING_PROPERTY = "histogramMatching";
-    private final JCheckBox discreteColorsCheckBox;
 
     private JPanel contentPanel;
     private GridBagConstraints constraints;
@@ -51,7 +47,6 @@ class MoreOptionsForm {
 
     private ColorManipulationForm parentForm;
     private boolean hasHistogramMatching;
-    private boolean shouldFireDiscreteEvent;
 
     MoreOptionsForm(ColorManipulationForm parentForm, boolean hasHistogramMatching) {
         this.parentForm = parentForm;
@@ -107,28 +102,6 @@ class MoreOptionsForm {
             addRow(histogramMatchingLabel, histogramMatchingBox);
             bindingContext.addPropertyChangeListener(HISTOGRAM_MATCHING_PROPERTY, pcl);
         }
-
-        discreteColorsCheckBox = new JCheckBox("Discrete colors");
-        discreteColorsCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (shouldFireDiscreteEvent) {
-                    setDiscreteColorsMode();
-                }
-            }
-        });
-
-        addRow(discreteColorsCheckBox);
-    }
-
-    private void setDiscreteColorsMode() {
-        parentForm.getImageInfo().getColorPaletteDef().setDiscrete(discreteColorsCheckBox.isSelected());
-        parentForm.applyChanges();
-    }
-
-    public void setDiscreteColorsMode(boolean discrete) {
-        shouldFireDiscreteEvent = false;
-        discreteColorsCheckBox.setSelected(discrete);
-        shouldFireDiscreteEvent = true;
     }
 
     private ImageInfo getImageInfo() {

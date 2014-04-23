@@ -43,6 +43,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     private JScrollPane contentPanel;
     private final MoreOptionsForm moreOptionsForm;
     private TableModelListener tableModelListener;
+    private final DiscreteCheckBox discreteCheckBox;
 
     public Continuous1BandTabularForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
@@ -56,6 +57,8 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
             }
         };
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        discreteCheckBox = new DiscreteCheckBox(parentForm);
+        moreOptionsForm.addRow(discreteCheckBox);
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -86,7 +89,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         tableModel.fireTableDataChanged();
-        moreOptionsForm.setDiscreteColorsMode(parentForm.getImageInfo().getColorPaletteDef().isDiscrete());
+        discreteCheckBox.setDiscreteColorsMode(parentForm.getImageInfo().getColorPaletteDef().isDiscrete());
     }
 
     @Override

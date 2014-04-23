@@ -49,6 +49,7 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     private boolean shouldFireChooserEvent;
     private final JFormattedTextField minField;
     private final JFormattedTextField maxField;
+    private final DiscreteCheckBox discreteCheckBox;
 
     private enum RangeKey {FromPaletteSource, FromData, FromMinMaxFields, FromCurrentPalette}
 
@@ -107,6 +108,8 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(editorPanel, BorderLayout.NORTH);
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        discreteCheckBox = new DiscreteCheckBox(parentForm);
+        moreOptionsForm.addRow(discreteCheckBox);
 
         logDisplayButton = ImageInfoEditorSupport.createToggleButton("icons/LogDisplay24.png");
         logDisplayButton.setName("logDisplayButton");
@@ -150,7 +153,7 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         colorPaletteChooser.setSelectedColorPaletteDefinition(cpd);
         shouldFireChooserEvent = true;
 
-        moreOptionsForm.setDiscreteColorsMode(discrete);
+        discreteCheckBox.setDiscreteColorsMode(discrete);
         logDisplayButton.setSelected(logScaled);
         parentForm.revalidateToolViewPaneControl();
         minField.setValue(cpd.getMinDisplaySample());

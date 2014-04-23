@@ -44,15 +44,18 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     private final AbstractButton logDisplayButton;
     private final AbstractButton evenDistButton;
     private final MoreOptionsForm moreOptionsForm;
+    private final DiscreteCheckBox discreteCheckBox;
 
     Continuous1BandGraphicalForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
 
         imageInfoEditor = new ImageInfoEditor2(parentForm);
-        imageInfoEditorSupport = new ImageInfoEditorSupport(this.imageInfoEditor);
+        imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
         contentPanel = new JPanel(new BorderLayout(2, 2));
         contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        discreteCheckBox = new DiscreteCheckBox(parentForm);
+        moreOptionsForm.addRow(discreteCheckBox);
 
         logDisplayButton = ImageInfoEditorSupport.createToggleButton("icons/LogDisplay24.png");
         logDisplayButton.setName("logDisplayButton");
@@ -112,7 +115,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
             imageInfoEditor.computeZoomInToSliderLimits();
         }
 
-        moreOptionsForm.setDiscreteColorsMode(imageInfo.getColorPaletteDef().isDiscrete());
+        discreteCheckBox.setDiscreteColorsMode(imageInfo.getColorPaletteDef().isDiscrete());
         logDisplayButton.setSelected(newModel.getImageInfo().isLogScaled());
         parentForm.revalidateToolViewPaneControl();
     }

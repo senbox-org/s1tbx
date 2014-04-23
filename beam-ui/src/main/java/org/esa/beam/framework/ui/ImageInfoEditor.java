@@ -379,7 +379,7 @@ public abstract class ImageInfoEditor extends JPanel {
         if (value < 0.1 && value > -0.1 && value != 0.0) {
             return new DecimalFormat("0.##E0").format(value);
         }
-        return String.format("%.4f", value);
+        return new DecimalFormat("#0.0#").format(round(value));
     }
 
     private void drawHistogramPane(Graphics2D g2d) {
