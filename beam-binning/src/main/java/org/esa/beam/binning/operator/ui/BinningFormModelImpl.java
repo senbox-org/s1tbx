@@ -80,7 +80,7 @@ class BinningFormModelImpl implements BinningFormModel {
 
     @Override
     public TargetVariableSpec[] getTargetVariableSpecs() {
-        TargetVariableSpec[] targetVariableSpecs = getPropertyValue(PROPERTY_KEY_VARIABLE_CONFIGS);
+        TargetVariableSpec[] targetVariableSpecs = getPropertyValue(PROPERTY_KEY_VARIABLE_SPECS);
         if (targetVariableSpecs == null) {
             targetVariableSpecs = new TargetVariableSpec[0];
         }

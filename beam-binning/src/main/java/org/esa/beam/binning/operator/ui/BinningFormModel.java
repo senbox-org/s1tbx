@@ -31,6 +31,7 @@ import java.beans.PropertyChangeListener;
 interface BinningFormModel {
 
     static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
+    static final String PROPERTY_KEY_VARIABLE_SPECS = "variableSpecs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
     static final String PROPERTY_KEY_REGION = "region";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";

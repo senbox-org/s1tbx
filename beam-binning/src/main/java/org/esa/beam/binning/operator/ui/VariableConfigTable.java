@@ -384,7 +384,7 @@ class VariableConfigTable {
         @Override
         public void tableChanged(TableModelEvent event) {
             try {
-                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, getSpecsAsArray());
+                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_SPECS, getSpecsAsArray());
             } catch (ValidationException e) {
                 appContext.handleError("Unable to validate variable configurations.", e);
             }

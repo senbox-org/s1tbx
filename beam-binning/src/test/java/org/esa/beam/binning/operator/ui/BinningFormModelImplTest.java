@@ -27,12 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -61,7 +56,7 @@ public class BinningFormModelImplTest {
         source.type = 1;
         source.bandName = "testBand";
         spec.source = source;
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_SPECS,
                                      new TargetVariableSpec[]{spec});
 
         assertArrayEquals(new TargetVariableSpec[]{spec}, binningFormModel.getTargetVariableSpecs());
