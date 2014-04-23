@@ -175,21 +175,6 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
         public Config() {
             super(Descriptor.NAME);
         }
-
-        @Override
-        public String[] getSourceVarNames() {
-            int varNameLength = 2;
-            if (setNames != null) {
-                varNameLength += setNames.length;
-            }
-            String[] varNames = new String[varNameLength];
-            varNames[0] = onMaxName;
-            varNames[1] = maskName;
-            if (setNames != null) {
-                System.arraycopy(setNames, 0, varNames, 2, setNames.length);
-            }
-            return varNames;
-        }
     }
 
 
@@ -219,7 +204,18 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
-            return aggregatorConfig.getSourceVarNames();
+            Config config = (Config) aggregatorConfig;
+            int varNameLength = 2;
+            if (config.setNames != null) {
+                varNameLength += config.setNames.length;
+            }
+            String[] varNames = new String[varNameLength];
+            varNames[0] = config.onMaxName;
+            varNames[1] = config.maskName;
+            if (config.setNames != null) {
+                System.arraycopy(config.setNames, 0, varNames, 2, config.setNames.length);
+            }
+            return varNames;
         }
 
         @Override

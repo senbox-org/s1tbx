@@ -31,7 +31,4 @@ public abstract class AggregatorConfig extends TypedConfig {
         super(aggregatorName);
     }
 
-    @Deprecated
-    public abstract String[] getSourceVarNames();
-
 }

@@ -158,11 +158,6 @@ public class AggregatorAverageML extends AbstractAggregator {
             this.weightCoeff = weightCoeff;
             this.outputSums = outputSums;
         }
-
-        @Override
-        public String[] getSourceVarNames() {
-            return new String[]{varName};
-        }
     }
 
     public static class Descriptor implements AggregatorDescriptor {
@@ -190,7 +185,8 @@ public class AggregatorAverageML extends AbstractAggregator {
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
-            return aggregatorConfig.getSourceVarNames();
+            Config config = (Config) aggregatorConfig;
+            return new String[]{config.varName};
         }
 
         @Override

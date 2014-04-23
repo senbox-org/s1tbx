@@ -116,11 +116,6 @@ public class AggregatorMinMax extends AbstractAggregator {
             this.targetName = targetName;
             this.varName = varName;
         }
-
-        @Override
-        public String[] getSourceVarNames() {
-            return new String[]{varName};
-        }
     }
 
     public static class Descriptor implements AggregatorDescriptor {
@@ -146,7 +141,8 @@ public class AggregatorMinMax extends AbstractAggregator {
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
-            return aggregatorConfig.getSourceVarNames();
+            Config config = (Config) aggregatorConfig;
+            return new String[]{config.varName};
         }
 
         @Override

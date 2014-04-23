@@ -278,10 +278,16 @@ public class BinningConfig {
         // define variables of all aggregators
         //
         if (aggregatorConfigs != null) {
+            TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
             for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
-                String[] varNames = aggregatorConfig.getSourceVarNames();
-                for (String varName : varNames) {
-                    variableContext.defineVariable(varName);
+                AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
+                if (descriptor != null) {
+                    String[] varNames = descriptor.getSourceVarNames(aggregatorConfig);
+                    for (String varName : varNames) {
+                        variableContext.defineVariable(varName);
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown aggregator type: " + aggregatorConfig.getName());
                 }
             }
         }

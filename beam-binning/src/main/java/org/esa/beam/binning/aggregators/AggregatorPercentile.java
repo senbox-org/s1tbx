@@ -147,7 +147,6 @@ public class AggregatorPercentile extends AbstractAggregator {
      *
      * @param p            The percentage in percent ranging from 0 to 100.
      * @param measurements Sorted array of measurements.
-     *
      * @return The  p-th percentile.
      */
     public static float computePercentile(int p, float[] measurements) {
@@ -184,19 +183,6 @@ public class AggregatorPercentile extends AbstractAggregator {
             this.targetName = targetName;
             this.varName = varName;
             this.percentage = percentage;
-        }
-
-        public void setVarName(String varName) {
-            this.varName = varName;
-        }
-
-        public void setPercentage(Integer percentage) {
-            this.percentage = percentage;
-        }
-
-        @Override
-        public String[] getSourceVarNames() {
-            return new String[]{varName};
         }
     }
 
@@ -237,7 +223,8 @@ public class AggregatorPercentile extends AbstractAggregator {
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
-            return aggregatorConfig.getSourceVarNames();
+            Config config = (Config) aggregatorConfig;
+            return new String[]{config.varName};
         }
 
         @Override

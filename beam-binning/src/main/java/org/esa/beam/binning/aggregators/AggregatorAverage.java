@@ -222,6 +222,10 @@ public final class AggregatorAverage extends AbstractAggregator {
             this(null, null, null, null, null);
         }
 
+        public Config(String varName) {
+            this(varName, null, null, null, null);
+        }
+
         public Config(String varName, String targetName, Double weightCoeff, Boolean outputCounts, Boolean outputSums) {
             super(Descriptor.NAME);
             this.varName = varName;
@@ -229,15 +233,6 @@ public final class AggregatorAverage extends AbstractAggregator {
             this.weightCoeff = weightCoeff;
             this.outputCounts = outputCounts;
             this.outputSums = outputSums;
-        }
-
-        public void setVarName(String varName) {
-            this.varName = varName;
-        }
-
-        @Override
-        public String[] getSourceVarNames() {
-            return new String[]{varName};
         }
     }
 
@@ -267,7 +262,8 @@ public final class AggregatorAverage extends AbstractAggregator {
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
-            return aggregatorConfig.getSourceVarNames();
+            Config config = (Config) aggregatorConfig;
+            return new String[]{config.varName};
         }
 
         @Override

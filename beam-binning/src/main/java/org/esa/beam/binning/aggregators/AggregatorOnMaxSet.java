@@ -149,18 +149,13 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         String targetName;
 
         public Config() {
-            super(Descriptor.NAME);
+            this(null);
         }
 
         public Config(String targetName, String... varNames) {
             super(Descriptor.NAME);
             this.targetName = targetName;
             this.varNames = varNames;
-        }
-
-        @Override
-        public String[] getSourceVarNames() {
-            return varNames;
         }
     }
 
@@ -192,7 +187,8 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
-            return aggregatorConfig.getSourceVarNames();
+            Config config = (Config) aggregatorConfig;
+            return config.varNames;
         }
 
         @Override

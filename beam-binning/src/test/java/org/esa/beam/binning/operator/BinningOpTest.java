@@ -786,16 +786,11 @@ public class BinningOpTest {
     }
 
     private static AggregatorPercentile.Config p70Agg() {
-        AggregatorPercentile.Config chlP70 = new AggregatorPercentile.Config();
-        chlP70.setVarName("chl");
-        chlP70.setPercentage(70);
-        return chlP70;
+        return new AggregatorPercentile.Config(null, "chl", 70);
     }
 
     private static AggregatorAverage.Config chlAgg() {
-        AggregatorAverage.Config chlAvg = new AggregatorAverage.Config();
-        chlAvg.setVarName("chl");
-        return chlAvg;
+        return new AggregatorAverage.Config("chl");
     }
 
     static Product createSourceProduct(int sourceProductCounter, float value) {
