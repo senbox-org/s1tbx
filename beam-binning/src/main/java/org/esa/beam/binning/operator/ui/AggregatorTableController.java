@@ -8,11 +8,14 @@ import org.apache.commons.lang.StringUtils;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
-import javax.swing.JButton;
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ import java.util.List;
 /**
  * @author Norman Fomferra
  */
-class AggregatorTableController implements ListControlBar.ListController {
+class AggregatorTableController extends ListControlBar.AbstractListController {
 
     static class AC {
         @Parameter(valueSet = {"AVG", "PERCENTILE", "ON_MAX_SET", "MIN_MAX", "COUNT"}, defaultValue = "AVG")
@@ -31,7 +34,7 @@ class AggregatorTableController implements ListControlBar.ListController {
         String[] varNames;
         @Parameter
         String[] targetNames;
-        @Parameter
+        @Parameter(defaultValue = "1.0")
         double weight;
         @Parameter
         int iterations;
@@ -48,10 +51,13 @@ class AggregatorTableController implements ListControlBar.ListController {
         }
     }
 
+    AC[] getAggregatorConfigs() {
+        return aggregatorConfigs.toArray(new AC[aggregatorConfigs.size()]);
+    }
+
     @Override
     public boolean addRow(int index) {
-        AC ac = new AC();
-        return editAgg(ac, -1);
+        return editAgg(new AC(), -1);
     }
 
     @Override
@@ -89,6 +95,7 @@ class AggregatorTableController implements ListControlBar.ListController {
 
     private boolean editAgg(AC ac, int rowIndex) {
         PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(ac, new ParameterDescriptorFactory());
+        propertyContainer.setDefaultValues();
         PropertyPane propertyPane = new PropertyPane(propertyContainer);
         ModalDialog aggregatorDialog = new ModalDialog(SwingUtilities.getWindowAncestor(grid), "Aggregator", ModalDialog.ID_OK_CANCEL, null);
         aggregatorDialog.setContent(propertyPane.createPanel());
@@ -105,7 +112,26 @@ class AggregatorTableController implements ListControlBar.ListController {
     }
 
     private void addDataRow(AC ac) {
-        final JButton editButton = new JButton("...");
+        EmptyBorder emptyBorder = new EmptyBorder(2, 2, 2, 2);
+
+        JLabel typeLabel = new JLabel(getTypeText(ac));
+        //typeLabel.setBackground(grid.getBackground().darker());
+        typeLabel.setBorder(emptyBorder);
+
+        JLabel sourcesLabel = new JLabel(getSourcesText(ac));
+        //sourcesLabel.setBackground(grid.getBackground().darker());
+        sourcesLabel.setBorder(emptyBorder);
+
+        JLabel targetsLabel = new JLabel(getTargetsText(ac));
+        //targetsLabel.setBackground(grid.getBackground().darker());
+        targetsLabel.setBorder(emptyBorder);
+
+        JLabel parametersLabel = new JLabel(getParametersText(ac));
+        //parametersLabel.setBackground(grid.getBackground().darker());
+        parametersLabel.setBorder(emptyBorder);
+
+        final AbstractButton editButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("/org/esa/beam/resources/images/icons/Edit16.gif"), false);
+        editButton.setRolloverEnabled(true);
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -113,12 +139,14 @@ class AggregatorTableController implements ListControlBar.ListController {
                 editAgg(aggregatorConfigs.get(rowIndex), rowIndex);
             }
         });
+
         grid.addDataRow(
-            /*1*/ new JLabel(getTypeText(ac)),
-            /*2*/ new JLabel(getSourcesText(ac)),
-            /*3*/ new JLabel(getTargetsText(ac)),
-            /*4*/ new JLabel(getParametersText(ac)),
+            /*1*/ typeLabel,
+            /*2*/ sourcesLabel,
+            /*3*/ targetsLabel,
+            /*4*/ parametersLabel,
             /*5*/ editButton);
+
         aggregatorConfigs.add(ac);
     }
 
@@ -131,15 +159,15 @@ class AggregatorTableController implements ListControlBar.ListController {
     }
 
     private String getTypeText(AC ac) {
-        return "<html><b>" + ac.type + "</b>";
+        return "<html><b>" + (ac.type != null ? ac.type : "") + "</b>";
     }
 
     private String getSourcesText(AC ac) {
-        return "<html>" + StringUtils.join(ac.varNames, "<br/>");
+        return "<html>" + (ac.varNames != null ? StringUtils.join(ac.varNames, "<br/>") : "");
     }
 
     private String getTargetsText(AC ac) {
-        return "<html>" + StringUtils.join(ac.targetNames, "<br/>");
+        return "<html>" + (ac.targetNames != null ? StringUtils.join(ac.targetNames, "<br/>") : "");
     }
 
     private String getParametersText(AC ac) {

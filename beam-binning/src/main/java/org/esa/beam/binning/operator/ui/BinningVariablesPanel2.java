@@ -249,13 +249,14 @@ class BinningVariablesPanel2 extends JPanel {
     }
 
     private JPanel createVariablePanel() {
-        JTable variableTable = createVariableTable("Variables (optional)");
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, new VariableController(variableTable));
+        DefaultTableModel tableModel = new DefaultTableModel(null, new String[]{"Name", "Expression"});
+        JTable grid = new JTable(tableModel);
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new VariableController(grid));
 
-        JScrollPane scrollPane = new JScrollPane(variableTable);
+        JScrollPane scrollPane = new JScrollPane(grid);
         scrollPane.setBorder(null);
 
-        JPanel panel = new JPanel(new BorderLayout(3, 3));
+        JPanel panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(new TitledBorder("Variables (optional)"));
         panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -353,6 +354,10 @@ class BinningVariablesPanel2 extends JPanel {
             moveRowsDown(table, table.getSelectedRows());
             return true;
         }
+
+        @Override
+        public void updateState(ListControlBar listControlBar) {
+        }
     }
 
 
@@ -425,13 +430,13 @@ class BinningVariablesPanel2 extends JPanel {
         grid.getLayout().setColumnWeightX(3, 1.0);
         grid.getLayout().setColumnWeightX(4, 1.0);
         grid.setHeaderRow(
-                /*1*/ new JLabel("<html><b>Agg.</b>"),
-                /*2*/ new JLabel("<html><b>Source</b>"),
+                /*1*/ new JLabel("<html><b>Aggregator</b>"),
+                /*2*/ new JLabel("<html><b>Sources</b>"),
                 /*3*/ new JLabel("<html><b>Targets</b>"),
                 /*4*/ new JLabel("<html><b>Parameters</b>"),
                 /*5*/ null
         );
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid));
+        final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid));
 
         final JCheckBox sel = new JCheckBox();
         sel.setToolTipText("Show/hide selection column");
@@ -441,6 +446,7 @@ class BinningVariablesPanel2 extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 grid.setShowSelectionColumn(sel.isSelected());
+                gridControlBar.updateState();
             }
         });
         gridControlBar.add(sel, 0);
