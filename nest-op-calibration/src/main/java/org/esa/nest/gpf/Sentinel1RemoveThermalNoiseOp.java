@@ -233,7 +233,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             final MetadataElement noiseVectorListElem = noiElem.getElement("noiseVectorList");
-            final int count = noiseVectorListElem.getAttributeInt("count");
+            final int count = Integer.parseInt(noiseVectorListElem.getAttributeString("count"));
             final MetadataElement[] vectorListElem = noiseVectorListElem.getElements();
 
             noise[dataSetIndex] = new ThermalNoiseInfo();
@@ -255,13 +255,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         Sentinel1Utils.getTime(vectorElem, "azimuthTime").getMJD();
 
                 noise[dataSetIndex].noiseVectorList[vectorIndex].line =
-                        vectorElem.getAttributeInt("line");
+                        Integer.parseInt(vectorElem.getAttributeString("line"));
 
                 noise[dataSetIndex].noiseVectorList[vectorIndex].pixels =
                         Sentinel1Utils.getIntArray(vectorElem.getElement("pixel"), "pixel");
 
                 noise[dataSetIndex].noiseVectorList[vectorIndex].count =
-                        vectorElem.getElement("pixel").getAttributeInt("count");
+                        Integer.parseInt(vectorElem.getElement("pixel").getAttributeString("count"));
 
                 noise[dataSetIndex].noiseVectorList[vectorIndex].noiseLUT =
                         Sentinel1Utils.getDoubleArray(vectorElem.getElement("noiseLut"), "noiseLut");
@@ -529,6 +529,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
                     dn2 = i * i + q * q;
+                } else if (bandUnit == Unit.UnitType.INTENSITY) {
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
                 } else {
                     throw new OperatorException("Unhandled unit");
                 }
