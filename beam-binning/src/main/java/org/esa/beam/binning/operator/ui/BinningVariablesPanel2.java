@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
@@ -248,176 +247,6 @@ class BinningVariablesPanel2 extends JPanel {
         return null;
     }
 
-    private JPanel createVariablePanel() {
-        DefaultTableModel tableModel = new DefaultTableModel(null, new String[]{"Name", "Expression"});
-        JTable grid = new JTable(tableModel);
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new VariableController(grid));
-
-        JScrollPane scrollPane = new JScrollPane(grid);
-        scrollPane.setBorder(null);
-
-        JPanel panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(new TitledBorder("Variables (optional)"));
-        panel.add(gridControlBar, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JTable createVariableTable(final String labelName) {
-        JTable variableTable = new JTable() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Class getColumnClass(int column) {
-                if (column == 2) {
-                    return Boolean.class;
-                } else {
-                    return super.getColumnClass(column);
-                }
-            }
-        };
-        final DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Name", "Expression"}, 0);
-        tableModel.addTableModelListener(new VariableConfigTableListener(tableModel));
-        variableTable.setModel(tableModel);
-        variableTable.setName(labelName);
-        variableTable.setRowSelectionAllowed(true);
-        variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable, true));
-
-        final JTableHeader tableHeader = variableTable.getTableHeader();
-        tableHeader.setName(labelName);
-        tableHeader.setReorderingAllowed(false);
-        tableHeader.setResizingAllowed(true);
-
-        final TableColumnModel columnModel = variableTable.getColumnModel();
-        columnModel.setColumnSelectionAllowed(false);
-
-        final TableColumn nameColumn = columnModel.getColumn(0);
-        nameColumn.setPreferredWidth(100);
-
-        final TableColumn expressionColumn = columnModel.getColumn(1);
-        expressionColumn.setPreferredWidth(360);
-        final ExprEditor cellEditor = new ExprEditor(true);
-        expressionColumn.setCellEditor(cellEditor);
-
-        return variableTable;
-    }
-
-    private static class VariableController implements ListControlBar.ListController {
-
-        final JTable table;
-
-        private VariableController(JTable table) {
-            this.table = table;
-        }
-
-        @Override
-        public boolean addRow(int index) {
-            final int rows = table.getRowCount();
-            addRow(table, new Object[]{"variable_" + rows, ""}); /*I18N*/
-            return true;
-        }
-
-        private static void addRow(final JTable table, final Object[] rowData) {
-            table.removeEditor();
-            ((DefaultTableModel) table.getModel()).addRow(rowData);
-            final int row = table.getRowCount() - 1;
-            final int numCols = table.getColumnModel().getColumnCount();
-            for (int i = 0; i < Math.min(numCols, rowData.length); i++) {
-                Object o = rowData[i];
-                table.setValueAt(o, row, i);
-            }
-            selectRows(table, row, row);
-        }
-
-        @Override
-        public boolean removeRows(int[] indices) {
-            removeRows(table, table.getSelectedRows());
-            return true;
-        }
-
-        private static void removeRows(final JTable table, final int[] rows) {
-            table.removeEditor();
-            for (int i = rows.length - 1; i > -1; i--) {
-                int row = rows[i];
-                ((DefaultTableModel) table.getModel()).removeRow(row);
-            }
-        }
-
-        @Override
-        public boolean moveRowUp(int index) {
-            moveRowsUp(table, table.getSelectedRows());
-            return true;
-        }
-
-        @Override
-        public boolean moveRowDown(int index) {
-            moveRowsDown(table, table.getSelectedRows());
-            return true;
-        }
-
-        @Override
-        public void updateState(ListControlBar listControlBar) {
-        }
-    }
-
-
-    private static void moveRowsDown(final JTable table, final int[] rows) {
-        final int maxRow = table.getRowCount() - 1;
-        for (int row1 : rows) {
-            if (row1 == maxRow) {
-                return;
-            }
-        }
-        table.removeEditor();
-        int[] selectedRows = rows.clone();
-        for (int i = rows.length - 1; i > -1; i--) {
-            int row = rows[i];
-            ((DefaultTableModel) table.getModel()).moveRow(row, row, row + 1);
-            selectedRows[i] = row + 1;
-        }
-        selectRows(table, selectedRows);
-    }
-
-    private static void moveRowsUp(final JTable table, final int[] rows) {
-        for (int row1 : rows) {
-            if (row1 == 0) {
-                return;
-            }
-        }
-        table.removeEditor();
-        int[] selectedRows = rows.clone();
-        for (int i = 0; i < rows.length; i++) {
-            int row = rows[i];
-            ((DefaultTableModel) table.getModel()).moveRow(row, row, row - 1);
-            selectedRows[i] = row - 1;
-        }
-        selectRows(table, selectedRows);
-    }
-
-    private static void selectRows(final JTable table, final int[] rows) {
-        final ListSelectionModel selectionModel = table.getSelectionModel();
-        selectionModel.clearSelection();
-        for (int row : rows) {
-            selectionModel.addSelectionInterval(row, row);
-        }
-    }
-
-    private static void selectRows(JTable table, int min, int max) {
-        final int numRows = max + 1 - min;
-        if (numRows <= 0) {
-            return;
-        }
-        selectRows(table, prepareRows(numRows, min));
-    }
-
-    private static int[] prepareRows(final int numRows, int min) {
-        final int[] rows = new int[numRows];
-        for (int i = 0; i < rows.length; i++) {
-            rows[i] = min + i;
-        }
-        return rows;
-    }
-
     private static JPanel createAggregatorPanel() {
         final Grid grid = new Grid(6, false);
         grid.getLayout().setTablePadding(4, 3);
@@ -456,6 +285,47 @@ class BinningVariablesPanel2 extends JPanel {
         panel.add(new JScrollPane(grid), BorderLayout.CENTER);
         panel.add(gridControlBar, BorderLayout.SOUTH);
         return panel;
+    }
+
+    private JPanel createVariablePanel() {
+        JTable variableTable = createVariableTable("Variables (optional)");
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, new VariableTableController(variableTable));
+
+        JScrollPane scrollPane = new JScrollPane(variableTable);
+        scrollPane.setBorder(null);
+
+        JPanel panel = new JPanel(new BorderLayout(2, 2));
+        panel.setBorder(new TitledBorder("Variables (optional)"));
+        panel.add(gridControlBar, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JTable createVariableTable(final String labelName) {
+        final DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Name", "Expression"}, 0);
+        tableModel.addTableModelListener(new VariableConfigTableListener(tableModel));
+        JTable variableTable = new JTable(tableModel);
+        variableTable.setName(labelName);
+        variableTable.setRowSelectionAllowed(true);
+        variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable, true));
+
+        final JTableHeader tableHeader = variableTable.getTableHeader();
+        tableHeader.setName(labelName);
+        tableHeader.setReorderingAllowed(false);
+        tableHeader.setResizingAllowed(true);
+
+        final TableColumnModel columnModel = variableTable.getColumnModel();
+        columnModel.setColumnSelectionAllowed(false);
+
+        final TableColumn nameColumn = columnModel.getColumn(0);
+        nameColumn.setPreferredWidth(100);
+
+        final TableColumn expressionColumn = columnModel.getColumn(1);
+        expressionColumn.setPreferredWidth(360);
+        final ExprEditor cellEditor = new ExprEditor(true);
+        expressionColumn.setCellEditor(cellEditor);
+
+        return variableTable;
     }
 
     private MouseListener createExpressionEditorMouseListener(final JTable table, final boolean booleanExpected) {
