@@ -38,8 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
@@ -48,7 +46,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -295,11 +292,9 @@ class BinningVariablesPanel2 extends JPanel {
 
         final TableColumn nameColumn = columnModel.getColumn(0);
         nameColumn.setPreferredWidth(100);
-        nameColumn.setCellRenderer(new TCR());
 
         final TableColumn expressionColumn = columnModel.getColumn(1);
         expressionColumn.setPreferredWidth(360);
-        expressionColumn.setCellRenderer(new TCR());
         final ExprEditor cellEditor = new ExprEditor(true);
         expressionColumn.setCellEditor(cellEditor);
 
@@ -561,59 +556,6 @@ class BinningVariablesPanel2 extends JPanel {
                 numRowsTextField.setText(String.valueOf(computeNumRows(resolution)));
                 currentResolution = resolution;
             }
-        }
-    }
-
-    private static class TCR extends JLabel implements TableCellRenderer {
-
-        private static final Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
-
-        /**
-         * Creates a <code>JLabel</code> instance with no image and with an empty string for the title. The label is
-         * centered vertically in its display area. The label's contents, once set, will be displayed on the leading
-         * edge of the label's display area.
-         */
-        private TCR() {
-            setOpaque(true);
-            setBorder(noFocusBorder);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
-            final boolean enabled = table.isEnabled();
-            setText((String) value);
-
-            if (isSelected) {
-                super.setForeground(table.getSelectionForeground());
-                super.setBackground(table.getSelectionBackground());
-            } else if (!enabled) {
-                super.setForeground(UIManager.getColor("TextField.inactiveForeground"));
-                super.setBackground(table.getBackground());
-            } else {
-                super.setForeground(table.getForeground());
-                super.setBackground(table.getBackground());
-            }
-
-            setFont(table.getFont());
-
-            if (hasFocus) {
-                setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-                if (table.isCellEditable(row, column)) {
-                    super.setForeground(UIManager.getColor("Table.focusCellForeground"));
-                    super.setBackground(UIManager.getColor("Table.focusCellBackground"));
-                }
-            } else {
-                setBorder(noFocusBorder);
-            }
-
-            setValue(value);
-
-            return this;
-        }
-
-        private void setValue(Object value) {
-            setText(value == null ? "" : value.toString());
         }
     }
 
