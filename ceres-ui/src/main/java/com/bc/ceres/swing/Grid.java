@@ -2,13 +2,25 @@ package com.bc.ceres.swing;
 
 import com.bc.ceres.core.Assert;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * A panel that contains other components arranged in form of a table.
@@ -112,7 +124,7 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
     }
 
     public int getDataRowCount() {
-        return  getRowCount() - 1;
+        return getRowCount() - 1;
     }
 
     public JComponent getComponent(int rowIndex, int colIndex) {
@@ -162,6 +174,18 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         fireComponentsChanged();
         adjustHeaderRowSelector();
     }
+
+    public JComponent[] getDataRow(int dataRowIndex) {
+        Assert.argument(dataRowIndex >= 0 && dataRowIndex < getDataRowCount(), "dataRowIndex");
+        int rowIndex = dataRowIndex + 1;
+        List<JComponent> componentRow = componentRows.get(rowIndex);
+        JComponent[] dataRow = new JComponent[getDataColumnCount()];
+        for (int i = 0; i < dataRow.length; i++) {
+            dataRow[i] = componentRow.get(i + 1);
+        }
+        return dataRow;
+    }
+
 
     public void addDataRow(JComponent... components) {
         checkColumnCount(components);
@@ -458,7 +482,6 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         return -1;
     }
 
-
     private static class HeaderBorder implements Border {
         @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
@@ -519,7 +542,7 @@ public class Grid extends JPanel implements GridSelectionModel.Listener {
         }
 
         @Override
-        public void setSelectedRowIndices(int ... rowIndices) {
+        public void setSelectedRowIndices(int... rowIndices) {
             Set<Integer> newRowIndices = new TreeSet<>();
             for (int rowIndex : rowIndices) {
                 newRowIndices.add(rowIndex);
