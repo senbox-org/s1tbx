@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning;
 
 import org.esa.beam.binning.aggregators.AggregatorAverage;
@@ -40,8 +56,8 @@ public class TemporalBinTest {
         MyVariableContext variableContext = new MyVariableContext("A", "B", "C");
         BinManager bman = new BinManager(variableContext,
                                          new AggregatorMinMax(variableContext, "A", "out"),
-                                         new AggregatorAverage(variableContext, "B", null),
-                                         new AggregatorAverageML(variableContext, "C", null));
+                                         new AggregatorAverage(variableContext, "B", 0.0),
+                                         new AggregatorAverageML(variableContext, "C", 0.5));
 
         SpatialBin sbin;
         TemporalBin tbin;

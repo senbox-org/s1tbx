@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,7 +37,7 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testMetadata_P90() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "target", "c", null);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", "target", 90);
 
         assertEquals("c_sum", agg.getSpatialFeatureNames()[0]);
         assertEquals("c_p90", agg.getTemporalFeatureNames()[0]);
@@ -106,7 +106,7 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testAggregatorPercentileWithNaN() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "target", "c", 50);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", "target", 50);
 
         VectorImpl svec = vec(NaN);
         VectorImpl tvec = vec(NaN);
@@ -148,7 +148,7 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testAggregatorPercentileWithZeroValues() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "target", "c", 50);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", "target", 50);
 
         VectorImpl svec = vec(NaN);
         VectorImpl tvec = vec(NaN);

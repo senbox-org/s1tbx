@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,7 +39,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testMetadata_noSums() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", null, false);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", 0.5, false);
 
         assertEquals("AVG_ML", agg.getName());
 
@@ -61,7 +61,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testMetadata_withSums() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", null, true);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", 0.5, true);
 
         assertEquals("AVG_ML", agg.getName());
 
@@ -82,7 +82,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testAggregatorAverageML() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", 0.5);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
@@ -131,7 +131,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testAggregatorAverageML_WithSums() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", null, true);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", 0.5, true);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);

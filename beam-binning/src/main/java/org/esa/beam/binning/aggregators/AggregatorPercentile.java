@@ -44,23 +44,22 @@ public class AggregatorPercentile extends AbstractAggregator {
     private final String mlName;
     private final String icName;
 
-    public AggregatorPercentile(VariableContext varCtx, String targetName, String varName, Integer percentage) {
-        this(getVarIndex(varCtx, varName), targetName, varName, getEffectivePercentage(percentage));
-    }
-
-    private AggregatorPercentile(int varIndex, String targetName, String varName, int percentage) {
+    public AggregatorPercentile(VariableContext varCtx, String varName, String targetName, int percentage) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum"),
               createFeatureNames(varName, "p" + percentage),
               createFeatureNames(targetName, "p" + percentage));
 
+        if (varCtx == null) {
+            throw new NullPointerException("varCtx");
+        }
         if (varName == null) {
             throw new NullPointerException("varName");
         }
         if (percentage < 0 || percentage > 100) {
             throw new IllegalArgumentException("percentage < 0 || percentage > 100");
         }
-        this.varIndex = varIndex;
+        this.varIndex = varCtx.getVariableIndex(varName);
         this.percentage = percentage;
         this.mlName = "ml." + varName;
         this.icName = "ic." + varName;
@@ -187,14 +186,6 @@ public class AggregatorPercentile extends AbstractAggregator {
     }
 
 
-    private static int getVarIndex(VariableContext varCtx, String varName) {
-        if (varCtx == null) {
-            throw new NullPointerException("varCtx");
-        }
-
-        return varCtx.getVariableIndex(varName);
-    }
-
     private static int getEffectivePercentage(Integer percentage) {
         return (percentage != null ? percentage : 90);
     }
@@ -217,8 +208,8 @@ public class AggregatorPercentile extends AbstractAggregator {
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
             String targetName = config.targetName != null ? config.targetName : config.varName;
-
-            return new AggregatorPercentile(varCtx, targetName, config.varName, config.percentage);
+            int effectivePercentage = getEffectivePercentage(config.percentage);
+            return new AggregatorPercentile(varCtx, config.varName, targetName, effectivePercentage);
         }
 
         @Override

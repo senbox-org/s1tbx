@@ -48,7 +48,6 @@ public class AggregatorMinMax extends AbstractAggregator {
         this.varIndex = varCtx.getVariableIndex(varName);
     }
 
-
     @Override
     public void initSpatial(BinContext ctx, WritableVector vector) {
         vector.set(0, Float.POSITIVE_INFINITY);

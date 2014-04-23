@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning;
 
 import org.esa.beam.binning.aggregators.AggregatorAverage;
@@ -15,8 +31,8 @@ public class BinManagerTest {
     public void testBinCreation() {
         VariableContext variableContext = createVariableContext();
         BinManager binManager = new BinManager(variableContext,
-                new AggregatorAverage(variableContext, "c", null),
-                new AggregatorAverageML(variableContext, "b", null),
+                new AggregatorAverage(variableContext, "c", 0.0),
+                new AggregatorAverageML(variableContext, "b", 0.5),
                 new AggregatorMinMax(variableContext, "a", "a"),
                 new AggregatorOnMaxSet(variableContext, "c", "c", "a", "b"));
 
@@ -45,7 +61,7 @@ public class BinManagerTest {
     public void testGetResultFeatureNames_noPostProcessor() {
         final VariableContext variableContext = createVariableContext();
         final BinManager binManager = new BinManager(variableContext,
-                new AggregatorAverage(variableContext, "d", null));
+                new AggregatorAverage(variableContext, "d", 0.0));
 
         final String[] resultFeatureNames = binManager.getResultFeatureNames();
         assertEquals(2, resultFeatureNames.length);
@@ -57,7 +73,7 @@ public class BinManagerTest {
     public void testGetResultFeatureCount_noPostProcessor() {
         final VariableContext variableContext = createVariableContext();
         final BinManager binManager = new BinManager(variableContext,
-                new AggregatorAverageML(variableContext, "e", null));
+                new AggregatorAverageML(variableContext, "e", 0.5));
 
         final int featureCount = binManager.getResultFeatureCount();
         assertEquals(4, featureCount);

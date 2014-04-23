@@ -43,11 +43,11 @@ public class AggregatorAverageML extends AbstractAggregator {
     private final WeightFn weightFn;
     private final boolean outputSums;
 
-    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff) {
+    public AggregatorAverageML(VariableContext ctx, String varName, double weightCoeff) {
         this(ctx, varName, varName, weightCoeff, false);
     }
 
-    public AggregatorAverageML(VariableContext ctx, String targetName, String varName, Double weightCoeff, boolean outputSums) {
+    public AggregatorAverageML(VariableContext ctx, String varName, String targetName, double weightCoeff, boolean outputSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq"),
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
@@ -57,7 +57,7 @@ public class AggregatorAverageML extends AbstractAggregator {
         );
         this.outputSums = outputSums;
         this.varIndex = ctx.getVariableIndex(varName);
-        this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.5);
+        this.weightFn = WeightFn.createPow(weightCoeff);
     }
 
     @Override
@@ -180,7 +180,8 @@ public class AggregatorAverageML extends AbstractAggregator {
 
             boolean outputSums = config.outputSums != null ? config.outputSums : false;
             String targetName = config.targetName != null ? config.targetName : config.varName;
-            return new AggregatorAverageML(varCtx, targetName, config.varName, config.weightCoeff, outputSums);
+            double weightCoeff = config.weightCoeff != null ? config.weightCoeff : 0.5;
+            return new AggregatorAverageML(varCtx, config.varName, targetName, weightCoeff, outputSums);
         }
 
         @Override

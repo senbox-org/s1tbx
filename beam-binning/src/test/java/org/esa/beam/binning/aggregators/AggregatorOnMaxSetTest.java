@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.aggregators;
 
 import org.esa.beam.binning.BinContext;
@@ -12,17 +28,17 @@ import static org.junit.Assert.assertEquals;
 
 public class AggregatorOnMaxSetTest {
 
-    BinContext ctx;
+    private BinContext ctx;
+    private AggregatorOnMaxSet agg;
 
     @Before
     public void setUp() throws Exception {
         ctx = createCtx();
+        agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "c", "Out", "a", "b");
     }
 
     @Test
     public void testMetadata() {
-        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "Out", "c", "a", "b");
-
         assertEquals("ON_MAX_SET", agg.getName());
 
         assertEquals(4, agg.getSpatialFeatureNames().length);
@@ -47,8 +63,6 @@ public class AggregatorOnMaxSetTest {
 
     @Test
     public void testAggregatorOnMaxSet() {
-        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "Out", "c", "a", "b");
-
         VectorImpl svec = vec(NaN, NaN, NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
         VectorImpl out = vec(NaN, NaN, NaN, NaN);
@@ -96,8 +110,6 @@ public class AggregatorOnMaxSetTest {
 
     @Test
     public void testAggregatorOnMaxSet_AllNaN() {
-        AggregatorOnMaxSet agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "Out", "c", "a", "b");
-
         VectorImpl svec = vec(NaN, NaN, NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
         VectorImpl out = vec(NaN, NaN, NaN, NaN);
@@ -138,5 +150,4 @@ public class AggregatorOnMaxSetTest {
         assertEquals(NaN, out.get(2), 0.0f);
         assertEquals(NaN, out.get(3), 0.0f);
     }
-
 }

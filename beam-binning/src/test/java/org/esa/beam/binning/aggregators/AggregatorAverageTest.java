@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -279,7 +279,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testSuperSampling() {
-        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", null);
+        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0);
         VectorImpl svec = vec(NaN, NaN);
 
         agg.initSpatial(ctx, svec);

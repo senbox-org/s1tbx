@@ -41,11 +41,11 @@ public final class AggregatorAverage extends AbstractAggregator {
     private final String icName;
     private final boolean outputSums;
 
-    public AggregatorAverage(VariableContext varCtx, String varName, Double weightCoeff) {
-        this(varCtx, varName, varName, weightCoeff != null ? weightCoeff : 0.0, false, false);
+    public AggregatorAverage(VariableContext varCtx, String varName, double weightCoeff) {
+        this(varCtx, varName, varName, weightCoeff, false, false);
     }
 
-    public AggregatorAverage(VariableContext varCtx, String targetName, String varName, double weightCoeff, boolean outputCounts, boolean outputSums) {
+    public AggregatorAverage(VariableContext varCtx, String varName, String targetName, double weightCoeff, boolean outputCounts, boolean outputSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq", outputCounts ? "counts" : null),
               createFeatureNames(varName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null),
@@ -252,7 +252,7 @@ public final class AggregatorAverage extends AbstractAggregator {
             double weightCoeff = config.weightCoeff != null ? config.weightCoeff : 0.0;
             boolean outputCounts = config.outputCounts != null ? config.outputCounts : false;
             boolean outputSums = config.outputSums != null ? config.outputSums : false;
-            return new AggregatorAverage(varCtx, targetName, config.varName, weightCoeff, outputCounts, outputSums);
+            return new AggregatorAverage(varCtx, config.varName, targetName, weightCoeff, outputCounts, outputSums);
         }
 
         @Override

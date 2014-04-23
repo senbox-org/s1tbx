@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,7 +47,7 @@ public class SpatialBinnerTest {
         MyPlanetaryGrid planetaryGrid = new MyPlanetaryGrid();
         MyVariableContext variableContext = new MyVariableContext("x");
         MyBinManager binManager = new MyBinManager(variableContext,
-                                                   new AggregatorAverageML(variableContext, "x", null));
+                                                   new AggregatorAverageML(variableContext, "x", 0.5));
         BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1, null, null);
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer(binManager);
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, mySpatialBinProcessor);
@@ -137,7 +137,7 @@ public class SpatialBinnerTest {
 
         MyVariableContext variableContext = new MyVariableContext("x");
         MyBinManager binManager = new MyBinManager(variableContext,
-                                                   new AggregatorAverageML(variableContext, "x", null));
+                                                   new AggregatorAverageML(variableContext, "x", 0.5));
         TestSpatialBinConsumer spatialBinProcessor = new TestSpatialBinConsumer();
         BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1, null, null);
 

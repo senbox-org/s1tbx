@@ -35,22 +35,30 @@ import java.util.Arrays;
  */
 public final class AggregatorOnMaxSet extends AbstractAggregator {
 
-    private final int[] varIndexes;
-    private int numFeatures;
+    private final int onMaxIndex;
+    private final int[] setIndexes;
+    private final int numSetFeatures;
 
-    public AggregatorOnMaxSet(VariableContext varCtx, String targetName, String... varNames) {
-        super(Descriptor.NAME, createFeatureNames(varNames), createFeatureNames(varNames), createOutputFeatureNames(targetName, varNames));
+    public AggregatorOnMaxSet(VariableContext varCtx, String onMaxVarName, String targetName, String... setVarNames) {
+        super(Descriptor.NAME,
+              createOutputFeatureNames(onMaxVarName, setVarNames),
+              createOutputFeatureNames(onMaxVarName, setVarNames),
+              createOutputFeatureNames(targetName, setVarNames));
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
         }
-        numFeatures = varNames.length;
-        varIndexes = new int[varNames.length];
-        for (int i = 0; i < varNames.length; i++) {
-            int varIndex = varCtx.getVariableIndex(varNames[i]);
+        numSetFeatures = setVarNames.length;
+        onMaxIndex = varCtx.getVariableIndex(onMaxVarName);
+        if (onMaxIndex < 0) {
+            throw new IllegalArgumentException("onMaxIndex < 0");
+        }
+        setIndexes = new int[setVarNames.length];
+        for (int i = 0; i < setVarNames.length; i++) {
+            int varIndex = varCtx.getVariableIndex(setVarNames[i]);
             if (varIndex < 0) {
-                throw new IllegalArgumentException("varIndex < 0");
+                throw new IllegalArgumentException("setIndexes[" + i + "] < 0");
             }
-            varIndexes[i] = varIndex;
+            setIndexes[i] = varIndex;
         }
     }
 
@@ -66,13 +74,13 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
 
     @Override
     public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
-        final float value = observationVector.get(varIndexes[0]);
+        final float value = observationVector.get(onMaxIndex);
         final float currentMax = spatialVector.get(0);
         if (value > currentMax) {
             spatialVector.set(0, value);
             spatialVector.set(1, (float) observationVector.getMJD());
-            for (int i = 1; i < numFeatures; i++) {
-                spatialVector.set(i + 1, observationVector.get(varIndexes[i]));
+            for (int i = 0; i < numSetFeatures; i++) {
+                spatialVector.set(i + 2, observationVector.get(setIndexes[i]));
             }
         }
     }
@@ -88,8 +96,8 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         final float currentMax = temporalVector.get(0);
         if (value > currentMax) {
             temporalVector.set(0, value);
-            for (int i = 1; i < numFeatures + 1; i++) {
-                temporalVector.set(i, spatialVector.get(i));
+            for (int i = 0; i < numSetFeatures + 1; i++) {
+                temporalVector.set(i + 1, spatialVector.get(i + 1));
             }
         }
     }
@@ -100,7 +108,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
 
     @Override
     public void computeOutput(Vector temporalVector, WritableVector outputVector) {
-        for (int i = 0; i < numFeatures + 1; i++) {
+        for (int i = 0; i < numSetFeatures + 2; i++) {
             float value = temporalVector.get(i);
             if (Float.isInfinite(value)) {
                 value = Float.NaN;
@@ -112,53 +120,45 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorOnMaxSet{" +
-               "varIndexes=" + Arrays.toString(varIndexes) +
+               "onMaxIndex=" + onMaxIndex +
+               "setIndexes=" + Arrays.toString(setIndexes) +
                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
                '}';
     }
 
-    private static String[] createFeatureNames(String[] varNames) {
-        if (varNames == null) {
-            throw new NullPointerException("varNames");
-        }
-        if (varNames.length == 0) {
-            throw new IllegalArgumentException("varNames.length == 0");
-        }
-        return createOutputFeatureNames(varNames[0], varNames);
-    }
-
-    private static String[] createOutputFeatureNames(String targetName, String[] varNames) {
+    private static String[] createOutputFeatureNames(String targetName, String[] setVarNames) {
         if (StringUtils.isNullOrEmpty(targetName)) {
             throw new IllegalArgumentException("targetName must not be empty");
         }
-        String[] featureNames = new String[varNames.length + 1];
+        String[] featureNames = new String[setVarNames.length + 2];
         featureNames[0] = targetName + "_max";
         featureNames[1] = targetName + "_mjd";
-        System.arraycopy(varNames, 1, featureNames, 2, varNames.length - 1);
+        System.arraycopy(setVarNames, 0, featureNames, 2, setVarNames.length);
         return featureNames;
     }
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notNull = true)
-        String[] varNames;
-
+        @Parameter(notEmpty = true, notNull = true)
+        String onMaxVarName;
+        @Parameter
+        String[] setVarNames;
         @Parameter(notEmpty = true, notNull = false)
         String targetName;
 
         public Config() {
-            this(null);
+            this(null, null);
         }
 
-        public Config(String targetName, String... varNames) {
+        public Config(String targetName, String onMaxVarName, String... setVarNames) {
             super(Descriptor.NAME);
             this.targetName = targetName;
-            this.varNames = varNames;
+            this.onMaxVarName = onMaxVarName;
+            this.setVarNames = setVarNames;
         }
     }
-
 
     public static class Descriptor implements AggregatorDescriptor {
 
@@ -177,29 +177,31 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetVarName = config.targetName;
-            String[] sourceVarNames = config.varNames;
-            if (targetVarName == null && sourceVarNames.length > 0) {
-                targetVarName = sourceVarNames[0];
-            }
-            return new AggregatorOnMaxSet(varCtx, targetVarName, sourceVarNames);
+            String targetName = config.targetName != null ? config.targetName : config.onMaxVarName;
+            return new AggregatorOnMaxSet(varCtx, config.onMaxVarName, targetName, config.setVarNames);
         }
 
         @Override
         public String[] getSourceVarNames(AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            return config.varNames;
+            int varNameLength = 1;
+            if (config.setVarNames != null) {
+                varNameLength += config.setVarNames.length;
+            }
+            String[] varNames = new String[varNameLength];
+            varNames[0] = config.onMaxVarName;
+            if (config.setVarNames != null) {
+                System.arraycopy(config.setVarNames, 0, varNames, 1, config.setVarNames.length);
+            }
+            return varNames;
         }
 
         @Override
         public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetVarName = config.targetName;
-            String[] sourceVarNames = config.varNames;
-            if (targetVarName == null && sourceVarNames.length > 0) {
-                targetVarName = sourceVarNames[0];
-            }
-            return createOutputFeatureNames(targetVarName, sourceVarNames);
+            String targetName = config.targetName != null ? config.targetName : config.onMaxVarName;
+            String[] setVarNames = config.setVarNames != null ? config.setVarNames : new String[0];
+            return createOutputFeatureNames(targetName, setVarNames);
         }
     }
 }

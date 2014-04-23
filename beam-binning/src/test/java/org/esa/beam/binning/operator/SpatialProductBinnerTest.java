@@ -203,8 +203,8 @@ public class SpatialProductBinnerTest {
 
         PlanetaryGrid planetaryGrid = new SEAGrid(6);
         BinManager binManager = new BinManager(variableContext,
-                                               new AggregatorAverage(variableContext, "a", null),
-                                               new AggregatorAverage(variableContext, "b", null));
+                                               new AggregatorAverage(variableContext, "a", 0.0),
+                                               new AggregatorAverage(variableContext, "b", 0.0));
 
         return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, superSampling, dataPeriod, null);
     }
