@@ -212,8 +212,6 @@ class VariableConfigTable {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         scrollPane = new JScrollPane(table);
 
-        ExtensionManager.getInstance().register(AggregatorOnMaxSet.Config.class, new OnMaxSetExtensionFactory(binningFormModel));
-        ExtensionManager.getInstance().register(AggregatorOnMaxSetWithMask.Config.class, new OnMaxSetWithMaskExtensionFactory(binningFormModel));
     }
 
     static void cleanProperties(PropertyContainer propertyContainer) {
