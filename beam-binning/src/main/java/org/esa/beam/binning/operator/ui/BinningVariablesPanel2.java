@@ -479,19 +479,19 @@ class BinningVariablesPanel2 extends JPanel {
     }
 
     private int editExpression(String[] value, final boolean booleanExpected) {
-        Product[] products;
-        products = binningFormModel.getSourceProducts();
-        if (products == null || products.length == 0) {
+        Product product;
+        product = binningFormModel.getSourceProducts()[0];
+        if (product == null) {
             final String msg = "No source product specified.";
             appContext.handleError(msg, new IllegalStateException(msg));
             return 0;
         }
         final ProductExpressionPane pep;
         if (booleanExpected) {
-            pep = ProductExpressionPane.createBooleanExpressionPane(products, products[0],
+            pep = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
                                                                     appContext.getPreferences());
         } else {
-            pep = ProductExpressionPane.createGeneralExpressionPane(products, products[0],
+            pep = ProductExpressionPane.createGeneralExpressionPane(new Product[]{product}, product,
                                                                     appContext.getPreferences());
         }
         pep.setCode(value[0]);
