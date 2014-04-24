@@ -65,8 +65,7 @@ public class SpatialProductBinner {
      *
      * @param product         The source product.
      * @param spatialBinner   The spatial binner to be used.
-     * @param superSampling   The super-sampling rate.
-     * @param addedBands      A container for the bands that are added during processing.
+     * @param addedVariableBands      A container for the bands that are added during processing.
      * @param progressMonitor A progress monitor.
      *
      * @return The total number of observations processed.
@@ -75,24 +74,21 @@ public class SpatialProductBinner {
      */
     public static long processProduct(Product product,
                                       SpatialBinner spatialBinner,
-                                      Integer superSampling,
-                                      Map<Product, List<Band>> addedBands,
+                                      Map<Product, List<Band>> addedVariableBands,
                                       ProgressMonitor progressMonitor) throws IOException {
-
-        //TODO mz/nf 2013-11-05 superSampling must not be a parameter, spatialBinner.getBinnigContext() has it !!
         if (product.getGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
         BinningContext binningContext = spatialBinner.getBinningContext();
         final VariableContext variableContext = binningContext.getVariableContext();
-        addVariablesToProduct(variableContext, product, addedBands);
+        addVariablesToProduct(variableContext, product, addedVariableBands);
 
         PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
         CompositingType compositingType = binningContext.getCompositingType();
         Geometry sourceProductGeometry = null;
         final MultiLevelImage maskImage;
         if (CompositingType.MOSAICKING.equals(compositingType)) {
-            addMaskToProduct(variableContext.getValidMaskExpression(), product, addedBands);
+            addMaskToProduct(variableContext.getValidMaskExpression(), product, addedVariableBands);
             PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
             sourceProductGeometry = plateCarreeGrid.computeProductGeometry(product);
             product = plateCarreeGrid.reprojectToPlateCareeGrid(product);
@@ -225,7 +221,7 @@ public class SpatialProductBinner {
     }
 
     private static void addVariablesToProduct(VariableContext variableContext, Product product,
-                                              Map<Product, List<Band>> addedBands) {
+                                              Map<Product, List<Band>> addedVariableBands) {
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             String variableName = variableContext.getVariableName(i);
             String variableExpr = variableContext.getVariableExpression(i);
@@ -246,10 +242,10 @@ public class SpatialProductBinner {
                     band.setValidPixelExpression(validMaskExpression);
                 }
                 product.addBand(band);
-                if (!addedBands.containsKey(product)) {
-                    addedBands.put(product, new ArrayList<Band>());
+                if (!addedVariableBands.containsKey(product)) {
+                    addedVariableBands.put(product, new ArrayList<Band>());
                 }
-                addedBands.get(product).add(band);
+                addedVariableBands.get(product).add(band);
             }
         }
     }

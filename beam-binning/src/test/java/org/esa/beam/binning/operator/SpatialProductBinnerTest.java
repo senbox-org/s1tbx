@@ -41,7 +41,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SpatialProductBinnerTest {
 
@@ -53,7 +54,7 @@ public class SpatialProductBinnerTest {
             MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
             SpatialProductBinner.processProduct(new Product("p", "t", 32, 256),
                                                 new SpatialBinner(ctx, mySpatialBinProcessor),
-                                                1, new HashMap<Product, List<Band>>(), null);
+                                                new HashMap<Product, List<Band>>(), null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // ok
@@ -68,7 +69,7 @@ public class SpatialProductBinnerTest {
 
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
-                                            1, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+                                            new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(32 * 256, mySpatialBinProcessor.numObs);
     }
 
@@ -86,7 +87,7 @@ public class SpatialProductBinnerTest {
 
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
-                                            1, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+                                            new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(0, mySpatialBinProcessor.numObs); // all are pixels are rejected
     }
 
@@ -98,7 +99,7 @@ public class SpatialProductBinnerTest {
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinConsumer),
-                                            superSampling, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+                                            new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinConsumer.numObs);
     }
 
@@ -110,7 +111,7 @@ public class SpatialProductBinnerTest {
 
         HashMap<Product, List<Band>> productBandListMap = new HashMap<Product, List<Band>>();
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, new MySpatialBinConsumer()),
-                                            1, productBandListMap, ProgressMonitor.NULL);
+                                            productBandListMap, ProgressMonitor.NULL);
 
         assertEquals(1, productBandListMap.size());
         List<Band> bandList = productBandListMap.get(product);
@@ -133,7 +134,7 @@ public class SpatialProductBinnerTest {
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
         SpatialBinner spatialBinner = new SpatialBinner(ctx, mySpatialBinConsumer);
-        long numObservations = SpatialProductBinner.processProduct(product, spatialBinner, 1,
+        long numObservations = SpatialProductBinner.processProduct(product, spatialBinner,
                                                                    new HashMap<Product, List<Band>>(),
                                                                    ProgressMonitor.NULL);
         assertEquals(32 / 2 * 256, numObservations);
@@ -150,7 +151,7 @@ public class SpatialProductBinnerTest {
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
         SpatialBinner spatialBinner = new SpatialBinner(ctx, mySpatialBinConsumer);
-        long numObservations = SpatialProductBinner.processProduct(product, spatialBinner, superSampling,
+        long numObservations = SpatialProductBinner.processProduct(product, spatialBinner,
                                                                    new HashMap<Product, List<Band>>(),
                                                                    ProgressMonitor.NULL);
         assertEquals(32 / 2 * 256 * superSampling * superSampling, numObservations);

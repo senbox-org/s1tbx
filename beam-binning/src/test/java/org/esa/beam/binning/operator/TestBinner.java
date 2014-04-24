@@ -119,7 +119,7 @@ public class TestBinner {
             final Product product = ProductIO.readProduct(sourceFile);
             System.out.println("processing " + sourceFile);
             final long numObs = SpatialProductBinner.processProduct(product, spatialBinner,
-                                                                    binningContext.getSuperSampling(), new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+                                                                    new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
             System.out.println("done, " + numObs + " observations processed");
 
             stopWatch.stopAndTrace("Spatial binning of product took");

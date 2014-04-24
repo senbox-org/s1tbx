@@ -113,10 +113,10 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  */
 @SuppressWarnings("UnusedDeclaration")
 @OperatorMetadata(alias = "Binning",
-                  version = "0.8.2",
+                  version = "1.0",
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
-                  copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells",
+                  copyright = "(c) 2014 by Brockmann Consult GmbH",
+                  description = "Performs spatial and temporal aggregation of pixel values into cells ('bins') of a planetary grid",
                   autoWriteDisabled = true)
 public class BinningOp extends Operator {
 
@@ -143,7 +143,7 @@ public class BinningOp extends Operator {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    // TODO nf/mz 2013-11-05 review this before BEAM 5, this could be a common Operator parameter
+    // TODO nf/mz 2013-11-05: this could be a common Operator parameter, it accelerates opening of products
     @Parameter(description = "The common product format of all source products. This parameter is optional and may be used in conjunction " +
                              "with parameter 'sourceProductPaths' and only to speed up source product opening." +
                              "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
@@ -238,12 +238,11 @@ public class BinningOp extends Operator {
     private transient BinWriter binWriter;
     private transient Area regionArea;
 
-    // TODO nf/mz 2013-11-05 review before BEAM 5 with thomas, discuss use of this field
-    private final Map<Product, List<Band>> addedBands;
+    private final Map<Product, List<Band>> addedVariableBands;
     private Product writtenProduct;
 
     public BinningOp() throws OperatorException {
-        addedBands = new HashMap<>();
+        addedVariableBands = new HashMap<>();
     }
 
     public Geometry getRegion() {
@@ -513,7 +512,7 @@ public class BinningOp extends Operator {
     }
 
     private void cleanSourceProducts() {
-        for (Map.Entry<Product, List<Band>> entry : addedBands.entrySet()) {
+        for (Map.Entry<Product, List<Band>> entry : addedVariableBands.entrySet()) {
             for (Band band : entry.getValue()) {
                 entry.getKey().removeBand(band);
             }
@@ -686,12 +685,13 @@ public class BinningOp extends Operator {
             subsetOp.setSourceProduct(sourceProduct);
             subsetOp.setGeoRegion(region);
             sourceProduct = subsetOp.getTargetProduct();
-            // TODO mz/nf/mp 2013-11-06
-            // TODO replace suvbset with rectangle as paramter to SpatialProductBinner
-            // TODO grow rectangle by binSize in pixel units (see lc-tools solution and integrate here)
+            // TODO mz/nf/mp 2013-11-06: avoid creation of subset products
+            //  - replace subset with rectangle as parameter to SpatialProductBinner
+            //  - grow rectangle by binSize in pixel units (see lc-tools of LC-CCI project)
         }
-        final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
-                                                                binningContext.getSuperSampling(), addedBands,
+        final long numObs = SpatialProductBinner.processProduct(sourceProduct,
+                                                                spatialBinner,
+                                                                addedVariableBands,
                                                                 ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
@@ -769,15 +769,6 @@ public class BinningOp extends Operator {
 
             String msgPattern = "Writing mapped product '%s' done, took %s";
             getLogger().info(String.format(msgPattern, formatterConfig.getOutputFile(), stopWatch));
-
-            // TODO - Check efficiency of interface 'org.esa.beam.framework.gpf.experimental.Output'  (nf, 2012-03-02)
-            // actually, the following line of code would be sufficient, but then, the
-            // 'Output' interface implemented by this operator has no effect, because it already has a
-            // 'ProductReader' instance set. The overall concept of 'Output' is not fully thought-out!
-            //
-            // this.targetProduct = readOutput();
-            //
-            // This is why I have to do the following
 
             if (outputType.equalsIgnoreCase("Product")) {
                 final File writtenProductFile = new File(outputFile);
