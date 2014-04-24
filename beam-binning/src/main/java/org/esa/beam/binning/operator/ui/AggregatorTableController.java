@@ -210,11 +210,12 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         PropertySet container = ac.aggregatorConfig.asPropertySet();
         StringBuilder sb = new StringBuilder();
         for (Property property : container.getProperties()) {
-            if (!isSourcePropertyName(property.getName()) || property.getName().toLowerCase().equals("type")) {
+            String propertyName = property.getName();
+            if (!(isSourcePropertyName(propertyName) || propertyName.equals("type"))) {
                 if (sb.length() > 0)  {
                     sb.append("<br/>");
                 }
-                sb.append(String.format("%s = %s", property.getName(), property.getValueAsText()));
+                sb.append(String.format("%s = %s", propertyName, property.getValueAsText()));
             }
         }
         return "<html>" + sb.toString();
