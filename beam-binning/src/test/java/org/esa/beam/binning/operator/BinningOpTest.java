@@ -139,7 +139,7 @@ public class BinningOpTest {
             assertEquals("target-1", metadataProperties.get("product_name"));
             assertEquals("Binning", metadataProperties.get("software_name"));
             assertEquals("org.esa.beam.binning.operator.BinningOp", metadataProperties.get("software_qualified_name"));
-            assertEquals("0.8.2", metadataProperties.get("software_version"));
+            assertEquals("1.0", metadataProperties.get("software_version"));
             assertThat(metadataProperties.get("source_products"), containsString("P1"));
             assertThat(metadataProperties.get("source_products"), containsString("P2"));
             assertThat(metadataProperties.get("source_products"), containsString("P3"));
