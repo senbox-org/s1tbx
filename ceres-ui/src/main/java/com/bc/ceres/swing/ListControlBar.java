@@ -2,10 +2,23 @@ package com.bc.ceres.swing;
 
 import com.bc.ceres.core.Assert;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JList;
+import javax.swing.JTable;
+import javax.swing.JToolBar;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -155,11 +168,11 @@ public class ListControlBar extends JToolBar {
             }
             if (moveUpAction != null) {
                 int minSelectionIndex = listModelAdapter.getMinSelectedRowIndex();
-                moveUpAction.setEnabled(minSelectionIndex >= 0 && minSelectionIndex > 0);
+                moveUpAction.setEnabled(selectedRowCount == 1 && minSelectionIndex >= 0 && minSelectionIndex > 0);
             }
             if (moveDownAction != null) {
                 int maxSelectionIndex = listModelAdapter.getMaxSelectedRowIndex();
-                moveDownAction.setEnabled(maxSelectionIndex >= 0 && maxSelectionIndex < listModelAdapter.getRowCount() - 1);
+                moveDownAction.setEnabled(selectedRowCount == 1 && maxSelectionIndex >= 0 && maxSelectionIndex < listModelAdapter.getRowCount() - 1);
             }
             listModelAdapter.updateState(this);
         } else {
