@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.operator.ui;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -55,9 +54,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.NONE;
-import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY;
-import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.TIME_RANGE;
+import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.*;
 
 /**
  * The panel in the binning operator UI which allows for setting the regional and temporal filters.
