@@ -374,7 +374,7 @@ class CommandLineTool implements GraphProcessingObserver {
             if (parametersResource.isXml()) {
                 OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
                 OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
-                Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
+                Class<? extends Operator> operatorClass = operatorSpi.getOperatorDescriptor().getOperatorClass();
                 DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
                                                                            new ParameterDescriptorFactory());
 

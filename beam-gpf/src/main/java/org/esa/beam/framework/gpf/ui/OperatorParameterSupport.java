@@ -27,7 +27,6 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
@@ -135,7 +134,7 @@ public class OperatorParameterSupport {
                                                                                                   descriptorFactory.getSourceProductMap());
                 propertySet.setDefaultValues();
             } else {
-                propertySet = PropertyContainer.createMapBacked(parameterMap, operatorType, descriptorFactory);
+                propertySet = PropertyContainer.createMapBacked(this.parameterMap, operatorType, descriptorFactory);
                 propertySet.setDefaultValues();
             }
         }

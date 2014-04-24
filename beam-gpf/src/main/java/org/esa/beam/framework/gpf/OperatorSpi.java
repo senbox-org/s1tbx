@@ -249,7 +249,7 @@ public abstract class OperatorSpi {
 
     private Module loadModule() {
         ModuleReader moduleReader = new ModuleReader(Logger.getAnonymousLogger());
-        URL moduleLocation = getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
+        URL moduleLocation = getOperatorDescriptor().getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
         try {
             return moduleReader.readFromLocation(moduleLocation);
         } catch (CoreException e) {
