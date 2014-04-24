@@ -51,9 +51,9 @@ class AggregatorConfigEditDialog extends ModalDialog {
     private final AggregatorTableController.AggregatorItem aggregatorItem;
     private final String[] sourceVarNames;
     private AggregatorConfig aggregatorConfig;
-    private JComboBox<String> aggregatorComboBox;
     private AggregatorDescriptor aggregatorDescriptor;
     private PropertySet aggregatorPropertySet;
+    private JComboBox<String> aggregatorComboBox;
 
     public AggregatorConfigEditDialog(Window parent, String[] sourceVarNames, AggregatorTableController.AggregatorItem aggregatorItem) {
         super(parent, "Edit " + aggregatorItem.aggregatorConfig.getName() + " Aggregator", ID_OK | ID_CANCEL, null);
@@ -67,7 +67,6 @@ class AggregatorConfigEditDialog extends ModalDialog {
         for (Property objectProperty : objectProperties) {
             aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
         }
-
     }
 
     /**
@@ -120,7 +119,6 @@ class AggregatorConfigEditDialog extends ModalDialog {
         }
         Collections.sort(aggregatorNames);
 
-
         aggregatorComboBox = new JComboBox<>(aggregatorNames.toArray(new String[aggregatorNames.size()]));
         aggregatorComboBox.setSelectedItem(aggregatorConfig.getName());
         aggregatorComboBox.addActionListener(new ActionListener() {
@@ -138,7 +136,6 @@ class AggregatorConfigEditDialog extends ModalDialog {
         });
 
         JPanel aggrPropertyPanel = createPropertyPanel(aggregatorPropertySet);
-
 
         mainPanel.add(aggregatorComboBox, BorderLayout.NORTH);
         mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
