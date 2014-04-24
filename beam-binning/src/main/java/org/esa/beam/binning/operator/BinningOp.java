@@ -181,7 +181,7 @@ public class BinningOp extends Operator {
     private int numRows;
 
     @Parameter(description = "The square of the number of pixels used for supersampling an input pixel into multiple sub-pixels")
-    private Integer supersampling;
+    private Integer superSampling;
 
     @Parameter(description = "The band maths expression used to filter input pixels")
     private String maskExpr;
@@ -293,12 +293,12 @@ public class BinningOp extends Operator {
         this.numRows = numRows;
     }
 
-    public Integer getSupersampling() {
-        return supersampling;
+    public Integer getSuperSampling() {
+        return superSampling;
     }
 
-    public void setSupersampling(Integer supersampling) {
-        this.supersampling = supersampling;
+    public void setSuperSampling(Integer superSampling) {
+        this.superSampling = superSampling;
     }
 
     public String getMaskExpr() {
@@ -393,7 +393,7 @@ public class BinningOp extends Operator {
 
         BinningConfig binningConfig = new BinningConfig();
         binningConfig.setNumRows(numRows);
-        binningConfig.setSupersampling(supersampling);
+        binningConfig.setSuperSampling(superSampling);
         binningConfig.setMaskExpr(maskExpr);
         binningConfig.setVariableConfigs(variableConfigs);
         binningConfig.setAggregatorConfigs(aggregatorConfigs);

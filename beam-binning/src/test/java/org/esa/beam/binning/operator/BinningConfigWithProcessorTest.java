@@ -19,7 +19,6 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.binding.BindingException;
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
-import org.esa.beam.binning.aggregators.AggregatorAverageML;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.junit.Before;
@@ -67,7 +66,7 @@ public class BinningConfigWithProcessorTest {
 
         assertEquals(config.getNumRows(), configCopy.getNumRows());
         assertEquals(config.getCompositingType(), configCopy.getCompositingType());
-        assertEquals(config.getSupersampling(), configCopy.getSupersampling());
+        assertEquals(config.getSuperSampling(), configCopy.getSuperSampling());
         assertEquals(config.getMaskExpr(), configCopy.getMaskExpr());
         assertArrayEquals(config.getVariableConfigs(), configCopy.getVariableConfigs());
         assertArrayEquals(config.getAggregatorConfigs(), configCopy.getAggregatorConfigs());

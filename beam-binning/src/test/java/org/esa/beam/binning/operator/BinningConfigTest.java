@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class BinningConfigTest {
 
@@ -121,7 +123,7 @@ public class BinningConfigTest {
 
         assertEquals(config.getNumRows(), configCopy.getNumRows());
         assertEquals(config.getCompositingType(), configCopy.getCompositingType());
-        assertEquals(config.getSupersampling(), configCopy.getSupersampling());
+        assertEquals(config.getSuperSampling(), configCopy.getSuperSampling());
         assertEquals(config.getMaskExpr(), configCopy.getMaskExpr());
         assertArrayEquals(config.getVariableConfigs(), configCopy.getVariableConfigs());
         assertArrayEquals(config.getAggregatorConfigs(), configCopy.getAggregatorConfigs());
