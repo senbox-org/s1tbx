@@ -45,7 +45,7 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
         final ComboBoxModel<ColorPaletteWrapper> model = getModel();
         final ColorPaletteWrapper colorPaletteWrapper = model.getElementAt(selectedIndex);
         final ColorPaletteDef cpd = colorPaletteWrapper.cpd;
-        cpd.getPointAt(0).setLabel(colorPaletteWrapper.name);
+        cpd.getFirstPoint().setLabel(colorPaletteWrapper.name);
         return cpd;
     }
 

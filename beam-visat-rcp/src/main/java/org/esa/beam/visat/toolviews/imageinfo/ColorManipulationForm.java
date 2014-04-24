@@ -574,6 +574,7 @@ class ColorManipulationForm {
             if (file != null && file.canRead()) {
                 try {
                     final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(file);
+                    colorPaletteDef.getFirstPoint().setLabel(file.getName());
                     applyColorPaletteDef(colorPaletteDef, getProductSceneView().getRaster(), targetImageInfo);
                     setImageInfoCopy(targetImageInfo);
                     childForm.updateFormModel(getProductSceneView());

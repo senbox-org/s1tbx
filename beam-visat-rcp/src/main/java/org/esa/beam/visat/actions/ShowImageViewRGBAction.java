@@ -18,21 +18,26 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.RGBImageProfilePane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.Icon;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingWorker;
 import java.awt.Cursor;
+import java.util.logging.Level;
 
 /**
  * This action opens an RGB image view on the currently selected Product.
@@ -80,8 +85,8 @@ public class ShowImageViewRGBAction extends ExecCommand {
     public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions) {
         final VisatApp visatApp = VisatApp.getApp();
         final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(
-                visatApp.getMainFrame(),
-                visatApp.getAppName() + " - Creating image for '" + name + "'") {
+                    visatApp.getMainFrame(),
+                    visatApp.getAppName() + " - Creating image for '" + name + "'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -124,7 +129,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
 
         final String title = createUniqueInternalFrameTitle(view.getSceneName());
         final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(),true);
+        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(), true);
         visatApp.addPropertyMapChangeListener(view);
         updateState();
 
@@ -174,9 +179,35 @@ public class ShowImageViewRGBAction extends ExecCommand {
             String expression = rgbaExpressions[i].isEmpty() ? "0" : rgbaExpressions[i];
             rgbBand.band = product.getBand(expression);
             if (rgbBand.band == null) {
-                rgbBand.band = new ProductSceneView.RGBChannel(product,
-                                                               RGBImageProfile.RGB_BAND_NAMES[i],
-                                                               expression);
+                final ProductSceneView.RGBChannel channel = new ProductSceneView.RGBChannel(product,
+                                                                                            RGBImageProfile.RGB_BAND_NAMES[i],
+                                                                                            expression);
+                try {
+                    final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(expression, product);
+                    String validExpression = null;
+                    for (RasterDataNode refRaster : refRasters) {
+                        if (validExpression == null) {
+                            validExpression = refRaster.getValidMaskExpression();
+                            if (validExpression != null) {
+                                validExpression = validExpression.trim();
+                            }
+                        } else {
+                            String exp = refRaster.getValidMaskExpression();
+                            if (exp != null) {
+                                exp = exp.trim();
+                                if (validExpression == null || !validExpression.equals(exp)) {
+                                    validExpression = "(" + validExpression + ") && (" + exp + ")";
+                                }
+                            }
+                        }
+                    }
+                    if (validExpression != null) {
+                        channel.setValidPixelExpression(validExpression);
+                    }
+                } catch (ParseException e) {
+                    BeamLogManager.getSystemLogger().log(Level.WARNING, e.getMessage(), e);
+                }
+                rgbBand.band = channel;
             }
             rgbBands[i] = rgbBand;
         }
