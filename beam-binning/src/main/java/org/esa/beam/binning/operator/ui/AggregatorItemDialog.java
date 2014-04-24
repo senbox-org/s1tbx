@@ -131,7 +131,7 @@ class AggregatorItemDialog extends ModalDialog {
             public void actionPerformed(ActionEvent e) {
                 aggregatorDescriptor = getDescriptorFromComboBox();
                 aggregatorConfig = aggregatorDescriptor.createConfig();
-                aggregatorPropertySet = createPropertySet(AggregatorItemDialog.this.aggregatorConfig);
+                aggregatorPropertySet = createPropertySet(aggregatorConfig);
                 JPanel aggrPropertyPanel = createPropertyPanel(aggregatorPropertySet);
                 mainPanel.remove(1);
                 mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
