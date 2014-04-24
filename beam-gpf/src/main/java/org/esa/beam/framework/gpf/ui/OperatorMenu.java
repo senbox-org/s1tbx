@@ -329,7 +329,6 @@ public class OperatorMenu {
                                              "<tr><td><b>Name:</b></td><td><code>%s</code></td></tr>" +
                                              "<tr><td><b>Version:</b></td><td>%s</td></tr>" +
                                              "<tr><td><b>Full name:</b></td><td><code>%s</code></td></tr>" +
-                                             "<tr><td><b>Class name:</b></td><td><code>%s</code></td></tr>" +
                                              "<tr><td><b>Description:</b></td><td>%s</td></tr>" +
                                              "<tr><td><b>Authors:</b></td><td>%s</td></tr>" +
                                              "<tr><td><b>Copyright:</b></td><td>%s</td></tr></table></html>",
@@ -337,7 +336,6 @@ public class OperatorMenu {
                                              getOperatorName(),
                                              opDescriptor.getVersion(),
                                              opDescriptor.getName(),
-                                             opDescriptor.getOperatorClass(),
                                              opDescriptor.getDescription(),
                                              opDescriptor.getAuthors(),
                                              opDescriptor.getCopyright()
