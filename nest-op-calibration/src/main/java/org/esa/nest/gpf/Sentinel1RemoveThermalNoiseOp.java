@@ -233,8 +233,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             final MetadataElement noiseVectorListElem = noiElem.getElement("noiseVectorList");
-            final int count = Integer.parseInt(noiseVectorListElem.getAttributeString("count"));
-            final MetadataElement[] vectorListElem = noiseVectorListElem.getElements();
 
             noise[dataSetIndex] = new ThermalNoiseInfo();
             noise[dataSetIndex].polarization = pol;
@@ -243,31 +241,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             noise[dataSetIndex].lastLineTime = Sentinel1Utils.getTime(adsHeaderElem, "stopTime").getMJD();
             noise[dataSetIndex].numOfLines = Sentinel1Calibrator.getNumOfLines(
                     absRoot, noise[dataSetIndex].polarization, noise[dataSetIndex].subSwath);
-            noise[dataSetIndex].count = count;
-            noise[dataSetIndex].noiseVectorList = new NoiseVector[count];
-
-            int vectorIndex = 0;
-            for (MetadataElement vectorElem : vectorListElem) {
-
-                noise[dataSetIndex].noiseVectorList[vectorIndex] = new NoiseVector();
-
-                noise[dataSetIndex].noiseVectorList[vectorIndex].azimuthTime =
-                        Sentinel1Utils.getTime(vectorElem, "azimuthTime").getMJD();
-
-                noise[dataSetIndex].noiseVectorList[vectorIndex].line =
-                        Integer.parseInt(vectorElem.getAttributeString("line"));
-
-                noise[dataSetIndex].noiseVectorList[vectorIndex].pixels =
-                        Sentinel1Utils.getIntArray(vectorElem.getElement("pixel"), "pixel");
-
-                noise[dataSetIndex].noiseVectorList[vectorIndex].count =
-                        Integer.parseInt(vectorElem.getElement("pixel").getAttributeString("count"));
-
-                noise[dataSetIndex].noiseVectorList[vectorIndex].noiseLUT =
-                        Sentinel1Utils.getDoubleArray(vectorElem.getElement("noiseLut"), "noiseLut");
-
-                vectorIndex++;
-            }
+            noise[dataSetIndex].count = Integer.parseInt(noiseVectorListElem.getAttributeString("count"));
+            noise[dataSetIndex].noiseVectorList = Sentinel1Utils.getNoiseVector(noiseVectorListElem);
 
             dataSetIndex++;
         }
@@ -646,8 +621,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
 
         final double azTime = noiseInfo.firstLineTime + y*lineTimeInterval;
-        final double azT0 = noiseInfo.noiseVectorList[noiseVecIdx].azimuthTime;
-        final double azT1 = noiseInfo.noiseVectorList[noiseVecIdx + 1].azimuthTime;
+        final double azT0 = noiseInfo.noiseVectorList[noiseVecIdx].timeMJD;
+        final double azT1 = noiseInfo.noiseVectorList[noiseVecIdx + 1].timeMJD;
         muY = (azTime - azT0) / (azT1 - azT0);
 
         for (int x = x0; x < x0 + w; x++) {
@@ -694,7 +669,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private static int getPixelIndex(final int x, final int noiseVecIdx, final ThermalNoiseInfo noiseInfo) {
 
-        for (int i = 0; i < noiseInfo.noiseVectorList[noiseVecIdx].count; i++) {
+        for (int i = 0; i < noiseInfo.noiseVectorList[noiseVecIdx].pixels.length; i++) {
             if (x < noiseInfo.noiseVectorList[noiseVecIdx].pixels[i]) {
                 return i - 1;
             }
@@ -710,16 +685,9 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         public double lastLineTime;
         public int numOfLines;
         public int count; // number of noiseVector records within the list
-        public NoiseVector[] noiseVectorList;
+        public Sentinel1Utils.NoiseVector[] noiseVectorList;
     }
 
-    private static class NoiseVector {
-        public double azimuthTime;
-        public int line;
-        public int count; // number of data samples in each vector
-        public int[] pixels;
-        public double[] noiseLUT;
-    }
 
     /**
      * The SPI is used to register this operator in the graph processing framework
