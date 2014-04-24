@@ -166,11 +166,12 @@ public class AggregatorPercentile extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notNull = true)
+        @Parameter(notEmpty = true, notNull = true)
         String varName;
-        @Parameter(notNull = false, notEmpty = true)
+        @Parameter(notEmpty = true, notNull = false)
         String targetName;
-        @Parameter(defaultValue = "90")
+        @Parameter(defaultValue = "90",
+                   description = "The percentile to be created. Must be in the interval [0..100]")
         Integer percentage;
 
         public Config() {

@@ -102,7 +102,6 @@ public class AggregatorMinMax extends AbstractAggregator {
 
         @Parameter(notEmpty = true, notNull = true)
         String varName;
-
         @Parameter(notEmpty = true, notNull = false)
         String targetName;
 

@@ -138,13 +138,14 @@ public class AggregatorAverageML extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter
+        @Parameter(notEmpty = true, notNull = true)
         String varName;
-        @Parameter
+        @Parameter(notEmpty = true, notNull = false)
         String targetName;
-        @Parameter
+        @Parameter(defaultValue = "0.5")
         Double weightCoeff;
-        @Parameter
+        @Parameter(defaultValue = "false",
+                   description = "If true, the result will include the sum of all values.")
         Boolean outputSums;
 
         public Config() {

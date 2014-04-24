@@ -210,12 +210,14 @@ public final class AggregatorAverage extends AbstractAggregator {
         @Parameter(notEmpty = true, notNull = true)
         String varName;
         @Parameter(notEmpty = true, notNull = false)
-        public String targetName;
+        String targetName;
         @Parameter(defaultValue = "0.0")
         Double weightCoeff;
-        @Parameter(defaultValue = "false")
+        @Parameter(defaultValue = "false",
+                   description = "If true, the result will include the count of all valid values.")
         Boolean outputCounts;
-        @Parameter(defaultValue = "false")
+        @Parameter(defaultValue = "false",
+                   description = "If true, the result will include the sum of all values.")
         Boolean outputSums;
 
         public Config() {
