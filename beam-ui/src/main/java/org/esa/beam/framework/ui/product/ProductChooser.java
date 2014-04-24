@@ -61,6 +61,7 @@ class ProductChooser extends ModalDialog {
         ProductListModel listModel = new ProductListModel();
         selectAll = new JCheckBox("Select all");
         selectNone = new JCheckBox("Select none", true);
+        selectNone.setEnabled(false);
 
         productsList = new CheckBoxList(listModel);
         productsList.setCellRenderer(new ProductListCellRenderer());
@@ -71,12 +72,16 @@ class ProductChooser extends ModalDialog {
                 final int length = productsList.getCheckBoxListSelectedIndices().length;
                 if (length == 0) {
                     selectNone.setSelected(true);
+                    selectAll.setSelected(false);
                 } else if (length == productsList.getModel().getSize()) {
                     selectAll.setSelected(true);
-                } else {
                     selectNone.setSelected(false);
+                } else {
                     selectAll.setSelected(false);
+                    selectNone.setSelected(false);
                 }
+                selectAll.setEnabled(!selectAll.isSelected());
+                selectNone.setEnabled(!selectNone.isSelected());
             }
         });
         for (Product product : products) {
@@ -105,6 +110,8 @@ class ProductChooser extends ModalDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectNone.setSelected(false);
+                selectAll.setEnabled(false);
+                selectNone.setEnabled(true);
                 productsList.getCheckBoxListSelectionModel().setSelectionInterval(0,
                                                                                   productsList.getModel().getSize() - 1);
             }
@@ -113,6 +120,8 @@ class ProductChooser extends ModalDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectAll.setSelected(false);
+                selectAll.setEnabled(true);
+                selectNone.setEnabled(false);
                 productsList.getCheckBoxListSelectionModel().clearSelection();
             }
         });
