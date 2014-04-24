@@ -10,7 +10,7 @@ class MerisNdviTileComputer:
 
     def initialize(self, operator):
 
-        merisProduct = operator.getSourceProduct('sourceomat')
+        merisProduct = operator.getSourceProduct('source')
         print('initialize: source product is', merisProduct.getFileLocation())
 
         width = merisProduct.getSceneRasterWidth()
