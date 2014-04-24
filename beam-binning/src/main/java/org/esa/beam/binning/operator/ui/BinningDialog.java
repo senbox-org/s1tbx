@@ -130,6 +130,44 @@ public class BinningDialog extends SingleTargetProductDialog {
         super.hide();
     }
 
+    private void updateParameterMap(Map<String, Object> parameters) {
+        parameters.put("variableConfigs", formModel.getVariableConfigs());
+        parameters.put("aggregatorConfigs", formModel.getAggregatorConfigs());
+
+        parameters.put("outputFormat", "BEAM-DIMAP");
+        parameters.put("outputType", "Product");
+        parameters.put("outputFile", getTargetProductSelector().getModel().getProductFile().getPath());
+
+        parameters.put("maskExpr", formModel.getMaskExpr());
+        parameters.put("region", formModel.getRegion());
+        parameters.put("numRows", formModel.getNumRows());
+        parameters.put("supersampling", formModel.getSupersampling());
+        parameters.put("sourceProductPaths", formModel.getSourceProductPath());
+
+        BinningOp.TimeFilterMethod method = formModel.getTimeFilterMethod();
+        parameters.put("timeFilterMethod", method);
+        if (method == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY) {
+            parameters.put("minDataHour", formModel.getMinDataHour());
+            parameters.put("startDateTime", formModel.getStartDateTime());
+            parameters.put("periodDuration", formModel.getPeriodDuration());
+        } else if (method == BinningOp.TimeFilterMethod.TIME_RANGE) {
+            parameters.put("startDateTime", formModel.getStartDateTime());
+            parameters.put("periodDuration", formModel.getPeriodDuration());
+        }
+    }
+
+    private void updateFormModel(Map<String, Object> parameterMap) throws ValidationException {
+        final PropertySet propertySet = formModel.getBindingContext().getPropertySet();
+        final Set<Map.Entry<String, Object>> entries = parameterMap.entrySet();
+        for (Map.Entry<String, Object> entry : entries) {
+            Property property = propertySet.getProperty(entry.getKey());
+            if (property != null) {
+                property.setValue(entry.getValue());
+            }
+        }
+        // todo - update aggregator + variable config tables
+    }
+
     private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {
 
         protected TargetProductCreator() {
@@ -139,44 +177,11 @@ public class BinningDialog extends SingleTargetProductDialog {
         @Override
         protected Product doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Binning...", 100);
-
             final Map<String, Object> parameters = new HashMap<>();
-            parameters.put("region", formModel.getRegion());
-            setTimeFiltering(parameters);
-
-            parameters.put("variableConfigs", formModel.getVariableConfigs());
-            parameters.put("aggregatorConfigs", formModel.getAggregatorConfigs());
-
-            parameters.put("outputFormat", "BEAM-DIMAP");
-            parameters.put("outputFile", getTargetProductSelector().getModel().getProductFile().getPath());
-            parameters.put("outputType", "Product");
-
-            parameters.put("maskExpr", formModel.getMaskExpr());
-            parameters.put("numRows", formModel.getNumRows());
-            parameters.put("superSampling", formModel.getSupersampling());
-            parameters.put("sourceProductPaths", formModel.getSourceProductPath());
-
+            updateParameterMap(parameters);
             final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
-
             pm.done();
-
             return targetProduct;
-        }
-
-        private void setTimeFiltering(Map<String, Object> parameters) {
-            BinningOp.TimeFilterMethod method = formModel.getTimeFilterMethod();
-            parameters.put("timeFilterMethod", method);
-            switch (method) {
-                case NONE:
-                    return;
-                case SPATIOTEMPORAL_DATA_DAY: {
-                    parameters.put("minDataHour", formModel.getMinDataHour());
-                }
-                case TIME_RANGE: {
-                    parameters.put("startDateTime", formModel.getStartDateTime());
-                    parameters.put("periodDuration", formModel.getPeriodDuration());
-                }
-            }
         }
     }
 
@@ -184,23 +189,12 @@ public class BinningDialog extends SingleTargetProductDialog {
         @Override
         public void handleParameterSaveRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
             formModel.getBindingContext().adjustComponents();
-            final PropertySet propertySet = formModel.getBindingContext().getPropertySet();
-            final Property[] properties = propertySet.getProperties();
-            for (Property property : properties) {
-                parameterMap.put(property.getName(), property.getValue());
-            }
+            updateParameterMap(parameterMap);
         }
 
         @Override
         public void handleParameterLoadRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
-            final PropertySet propertySet = formModel.getBindingContext().getPropertySet();
-            final Set<Map.Entry<String, Object>> entries = parameterMap.entrySet();
-            for (Map.Entry<String, Object> entry : entries) {
-                Property property = propertySet.getProperty(entry.getKey());
-                if (property != null) {
-                    property.setValue(entry.getValue());
-                }
-            }
+            updateFormModel(parameterMap);
             formModel.getBindingContext().adjustComponents();
         }
     }
