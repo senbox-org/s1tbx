@@ -237,8 +237,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             }
 
             final MetadataElement calVecListElem = calElem.getElement("calibrationVectorList");
-            final int count = calVecListElem.getAttributeInt("count");
-            final MetadataElement[] vectorListElem = calVecListElem.getElements();
 
             calibration[dataSetIndex] = new CalibrationInfo();
             calibration[dataSetIndex].polarization = pol;
@@ -247,48 +245,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             calibration[dataSetIndex].lastLineTime = Sentinel1Utils.getTime(adsHeaderElem, "stopTime").getMJD();
             calibration[dataSetIndex].numOfLines = getNumOfLines(
                     absRoot, calibration[dataSetIndex].polarization, calibration[dataSetIndex].subSwath);
-            calibration[dataSetIndex].count = count;
-            calibration[dataSetIndex].calibrationVectorList = new CalibrationVector[count];
-
-            int vectorIndex = 0;
-            for (MetadataElement vectorElem : vectorListElem) {
-
-                calibration[dataSetIndex].calibrationVectorList[vectorIndex] = new CalibrationVector();
-
-                calibration[dataSetIndex].calibrationVectorList[vectorIndex].azimuthTime =
-                        Sentinel1Utils.getTime(vectorElem, "azimuthTime").getMJD();
-
-                calibration[dataSetIndex].calibrationVectorList[vectorIndex].line =
-                        vectorElem.getAttributeInt("line");
-
-                calibration[dataSetIndex].calibrationVectorList[vectorIndex].pixels =
-                        Sentinel1Utils.getIntArray(vectorElem.getElement("pixel"), "pixel");
-
-                calibration[dataSetIndex].calibrationVectorList[vectorIndex].count =
-                        vectorElem.getElement("pixel").getAttributeInt("count");
-
-                if (outputSigmaBand) {
-                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].sigmaNought =
-                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("sigmaNought"), "sigmaNought");
-                }
-
-                if (outputBetaBand) {
-                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].betaNought =
-                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("betaNought"), "betaNought");
-                }
-
-                if (outputGammaBand) {
-                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].gamma =
-                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("gamma"), "gamma");
-                }
-
-                if (outputDNBand) {
-                    calibration[dataSetIndex].calibrationVectorList[vectorIndex].dn =
-                            Sentinel1Utils.getDoubleArray(vectorElem.getElement("dn"), "dn");
-                }
-
-                vectorIndex++;
-            }
+            calibration[dataSetIndex].count = calVecListElem.getAttributeInt("count");
+            calibration[dataSetIndex].calibrationVectorList = Sentinel1Utils.getCalibrationVector(
+                    calVecListElem, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
 
             dataSetIndex++;
         }
@@ -566,12 +525,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             final int yy = y - y0;
             final double azTime = calInfo.firstLineTime + y*lineTimeInterval;
-            if (azTime > calInfo.calibrationVectorList[calVecIdx + 1].azimuthTime) {
+            if (azTime > calInfo.calibrationVectorList[calVecIdx + 1].timeMJD) {
                 calVecIdx++;
             }
 
-            final double azT0 = calInfo.calibrationVectorList[calVecIdx].azimuthTime;
-            final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].azimuthTime;
+            final double azT0 = calInfo.calibrationVectorList[calVecIdx].timeMJD;
+            final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].timeMJD;
             muY = (azTime - azT0) / (azT1 - azT0);
 
             for (int x = x0; x < x0 + w; x++) {
@@ -633,8 +592,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         int pixelIdx = getPixelIndex(x0, calVecIdx, calInfo);
 
         final double azTime = calInfo.firstLineTime + y*lineTimeInterval;
-        final double azT0 = calInfo.calibrationVectorList[calVecIdx].azimuthTime;
-        final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].azimuthTime;
+        final double azT0 = calInfo.calibrationVectorList[calVecIdx].timeMJD;
+        final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].timeMJD;
         muY = (azTime - azT0) / (azT1 - azT0);
 
         for (int x = x0; x < x0 + w; x++) {
@@ -698,7 +657,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      */
     private static int getPixelIndex(final int x, final int calVecIdx, final CalibrationInfo calInfo) {
 
-        for (int i = 0; i < calInfo.calibrationVectorList[calVecIdx].count; i++) {
+        for (int i = 0; i < calInfo.calibrationVectorList[calVecIdx].pixels.length; i++) {
             if (x < calInfo.calibrationVectorList[calVecIdx].pixels[i]) {
                 return i - 1;
             }
@@ -734,17 +693,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         public double lastLineTime;
         public int numOfLines;
         public int count; // number of calibrationVector records within the list
-        public CalibrationVector[] calibrationVectorList;
-    }
-
-    private static class CalibrationVector {
-        public double azimuthTime;
-        public int line;
-        public int count; // number of data samples in each vector
-        public int[] pixels;
-        public double[] sigmaNought;
-        public double[] betaNought;
-        public double[] gamma;
-        public double[] dn;
+        public Sentinel1Utils.CalibrationVector[] calibrationVectorList;
     }
 }
