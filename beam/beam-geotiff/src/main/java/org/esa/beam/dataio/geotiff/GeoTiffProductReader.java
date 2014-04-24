@@ -283,9 +283,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     product = DimapProductHelpers.createProduct(document);
                     removeGeoCodingAndTiePointGrids(product);
                     initBandsMap(product);
-                } catch (ParserConfigurationException ignore) {
-                    // ignore if it can not be read
-                } catch (SAXException ignore) {
+                } catch (ParserConfigurationException | SAXException ignore) {
                     // ignore if it can not be read
                 } finally {
                     if (is != null) {
@@ -297,11 +295,10 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         if (product == null) {            // without DIMAP header
             final String productName;
-            //if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
-            //    final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
-            //    productName = field1.getAsString(0);
-            //}else 
-			if (inputFile != null) {
+            if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
+                final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
+                productName = field1.getAsString(0);
+            } else if (inputFile != null) {
                 productName = FileUtils.getFilenameWithoutExtension(inputFile);
             } else {
                 productName = "geotiff";
@@ -345,7 +342,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     private void initBandsMap(Product product) {
         final Band[] bands = product.getBands();
-        bandMap = new HashMap<Band, Integer>(bands.length);
+        bandMap = new HashMap<>(bands.length);
         for (Band band : bands) {
             if (!(band instanceof VirtualBand || band instanceof FilterBand)) {
                 bandMap.put(band, bandMap.size());
@@ -368,11 +365,10 @@ public class GeoTiffProductReader extends AbstractProductReader {
         SampleModel sampleModel = baseImage.getSampleModel();
         final int numBands = sampleModel.getNumBands();
         final int productDataType = ImageManager.getProductDataType(sampleModel.getDataType());
-        bandMap = new HashMap<Band, Integer>(numBands);
+        bandMap = new HashMap<>(numBands);
         for (int i = 0; i < numBands; i++) {
             final String bandName = String.format("band_%d", i + 1);
             final Band band = product.addBand(bandName, productDataType);
-            band.setUnit("amplitude");
             if (tiffInfo.containsField(
                     BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
                 band.setImageInfo(createIndexedImageInfo(product, baseImage, band));
@@ -515,7 +511,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         if (rasterType == GeoTiffConstants.UNDEFINED) {
             rasterType = GeoTiffConstants.RasterPixelIsArea;
         }
-        MathTransform xform = null;
+        MathTransform xform;
         if (hasTiePoints && hasPixelScales) {
 
             //
@@ -594,8 +590,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
 
     private static void applyTiePointGeoCoding(TiffFileInfo info, double[] tiePoints, Product product) {
-        final SortedSet<Double> xSet = new TreeSet<Double>();
-        final SortedSet<Double> ySet = new TreeSet<Double>();
+        final SortedSet<Double> xSet = new TreeSet<>();
+        final SortedSet<Double> ySet = new TreeSet<>();
         for (int i = 0; i < tiePoints.length; i += 6) {
             xSet.add(tiePoints[i]);
             ySet.add(tiePoints[i + 1]);
@@ -611,13 +607,13 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int height = ySet.size();
 
         int idx = 0;
-        final Map<Double, Integer> xIdx = new HashMap<Double, Integer>();
+        final Map<Double, Integer> xIdx = new HashMap<>();
         for (Double val : xSet) {
             xIdx.put(val, idx);
             idx++;
         }
         idx = 0;
-        final Map<Double, Integer> yIdx = new HashMap<Double, Integer>();
+        final Map<Double, Integer> yIdx = new HashMap<>();
         for (Double val : ySet) {
             yIdx.put(val, idx);
             idx++;
@@ -670,8 +666,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 return false;
             }
         }
-        final SortedSet<Double> xSet = new TreeSet<Double>();
-        final SortedSet<Double> ySet = new TreeSet<Double>();
+        final SortedSet<Double> xSet = new TreeSet<>();
+        final SortedSet<Double> ySet = new TreeSet<>();
         for (int i = 0; i < tiePoints.length; i += 6) {
             xSet.add(tiePoints[i]);
             ySet.add(tiePoints[i + 1]);
@@ -733,21 +729,15 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final PixelPos pixelPos = new PixelPos(x, y);
             final GeoPos geoPos = new GeoPos(lat, lon);
 
-            final String name = gcpDescriptor.getRoleName() + "_" + i;
-            final String label = gcpDescriptor.getRoleLabel() + "_" + i;
-            final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, name, label, "", pixelPos, geoPos,
-                                                                 product.getGeoCoding());
+            final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, "gcp_" + i, "GCP_" + i, "",
+                                                                 pixelPos, geoPos, product.getGeoCoding());
             gcpGroup.add(gcp);
         }
 
-        try {	//NESTMOD
         final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
         final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
         final Datum datum = getDatum(geoKeyEntries);
         product.setGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private static Datum getDatum(Map<Integer, GeoKeyEntry> geoKeyEntries) {
