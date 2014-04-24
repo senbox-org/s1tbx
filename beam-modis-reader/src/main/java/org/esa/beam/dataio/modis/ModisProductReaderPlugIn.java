@@ -69,7 +69,11 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
 
             final String productType = modisAttributes.getProductType();
             if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
-                return DecodeQualification.INTENDED;
+                if (modisAttributes.isImappFormat()) {
+                    return DecodeQualification.INTENDED;
+                } else {
+                    return DecodeQualification.SUITABLE;
+                }
             }
         } catch (IOException ignore) {
         } finally {
