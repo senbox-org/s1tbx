@@ -174,7 +174,9 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
         }
         saveLayoverShadowMask = (Boolean)paramMap.get("saveLayoverShadowMask");
-        saveLayoverShadowMaskCheckBox.setSelected(saveLayoverShadowMask);
+        if (saveLayoverShadowMask != null) {
+            saveLayoverShadowMaskCheckBox.setSelected(saveLayoverShadowMask);
+        }
 
         enableExtraOptions(!isSARSimTC);
     }
