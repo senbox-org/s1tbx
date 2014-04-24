@@ -93,7 +93,7 @@ class Roi {
     }
 
     private RenderedImage createCombinedMaskImage() {
-        final List<RenderedImage> imageList = new ArrayList<RenderedImage>(maskImageSet);
+        final List<RenderedImage> imageList = new ArrayList<>(maskImageSet);
         RenderedImage combinedImage = imageList.get(0);
 
         for (int i = 1; i < imageList.size(); i++) {
