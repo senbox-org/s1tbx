@@ -102,8 +102,8 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
     }
     
     protected static void copyLine(final  int y, final int destWidth, ProductData src, ProductData dest, int[] sourceCoords) {
+        int destOffset = y * destWidth;
         final int type = src.getType();
-        int x=y * destWidth;
 
         switch (type) {
             case ProductData.TYPE_INT8:
@@ -111,7 +111,7 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
                 byte[] srcArrayB = (byte[]) src.getElems();
                 byte[] destArrayB = (byte[]) dest.getElems();
                 for(int coord : sourceCoords) {
-                    destArrayB[x++] =  srcArrayB[coord];
+                    destArrayB[destOffset++] =  srcArrayB[coord];
                 }
                 return;
             case ProductData.TYPE_INT16:
@@ -119,7 +119,7 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
                 short[] srcArrayS = (short[]) src.getElems();
                 short[] destArrayS = (short[]) dest.getElems();
                 for(int coord : sourceCoords) {
-                    destArrayS[x++] =  srcArrayS[coord];
+                    destArrayS[destOffset++] =  srcArrayS[coord];
                 }
                 return;
             case ProductData.TYPE_INT32:
@@ -127,21 +127,21 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
                 int[] srcArrayI = (int[]) src.getElems();
                 int[] destArrayI = (int[]) dest.getElems();
                 for(int coord : sourceCoords) {
-                    destArrayI[x++] =  srcArrayI[coord];
+                    destArrayI[destOffset++] =  srcArrayI[coord];
                 }
                 return;
             case ProductData.TYPE_FLOAT32:
                 float[] srcArrayF = (float[]) src.getElems();
                 float[] destArrayF = (float[]) dest.getElems();
                 for(int coord : sourceCoords) {
-                    destArrayF[x++] =  srcArrayF[coord];
+                    destArrayF[destOffset++] =  srcArrayF[coord];
                 }
                 return;
             case ProductData.TYPE_FLOAT64:
                 double[] srcArrayD = (double[]) src.getElems();
                 double[] destArrayD = (double[]) dest.getElems();
                 for(int coord : sourceCoords) {
-                    destArrayD[x++] =  srcArrayD[coord];
+                    destArrayD[destOffset++] =  srcArrayD[coord];
                 }
                 return;
             case ProductData.TYPE_ASCII:
