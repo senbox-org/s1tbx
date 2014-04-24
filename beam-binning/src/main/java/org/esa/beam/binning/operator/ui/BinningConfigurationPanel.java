@@ -29,12 +29,14 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.MouseEventFilterFactory;
+import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -288,7 +290,8 @@ class BinningConfigurationPanel extends JPanel {
 
     private JPanel createVariablesPanel() {
         JTable variableTable = createVariableTable();
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, new VariableTableController(variableTable));
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable,
+                                                              new VariableTableController(variableTable, binningFormModel));
 
         JScrollPane scrollPane = new JScrollPane(variableTable);
         scrollPane.setBorder(null);
@@ -306,7 +309,7 @@ class BinningConfigurationPanel extends JPanel {
         JTable variableTable = new JTable(tableModel);
         variableTable.setName("variables");
         variableTable.setRowSelectionAllowed(true);
-        variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable, true));
+        variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable));
 
         final JTableHeader tableHeader = variableTable.getTableHeader();
         tableHeader.setName("variables");
@@ -321,13 +324,13 @@ class BinningConfigurationPanel extends JPanel {
 
         final TableColumn expressionColumn = columnModel.getColumn(1);
         expressionColumn.setPreferredWidth(360);
-        final ExprEditor cellEditor = new ExprEditor(true);
+        final ExprEditor cellEditor = new ExprEditor();
         expressionColumn.setCellEditor(cellEditor);
 
         return variableTable;
     }
 
-    private MouseListener createExpressionEditorMouseListener(final JTable table, final boolean booleanExpected) {
+    private MouseListener createExpressionEditorMouseListener(final JTable table) {
         final MouseAdapter mouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -337,7 +340,7 @@ class BinningConfigurationPanel extends JPanel {
                         table.removeEditor();
                         final int row = table.getSelectedRow();
                         final String[] value = new String[]{(String) table.getValueAt(row, column)};
-                        final int i = editExpression(value, booleanExpected);
+                        final int i = editExpression(value);
                         if (ModalDialog.ID_OK == i) {
                             table.setValueAt(value[0], row, column);
                         }
@@ -348,7 +351,7 @@ class BinningConfigurationPanel extends JPanel {
         return MouseEventFilterFactory.createFilter(mouseListener);
     }
 
-    private int editExpression(String[] value, final boolean booleanExpected) {
+    private int editExpression(String[] value) {
         Product product;
         product = binningFormModel.getContextProduct();
         if (product == null) {
@@ -356,18 +359,19 @@ class BinningConfigurationPanel extends JPanel {
             appContext.handleError(msg, new IllegalStateException(msg));
             return 0;
         }
-        final ProductExpressionPane pep;
-        if (booleanExpected) {
-            pep = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
-                                                                    appContext.getPreferences());
-        } else {
-            pep = ProductExpressionPane.createGeneralExpressionPane(new Product[]{product}, product,
-                                                                    appContext.getPreferences());
-        }
-        pep.setCode(value[0]);
-        final int i = pep.showModalDialog(appContext.getApplicationWindow(), value[0]);
+        ProductExpressionPane expressionPane =
+                ProductExpressionPane.createGeneralExpressionPane(new Product[]{product},
+                                                                  product,
+                                                                  null);
+        expressionPane.setCode(value[0]);
+        final int i = expressionPane.showModalDialog(appContext.getApplicationWindow(), value[0]);
+        final String expression = expressionPane.getCode();
         if (i == ModalDialog.ID_OK) {
-            value[0] = pep.getCode();
+            if (StringUtils.isNullOrEmpty(expression)) {
+                JOptionPane.showMessageDialog(appContext.getApplicationWindow(), "Expression must not be empty");
+            } else {
+                value[0] = expression;
+            }
         }
         return i;
     }
@@ -439,7 +443,7 @@ class BinningConfigurationPanel extends JPanel {
         private final JButton button;
         private String[] value;
 
-        private ExprEditor(final boolean booleanExpected) {
+        private ExprEditor() {
             button = new JButton("...");
             final Dimension preferredSize = button.getPreferredSize();
             preferredSize.setSize(25, preferredSize.getHeight());
@@ -448,7 +452,7 @@ class BinningConfigurationPanel extends JPanel {
             final ActionListener actionListener = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    final int i = editExpression(value, booleanExpected);
+                    final int i = editExpression(value);
                     if (i == ModalDialog.ID_OK) {
                         fireEditingStopped();
                     } else {
