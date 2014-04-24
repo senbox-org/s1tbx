@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.PropertyPane;
 import org.esa.beam.binning.AggregatorConfig;
@@ -31,6 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -82,6 +84,21 @@ class AggregatorItemDialog extends ModalDialog {
         return super.show();
     }
 
+
+    @Override
+    protected boolean verifyUserInput() {
+        try {
+            for (Property property : aggregatorPropertySet.getProperties()) {
+                property.validate(property.getValue());
+            }
+        } catch (ValidationException e) {
+            JOptionPane.showMessageDialog(getContent(), "Aggregator properties are not valid.\n" + e.getMessage(),
+                                          "Invalid Aggregator Properties", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
     @Override
     protected void onOK() {
         AggregatorConfig config = aggregatorDescriptor.createConfig();
@@ -97,17 +114,13 @@ class AggregatorItemDialog extends ModalDialog {
     }
 
     private Component createUI() {
-        return createPropertyPane();
-    }
-
-    private JComponent createPropertyPane() {
         final JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 
         final TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         List<AggregatorDescriptor> aggregatorDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
         List<String> aggregatorNames = new ArrayList<>();
-        for (AggregatorDescriptor aggregatorDescriptor : aggregatorDescriptors) {
-            aggregatorNames.add(aggregatorDescriptor.getName());
+        for (AggregatorDescriptor aggregatorDescriptor1 : aggregatorDescriptors) {
+            aggregatorNames.add(aggregatorDescriptor1.getName());
         }
         Collections.sort(aggregatorNames);
 
@@ -134,14 +147,14 @@ class AggregatorItemDialog extends ModalDialog {
         return mainPanel;
     }
 
-    PropertySet createPropertySet(AggregatorConfig config) {
+    private PropertySet createPropertySet(AggregatorConfig config) {
         PropertySet aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), config.getClass(),
                                                                               new ParameterDescriptorFactory());
         aggregatorPropertySet.setDefaultValues();
         return aggregatorPropertySet;
     }
 
-    AggregatorDescriptor getDescriptorFromComboBox() {
+    private AggregatorDescriptor getDescriptorFromComboBox() {
         final TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         String aggrType = (String) aggregatorComboBox.getSelectedItem();
         return registry.getDescriptor(AggregatorDescriptor.class, aggrType);
