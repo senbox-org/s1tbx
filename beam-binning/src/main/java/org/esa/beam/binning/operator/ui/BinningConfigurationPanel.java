@@ -71,26 +71,26 @@ import java.text.DecimalFormatSymbols;
  *
  * @author Norman
  */
-class BinningVariablesPanel2 extends JPanel {
+class BinningConfigurationPanel extends JPanel {
 
     private final AppContext appContext;
     private final BinningFormModel binningFormModel;
     private double currentResolution;
 
-    BinningVariablesPanel2(AppContext appContext, BinningFormModel binningFormModel) {
+    BinningConfigurationPanel(AppContext appContext, BinningFormModel binningFormModel) {
         this.appContext = appContext;
         this.binningFormModel = binningFormModel;
         setLayout(new BorderLayout());
-        add(createBandsPanel(), BorderLayout.CENTER);
+        add(createAggregatorsAndVariablesPanel(), BorderLayout.CENTER);
         add(createParametersPanel(), BorderLayout.SOUTH);
     }
 
-    private JComponent createBandsPanel() {
+    private JComponent createAggregatorsAndVariablesPanel() {
         JideSplitPane splitPane = new JideSplitPane(JideSplitPane.VERTICAL_SPLIT);
         splitPane.setProportionalLayout(true);
         splitPane.setShowGripper(true);
-        splitPane.add(createAggregatorPanel());
-        splitPane.add(createVariablePanel());
+        splitPane.add(createAggregatorsPanel());
+        splitPane.add(createVariablesPanel());
         splitPane.setProportions(new double[]{0.7});
         return splitPane;
     }
@@ -248,7 +248,7 @@ class BinningVariablesPanel2 extends JPanel {
         return null;
     }
 
-    private JPanel createAggregatorPanel() {
+    private JPanel createAggregatorsPanel() {
         final Grid grid = new Grid(6, false);
         grid.getLayout().setTablePadding(4, 3);
         grid.getLayout().setTableAnchor(TableLayout.Anchor.BASELINE);
@@ -261,9 +261,9 @@ class BinningVariablesPanel2 extends JPanel {
         grid.getLayout().setColumnWeightX(4, 1.0);
         grid.setHeaderRow(
                 /*1*/ new JLabel("<html><b>Aggregator</b>"),
-                /*2*/ new JLabel("<html><b>Sources</b>"),
-                /*3*/ new JLabel("<html><b>Targets</b>"),
-                /*4*/ new JLabel("<html><b>Parameters</b>"),
+                /*2*/ new JLabel("<html><b>Source Bands</b>"),
+                /*3*/ new JLabel("<html><b>Parameters</b>"),
+                /*4*/ new JLabel("<html><b>Target Bands</b>"),
                 /*5*/ null
         );
         final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid, binningFormModel));
@@ -286,30 +286,30 @@ class BinningVariablesPanel2 extends JPanel {
         return panel;
     }
 
-    private JPanel createVariablePanel() {
-        JTable variableTable = createVariableTable("Intermediate Variables (optional)");
+    private JPanel createVariablesPanel() {
+        JTable variableTable = createVariableTable();
         ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, new VariableTableController(variableTable));
 
         JScrollPane scrollPane = new JScrollPane(variableTable);
         scrollPane.setBorder(null);
 
         JPanel panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(new TitledBorder("Variables (optional)"));
+        panel.setBorder(new TitledBorder("Intermediate Source Bands (optional)"));
         panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
 
-    private JTable createVariableTable(final String labelName) {
+    private JTable createVariableTable() {
         final DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Name", "Expression"}, 0);
         tableModel.addTableModelListener(new VariableConfigTableListener(tableModel));
         JTable variableTable = new JTable(tableModel);
-        variableTable.setName(labelName);
+        variableTable.setName("variables");
         variableTable.setRowSelectionAllowed(true);
         variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable, true));
 
         final JTableHeader tableHeader = variableTable.getTableHeader();
-        tableHeader.setName(labelName);
+        tableHeader.setName("variables");
         tableHeader.setReorderingAllowed(false);
         tableHeader.setResizingAllowed(true);
 

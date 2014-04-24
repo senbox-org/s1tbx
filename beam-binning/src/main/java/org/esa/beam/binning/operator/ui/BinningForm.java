@@ -19,7 +19,6 @@ package org.esa.beam.binning.operator.ui;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 /**
@@ -34,13 +33,9 @@ class BinningForm extends JTabbedPane {
 
     BinningForm(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelector) {
         ioPanel = new BinningIOPanel(appContext, binningFormModel, targetProductSelector);
-        final JPanel regionPanel = new BinningFilterPanel(binningFormModel);
-        final JPanel binningParametersPanel = new BinningVariablesPanel(appContext, binningFormModel);
-        final JPanel binningParametersPanel2 = new BinningVariablesPanel2(appContext, binningFormModel);
         addTab("I/O Parameters", ioPanel);
-        addTab("Filter", regionPanel);
-        addTab("Configuration", binningParametersPanel);
-        addTab("Configuration 2", binningParametersPanel2);
+        addTab("Filter", new BinningFilterPanel(binningFormModel));
+        addTab("Configuration", new BinningConfigurationPanel(appContext, binningFormModel));
     }
 
     void prepareClose() {

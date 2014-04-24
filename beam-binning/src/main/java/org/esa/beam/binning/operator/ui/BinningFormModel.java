@@ -18,6 +18,7 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.binding.BindingContext;
+import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
@@ -34,6 +35,7 @@ interface BinningFormModel {
     static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
     static final String PROPERTY_KEY_VARIABLE_SPECS = "variableSpecs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
+    static final String PROPERTY_KEY_AGGREGATOR_CONFIGS = "aggregatorConfigs";
     static final String PROPERTY_KEY_REGION = "region";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
@@ -86,6 +88,11 @@ interface BinningFormModel {
      * @return The variable configurations.
      */
     TargetVariableSpec[] getTargetVariableSpecs();
+
+    /**
+     * @return The variable configurations.
+     */
+    AggregatorConfig[] getAggregatorConfigs();
 
     /**
      * @return The variable configurations.

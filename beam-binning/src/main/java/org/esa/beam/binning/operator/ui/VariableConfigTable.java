@@ -367,7 +367,7 @@ class VariableConfigTable {
         sourceNames = StringUtils.addArrays(sourceNames, maskNames);
 
 
-        AggregatorConfigEditDialog editDialog = new AggregatorConfigEditDialog(UIUtils.getRootWindow(table), sourceNames, new AggregatorTableController.ACWrapper());
+        AggregatorConfigEditDialog editDialog = new AggregatorConfigEditDialog(UIUtils.getRootWindow(table), sourceNames, new AggregatorTableController.AggregatorItem());
         int result = editDialog.show();
         if (result == AggregatorConfigEditDialog.ID_OK) {
             TargetVariableSpec spec = editDialog.getSpec();

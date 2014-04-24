@@ -1,13 +1,14 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.Grid;
 import com.bc.ceres.swing.ListControlBar;
 import org.apache.commons.lang.StringUtils;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
+import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
@@ -24,7 +25,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,51 +36,57 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         return propertyName.toLowerCase().contains("varname");
     }
 
-    static class ACWrapper {
+    static class AggregatorItem {
 
         AggregatorDescriptor aggregatorDescriptor;
         AggregatorConfig aggregatorConfig;
 
-        ACWrapper() {
+        AggregatorItem() {
             this.aggregatorDescriptor = new AggregatorAverage.Descriptor();
             this.aggregatorConfig = aggregatorDescriptor.createConfig();
         }
 
-    }
-
-    final Grid grid;
-    private final BinningFormModel binningFormModel;
-    final List<ACWrapper> aggregatorConfigs;
-
-    AggregatorTableController(Grid grid, BinningFormModel binningFormModel) {
-        this(grid, binningFormModel, new ACWrapper[0]);
-
-    }
-
-    AggregatorTableController(Grid grid, BinningFormModel binningFormModel, ACWrapper... acs) {
-        this.grid = grid;
-        this.binningFormModel = binningFormModel;
-        aggregatorConfigs = new ArrayList<>(Arrays.asList(acs));
-        for (ACWrapper ac : acs) {
-            addDataRow(ac);
+        AggregatorItem(AggregatorConfig aggregatorConfig) {
+            this.aggregatorConfig = aggregatorConfig;
+            this.aggregatorDescriptor = TypedDescriptorsRegistry.getInstance().getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
         }
     }
 
-    ACWrapper[] getAggregatorConfigs() {
-        return aggregatorConfigs.toArray(new ACWrapper[aggregatorConfigs.size()]);
+    private final Grid grid;
+    private final BinningFormModel binningFormModel;
+    private final List<AggregatorItem> aggregatorItems;
+
+    AggregatorTableController(Grid grid, BinningFormModel binningFormModel) {
+        this.grid = grid;
+        this.binningFormModel = binningFormModel;
+        AggregatorConfig[] aggregatorConfigs = binningFormModel.getAggregatorConfigs();
+
+        aggregatorItems = new ArrayList<>();
+        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
+            addDataRow(new AggregatorItem(aggregatorConfig));
+        }
+    }
+
+    AggregatorItem[] getAggregatorItems() {
+        return aggregatorItems.toArray(new AggregatorItem[aggregatorItems.size()]);
     }
 
     @Override
     public boolean addRow(int index) {
-        return editAgg(new ACWrapper(), -1);
+        boolean ok = editAggregatorItem(new AggregatorItem(), -1);
+        if (ok) {
+            updateBinningFormModel();
+        }
+        return ok;
     }
 
     @Override
     public boolean removeRows(int[] indices) {
         grid.removeDataRows(indices);
         for (int i = indices.length - 1; i >= 0; i--) {
-            aggregatorConfigs.remove(indices[i]);
+            aggregatorItems.remove(indices[i]);
         }
+        updateBinningFormModel();
         return true;
     }
 
@@ -88,10 +94,12 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
     public boolean moveRowUp(int index) {
         grid.moveDataRowUp(index);
 
-        ACWrapper ac1 = aggregatorConfigs.get(index - 1);
-        ACWrapper ac2 = aggregatorConfigs.get(index);
-        aggregatorConfigs.set(index - 1, ac2);
-        aggregatorConfigs.set(index, ac1);
+        AggregatorItem ac1 = aggregatorItems.get(index - 1);
+        AggregatorItem ac2 = aggregatorItems.get(index);
+        aggregatorItems.set(index - 1, ac2);
+        aggregatorItems.set(index, ac1);
+
+        updateBinningFormModel();
 
         return true;
     }
@@ -100,15 +108,30 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
     public boolean moveRowDown(int index) {
         grid.moveDataRowDown(index);
 
-        ACWrapper ac1 = aggregatorConfigs.get(index);
-        ACWrapper ac2 = aggregatorConfigs.get(index + 1);
-        aggregatorConfigs.set(index, ac2);
-        aggregatorConfigs.set(index + 1, ac1);
+        AggregatorItem ac1 = aggregatorItems.get(index);
+        AggregatorItem ac2 = aggregatorItems.get(index + 1);
+        aggregatorItems.set(index, ac2);
+        aggregatorItems.set(index + 1, ac1);
+
+        updateBinningFormModel();
 
         return true;
     }
 
-    private boolean editAgg(ACWrapper ac, int rowIndex) {
+    private void updateBinningFormModel() {
+        AggregatorConfig[] aggregatorConfigs = new AggregatorConfig[aggregatorItems.size()];
+        for (int i = 0; i < aggregatorItems.size(); i++) {
+            AggregatorItem aggregatorItem = aggregatorItems.get(i);
+            aggregatorConfigs[i] = aggregatorItem.aggregatorConfig;
+        }
+        try {
+            binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_AGGREGATOR_CONFIGS, aggregatorConfigs);
+        } catch (ValidationException e) {
+            JOptionPane.showMessageDialog(grid, e.getMessage(), "Aggregator Configuration", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private boolean editAggregatorItem(AggregatorItem aggregatorItem, int rowIndex) {
         Product contextProduct = binningFormModel.getContextProduct();
         if (contextProduct == null) {
             JOptionPane.showMessageDialog(grid, "Please select source products before adding aggregators.", "", JOptionPane.INFORMATION_MESSAGE);
@@ -122,13 +145,13 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         sourceNames = org.esa.beam.util.StringUtils.addArrays(sourceNames, tiePointGridNames);
         sourceNames = org.esa.beam.util.StringUtils.addArrays(sourceNames, maskNames);
 
-        ModalDialog aggregatorDialog = new AggregatorConfigEditDialog(SwingUtilities.getWindowAncestor(grid), sourceNames, ac);
+        ModalDialog aggregatorDialog = new AggregatorConfigEditDialog(SwingUtilities.getWindowAncestor(grid), sourceNames, aggregatorItem);
         int result = aggregatorDialog.show();
         if (result == ModalDialog.ID_OK) {
             if (rowIndex < 0) {
-                addDataRow(ac);
+                addDataRow(aggregatorItem);
             } else {
-                updateDataRow(ac, rowIndex);
+                updateDataRow(aggregatorItem, rowIndex);
             }
             return true;
         }
@@ -143,24 +166,24 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         return varNames;
     }
 
-    private void addDataRow(ACWrapper ac) {
+    private void addDataRow(AggregatorItem ac) {
         EmptyBorder emptyBorder = new EmptyBorder(2, 2, 2, 2);
 
         JLabel typeLabel = new JLabel(getTypeText(ac));
         //typeLabel.setBackground(grid.getBackground().darker());
         typeLabel.setBorder(emptyBorder);
 
-        JLabel sourcesLabel = new JLabel(getSourcesText(ac));
+        JLabel sourceBandsLabel = new JLabel(getSourceBandsText(ac));
         //sourcesLabel.setBackground(grid.getBackground().darker());
-        sourcesLabel.setBorder(emptyBorder);
-
-        JLabel targetsLabel = new JLabel(getTargetsText(ac));
-        //targetsLabel.setBackground(grid.getBackground().darker());
-        targetsLabel.setBorder(emptyBorder);
+        sourceBandsLabel.setBorder(emptyBorder);
 
         JLabel parametersLabel = new JLabel(getParametersText(ac));
         //parametersLabel.setBackground(grid.getBackground().darker());
         parametersLabel.setBorder(emptyBorder);
+
+        JLabel targetBandsLabel = new JLabel(getTargetBandsText(ac));
+        //targetsLabel.setBackground(grid.getBackground().darker());
+        targetBandsLabel.setBorder(emptyBorder);
 
         final AbstractButton editButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("/org/esa/beam/resources/images/icons/Edit16.gif"),
                                                                          false);
@@ -169,50 +192,49 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int rowIndex = grid.findDataRowIndex(editButton);
-                editAgg(aggregatorConfigs.get(rowIndex), rowIndex);
+                editAggregatorItem(aggregatorItems.get(rowIndex), rowIndex);
             }
         });
 
         grid.addDataRow(
             /*1*/ typeLabel,
-            /*2*/ sourcesLabel,
-            /*3*/ targetsLabel,
-            /*4*/ parametersLabel,
+            /*2*/ sourceBandsLabel,
+            /*3*/ parametersLabel,
+            /*4*/ targetBandsLabel,
             /*5*/ editButton);
 
-        aggregatorConfigs.add(ac);
-
+        aggregatorItems.add(ac);
     }
 
-    private void updateDataRow(ACWrapper ac, int rowIndex) {
+    private void updateDataRow(AggregatorItem ac, int rowIndex) {
         JComponent[] components = grid.getDataRow(rowIndex);
         ((JLabel) components[0]).setText(getTypeText(ac));
-        ((JLabel) components[1]).setText(getSourcesText(ac));
-        ((JLabel) components[2]).setText(getTargetsText(ac));
-        ((JLabel) components[3]).setText(getParametersText(ac));
+        ((JLabel) components[1]).setText(getSourceBandsText(ac));
+        ((JLabel) components[2]).setText(getParametersText(ac));
+        ((JLabel) components[3]).setText(getTargetBandsText(ac));
     }
 
-    private String getTypeText(ACWrapper ac) {
+    private String getTypeText(AggregatorItem ac) {
         return "<html><b>" + (ac.aggregatorConfig.getName()) + "</b>";
     }
 
-    private String getSourcesText(ACWrapper ac) {
+    private String getSourceBandsText(AggregatorItem ac) {
         String[] sourceVarNames = ac.aggregatorDescriptor.getSourceVarNames(ac.aggregatorConfig);
         return sourceVarNames.length != 0 ? "<html>" + StringUtils.join(sourceVarNames, "<br/>") : "";
     }
 
-    private String getTargetsText(ACWrapper ac) {
+    private String getTargetBandsText(AggregatorItem ac) {
         String[] targetVarNames = ac.aggregatorDescriptor.getTargetVarNames(ac.aggregatorConfig);
         return targetVarNames.length != 0 ? "<html>" + StringUtils.join(targetVarNames, "<br/>") : "";
     }
 
-    private String getParametersText(ACWrapper ac) {
+    private String getParametersText(AggregatorItem ac) {
         PropertySet container = ac.aggregatorConfig.asPropertySet();
         StringBuilder sb = new StringBuilder();
         for (Property property : container.getProperties()) {
             String propertyName = property.getName();
             if (!(isSourcePropertyName(propertyName) || propertyName.equals("type"))) {
-                if (sb.length() > 0)  {
+                if (sb.length() > 0) {
                     sb.append("<br/>");
                 }
                 sb.append(String.format("%s = %s", propertyName, property.getValueAsText()));

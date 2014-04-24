@@ -16,6 +16,8 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import org.esa.beam.binning.AggregatorConfig;
+import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
@@ -28,7 +30,12 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Thomas Storm
@@ -47,7 +54,20 @@ public class BinningFormModelImplTest {
     }
 
     @Test
-    public void testVariableConfigurationProperty() throws Exception {
+    public void testAggregatorConfigsProperty() throws Exception {
+        final BinningFormModel binningFormModel = new BinningFormModelImpl();
+        assertArrayEquals(new AggregatorConfig[0], binningFormModel.getAggregatorConfigs());
+
+        final AggregatorConfig aggConf1 = new AggregatorAverage.Config("x", "y", 0.4, true, false);
+        final AggregatorConfig aggConf2 = new AggregatorAverage.Config("a", "b", 0.6, false, null);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_AGGREGATOR_CONFIGS,
+                                     new AggregatorConfig[]{aggConf1, aggConf2});
+
+        assertArrayEquals(new AggregatorConfig[]{aggConf1, aggConf2}, binningFormModel.getAggregatorConfigs());
+    }
+
+    @Test
+    public void testVariableConfigsProperty() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModelImpl();
         assertArrayEquals(new VariableConfig[0], binningFormModel.getVariableConfigs());
 

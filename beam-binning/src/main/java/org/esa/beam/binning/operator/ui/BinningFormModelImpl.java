@@ -26,6 +26,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
+import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
@@ -114,6 +115,16 @@ class BinningFormModelImpl implements BinningFormModel {
             targetVariableSpecs = new TargetVariableSpec[0];
         }
         return targetVariableSpecs;
+    }
+
+
+    @Override
+    public AggregatorConfig[] getAggregatorConfigs() {
+        AggregatorConfig[] aggregatorConfigs = getPropertyValue(PROPERTY_KEY_AGGREGATOR_CONFIGS);
+        if (aggregatorConfigs == null) {
+            aggregatorConfigs = new AggregatorConfig[0];
+        }
+        return aggregatorConfigs;
     }
 
     @Override

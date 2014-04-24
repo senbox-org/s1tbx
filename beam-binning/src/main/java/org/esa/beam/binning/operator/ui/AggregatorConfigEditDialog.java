@@ -47,19 +47,19 @@ import java.util.List;
 
 class AggregatorConfigEditDialog extends ModalDialog {
 
-    private final AggregatorTableController.ACWrapper acWrapper;
+    private final AggregatorTableController.AggregatorItem aggregatorItem;
     private final String[] sourceVarNames;
     private AggregatorConfig aggregatorConfig;
     private JComboBox<String> aggregatorComboBox;
     private AggregatorDescriptor aggregatorDescriptor;
     private PropertySet aggregatorPropertySet;
 
-    public AggregatorConfigEditDialog(Window parent, String[] sourceVarNames, AggregatorTableController.ACWrapper acWrapper) {
-        super(parent, "Edit " + acWrapper.aggregatorConfig.getName() + " Aggregator", ID_OK | ID_CANCEL, null);
+    public AggregatorConfigEditDialog(Window parent, String[] sourceVarNames, AggregatorTableController.AggregatorItem aggregatorItem) {
+        super(parent, "Edit " + aggregatorItem.aggregatorConfig.getName() + " Aggregator", ID_OK | ID_CANCEL, null);
         this.sourceVarNames = sourceVarNames;
-        this.acWrapper = acWrapper;
-        aggregatorConfig = acWrapper.aggregatorConfig;
-        aggregatorDescriptor = acWrapper.aggregatorDescriptor;
+        this.aggregatorItem = aggregatorItem;
+        aggregatorConfig = aggregatorItem.aggregatorConfig;
+        aggregatorDescriptor = aggregatorItem.aggregatorDescriptor;
         aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), aggregatorConfig.getClass());
     }
 
@@ -94,8 +94,8 @@ class AggregatorConfigEditDialog extends ModalDialog {
             objectPropertySet.setValue(mapProperty.getName(), mapProperty.getValue());
         }
         objectPropertySet.setValue("type", aggregatorDescriptor.getName());
-        acWrapper.aggregatorConfig = config;
-        acWrapper.aggregatorDescriptor = aggregatorDescriptor;
+        aggregatorItem.aggregatorConfig = config;
+        aggregatorItem.aggregatorDescriptor = aggregatorDescriptor;
         super.onOK();
     }
 
@@ -181,7 +181,7 @@ class AggregatorConfigEditDialog extends ModalDialog {
                                 "schere",
                                 "echse",
                                 "spock"
-                        }, new AggregatorTableController.ACWrapper());
+                        }, new AggregatorTableController.AggregatorItem());
                         dialog.getJDialog().setLocation(550, 300);
                         dialog.show();
 

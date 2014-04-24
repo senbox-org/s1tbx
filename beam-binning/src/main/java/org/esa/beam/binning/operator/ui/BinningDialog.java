@@ -18,19 +18,13 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.binning.AggregatorConfig;
-import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.TypedDescriptorsRegistry;
-import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
-import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -40,12 +34,9 @@ import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,7 +61,6 @@ public class BinningDialog extends SingleTargetProductDialog {
         formModel = new BinningFormModelImpl();
         form = new BinningForm(appContext, formModel, getTargetProductSelector());
 
-        // TODO menu entries for binning op, still a work in progress by nf 2013-11-05
         OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
 
         ParameterUpdater parameterUpdater = new BinningParameterUpdater();
@@ -135,51 +125,6 @@ public class BinningDialog extends SingleTargetProductDialog {
         return targetProductCreator.get();
     }
 
-    private static String getVarName(TargetVariableSpec spec) {
-        return spec.source.type == TargetVariableSpec.Source.RASTER_SOURCE_TYPE ? spec.source.bandName : spec.targetName;
-    }
-
-    private BinningConfig createBinningConfig() {
-        final List<VariableConfig> variableConfigs = new ArrayList<>();
-        final List<AggregatorConfig> aggregatorConfigs = new ArrayList<>();
-        final TargetVariableSpec[] targetVariableSpecs = formModel.getTargetVariableSpecs();
-        for (final TargetVariableSpec spec : targetVariableSpecs) {
-            variableConfigs.add(new VariableConfig(getVarName(spec), spec.source.expression));
-            aggregatorConfigs.add(createAggregatorConfig(spec.aggregatorDescriptor.getName(),
-                                                         getVarName(spec),
-                                                         spec.targetName,
-                                                         spec.aggregatorProperties));
-        }
-        return createBinningConfig(variableConfigs, aggregatorConfigs);
-    }
-
-    private BinningConfig createBinningConfig(List<VariableConfig> variableConfigs, List<AggregatorConfig> aggregatorConfigs) {
-        final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setAggregatorConfigs(aggregatorConfigs.toArray(new AggregatorConfig[aggregatorConfigs.size()]));
-        binningConfig.setVariableConfigs(variableConfigs.toArray(new VariableConfig[variableConfigs.size()]));
-        binningConfig.setMaskExpr(formModel.getMaskExpr());
-        binningConfig.setNumRows(formModel.getNumRows());
-        binningConfig.setSupersampling(formModel.getSupersampling());
-        return binningConfig;
-    }
-
-    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, String targetName, PropertyContainer aggregatorProperties) {
-        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-        AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorName);
-        final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createConfig();
-        PropertyContainer pc = PropertyContainer.createObjectBacked(aggregatorConfig);
-        if (pc.isPropertyDefined("varName")) {
-            pc.setValue("varName", varName);
-        }
-        if (pc.isPropertyDefined("targetName") && StringUtils.isNotNullAndNotEmpty(targetName)) {
-            pc.setValue("targetName", targetName);
-        }
-        for (Property property : aggregatorProperties.getProperties()) {
-            pc.setValue(property.getName(), property.getValue());
-        }
-        return aggregatorConfig;
-    }
-
     @Override
     public int show() {
         setContent(form);
@@ -207,17 +152,16 @@ public class BinningDialog extends SingleTargetProductDialog {
             parameters.put("region", formModel.getRegion());
             setTimeFiltering(parameters);
 
-            BinningConfig binningConfig = createBinningConfig();
-            parameters.put("variableConfigs", binningConfig.getVariableConfigs());
-            parameters.put("aggregatorConfigs", binningConfig.getAggregatorConfigs());
+            parameters.put("variableConfigs", formModel.getVariableConfigs());
+            parameters.put("aggregatorConfigs", formModel.getAggregatorConfigs());
 
             parameters.put("outputFormat", "BEAM-DIMAP");
             parameters.put("outputFile", getTargetProductSelector().getModel().getProductFile().getPath());
             parameters.put("outputType", "Product");
 
-            parameters.put("maskExpr", binningConfig.getMaskExpr());
-            parameters.put("numRows", binningConfig.getNumRows());
-            parameters.put("superSampling", binningConfig.getSupersampling());
+            parameters.put("maskExpr", formModel.getMaskExpr());
+            parameters.put("numRows", formModel.getNumRows());
+            parameters.put("superSampling", formModel.getSupersampling());
             parameters.put("sourceProductPaths", formModel.getSourceProductPath());
 
             final Product targetProduct = GPF.createProduct("Binning", parameters, formModel.getSourceProducts());
