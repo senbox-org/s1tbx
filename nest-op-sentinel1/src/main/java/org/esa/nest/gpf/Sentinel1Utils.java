@@ -98,21 +98,26 @@ public final class Sentinel1Utils
         final MetadataElement bandAbsMetadata = AbstractMetadata.getBandAbsMetadata(absRoot, band);
         final String annotation = bandAbsMetadata.getAttributeString(AbstractMetadata.annotation);
         final MetadataElement origMetadata = AbstractMetadata.getOriginalProductMetadata(band.getProduct());
-
         final MetadataElement noiseElem = origMetadata.getElement("noise");
         final MetadataElement bandNoise = noiseElem.getElement(annotation);
         final MetadataElement noise = bandNoise.getElement("noise");
         final MetadataElement noiseVectorListElem = noise.getElement("noiseVectorList");
+
+        return getNoiseVector(noiseVectorListElem);
+    }
+
+    public static NoiseVector[] getNoiseVector(final MetadataElement noiseVectorListElem) {
+
         final MetadataElement[] list = noiseVectorListElem.getElements();
 
         final List<NoiseVector> noiseVectorList = new ArrayList<NoiseVector>(5);
         for(MetadataElement noiseVectorElem : list) {
             final ProductData.UTC time = getTime(noiseVectorElem, "azimuthTime");
-            final int line = noiseVectorElem.getAttributeInt("line");
+            final int line = Integer.parseInt(noiseVectorElem.getAttributeString("line"));
 
             final MetadataElement pixelElem = noiseVectorElem.getElement("pixel");
             final String pixel = pixelElem.getAttributeString("pixel");
-            final int count = pixelElem.getAttributeInt("count");
+            final int count = Integer.parseInt(pixelElem.getAttributeString("count"));
             final MetadataElement noiseLutElem = noiseVectorElem.getElement("noiseLut");
             final String noiseLUT = noiseLutElem.getAttributeString("noiseLut");
 
@@ -124,6 +129,63 @@ public final class Sentinel1Utils
             noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
         }
         return noiseVectorList.toArray(new NoiseVector[noiseVectorList.size()]);
+    }
+
+    public static CalibrationVector[] getCalibrationVector(final MetadataElement calibrationVectorListElem,
+                                                           final boolean outputSigmaBand,
+                                                           final boolean outputBetaBand,
+                                                           final boolean outputGammaBand,
+                                                           final boolean outputDNBand) {
+
+        final MetadataElement[] list = calibrationVectorListElem.getElements();
+
+        final List<CalibrationVector> calibrationVectorList = new ArrayList<CalibrationVector>(5);
+        for(MetadataElement calibrationVectorElem : list) {
+            final ProductData.UTC time = getTime(calibrationVectorElem, "azimuthTime");
+            final int line = Integer.parseInt(calibrationVectorElem.getAttributeString("line"));
+
+            final MetadataElement pixelElem = calibrationVectorElem.getElement("pixel");
+            final String pixel = pixelElem.getAttributeString("pixel");
+            final int count = Integer.parseInt(pixelElem.getAttributeString("count"));
+            final int[] pixelArray = new int[count];
+            addToArray(pixelArray, 0, pixel, " ");
+
+            float[] sigmaNoughtArray = null;
+            if (outputSigmaBand) {
+                final MetadataElement sigmaNoughtElem = calibrationVectorElem.getElement("sigmaNought");
+                final String sigmaNought = sigmaNoughtElem.getAttributeString("sigmaNought");
+                sigmaNoughtArray = new float[count];
+                addToArray(sigmaNoughtArray, 0, sigmaNought, " ");
+            }
+
+            float[] betaNoughtArray = null;
+            if (outputBetaBand) {
+                final MetadataElement betaNoughtElem = calibrationVectorElem.getElement("betaNought");
+                final String betaNought = betaNoughtElem.getAttributeString("betaNought");
+                betaNoughtArray = new float[count];
+                addToArray(betaNoughtArray, 0, betaNought, " ");
+            }
+
+            float[] gammaArray = null;
+            if (outputGammaBand) {
+                final MetadataElement gammaElem = calibrationVectorElem.getElement("gamma");
+                final String gamma = gammaElem.getAttributeString("gamma");
+                gammaArray = new float[count];
+                addToArray(gammaArray, 0, gamma, " ");
+            }
+
+            float[] dnArray = null;
+            if (outputDNBand) {
+                final MetadataElement dnElem = calibrationVectorElem.getElement("dn");
+                final String dn = dnElem.getAttributeString("dn");
+                dnArray = new float[count];
+                addToArray(dnArray, 0, dn, " ");
+            }
+
+            calibrationVectorList.add(new CalibrationVector(
+                    time, line, pixelArray, sigmaNoughtArray, betaNoughtArray, gammaArray, dnArray));
+        }
+        return calibrationVectorList.toArray(new CalibrationVector[calibrationVectorList.size()]);
     }
 
     private static int addToArray(final int[] array, int index, final String csvString, final String delim) {
@@ -153,6 +215,32 @@ public final class Sentinel1Utils
             this.line = line;
             this.pixels = pixels;
             this.noiseLUT = noiseLUT;
+        }
+    }
+
+    public static class CalibrationVector {
+        public final double timeMJD;
+        public final int line;
+        public final int[] pixels;
+        public final float[] sigmaNought;
+        public final float[] betaNought;
+        public final float[] gamma;
+        public final float[] dn;
+
+        public CalibrationVector(final ProductData.UTC time,
+                                 final int line,
+                                 final int[] pixels,
+                                 final float[] sigmaNought,
+                                 final float[] betaNought,
+                                 final float[] gamma,
+                                 final float[] dn) {
+            this.timeMJD = time.getMJD();
+            this.line = line;
+            this.pixels = pixels;
+            this.sigmaNought = sigmaNought;
+            this.betaNought = betaNought;
+            this.gamma = gamma;
+            this.dn = dn;
         }
     }
 }
