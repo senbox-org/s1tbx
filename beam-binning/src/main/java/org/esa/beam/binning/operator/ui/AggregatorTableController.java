@@ -48,10 +48,6 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         }
     }
 
-    AggregatorItem[] getAggregatorItems() {
-        return aggregatorItems.toArray(new AggregatorItem[aggregatorItems.size()]);
-    }
-
     @Override
     public boolean addRow(int index) {
         boolean ok = editAggregatorItem(new AggregatorItem(), -1);
@@ -193,6 +189,7 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         ((JLabel) components[1]).setText(getSourceBandsText(ac));
         ((JLabel) components[2]).setText(getParametersText(ac));
         ((JLabel) components[3]).setText(getTargetBandsText(ac));
+        updateBinningFormModel();
     }
 
     private String getTypeText(AggregatorItem ac) {
