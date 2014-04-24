@@ -180,15 +180,15 @@ public class BinningOp extends Operator {
     @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.")
     private int numRows;
 
-    @Parameter(description = "The number of pixels used for super-sampling an input pixel into sub-pixel")
-    private Integer superSampling;
+    @Parameter(description = "The square of the number of pixels used for supersampling an input pixel into multiple sub-pixels")
+    private Integer supersampling;
 
     @Parameter(description = "The band maths expression used to filter input pixels")
     private String maskExpr;
 
     @Parameter(alias = "variables", itemAlias = "variable",
-               description = "List of variables. A variable will generate a VirtualBand " +
-                             "in the input data product to be binned, so that it can be used for binning")
+               description = "List of variables. A variable will generate a virtual band " +
+                             "in each source data product, so that it can be used as input for the binning.")
     private VariableConfig[] variableConfigs;
 
     @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class,
@@ -293,12 +293,12 @@ public class BinningOp extends Operator {
         this.numRows = numRows;
     }
 
-    public Integer getSuperSampling() {
-        return superSampling;
+    public Integer getSupersampling() {
+        return supersampling;
     }
 
-    public void setSuperSampling(Integer superSampling) {
-        this.superSampling = superSampling;
+    public void setSupersampling(Integer supersampling) {
+        this.supersampling = supersampling;
     }
 
     public String getMaskExpr() {
@@ -393,7 +393,7 @@ public class BinningOp extends Operator {
 
         BinningConfig binningConfig = new BinningConfig();
         binningConfig.setNumRows(numRows);
-        binningConfig.setSupersampling(superSampling);
+        binningConfig.setSupersampling(supersampling);
         binningConfig.setMaskExpr(maskExpr);
         binningConfig.setVariableConfigs(variableConfigs);
         binningConfig.setAggregatorConfigs(aggregatorConfigs);
