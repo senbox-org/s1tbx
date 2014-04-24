@@ -46,17 +46,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-class AggregatorConfigEditDialog extends ModalDialog {
+class AggregatorItemDialog extends ModalDialog {
 
-    private final AggregatorTableController.AggregatorItem aggregatorItem;
+    private final AggregatorItem aggregatorItem;
     private final String[] sourceVarNames;
     private AggregatorConfig aggregatorConfig;
     private AggregatorDescriptor aggregatorDescriptor;
     private PropertySet aggregatorPropertySet;
     private JComboBox<String> aggregatorComboBox;
 
-    public AggregatorConfigEditDialog(Window parent, String[] sourceVarNames, AggregatorTableController.AggregatorItem aggregatorItem) {
-        super(parent, "Edit " + aggregatorItem.aggregatorConfig.getName() + " Aggregator", ID_OK | ID_CANCEL, null);
+    public AggregatorItemDialog(Window parent, String[] sourceVarNames, AggregatorItem aggregatorItem) {
+        super(parent, "Edit Aggregator", ID_OK | ID_CANCEL, null);
         this.sourceVarNames = sourceVarNames;
         this.aggregatorItem = aggregatorItem;
         aggregatorConfig = aggregatorItem.aggregatorConfig;
@@ -67,14 +67,6 @@ class AggregatorConfigEditDialog extends ModalDialog {
         for (Property objectProperty : objectProperties) {
             aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
         }
-    }
-
-    /**
-     * @deprecated should not be used anymore
-     */
-    @Deprecated
-    TargetVariableSpec getSpec() {
-        return new TargetVariableSpec();
     }
 
     @Override
@@ -126,7 +118,7 @@ class AggregatorConfigEditDialog extends ModalDialog {
             public void actionPerformed(ActionEvent e) {
                 aggregatorDescriptor = getDescriptorFromComboBox();
                 aggregatorConfig = aggregatorDescriptor.createConfig();
-                aggregatorPropertySet = createPropertySet(AggregatorConfigEditDialog.this.aggregatorConfig);
+                aggregatorPropertySet = createPropertySet(AggregatorItemDialog.this.aggregatorConfig);
                 JPanel aggrPropertyPanel = createPropertyPanel(aggregatorPropertySet);
                 mainPanel.remove(1);
                 mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
@@ -180,13 +172,13 @@ class AggregatorConfigEditDialog extends ModalDialog {
                 aggregatorComboBox.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        AggregatorConfigEditDialog dialog = new AggregatorConfigEditDialog(jFrame, new String[]{
+                        AggregatorItemDialog dialog = new AggregatorItemDialog(jFrame, new String[]{
                                 "stein",
                                 "papier",
                                 "schere",
                                 "echse",
                                 "spock"
-                        }, new AggregatorTableController.AggregatorItem());
+                        }, new AggregatorItem());
                         dialog.getJDialog().setLocation(550, 300);
                         dialog.show();
 

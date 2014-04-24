@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by tonio on 23.04.2014.
  */
-public class TableHandlerTest {
+public class VariableTableHandlerTest {
 
     private JTable table;
 
@@ -28,7 +28,7 @@ public class TableHandlerTest {
     @Test
     public void testAddRow() throws Exception {
         final Object[] row = {"cd", 3};
-        TableHandler.addRow(table, row);
+        VariableTableHandler.addRow(table, row);
         assertEquals(4, table.getRowCount());
         assertEquals("cd", table.getValueAt(3, 0));
         assertEquals(3, table.getValueAt(3, 1));
@@ -36,7 +36,7 @@ public class TableHandlerTest {
 
     @Test
     public void testRemoveRows() throws Exception {
-        TableHandler.removeRows(table, new int[]{0, 2});
+        VariableTableHandler.removeRows(table, new int[]{0, 2});
         assertEquals(1, table.getRowCount());
         assertEquals("ab", table.getValueAt(0, 0));
         assertEquals(2, table.getValueAt(0, 1));
@@ -44,7 +44,7 @@ public class TableHandlerTest {
 
     @Test
     public void testMoveRowsDown() throws Exception {
-        TableHandler.moveRowsDown(table, new int[]{0, 1});
+        VariableTableHandler.moveRowsDown(table, new int[]{0, 1});
         assertEquals("ef", table.getValueAt(0, 0));
         assertEquals(4, table.getValueAt(0, 1));
         assertEquals("xy", table.getValueAt(1, 0));
@@ -55,7 +55,7 @@ public class TableHandlerTest {
 
     @Test
     public void testMoveRowsUp() throws Exception {
-        TableHandler.moveRowsUp(table, new int[]{1, 2});
+        VariableTableHandler.moveRowsUp(table, new int[]{1, 2});
         assertEquals("ab", table.getValueAt(0, 0));
         assertEquals(2, table.getValueAt(0, 1));
         assertEquals("ef", table.getValueAt(1, 0));
@@ -66,7 +66,7 @@ public class TableHandlerTest {
 
     @Test
     public void testSelectRowsByArray() throws Exception {
-        TableHandler.selectRows(table, new int[]{0, 2});
+        VariableTableHandler.selectRows(table, new int[]{0, 2});
         assertEquals(2, table.getSelectedRowCount());
         assertEquals(0, table.getSelectedRows()[0]);
         assertEquals(2, table.getSelectedRows()[1]);
@@ -74,7 +74,7 @@ public class TableHandlerTest {
 
     @Test
     public void testSelectRowsByMinMax() throws Exception {
-        TableHandler.selectRows(table, 0, 2);
+        VariableTableHandler.selectRows(table, 0, 2);
         assertEquals(3, table.getSelectedRowCount());
         assertEquals(0, table.getSelectedRows()[0]);
         assertEquals(1, table.getSelectedRows()[1]);

@@ -5,9 +5,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Created by tonio on 23.04.2014.
+ * Implements adding, removing and moving rows in the variable table.
+ *
+ * @author Tonio Fincke
  */
-public class TableHandler {
+class VariableTableHandler {
 
     public static void addRow(final JTable table, final Object[] rowData) {
         table.removeEditor();

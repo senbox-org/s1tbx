@@ -75,7 +75,7 @@ class BinningConfigurationPanel extends JPanel {
 
     private final AppContext appContext;
     private final BinningFormModel binningFormModel;
-    private double currentResolution;
+    private double currentGridResolution;
 
     BinningConfigurationPanel(AppContext appContext, BinningFormModel binningFormModel) {
         this.appContext = appContext;
@@ -426,10 +426,10 @@ class BinningConfigurationPanel extends JPanel {
 
         private void update() {
             double resolution = Double.parseDouble(resolutionTextField.getText());
-            if (Math.abs(currentResolution - resolution) > 1E-6) {
+            if (Math.abs(currentGridResolution - resolution) > 1E-6) {
                 binningFormModel.getBindingContext().getPropertySet().setValue(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, computeNumRows(resolution));
                 numRowsTextField.setText(String.valueOf(computeNumRows(resolution)));
-                currentResolution = resolution;
+                currentGridResolution = resolution;
             }
         }
     }

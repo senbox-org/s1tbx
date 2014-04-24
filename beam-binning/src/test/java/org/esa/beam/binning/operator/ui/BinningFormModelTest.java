@@ -40,11 +40,11 @@ import static org.junit.Assert.fail;
 /**
  * @author Thomas Storm
  */
-public class BinningFormModelImplTest {
+public class BinningFormModelTest {
 
     @Test
     public void testSetGetProperty() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         binningFormModel.setProperty("key", new Float[]{2.0f, 3.0f});
         binningFormModel.setProperty("key2", new Integer[]{10, 20, 30});
 
@@ -55,7 +55,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testAggregatorConfigsProperty() throws Exception {
-        final BinningFormModel binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         assertArrayEquals(new AggregatorConfig[0], binningFormModel.getAggregatorConfigs());
 
         final AggregatorConfig aggConf1 = new AggregatorAverage.Config("x", "y", 0.4, true, false);
@@ -68,7 +68,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testVariableConfigsProperty() throws Exception {
-        final BinningFormModel binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         assertArrayEquals(new VariableConfig[0], binningFormModel.getVariableConfigs());
 
         final VariableConfig varConf = new VariableConfig();
@@ -81,25 +81,8 @@ public class BinningFormModelImplTest {
     }
 
     @Test
-    public void testVariableSpecificationProperty() throws Exception {
-        final BinningFormModel binningFormModel = new BinningFormModelImpl();
-        assertArrayEquals(new TargetVariableSpec[0], binningFormModel.getTargetVariableSpecs());
-
-        final TargetVariableSpec spec = new TargetVariableSpec();
-        spec.targetName = "prefix";
-        TargetVariableSpec.Source source = new TargetVariableSpec.Source();
-        source.type = 1;
-        source.bandName = "testBand";
-        spec.source = source;
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_SPECS,
-                                     new TargetVariableSpec[]{spec});
-
-        assertArrayEquals(new TargetVariableSpec[]{spec}, binningFormModel.getTargetVariableSpecs());
-    }
-
-    @Test
     public void testListening() throws Exception {
-        final BinningFormModel binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         final MyPropertyChangeListener listener = new MyPropertyChangeListener();
         binningFormModel.addPropertyChangeListener(listener);
 
@@ -112,7 +95,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetStartDate() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.NONE);
 
         assertNull(binningFormModel.getStartDateTime());
@@ -128,7 +111,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetValidExpression() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         assertTrue(Boolean.parseBoolean(binningFormModel.getMaskExpr()));
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, "some_expression");
 
@@ -137,7 +120,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetSuperSampling() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         assertEquals(1, binningFormModel.getSupersampling());
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, 10);
@@ -146,7 +129,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetNumRows() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         assertEquals(2160, binningFormModel.getNumRows());
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, 2000);
@@ -155,7 +138,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetRegion_Fail() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
         try {
             binningFormModel.getRegion();
             fail();
@@ -166,7 +149,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetRegion_Global() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, true);
         assertEquals("polygon((-180 -90, 180 -90, 180 90, -180 90, -180 -90))", binningFormModel.getRegion());
@@ -174,7 +157,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetRegion_Compute() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, true);
         assertNull(binningFormModel.getRegion());
@@ -182,7 +165,7 @@ public class BinningFormModelImplTest {
 
     @Test
     public void testGetRegion_WithSpecifiedRegion() throws Exception {
-        final BinningFormModelImpl binningFormModel = new BinningFormModelImpl();
+        final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_REGION, true);
         binningFormModel.setProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, 50.0);

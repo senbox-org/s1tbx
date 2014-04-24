@@ -24,6 +24,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -34,7 +35,6 @@ import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.visat.VisatApp;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,10 +55,8 @@ public class BinningDialog extends SingleTargetProductDialog {
 
     protected BinningDialog(AppContext appContext, String title, String helpID) {
         super(appContext, title, ID_APPLY_CLOSE_HELP, helpID, new TargetProductSelectorModel(), true);
-        if (appContext instanceof VisatApp) {
-            ((VisatApp) appContext).getLogger().warning("");
-        }
-        formModel = new BinningFormModelImpl();
+
+        formModel = new BinningFormModel();
         form = new BinningForm(appContext, formModel, getTargetProductSelector());
 
         OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
@@ -85,18 +83,12 @@ public class BinningDialog extends SingleTargetProductDialog {
 
     @Override
     protected void onApply() {
-        TargetVariableSpec[] targetVariableSpecs = formModel.getTargetVariableSpecs();
-        if (targetVariableSpecs.length == 0) {
-            showErrorDialog("No target variable set.");
+        AggregatorConfig[] aggregatorConfigs = formModel.getAggregatorConfigs();
+        if (aggregatorConfigs.length == 0) {
+            showErrorDialog("Please configure at least a single aggregator.");
             return;
         }
-        for (TargetVariableSpec spec : targetVariableSpecs) {
-            boolean specValid = spec.isValid();
-            if (!specValid) {
-                showErrorDialog("Aggregation " + spec.toString() + " is invalid.");
-                return;
-            }
-        }
+
         if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY ||
             formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
             if (formModel.getStartDateTime() == null) {

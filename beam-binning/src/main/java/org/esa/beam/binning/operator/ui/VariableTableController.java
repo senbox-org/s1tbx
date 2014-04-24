@@ -5,7 +5,9 @@ import com.bc.ceres.swing.ListControlBar;
 import javax.swing.JTable;
 
 /**
- * Created by tonio on 23.04.2014.
+ * Controls adding, removing and moving rows in the variable table.
+ *
+ * @author Tonio Fincke
  */
 class VariableTableController extends ListControlBar.AbstractListController {
 
@@ -18,26 +20,26 @@ class VariableTableController extends ListControlBar.AbstractListController {
     @Override
     public boolean addRow(int index) {
         final int rows = table.getRowCount();
-        TableHandler.addRow(table, new Object[]{"variable_" + rows, ""}); /*I18N*/
+        VariableTableHandler.addRow(table, new Object[]{"variable_" + rows, ""}); /*I18N*/
         return true;
 
     }
 
     @Override
     public boolean removeRows(int[] indices) {
-        TableHandler.removeRows(table, table.getSelectedRows());
+        VariableTableHandler.removeRows(table, indices);
         return true;
     }
 
     @Override
     public boolean moveRowUp(int index) {
-        TableHandler.moveRowsUp(table, table.getSelectedRows());
+        VariableTableHandler.moveRowsUp(table, new int[] {index});
         return true;
     }
 
     @Override
     public boolean moveRowDown(int index) {
-        TableHandler.moveRowsDown(table, table.getSelectedRows());
+        VariableTableHandler.moveRowsDown(table, new int[] {index});
         return true;
     }
 

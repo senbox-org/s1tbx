@@ -7,9 +7,6 @@ import com.bc.ceres.swing.Grid;
 import com.bc.ceres.swing.ListControlBar;
 import org.apache.commons.lang.StringUtils;
 import org.esa.beam.binning.AggregatorConfig;
-import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.TypedDescriptorsRegistry;
-import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -34,22 +31,6 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
 
     static boolean isSourcePropertyName(String propertyName) {
         return propertyName.toLowerCase().contains("varname");
-    }
-
-    static class AggregatorItem {
-
-        AggregatorDescriptor aggregatorDescriptor;
-        AggregatorConfig aggregatorConfig;
-
-        AggregatorItem() {
-            this.aggregatorDescriptor = new AggregatorAverage.Descriptor();
-            this.aggregatorConfig = aggregatorDescriptor.createConfig();
-        }
-
-        AggregatorItem(AggregatorConfig aggregatorConfig) {
-            this.aggregatorConfig = aggregatorConfig;
-            this.aggregatorDescriptor = TypedDescriptorsRegistry.getInstance().getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
-        }
     }
 
     private final Grid grid;
@@ -145,7 +126,7 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         sourceNames = org.esa.beam.util.StringUtils.addArrays(sourceNames, tiePointGridNames);
         sourceNames = org.esa.beam.util.StringUtils.addArrays(sourceNames, maskNames);
 
-        ModalDialog aggregatorDialog = new AggregatorConfigEditDialog(SwingUtilities.getWindowAncestor(grid), sourceNames, aggregatorItem);
+        ModalDialog aggregatorDialog = new AggregatorItemDialog(SwingUtilities.getWindowAncestor(grid), sourceNames, aggregatorItem);
         int result = aggregatorDialog.show();
         if (result == ModalDialog.ID_OK) {
             if (rowIndex < 0) {
