@@ -357,11 +357,6 @@ class VariableConfigTable {
     private void openEditAggregationDialog(JTable table) {
         int selectionIndex = table.getSelectionModel().getMinSelectionIndex();
         VariableTableModel model = (VariableTableModel) table.getModel();
-        TargetVariableSpec targetVariableSpec = model.getSpec(selectionIndex);
-        if(targetVariableSpec == null) {
-            targetVariableSpec = new TargetVariableSpec();
-        }
-        AggregatorConfig aggregatorConfig = targetVariableSpec.aggregatorDescriptor.createConfig();
         Product contextProduct = binningFormModel.getContextProduct();
         String[] varNames = getVariableNames();
         String[] bandNames = contextProduct.getBandNames();
@@ -372,7 +367,7 @@ class VariableConfigTable {
         sourceNames = StringUtils.addArrays(sourceNames, maskNames);
 
 
-        AggregatorConfigEditDialog editDialog = new AggregatorConfigEditDialog(UIUtils.getRootWindow(table), sourceNames, aggregatorConfig);
+        AggregatorConfigEditDialog editDialog = new AggregatorConfigEditDialog(UIUtils.getRootWindow(table), sourceNames, new AggregatorTableController.ACWrapper());
         int result = editDialog.show();
         if (result == AggregatorConfigEditDialog.ID_OK) {
             TargetVariableSpec spec = editDialog.getSpec();

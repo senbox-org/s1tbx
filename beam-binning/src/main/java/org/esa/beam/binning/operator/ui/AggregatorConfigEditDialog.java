@@ -26,33 +26,47 @@ import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.framework.ui.ModalDialog;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 class AggregatorConfigEditDialog extends ModalDialog {
 
-    private final AggregatorConfig aggregatorConfig;
+    private final AggregatorTableController.ACWrapper acWrapper;
     private final String[] sourceVarNames;
-    private final PropertyContainer aggregatorProperties;
+    private AggregatorConfig aggregatorConfig;
+    private JComboBox<String> aggregatorComboBox;
+    private AggregatorDescriptor aggregatorDescriptor;
+    private PropertySet aggregatorPropertySet;
 
-    public AggregatorConfigEditDialog(Window parent, String[] sourceVarNames, AggregatorConfig config) {
-        super(parent, "Edit " + config.getName() + " Aggregator", ID_OK | ID_CANCEL, null);
+    public AggregatorConfigEditDialog(Window parent, String[] sourceVarNames, AggregatorTableController.ACWrapper acWrapper) {
+        super(parent, "Edit " + acWrapper.aggregatorConfig.getName() + " Aggregator", ID_OK | ID_CANCEL, null);
         this.sourceVarNames = sourceVarNames;
-        this.aggregatorConfig = config;
-        aggregatorProperties = PropertyContainer.createMapBacked(new HashMap<String, Object>(), aggregatorConfig.getClass());
+        this.acWrapper = acWrapper;
+        aggregatorConfig = acWrapper.aggregatorConfig;
+        aggregatorDescriptor = acWrapper.aggregatorDescriptor;
+        aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), aggregatorConfig.getClass());
     }
 
+    /**
+     * @deprecated should not be used anymore
+     */
+    @Deprecated
     TargetVariableSpec getSpec() {
         return new TargetVariableSpec();
     }
@@ -72,11 +86,16 @@ class AggregatorConfigEditDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(aggregatorConfig);
-        Property[] mapProperties = aggregatorProperties.getProperties();
+
+        AggregatorConfig config = aggregatorDescriptor.createConfig();
+        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(config);
+        Property[] mapProperties = aggregatorPropertySet.getProperties();
         for (Property mapProperty : mapProperties) {
             objectPropertySet.setValue(mapProperty.getName(), mapProperty.getValue());
         }
+        objectPropertySet.setValue("type", aggregatorDescriptor.getName());
+        acWrapper.aggregatorConfig = config;
+        acWrapper.aggregatorDescriptor = aggregatorDescriptor;
         super.onOK();
     }
 
@@ -85,18 +104,65 @@ class AggregatorConfigEditDialog extends ModalDialog {
     }
 
     private JComponent createPropertyPane() {
-        Property[] properties = aggregatorProperties.getProperties();
+        final JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+
+        final TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        List<AggregatorDescriptor> aggregatorDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
+        List<String> aggregatorNames = new ArrayList<>();
+        for (AggregatorDescriptor aggregatorDescriptor : aggregatorDescriptors) {
+            aggregatorNames.add(aggregatorDescriptor.getName());
+        }
+        Collections.sort(aggregatorNames);
+        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(aggregatorConfig);
+        Property[] objectProperties = objectPropertySet.getProperties();
+        for (Property objectProperty : objectProperties) {
+            aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
+        }
+
+
+        aggregatorComboBox = new JComboBox<>(aggregatorNames.toArray(new String[aggregatorNames.size()]));
+        aggregatorComboBox.setSelectedItem(aggregatorConfig.getName());
+        aggregatorComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                aggregatorDescriptor = getDescriptorFromComboBox();
+                aggregatorConfig = aggregatorDescriptor.createConfig();
+                aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), aggregatorConfig.getClass());
+                JPanel aggrPropertyPanel = createPropertyPanel(aggregatorPropertySet);
+                mainPanel.remove(1);
+                mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
+                getJDialog().getContentPane().revalidate();
+                getJDialog().pack();
+            }
+        });
+
+        JPanel aggrPropertyPanel = createPropertyPanel(aggregatorPropertySet);
+
+
+        mainPanel.add(aggregatorComboBox, BorderLayout.NORTH);
+        mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
+        return mainPanel;
+    }
+
+    AggregatorDescriptor getDescriptorFromComboBox() {
+        final TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        String aggrType = (String) aggregatorComboBox.getSelectedItem();
+        return registry.getDescriptor(AggregatorDescriptor.class, aggrType);
+    }
+
+    private JPanel createPropertyPanel(PropertySet propertySet) {
+        Property[] properties = propertySet.getProperties();
         for (Property property : properties) {
             String propertyName = property.getName();
-            if("type".equals(propertyName)) {
+            if ("type".equals(propertyName)) {
                 property.getDescriptor().setAttribute("visible", false);
             }
-            if("varName".equals(propertyName) || "onMaxVarName".equals(propertyName) || "setVarNames".equals(propertyName)) {
+            if (AggregatorTableController.isSourcePropertyName(propertyName)) {
                 property.getDescriptor().setValueSet(new ValueSet(sourceVarNames));
             }
         }
-        aggregatorProperties.setDefaultValues();
-        return new PropertyPane(aggregatorProperties).createPanel();
+        propertySet.setDefaultValues();
+        return new PropertyPane(propertySet).createPanel();
     }
 
     public static void main(String[] args) {
@@ -105,29 +171,17 @@ class AggregatorConfigEditDialog extends ModalDialog {
             public void run() {
                 final JFrame jFrame = new JFrame();
                 jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-                TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-                List<AggregatorDescriptor> aggregatorDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
-                String[] aggregatorNames = new String[aggregatorDescriptors.size()];
-                for (int i = 0; i < aggregatorDescriptors.size(); i++) {
-                    AggregatorDescriptor aggregatorDescriptor = aggregatorDescriptors.get(i);
-                    String name = aggregatorDescriptor.getName();
-                    aggregatorNames[i] = name;
-                }
-                final JComboBox<String> aggregatorComboBox = new JComboBox<>(aggregatorNames);
+                final JButton aggregatorComboBox = new JButton("Show Dialog...");
                 aggregatorComboBox.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-                        String aggregatorName = (String) aggregatorComboBox.getSelectedItem();
-                        AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorName);
-                        AggregatorConfig config = aggregatorDescriptor.createConfig();
                         AggregatorConfigEditDialog dialog = new AggregatorConfigEditDialog(jFrame, new String[]{
-                                "schere",
                                 "stein",
                                 "papier",
+                                "schere",
                                 "echse",
                                 "spock"
-                        }, config);
+                        }, new AggregatorTableController.ACWrapper());
                         dialog.getJDialog().setLocation(550, 300);
                         dialog.show();
 

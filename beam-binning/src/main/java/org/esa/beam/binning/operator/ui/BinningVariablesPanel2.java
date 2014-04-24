@@ -248,7 +248,7 @@ class BinningVariablesPanel2 extends JPanel {
         return null;
     }
 
-    private static JPanel createAggregatorPanel() {
+    private JPanel createAggregatorPanel() {
         final Grid grid = new Grid(6, false);
         grid.getLayout().setTablePadding(4, 3);
         grid.getLayout().setTableAnchor(TableLayout.Anchor.BASELINE);
@@ -266,7 +266,7 @@ class BinningVariablesPanel2 extends JPanel {
                 /*4*/ new JLabel("<html><b>Parameters</b>"),
                 /*5*/ null
         );
-        final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid));
+        final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid, binningFormModel));
 
         final AbstractButton sel = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ShowSelection16.png"), true);
         sel.setToolTipText("Show/hide selection column");
