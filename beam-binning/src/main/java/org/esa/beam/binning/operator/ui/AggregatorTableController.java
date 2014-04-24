@@ -43,9 +43,7 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         AggregatorConfig[] aggregatorConfigs = binningFormModel.getAggregatorConfigs();
 
         aggregatorItems = new ArrayList<>();
-        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
-            addDataRow(new AggregatorItem(aggregatorConfig));
-        }
+        addAggregatorConfigs(aggregatorConfigs);
     }
 
     @Override
@@ -93,6 +91,25 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         updateBinningFormModel();
 
         return true;
+    }
+
+    void setAggregatorConfigs(AggregatorConfig[] configs) {
+        clearGrid();
+        addAggregatorConfigs(configs);
+    }
+
+    private void clearGrid() {
+        int[] rowIndices = new int[grid.getDataRowCount()];
+        for (int i = 0; i < rowIndices.length; i++) {
+            rowIndices[i] = i;
+        }
+        grid.removeDataRows(rowIndices);
+    }
+
+    private void addAggregatorConfigs(AggregatorConfig[] aggregatorConfigs) {
+        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
+            addDataRow(new AggregatorItem(aggregatorConfig));
+        }
     }
 
     private void updateBinningFormModel() {

@@ -30,7 +30,6 @@ import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.BoundsInputPanel;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 
@@ -79,8 +78,6 @@ class BinningFormModel {
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, Double.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, Double.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WKT, String.class));
-        propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_X, Float.class));
-        propertySet.addProperty(BinningDialog.createProperty(BoundsInputPanel.PROPERTY_PIXEL_SIZE_Y, Float.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));

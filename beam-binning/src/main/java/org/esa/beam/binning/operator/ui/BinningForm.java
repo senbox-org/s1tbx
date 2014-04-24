@@ -30,15 +30,21 @@ import javax.swing.JTabbedPane;
 class BinningForm extends JTabbedPane {
 
     private final BinningIOPanel ioPanel;
+    private BinningConfigurationPanel configurationPanel;
 
     BinningForm(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelector) {
         ioPanel = new BinningIOPanel(appContext, binningFormModel, targetProductSelector);
         addTab("I/O Parameters", ioPanel);
         addTab("Filter", new BinningFilterPanel(binningFormModel));
-        addTab("Configuration", new BinningConfigurationPanel(appContext, binningFormModel));
+        configurationPanel = new BinningConfigurationPanel(appContext, binningFormModel);
+        addTab("Configuration", configurationPanel);
     }
 
     void prepareClose() {
         ioPanel.prepareClose();
+    }
+
+    public BinningConfigurationPanel getBinningConfigurationPanel() {
+        return configurationPanel;
     }
 }
