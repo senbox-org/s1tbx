@@ -51,7 +51,9 @@ class AddProductAction extends AbstractAction {
             return;
         }
         try {
-            listModel.addElements(productChooser.getSelectedProducts().toArray());
+            if (productChooser.getSelectedProducts().size() > 0) {
+                listModel.addElements(productChooser.getSelectedProducts().toArray());
+            }
         } catch (ValidationException ve) {
             Debug.trace(ve);
         }
