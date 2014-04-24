@@ -22,7 +22,6 @@ import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
-import org.esa.beam.binning.aggregators.AggregatorAverageML;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.binning.support.PlateCarreeGrid;
@@ -35,9 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class BinningConfigTest {
 
@@ -75,16 +72,13 @@ public class BinningConfigTest {
     public void testResultingVariableContext() {
         VariableContext variableContext = config.createVariableContext();
 
-        assertEquals(8, variableContext.getVariableCount());
+        assertEquals(6, variableContext.getVariableCount());
 
         assertEquals(0, variableContext.getVariableIndex("ndvi"));
         assertEquals(1, variableContext.getVariableIndex("tsm"));
-        assertEquals(2, variableContext.getVariableIndex("algal1"));
-        assertEquals(3, variableContext.getVariableIndex("algal2"));
-        assertEquals(4, variableContext.getVariableIndex("chl"));
-        assertEquals(5, variableContext.getVariableIndex("reflec_3"));
-        assertEquals(6, variableContext.getVariableIndex("reflec_7"));
-        assertEquals(7, variableContext.getVariableIndex("reflec_8"));
+        assertEquals(2, variableContext.getVariableIndex("reflec_3"));
+        assertEquals(3, variableContext.getVariableIndex("reflec_7"));
+        assertEquals(4, variableContext.getVariableIndex("reflec_8"));
         assertEquals(-1, variableContext.getVariableIndex("reflec_6"));
         assertEquals(-1, variableContext.getVariableIndex("reflec_10"));
 
@@ -93,44 +87,26 @@ public class BinningConfigTest {
         assertEquals("ndvi", variableContext.getVariableName(0));
         assertEquals("(reflec_10 - reflec_6) / (reflec_10 + reflec_6)", variableContext.getVariableExpression(0));
 
-        assertEquals("algal2", variableContext.getVariableName(3));
+        assertEquals("reflec_7", variableContext.getVariableName(3));
         assertEquals(null, variableContext.getVariableExpression(3));
-
-        assertEquals("reflec_7", variableContext.getVariableName(6));
-        assertEquals(null, variableContext.getVariableExpression(6));
     }
 
     @Test
     public void testResultingBinManager() {
         BinManager binManager = config.createBinningContext(null, null, null).getBinManager();
-        assertEquals(6, binManager.getAggregatorCount());
+        assertEquals(3, binManager.getAggregatorCount());
 
         assertEquals(AggregatorAverage.class, binManager.getAggregator(0).getClass());
         assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma"}, binManager.getAggregator(0).getOutputFeatureNames());
 
-        assertEquals(AggregatorAverageML.class, binManager.getAggregator(1).getClass());
-        assertArrayEquals(new String[]{"algal1_mean", "algal1_sigma", "algal1_median", "algal1_mode"},
+        assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(1).getClass());
+        assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
                           binManager.getAggregator(1).getOutputFeatureNames());
 
-        assertEquals(AggregatorAverageML.class, binManager.getAggregator(2).getClass());
-        assertArrayEquals(new String[]{"algal2_mean", "algal2_sigma", "algal2_median", "algal2_mode"},
-                          binManager.getAggregator(2).getOutputFeatureNames());
-
-        assertEquals(AggregatorAverageML.class, binManager.getAggregator(3).getClass());
-        assertArrayEquals(new String[]{"chl_mean", "chl_sigma", "chl_median", "chl_mode"},
-                          binManager.getAggregator(3).getOutputFeatureNames());
-
-        assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(4).getClass());
-        assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
-                          binManager.getAggregator(4).getOutputFeatureNames());
-
-        assertEquals(AggregatorMinMax.class, binManager.getAggregator(5).getClass());
-        assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(5).getOutputFeatureNames());
+        assertEquals(AggregatorMinMax.class, binManager.getAggregator(2).getClass());
+        assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(2).getOutputFeatureNames());
 
         assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma",
-                "algal1_mean", "algal1_sigma", "algal1_median", "algal1_mode",
-                "algal2_mean", "algal2_sigma", "algal2_median", "algal2_mode",
-                "chl_mean", "chl_sigma", "chl_median", "chl_mode",
                 "ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8",
                 "chl_min", "chl_max"
         }, binManager.getResultFeatureNames());
@@ -157,11 +133,8 @@ public class BinningConfigTest {
     }
 
     static BinningConfig loadConfig(InputStream is) throws IOException, BindingException {
-        final InputStreamReader reader = new InputStreamReader(is);
-        try {
+        try (InputStreamReader reader = new InputStreamReader(is)) {
             return BinningConfig.fromXml(FileUtils.readText(reader));
-        } finally {
-            reader.close();
         }
     }
 

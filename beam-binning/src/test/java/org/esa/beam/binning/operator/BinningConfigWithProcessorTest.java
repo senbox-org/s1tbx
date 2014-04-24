@@ -43,29 +43,17 @@ public class BinningConfigWithProcessorTest {
     @Test
     public void testResultingBinManager() {
         BinManager binManager = config.createBinningContext(null, null, null).getBinManager();
-        assertEquals(6, binManager.getAggregatorCount());
+        assertEquals(3, binManager.getAggregatorCount());
 
         assertEquals(AggregatorAverage.class, binManager.getAggregator(0).getClass());
         assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma"}, binManager.getAggregator(0).getOutputFeatureNames());
 
-        assertEquals(AggregatorAverageML.class, binManager.getAggregator(1).getClass());
-        assertArrayEquals(new String[]{"algal1_mean", "algal1_sigma", "algal1_median", "algal1_mode"},
+        assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(1).getClass());
+        assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
                           binManager.getAggregator(1).getOutputFeatureNames());
 
-        assertEquals(AggregatorAverageML.class, binManager.getAggregator(2).getClass());
-        assertArrayEquals(new String[]{"algal2_mean", "algal2_sigma", "algal2_median", "algal2_mode"},
-                          binManager.getAggregator(2).getOutputFeatureNames());
-
-        assertEquals(AggregatorAverageML.class, binManager.getAggregator(3).getClass());
-        assertArrayEquals(new String[]{"chl_mean", "chl_sigma", "chl_median", "chl_mode"},
-                          binManager.getAggregator(3).getOutputFeatureNames());
-
-        assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(4).getClass());
-        assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
-                          binManager.getAggregator(4).getOutputFeatureNames());
-
-        assertEquals(AggregatorMinMax.class, binManager.getAggregator(5).getClass());
-        assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(5).getOutputFeatureNames());
+        assertEquals(AggregatorMinMax.class, binManager.getAggregator(2).getClass());
+        assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(2).getOutputFeatureNames());
 
         assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma", "chl_min", "cmax"}, binManager.getResultFeatureNames());
         assertTrue(binManager.hasPostProcessor());

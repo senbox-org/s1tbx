@@ -24,14 +24,6 @@ public class AggregatorDescriptorRegistryTest {
     }
 
     @Test
-    public void testDefaultAggregatorIsRegistered_AverageML() {
-        AggregatorDescriptor descriptor = assertRegistered("AVG_ML");
-        Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorAverageML.Config("x", "targetName", 0.2, false));
-        assertNotNull(aggregator);
-        assertEquals(AggregatorAverageML.class, aggregator.getClass());
-    }
-
-    @Test
     public void testDefaultAggregatorIsRegistered_MinMax() {
         AggregatorDescriptor descriptor = assertRegistered("MIN_MAX");
         Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorMinMax.Config("x", "y"));
@@ -60,7 +52,7 @@ public class AggregatorDescriptorRegistryTest {
     public void testGetAllRegisteredAggregatorDescriptors() throws Exception {
         TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         List<AggregatorDescriptor> aggregatorDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
-        assertEquals(6, aggregatorDescriptors.size());
+        assertEquals(4, aggregatorDescriptors.size());
     }
 
     private AggregatorDescriptor assertRegistered(String name) {

@@ -18,18 +18,6 @@
             <varName>tsm</varName>
         </aggregator>
         <aggregator>
-            <type>AVG_ML</type>
-            <varName>algal1</varName>
-        </aggregator>
-        <aggregator>
-            <type>AVG_ML</type>
-            <varName>algal2</varName>
-        </aggregator>
-        <aggregator>
-            <type>AVG_ML</type>
-            <varName>chl</varName>
-        </aggregator>
-        <aggregator>
             <type>ON_MAX_SET</type>
             <onMaxVarName>ndvi</onMaxVarName>
             <setVarNames>reflec_3,reflec_7,reflec_8</setVarNames>
