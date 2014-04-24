@@ -47,7 +47,7 @@ public interface OperatorDescriptor extends ElementDescriptor {
     boolean isAutoWriteDisabled();
 
     /**
-     * @return A concrete, non-abstract operator class.
+     * @return The operator implementation class.
      */
     Class<? extends Operator> getOperatorClass();
 

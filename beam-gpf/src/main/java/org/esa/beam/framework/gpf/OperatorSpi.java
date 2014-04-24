@@ -184,12 +184,12 @@ public abstract class OperatorSpi {
     }
 
     /**
-     * Gets the operator class.
+     * Gets the operator implementation class.
      * The operator class must be public and provide a public zero-argument constructor.
      * <p/>
-     * Shorthand for {@code getOperatorDescriptor().getDataType()}.
+     * Shorthand for {@link org.esa.beam.framework.gpf.descriptor.OperatorDescriptor#getOperatorClass() getOperatorDescriptor().getOperatorClass()}.
      *
-     * @return the operator class
+     * @return The operator implementation class.
      */
     public final Class<? extends Operator> getOperatorClass() {
         return operatorDescriptor.getOperatorClass();
