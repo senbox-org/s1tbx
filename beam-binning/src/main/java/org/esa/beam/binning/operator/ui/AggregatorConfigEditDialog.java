@@ -24,6 +24,7 @@ import com.bc.ceres.swing.binding.PropertyPane;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.ModalDialog;
 
 import javax.swing.JButton;
@@ -60,7 +61,13 @@ class AggregatorConfigEditDialog extends ModalDialog {
         this.aggregatorItem = aggregatorItem;
         aggregatorConfig = aggregatorItem.aggregatorConfig;
         aggregatorDescriptor = aggregatorItem.aggregatorDescriptor;
-        aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), aggregatorConfig.getClass());
+        aggregatorPropertySet = createPropertySet(aggregatorConfig);
+        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(aggregatorConfig);
+        Property[] objectProperties = objectPropertySet.getProperties();
+        for (Property objectProperty : objectProperties) {
+            aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
+        }
+
     }
 
     /**
@@ -86,9 +93,8 @@ class AggregatorConfigEditDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-
         AggregatorConfig config = aggregatorDescriptor.createConfig();
-        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(config);
+        PropertySet objectPropertySet = config.asPropertySet();
         Property[] mapProperties = aggregatorPropertySet.getProperties();
         for (Property mapProperty : mapProperties) {
             objectPropertySet.setValue(mapProperty.getName(), mapProperty.getValue());
@@ -113,11 +119,6 @@ class AggregatorConfigEditDialog extends ModalDialog {
             aggregatorNames.add(aggregatorDescriptor.getName());
         }
         Collections.sort(aggregatorNames);
-        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(aggregatorConfig);
-        Property[] objectProperties = objectPropertySet.getProperties();
-        for (Property objectProperty : objectProperties) {
-            aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
-        }
 
 
         aggregatorComboBox = new JComboBox<>(aggregatorNames.toArray(new String[aggregatorNames.size()]));
@@ -127,7 +128,7 @@ class AggregatorConfigEditDialog extends ModalDialog {
             public void actionPerformed(ActionEvent e) {
                 aggregatorDescriptor = getDescriptorFromComboBox();
                 aggregatorConfig = aggregatorDescriptor.createConfig();
-                aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), aggregatorConfig.getClass());
+                aggregatorPropertySet = createPropertySet(AggregatorConfigEditDialog.this.aggregatorConfig);
                 JPanel aggrPropertyPanel = createPropertyPanel(aggregatorPropertySet);
                 mainPanel.remove(1);
                 mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
@@ -142,6 +143,13 @@ class AggregatorConfigEditDialog extends ModalDialog {
         mainPanel.add(aggregatorComboBox, BorderLayout.NORTH);
         mainPanel.add(aggrPropertyPanel, BorderLayout.CENTER);
         return mainPanel;
+    }
+
+    PropertySet createPropertySet(AggregatorConfig config) {
+        PropertySet aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), config.getClass(),
+                                                                              new ParameterDescriptorFactory());
+        aggregatorPropertySet.setDefaultValues();
+        return aggregatorPropertySet;
     }
 
     AggregatorDescriptor getDescriptorFromComboBox() {
