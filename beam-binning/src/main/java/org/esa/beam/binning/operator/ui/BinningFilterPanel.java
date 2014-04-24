@@ -16,6 +16,8 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
@@ -212,26 +214,28 @@ class BinningFilterPanel extends JPanel {
         startDateLabel.setToolTipText("The UTC start date of the binning period. If only the date part is given, the time 00:00:00 is assumed.");
         periodDurationLabel.setToolTipText("Duration of the binning period in days.");
         minDataHourLabel.setToolTipText("A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).");
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD,BinningOp.TimeFilterMethod.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, Calendar.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, Double.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
+        BindingContext bindingContext = binningFormModel.getBindingContext();
+        PropertySet propertySet = bindingContext.getPropertySet();
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, Calendar.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, Double.class));
+        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
 
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, temporalFilterComboBox);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, startDatePicker);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, periodDurationTextField);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, minDataHourTextField);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, temporalFilterComboBox);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, startDatePicker);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, periodDurationTextField);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, minDataHourTextField);
 
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_START_DATE_TIME).addComponent(startDateLabel);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationLabel);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationUnitLabel);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR).addComponent(minDataHourLabel);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_START_DATE_TIME).addComponent(startDateLabel);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationLabel);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationUnitLabel);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR).addComponent(minDataHourLabel);
 
         temporalFilterComboBox.setSelectedIndex(0); // selected value must not be empty when setting enablement
 
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATA_DAY));
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATA_DAY));
-        binningFormModel.getBindingContext().bindEnabledState(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, true, hasTimeInformation(SPATIOTEMPORAL_DATA_DAY));
+        bindingContext.bindEnabledState(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATA_DAY));
+        bindingContext.bindEnabledState(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, true, hasTimeInformation(TIME_RANGE, SPATIOTEMPORAL_DATA_DAY));
+        bindingContext.bindEnabledState(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, true, hasTimeInformation(SPATIOTEMPORAL_DATA_DAY));
 
         temporalFilterComboBox.setSelectedIndex(0); // ensure that enablement is applied
 
