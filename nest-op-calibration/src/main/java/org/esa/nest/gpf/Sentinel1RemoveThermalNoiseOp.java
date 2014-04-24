@@ -67,7 +67,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean inputGammaBand = false;
     private boolean inputDNBand = false;
     private boolean isSLC = false;
-    private boolean isComplex = false;
     private String productType = null;
     private int numOfSubSwath = 1;
     private ThermalNoiseInfo[] noise = null;
@@ -121,8 +120,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             if (absoluteCalibrationPerformed) {
                 getCalibrationVectors();
             }
-
-            getSampleType();
 
             createTargetProduct();
 
@@ -260,17 +257,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             for (String bandName:sourceBandNames) {
                 if (bandName.contains("Sigma0")) {
                     inputSigmaBand = true;
-                }
-
-                if (bandName.contains("Gamma0")) {
+                } else if (bandName.contains("Gamma0")) {
                     inputGammaBand = true;
-                }
-
-                if (bandName.contains("Beta0")) {
+                } else if (bandName.contains("Beta0")) {
                     inputBetaBand = true;
-                }
-
-                if (bandName.contains("DN")) {
+                } else if (bandName.contains("DN")) {
                     inputDNBand = true;
                 }
             }
@@ -292,16 +283,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 inputGammaBand,
                 inputDNBand,
                 calibration);
-    }
-
-    /**
-     * Get sample type from abstract metadata.
-     */
-    public void getSampleType() {
-        final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-        if(sampleType.equals("COMPLEX")) {
-            isComplex = true;
-        }
     }
 
     /**
