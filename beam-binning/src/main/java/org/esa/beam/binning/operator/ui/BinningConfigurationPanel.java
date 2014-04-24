@@ -301,7 +301,7 @@ class BinningConfigurationPanel extends JPanel {
 
     private JPanel createVariablesPanel() {
         JTable variableTable = createVariableTable();
-        variableTableController = new VariableTableController(variableTable);
+        variableTableController = new VariableTableController(variableTable, binningFormModel);
         ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, variableTableController);
 
         JScrollPane scrollPane = new JScrollPane(variableTable);
