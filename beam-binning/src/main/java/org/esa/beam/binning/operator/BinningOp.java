@@ -180,7 +180,7 @@ public class BinningOp extends Operator {
     @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.")
     private int numRows;
 
-    @Parameter(description = "The square of the number of pixels used for supersampling an input pixel into multiple sub-pixels")
+    @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels")
     private Integer superSampling;
 
     @Parameter(description = "The band maths expression used to filter input pixels")

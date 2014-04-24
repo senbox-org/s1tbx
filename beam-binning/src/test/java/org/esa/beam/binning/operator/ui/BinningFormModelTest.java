@@ -121,10 +121,10 @@ public class BinningFormModelTest {
     @Test
     public void testGetSuperSampling() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
-        assertEquals(1, binningFormModel.getSupersampling());
+        assertEquals(1, binningFormModel.getSuperSampling());
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, 10);
-        assertEquals(10, binningFormModel.getSupersampling());
+        assertEquals(10, binningFormModel.getSuperSampling());
     }
 
     @Test

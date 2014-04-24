@@ -134,7 +134,7 @@ class BinningConfigurationPanel extends JPanel {
         final JTextField resolutionTextField = new DoubleTextField(defaultResolution);
         JButton resolutionButton = new JButton("default");
 
-        JLabel supersamplingLabel = new JLabel("Supersampling:");
+        JLabel supersamplingLabel = new JLabel("Super-sampling:");
         final JTextField superSamplingTextField = new IntegerTextField(1);
 
         final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);

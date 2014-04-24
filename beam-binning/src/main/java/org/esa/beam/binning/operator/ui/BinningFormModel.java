@@ -59,7 +59,7 @@ class BinningFormModel {
     static final String PROPERTY_KEY_PERIOD_DURATION = "periodDuration";
     static final String PROPERTY_KEY_MIN_DATA_HOUR = "minDataHour";
     static final String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
-    static final String PROPERTY_KEY_SUPERSAMPLING = "supersampling";
+    static final String PROPERTY_KEY_SUPERSAMPLING = "superSampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
     static final String PROPERTY_KEY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
     static final String PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT = "contextSourceProduct";
@@ -189,7 +189,7 @@ class BinningFormModel {
         return getPropertyValue(PROPERTY_KEY_MIN_DATA_HOUR);
     }
 
-    public int getSupersampling() {
+    public int getSuperSampling() {
         if (getPropertyValue(PROPERTY_KEY_SUPERSAMPLING) == null) {
             return 1;
         }
