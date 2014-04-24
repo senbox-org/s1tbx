@@ -4,10 +4,12 @@ import com.bc.ceres.swing.ListControlBar;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.binning.operator.VariableConfig;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * Controls adding, removing and moving rows in the variable table.
@@ -64,6 +66,15 @@ class VariableTableController extends ListControlBar.AbstractListController {
 
     @Override
     public void updateState(ListControlBar listControlBar) {
+    }
+
+    void setVariableConfigs(VariableConfig[] variableConfigs) {
+        table.removeEditor();
+        DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+        tableModel.setRowCount(0);
+        for (VariableConfig variableConfig : variableConfigs) {
+            VariableTableHandler.addRow(table, new Object[]{variableConfig.getName(), variableConfig.getExpr()}); /*I18N*/
+        }
     }
 
 }

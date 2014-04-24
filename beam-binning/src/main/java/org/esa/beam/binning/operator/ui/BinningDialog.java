@@ -26,6 +26,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
+import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -165,7 +166,18 @@ public class BinningDialog extends SingleTargetProductDialog {
                 property.setValue(entry.getValue());
             }
         }
-        // todo - update aggregator + variable config tables
+        if (parameterMap.containsKey("variableConfigs")) {
+            VariableConfig[] variableConfigs = (VariableConfig[]) parameterMap.get("variableConfigs");
+            BinningConfigurationPanel configurationPanel = form.getBinningConfigurationPanel();
+            VariableTableController variableTableController = configurationPanel.getVariableTableController();
+            variableTableController.setVariableConfigs(variableConfigs);
+        }
+        if (parameterMap.containsKey("aggregatorConfigs")) {
+            AggregatorConfig[] aggregatorConfigs = (AggregatorConfig[]) parameterMap.get("aggregatorConfigs");
+            BinningConfigurationPanel configurationPanel = form.getBinningConfigurationPanel();
+            AggregatorTableController aggregatorTableController = configurationPanel.getAggregatorTableController();
+            aggregatorTableController.setAggregatorConfigs(aggregatorConfigs);
+        }
     }
 
     private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {

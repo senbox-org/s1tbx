@@ -78,6 +78,8 @@ class BinningConfigurationPanel extends JPanel {
     private final AppContext appContext;
     private final BinningFormModel binningFormModel;
     private double currentGridResolution;
+    private AggregatorTableController aggregatorTableController;
+    private VariableTableController variableTableController;
 
     BinningConfigurationPanel(AppContext appContext, BinningFormModel binningFormModel) {
         this.appContext = appContext;
@@ -85,6 +87,14 @@ class BinningConfigurationPanel extends JPanel {
         setLayout(new BorderLayout());
         add(createAggregatorsAndVariablesPanel(), BorderLayout.CENTER);
         add(createParametersPanel(), BorderLayout.SOUTH);
+    }
+
+    VariableTableController getVariableTableController() {
+        return variableTableController;
+    }
+
+    AggregatorTableController getAggregatorTableController() {
+        return aggregatorTableController;
     }
 
     private JComponent createAggregatorsAndVariablesPanel() {
@@ -268,7 +278,8 @@ class BinningConfigurationPanel extends JPanel {
                 /*4*/ new JLabel("<html><b>Target Bands</b>"),
                 /*5*/ null
         );
-        final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid, binningFormModel));
+        aggregatorTableController = new AggregatorTableController(grid, binningFormModel);
+        final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, aggregatorTableController);
 
         final AbstractButton sel = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ShowSelection16.png"), true);
         sel.setToolTipText("Show/hide selection column");
@@ -290,8 +301,8 @@ class BinningConfigurationPanel extends JPanel {
 
     private JPanel createVariablesPanel() {
         JTable variableTable = createVariableTable();
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable,
-                                                              new VariableTableController(variableTable, binningFormModel));
+        variableTableController = new VariableTableController(variableTable);
+        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, variableTableController);
 
         JScrollPane scrollPane = new JScrollPane(variableTable);
         scrollPane.setBorder(null);
