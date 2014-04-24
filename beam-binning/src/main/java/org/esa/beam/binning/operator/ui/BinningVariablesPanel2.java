@@ -25,40 +25,19 @@ import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.MouseEventFilterFactory;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
@@ -266,10 +245,8 @@ class BinningVariablesPanel2 extends JPanel {
         );
         final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, new AggregatorTableController(grid));
 
-        final JCheckBox sel = new JCheckBox();
+        final AbstractButton sel = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ShowSelection16.png"), true);
         sel.setToolTipText("Show/hide selection column");
-        sel.setBorderPaintedFlat(true);
-        sel.setBorderPainted(false);
         sel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
