@@ -872,6 +872,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
@@ -902,9 +903,10 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         double sigma, dn=0, i, q;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
 
-        int index;
+        int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
             srcIndex.calculateStride(y);
+            tgtIndex.calculateStride(y);
 
             incidenceAngle.getPixels(x0, y, w, 1,incidenceAnglesArray, pm, TiePointGrid.InterpMode.QUADRATIC);
 
@@ -913,16 +915,17 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             }
 
             for (int x = x0, xx = 0; x < maxX; ++x, ++xx) {
-                index = srcIndex.getIndex(x);
+                srcIdx = srcIndex.getIndex(x);
+                tgtIdx = tgtIndex.getIndex(x);
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(index);
+                    dn = srcData1.getElemDoubleAt(srcIdx);
                     sigma = dn*dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(index);
+                    sigma = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-                    i = srcData1.getElemDoubleAt(index);
-                    q = srcData2.getElemDoubleAt(index);
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
                     sigma = i * i + q * q;
                 } else {
                     throw new OperatorException("ASAR Calibration: unhandled unit");
@@ -955,7 +958,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                     }
                 }
 
-                trgData.setElemDoubleAt(index, sigma);
+                trgData.setElemDoubleAt(tgtIdx, sigma);
             }
         }
     }
