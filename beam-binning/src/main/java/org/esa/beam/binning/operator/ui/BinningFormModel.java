@@ -52,7 +52,7 @@ class BinningFormModel {
     static final String PROPERTY_KEY_REGION = "region";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
-    static final String PROPERTY_KEY_EXPRESSION = "expression";
+    static final String PROPERTY_KEY_EXPRESSION = "maskExpr";
     static final String PROPERTY_KEY_TIME_FILTER_METHOD = "timeFilterMethod";
     static final String PROPERTY_KEY_START_DATE_TIME = "startDateTime";
     static final String PROPERTY_KEY_PERIOD_DURATION = "periodDuration";
@@ -82,7 +82,9 @@ class BinningFormModel {
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class));
+        Property maskExprProperty = BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class);
+        maskExprProperty.getDescriptor().setDefaultConverter();
+        propertySet.addProperty(maskExprProperty);
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
         propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));
         propertySet.setDefaultValues();
@@ -221,20 +223,26 @@ class BinningFormModel {
 
     public void setProperty(String key, Object value) throws ValidationException {
         final PropertyDescriptor descriptor;
-        if (value == null) {
-            descriptor = new PropertyDescriptor(key, Object.class);
+        final Property property;
+        if (propertySet.isPropertyDefined(key)) {
+            property = propertySet.getProperty(key);
         } else {
-            descriptor = new PropertyDescriptor(key, value.getClass());
+            // todo - actually this else branch should not be necessary (mp - 25.04.03)
+            if (value == null) {
+                descriptor = new PropertyDescriptor(key, Object.class);
+            } else {
+                descriptor = new PropertyDescriptor(key, value.getClass());
+            }
+            property = new Property(descriptor, new DefaultPropertyAccessor());
+            traceNewProperty(key, value);
+            propertySet.addProperty(property);
         }
-        final Property property = new Property(descriptor, new DefaultPropertyAccessor());
-        propertySet.addProperty(property);
-        traceProperty(key, value);
         property.setValue(value);
     }
 
-    private void traceProperty(String name, Object value) {
+    private void traceNewProperty(String name, Object value) {
         boolean isArray = value != null && value.getClass().isArray();
-        Debug.trace(String.format("set property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
+        Debug.trace(String.format("adding new property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
     }
 
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
