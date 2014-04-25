@@ -582,7 +582,7 @@
         <action>
             <parent>file</parent>
             <id>save</id>
-            <placeAfter>closeSession</placeAfter>
+            <placeAfter>Session</placeAfter>
             <class>org.esa.beam.visat.actions.SaveAction</class>
             <text>Save Product</text>
             <mnemonic>S</mnemonic>
@@ -633,7 +633,8 @@
         <action>
             <parent>file</parent>
             <id>importRasterData</id>
-            <placeAfter>saveSessionAs</placeAfter>
+            <placeAfter>Session</placeAfter>
+            <separatorBefore>true</separatorBefore>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Import Raster Data</text>
             <shortDescr>Import raster data</shortDescr>
@@ -657,7 +658,6 @@
             <parent>file</parent>
             <id>exit</id>
             <placeLast>true</placeLast>
-            <placeAfter>export</placeAfter>
             <separatorBefore>true</separatorBefore>
             <class>org.esa.beam.visat.actions.ExitAction</class>
             <text>Exit</text>

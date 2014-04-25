@@ -316,6 +316,17 @@ public class UIUtils {
         return null;
     }
 
+    public static int findMenuPosition(JMenuBar menuBar, String name) {
+        int n = menuBar.getMenuCount();
+        for (int i = 0; i < n; i++) {
+            JMenu menu = menuBar.getMenu(i);
+            if (name.equals(menu.getName())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public static int findMenuItemPosition(JPopupMenu popupMenu, String name) {
         int n = popupMenu.getComponentCount();
         for (int i = 0; i < n; i++) {

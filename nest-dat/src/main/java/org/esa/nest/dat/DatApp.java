@@ -21,6 +21,8 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import com.jidesoft.status.LabelStatusBarItem;
 import org.esa.beam.framework.dataio.ProductCache;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -128,7 +130,8 @@ public class DatApp extends VisatApp {
             //disable JAI media library
             System.setProperty("com.sun.media.jai.disableMediaLib", "true");
 
-            disableUnwantedOperators();
+            disableOperatorPlugins();
+            disableIOPlugins();
 
             validateAuxDataFolder();
 
@@ -140,12 +143,18 @@ public class DatApp extends VisatApp {
         }
     }
     
-    protected void disableUnwantedOperators() {
+    protected void disableOperatorPlugins() {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
 
         //final OperatorSpi pcaOp = registry.getOperatorSpi("org.esa.nest.gpf.PCAOp$Spi");
         //if(pcaOp != null)
         //    registry.removeOperatorSpi(pcaOp);
+    }
+
+    protected void disableIOPlugins() {
+        ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
+        //registry.removeReaderPlugIn()
+
     }
 
     private static void validateAuxDataFolder() throws IOException {
@@ -355,29 +364,8 @@ public class DatApp extends VisatApp {
     @Override
     protected CommandBar createMainMenuBar() {
         final CommandMenuBar menuBar = new CommandMenuBar("Main Menu");
-        menuBar.setHidable(false);
+        menuBar.setHidable(true);
         menuBar.setStretch(true);
-
-        boolean incMultispectralTools = false;
-        boolean incImageProcessing = false;
-        boolean incSoilMoisture = false;
-        boolean incWizards = false;
-        final CommandManager cmdMan = getCommandManager();
-        final int numCmnds = cmdMan.getNumCommands();
-        for (int i = 0; i < numCmnds; i++) {
-            final String parent = cmdMan.getCommandAt(i).getParent();
-            if(parent == null)
-                continue;
-
-            if(parent.equals("multispectraltools"))
-                incMultispectralTools = true;
-            else if(parent.equals("Image Processing"))
-                incImageProcessing = true;
-            else if(parent.equals("Soil Moisture"))
-                incSoilMoisture = true;
-            else if(parent.equals("Wizards"))
-                incWizards = true;
-        }
 
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
@@ -391,21 +379,14 @@ public class DatApp extends VisatApp {
                 DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX));
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
-        menuBar.add(createJMenu("sartools", "SAR Tools", 'S'));
+        menuBar.add(createJMenu("processing", "Optical Processing", 'P'));
+        menuBar.add(createJMenu("sartools", "SAR Processing", 'S'));
         menuBar.add(createJMenu("geometry", "Geometric", 'G'));
         menuBar.add(createJMenu("insar", "Interferometric", 'I'));
-        menuBar.add(createJMenu("polarimetrictools", "Polarimetric", 'P'));
-        if(incMultispectralTools)
-            menuBar.add(createJMenu("multispectraltools", "Multispectral", 'L'));
+        menuBar.add(createJMenu("polarimetrictools", "Polarimetric", 'L'));
         menuBar.add(createJMenu("classification", "Classification", 'C'));
-        if(incImageProcessing)
-            menuBar.add(createJMenu("Image Processing", "Image Processing", 'N'));
-        if(incSoilMoisture)
-            menuBar.add(createJMenu("Soil Moisture", "Soil Moisture", 'M'));
         menuBar.add(createJMenu("oceanTools", "Ocean Tools", 'O'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
-        if(incWizards)
-            menuBar.add(createJMenu("Wizards", "Wizards", 'Z'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));
 
@@ -519,14 +500,13 @@ public class DatApp extends VisatApp {
                 "zoomTool",
                 "pannerTool",
                 null,
+                "magicWandTool",
                 "drawLineTool",
                 "drawPolylineTool",
                 "drawRectangleTool",
                 "drawEllipseTool",
                 "drawPolygonTool",
                 "createVectorDataNode",
-                // Magic Wand removed for 4.10 release
-                "true".equalsIgnoreCase(System.getProperty("beam.magicWandTool.enabled", "false")) ? "magicWandTool" : null,
         });
 
         return toolBar;

@@ -198,6 +198,7 @@
             <id>newProject</id>
             <class>org.esa.nest.dat.actions.NewProjectAction</class>
             <parent>file</parent>
+            <placeFirst>true</placeFirst>
             <text>New Project...</text>
             <accelerator>control P</accelerator>
             <shortDescr>Create a new project</shortDescr>
@@ -463,37 +464,6 @@
             <placeAfter>helpTopics</placeAfter>
         </action>
 
-        <!--action>
-            <id>showSupport</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.ShowSupportPageAction</class>
-            <text>Technical Support</text>
-            <shortDescr>Professional Technical Support</shortDescr>
-            <description>Professional Technical Support by Array Systems Computing Inc.</description>
-            <placeAfter>helpTopics</placeAfter>
-        </action>
-
-        <action>
-            <id>showTraining</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.ShowTrainingPageAction</class>
-            <text>Training Courses</text>
-            <shortDescr>User Training Courses</shortDescr>
-            <description>User Training Courses</description>
-            <placeAfter>showSupport</placeAfter>
-        </action>
-
-        <action>
-            <id>showGeoint</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.ShowGeointPageAction</class>
-            <text>Upgrade to NEST Pro</text>
-            <separatorAfter>true</separatorAfter>
-            <shortDescr>The GEOINT SAR Toolbox and Support</shortDescr>
-            <description>The GEOINT SAR Toolbox and Support</description>
-            <placeAfter>showTraining</placeAfter>
-        </action-->
-
         <action>
             <id>showNestHomePage</id>
             <parent>help</parent>
@@ -548,6 +518,13 @@
             <helpId>about</helpId>
             <placeAfter>RequestFeature</placeAfter>
             <separatorBefore>true</separatorBefore>
+        </action>
+
+        <action>
+            <id>Wizards</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Wizards</text>
+            <parent>help</parent>
         </action>
 
         <action>

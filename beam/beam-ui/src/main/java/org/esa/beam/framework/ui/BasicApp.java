@@ -924,7 +924,9 @@ public class BasicApp {
             return findMenu("tools");
         final JMenuBar menuBar = getMainFrame().getJMenuBar();
         final JMenu newMenu = createJMenu(parent, parent, parent.charAt(0));
-        menuBar.add(newMenu);
+
+        int index = UIUtils.findMenuPosition(menuBar, "window");
+        menuBar.add(newMenu, index);
         return newMenu;
     }
 
