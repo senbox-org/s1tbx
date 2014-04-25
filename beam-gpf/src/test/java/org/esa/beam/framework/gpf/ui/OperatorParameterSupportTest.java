@@ -82,6 +82,25 @@ public class OperatorParameterSupportTest {
         assertEquals(new Complex(25), support.getPropertySet().getValue("paramComplex"));
     }
 
+    @Test
+    public void testStoreAndLoadParameterWhenNotAllParamsAreGiven() throws IOException, ValidationException, ConversionException {
+        final OperatorParameterSupport support = new OperatorParameterSupport(new TestOpSpi().getOperatorDescriptor());
+        PropertySet container = support.getPropertySet();
+
+        container.setValue("paramDouble", 0.42);
+        final DomElement domElement = support.toDomElement();
+
+        // change container
+        container.setValue("paramDouble", 23.67);
+        container.setValue("paramString", "Another String");
+        container.setValue("paramComplex", new Complex(17));
+
+        support.fromDomElement(domElement);
+        assertEquals(0.42, (double)support.getPropertySet().getValue("paramDouble"), 1.0e-6);
+        assertEquals(null, support.getPropertySet().getValue("paramString"));
+        assertEquals(null, support.getPropertySet().getValue("paramComplex"));
+    }
+
     @OperatorMetadata(alias = "Tester",
                       authors = "Nobody",
                       version = "42",

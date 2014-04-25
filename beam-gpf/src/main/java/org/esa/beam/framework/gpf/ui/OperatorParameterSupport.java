@@ -164,6 +164,8 @@ public class OperatorParameterSupport {
     }
 
     public void fromDomElement(DomElement parametersElement) throws ValidationException, ConversionException {
+        parameterMap.clear();
+        propertySet.setDefaultValues();
         DefaultDomConverter domConverter = createDomConverter();
         domConverter.convertDomToValue(parametersElement, propertySet);
         parameterUpdater.handleParameterLoadRequest(parameterMap);

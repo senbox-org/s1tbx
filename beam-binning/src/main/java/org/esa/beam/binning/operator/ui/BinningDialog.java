@@ -166,18 +166,22 @@ public class BinningDialog extends SingleTargetProductDialog {
                 property.setValue(entry.getValue());
             }
         }
+
+        BinningConfigurationPanel configurationPanel = form.getBinningConfigurationPanel();
+
+        VariableTableController variableTableController = configurationPanel.getVariableTableController();
+        VariableConfig[] variableConfigs = new VariableConfig[0];
         if (parameterMap.containsKey("variableConfigs")) {
-            VariableConfig[] variableConfigs = (VariableConfig[]) parameterMap.get("variableConfigs");
-            BinningConfigurationPanel configurationPanel = form.getBinningConfigurationPanel();
-            VariableTableController variableTableController = configurationPanel.getVariableTableController();
-            variableTableController.setVariableConfigs(variableConfigs);
+            variableConfigs = (VariableConfig[]) parameterMap.get("variableConfigs");
         }
+        variableTableController.setVariableConfigs(variableConfigs);
+
+        AggregatorTableController aggregatorTableController = configurationPanel.getAggregatorTableController();
+        AggregatorConfig[] aggregatorConfigs = new AggregatorConfig[0];
         if (parameterMap.containsKey("aggregatorConfigs")) {
-            AggregatorConfig[] aggregatorConfigs = (AggregatorConfig[]) parameterMap.get("aggregatorConfigs");
-            BinningConfigurationPanel configurationPanel = form.getBinningConfigurationPanel();
-            AggregatorTableController aggregatorTableController = configurationPanel.getAggregatorTableController();
-            aggregatorTableController.setAggregatorConfigs(aggregatorConfigs);
+            aggregatorConfigs = (AggregatorConfig[]) parameterMap.get("aggregatorConfigs");
         }
+        aggregatorTableController.setAggregatorConfigs(aggregatorConfigs);
     }
 
     private class TargetProductCreator extends ProgressMonitorSwingWorker<Product, Void> {
@@ -198,6 +202,7 @@ public class BinningDialog extends SingleTargetProductDialog {
     }
 
     private class BinningParameterUpdater implements ParameterUpdater {
+
         @Override
         public void handleParameterSaveRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
             formModel.getBindingContext().adjustComponents();
