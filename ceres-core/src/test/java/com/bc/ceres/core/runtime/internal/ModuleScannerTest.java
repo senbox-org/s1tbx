@@ -18,7 +18,7 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -32,42 +32,41 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.*;
+
 /**
  * Unit test for {@link ModuleLoader}
  */
-public class ModuleScannerTest
-        extends TestCase {
+public class ModuleScannerTest {
 
-    static {
 
+    @Test(expected = NullPointerException.class)
+    public void testLoggerIsNull() throws IOException, CoreException {
+        new ModuleLoader(null);
     }
 
-    public void testNullArgConvention() throws IOException, CoreException {
-        try {
-            new ModuleLoader(null);
-            fail();
-        } catch (NullPointerException e) {
-        }
+    @Test(expected = NullPointerException.class)
+    public void testClassLoaderIsNull() throws IOException, CoreException {
+        ModuleLoader moduleLoader = new ModuleLoader(Logger.getAnonymousLogger());
 
-        try {
-            new ModuleLoader(Logger.getAnonymousLogger()).loadModules((ClassLoader) null, ProgressMonitor.NULL);
-            fail();
-        } catch (NullPointerException e) {
-        }
-
-        try {
-            new ModuleLoader(Logger.getAnonymousLogger()).loadModules((File) null, ProgressMonitor.NULL);
-            fail();
-        } catch (NullPointerException e) {
-        }
-
-        try {
-            new ModuleLoader(Logger.getAnonymousLogger()).loadModules(getClass().getClassLoader(), null);
-            fail();
-        } catch (NullPointerException e) {
-        }
+        moduleLoader.loadModules((ClassLoader) null, ProgressMonitor.NULL);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testModuleDirIsNull() throws IOException, CoreException {
+        ModuleLoader moduleLoader = new ModuleLoader(Logger.getAnonymousLogger());
+
+        moduleLoader.loadModules((File) null, ProgressMonitor.NULL);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testProgressMonitorIsNull() throws IOException, CoreException {
+        ModuleLoader moduleLoader = new ModuleLoader(Logger.getAnonymousLogger());
+
+        moduleLoader.loadModules(getClass().getClassLoader(), null);
+    }
+
+    @Test
     public void testClassPathScanner() throws IOException, CoreException {
         File modulesDir = new File(Config.getDirForAppB(), "modules");
         URL[] urls = getDirEntryUrls(modulesDir);
@@ -78,6 +77,7 @@ public class ModuleScannerTest
         testAppBContents(modulesDir, modules);
     }
 
+    @Test
     public void testDirectoryScanner() throws IOException, CoreException {
         File modulesDir = new File(Config.getDirForAppB(), "modules");
 
@@ -108,7 +108,8 @@ public class ModuleScannerTest
                            "lib/lib-5.jar",
                            "lib/lib-6.jar",
                    },
-                   new String[0]);
+                   new String[0]
+        );
         testModule(map, modulesDir,
                    "a-module-dir-with-jars-and-classes",
                    "a-module-dir-with-jars-and-classes",
@@ -116,7 +117,8 @@ public class ModuleScannerTest
                            "lib/lib-3.jar",
                            "lib/lib-4.jar",
                    },
-                   new String[0]);
+                   new String[0]
+        );
         testModule(map, modulesDir,
                    "an-empty-module-jar",
                    "an-empty-module-jar.jar",
@@ -132,7 +134,8 @@ public class ModuleScannerTest
                    new String[]{
                            "lib/native/" + System.mapLibraryName("jhdf"),
                            "lib/native/" + System.mapLibraryName("jhdf5")
-                   });
+                   }
+        );
     }
 
     private static void testModule(Map<String, ModuleImpl> map,
@@ -148,7 +151,7 @@ public class ModuleScannerTest
         assertEquals(expectedLocation, module.getLocation());
 
 
-        HashSet<String> actualSet = new HashSet<String>(10);
+        HashSet<String> actualSet = new HashSet<>(10);
 
         String[] impliciteLibs = module.getImpliciteLibs();
         assertNotNull(impliciteLibs);
@@ -167,7 +170,7 @@ public class ModuleScannerTest
     }
 
     private static Map<String, ModuleImpl> toMap(ModuleImpl[] modules) {
-        HashMap<String, ModuleImpl> map = new HashMap<String, ModuleImpl>();
+        HashMap<String, ModuleImpl> map = new HashMap<>();
         for (ModuleImpl module : modules) {
             map.put(module.getSymbolicName(), module);
         }
