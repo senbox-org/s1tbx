@@ -299,33 +299,36 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
         double sigma, dn, i, q;
-        int index;
+        int srcIdx, tgtIdx;
         final double powFactor = Math.pow(referenceSlantRange, 2*referenceSlantRangeExp);
         final double sinRefIncidenceAngle = Math.sin(referenceIncidenceAngle);
         final double rescaleCalFactor = rescalingFactor*rescalingFactor*Ks;
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
-            for (int x = x0; x < maxX; ++x) {
+            tgtIndex.calculateStride(y);
 
-                index = srcIndex.getIndex(x);
+            for (int x = x0; x < maxX; ++x) {
+                srcIdx = srcIndex.getIndex(x);
+                tgtIdx = tgtIndex.getIndex(x);
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(index);
+                    dn = srcData1.getElemDoubleAt(srcIdx);
                     sigma = dn*dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(index);
+                    sigma = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-                    i = srcData1.getElemDoubleAt(index);
-                    q = srcData2.getElemDoubleAt(index);
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
                     sigma = i * i + q * q;
                 } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-                    sigma = Math.pow(10, srcData1.getElemDoubleAt(index)/10.0); // convert dB to linear scale
+                    sigma = Math.pow(10, srcData1.getElemDoubleAt(srcIdx)/10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("CosmoSkymed Calibration: unhandled unit");
                 }
@@ -346,7 +349,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
                     }
                 }
 
-                trgData.setElemDoubleAt(index, sigma);
+                trgData.setElemDoubleAt(tgtIdx, sigma);
             }
         }
 	}
