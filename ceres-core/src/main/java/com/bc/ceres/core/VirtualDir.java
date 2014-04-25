@@ -20,6 +20,7 @@ import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeContext;
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -159,9 +160,9 @@ public abstract class VirtualDir {
         @Override
         public InputStream getInputStream(String path) throws IOException {
             if (path.endsWith(".gz")) {
-                return new GZIPInputStream(new FileInputStream(getFile(path)));
+                return new GZIPInputStream(new BufferedInputStream(new FileInputStream(getFile(path))));
             }
-            return new FileInputStream(getFile(path));
+            return new BufferedInputStream(new FileInputStream(getFile(path)));
         }
 
         @Override

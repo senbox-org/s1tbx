@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +20,7 @@ import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,18 +58,11 @@ public class IOHelper {
     }
 
     public static void copy(File source, File target, ProgressMonitor pm) throws IOException, CanceledException {
-        InputStream inputStream = new FileInputStream(source);
-        try {
-            OutputStream outputStream = new FileOutputStream(target);
-            try {
-                String taskName = MessageFormat.format("Copying {0}", source.getName());
-                int fileSize = (int) Math.max(source.length(), (long) Integer.MAX_VALUE);
-                copy(inputStream, outputStream, taskName, fileSize, pm);
-            } finally {
-                outputStream.close();
-            }
-        } finally {
-            inputStream.close();
+        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(source));
+             OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(target))) {
+            String taskName = MessageFormat.format("Copying {0}", source.getName());
+            int fileSize = (int) Math.max(source.length(), (long) Integer.MAX_VALUE);
+            copy(inputStream, outputStream, taskName, fileSize, pm);
         }
     }
 
@@ -221,15 +215,12 @@ public class IOHelper {
 
                 pm.setSubTaskName(entryName);
                 File sourceFile = new File(sourceDir, entryName);
-                FileInputStream inputStream = new FileInputStream(sourceFile);
-                try {
+                try (InputStream inputStream = new BufferedInputStream(new FileInputStream(sourceFile))) {
                     zipOutputStream.putNextEntry(zipEntry);
                     copy(inputStream, zipOutputStream, entryName, (int) sourceFile.length(),
                          SubProgressMonitor.create(pm, 1));
                     zipOutputStream.closeEntry();
                     entries.add(entryName);
-                } finally {
-                    inputStream.close();
                 }
             }
             return entries;
