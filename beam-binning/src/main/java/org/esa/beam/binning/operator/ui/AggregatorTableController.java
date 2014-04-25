@@ -139,10 +139,11 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         sourceNames = org.esa.beam.util.StringUtils.addArrays(sourceNames, tiePointGridNames);
         sourceNames = org.esa.beam.util.StringUtils.addArrays(sourceNames, maskNames);
 
-        ModalDialog aggregatorDialog = new AggregatorItemDialog(SwingUtilities.getWindowAncestor(grid), sourceNames, aggregatorItem);
+        boolean isNewAggregatorItem = rowIndex < 0;
+        ModalDialog aggregatorDialog = new AggregatorItemDialog(SwingUtilities.getWindowAncestor(grid), sourceNames, aggregatorItem, isNewAggregatorItem);
         int result = aggregatorDialog.show();
         if (result == ModalDialog.ID_OK) {
-            if (rowIndex < 0) {
+            if (isNewAggregatorItem) {
                 addDataRow(aggregatorItem);
             } else {
                 updateDataRow(aggregatorItem, rowIndex);

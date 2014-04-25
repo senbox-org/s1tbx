@@ -57,17 +57,21 @@ class AggregatorItemDialog extends ModalDialog {
     private PropertySet aggregatorPropertySet;
     private JComboBox<String> aggregatorComboBox;
 
-    public AggregatorItemDialog(Window parent, String[] sourceVarNames, AggregatorItem aggregatorItem) {
+    public AggregatorItemDialog(Window parent, String[] sourceVarNames, AggregatorItem aggregatorItem, boolean initWithDefaults) {
         super(parent, "Edit Aggregator", ID_OK | ID_CANCEL, null);
         this.sourceVarNames = sourceVarNames;
         this.aggregatorItem = aggregatorItem;
         aggregatorConfig = aggregatorItem.aggregatorConfig;
         aggregatorDescriptor = aggregatorItem.aggregatorDescriptor;
         aggregatorPropertySet = createPropertySet(aggregatorConfig);
-        PropertySet objectPropertySet = PropertyContainer.createObjectBacked(aggregatorConfig);
-        Property[] objectProperties = objectPropertySet.getProperties();
-        for (Property objectProperty : objectProperties) {
-            aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
+        if(initWithDefaults) {
+            aggregatorPropertySet.setDefaultValues();
+        }else {
+            PropertySet objectPropertySet = PropertyContainer.createObjectBacked(aggregatorConfig);
+            Property[] objectProperties = objectPropertySet.getProperties();
+            for (Property objectProperty : objectProperties) {
+                aggregatorPropertySet.setValue(objectProperty.getName(), objectProperty.getValue());
+            }
         }
     }
 
@@ -148,10 +152,8 @@ class AggregatorItemDialog extends ModalDialog {
     }
 
     private PropertySet createPropertySet(AggregatorConfig config) {
-        PropertySet aggregatorPropertySet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), config.getClass(),
+        return PropertyContainer.createMapBacked(new HashMap<String, Object>(), config.getClass(),
                                                                               new ParameterDescriptorFactory());
-        aggregatorPropertySet.setDefaultValues();
-        return aggregatorPropertySet;
     }
 
     private AggregatorDescriptor getDescriptorFromComboBox() {
@@ -171,7 +173,6 @@ class AggregatorItemDialog extends ModalDialog {
                 property.getDescriptor().setValueSet(new ValueSet(sourceVarNames));
             }
         }
-        propertySet.setDefaultValues();
         return new PropertyPane(propertySet).createPanel();
     }
 
@@ -191,7 +192,7 @@ class AggregatorItemDialog extends ModalDialog {
                                 "schere",
                                 "echse",
                                 "spock"
-                        }, new AggregatorItem());
+                        }, new AggregatorItem(), true);
                         dialog.getJDialog().setLocation(550, 300);
                         dialog.show();
 
