@@ -20,6 +20,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.Grid;
 import com.bc.ceres.swing.ListControlBar;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
@@ -108,6 +109,8 @@ class BinningConfigurationPanel extends JPanel {
     }
 
     private JPanel createParametersPanel() {
+        BindingContext bindingContext = binningFormModel.getBindingContext();
+
         JLabel validPixelExpressionLabel = new JLabel("Valid pixel expression:");
         final JButton validPixelExpressionButton = new JButton("...");
         final Dimension preferredSize = validPixelExpressionButton.getPreferredSize();
@@ -125,11 +128,11 @@ class BinningConfigurationPanel extends JPanel {
 
         JLabel targetHeightLabel = new JLabel("#Rows (90N - 90S):");
         final JTextField validPixelExpressionField = new JTextField();
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_EXPRESSION, validPixelExpressionField);
         validPixelExpressionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 final String expression = editExpression(validPixelExpressionField.getText());
                 if (expression != null) {
-                    validPixelExpressionField.setText(expression);
                     try {
                         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, expression);
                     } catch (ValidationException e) {
@@ -151,16 +154,16 @@ class BinningConfigurationPanel extends JPanel {
 
         final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
 
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
+        bindingContext.getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
+        bindingContext.getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
 
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
-        binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
 
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
 
-        binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(
+        bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
@@ -250,8 +253,7 @@ class BinningConfigurationPanel extends JPanel {
             return null;
         }
         final ProductExpressionPane expressionPane;
-        expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
-                                                                           appContext.getPreferences());
+        expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, appContext.getPreferences());
         expressionPane.setCode(expression);
         final int i = expressionPane.showModalDialog(appContext.getApplicationWindow(), "Expression Editor");
         if (i == ModalDialog.ID_OK) {
