@@ -210,31 +210,34 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
         double sigma, dn, i, q;
-        int index;
+        int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
-            for (int x = x0; x < maxX; ++x) {
+            tgtIndex.calculateStride(y);
 
-                index = srcIndex.getIndex(x);
+            for (int x = x0; x < maxX; ++x) {
+                srcIdx = srcIndex.getIndex(x);
+                tgtIdx = tgtIndex.getIndex(x);
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(index);
+                    dn = srcData1.getElemDoubleAt(srcIdx);
                     sigma = dn*dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(index);
+                    sigma = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
                     if (outputImageInComplex) {
                         // the sigma below is actually i or q, we still call it sigma just for convenient
-                        sigma = srcData1.getElemDoubleAt(index);
+                        sigma = srcData1.getElemDoubleAt(srcIdx);
                     } else {
-                        i = srcData1.getElemDoubleAt(index);
-                        q = srcData2.getElemDoubleAt(index);
+                        i = srcData1.getElemDoubleAt(srcIdx);
+                        q = srcData2.getElemDoubleAt(srcIdx);
                         sigma = i * i + q * q;
                     }
                 } else {
@@ -264,7 +267,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                     }
                 }
 
-                trgData.setElemDoubleAt(index, sigma);
+                trgData.setElemDoubleAt(tgtIdx, sigma);
             }
         }
     }
