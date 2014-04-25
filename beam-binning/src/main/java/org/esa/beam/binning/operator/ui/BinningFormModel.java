@@ -46,6 +46,11 @@ import java.util.Date;
  */
 class BinningFormModel {
 
+    static final String PROPERTY_WEST_BOUND = "westBound";
+    static final String PROPERTY_NORTH_BOUND = "northBound";
+    static final String PROPERTY_EAST_BOUND = "eastBound";
+    static final String PROPERTY_SOUTH_BOUND = "southBound";
+    static final String PROPERTY_WKT = "manualWkt";
     static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
     static final String PROPERTY_KEY_AGGREGATOR_CONFIGS = "aggregatorConfigs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
@@ -73,20 +78,31 @@ class BinningFormModel {
 
     public BinningFormModel() {
         propertySet = new PropertyContainer();
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WKT, String.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
-        Property maskExprProperty = BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class);
+        // Spatial
+        propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_REGION, Boolean.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));
+        propertySet.addProperty(createProperty(PROPERTY_EAST_BOUND, Double.class));
+        propertySet.addProperty(createProperty(PROPERTY_NORTH_BOUND, Double.class));
+        propertySet.addProperty(createProperty(PROPERTY_WEST_BOUND, Double.class));
+        propertySet.addProperty(createProperty(PROPERTY_SOUTH_BOUND, Double.class));
+        propertySet.addProperty(createProperty(PROPERTY_WKT, String.class));
+        // Temporal
+        propertySet.addProperty(createProperty(PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_START_DATE_TIME, Calendar.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_PERIOD_DURATION, Double.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
+        // Configuration
+        propertySet.addProperty(createProperty(PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SUPERSAMPLING, Integer.class));
+        Property maskExprProperty = createProperty(PROPERTY_KEY_EXPRESSION, String.class);
         maskExprProperty.getDescriptor().setDefaultConverter();
         propertySet.addProperty(maskExprProperty);
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));
+        // Source Products
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));
+
         propertySet.setDefaultValues();
     }
 
@@ -144,10 +160,10 @@ class BinningFormModel {
                    (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
             return null;
         } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
-            final double westValue = getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
-            final double eastValue = getPropertyValue(BinningFilterPanel.PROPERTY_EAST_BOUND);
-            final double northValue = getPropertyValue(BinningFilterPanel.PROPERTY_NORTH_BOUND);
-            final double southValue = getPropertyValue(BinningFilterPanel.PROPERTY_SOUTH_BOUND);
+            final double westValue = getPropertyValue(PROPERTY_WEST_BOUND);
+            final double eastValue = getPropertyValue(PROPERTY_EAST_BOUND);
+            final double northValue = getPropertyValue(PROPERTY_NORTH_BOUND);
+            final double southValue = getPropertyValue(PROPERTY_SOUTH_BOUND);
             Coordinate[] coordinates = {
                     new Coordinate(westValue, southValue), new Coordinate(westValue, northValue),
                     new Coordinate(eastValue, northValue), new Coordinate(eastValue, southValue),
@@ -159,7 +175,7 @@ class BinningFormModel {
             return polygon.toText();
         } else if (getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
                    (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
-            return getPropertyValue(BinningFilterPanel.PROPERTY_WKT);
+            return getPropertyValue(PROPERTY_WKT);
         }
         throw new IllegalStateException("Should never come here");
     }
@@ -240,11 +256,6 @@ class BinningFormModel {
         property.setValue(value);
     }
 
-    private void traceNewProperty(String name, Object value) {
-        boolean isArray = value != null && value.getClass().isArray();
-        Debug.trace(String.format("adding new property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
         propertySet.addPropertyChangeListener(propertyChangeListener);
     }
@@ -263,6 +274,18 @@ class BinningFormModel {
             return (T) property.getValue();
         }
         return null;
+    }
+
+    private void traceNewProperty(String name, Object value) {
+        boolean isArray = value != null && value.getClass().isArray();
+        Debug.trace(String.format("adding new property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
+    }
+
+    private static Property createProperty(String name, Class type) {
+        final DefaultPropertyAccessor defaultAccessor = new DefaultPropertyAccessor();
+        final PropertyDescriptor descriptor = new PropertyDescriptor(name, type);
+        descriptor.setDefaultConverter();
+        return new Property(descriptor, defaultAccessor);
     }
 
 }

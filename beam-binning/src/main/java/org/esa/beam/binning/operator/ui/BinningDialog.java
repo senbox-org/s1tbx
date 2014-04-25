@@ -18,10 +18,8 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.binning.AggregatorConfig;
@@ -73,13 +71,6 @@ public class BinningDialog extends SingleTargetProductDialog {
                                                      appContext,
                                                      helpID);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
-    }
-
-    static Property createProperty(String name, Class type) {
-        final DefaultPropertyAccessor defaultAccessor = new DefaultPropertyAccessor();
-        final PropertyDescriptor descriptor = new PropertyDescriptor(name, type);
-        descriptor.setDefaultConverter();
-        return new Property(descriptor, defaultAccessor);
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package org.esa.beam.binning.operator.ui;
 
-import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
@@ -50,7 +49,6 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,12 +61,6 @@ import static org.esa.beam.binning.operator.BinningOp.TimeFilterMethod.*;
  * @author Thomas Storm
  */
 class BinningFilterPanel extends JPanel {
-
-    public static final String PROPERTY_WEST_BOUND = "westBound";
-    public static final String PROPERTY_NORTH_BOUND = "northBound";
-    public static final String PROPERTY_EAST_BOUND = "eastBound";
-    public static final String PROPERTY_SOUTH_BOUND = "southBound";
-    public static final String PROPERTY_WKT = "manualWkt";
 
     private static final String TIME_FILTER_METHOD_NONE = "ignore pixel observation time, use all source pixels";
     private static final String TIME_FILTER_METHOD_TIME_RANGE = "use all pixels that have been acquired in the given binning period";
@@ -139,8 +131,8 @@ class BinningFilterPanel extends JPanel {
                 }
             }
         });
-        bindingContext.bind(PROPERTY_WKT, textArea);
-        bindingContext.bindEnabledState(PROPERTY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
+        bindingContext.bind(BinningFormModel.PROPERTY_WKT, textArea);
+        bindingContext.bindEnabledState(BinningFormModel.PROPERTY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
         textArea.setEnabled(false);
 
         JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -212,11 +204,6 @@ class BinningFilterPanel extends JPanel {
         periodDurationLabel.setToolTipText("Duration of the binning period in days.");
         minDataHourLabel.setToolTipText("A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).");
         BindingContext bindingContext = binningFormModel.getBindingContext();
-        PropertySet propertySet = bindingContext.getPropertySet();
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, Calendar.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
 
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, temporalFilterComboBox);
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, startDatePicker);

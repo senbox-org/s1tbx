@@ -168,10 +168,10 @@ public class BinningFormModelTest {
         final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_REGION, true);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, 50.0);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, 15.0);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, 10.0);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, 40.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_NORTH_BOUND, 50.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_EAST_BOUND, 15.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_WEST_BOUND, 10.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_SOUTH_BOUND, 40.0);
 
         final String region = binningFormModel.getRegion();
         assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", region);

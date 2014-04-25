@@ -154,9 +154,6 @@ class BinningConfigurationPanel extends JPanel {
 
         final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
 
-        bindingContext.getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
-        bindingContext.getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
-
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
 
