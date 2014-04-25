@@ -151,7 +151,7 @@ public class BindingContextTest {
     public void testBindTextField() throws Exception {
         JTextField textField = new JTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
-        Thread.sleep(100);
+        Thread.sleep(1000); // previous value of 100 was not enough for building on my desktop rq-20140426
         assertNotNull(binding);
         assertSame(textField, getPrimaryComponent(binding));
         assertNotNull(binding.getComponents());
@@ -164,7 +164,7 @@ public class BindingContextTest {
         assertEquals("Bibo", propertyContainerVB.getValue("stringValue"));
 
         propertyContainerVB.setValue("stringValue", "Samson");
-        Thread.sleep(100);
+        Thread.sleep(1000); // previous value of 100 was not enough for building on my desktop rq-20140426
         assertEquals("Samson", textField.getText());
     }
 
