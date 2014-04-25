@@ -1243,6 +1243,9 @@ public class SpeckleFilterOp extends Operator {
             }
         }
 
+        if (numSubArea < 1) {
+            return 0.0;
+        }
         Arrays.sort(subAreaVariances, 0, numSubArea-1);
         final int numSubAreaForAvg = Math.min(5, numSubArea);
         double avg = 0.0;
