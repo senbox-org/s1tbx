@@ -63,21 +63,21 @@
     </scm>
 
 	<repositories>
-        <!--repository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
+		<repository>
+            <id>array-mvn-repo</id>
+            <name>Public Maven Repository at Array Systems Computing Inc</name>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository-->
-		<repository>
-            <id>array-mvn-repo</id>
-            <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://corp.array.ca/nest-web/mavenrepo</url>
+        </repository>
+        <repository>
+            <id>bc-mvn-repo</id>
+            <name>Public Maven Repository at Brockmann-Consult</name>
+            <url>http://www.brockmann-consult.de/mvn/os</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -96,7 +96,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository-->
-        <!--repository>
+        <repository>
           <id>repo1.maven.org</id>
           <name>maven repository</name>
           <url>http://repo1.maven.org/maven2/</url>
@@ -109,7 +109,7 @@
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net repository</name>
             <url>http://download.java.net/maven/2</url>
-        </repository-->
+        </repository>
         <repository>
             <id>osgeo</id>
             <name>Open Source Geospatial Foundation Repository</name>
@@ -632,7 +632,7 @@
 			<dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
-                <version>2.0.4</version>
+                <version>2.0.5</version>
             </dependency>
 
             <!-- Jama Matrix Algebra Library ############################################# -->
@@ -691,7 +691,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.4</version>
+                <version>1.4.7</version>
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>
@@ -725,7 +725,7 @@
 			<dependency>
 				<groupId>org.apache.derby</groupId>
 				<artifactId>derby</artifactId>
-				<version>10.10.1.1</version>
+				<version>10.10.2.0</version>
 			</dependency>
 			
 			<dependency>
@@ -859,7 +859,7 @@
 			<dependency>
 				<groupId>com.googlecode.matrix-toolkits-java</groupId>
 				<artifactId>mtj</artifactId>
-				<version>0.9.14</version>
+				<version>1.0.1</version>
 			</dependency>
 			
 			<!-- World Wind   ###############################################-->
