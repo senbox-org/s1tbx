@@ -358,7 +358,7 @@ public class SpeckleFilterOp extends Operator {
                         x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
                 if (numSamples > 0) {
-                    trgData.setElemDoubleAt(idx, getMeanValue(neighborValues, numSamples));
+                    trgData.setElemDoubleAt(idx, getMeanValue(neighborValues, numSamples, noDataValue));
                 } else {
                     trgData.setElemDoubleAt(idx, noDataValue);
                 }
@@ -399,7 +399,7 @@ public class SpeckleFilterOp extends Operator {
                         x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
                 if (numSamples > 0) {
-                    trgData.setElemDoubleAt(idx, getMedianValue(neighborValues, numSamples));
+                    trgData.setElemDoubleAt(idx, getMedianValue(neighborValues, numSamples, noDataValue));
                 } else {
                     trgData.setElemDoubleAt(idx, noDataValue);
                 }
@@ -443,7 +443,7 @@ public class SpeckleFilterOp extends Operator {
                         x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
                 if (numSamples > 0) {
-                    trgData.setElemDoubleAt(idx, getFrostValue(neighborValues, numSamples, mask));
+                    trgData.setElemDoubleAt(idx, getFrostValue(neighborValues, numSamples, noDataValue, mask));
                 } else {
                     trgData.setElemDoubleAt(idx, noDataValue);
                 }
@@ -485,7 +485,7 @@ public class SpeckleFilterOp extends Operator {
                         x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
                 if (numSamples > 0) {
-                    trgData.setElemDoubleAt(idx, getGammaMapValue(neighborValues, numSamples, cu, cu2, enl));
+                    trgData.setElemDoubleAt(idx, getGammaMapValue(neighborValues, numSamples, noDataValue, cu, cu2, enl));
                 } else {
                     trgData.setElemDoubleAt(idx, noDataValue);
                 }
@@ -527,7 +527,7 @@ public class SpeckleFilterOp extends Operator {
                         x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
                 if (numSamples > 0) {
-                    trgData.setElemDoubleAt(idx, getLeeValue(neighborValues, numSamples, cu, cu2));
+                    trgData.setElemDoubleAt(idx, getLeeValue(neighborValues, numSamples, noDataValue, cu, cu2));
                 } else {
                     trgData.setElemDoubleAt(idx, noDataValue);
                 }
@@ -542,7 +542,7 @@ public class SpeckleFilterOp extends Operator {
      * @param srcData1 The source ProductData for 1st band.
      * @param srcData2 The source ProductData for 2nd band.
      * @param srcIndex The source tile index.
-     * @param noDataValue the place holder for no data
+     * @param noDataValue Place holder for no data value.
      * @param bandUnit Unit for the 1st band.
      * @param neighborValues Array holding the pixel values.
      * @return The number of valid samples.
@@ -553,56 +553,79 @@ public class SpeckleFilterOp extends Operator {
                                   final TileIndex srcIndex, final double noDataValue, final Unit.UnitType bandUnit,
                                   final double[] neighborValues) {
 
-        final int x0 = Math.max(tx - halfSizeX, 0);
-        final int y0 = Math.max(ty - halfSizeY, 0);
-        final int w  = Math.min(tx + halfSizeX, sourceImageWidth - 1) - x0 + 1;
-        final int h  = Math.min(ty + halfSizeY, sourceImageHeight - 1) - y0 + 1;
-        final int xMax = x0 + w;
-        final int yMax = y0 + h;
-
-        int numSamples = 0;
+        int numValidSamples = 0;
+        int k = 0;
         if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
 
-            for (int y = y0; y < yMax; y++) {
-                srcIndex.calculateStride(y);
-                for (int x = x0; x < xMax; x++) {
-                    final int idx = srcIndex.getIndex(x);
-                    final double I = srcData1.getElemDoubleAt(idx);
-                    final double Q = srcData2.getElemDoubleAt(idx);
-                    if (I != noDataValue && Q != noDataValue) {
-                        neighborValues[numSamples++] = I*I + Q*Q;
+            for (int y = ty - halfSizeY; y <= ty + halfSizeY; y++) {
+                if (y < 0 || y > sourceImageHeight - 1) {
+                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
+                        neighborValues[k++] = noDataValue;
+                    }
+                } else {
+                    srcIndex.calculateStride(y);
+                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
+                        if (x < 0 || x > sourceImageWidth - 1) {
+                            neighborValues[k++] = noDataValue;
+                        } else {
+                            final int idx = srcIndex.getIndex(x);
+                            final double I = srcData1.getElemDoubleAt(idx);
+                            final double Q = srcData2.getElemDoubleAt(idx);
+                            if (I != noDataValue && Q != noDataValue) {
+                                neighborValues[k++] = I*I + Q*Q;
+                                numValidSamples++;
+                            } else {
+                                neighborValues[k++] = noDataValue;
+                            }
+                        }
                     }
                 }
             }
 
         } else {
 
-            for (int y = y0; y < yMax; y++) {
-                srcIndex.calculateStride(y);
-                for (int x = x0; x < xMax; x++) {
-                    final int idx = srcIndex.getIndex(x);
-                    final double v = srcData1.getElemDoubleAt(idx);
-                    if (v != noDataValue) {
-                        neighborValues[numSamples++] = v;
+            for (int y = ty - halfSizeY; y <= ty + halfSizeY; y++) {
+                if (y < 0 || y > sourceImageHeight - 1) {
+                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
+                        neighborValues[k++] = noDataValue;
+                    }
+                } else {
+                    srcIndex.calculateStride(y);
+                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
+                        if (x < 0 || x > sourceImageWidth - 1) {
+                            neighborValues[k++] = noDataValue;
+                        } else {
+                            final int idx = srcIndex.getIndex(x);
+                            final double v = srcData1.getElemDoubleAt(idx);
+                            if (v != noDataValue) {
+                                neighborValues[k++] = v;
+                                numValidSamples++;
+                            } else {
+                                neighborValues[k++] = noDataValue;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        return numSamples;
+        return numValidSamples;
     }
 
     /**
      * Get the mean value of pixel intensities in a given rectangular region.
      * @param neighborValues The pixel values in the given rectangular region.
      * @param numSamples The number of samples.
+     * @param noDataValue Place holder for no data value.
      * @return mean The mean value.
      */
-    private static double getMeanValue(final double[] neighborValues, final int numSamples) {
+    private static double getMeanValue(final double[] neighborValues, final int numSamples, final double noDataValue) {
 
         double mean = 0.0;
-        for (int i = 0; i < numSamples; i++) {
-            mean += neighborValues[i];
+        for (double v : neighborValues) {
+            if (v != noDataValue) {
+                mean += v;
+            }
         }
         mean /= numSamples;
 
@@ -614,18 +637,22 @@ public class SpeckleFilterOp extends Operator {
      * @param neighborValues The pixel values in the given rectangular region.
      * @param numSamples The number of samples.
      * @param mean the mean of neighborValues.
+     * @param noDataValue Place holder for no data value.
      * @return var The variance value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the variance.
      */
-    private static double getVarianceValue(final double[] neighborValues, final int numSamples, final double mean) {
+    private static double getVarianceValue(
+            final double[] neighborValues, final int numSamples, final double mean, final double noDataValue) {
 
         double var = 0.0;
         if (numSamples > 1) {
 
-            for (int i = 0; i < numSamples; i++) {
-                final double diff = neighborValues[i] - mean;
-                var += diff * diff;
+            for (double v : neighborValues) {
+                if (v != noDataValue) {
+                    final double diff = v - mean;
+                    var += diff * diff;
+                }
             }
             var /= (numSamples - 1);
         }
@@ -637,16 +664,23 @@ public class SpeckleFilterOp extends Operator {
      * Get the median value of pixel intensities in a given rectangular region.
      * @param neighborValues Array holding pixel values.
      * @param numSamples The number of samples.
+     * @param noDataValue Place holder for no data value.
      * @return median The median value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the median value.
      */
-    private static double getMedianValue(final double[] neighborValues, final int numSamples) {
+    private static double getMedianValue(
+            final double[] neighborValues, final int numSamples, final double noDataValue) {
 
-        Arrays.sort(neighborValues, 0, numSamples);
-
-        // Then get the median value
-        return neighborValues[(numSamples / 2)];
+        double[] tmp = new double[numSamples];
+        int k = 0;
+        for (double v : neighborValues) {
+            if (v != noDataValue) {
+                tmp[k++] = v;
+            }
+        }
+        Arrays.sort(tmp);
+        return tmp[numSamples / 2];
     }
 
     /**
@@ -672,19 +706,21 @@ public class SpeckleFilterOp extends Operator {
      * Get the Frost filtered pixel intensity for pixels in a given rectangular region.
      * @param neighborValues Array holding the pixel values.
      * @param numSamples The number of samples.
+     * @param noDataValue Place holder for no data value.
      * @param mask Array holding Frost filter mask values.
      * @return val The Frost filtered value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Frost filtered value.
      */
-    private double getFrostValue(final double[] neighborValues, final int numSamples, final double[] mask) {
+    private double getFrostValue(
+            final double[] neighborValues, final int numSamples, final double noDataValue, final double[] mask) {
 
-        final double mean = getMeanValue(neighborValues, numSamples);
+        final double mean = getMeanValue(neighborValues, numSamples, noDataValue);
         if (mean <= Double.MIN_VALUE) {
             return mean;
         }
 
-        final double var = getVarianceValue(neighborValues, numSamples, mean);
+        final double var = getVarianceValue(neighborValues, numSamples, mean, noDataValue);
         if (var <= Double.MIN_VALUE) {
             return mean;
         }
@@ -694,9 +730,11 @@ public class SpeckleFilterOp extends Operator {
         double sum = 0.0;
         double totalWeight = 0.0;
         for (int i = 0; i < neighborValues.length; i++) {
-            final double weight = FastMath.exp(-k * mask[i]);
-            sum += weight * neighborValues[i];
-            totalWeight += weight;
+            if (neighborValues[i] != noDataValue) {
+                final double weight = FastMath.exp(-k * mask[i]);
+                sum += weight * neighborValues[i];
+                totalWeight += weight;
+            }
         }
         return sum / totalWeight;
     }
@@ -705,19 +743,20 @@ public class SpeckleFilterOp extends Operator {
      * Get the Gamma filtered pixel intensity for pixels in a given rectangular region.
      * @param neighborValues Array holding the pixel values.
      * @param numSamples The number of samples.
+     * @param noDataValue Place holder for no data value.
      * @return val The Gamma filtered value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Gamma filtered value.
      */
-    private double getGammaMapValue(
-            final double[] neighborValues, final int numSamples, final double cu, final double cu2, final double enl) {
+    private double getGammaMapValue(final double[] neighborValues, final int numSamples, final double noDataValue,
+                                    final double cu, final double cu2, final double enl) {
 
-        final double mean = getMeanValue(neighborValues, numSamples);
+        final double mean = getMeanValue(neighborValues, numSamples, noDataValue);
         if (mean <= Double.MIN_VALUE) {
             return mean;
         }
 
-        final double var = getVarianceValue(neighborValues, numSamples, mean);
+        final double var = getVarianceValue(neighborValues, numSamples, mean, noDataValue);
         if (var <= Double.MIN_VALUE) {
             return mean;
         }
@@ -727,7 +766,7 @@ public class SpeckleFilterOp extends Operator {
             return mean;
         }
 
-        final double cp = neighborValues[(numSamples/2)];
+        final double cp = neighborValues[neighborValues.length / 2];
 
         if (cu < ci) {
             final double cmax = Math.sqrt(2)*cu;
@@ -746,18 +785,20 @@ public class SpeckleFilterOp extends Operator {
      * Get the Lee filtered pixel intensity for pixels in a given rectangular region.
      * @param neighborValues Array holding the pixel values.
      * @param numSamples The number of samples.
+     * @param noDataValue Place holder for no data value.
      * @return val The Lee filtered value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Lee filtered value.
      */
-    private double getLeeValue(final double[] neighborValues, final int numSamples, final double cu, final double cu2) {
+    private double getLeeValue(final double[] neighborValues, final int numSamples, final double noDataValue,
+                               final double cu, final double cu2) {
 
-        final double mean = getMeanValue(neighborValues, numSamples);
+        final double mean = getMeanValue(neighborValues, numSamples, noDataValue);
         if (Double.compare(mean, Double.MIN_VALUE) <= 0) {
             return mean;
         }
 
-        final double var = getVarianceValue(neighborValues, numSamples, mean);
+        final double var = getVarianceValue(neighborValues, numSamples, mean, noDataValue);
         if (Double.compare(var, Double.MIN_VALUE) <= 0) {
             return mean;
         }
@@ -767,7 +808,7 @@ public class SpeckleFilterOp extends Operator {
             return mean;
         }
 
-        final double cp = neighborValues[(numSamples/2)];
+        final double cp = neighborValues[neighborValues.length / 2];
         final double w = 1 - cu2 / (ci*ci);
 
         return cp*w + mean*(1 - w);
@@ -1135,8 +1176,8 @@ public class SpeckleFilterOp extends Operator {
         final double[] pixels = new double[28];
         getNonEdgeAreaPixelValues(neighborPixelValues, d, pixels);
 
-        final double meanY = getMeanValue(pixels, pixels.length);
-        final double varY = getVarianceValue(pixels, pixels.length, meanY);
+        final double meanY = getMeanValue(pixels, pixels.length, noDataValue);
+        final double varY = getVarianceValue(pixels, pixels.length, meanY, noDataValue);
         if (varY == 0.0) {
             return 0.0;
         }
@@ -1232,9 +1273,10 @@ public class SpeckleFilterOp extends Operator {
                 }
 
                 if (k == 9) {
-                    final double subAreaMean = getMeanValue(subArea, k);
+                    final double subAreaMean = getMeanValue(subArea, k, noDataValue);
                     if (subAreaMean > 0) {
-                        subAreaVariances[numSubArea] = getVarianceValue(subArea, k, subAreaMean) / (subAreaMean*subAreaMean);
+                        subAreaVariances[numSubArea] =
+                                getVarianceValue(subArea, k, subAreaMean, noDataValue) / (subAreaMean*subAreaMean);
                     } else {
                         subAreaVariances[numSubArea] = 0.0;
                     }
