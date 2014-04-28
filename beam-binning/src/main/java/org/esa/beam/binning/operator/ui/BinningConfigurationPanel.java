@@ -262,21 +262,23 @@ class BinningConfigurationPanel extends JPanel {
 
     private JPanel createAggregatorsPanel() {
         final Grid grid = new Grid(6, false);
-        grid.getLayout().setTablePadding(4, 3);
-        grid.getLayout().setTableAnchor(TableLayout.Anchor.BASELINE);
-        grid.getLayout().setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        grid.getLayout().setColumnFill(2, TableLayout.Fill.HORIZONTAL);
-        grid.getLayout().setColumnFill(3, TableLayout.Fill.HORIZONTAL);
-        grid.getLayout().setColumnFill(4, TableLayout.Fill.HORIZONTAL);
-        grid.getLayout().setColumnWeightX(2, 1.0);
-        grid.getLayout().setColumnWeightX(3, 1.0);
-        grid.getLayout().setColumnWeightX(4, 1.0);
+        TableLayout gridLayout = grid.getLayout();
+        gridLayout.setTablePadding(4, 3);
+        gridLayout.setTableAnchor(TableLayout.Anchor.BASELINE);
+        gridLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        gridLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
+        gridLayout.setColumnFill(3, TableLayout.Fill.HORIZONTAL);
+        gridLayout.setColumnFill(4, TableLayout.Fill.HORIZONTAL);
+        gridLayout.setColumnWeightX(2, 1.0);
+        gridLayout.setColumnWeightX(3, 1.0);
+        gridLayout.setColumnWeightX(4, 1.0);
         grid.setHeaderRow(
+                /*0*/ //selection column
                 /*1*/ new JLabel("<html><b>Aggregator</b>"),
                 /*2*/ new JLabel("<html><b>Source Bands</b>"),
                 /*3*/ new JLabel("<html><b>Parameters</b>"),
                 /*4*/ new JLabel("<html><b>Target Bands</b>"),
-                /*5*/ null
+                /*5*/ null // column for edit button
         );
         aggregatorTableController = new AggregatorTableController(grid, binningFormModel);
         final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, aggregatorTableController);
