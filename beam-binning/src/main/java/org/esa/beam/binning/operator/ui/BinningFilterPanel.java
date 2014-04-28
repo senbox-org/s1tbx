@@ -90,7 +90,7 @@ class BinningFilterPanel extends JPanel {
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, new RadioButtonAdapter(computeOption));
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_GLOBAL, new RadioButtonAdapter(globalOption));
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, new RadioButtonAdapter(wktOption));
-        bindingContext.bind(BinningFormModel.PROPERTY_KEY_REGION, new RadioButtonAdapter(regionOption));
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_BOUNDS, new RadioButtonAdapter(regionOption));
 
         buttonGroup.add(computeOption);
         buttonGroup.add(globalOption);
@@ -144,7 +144,7 @@ class BinningFilterPanel extends JPanel {
         final RegionBoundsInputUI regionBoundsInputUI;
         regionBoundsInputUI = new RegionBoundsInputUI(bindingContext);
 
-        bindingContext.addPropertyChangeListener(BinningFormModel.PROPERTY_KEY_REGION, new PropertyChangeListener() {
+        bindingContext.addPropertyChangeListener(BinningFormModel.PROPERTY_KEY_BOUNDS, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean enabled = (Boolean) evt.getNewValue();

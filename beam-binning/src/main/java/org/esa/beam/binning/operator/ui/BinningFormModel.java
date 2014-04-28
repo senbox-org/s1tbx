@@ -17,7 +17,6 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
@@ -30,6 +29,7 @@ import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeListener;
@@ -48,7 +48,7 @@ class BinningFormModel {
     static final String PROPERTY_WKT = "manualWkt";
     static final String PROPERTY_KEY_AGGREGATOR_CONFIGS = "aggregatorConfigs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
-    static final String PROPERTY_KEY_REGION = "region";
+    static final String PROPERTY_KEY_BOUNDS = "bounds";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
     static final String PROPERTY_KEY_MASK_EXPR = "maskExpr";
@@ -72,31 +72,18 @@ class BinningFormModel {
     private boolean mustCloseContextProduct = true;
 
     public BinningFormModel() {
-        propertySet = new PropertyContainer();
+        propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning");
         // Spatial
         propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));                                    // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));                            // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));                                // temp
         propertySet.addProperty(createProperty(PROPERTY_WKT, String.class));                                            // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_BOUNDS, Boolean.class));                                    // temp
         propertySet.addProperty(createProperty(PROPERTY_EAST_BOUND, Double.class));                                     // temp
         propertySet.addProperty(createProperty(PROPERTY_NORTH_BOUND, Double.class));                                    // temp
         propertySet.addProperty(createProperty(PROPERTY_WEST_BOUND, Double.class));                                     // temp
         propertySet.addProperty(createProperty(PROPERTY_SOUTH_BOUND, Double.class));                                    // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_REGION, Boolean.class));                                    // in op
-        // Temporal
-        propertySet.addProperty(createProperty(PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));     // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_START_DATE_TIME, String.class));                            // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_PERIOD_DURATION, Double.class));                            // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_MIN_DATA_HOUR, Double.class));                              // in op
-        // Configuration
-        propertySet.addProperty(createProperty(PROPERTY_KEY_AGGREGATOR_CONFIGS, AggregatorConfig[].class));             // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_VARIABLE_CONFIGS, VariableConfig[].class));                 // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_NUM_ROWS, Integer.class));                                  // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SUPERSAMPLING, Integer.class));                             // in op
-        propertySet.addProperty(createProperty(PROPERTY_KEY_MASK_EXPR, String.class));                                  // in op
-        // Source Products
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // not a parameter
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));                     // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
 
         propertySet.setDefaultValues();
@@ -154,7 +141,7 @@ class BinningFormModel {
             return GLOBAL_WKT;
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_COMPUTE_REGION))) {
             return null;
-        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_REGION))) {
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_BOUNDS))) {
             final double westValue = getPropertyValue(PROPERTY_WEST_BOUND);
             final double eastValue = getPropertyValue(PROPERTY_EAST_BOUND);
             final double northValue = getPropertyValue(PROPERTY_NORTH_BOUND);
@@ -173,7 +160,6 @@ class BinningFormModel {
         }
         throw new IllegalStateException("Should never come here");
     }
-
 
     public String getMaskExpr() {
         final String propertyValue = getPropertyValue(PROPERTY_KEY_MASK_EXPR);
