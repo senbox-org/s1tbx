@@ -26,10 +26,10 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 /**
  * ProductSet Operator to be replaced by ReadOp
  */
-@OperatorMetadata(alias="ProductSet-Reader",
+@OperatorMetadata(alias = "ProductSet-Reader",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Adds a list of sources")
+        description = "Adds a list of sources")
 public class ProductSetReaderOp extends Operator {
 
     @TargetProduct
@@ -53,8 +53,7 @@ public class ProductSetReaderOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -67,6 +66,7 @@ public class ProductSetReaderOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

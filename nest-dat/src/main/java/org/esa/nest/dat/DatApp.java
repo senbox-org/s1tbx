@@ -35,7 +35,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
 import org.esa.beam.visat.toolviews.stat.*;
 import org.esa.nest.dat.actions.LoadTabbedLayoutAction;
-import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
+import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.views.polarview.PolarView;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.ProductDB;

@@ -31,7 +31,7 @@
 
         <action>
             <id>openGraphBuilderDialog</id>
-            <class>org.esa.nest.dat.actions.OpenGraphBuilderDialogAction</class>
+            <class>org.esa.nest.dat.actions.OpenGraphBuilderAction</class>
             <parent>graphs</parent>
             <text>Graph Builder</text>
             <mnemonic>G</mnemonic>

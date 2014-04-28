@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dat.plugins.graphbuilder;
+package org.esa.nest.dat.graphbuilder;
 
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DomElement;
@@ -54,7 +54,7 @@ public class GraphNode {
     private static final int halfHotSpotSize = hotSpotSize / 2;
     private int hotSpotOffset = 0;
 
-    private Point displayPosition = new Point(0,0);
+    private Point displayPosition = new Point(0, 0);
 
     private XppDom displayParameters;
     private Color shadowColor = new Color(0, 0, 0, 128);
@@ -78,7 +78,7 @@ public class GraphNode {
     private void initParameters() throws IllegalArgumentException {
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(node.getOperatorName());
-        if(operatorSpi == null) return;
+        if (operatorSpi == null) return;
 
         final ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         final PropertyContainer valueContainer = PropertyContainer.createMapBacked(parameterMap,
@@ -90,14 +90,14 @@ public class GraphNode {
             final DomElement child = config.getChild(i);
             final String name = child.getName();
             final String value = child.getValue();
-            if(name == null || value == null)
+            if (name == null || value == null)
                 continue;
 
             try {
-                if(child.getChildCount() == 0) {
+                if (child.getChildCount() == 0) {
                     final Converter converter = getConverter(valueContainer, name);
-                    if(converter == null) {
-                        final String msg = "Graph parameter "+name+" not found for Operator "+operatorSpi.getOperatorAlias();
+                    if (converter == null) {
+                        final String msg = "Graph parameter " + name + " not found for Operator " + operatorSpi.getOperatorAlias();
                         //throw new IllegalArgumentException(msg);
                         System.out.println(msg);
                     } else {
@@ -107,10 +107,10 @@ public class GraphNode {
                     final Converter converter = getConverter(valueContainer, name);
                     final Object[] objArray = new Object[child.getChildCount()];
                     int c = 0;
-                    for(DomElement ch : child.getChildren()) {
+                    for (DomElement ch : child.getChildren()) {
                         final String v = ch.getValue();
 
-                        if(converter != null) {
+                        if (converter != null) {
                             objArray[c++] = converter.parse(v);
                         } else {
                             objArray[c++] = v;
@@ -119,7 +119,7 @@ public class GraphNode {
                     parameterMap.put(name, objArray);
                 }
 
-            } catch(ConversionException e) {
+            } catch (ConversionException e) {
                 throw new IllegalArgumentException(name);
             }
         }
@@ -131,8 +131,8 @@ public class GraphNode {
         for (Property p : properties) {
 
             final PropertyDescriptor descriptor = p.getDescriptor();
-            if(descriptor != null && (descriptor.getName().equals(name) ||
-               (descriptor.getAlias() != null && descriptor.getAlias().equals(name)))) {
+            if (descriptor != null && (descriptor.getName().equals(name) ||
+                    (descriptor.getAlias() != null && descriptor.getAlias().equals(name)))) {
                 return descriptor.getConverter();
             }
         }
@@ -140,14 +140,14 @@ public class GraphNode {
     }
 
     void setDisplayParameters(final XppDom presentationXML) {
-        for(XppDom params : presentationXML.getChildren()) {
+        for (XppDom params : presentationXML.getChildren()) {
             final String id = params.getAttribute("id");
-            if(id != null && id.equals(node.getId())) {
+            if (id != null && id.equals(node.getId())) {
                 displayParameters = params;
                 final XppDom dpElem = displayParameters.getChild("displayPosition");
-                if(dpElem != null) {
-                    displayPosition.x = (int)Float.parseFloat(dpElem.getAttribute("x"));
-                    displayPosition.y = (int)Float.parseFloat(dpElem.getAttribute("y"));
+                if (dpElem != null) {
+                    displayPosition.x = (int) Float.parseFloat(dpElem.getAttribute("x"));
+                    displayPosition.y = (int) Float.parseFloat(dpElem.getAttribute("y"));
                 }
                 return;
             }
@@ -168,19 +168,19 @@ public class GraphNode {
 
     void AssignDisplayParameters(final XppDom presentationXML) {
         XppDom nodeElem = null;
-        for(XppDom elem : presentationXML.getChildren()) {
+        for (XppDom elem : presentationXML.getChildren()) {
             final String id = elem.getAttribute("id");
-            if(id != null && id.equals(node.getId())) {
+            if (id != null && id.equals(node.getId())) {
                 nodeElem = elem;
                 break;
             }
         }
-        if(nodeElem == null) {
+        if (nodeElem == null) {
             presentationXML.addChild(displayParameters);
         }
 
         XppDom dpElem = displayParameters.getChild("displayPosition");
-        if(dpElem == null) {
+        if (dpElem == null) {
             dpElem = new XppDom("displayPosition");
             displayParameters.addChild(dpElem);
         }
@@ -191,6 +191,7 @@ public class GraphNode {
 
     /**
      * Gets the display position of a node
+     *
      * @return Point The position of the node
      */
     public Point getPos() {
@@ -199,6 +200,7 @@ public class GraphNode {
 
     /**
      * Sets the display position of a node and writes it to the xml
+     *
      * @param p The position of the node
      */
     public void setPos(Point p) {
@@ -243,6 +245,7 @@ public class GraphNode {
 
     /**
      * Gets the uniqe node identifier.
+     *
      * @return the identifier
      */
     public String getID() {
@@ -251,6 +254,7 @@ public class GraphNode {
 
     /**
      * Gets the name of the operator.
+     *
      * @return the name of the operator.
      */
     public String getOperatorName() {
@@ -280,14 +284,14 @@ public class GraphNode {
 
     void disconnectAllSources() {
         final NodeSource[] sources = node.getSources();
-        for(NodeSource source : sources) {
+        for (NodeSource source : sources) {
             node.removeSource(source);
         }
     }
 
 
     boolean isNodeSource(final GraphNode source) {
-            
+
         for (NodeSource ns : node.getSources()) {
             if (ns.getSourceNodeId().equals(source.getID())) {
                 return true;
@@ -301,32 +305,33 @@ public class GraphNode {
     }
 
     public UIValidation validateParameterMap() {
-        if(operatorUI != null)
+        if (operatorUI != null)
             return operatorUI.validateParameters();
-        return new UIValidation(UIValidation.State.OK,"");
+        return new UIValidation(UIValidation.State.OK, "");
     }
 
     void setSourceProducts(final Product[] products) {
-        if(operatorUI != null) {
+        if (operatorUI != null) {
             operatorUI.setSourceProducts(products);
         }
     }
 
     void updateParameterMap(final XppDomElement parentElement) throws GraphException {
-        if(operatorUI != null) {
+        if (operatorUI != null) {
             try {
                 //if(operatorUI.hasSourceProducts())
-                    operatorUI.updateParameters();
+                operatorUI.updateParameters();
                 operatorUI.convertToDOM(parentElement);
             } catch (Exception e) {
-                throw new GraphException(operatorUI.getOperatorName()+" error setting parameter "+e.getMessage());
+                throw new GraphException(operatorUI.getOperatorName() + " error setting parameter " + e.getMessage());
             }
         }
     }
 
     /**
      * Draw a GraphNode as a rectangle with a name
-     * @param g The Java2D Graphics
+     *
+     * @param g   The Java2D Graphics
      * @param col The color to draw
      */
     public void drawNode(final Graphics g, final Color col) {
@@ -340,16 +345,16 @@ public class GraphNode {
         setSize(Math.max(stringWidth, 50) + 10, 25);
 
         g.setColor(Color.BLACK);
-        g.drawLine(x+1, y+nodeHeight, x+nodeWidth, y+nodeHeight);
-        g.drawLine(x+nodeWidth, y+1, x+nodeWidth, y+nodeHeight);
+        g.drawLine(x + 1, y + nodeHeight, x + nodeWidth, y + nodeHeight);
+        g.drawLine(x + nodeWidth, y + 1, x + nodeWidth, y + nodeHeight);
         g.setColor(shadowColor);
-        g.drawLine(x+2, y+nodeHeight+1, x+nodeWidth, y+nodeHeight+1);
-        g.drawLine(x+nodeWidth+1, y+2, x+nodeWidth+1, y+nodeHeight+1);
+        g.drawLine(x + 2, y + nodeHeight + 1, x + nodeWidth, y + nodeHeight + 1);
+        g.drawLine(x + nodeWidth + 1, y + 2, x + nodeWidth + 1, y + nodeHeight + 1);
 
         g.setColor(col);
-        g.fill3DRect(x, y, nodeWidth-1, nodeHeight-1, true);
+        g.fill3DRect(x, y, nodeWidth - 1, nodeHeight - 1, true);
         g.setColor(Color.blue);
-        g.draw3DRect(x, y, nodeWidth-1, nodeHeight-1, true);
+        g.draw3DRect(x, y, nodeWidth - 1, nodeHeight - 1, true);
 
         g.setColor(Color.black);
         g.drawString(name, x + (nodeWidth - stringWidth) / 2, y + 15);
@@ -357,7 +362,8 @@ public class GraphNode {
 
     /**
      * Draws the hotspot where the user can join the node to a source node
-     * @param g The Java2D Graphics
+     *
+     * @param g   The Java2D Graphics
      * @param col The color to draw
      */
     public void drawHeadHotspot(final Graphics g, final Color col) {
@@ -368,7 +374,8 @@ public class GraphNode {
 
     /**
      * Draws the hotspot where the user can join the node to a source node
-     * @param g The Java2D Graphics
+     *
+     * @param g   The Java2D Graphics
      * @param col The color to draw
      */
     public void drawTailHotspot(final Graphics g, final Color col) {
@@ -377,14 +384,15 @@ public class GraphNode {
 
         final int x = p.x + nodeWidth;
         final int y = p.y + halfNodeHeight;
-        final int[] xpoints = { x, x+hotSpotOffset, x, x};
-        final int[] ypoints = { y-halfHotSpotSize, y, y+halfHotSpotSize, y-halfHotSpotSize };
+        final int[] xpoints = {x, x + hotSpotOffset, x, x};
+        final int[] ypoints = {y - halfHotSpotSize, y, y + halfHotSpotSize, y - halfHotSpotSize};
         g.fillPolygon(xpoints, ypoints, xpoints.length);
     }
 
     /**
      * Draw a line between source and target nodes
-     * @param g The Java2D Graphics
+     *
+     * @param g   The Java2D Graphics
      * @param src the source GraphNode
      */
     public void drawConnectionLine(final Graphics g, final GraphNode src) {
@@ -398,11 +406,11 @@ public class GraphNode {
         final int srcMidY = srcPos.y + src.getHalfNodeHeight();
 
         if (srcEndX <= nodePos.x) {
-            if(srcPos.y > nodePos.y + nodeHeight) {
+            if (srcPos.y > nodePos.y + nodeHeight) {
                 // to UR
                 drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y + nodeHeight,
                         srcEndX, srcMidY);
-            } else if(srcPos.y + src.getHeight() < nodePos.y) {
+            } else if (srcPos.y + src.getHeight() < nodePos.y) {
                 // to DR
                 drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y,
                         srcEndX, srcMidY);
@@ -411,12 +419,12 @@ public class GraphNode {
                 drawArrow(g, nodePos.x, nodeMidY,
                         srcEndX, srcMidY);
             }
-        } else if(srcPos.x >= nodeEndX) {
-            if(srcPos.y > nodePos.y + nodeHeight) {
+        } else if (srcPos.x >= nodeEndX) {
+            if (srcPos.y > nodePos.y + nodeHeight) {
                 // to UL
                 drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y + nodeHeight,
                         srcPos.x, srcPos.y + halfNodeHeight);
-            } else if(srcPos.y + src.getHeight() < nodePos.y) {
+            } else if (srcPos.y + src.getHeight() < nodePos.y) {
                 // to DL
                 drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y,
                         srcPos.x, srcPos.y + halfNodeHeight);
@@ -426,7 +434,7 @@ public class GraphNode {
                         srcPos.x, srcPos.y + halfNodeHeight);
             }
         } else {
-            if(srcPos.y > nodePos.y + nodeHeight) {
+            if (srcPos.y > nodePos.y + nodeHeight) {
                 // U
                 drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y + nodeHeight,
                         srcPos.x + src.getHalfNodeWidth(), srcPos.y);
@@ -440,7 +448,8 @@ public class GraphNode {
 
     /**
      * Draws an arrow head at the correct angle
-     * @param g The Java2D Graphics
+     *
+     * @param g     The Java2D Graphics
      * @param tailX position X on target node
      * @param tailY position Y on target node
      * @param headX position X on source node
@@ -464,11 +473,11 @@ public class GraphNode {
         final Point p2 = new Point(-8, -3);
         final Point p3 = new Point(-8, +3);
 
-        int x = (int)Math.round((cosTheta * p2.x) - (sinTheta * p2.y));
-        p2.y = (int)Math.round((sinTheta * p2.x) + (cosTheta * p2.y));
+        int x = (int) Math.round((cosTheta * p2.x) - (sinTheta * p2.y));
+        p2.y = (int) Math.round((sinTheta * p2.x) + (cosTheta * p2.y));
         p2.x = x;
-        x = (int)Math.round((cosTheta * p3.x) - (sinTheta * p3.y));
-        p3.y = (int)Math.round((sinTheta * p3.x) + (cosTheta * p3.y));
+        x = (int) Math.round((cosTheta * p3.x) - (sinTheta * p3.y));
+        p3.y = (int) Math.round((sinTheta * p3.x) + (cosTheta * p3.y));
         p3.x = x;
 
         p2.translate(tailX, tailY);

@@ -46,7 +46,7 @@ public class ProductSetReaderOpUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
-        final String[] fList = (String[])paramMap.get("fileList");
+        final String[] fList = (String[]) paramMap.get("fileList");
         productSetTable.setFiles(fList);
     }
 
@@ -60,11 +60,11 @@ public class ProductSetReaderOpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         final File[] fileList = productSetTable.getFileList();
-        if(fileList.length == 0) return;
+        if (fileList.length == 0) return;
 
         final String[] fList = new String[fileList.length];
-        for(int i=0; i < fileList.length; ++i) {
-            if(fileList[i].getName().isEmpty())
+        for (int i = 0; i < fileList.length; ++i) {
+            if (fileList[i].getName().isEmpty())
                 fList[i] = "";
             else
                 fList[i] = fileList[i].getAbsolutePath();

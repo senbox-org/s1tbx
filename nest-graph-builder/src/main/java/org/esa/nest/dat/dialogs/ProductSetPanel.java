@@ -72,13 +72,13 @@ public class ProductSetPanel extends JPanel {
         setBorderTitle(title);
 
         final JPanel productSetContent = createComponent(productSetTable, false);
-        if(incButtonPanel) {
+        if (incButtonPanel) {
             buttonPanel = createButtonPanel(productSetTable);
             productSetContent.add(buttonPanel, BorderLayout.EAST);
         }
         this.add(productSetContent, BorderLayout.CENTER);
 
-        if(incTrgProduct) {
+        if (incTrgProduct) {
             targetProductSelector = new TargetFolderSelector();
             final String homeDirPath = SystemUtils.getUserHomeDir().getPath();
             final String saveDir = theAppContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, homeDirPath);
@@ -95,7 +95,7 @@ public class ProductSetPanel extends JPanel {
     }
 
     public void setBorderTitle(final String title) {
-        if(title != null)
+        if (title != null)
             setBorder(BorderFactory.createTitledBorder(title));
     }
 
@@ -110,7 +110,7 @@ public class ProductSetPanel extends JPanel {
         final JScrollPane scrollPane = new JScrollPane(table);
         fileListPanel.add(scrollPane, BorderLayout.CENTER);
 
-        if(incButtonPanel) {
+        if (incButtonPanel) {
             final JPanel buttonPanel = createButtonPanel(table);
             fileListPanel.add(buttonPanel, BorderLayout.EAST);
         }
@@ -122,26 +122,26 @@ public class ProductSetPanel extends JPanel {
         final int rowCount = productSetTable.getFileCount();
 
         final boolean enableButtons = (rowCount > 0);
-        if(dbQueryButton != null)
+        if (dbQueryButton != null)
             dbQueryButton.setEnabled(enableButtons);
-        if(removeButton != null)
+        if (removeButton != null)
             removeButton.setEnabled(enableButtons);
-        if(moveUpButton != null)
+        if (moveUpButton != null)
             moveUpButton.setEnabled(rowCount > 1);
-        if(moveDownButton != null)
+        if (moveDownButton != null)
             moveDownButton.setEnabled(rowCount > 1);
-        if(clearButton != null)
+        if (clearButton != null)
             clearButton.setEnabled(enableButtons);
 
-        if(addAllOpenButton != null) {
+        if (addAllOpenButton != null) {
             addAllOpenButton.setEnabled(VisatApp.getApp().getProductManager().getProducts().length > 0);
         }
 
         String cntMsg = "";
-        if(rowCount == 1)
-            cntMsg = rowCount+" Product";
-        else if(rowCount > 1)
-            cntMsg = rowCount+" Products";
+        if (rowCount == 1)
+            cntMsg = rowCount + " Product";
+        else if (rowCount > 1)
+            cntMsg = rowCount + " Products";
         countLabel.setText(cntMsg);
     }
 
@@ -155,8 +155,8 @@ public class ProductSetPanel extends JPanel {
 
             public void actionPerformed(final ActionEvent e) {
                 final File[] files = GetFilePath(addButton, "Add Product");
-                if(files != null) {
-                    for(File file : files) {
+                if (files != null) {
+                    for (File file : files) {
                         if (ProductFunctions.isValidProduct(file)) {
                             tableModel.addFile(file);
                         }
@@ -171,9 +171,9 @@ public class ProductSetPanel extends JPanel {
 
             public void actionPerformed(final ActionEvent e) {
                 final Product[] products = VisatApp.getApp().getProductManager().getProducts();
-                for(Product prod : products) {
+                for (Product prod : products) {
                     final File file = prod.getFileLocation();
-                    if(file != null && file.exists()) {
+                    if (file != null && file.exists()) {
                         tableModel.addFile(file);
                     }
                 }
@@ -187,10 +187,10 @@ public class ProductSetPanel extends JPanel {
             public void actionPerformed(final ActionEvent e) {
                 try {
                     final File mstFile = tableModel.getFileAt(0);
-                    if(mstFile.exists()) {
+                    if (mstFile.exists()) {
                         final ProductEntry[] entryList = DBSearch.search(mstFile);
-                        for(ProductEntry entry : entryList) {
-                            if(tableModel.getIndexOf(entry.getFile()) < 0)
+                        for (ProductEntry entry : entryList) {
+                            if (tableModel.getIndexOf(entry.getFile()) < 0)
                                 tableModel.addFile(entry);
                         }
                     }
@@ -208,10 +208,10 @@ public class ProductSetPanel extends JPanel {
             public void actionPerformed(final ActionEvent e) {
                 final int[] selRows = table.getSelectedRows();
                 final java.util.List<File> filesToRemove = new ArrayList<File>(selRows.length);
-                for(int row : selRows) {
+                for (int row : selRows) {
                     filesToRemove.add(tableModel.getFileAt(row));
                 }
-                for(File file : filesToRemove) {
+                for (File file : filesToRemove) {
                     int index = tableModel.getIndexOf(file);
                     tableModel.removeFile(index);
                 }
@@ -226,13 +226,13 @@ public class ProductSetPanel extends JPanel {
             public void actionPerformed(final ActionEvent e) {
                 final int[] selRows = table.getSelectedRows();
                 final java.util.List<File> filesToMove = new ArrayList<File>(selRows.length);
-                for(int row : selRows) {
+                for (int row : selRows) {
                     filesToMove.add(tableModel.getFileAt(row));
                 }
-                for(File file : filesToMove) {
+                for (File file : filesToMove) {
                     int index = tableModel.getIndexOf(file);
-                    if(index > 0) {
-                        tableModel.move(index, index-1);
+                    if (index > 0) {
+                        tableModel.move(index, index - 1);
                     }
                 }
             }
@@ -245,13 +245,13 @@ public class ProductSetPanel extends JPanel {
             public void actionPerformed(final ActionEvent e) {
                 final int[] selRows = table.getSelectedRows();
                 final java.util.List<File> filesToMove = new ArrayList<File>(selRows.length);
-                for(int row : selRows) {
+                for (int row : selRows) {
                     filesToMove.add(tableModel.getFileAt(row));
                 }
-                for(File file : filesToMove) {
+                for (File file : filesToMove) {
                     int index = tableModel.getIndexOf(file);
-                    if(index < tableModel.getRowCount()) {
-                        tableModel.move(index, index+1);
+                    if (index < tableModel.getRowCount()) {
+                        tableModel.move(index, index + 1);
                     }
                 }
             }
@@ -291,20 +291,20 @@ public class ProductSetPanel extends JPanel {
             files = chooser.getSelectedFiles();
 
             VisatApp.getApp().getPreferences().
-                setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, chooser.getCurrentDirectory().getAbsolutePath());
+                    setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, chooser.getCurrentDirectory().getAbsolutePath());
         }
         return files;
     }
 
     public void setTargetProductName(final String name) {
-        if(targetProductSelector != null) {
+        if (targetProductSelector != null) {
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
             targetProductSelectorModel.setProductName(name + getTargetProductNameSuffix());
         }
     }
 
     public void onApply() {
-        if(targetProductSelector != null) {
+        if (targetProductSelector != null) {
             final String productDir = targetProductSelector.getModel().getProductDir().getAbsolutePath();
             appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, productDir);
         }
@@ -319,7 +319,7 @@ public class ProductSetPanel extends JPanel {
     }
 
     public File getTargetFolder() {
-        if(targetProductSelector != null) {
+        if (targetProductSelector != null) {
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
             return targetProductSelectorModel.getProductDir();
         }
@@ -327,7 +327,7 @@ public class ProductSetPanel extends JPanel {
     }
 
     public String getTargetFormat() {
-        if(targetProductSelector != null) {
+        if (targetProductSelector != null) {
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
             return targetProductSelectorModel.getFormatName();
         }
@@ -335,7 +335,7 @@ public class ProductSetPanel extends JPanel {
     }
 
     public void setTargetFolder(final File path) {
-        if(targetProductSelector != null) {
+        if (targetProductSelector != null) {
             final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
             targetProductSelectorModel.setProductDir(path);
         }

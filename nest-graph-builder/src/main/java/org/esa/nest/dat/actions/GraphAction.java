@@ -18,7 +18,7 @@ package org.esa.nest.dat.actions;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
+import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 
 import java.io.File;
 
@@ -40,7 +40,7 @@ public class GraphAction extends OperatorAction {
 
         graphFileName = getConfigString(config, "graphFile");
         String enableEditingStr = getConfigString(config, "enableEditing");
-        if(enableEditingStr != null) {
+        if (enableEditingStr != null) {
             enableEditing = enableEditingStr.equalsIgnoreCase("true");
         }
     }
@@ -51,7 +51,7 @@ public class GraphAction extends OperatorAction {
         dialog.show();
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
-        final File graphFile =  new File(graphPath, graphFileName);
+        final File graphFile = new File(graphPath, graphFileName);
 
         addIcon(dialog);
         dialog.LoadGraph(graphFile);

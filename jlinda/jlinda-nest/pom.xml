@@ -54,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
+            <artifactId>nest-dat</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
             <artifactId>nest-graph-builder</artifactId>
             <version>${nest.version}</version>
         </dependency>

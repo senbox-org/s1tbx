@@ -29,7 +29,7 @@ import org.esa.nest.dat.toolviews.Projects.Project;
 import org.esa.nest.dat.toolviews.productlibrary.model.ProductEntryTableModel;
 import org.esa.nest.dat.toolviews.productlibrary.model.ProductLibraryConfig;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
-import org.esa.nest.dat.util.ProductOpener;
+import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.DBQuery;
 import org.esa.nest.db.DBScanner;

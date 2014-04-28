@@ -29,7 +29,7 @@ import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.dialogs.PromptDialog;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
-import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
+import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;

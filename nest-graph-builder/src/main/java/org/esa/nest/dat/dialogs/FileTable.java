@@ -40,7 +40,7 @@ public class FileTable extends JTable {
     }
 
     public FileTable(FileTableModel fileModel) {
-        if(fileModel == null) {
+        if (fileModel == null) {
             fileModel = new FileModel();
         }
         this.fileModel = fileModel;
@@ -58,16 +58,16 @@ public class FileTable extends JTable {
     }
 
     public void setFiles(final File[] fileList) {
-        if(fileList != null) {
+        if (fileList != null) {
             fileModel.clear();
-            for(File file : fileList) {
+            for (File file : fileList) {
                 fileModel.addFile(file);
             }
         }
     }
 
     public void setFiles(final String[] fileList) {
-        if(fileList != null) {
+        if (fileList != null) {
             fileModel.clear();
             for (String str : fileList) {
                 fileModel.addFile(new File(str));
@@ -76,7 +76,7 @@ public class FileTable extends JTable {
     }
 
     public void setProductEntries(final ProductEntry[] productEntryList) {
-        if(productEntryList != null) {
+        if (productEntryList != null) {
             fileModel.clear();
             for (ProductEntry entry : productEntryList) {
                 fileModel.addFile(entry);
@@ -86,9 +86,9 @@ public class FileTable extends JTable {
 
     public int getFileCount() {
         int cnt = fileModel.getRowCount();
-        if(cnt == 1) {
+        if (cnt == 1) {
             File file = fileModel.getFileAt(0);
-            if(file.getName().isEmpty())
+            if (file.getName().isEmpty())
                 return 0;
         }
         return cnt;
@@ -117,7 +117,7 @@ public class FileTable extends JTable {
 
     private void paste() {
         final File[] fileList = ClipboardUtils.getClipboardFileList();
-        if(fileList != null) {
+        if (fileList != null) {
             setFiles(fileList);
         }
     }
@@ -166,7 +166,7 @@ public class FileTable extends JTable {
             for (String value : values) {
 
                 final File file = new File(value);
-                if(file.exists()) {
+                if (file.exists()) {
                     if (ProductFunctions.isValidProduct(file)) {
                         fileModel.addFile(file);
                     }
@@ -178,16 +178,16 @@ public class FileTable extends JTable {
         // export
         @Override
         protected Transferable createTransferable(JComponent c) {
-            final JTable table = (JTable)c;
+            final JTable table = (JTable) c;
             final int[] rows = table.getSelectedRows();
 
             final StringBuilder listStr = new StringBuilder(256);
-            for(int row : rows) {
+            for (int row : rows) {
                 final File file = fileModel.getFileAt(row);
                 listStr.append(file.getAbsolutePath());
                 listStr.append('\n');
             }
-            if(rows.length != 0) {
+            if (rows.length != 0) {
                 return new StringSelection(listStr.toString());
             }
             return null;

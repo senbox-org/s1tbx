@@ -48,21 +48,21 @@ public class OperatorAction extends DefaultOperatorAction {
         super.configure(config);
         iconName = getConfigString(config, "icon");
         String disableStr = getConfigString(config, "disable");
-        if(disableStr != null) {
+        if (disableStr != null) {
             disable = disableStr.equalsIgnoreCase("true");
         }
     }
 
     @Override
     public void updateState(final CommandEvent event) {
-        if(disable)
+        if (disable)
             setEnabled(false);
     }
 
     @Override
     protected ModelessDialog createOperatorDialog() {
         final NestSingleTargetProductDialog dialog = new NestSingleTargetProductDialog(operatorName,
-                                                    getAppContext(),  dialogTitle, getHelpId());
+                getAppContext(), dialogTitle, getHelpId());
         if (targetProductNameSuffix != null) {
             dialog.setTargetProductNameSuffix(targetProductNameSuffix);
         }
@@ -71,23 +71,23 @@ public class OperatorAction extends DefaultOperatorAction {
     }
 
     protected void addIcon(final ModelessDialog dlg) {
-        if(iconName == null) {
+        if (iconName == null) {
             setIcon(dlg, ResourceUtils.nestIcon);
-        } else if(iconName.equals("esaIcon")) {
+        } else if (iconName.equals("esaIcon")) {
             setIcon(dlg, ResourceUtils.esaPlanetIcon);
-        } else if(iconName.equals("rstbIcon")) {
+        } else if (iconName.equals("rstbIcon")) {
             setIcon(dlg, ResourceUtils.rstbIcon);
-        } else if(iconName.equals("geoAusIcon")) {
+        } else if (iconName.equals("geoAusIcon")) {
             setIcon(dlg, ResourceUtils.geoAusIcon);
         } else {
             final ImageIcon icon = ResourceUtils.LoadIcon(iconName);
-            if(icon != null)
+            if (icon != null)
                 setIcon(dlg, icon);
         }
     }
 
     private static void setIcon(final ModelessDialog dlg, final ImageIcon ico) {
-        if(ico == null) return;
+        if (ico == null) return;
         dlg.getJDialog().setIconImage(ico.getImage());
     }
 }

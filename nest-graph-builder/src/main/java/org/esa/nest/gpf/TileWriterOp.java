@@ -66,15 +66,15 @@ public class TileWriterOp extends Operator implements Output {
     private File file;
 
     @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,
-               description = "The name of the output file format.")
+            description = "The name of the output file format.")
     private String formatName;
 
-    @Parameter(defaultValue = "Tiles", valueSet = {"Tiles","Pixels"}, label = "Division by",
+    @Parameter(defaultValue = "Tiles", valueSet = {"Tiles", "Pixels"}, label = "Division by",
             description = "How to divide the tiles")
     private String divisionBy = "Tiles";
 
-    @Parameter(defaultValue = "4", valueSet = {"2","4","9","16","36","64","100","256"},
-               description = "The number of output tiles")
+    @Parameter(defaultValue = "4", valueSet = {"2", "4", "9", "16", "36", "64", "100", "256"},
+            description = "The number of output tiles")
     private String numberOfTiles = "4";
 
     @Parameter(description = "Tile pixel size", label = "Pixel size X", defaultValue = "200")
@@ -99,9 +99,9 @@ public class TileWriterOp extends Operator implements Output {
             targetProduct = sourceProduct;
 
             int numFiles, numRows, numCols, width, height;
-            if(divisionBy.equals("Tiles")) {
+            if (divisionBy.equals("Tiles")) {
                 numFiles = Integer.parseInt(numberOfTiles);
-                numRows = (int)Math.sqrt(numFiles);
+                numRows = (int) Math.sqrt(numFiles);
                 numCols = numRows;
                 width = sourceProduct.getSceneRasterWidth() / numRows;
                 height = sourceProduct.getSceneRasterHeight() / numRows;
@@ -110,24 +110,24 @@ public class TileWriterOp extends Operator implements Output {
                 height = pixelSizeY;
                 numCols = sourceProduct.getSceneRasterWidth() / width;
                 numRows = sourceProduct.getSceneRasterHeight() / height;
-                numFiles = numRows*numCols;
+                numFiles = numRows * numCols;
             }
 
             subsetInfo = new SubsetInfo[numFiles];
             int n = 0;
-            for(int r=0; r<numRows; ++r) {
-                for(int c=0; c<numCols; ++c) {
+            for (int r = 0; r < numRows; ++r) {
+                for (int c = 0; c < numCols; ++c) {
                     final ProductSubsetDef subsetDef = new ProductSubsetDef();
                     subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
                     subsetDef.addNodeNames(sourceProduct.getBandNames());
-                    subsetDef.setRegion(c*width, r*height, width, height);
+                    subsetDef.setRegion(c * width, r * height, width, height);
                     subsetDef.setSubSampling(1, 1);
                     subsetDef.setIgnoreMetadata(false);
 
                     subsetInfo[n] = new SubsetInfo();
                     subsetInfo[n].subsetBuilder = new ProductSubsetBuilder();
                     subsetInfo[n].product = subsetInfo[n].subsetBuilder.readProductNodes(sourceProduct, subsetDef);
-                    subsetInfo[n].file = new File(file.getParentFile(), createName(file, n+1));
+                    subsetInfo[n].file = new File(file.getParentFile(), createName(file, n + 1));
 
                     subsetInfo[n].productWriter = ProductIO.getProductWriter(formatName);
                     if (subsetInfo[n].productWriter == null) {
@@ -138,8 +138,8 @@ public class TileWriterOp extends Operator implements Output {
                     subsetInfo[n].product.setProductWriter(subsetInfo[n].productWriter);
 
                     final Band[] bands = subsetInfo[n].product.getBands();
-                    for(Band b : bands) {
-                       // b.getSourceImage(); // trigger source image creation
+                    for (Band b : bands) {
+                        // b.getSourceImage(); // trigger source image creation
                     }
                     ++n;
                 }
@@ -151,7 +151,7 @@ public class TileWriterOp extends Operator implements Output {
     }
 
     private static String createName(final File file, final int n) {
-        return FileUtils.getFilenameWithoutExtension(file) +'_'+n+ FileUtils.getExtension(file);
+        return FileUtils.getFilenameWithoutExtension(file) + '_' + n + FileUtils.getExtension(file);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class TileWriterOp extends Operator implements Output {
         try {
             synchronized (this) {
                 if (!productFileWritten) {
-                    for(SubsetInfo info : subsetInfo) {
+                    for (SubsetInfo info : subsetInfo) {
                         info.productWriter.writeProductNodes(info.product, info.file);
                     }
                     productFileWritten = true;
@@ -167,9 +167,9 @@ public class TileWriterOp extends Operator implements Output {
             }
             final Rectangle rect = targetTile.getRectangle();
 
-            for(SubsetInfo info : subsetInfo) {
+            for (SubsetInfo info : subsetInfo) {
                 final Rectangle trgRect = info.subsetBuilder.getSubsetDef().getRegion();
-                if(rect.intersects(trgRect)) {
+                if (rect.intersects(trgRect)) {
                     writeTile(info, targetBand.getName(), trgRect);
                 }
             }
@@ -184,7 +184,7 @@ public class TileWriterOp extends Operator implements Output {
     }
 
     private synchronized void writeTile(final SubsetInfo info, final String bandName, final Rectangle trgRect)
-                                        throws IOException {
+            throws IOException {
 
         final Tile sourceTile = getSourceTile(sourceProduct.getBand(bandName), trgRect);
         final ProductData rawSamples = sourceTile.getRawSamples();
@@ -201,13 +201,13 @@ public class TileWriterOp extends Operator implements Output {
 
             final List<Point> currentTodoList = getTodoList(sourceImage);
             currentTodoList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
-                                             sourceImage.YToTileY(targetTile.getMinY())));
+                    sourceImage.YToTileY(targetTile.getMinY())));
 
             done = isDone();
         }
         if (done) {
             // If we get here all tiles are written
-            for(SubsetInfo info : subsetInfo) {
+            for (SubsetInfo info : subsetInfo) {
                 if (info.productWriter instanceof DimapProductWriter) {
                     // if we can update the header (only DIMAP) rewrite it!
                     synchronized (info.productWriter) {
@@ -246,7 +246,7 @@ public class TileWriterOp extends Operator implements Output {
     @Override
     public void dispose() {
         try {
-            for(SubsetInfo info : subsetInfo) {
+            for (SubsetInfo info : subsetInfo) {
                 info.productWriter.close();
             }
         } catch (IOException ignore) {
@@ -266,7 +266,7 @@ public class TileWriterOp extends Operator implements Output {
 
         public Spi() {
             super(TileWriterOp.class);
-	        setOperatorUI(TileWriterUI.class);
+            setOperatorUI(TileWriterUI.class);
         }
     }
 

@@ -9,7 +9,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ProductSetPanel;
-import org.esa.nest.dat.util.ProductOpener;
+import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.DialogUtils;
 import org.esa.nest.gpf.OperatorUtils;

@@ -45,10 +45,10 @@ public class GPFProcessor {
     }
 
     public static Graph readGraph(final File graphFile, final Map<String, String> parameterMap)
-                                    throws GraphException, IOException {
+            throws GraphException, IOException {
         try {
             return readInGraph(graphFile, parameterMap);
-        } catch(Exception e) {
+        } catch (Exception e) {
             // check for old Xpp3DomElement and replace it with XppDomElement
             FileIOUtils.replaceText(graphFile, graphFile, "Xpp3DomElement", "XppDomElement");
             return readInGraph(graphFile, parameterMap);
@@ -56,7 +56,7 @@ public class GPFProcessor {
     }
 
     private static Graph readInGraph(final File graphFile, final Map<String, String> parameterMap)
-                                        throws GraphException, IOException {
+            throws GraphException, IOException {
         final FileReader fileReader = new FileReader(graphFile);
         Graph graph = null;
         try {
@@ -70,7 +70,7 @@ public class GPFProcessor {
     public void setIO(final File srcFile, final File tgtFile, final String format) {
         final String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
         final Node readerNode = findNode(graph, readOperatorAlias);
-        if(readerNode != null) {
+        if (readerNode != null) {
             final DomElement param = new DefaultDomElement("parameters");
             param.createChild("file").setValue(srcFile.getAbsolutePath());
             readerNode.setConfiguration(param);
@@ -81,7 +81,7 @@ public class GPFProcessor {
         if (writerNode != null && tgtFile != null) {
             final DomElement origParam = writerNode.getConfiguration();
             origParam.getChild("file").setValue(tgtFile.getAbsolutePath());
-            if(format != null)
+            if (format != null)
                 origParam.getChild("formatName").setValue(format);
         }
     }
@@ -91,8 +91,8 @@ public class GPFProcessor {
     }
 
     private static Node findNode(final Graph graph, final String alias) {
-        for(Node n : graph.getNodes()) {
-            if(n.getOperatorName().equals(alias))
+        for (Node n : graph.getNodes()) {
+            if (n.getOperatorName().equals(alias))
                 return n;
         }
         return null;

@@ -74,7 +74,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         getJDialog().setIconImage(ResourceUtils.esaPlanetIcon.getImage());
 
         statusLabel = new JLabel("");
-        statusLabel.setForeground(new Color(255,0,0));
+        statusLabel.setForeground(new Color(255, 0, 0));
         this.getJDialog().getContentPane().add(statusLabel, BorderLayout.NORTH);
     }
 
@@ -82,7 +82,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         final PropertySet propertySet = parameterSupport.getPropertySet();
         final List<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
 
-        if(sourceProductSelectorList.isEmpty()) {
+        if (sourceProductSelectorList.isEmpty()) {
             VisatApp.getApp().showErrorDialog("SourceProduct @Parameter not found in operator");
         } else {
 
@@ -91,10 +91,10 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                 @Override
                 public void selectionChanged(SelectionChangeEvent event) {
                     final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
-                    if(selectedProduct != null ) { //&& form != null) {
+                    if (selectedProduct != null) { //&& form != null) {
                         final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
                         targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
-                        opUI.setSourceProducts(new Product[] { selectedProduct });
+                        opUI.setSourceProducts(new Product[]{selectedProduct});
                     }
                 }
             });
@@ -127,7 +127,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
 
     @Override
     protected Product createTargetProduct() throws Exception {
-        if(validateUI()) {
+        if (validateUI()) {
             opUI.updateParameters();
 
             final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
@@ -138,12 +138,12 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
 
     private boolean validateUI() {
         final UIValidation validation = opUI.validateParameters();
-        if(validation.getState() == UIValidation.State.WARNING) {
-            final String msg = "Warning: "+validation.getMsg()+
+        if (validation.getState() == UIValidation.State.WARNING) {
+            final String msg = "Warning: " + validation.getMsg() +
                     "\n\nWould you like to continue?";
             return VisatApp.getApp().showQuestionDialog(msg, null) == 0;
-        } else if(validation.getState() == UIValidation.State.ERROR) {
-            final String msg = "Error: "+validation.getMsg();
+        } else if (validation.getState() == UIValidation.State.ERROR) {
+            final String msg = "Error: " + validation.getMsg();
             VisatApp.getApp().showErrorDialog(msg);
             return false;
         }
@@ -256,7 +256,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
             try {
                 final Date now = Calendar.getInstance().getTime();
                 final long diff = (now.getTime() - executeStartTime.getTime()) / 1000;
-                if(diff > 120) {
+                if (diff > 120) {
                     final float minutes = diff / 60f;
                     statusLabel.setText("Processing completed in " + minutes + " minutes");
                 } else {

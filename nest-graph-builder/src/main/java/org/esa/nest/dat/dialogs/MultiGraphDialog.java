@@ -23,8 +23,8 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.nest.dat.plugins.graphbuilder.GraphExecuter;
-import org.esa.nest.dat.plugins.graphbuilder.ProgressBarProgressMonitor;
+import org.esa.nest.dat.graphbuilder.GraphExecuter;
+import org.esa.nest.dat.graphbuilder.ProgressBarProgressMonitor;
 import org.esa.nest.util.MemUtils;
 
 import javax.swing.*;
@@ -40,7 +40,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *  Provides the dialog for excuting multiple graph from one user interface
+ * Provides the dialog for excuting multiple graph from one user interface
  */
 public abstract class MultiGraphDialog extends ModelessDialog {
 
@@ -79,7 +79,7 @@ public abstract class MultiGraphDialog extends ModelessDialog {
 
         // status
         statusLabel = new JLabel("");
-        statusLabel.setForeground(new Color(255,0,0));
+        statusLabel.setForeground(new Color(255, 0, 0));
         mainPanel.add(statusLabel, BorderLayout.NORTH);
 
         // progress Bar
@@ -87,7 +87,7 @@ public abstract class MultiGraphDialog extends ModelessDialog {
         progressBar.setName(getClass().getName() + "progressBar");
         progressBar.setStringPainted(true);
         progressPanel = new JPanel();
-        progressPanel.setLayout(new BorderLayout(2,2));
+        progressPanel.setLayout(new BorderLayout(2, 2));
         progressPanel.add(progressBar, BorderLayout.CENTER);
         final JButton progressCancelBtn = new JButton("Cancel");
         progressCancelBtn.addActionListener(new ActionListener() {
@@ -122,13 +122,13 @@ public abstract class MultiGraphDialog extends ModelessDialog {
     @Override
     protected void onApply() {
 
-        if(isProcessing) return;
+        if (isProcessing) return;
 
         ioPanel.onApply();
 
         try {
             DoProcessing();
-        } catch(Exception e) {
+        } catch (Exception e) {
             statusLabel.setText(e.getMessage());
         }
     }
@@ -136,7 +136,7 @@ public abstract class MultiGraphDialog extends ModelessDialog {
     @Override
     protected void onClose() {
         CancelProcessing();
-        
+
         super.onClose();
     }
 
@@ -144,18 +144,19 @@ public abstract class MultiGraphDialog extends ModelessDialog {
         try {
             deleteGraphs();
             createGraphs();
-        } catch(Exception e) {
+        } catch (Exception e) {
             statusLabel.setText(e.getMessage());
         }
     }
 
     /**
      * Validates the input and then call the GPF to execute the graph
+     *
      * @throws GraphException on assignParameters
      */
     private void DoProcessing() {
 
-        if(ValidateAllNodes()) {
+        if (ValidateAllNodes()) {
 
             MemUtils.freeAllMemory();
 
@@ -171,12 +172,12 @@ public abstract class MultiGraphDialog extends ModelessDialog {
     }
 
     private void CancelProcessing() {
-        if(progBarMonitor != null)
+        if (progBarMonitor != null)
             progBarMonitor.setCanceled(true);
     }
 
     private void deleteGraphs() {
-        for(GraphExecuter gex : graphExecuterList) {
+        for (GraphExecuter gex : graphExecuterList) {
             gex.ClearGraph();
         }
         graphExecuterList.clear();
@@ -184,14 +185,15 @@ public abstract class MultiGraphDialog extends ModelessDialog {
 
     /**
      * Loads a new graph from a file
+     *
      * @param executer the GraphExcecuter
-     * @param file the graph file to load
+     * @param file     the graph file to load
      */
     public void LoadGraph(final GraphExecuter executer, final File file) {
         try {
             executer.loadGraph(file, true);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             showErrorDialog(e.getMessage());
         }
     }
@@ -203,8 +205,8 @@ public abstract class MultiGraphDialog extends ModelessDialog {
     protected abstract void cleanUpTempFiles();
 
     private boolean ValidateAllNodes() {
-        if(isProcessing) return false;
-        if(ioPanel == null || graphExecuterList.isEmpty())
+        if (isProcessing) return false;
+        if (ioPanel == null || graphExecuterList.isEmpty())
             return false;
 
         boolean result;
@@ -212,14 +214,14 @@ public abstract class MultiGraphDialog extends ModelessDialog {
         try {
             // check the all files have been saved
             final Product srcProduct = ioPanel.getSelectedSourceProduct();
-            if(srcProduct!=null && (srcProduct.isModified() || srcProduct.getFileLocation() == null)) {
-                throw new OperatorException("The source product has been modified. Please save it before using it in "+getTitle());
+            if (srcProduct != null && (srcProduct.isModified() || srcProduct.getFileLocation() == null)) {
+                throw new OperatorException("The source product has been modified. Please save it before using it in " + getTitle());
             }
             assignParameters();
             // first graph must pass
             result = graphExecuterList.get(0).InitGraph();
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             statusLabel.setText(e.getMessage());
             result = false;
         }
@@ -227,15 +229,15 @@ public abstract class MultiGraphDialog extends ModelessDialog {
     }
 
     private void openTargetProducts(final List<File> fileList) {
-        if(!fileList.isEmpty()) {
-            for(File file : fileList) {
+        if (!fileList.isEmpty()) {
+            for (File file : fileList) {
                 try {
 
                     final Product product = ProductIO.readProduct(file);
                     if (product != null) {
                         appContext.getProductManager().addProduct(product);
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     showErrorDialog(e.getMessage());
                 }
             }
@@ -252,18 +254,19 @@ public abstract class MultiGraphDialog extends ModelessDialog {
 
     /**
      * For running graphs in unit tests
+     *
      * @throws Exception when failing validation
      */
     public void testRunGraph() throws Exception {
         ioPanel.initProducts();
         initGraphs();
 
-        if(ValidateAllNodes()) {
+        if (ValidateAllNodes()) {
 
-            for(GraphExecuter graphEx : graphExecuterList) {
+            for (GraphExecuter graphEx : graphExecuterList) {
                 final String desc = graphEx.getGraphDescription();
-                if(desc != null && !desc.isEmpty())
-                    System.out.println("Processing "+ graphEx.getGraphDescription());
+                if (desc != null && !desc.isEmpty())
+                    System.out.println("Processing " + graphEx.getGraphDescription());
 
                 graphEx.InitGraph();
 
@@ -292,25 +295,25 @@ public abstract class MultiGraphDialog extends ModelessDialog {
         @Override
         protected Boolean doInBackground() throws Exception {
 
-            pm.beginTask("Processing Graph...", 100*graphExecuterList.size());
+            pm.beginTask("Processing Graph...", 100 * graphExecuterList.size());
             try {
                 executeStartTime = Calendar.getInstance().getTime();
                 isProcessing = true;
 
-                for(GraphExecuter graphEx : graphExecuterList) {
+                for (GraphExecuter graphEx : graphExecuterList) {
                     final String desc = graphEx.getGraphDescription();
-                    if(desc != null && !desc.isEmpty())
-                        statusLabel.setText("Processing "+ graphEx.getGraphDescription());
-                    
+                    if (desc != null && !desc.isEmpty())
+                        statusLabel.setText("Processing " + graphEx.getGraphDescription());
+
                     graphEx.InitGraph();
 
                     graphEx.executeGraph(new SubProgressMonitor(pm, 100));
                     graphEx.disposeGraphContext();
                 }
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.print(e.getMessage());
-                if(e.getMessage() != null && !e.getMessage().isEmpty())
+                if (e.getMessage() != null && !e.getMessage().isEmpty())
                     statusLabel.setText(e.getMessage());
                 else
                     statusLabel.setText(e.toString());
@@ -324,10 +327,10 @@ public abstract class MultiGraphDialog extends ModelessDialog {
 
         @Override
         public void done() {
-            if(!errorOccured) {
+            if (!errorOccured) {
                 final Date now = Calendar.getInstance().getTime();
                 final long diff = (now.getTime() - executeStartTime.getTime()) / 1000;
-                if(diff > 120) {
+                if (diff > 120) {
                     final float minutes = diff / 60f;
                     statusLabel.setText("Processing completed in " + minutes + " minutes");
                 } else {
@@ -336,8 +339,8 @@ public abstract class MultiGraphDialog extends ModelessDialog {
 
                 MemUtils.freeAllMemory();
 
-                if(ioPanel.isOpenInAppSelected()) {
-                    final GraphExecuter graphEx = graphExecuterList.get(graphExecuterList.size()-1);
+                if (ioPanel.isOpenInAppSelected()) {
+                    final GraphExecuter graphEx = graphExecuterList.get(graphExecuterList.size() - 1);
                     openTargetProducts(graphEx.getProductsToOpenInDAT());
                 }
             }

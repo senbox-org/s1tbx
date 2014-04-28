@@ -30,7 +30,7 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.StringSelectorDialog;
-import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
+import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.gpf.GPFProcessor;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

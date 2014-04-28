@@ -1206,51 +1206,6 @@
 
     <profiles>
 
-        <!-- NEST InSAR Build Profile ######################################## -->
-        <profile>
-            <id>insar</id>
-            <modules>
-                <module>beam</module>
-                <module>jlinda</module>
-                <module>nest-bootstrap</module>
-                <module>nest-help</module>
-                <module>nest-core</module>
-                <module>nest-dat</module>
-                <module>nest-graph-builder</module>
-                <module>nest-world-wind-view</module>
-                <module>nest-reader-dem</module>
-                <module>nest-io</module>
-                <module>nest-op-calibration</module>
-                <module>nest-op-coregistration</module>
-                <module>nest-op-sar-tools</module>
-                <module>nest-op-orthorectification</module>
-                <module>nest-ocean-tools</module>
-                <module>nest-developer-tools</module>
-                <module>nest-src</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>jlinda</id>
-            <modules>
-                <module>beam</module>
-                <module>jlinda</module>
-                <module>nest-bootstrap</module>
-                <module>nest-help</module>
-                <module>nest-core</module>
-                <module>nest-dat</module>
-                <module>nest-graph-builder</module>
-                <module>nest-world-wind-view</module>
-                <module>nest-reader-dem</module>
-                <module>nest-io</module>
-                <module>nest-op-calibration</module>
-                <module>nest-op-coregistration</module>
-                <module>nest-op-sar-tools</module>
-                <module>nest-op-orthorectification</module>
-                <module>nest-ocean-tools</module>
-                <module>nest-developer-tools</module>
-                <module>nest-src</module>
-            </modules>
-		</profile>
 		<profile>
             <id>benchmark</id>
             <modules>

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dat.plugins.graphbuilder;
+package org.esa.nest.dat.graphbuilder;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -45,7 +45,7 @@ import java.util.*;
 import java.util.List;
 
 /**
- *  Provides the User Interface for creating, loading and saving Graphs
+ * Provides the User Interface for creating, loading and saving Graphs
  */
 public class GraphBuilderDialog extends ModelessDialog implements Observer {
 
@@ -100,7 +100,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      * Initializes the dialog components
      */
     private void initUI() {
-        if(this.allowGraphBuilding) {
+        if (this.allowGraphBuilding) {
             super.getJDialog().setMinimumSize(new Dimension(600, 750));
         } else {
             super.getJDialog().setMinimumSize(new Dimension(600, 500));
@@ -112,12 +112,12 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         // north panel
         final JPanel northPanel = new JPanel(new BorderLayout(4, 4));
 
-        if(allowGraphBuilding) {
+        if (allowGraphBuilding) {
             graphPanel = new GraphPanel(graphEx);
             graphPanel.setBackground(Color.WHITE);
-            graphPanel.setPreferredSize(new Dimension(500,500));
+            graphPanel.setPreferredSize(new Dimension(500, 500));
             final JScrollPane scrollPane = new JScrollPane(graphPanel);
-            scrollPane.setPreferredSize(new Dimension(300,300));
+            scrollPane.setPreferredSize(new Dimension(300, 300));
             northPanel.add(scrollPane, BorderLayout.CENTER);
 
             mainPanel.add(northPanel, BorderLayout.NORTH);
@@ -136,8 +136,8 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         });
 
         statusLabel = new JLabel("");
-        statusLabel.setForeground(new Color(255,0,0));
-        
+        statusLabel.setForeground(new Color(255, 0, 0));
+
         midPanel.add(tabbedPanel, BorderLayout.CENTER);
         midPanel.add(statusLabel, BorderLayout.SOUTH);
 
@@ -152,9 +152,9 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         // progress Bar
         progressBar = new JProgressBar();
         progressBar.setName(getClass().getName() + "progressBar");
-        progressBar.setStringPainted(true);  
+        progressBar.setStringPainted(true);
         progressPanel = new JPanel();
-        progressPanel.setLayout(new BorderLayout(2,2));
+        progressPanel.setLayout(new BorderLayout(2, 2));
         progressMsgLabel = new JLabel();
         progressPanel.add(progressMsgLabel, BorderLayout.NORTH);
         progressPanel.add(progressBar, BorderLayout.CENTER);
@@ -221,7 +221,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
                 OnInfo();
             }
         });
-                       //getClass().getName() + name
+        //getClass().getName() + name
         final JButton helpButton = DialogUtils.CreateButton("helpButton", "Help", helpIcon, panel);
         helpButton.addActionListener(new ActionListener() {
 
@@ -231,7 +231,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         });
 
         gbc.weightx = 0;
-        if(allowGraphBuilding) {
+        if (allowGraphBuilding) {
             panel.add(loadButton, gbc);
             panel.add(saveButton, gbc);
             panel.add(clearButton, gbc);
@@ -246,7 +246,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      */
     public void DoProcessing() {
 
-        if(ValidateAllNodes()) {
+        if (ValidateAllNodes()) {
 
             MemUtils.freeAllMemory();
 
@@ -261,7 +261,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     }
 
     private void CancelProcessing() {
-        if(progBarMonitor != null)
+        if (progBarMonitor != null)
             progBarMonitor.setCanceled(true);
         graphEx.cancel();
     }
@@ -269,13 +269,13 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     private boolean InitGraph() {
         boolean result = true;
         try {
-            if(initGraphEnabled) {
+            if (initGraphEnabled) {
                 result = graphEx.InitGraph();
             }
-            if(!result)
+            if (!result)
                 statusLabel.setText("Graph is incomplete");
-        } catch(Exception e) {
-            if(e.getMessage() != null)
+        } catch (Exception e) {
+            if (e.getMessage() != null)
                 statusLabel.setText(e.getMessage());
             else
                 statusLabel.setText(e.toString());
@@ -290,13 +290,13 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     private void SaveGraph() {
 
         //if(ValidateAllNodes()) {
-            try {
-                final File file = graphEx.saveGraph();
+        try {
+            final File file = graphEx.saveGraph();
 
-                this.setTitle("Graph Builder : "+file.getName());
-            } catch(GraphException e) {
-                showErrorDialog(e.getMessage());
-            }
+            this.setTitle("Graph Builder : " + file.getName());
+        } catch (GraphException e) {
+            showErrorDialog(e.getMessage());
+        }
         //} else {
         //    showErrorDialog(statusLabel.getText());
         //}
@@ -307,18 +307,19 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      */
     private void LoadGraph() {
         final File file = ResourceUtils.GetFilePath("Load Graph", "XML", "xml", null, "Graph", false,
-                                                    GraphExecuter.LAST_GRAPH_PATH,
-                                                    ResourceUtils.getGraphFolder("").getAbsolutePath());
-        if(file == null) return;
+                GraphExecuter.LAST_GRAPH_PATH,
+                ResourceUtils.getGraphFolder("").getAbsolutePath());
+        if (file == null) return;
 
         LoadGraph(file);
 
-        if(allowGraphBuilding)
-            this.setTitle("Graph Builder : "+file.getName());
+        if (allowGraphBuilding)
+            this.setTitle("Graph Builder : " + file.getName());
     }
 
     /**
      * Loads a new graph from a file
+     *
      * @param file the graph file to load
      */
     public void LoadGraph(final File file) {
@@ -326,18 +327,18 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             initGraphEnabled = false;
             tabbedPanel.removeAll();
             graphEx.loadGraph(file, true);
-            if(allowGraphBuilding) {
+            if (allowGraphBuilding) {
                 graphPanel.showRightClickHelp(false);
                 graphPanel.repaint();
             }
             initGraphEnabled = true;
-        } catch(GraphException e) {
+        } catch (GraphException e) {
             showErrorDialog(e.getMessage());
         }
     }
 
     public void EnableInitialInstructions(final boolean flag) {
-        if(this.allowGraphBuilding) {
+        if (this.allowGraphBuilding) {
             graphPanel.showRightClickHelp(flag);
         }
     }
@@ -357,35 +358,37 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
 
     /**
      * pass in a file list for a ProductSetReader
+     *
      * @param productFileList the product files
      */
     public void setInputFiles(final File[] productFileList) {
         final GraphNode productSetNode = graphEx.findGraphNodeByOperator(
                 ProductSetReaderOp.Spi.getOperatorAlias(ProductSetReaderOp.class));
-        if(productSetNode != null) {
-            ProductSetReaderOpUI ui = (ProductSetReaderOpUI)productSetNode.GetOperatorUI();
+        if (productSetNode != null) {
+            ProductSetReaderOpUI ui = (ProductSetReaderOpUI) productSetNode.GetOperatorUI();
             ui.setProductFileList(productFileList);
         }
     }
 
     /**
      * pass in a file list for a ProductSetReader
+     *
      * @param product the product files
      */
     public void setInputFile(final Product product) {
         final GraphNode readerNode = graphEx.findGraphNodeByOperator(
                 ReadOp.Spi.getOperatorAlias(ReadOp.class));
-        if(readerNode != null) {
-            SourceUI ui = (SourceUI)readerNode.GetOperatorUI();
+        if (readerNode != null) {
+            SourceUI ui = (SourceUI) readerNode.GetOperatorUI();
             ui.setSourceProduct(product);
-            
+
             ValidateAllNodes();
         }
     }
 
     /**
      * Call Help
-     */             
+     */
     private void OnHelp() {
         HelpSys.showTheme(super.getHelpID());
     }
@@ -396,7 +399,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     private void OnInfo() {
         final PromptDialog dlg = new PromptDialog("Graph Description", "Description", graphEx.getGraphDescription(), true);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             graphEx.setGraphDescription(dlg.getValue());
         }
     }
@@ -408,22 +411,23 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     /**
      * lets all operatorUIs validate their parameters
      * If parameter validation fails then a list of the failures is presented to the user
+     *
      * @return true if validation passes
      */
     boolean ValidateAllNodes() {
 
-        if(isProcessing) return false;
+        if (isProcessing) return false;
 
         boolean isValid = true;
         final StringBuilder errorMsg = new StringBuilder(100);
         final StringBuilder warningMsg = new StringBuilder(100);
-        for(GraphNode n : graphEx.GetGraphNodes()) {
+        for (GraphNode n : graphEx.GetGraphNodes()) {
             try {
                 final UIValidation validation = n.validateParameterMap();
-                if(validation.getState() == UIValidation.State.ERROR) {
+                if (validation.getState() == UIValidation.State.ERROR) {
                     isValid = false;
                     errorMsg.append(validation.getMsg()).append('\n');
-                } else if(validation.getState() == UIValidation.State.WARNING) {
+                } else if (validation.getState() == UIValidation.State.WARNING) {
                     warningMsg.append(validation.getMsg()).append('\n');
                 }
             } catch (Exception e) {
@@ -432,19 +436,19 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             }
         }
 
-        statusLabel.setForeground(new Color(255,0,0));
+        statusLabel.setForeground(new Color(255, 0, 0));
         statusLabel.setText("");
         final String warningStr = warningMsg.toString();
-        if(!isValid) {
+        if (!isValid) {
             statusLabel.setText(errorMsg.toString());
             return false;
-        } else if(!warningStr.isEmpty()) {
-            if(warningStr.length() > 100 && !warningStr.equals(lastWarningMsg)) {
+        } else if (!warningStr.isEmpty()) {
+            if (warningStr.length() > 100 && !warningStr.equals(lastWarningMsg)) {
                 VisatApp.getApp().showWarningDialog(warningStr);
                 lastWarningMsg = warningStr;
             } else {
-                statusLabel.setForeground(new Color(0,100,255));
-                statusLabel.setText("Warning: "+warningStr);
+                statusLabel.setForeground(new Color(0, 100, 255));
+                statusLabel.setText("Warning: " + warningStr);
             }
         }
 
@@ -473,35 +477,36 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         }
     }
 
-     /**
-     Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
-     dependency between a Subject object and any number of Observer objects so that when the
-     Subject object changes state, all its Observer objects are notified and updated automatically.
-
-     Defines an updating interface for objects that should be notified of changes in a subject.
+    /**
+     * Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
+     * dependency between a Subject object and any number of Observer objects so that when the
+     * Subject object changes state, all its Observer objects are notified and updated automatically.
+     * <p/>
+     * Defines an updating interface for objects that should be notified of changes in a subject.
+     *
      * @param subject The Observerable subject
-     * @param data optional data
+     * @param data    optional data
      */
     public void update(Observable subject, Object data) {
 
         try {
-            final GraphExecuter.GraphEvent event = (GraphExecuter.GraphEvent)data;
-            final GraphNode node = (GraphNode)event.getData();
+            final GraphExecuter.GraphEvent event = (GraphExecuter.GraphEvent) data;
+            final GraphNode node = (GraphNode) event.getData();
             final String opID = node.getID();
-            if(event.getEventType() == GraphExecuter.events.ADD_EVENT) {
+            if (event.getEventType() == GraphExecuter.events.ADD_EVENT) {
 
                 tabbedPanel.addTab(opID, null, CreateOperatorTab(node), opID + " Operator");
-            } else if(event.getEventType() == GraphExecuter.events.REMOVE_EVENT) {
+            } else if (event.getEventType() == GraphExecuter.events.REMOVE_EVENT) {
 
                 int index = tabbedPanel.indexOfTab(opID);
                 tabbedPanel.remove(index);
-            } else if(event.getEventType() == GraphExecuter.events.SELECT_EVENT) {
+            } else if (event.getEventType() == GraphExecuter.events.SELECT_EVENT) {
 
                 int index = tabbedPanel.indexOfTab(opID);
                 tabbedPanel.setSelectedIndex(index);
             }
-        } catch(Exception e) {
-            statusLabel.setText(e.getMessage());   
+        } catch (Exception e) {
+            statusLabel.setText(e.getMessage());
         }
     }
 
@@ -529,9 +534,9 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
                 isProcessing = true;
                 graphEx.executeGraph(pm);
 
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 System.out.print(e.getMessage());
-                if(e.getMessage() != null && !e.getMessage().isEmpty())
+                if (e.getMessage() != null && !e.getMessage().isEmpty())
                     statusLabel.setText(e.getMessage());
                 else
                     statusLabel.setText(e.getCause().toString());
@@ -549,10 +554,10 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
 
         @Override
         public void done() {
-            if(!errorOccured) {
+            if (!errorOccured) {
                 final Date now = Calendar.getInstance().getTime();
                 final long diff = (now.getTime() - executeStartTime.getTime()) / 1000;
-                if(diff > 120) {
+                if (diff > 120) {
                     final float minutes = diff / 60f;
                     statusLabel.setText("Processing completed in " + minutes + " minutes");
                 } else {
@@ -562,7 +567,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
                 notifyMSG(ProcessingListener.MSG.DONE, fileList.toArray(new File[fileList.size()]));
             }
 
-            if(!errorOccured) {
+            if (!errorOccured) {
                 final List<File> fileList = graphEx.getProductsToOpenInDAT();
                 openTargetProducts(fileList.toArray(new File[fileList.size()]));
             }
@@ -571,15 +576,15 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     }
 
     private void openTargetProducts(final File[] fileList) {
-        if(fileList.length != 0) {
-            for(File file : fileList) {
+        if (fileList.length != 0) {
+            for (File file : fileList) {
                 try {
 
                     final Product product = ProductIO.readProduct(file);
                     if (product != null) {
                         appContext.getProductManager().addProduct(product);
                     }
-                } catch(IOException e) {
+                } catch (IOException e) {
                     showErrorDialog(e.getMessage());
                 }
             }
@@ -596,9 +601,10 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
 
     public interface ProcessingListener {
 
-        public enum MSG { DONE, UPDATE }
+        public enum MSG {DONE, UPDATE}
 
         public void notifyMSG(final MSG msg, final File[] fileList);
+
         public void notifyMSG(final MSG msg, final String text);
     }
 }

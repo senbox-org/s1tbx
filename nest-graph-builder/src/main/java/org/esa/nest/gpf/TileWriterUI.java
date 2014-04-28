@@ -37,11 +37,11 @@ import java.util.Map;
 public class TileWriterUI extends BaseOperatorUI {
 
     private final JLabel divisionByLabel = new JLabel("Division By:     ");
-    private final JComboBox divisionBy = new JComboBox(new String[] { "Tiles","Pixels" } );
+    private final JComboBox divisionBy = new JComboBox(new String[]{"Tiles", "Pixels"});
 
     private final JLabel numberOfTilesLabel = new JLabel("Number of Tiles:     ");
     private final JComboBox numberOfTiles = new JComboBox(
-            new String[] { "2","4","9","16","36","64","100","256" } );
+            new String[]{"2", "4", "9", "16", "36", "64", "100", "256"});
 
     private final JLabel pixelSizeLabel = new JLabel("Pixel Size:     ");
     private final JTextField pixelSizeX = new JTextField("");
@@ -68,12 +68,12 @@ public class TileWriterUI extends BaseOperatorUI {
 
         File saveDir = null;
         final Object value = paramMap.get(FILE_PARAMETER);
-        if(value != null) {
-            final File file = (File)value;
+        if (value != null) {
+            final File file = (File) value;
             saveDir = file.getParentFile();
         }
 
-        if(saveDir == null) {
+        if (saveDir == null) {
             final String homeDirPath = SystemUtils.getUserHomeDir().getPath();
             final String savePath = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, homeDirPath);
             saveDir = new File(savePath);
@@ -142,12 +142,12 @@ public class TileWriterUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
-        assert(paramMap != null);
+        assert (paramMap != null);
 
         divisionBy.setSelectedItem(paramMap.get("divisionBy"));
 
-        String numTiles = (String)paramMap.get("numberOfTiles");
-        if(numTiles == null || numTiles.isEmpty())
+        String numTiles = (String) paramMap.get("numberOfTiles");
+        if (numTiles == null || numTiles.isEmpty())
             numTiles = "4";
         numberOfTiles.setSelectedItem(numTiles);
 
@@ -156,10 +156,10 @@ public class TileWriterUI extends BaseOperatorUI {
 
         String fileName = "target";
         final Object value = paramMap.get(FILE_PARAMETER);
-        if(value != null) {
-            final File file = (File)value;
+        if (value != null) {
+            final File file = (File) value;
             fileName = file.getName();
-        } else if(sourceProducts != null && sourceProducts.length > 0) {
+        } else if (sourceProducts != null && sourceProducts.length > 0) {
             fileName = sourceProducts[0].getName();
         }
         targetProductSelector.getProductNameTextField().setText(fileName);
@@ -178,7 +178,7 @@ public class TileWriterUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        if(targetProductSelector.getModel().getProductName() != null) {
+        if (targetProductSelector.getModel().getProductName() != null) {
             paramMap.put("divisionBy", divisionBy.getSelectedItem());
             paramMap.put("numberOfTiles", numberOfTiles.getSelectedItem());
             paramMap.put("pixelSizeX", Integer.parseInt(pixelSizeX.getText()));
@@ -191,8 +191,8 @@ public class TileWriterUI extends BaseOperatorUI {
 
     private void updateDivisionBy() {
 
-        final String item = (String)divisionBy.getSelectedItem();
-        if(item.equals("Pixels")) {
+        final String item = (String) divisionBy.getSelectedItem();
+        if (item.equals("Pixels")) {
             numberOfTiles.setVisible(false);
             numberOfTilesLabel.setVisible(false);
             pixelSizeX.setVisible(true);

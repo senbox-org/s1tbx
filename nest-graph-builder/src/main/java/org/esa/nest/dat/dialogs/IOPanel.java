@@ -62,7 +62,7 @@ public class IOPanel {
 
         final JPanel ioParametersPanel = new JPanel(tableLayout);
 
-        if(useSourceSelector) {
+        if (useSourceSelector) {
             // Fetch source products
             sourceProductSelectorList.add(new SourceProductSelector(appContext));
 
@@ -73,7 +73,7 @@ public class IOPanel {
             sourceProductSelectorList.get(0).addSelectionChangeListener(new AbstractSelectionChangeListener() {
                 public void selectionChanged(SelectionChangeEvent event) {
                     final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
-                    if(selectedProduct != null) {
+                    if (selectedProduct != null) {
                         final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
                         targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
                     }
@@ -82,7 +82,7 @@ public class IOPanel {
         }
 
         ioParametersPanel.add(targetProductSelector.createDefaultPanel());
-        if(useSourceSelector) {
+        if (useSourceSelector) {
             tabbedPane.add("I/O Parameters", ioParametersPanel);
         } else {
             tabbedPane.add("Target Product", ioParametersPanel);
@@ -91,11 +91,11 @@ public class IOPanel {
 
     public void setTargetProductName(final String name) {
         final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
-        targetProductSelectorModel.setProductName(name + getTargetProductNameSuffix());        
+        targetProductSelectorModel.setProductName(name + getTargetProductNameSuffix());
     }
 
     public void initProducts() {
-        if(useSourceSelector) {
+        if (useSourceSelector) {
             for (SourceProductSelector sourceProductSelector : sourceProductSelectorList) {
                 sourceProductSelector.initProducts();
             }
@@ -103,7 +103,7 @@ public class IOPanel {
     }
 
     public void releaseProducts() {
-        if(!useSourceSelector) {
+        if (!useSourceSelector) {
             for (SourceProductSelector sourceProductSelector : sourceProductSelectorList) {
                 sourceProductSelector.releaseProducts();
             }
@@ -116,7 +116,7 @@ public class IOPanel {
     }
 
     public Product getSelectedSourceProduct() {
-        if(useSourceSelector)
+        if (useSourceSelector)
             return sourceProductSelectorList.get(0).getSelectedProduct();
         return null;
     }
