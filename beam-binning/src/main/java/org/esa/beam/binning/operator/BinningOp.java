@@ -177,7 +177,7 @@ public class BinningOp extends Operator {
                              "observations at the date line (the 180 degree meridian). Only used if parameter 'dataDayMode' is set to 'SPATIOTEMPORAL_DATADAY'.")
     private Double minDataHour;
 
-    @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.")
+    @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.", defaultValue = "2160")
     private int numRows;
 
     @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels")
