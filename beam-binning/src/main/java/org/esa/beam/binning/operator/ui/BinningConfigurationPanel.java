@@ -128,13 +128,13 @@ class BinningConfigurationPanel extends JPanel {
 
         JLabel targetHeightLabel = new JLabel("#Rows (90N - 90S):");
         final JTextField validPixelExpressionField = new JTextField();
-        bindingContext.bind(BinningFormModel.PROPERTY_KEY_EXPRESSION, validPixelExpressionField);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_MASK_EXPR, validPixelExpressionField);
         validPixelExpressionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 final String expression = editExpression(validPixelExpressionField.getText());
                 if (expression != null) {
                     try {
-                        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, expression);
+                        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_MASK_EXPR, expression);
                     } catch (ValidationException e) {
                         appContext.handleError("Invalid expression", e);
                     }
@@ -142,7 +142,7 @@ class BinningConfigurationPanel extends JPanel {
             }
         });
 
-        final JTextField targetHeightTextField = new IntegerTextField(BinningFormModel.DEFAULT_NUM_ROWS);
+        final JTextField numRowsTextField = new IntegerTextField(BinningFormModel.DEFAULT_NUM_ROWS);
 
         JLabel resolutionLabel = new JLabel("Spatial resolution (km/px):");
         final String defaultResolution = getString(computeResolution(BinningFormModel.DEFAULT_NUM_ROWS));
@@ -152,19 +152,19 @@ class BinningConfigurationPanel extends JPanel {
         JLabel supersamplingLabel = new JLabel("Super-sampling:");
         final JTextField superSamplingTextField = new IntegerTextField(1);
 
-        final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, targetHeightTextField);
+        final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, numRowsTextField);
 
-        bindingContext.bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_NUM_ROWS, numRowsTextField);
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
 
-        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_NUM_ROWS).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
         bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
 
-        bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(
+        bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_NUM_ROWS).addPropertyChangeListener(
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        updateResolutionLabel(targetHeightTextField, resolutionTextField, listener);
+                        updateResolutionLabel(numRowsTextField, resolutionTextField, listener);
                     }
                 }
         );
@@ -200,7 +200,7 @@ class BinningConfigurationPanel extends JPanel {
         parametersPanel.add(validPixelExpressionButton);
 
         parametersPanel.add(targetHeightLabel);
-        parametersPanel.add(targetHeightTextField);
+        parametersPanel.add(numRowsTextField);
 
         parametersPanel.add(resolutionLabel);
         parametersPanel.add(resolutionTextField);
@@ -441,7 +441,7 @@ class BinningConfigurationPanel extends JPanel {
         private void update() {
             double resolution = Double.parseDouble(resolutionTextField.getText());
             if (Math.abs(currentGridResolution - resolution) > 1E-6) {
-                binningFormModel.getBindingContext().getPropertySet().setValue(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, computeNumRows(resolution));
+                binningFormModel.getBindingContext().getPropertySet().setValue(BinningFormModel.PROPERTY_KEY_NUM_ROWS, computeNumRows(resolution));
                 numRowsTextField.setText(String.valueOf(computeNumRows(resolution)));
                 currentGridResolution = resolution;
             }

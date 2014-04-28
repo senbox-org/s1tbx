@@ -52,12 +52,12 @@ class BinningFormModel {
     static final String PROPERTY_KEY_REGION = "region";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
-    static final String PROPERTY_KEY_EXPRESSION = "maskExpr";
+    static final String PROPERTY_KEY_MASK_EXPR = "maskExpr";
     static final String PROPERTY_KEY_TIME_FILTER_METHOD = "timeFilterMethod";
     static final String PROPERTY_KEY_START_DATE_TIME = "startDateTime";
     static final String PROPERTY_KEY_PERIOD_DURATION = "periodDuration";
     static final String PROPERTY_KEY_MIN_DATA_HOUR = "minDataHour";
-    static final String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
+    static final String PROPERTY_KEY_NUM_ROWS = "numRows";
     static final String PROPERTY_KEY_SUPERSAMPLING = "superSampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
     static final String PROPERTY_KEY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
@@ -74,29 +74,31 @@ class BinningFormModel {
     public BinningFormModel() {
         propertySet = new PropertyContainer();
         // Spatial
-        propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_REGION, Boolean.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));
-        propertySet.addProperty(createProperty(PROPERTY_EAST_BOUND, Double.class));
-        propertySet.addProperty(createProperty(PROPERTY_NORTH_BOUND, Double.class));
-        propertySet.addProperty(createProperty(PROPERTY_WEST_BOUND, Double.class));
-        propertySet.addProperty(createProperty(PROPERTY_SOUTH_BOUND, Double.class));
-        propertySet.addProperty(createProperty(PROPERTY_WKT, String.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));                                    // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));                            // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));                                // temp
+        propertySet.addProperty(createProperty(PROPERTY_WKT, String.class));                                            // temp
+        propertySet.addProperty(createProperty(PROPERTY_EAST_BOUND, Double.class));                                     // temp
+        propertySet.addProperty(createProperty(PROPERTY_NORTH_BOUND, Double.class));                                    // temp
+        propertySet.addProperty(createProperty(PROPERTY_WEST_BOUND, Double.class));                                     // temp
+        propertySet.addProperty(createProperty(PROPERTY_SOUTH_BOUND, Double.class));                                    // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_REGION, Boolean.class));                                    // in op
         // Temporal
-        propertySet.addProperty(createProperty(PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_START_DATE_TIME, String.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_PERIOD_DURATION, Double.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));     // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_START_DATE_TIME, String.class));                            // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_PERIOD_DURATION, Double.class));                            // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_MIN_DATA_HOUR, Double.class));                              // in op
         // Configuration
-        propertySet.addProperty(createProperty(PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SUPERSAMPLING, Integer.class));
-        Property maskExprProperty = createProperty(PROPERTY_KEY_EXPRESSION, String.class);
+        propertySet.addProperty(createProperty(PROPERTY_KEY_AGGREGATOR_CONFIGS, AggregatorConfig[].class));             // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_VARIABLE_CONFIGS, VariableConfig[].class));                 // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_NUM_ROWS, Integer.class));                                  // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SUPERSAMPLING, Integer.class));                             // in op
+        Property maskExprProperty = createProperty(PROPERTY_KEY_MASK_EXPR, String.class);                               // in op
         maskExprProperty.getDescriptor().setDefaultConverter();
         propertySet.addProperty(maskExprProperty);
         // Source Products
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));                     // in op
+        propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
 
         propertySet.setDefaultValues();
     }
@@ -176,7 +178,7 @@ class BinningFormModel {
     }
 
     public String getMaskExpr() {
-        final String propertyValue = getPropertyValue(PROPERTY_KEY_EXPRESSION);
+        final String propertyValue = getPropertyValue(PROPERTY_KEY_MASK_EXPR);
         if (StringUtils.isNullOrEmpty(propertyValue)) {
             return "true";
         }
@@ -217,10 +219,10 @@ class BinningFormModel {
     }
 
     public int getNumRows() {
-        if (getPropertyValue(PROPERTY_KEY_TARGET_HEIGHT) == null) {
+        if (getPropertyValue(PROPERTY_KEY_NUM_ROWS) == null) {
             return DEFAULT_NUM_ROWS;
         }
-        return (Integer) getPropertyValue(PROPERTY_KEY_TARGET_HEIGHT);
+        return (Integer) getPropertyValue(PROPERTY_KEY_NUM_ROWS);
     }
 
     public void setProperty(String key, Object value) throws ValidationException {
