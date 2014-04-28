@@ -15,11 +15,6 @@ class VariableTableHandler {
         table.removeEditor();
         ((DefaultTableModel) table.getModel()).addRow(rowData);
         final int row = table.getRowCount() - 1;
-        final int numCols = table.getColumnModel().getColumnCount();
-        for (int i = 0; i < Math.min(numCols, rowData.length); i++) {
-            Object o = rowData[i];
-            table.setValueAt(o, row, i);
-        }
         selectRows(table, row, row);
     }
 
