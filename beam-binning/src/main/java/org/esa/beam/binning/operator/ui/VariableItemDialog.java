@@ -13,10 +13,7 @@ import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextFieldEditor;
 import com.bc.jexp.ParseException;
 import org.esa.beam.binning.operator.VariableConfig;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
@@ -37,52 +34,55 @@ import java.awt.event.ActionListener;
  */
 class VariableItemDialog extends ModalDialog {
 
-    private static final String property_variable_name = "variableName";
-    private static final String property_expression = "expression";
-
-    private final BindingContext bindingContext;
-    private final Product contextProduct;
-    private final Window parent;
-
-    private String variableName;
-    private String expression = "";
+    private static final String PROPERTY_VARIABLE_NAME = "variableName";
+    private static final String PROPERTY_EXPRESSION = "expression";
 
     private static int numNewBands = 0;
+
+    @SuppressWarnings("UnusedDeclaration")
+    private String variableName; // used in binding
+    private String expression = "";
+
+    private final Product contextProduct;
+    private final BindingContext bindingContext;
+
+
     private VariableConfig variableConfig;
 
     VariableItemDialog(final Window parent, Product contextProduct) {
-        super(parent, "Define new variable", ID_OK_CANCEL, null); /* I18N */
-        this.parent = parent;
+        super(parent, "Define new variable", ID_OK_CANCEL, null);
         this.contextProduct = contextProduct;
         bindingContext = createBindingContext();
         makeUI();
     }
 
     @Override
-    protected void onOK() {
-        variableConfig = null;
-        if (StringUtils.isNullOrEmpty(expression.trim())) {
-            JOptionPane.showMessageDialog(parent, "The variable could not be created. The expression was empty.");
-            hide();
-            return;
+    protected boolean verifyUserInput() {
+        String trimmedExpr = expression.trim();
+        String trimmedVarName = variableName.trim();
+        if (StringUtils.isNullOrEmpty(trimmedExpr)) {
+            JOptionPane.showMessageDialog(getParent(), "The variable could not be created. The expression was empty.");
+            return false;
         }
-        final String validMaskExpression;
+        if (contextProduct.containsBand(trimmedVarName)) {
+            String message = String.format("A variable or band with the name '%s' is already defined", trimmedVarName);
+            JOptionPane.showMessageDialog(getParent(), message);
+            return false;
+        }
         try {
-            validMaskExpression = BandArithmetic.getValidMaskExpression(expression.trim(), new Product[]{contextProduct}, 0, null);
+            BandArithmetic.getValidMaskExpression(trimmedExpr, new Product[]{contextProduct}, 0, null);
         } catch (ParseException e) {
-            String errorMessage = "The variable could not be created.\nA parse error occurred:\n" + e.getMessage(); /*I18N*/
-            JOptionPane.showMessageDialog(parent, errorMessage);
-            hide();
-            return;
+            String errorMessage = "The variable could not be created.\nThe expression could not be parsed:\n" + e.getMessage(); /*I18N*/
+            JOptionPane.showMessageDialog(getParent(), errorMessage);
+            return false;
         }
-        final int width = contextProduct.getSceneRasterWidth();
-        final int height = contextProduct.getSceneRasterHeight();
-        Band band = new VirtualBand(variableName.trim(), ProductData.TYPE_FLOAT32, width, height, expression.trim());
-        band.setValidPixelExpression(validMaskExpression);
-        contextProduct.addBand(band);
-        hide();
-        band.setModified(true);
+        return true;
+    }
+
+    @Override
+    protected void onOK() {
         variableConfig = new VariableConfig(variableName.trim(), expression.trim());
+        super.onOK();
     }
 
     VariableConfig getVariableConfig() {
@@ -93,17 +93,18 @@ class VariableItemDialog extends ModalDialog {
         final PropertyContainer container = PropertyContainer.createObjectBacked(this);
         final BindingContext context = new BindingContext(container);
 
-        PropertyDescriptor descriptor = container.getDescriptor(property_variable_name);
+        PropertyDescriptor descriptor = container.getDescriptor(PROPERTY_VARIABLE_NAME);
         descriptor.setDisplayName("Name");
         descriptor.setDescription("The name for the new variable.");
         descriptor.setNotEmpty(true);
         descriptor.setValidator(new ProductNodeNameValidator());
-        while (contextProduct.containsRasterDataNode("variable_" + (++numNewBands))) {
-            // loop
+        ++numNewBands;
+        while (contextProduct.containsRasterDataNode("variable_" + (numNewBands))) {
+            ++numNewBands;
         }
         descriptor.setDefaultValue("variable_" + (numNewBands));
 
-        descriptor = container.getDescriptor(property_expression);
+        descriptor = container.getDescriptor(PROPERTY_EXPRESSION);
         descriptor.setDisplayName("Band maths expression");
         descriptor.setDescription("Band maths expression");
         descriptor.setNotEmpty(true);
@@ -125,7 +126,7 @@ class VariableItemDialog extends ModalDialog {
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         final JPanel panel = new JPanel(tableLayout);
 
-        JComponent[] variableComponents = createComponents(property_variable_name, TextFieldEditor.class);
+        JComponent[] variableComponents = createComponents(PROPERTY_VARIABLE_NAME, TextFieldEditor.class);
 
         final TableLayout variablePanelLayout = new TableLayout(2);
         variablePanelLayout.setTableWeightX(1.0);
@@ -140,7 +141,7 @@ class VariableItemDialog extends ModalDialog {
         JTextArea expressionArea = new JTextArea();
         expressionArea.setRows(3);
         TextComponentAdapter textComponentAdapter = new TextComponentAdapter(expressionArea);
-        bindingContext.bind(property_expression, textComponentAdapter);
+        bindingContext.bind(PROPERTY_EXPRESSION, textComponentAdapter);
         panel.add(expressionLabel);
         panel.add(expressionArea);
         final TableLayout editExpressionPanelLayout = new TableLayout(2);
@@ -172,7 +173,7 @@ class VariableItemDialog extends ModalDialog {
                 expressionPane.setCode(expression.trim());
                 int status = expressionPane.showModalDialog(getJDialog(), "Expression Editor");
                 if (status == ModalDialog.ID_OK) {
-                    bindingContext.getBinding(property_expression).setPropertyValue(expressionPane.getCode());
+                    bindingContext.getBinding(PROPERTY_EXPRESSION).setPropertyValue(expressionPane.getCode());
                 }
                 expressionPane.dispose();
             }

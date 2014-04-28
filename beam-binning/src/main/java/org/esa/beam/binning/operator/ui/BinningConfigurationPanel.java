@@ -24,6 +24,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
@@ -317,6 +318,7 @@ class BinningConfigurationPanel extends JPanel {
         final DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Name", "Expression"}, 0);
         tableModel.addTableModelListener(new VariableConfigTableListener(tableModel));
         JTable variableTable = new JTable(tableModel);
+
         variableTable.setName("variables");
         variableTable.setRowSelectionAllowed(true);
         variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable));
@@ -523,12 +525,27 @@ class BinningConfigurationPanel extends JPanel {
 
         @Override
         public void tableChanged(TableModelEvent event) {
+            if(event.getType() == TableModelEvent.INSERT) {
+                addToContextProduct((String) tableModel.getValueAt(event.getFirstRow(), 0));
+            }
+            if(event.getType() == TableModelEvent.DELETE) {
+                removeFromContextProduct((String) tableModel.getValueAt(event.getFirstRow(), 0));
+            }
             try {
                 binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, getVariableConfigs());
             } catch (ValidationException e) {
                 appContext.handleError("Unable to validate variable configurations.", e);
             }
         }
+
+        public void addToContextProduct(String varName) {
+            binningFormModel.getContextProduct().addBand(varName, ProductData.TYPE_FLOAT32);
+        }
+
+        public void removeFromContextProduct(String varName) {
+            binningFormModel.getContextProduct().removeBand(binningFormModel.getContextProduct().getBand(varName));
+        }
+
 
         private VariableConfig[] getVariableConfigs() {
             final int rowCount = tableModel.getRowCount();

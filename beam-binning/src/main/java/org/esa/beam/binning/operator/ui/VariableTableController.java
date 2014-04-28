@@ -29,18 +29,19 @@ class VariableTableController extends ListControlBar.AbstractListController {
     public boolean addRow(int index) {
         final Product contextProduct = binningModel.getContextProduct();
         if (contextProduct == null) {
-            JOptionPane.showMessageDialog(table.getParent(), "At least one source product must be set first");
-        } else {
-            final VariableItemDialog variableItemDialog =
-                    new VariableItemDialog(SwingUtilities.getWindowAncestor(table), contextProduct);
-            if (variableItemDialog.show() == ModalDialog.ID_OK) {
-                final VariableConfig variableConfig = variableItemDialog.getVariableConfig();
-                if (variableConfig != null) {
-                    VariableTableHandler.addRow(table,
-                                                new Object[]{variableConfig.getName(), variableConfig.getExpr()}); /*I18N*/
-                    return true;
-                }
+            JOptionPane.showMessageDialog(table, "At least one source product must be set first");
+            return false;
+        }
+
+        final VariableItemDialog variableItemDialog = new VariableItemDialog(SwingUtilities.getWindowAncestor(table), contextProduct);
+        if (variableItemDialog.show() == ModalDialog.ID_OK) {
+            final VariableConfig variableConfig = variableItemDialog.getVariableConfig();
+            if (variableConfig == null) {
+                return false;
             }
+            String varName = variableConfig.getName();
+            VariableTableHandler.addRow(table, new Object[]{varName, variableConfig.getExpr()});
+            return true;
         }
         return false;
     }
