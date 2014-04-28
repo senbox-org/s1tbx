@@ -46,7 +46,6 @@ class BinningFormModel {
     static final String PROPERTY_EAST_BOUND = "eastBound";
     static final String PROPERTY_SOUTH_BOUND = "southBound";
     static final String PROPERTY_WKT = "manualWkt";
-    static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
     static final String PROPERTY_KEY_AGGREGATOR_CONFIGS = "aggregatorConfigs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
     static final String PROPERTY_KEY_REGION = "region";
@@ -60,6 +59,7 @@ class BinningFormModel {
     static final String PROPERTY_KEY_NUM_ROWS = "numRows";
     static final String PROPERTY_KEY_SUPERSAMPLING = "superSampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
+    static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
     static final String PROPERTY_KEY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
     static final String PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT = "contextSourceProduct";
 
@@ -93,10 +93,9 @@ class BinningFormModel {
         propertySet.addProperty(createProperty(PROPERTY_KEY_VARIABLE_CONFIGS, VariableConfig[].class));                 // in op
         propertySet.addProperty(createProperty(PROPERTY_KEY_NUM_ROWS, Integer.class));                                  // in op
         propertySet.addProperty(createProperty(PROPERTY_KEY_SUPERSAMPLING, Integer.class));                             // in op
-        Property maskExprProperty = createProperty(PROPERTY_KEY_MASK_EXPR, String.class);                               // in op
-        maskExprProperty.getDescriptor().setDefaultConverter();
-        propertySet.addProperty(maskExprProperty);
+        propertySet.addProperty(createProperty(PROPERTY_KEY_MASK_EXPR, String.class));                                  // in op
         // Source Products
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // not a parameter
         propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));                     // in op
         propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
 
