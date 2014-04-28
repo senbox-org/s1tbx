@@ -20,7 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.operator.BinningOp;
@@ -169,10 +168,10 @@ public class BinningFormModelTest {
         final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_BOUNDS, true);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_NORTH_BOUND, 50.0);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_EAST_BOUND, 15.0);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_WEST_BOUND, 10.0);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_SOUTH_BOUND, 40.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_NORTH_BOUND, 50.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EAST_BOUND, 15.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_WEST_BOUND, 10.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOUTH_BOUND, 40.0);
 
         final String region = binningFormModel.getRegion();
         assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", region);

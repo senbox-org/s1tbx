@@ -129,8 +129,8 @@ class BinningFilterPanel extends JPanel {
                 }
             }
         });
-        bindingContext.bind(BinningFormModel.PROPERTY_WKT, textArea);
-        bindingContext.bindEnabledState(BinningFormModel.PROPERTY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_WKT, textArea);
+        bindingContext.bindEnabledState(BinningFormModel.PROPERTY_KEY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
         textArea.setEnabled(false);
 
         JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

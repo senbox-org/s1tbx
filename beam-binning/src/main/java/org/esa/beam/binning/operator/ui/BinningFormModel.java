@@ -23,6 +23,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.binning.AggregatorConfig;
@@ -32,6 +33,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.util.StringUtils;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
@@ -41,13 +43,14 @@ import java.beans.PropertyChangeListener;
  */
 class BinningFormModel {
 
-    static final String PROPERTY_WEST_BOUND = "westBound";
-    static final String PROPERTY_NORTH_BOUND = "northBound";
-    static final String PROPERTY_EAST_BOUND = "eastBound";
-    static final String PROPERTY_SOUTH_BOUND = "southBound";
-    static final String PROPERTY_WKT = "manualWkt";
+    static final String PROPERTY_KEY_WEST_BOUND = "westBound";
+    static final String PROPERTY_KEY_NORTH_BOUND = "northBound";
+    static final String PROPERTY_KEY_EAST_BOUND = "eastBound";
+    static final String PROPERTY_KEY_SOUTH_BOUND = "southBound";
+    static final String PROPERTY_KEY_WKT = "manualWkt";
     static final String PROPERTY_KEY_AGGREGATOR_CONFIGS = "aggregatorConfigs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
+    static final String PROPERTY_KEY_REGION = "region";
     static final String PROPERTY_KEY_BOUNDS = "bounds";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
@@ -73,20 +76,29 @@ class BinningFormModel {
 
     public BinningFormModel() {
         propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning");
-        // Spatial
+        // Just for GUI
         propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));                                    // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));                            // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));                                // temp
-        propertySet.addProperty(createProperty(PROPERTY_WKT, String.class));                                            // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_WKT, String.class));                                        // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_BOUNDS, Boolean.class));                                    // temp
-        propertySet.addProperty(createProperty(PROPERTY_EAST_BOUND, Double.class));                                     // temp
-        propertySet.addProperty(createProperty(PROPERTY_NORTH_BOUND, Double.class));                                    // temp
-        propertySet.addProperty(createProperty(PROPERTY_WEST_BOUND, Double.class));                                     // temp
-        propertySet.addProperty(createProperty(PROPERTY_SOUTH_BOUND, Double.class));                                    // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_EAST_BOUND, Double.class));                                 // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_NORTH_BOUND, Double.class));                                // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_WEST_BOUND, Double.class));                                 // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOUTH_BOUND, Double.class));                                // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // temp
         propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
 
         propertySet.setDefaultValues();
+
+        propertySet.getProperty(PROPERTY_KEY_REGION).addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                Geometry newGeometry = (Geometry) evt.getNewValue();
+                propertySet.setValue(PROPERTY_KEY_MANUAL_WKT, true);
+                propertySet.setValue(PROPERTY_KEY_WKT, newGeometry.toText());
+            }
+        });
     }
 
     public Product[] getSourceProducts() {
@@ -142,10 +154,10 @@ class BinningFormModel {
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_COMPUTE_REGION))) {
             return null;
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_BOUNDS))) {
-            final double westValue = getPropertyValue(PROPERTY_WEST_BOUND);
-            final double eastValue = getPropertyValue(PROPERTY_EAST_BOUND);
-            final double northValue = getPropertyValue(PROPERTY_NORTH_BOUND);
-            final double southValue = getPropertyValue(PROPERTY_SOUTH_BOUND);
+            final double westValue = getPropertyValue(PROPERTY_KEY_WEST_BOUND);
+            final double eastValue = getPropertyValue(PROPERTY_KEY_EAST_BOUND);
+            final double northValue = getPropertyValue(PROPERTY_KEY_NORTH_BOUND);
+            final double southValue = getPropertyValue(PROPERTY_KEY_SOUTH_BOUND);
             Coordinate[] coordinates = {
                     new Coordinate(westValue, southValue), new Coordinate(westValue, northValue),
                     new Coordinate(eastValue, northValue), new Coordinate(eastValue, southValue),
@@ -156,7 +168,7 @@ class BinningFormModel {
             final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
             return polygon.toText();
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_MANUAL_WKT))) {
-            return getPropertyValue(PROPERTY_WKT);
+            return getPropertyValue(PROPERTY_KEY_WKT);
         }
         throw new IllegalStateException("Should never come here");
     }
