@@ -138,7 +138,7 @@ class InformationPanel extends TablePagePanel {
         final String productFormatNameString = productFormatName != null ? productFormatName : "unknown";
         addEntry("Product format:", productFormatNameString, null);
 
-        addEntry("Product reader:", getProductReaderName(product), null);
+        addEntry("Product reader:", getProductReaderDescription(product), null);
         addEntry("Product reader class:", getProductReaderClass(product), null);
         addEntry("Product reader module:", getProductReaderModule(product), null);
 
@@ -179,7 +179,7 @@ class InformationPanel extends TablePagePanel {
         tableModel.addRow(row);
     }
 
-    private static String getProductReaderName(final Product product) {
+    private static String getProductReaderDescription(final Product product) {
         final ProductReader productReader = product.getProductReader();
         if (productReader != null) {
             final ProductReaderPlugIn readerPlugIn = productReader.getReaderPlugIn();
