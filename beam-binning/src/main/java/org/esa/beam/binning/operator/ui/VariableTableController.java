@@ -4,7 +4,6 @@ import com.bc.ceres.swing.ListControlBar;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.binning.operator.VariableConfig;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
