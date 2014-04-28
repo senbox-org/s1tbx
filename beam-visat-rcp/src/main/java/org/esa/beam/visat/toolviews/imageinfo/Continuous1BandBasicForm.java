@@ -111,18 +111,29 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
 
-        logDisplayButton = ImageInfoEditorSupport.createToggleButton("icons/LogDisplay24.png");
-        logDisplayButton.setName("logDisplayButton");
-        logDisplayButton.setToolTipText("Switch to logarithmic display"); /*I18N*/
-        logDisplayButton.addActionListener(parentForm.wrapWithAutoApplyActionListener(new ActionListener() {
+        logDisplayButton = LogDisplay.createButton();
+        logDisplayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final boolean logScaled = logDisplayButton.isSelected();
-                colorPaletteChooser.setLog10Display(logScaled);
-                parentForm.getImageInfo().setLogScaled(logScaled);
-                parentForm.applyChanges();
+                final boolean shouldLog10Display = logDisplayButton.isSelected();
+                final ImageInfo imageInfo = parentForm.getImageInfo();
+                if (shouldLog10Display) {
+                    final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
+                    if (LogDisplay.checkApplicability(cpd)) {
+                        colorPaletteChooser.setLog10Display(shouldLog10Display);
+                        imageInfo.setLogScaled(shouldLog10Display);
+                        parentForm.applyChanges();
+                    } else {
+                        LogDisplay.showNotApplicableInfo(parentForm.getContentPanel());
+                        logDisplayButton.setSelected(false);
+                    }
+                } else {
+                    colorPaletteChooser.setLog10Display(shouldLog10Display);
+                    imageInfo.setLogScaled(shouldLog10Display);
+                    parentForm.applyChanges();
+                }
             }
-        }));
+        });
     }
 
     @Override

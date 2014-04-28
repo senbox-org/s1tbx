@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -57,15 +58,27 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
 
-        logDisplayButton = ImageInfoEditorSupport.createToggleButton("icons/LogDisplay24.png");
-        logDisplayButton.setName("logDisplayButton");
-        logDisplayButton.setToolTipText("Switch to logarithmic display"); /*I18N*/
-        logDisplayButton.addActionListener(parentForm.wrapWithAutoApplyActionListener(new ActionListener() {
+        logDisplayButton = LogDisplay.createButton();
+        logDisplayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), logDisplayButton.isSelected());
+                final boolean shouldLog10Display = logDisplayButton.isSelected();
+                if (shouldLog10Display) {
+                    final ImageInfo imageInfo = parentForm.getImageInfo();
+                    final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
+                    if (LogDisplay.checkApplicability(cpd)) {
+                        setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), shouldLog10Display);
+                        parentForm.applyChanges();
+                    } else {
+                        LogDisplay.showNotApplicableInfo(parentForm.getContentPanel());
+                        logDisplayButton.setSelected(false);
+                    }
+                } else {
+                    setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), shouldLog10Display);
+                    parentForm.applyChanges();
+                }
             }
-        }));
+        });
 
         evenDistButton = ImageInfoEditorSupport.createButton("icons/EvenDistribution24.gif");
         evenDistButton.setName("evenDistButton");
