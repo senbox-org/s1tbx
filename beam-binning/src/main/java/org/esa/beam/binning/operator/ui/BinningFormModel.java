@@ -30,12 +30,10 @@ import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -238,22 +236,12 @@ class BinningFormModel {
     }
 
     public void setProperty(String key, Object value) throws ValidationException {
-        final PropertyDescriptor descriptor;
-        final Property property;
         if (propertySet.isPropertyDefined(key)) {
-            property = propertySet.getProperty(key);
+            final Property property = propertySet.getProperty(key);
+            property.setValue(value);
         } else {
-            // todo - actually this else branch should not be necessary (mp - 25.04.03)
-            if (value == null) {
-                descriptor = new PropertyDescriptor(key, Object.class);
-            } else {
-                descriptor = new PropertyDescriptor(key, value.getClass());
-            }
-            property = new Property(descriptor, new DefaultPropertyAccessor());
-            traceNewProperty(key, value);
-            propertySet.addProperty(property);
-        }
-        property.setValue(value);
+            throw new IllegalStateException("Unknown property: " + key);
+       }
     }
 
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
@@ -274,11 +262,6 @@ class BinningFormModel {
             return (T) property.getValue();
         }
         return null;
-    }
-
-    private void traceNewProperty(String name, Object value) {
-        boolean isArray = value != null && value.getClass().isArray();
-        Debug.trace(String.format("adding new property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
     }
 
     private static Property createProperty(String name, Class type) {
