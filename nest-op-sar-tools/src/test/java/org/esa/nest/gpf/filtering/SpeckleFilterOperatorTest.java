@@ -74,8 +74,9 @@ public class SpeckleFilterOperatorTest extends TestCase {
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs:
-        final float[] expectedValues = {2.6666667f, 3.3333333f, 4.3333335f, 5.0f, 5.3333335f, 6.0f, 7.0f, 7.6666667f,
-                                  9.333333f, 10.0f, 11.0f, 11.666667f, 12.0f, 12.666667f, 13.666667f, 14.333333f};
+        final float[] expectedValues = {3.5f, 4.0f, 5.0f, 5.5f, 5.5f, 6.0f, 7.0f, 7.5f, 9.5f, 10.0f, 11.0f, 11.5f,
+                11.5f, 12.0f, 13.0f, 13.5f
+        };
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
@@ -103,8 +104,8 @@ public class SpeckleFilterOperatorTest extends TestCase {
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs
-        final float[] expectedValues = {2.0f, 3.0f, 4.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f,
-                                  9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 13.0f, 14.0f, 15.0f};
+        final float[] expectedValues = {5.0f, 5.0f, 6.0f, 7.0f, 6.0f, 6.0f, 7.0f, 8.0f, 10.0f, 10.0f, 11.0f,
+                12.0f, 13.0f, 13.0f, 14.0f, 15.0f};
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
@@ -132,8 +133,8 @@ public class SpeckleFilterOperatorTest extends TestCase {
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs
-        final float[] expectedValues = {2.3268945f, 3.1592662f, 4.2424283f, 4.956943f, 5.289399f, 6.0f, 7.0f, 7.684779f,
-                                  9.321723f, 10.0f, 11.0f, 11.673815f, 12.006711f, 12.675643f, 13.674353f, 14.34112f};
+        final float[] expectedValues = {2.8108406f, 3.7109244f, 4.8278255f, 5.3469553f, 5.4066334f, 6.0f, 7.0f,
+                7.5449896f, 9.473422f, 10.0f, 11.0f, 11.517614f, 11.532819f, 12.026602f, 13.022581f, 13.539467f};
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
@@ -161,8 +162,8 @@ public class SpeckleFilterOperatorTest extends TestCase {
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs
-        final float[] expectedValues = {2.6666667f, 3.3333333f, 4.3333335f, 5.0f, 5.3333335f, 6.0f, 7.0f, 7.6666665f,
-                                  9.333333f, 10.0f, 11.0f, 11.666667f, 12.0f, 12.666667f, 13.666667f, 14.333333f};
+        final float[] expectedValues = {3.5f, 4.0f, 5.0f, 5.5f, 5.5f, 6.0f, 7.0f, 7.5f, 9.5f, 10.0f, 11.0f, 11.5f,
+                11.5f, 12.0f, 13.0f, 13.5f};
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
@@ -190,8 +191,8 @@ public class SpeckleFilterOperatorTest extends TestCase {
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs
-        final float[] expectedValues = {2.6666667f, 3.3333333f, 4.3333335f, 5.0f, 5.3333335f, 6.0f, 7.0f, 7.6666665f,
-                                  9.333333f, 10.0f, 11.0f, 11.666667f, 12.0f, 12.666667f, 13.666667f, 14.333333f};
+        final float[] expectedValues = {3.5f, 4.0f, 5.0f, 5.5f, 5.5f, 6.0f, 7.0f, 7.5f, 9.5f, 10.0f, 11.0f, 11.5f,
+                11.5f, 12.0f, 13.0f, 13.5f};
 
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
