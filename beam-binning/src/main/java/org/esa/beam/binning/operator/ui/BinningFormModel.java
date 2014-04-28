@@ -33,6 +33,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -157,6 +158,10 @@ class BinningFormModel {
         for (String maskName : srcProduct.getMaskGroup().getNodeNames()) {
             Mask mask = srcProduct.getMaskGroup().get(maskName);
             contextProduct.addMask(maskName, mask.getImageType());
+        }
+        VariableConfig[] variableConfigs = getVariableConfigs();
+        for (VariableConfig variableConfig : variableConfigs) {
+            contextProduct.addBand(variableConfig.getName(), ProductData.TYPE_FLOAT32);
         }
         return contextProduct;
     }
