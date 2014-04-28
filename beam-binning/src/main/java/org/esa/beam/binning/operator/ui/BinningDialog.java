@@ -118,7 +118,6 @@ public class BinningDialog extends SingleTargetProductDialog {
     @Override
     public void hide() {
         form.prepareClose();
-        formModel.closeContextProduct();
         super.hide();
     }
 

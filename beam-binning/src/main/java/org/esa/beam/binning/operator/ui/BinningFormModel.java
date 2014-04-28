@@ -29,7 +29,12 @@ import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.util.StringUtils;
 
@@ -72,7 +77,6 @@ class BinningFormModel {
 
     private PropertySet propertySet;
     private BindingContext bindingContext;
-    private boolean mustCloseContextProduct = true;
 
     public BinningFormModel() {
         propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning");
@@ -117,19 +121,44 @@ class BinningFormModel {
         return getPropertyValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT);
     }
 
-    public void setContextProduct(Product contextProduct, boolean mustCloseContextProduct) {
-        closeContextProduct();
-        this.mustCloseContextProduct = mustCloseContextProduct;
-        propertySet.setValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, contextProduct);
+    public void useAsContextProduct(Product contextProduct) {
+        Product currentContextProduct = createContextProduct(contextProduct);
+        propertySet.setValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, currentContextProduct);
     }
 
-    public void closeContextProduct() {
-        if (mustCloseContextProduct) {
-            Product currentContextProduct = getContextProduct();
-            if (currentContextProduct != null) {
-                currentContextProduct.dispose();
+    private Product createContextProduct(Product srcProduct) {
+        if (srcProduct == null) {
+            return null;
+        }
+        Product contextProduct = new Product("contextProduct", srcProduct.getProductType(), 10, 10);
+
+        for (String flagCodingName : srcProduct.getFlagCodingGroup().getNodeNames()) {
+            FlagCoding srcFC = srcProduct.getFlagCodingGroup().get(flagCodingName);
+            String[] flagNames = srcFC.getFlagNames();
+            FlagCoding contextFC = new FlagCoding(flagCodingName);
+            for (String flagName : flagNames) {
+                contextFC.addFlag(flagName, srcFC.getFlagMask(flagName), srcFC.getFlag(flagName).getDescription());
+            }
+            contextProduct.getFlagCodingGroup().add(contextFC);
+        }
+        for (Band srcBand : srcProduct.getBands()) {
+            Band contextBand = contextProduct.addBand(srcBand.getName(), srcBand.getDataType());
+            if (srcBand.isFlagBand()) {
+                contextBand.setSampleCoding(contextProduct.getFlagCodingGroup().get(srcBand.getFlagCoding().getName()));
             }
         }
+        for (TiePointGrid grid : srcProduct.getTiePointGrids()) {
+            contextProduct.addTiePointGrid(new TiePointGrid(grid.getName(), 10, 10, 0, 0, 1, 1, new float[100]));
+        }
+        for (String vectorDataName : srcProduct.getVectorDataGroup().getNodeNames()) {
+            VectorDataNode vectorData = srcProduct.getVectorDataGroup().get(vectorDataName);
+            contextProduct.getVectorDataGroup().add(new VectorDataNode(vectorDataName, vectorData.getFeatureType()));
+        }
+        for (String maskName : srcProduct.getMaskGroup().getNodeNames()) {
+            Mask mask = srcProduct.getMaskGroup().get(maskName);
+            contextProduct.addMask(maskName, mask.getImageType());
+        }
+        return contextProduct;
     }
 
     public AggregatorConfig[] getAggregatorConfigs() {
@@ -227,7 +256,7 @@ class BinningFormModel {
             property.setValue(value);
         } else {
             throw new IllegalStateException("Unknown property: " + key);
-       }
+        }
     }
 
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
