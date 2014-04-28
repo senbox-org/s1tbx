@@ -20,7 +20,6 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.Enablement;
 import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
-import com.jidesoft.combobox.DateExComboBox;
 import com.jidesoft.swing.AutoResizingTextArea;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.binning.operator.BinningOp;
@@ -48,7 +47,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -167,7 +165,6 @@ class BinningFilterPanel extends JPanel {
         layout.setTableWeightY(0.0);
         layout.setTablePadding(10, 5);
         layout.setCellColspan(0, 1, 2);
-        layout.setCellColspan(1, 1, 2);
         layout.setCellColspan(3, 1, 2);
         layout.setCellWeightX(2, 1, 1.0);
         layout.setCellWeightX(2, 2, 0.0);
@@ -176,6 +173,7 @@ class BinningFilterPanel extends JPanel {
         JPanel panel = new JPanel(layout);
         JLabel temporalFilterLabel = new JLabel("Time filter method:");
         JLabel startDateLabel = new JLabel("Start date:");
+        JLabel startDateFormatLabel = new JLabel("yyyy-MM-dd( HH:mm:ss)");
         JLabel periodDurationLabel = new JLabel("Period duration:");
         JLabel minDataHourLabel = new JLabel("Min data hour:");
         JLabel periodDurationUnitLabel = new JLabel("days");
@@ -194,7 +192,7 @@ class BinningFilterPanel extends JPanel {
                 }
             }
         });
-        DateExComboBox startDatePicker = createDatePicker();
+        JTextField startDateTextField = new JTextField();
         JTextField periodDurationTextField = new JTextField();
         JTextField minDataHourTextField = new JTextField();
         startDateLabel.setEnabled(false);
@@ -206,11 +204,12 @@ class BinningFilterPanel extends JPanel {
         BindingContext bindingContext = binningFormModel.getBindingContext();
 
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, temporalFilterComboBox);
-        bindingContext.bind(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, startDatePicker);
+        bindingContext.bind(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, startDateTextField);
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION, periodDurationTextField);
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR, minDataHourTextField);
 
         bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_START_DATE_TIME).addComponent(startDateLabel);
+        bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_START_DATE_TIME).addComponent(startDateFormatLabel);
         bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationLabel);
         bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_PERIOD_DURATION).addComponent(periodDurationUnitLabel);
         bindingContext.getBinding(BinningFormModel.PROPERTY_KEY_MIN_DATA_HOUR).addComponent(minDataHourLabel);
@@ -226,7 +225,8 @@ class BinningFilterPanel extends JPanel {
         panel.add(temporalFilterLabel);
         panel.add(temporalFilterComboBox);
         panel.add(startDateLabel);
-        panel.add(startDatePicker);
+        panel.add(startDateTextField);
+        panel.add(startDateFormatLabel);
         panel.add(periodDurationLabel);
         panel.add(periodDurationTextField);
         panel.add(periodDurationUnitLabel);
@@ -258,14 +258,6 @@ class BinningFilterPanel extends JPanel {
                 bindingContext.removePropertyChangeListener(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, enablement);
             }
         };
-    }
-
-    private static DateExComboBox createDatePicker() {
-        DateExComboBox datePicker = new DateExComboBox();
-        datePicker.getDateModel().setDateFormat(new SimpleDateFormat(BinningOp.DATE_INPUT_PATTERN));
-        datePicker.setPreferredSize(new Dimension(120, 20));
-        datePicker.setMinimumSize(new Dimension(120, 20));
-        return datePicker;
     }
 
     private static class RadioButtonAdapter extends AbstractButtonAdapter implements ItemListener {

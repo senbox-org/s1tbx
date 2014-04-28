@@ -33,9 +33,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * The model responsible for managing the binning parameters.
@@ -88,7 +85,7 @@ class BinningFormModel {
         propertySet.addProperty(createProperty(PROPERTY_WKT, String.class));
         // Temporal
         propertySet.addProperty(createProperty(PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.class));
-        propertySet.addProperty(createProperty(PROPERTY_KEY_START_DATE_TIME, Calendar.class));
+        propertySet.addProperty(createProperty(PROPERTY_KEY_START_DATE_TIME, String.class));
         propertySet.addProperty(createProperty(PROPERTY_KEY_PERIOD_DURATION, Double.class));
         propertySet.addProperty(createProperty(PROPERTY_KEY_MIN_DATA_HOUR, Double.class));
         // Configuration
@@ -191,7 +188,17 @@ class BinningFormModel {
     }
 
     public String getStartDateTime() {
-        return getDate();
+        BinningOp.TimeFilterMethod temporalFilter = getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD);
+        switch (temporalFilter) {
+            case NONE: {
+                return null;
+            }
+            case TIME_RANGE:
+            case SPATIOTEMPORAL_DATA_DAY: {
+                return getPropertyValue(PROPERTY_KEY_START_DATE_TIME);
+            }
+        }
+        throw new IllegalStateException("Illegal temporal filter method: '" + temporalFilter + "'");
     }
 
     public Double getPeriodDuration() {
@@ -207,25 +214,6 @@ class BinningFormModel {
             return 1;
         }
         return (Integer) getPropertyValue(PROPERTY_KEY_SUPERSAMPLING);
-    }
-
-    private String getDate() {
-        BinningOp.TimeFilterMethod temporalFilter = getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD);
-        switch (temporalFilter) {
-            case NONE: {
-                return null;
-            }
-            case TIME_RANGE:
-            case SPATIOTEMPORAL_DATA_DAY: {
-                Calendar calendar = getPropertyValue(PROPERTY_KEY_START_DATE_TIME);
-                if (calendar == null) {
-                    return null;
-                }
-                Date date = calendar.getTime();
-                return new SimpleDateFormat(BinningOp.DATE_INPUT_PATTERN).format(date);
-            }
-        }
-        throw new IllegalStateException("Illegal temporal filter method: '" + temporalFilter + "'");
     }
 
     public int getNumRows() {
