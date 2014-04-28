@@ -40,10 +40,8 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
     AggregatorTableController(Grid grid, BinningFormModel binningFormModel) {
         this.grid = grid;
         this.binningFormModel = binningFormModel;
-        AggregatorConfig[] aggregatorConfigs = binningFormModel.getAggregatorConfigs();
-
-        aggregatorItems = new ArrayList<>();
-        addAggregatorConfigs(aggregatorConfigs);
+        this.aggregatorItems = new ArrayList<>();
+        addAggregatorConfigs(this.binningFormModel.getAggregatorConfigs());
     }
 
     @Override
