@@ -94,6 +94,7 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
     void setAggregatorConfigs(AggregatorConfig[] configs) {
         clearGrid();
         addAggregatorConfigs(configs);
+        updateBinningFormModel();
     }
 
     private void clearGrid() {
@@ -101,7 +102,7 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         for (int i = 0; i < rowIndices.length; i++) {
             rowIndices[i] = i;
         }
-        grid.removeDataRows(rowIndices);
+        removeRows(rowIndices);
     }
 
     private void addAggregatorConfigs(AggregatorConfig[] aggregatorConfigs) {
@@ -163,19 +164,15 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         EmptyBorder emptyBorder = new EmptyBorder(2, 2, 2, 2);
 
         JLabel typeLabel = new JLabel(getTypeText(ac));
-        //typeLabel.setBackground(grid.getBackground().darker());
         typeLabel.setBorder(emptyBorder);
 
         JLabel sourceBandsLabel = new JLabel(getSourceBandsText(ac));
-        //sourcesLabel.setBackground(grid.getBackground().darker());
         sourceBandsLabel.setBorder(emptyBorder);
 
         JLabel parametersLabel = new JLabel(getParametersText(ac));
-        //parametersLabel.setBackground(grid.getBackground().darker());
         parametersLabel.setBorder(emptyBorder);
 
         JLabel targetBandsLabel = new JLabel(getTargetBandsText(ac));
-        //targetsLabel.setBackground(grid.getBackground().darker());
         targetBandsLabel.setBorder(emptyBorder);
 
         final AbstractButton editButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("/org/esa/beam/resources/images/icons/Edit16.gif"),
