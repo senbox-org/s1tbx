@@ -89,12 +89,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
     to NetCDF global attributes. See http://oceancolor.gsfc.nasa.gov/DOCS/Ocean_Level-3_Binned_Data_Products.pdf
     for possible attributes. Ideally, we treat the metadata file as a template and fill in placeholders, e.g.
     ${operatorParameters}, or ${operatorName} or ${operatorVersion} ...
-(2) For simplicity, we shall not use BinningConfig and FormatterConfig but simply move their @Parameter declarations
-    into the BinningOp class.
-(3) For dealing with really large amounts of bins (global binning), we need SpatialBinConsumer and TemporalBinSource
-    implementations that write to and read from local files. (E.g. use memory-mapped file I/O, see
-    MappedByteBufferTest.java)
-(4) For simplicity, we shall introduce a Boolean parameter 'global'. If it is true, 'region' will be ignored.
+(2) For simplicity, we shall introduce a Boolean parameter 'global'. If it is true, 'region' will be ignored.
 
 */
 
