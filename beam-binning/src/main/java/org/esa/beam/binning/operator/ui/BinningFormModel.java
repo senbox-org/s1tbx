@@ -150,12 +150,11 @@ class BinningFormModel {
     }
 
     public String getRegion() {
-        if (getPropertyValue(PROPERTY_KEY_GLOBAL) != null && (Boolean) getPropertyValue(PROPERTY_KEY_GLOBAL)) {
+        if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_GLOBAL))) {
             return GLOBAL_WKT;
-        } else if (getPropertyValue(PROPERTY_KEY_COMPUTE_REGION) != null &&
-                   (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_COMPUTE_REGION))) {
             return null;
-        } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_REGION))) {
             final double westValue = getPropertyValue(PROPERTY_WEST_BOUND);
             final double eastValue = getPropertyValue(PROPERTY_EAST_BOUND);
             final double northValue = getPropertyValue(PROPERTY_NORTH_BOUND);
@@ -169,12 +168,12 @@ class BinningFormModel {
             final GeometryFactory geometryFactory = new GeometryFactory();
             final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
             return polygon.toText();
-        } else if (getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
-                   (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_MANUAL_WKT))) {
             return getPropertyValue(PROPERTY_WKT);
         }
         throw new IllegalStateException("Should never come here");
     }
+
 
     public String getMaskExpr() {
         final String propertyValue = getPropertyValue(PROPERTY_KEY_MASK_EXPR);
