@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.operator.BinningOp;
@@ -35,12 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.esa.beam.binning.operator.ui.BinningFormModel.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -146,15 +142,10 @@ public class BinningFormModelTest {
         assertEquals(2000, binningFormModel.getNumRows());
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testGetRegion_Fail() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
-        try {
-            binningFormModel.getRegion();
-            fail();
-        } catch (IllegalStateException expected) {
-            assertTrue(expected.getMessage().equals("Should never come here"));
-        }
+        binningFormModel.getRegion();
     }
 
     @Test
@@ -177,7 +168,7 @@ public class BinningFormModelTest {
     public void testGetRegion_WithSpecifiedRegion() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
 
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_REGION, true);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_BOUNDS, true);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_NORTH_BOUND, 50.0);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_EAST_BOUND, 15.0);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_WEST_BOUND, 10.0);
