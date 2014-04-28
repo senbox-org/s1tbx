@@ -172,7 +172,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 final Color color = point.getColor();
                 return color.equals(ImageInfo.NO_COLOR) ? null : color;
             } else if (columnIndex == 2) {
-                return Double.isNaN(point.getSample()) ? "Uncoded" : "" + (int) point.getSample();
+                return Double.isNaN(point.getSample()) ? "Uncoded" : (int) point.getSample();
             } else if (columnIndex == 3) {
                 final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
                 final Stx stx = raster.getStx();
