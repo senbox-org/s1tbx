@@ -42,6 +42,32 @@
 
     <packaging>pom</packaging>
   
+	    <modules>
+		<module>../ceres</module>
+		<module>beam</module>
+		<module>jlinda</module>
+		<module>rstb</module>
+		<module>nest-benchmark</module>
+		<module>nest-bootstrap</module>
+		<module>nest-cli-bootstrap</module>
+		<module>nest-core</module>
+		<module>nest-dat</module>
+		<module>nest-graph-builder</module>
+		<module>nest-help</module>
+		<module>nest-io</module>
+		<module>nest-op-calibration</module>
+		<module>nest-op-coregistration</module>
+		<module>nest-op-feature-extraction</module>		
+		<module>nest-op-orthorectification</module>
+		<module>nest-op-sar-tools</module>
+		<module>nest-reader-dem</module>
+		<module>nest-src</module>
+		<module>nest-world-wind-view</module>
+		
+		<module>nest-op-sentinel1</module>
+		<!--module>../esa-pfa</module-->
+	</modules>
+	
     <organization>
         <name>Array Systems Computing Inc</name>
         <url>http://www.array.ca/nest</url>
@@ -164,33 +190,6 @@
             </snapshots>
         </pluginRepository-->
     </pluginRepositories>
-	
-    <modules>
-		<module>../ceres</module>
-		<module>beam</module>
-		<module>jlinda</module>
-		<module>rstb</module>
-		<module>nest-benchmark</module>
-		<module>nest-bootstrap</module>
-		<module>nest-cli-bootstrap</module>
-		<module>nest-core</module>
-		<module>nest-dat</module>
-		<module>nest-graph-builder</module>
-		<module>nest-help</module>
-		<module>nest-io</module>
-		<module>nest-ocean-tools</module>
-		<module>nest-op-calibration</module>
-		<module>nest-op-coregistration</module>
-		<module>nest-op-feature-extraction</module>		
-		<module>nest-op-orthorectification</module>
-		<module>nest-op-sar-tools</module>
-		<module>nest-reader-dem</module>
-		<module>nest-src</module>
-		<module>nest-world-wind-view</module>
-		
-		<module>nest-op-sentinel1</module>
-		<!--module>../esa-pfa</module-->
-  </modules>
 
     <dependencyManagement>
         <dependencies>
