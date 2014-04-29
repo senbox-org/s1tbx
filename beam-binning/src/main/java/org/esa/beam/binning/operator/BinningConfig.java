@@ -262,9 +262,6 @@ public class BinningConfig {
 
     public VariableContext createVariableContext() {
         VariableContextImpl variableContext = new VariableContextImpl();
-        if (maskExpr == null) {
-            maskExpr = "";
-        }
         variableContext.setMaskExpr(maskExpr);
 
         // define declared variables

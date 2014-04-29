@@ -172,7 +172,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 final Color color = point.getColor();
                 return color.equals(ImageInfo.NO_COLOR) ? null : color;
             } else if (columnIndex == 2) {
-                return Double.isNaN(point.getSample()) ? "Uncoded" : "" + (int) point.getSample();
+                return Double.isNaN(point.getSample()) ? "Uncoded" : (int) point.getSample();
             } else if (columnIndex == 3) {
                 final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
                 final Stx stx = raster.getStx();
@@ -182,9 +182,13 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 if (raster instanceof Band) {
                     Band band = (Band) raster;
                     final IndexCoding indexCoding = band.getIndexCoding();
-                    if (indexCoding != null && rowIndex < frequencies.length) {
-                        final double frequency = frequencies[rowIndex];
-                        return frequency / stx.getSampleCount();
+                    if (indexCoding != null) {
+                        final String[] indexNames = indexCoding.getIndexNames();
+                        if (rowIndex < indexNames.length) {
+                            final int indexValue = indexCoding.getIndexValue(indexNames[rowIndex]);
+                            final double frequency = frequencies[indexValue];
+                            return frequency / stx.getSampleCount();
+                        }
                     }
                 }
                 return 0.0;
@@ -212,10 +216,12 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
             if (columnIndex == 0) {
                 point.setLabel((String) aValue);
                 fireTableCellUpdated(rowIndex, columnIndex);
+                parentForm.applyChanges();
             } else if (columnIndex == 1) {
                 final Color color = (Color) aValue;
                 point.setColor(color == null ? ImageInfo.NO_COLOR : color);
                 fireTableCellUpdated(rowIndex, columnIndex);
+                parentForm.applyChanges();
             }
         }
 

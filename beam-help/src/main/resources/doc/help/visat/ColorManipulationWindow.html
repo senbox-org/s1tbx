@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-             Colour Manipulation
+            Colour Manipulation
         </td>
 
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
@@ -38,7 +38,7 @@
 <p>If you are opening an Image View of a data product's band or tie-point grid, VISAT either loads image settings
     from the product itself (BEAM-DIMAP format only) or uses default colour settings. The <b>Colour Manipulation</b> tool
     window is used to modify the colours used in the image. Depending on the type of the source data used for the images,
-    the colour manipulation window offers for different editors:
+    the colour manipulation window offers different editors:
 </p>
 
 <div align="center">
@@ -58,6 +58,15 @@
             </td>
         </tr>
         <tr>
+            <td colspan="2" align="center" style="border-width:0; padding-top: 15px;"><img src="images/ColManip1BBSmall.png"/></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center" style="border-width:0">
+                <b>A.3</b>: Editor for images of a single, spectral/geophysical band
+                in <b>Basic</b> mode
+            </td>
+        </tr>
+        <tr>
             <td style="border-width:0">
                 &nbsp;
             </td>
@@ -66,8 +75,8 @@
             </td>
         </tr>
         <tr>
-            <td align="center" style="border-width:0"><img src="images/ColManip1BISmall.png"/></td>
-            <td align="center" style="border-width:0"><img src="images/ColManipRGBSmall.png"/></td>
+            <td align="center" style="border-width:0"><img src="images/CM_indexCoding.png"/></td>
+            <td align="center" style="border-width:0"><img src="images/CM_rgb_blue.png"/></td>
         </tr>
         <tr align="center">
             <td align="center" style="border-width:0">
@@ -86,32 +95,40 @@
     from the main menu.
 </p>
 
-<p>Changes in the colour manipulation window will be become effective only if
-    the <b>Apply</b> button is pressed.
-</p>
+<p>Changes in the colour manipulation window will directly become effective.</p>
 
-<p>If the <font color="red">Rough statistics!</font> is shown, the statistical information is computed on a
-    sub-sampled level. You can click on it, in order to compute the accurate statistical data.
+<p>If the information <font color="red">Rough statistics!</font> is shown, the statistical information is computed on a
+    sub-sampled level. You can click it in order to compute the accurate statistical data.
 </p>
 
 
 <h3>A. Editor for images of a single, spectral/geophysical band</h3>
 
 <p>Images of a single, spectral/geophysical band use a colour palette to assign a colour to a sample value in the source
-    band. By default, the editor is in a mode where sliders are used to modify the colour palette and herewith
-    change the assignment of sample values to colours:
+    band.
+    By default, the editor is in a mode where sliders are used to modify the colour palette.
+    Each slider assigns sample values to colours:
 </p>
 
-<p align="center"><img src="images/ColManip1BS.png"></p>
+<h4>Slider Mode</h4>
+
+<div align="center">
+    <table>
+        <tr>
+            <td align="center" style="border-width:0"><img src="images/CM_default.png"></td>
+            <td align="center" style="border-width:0"><img src="images/CM_colors.png"></td>
+        </tr>
+    </table>
+</div>
 
 
-<h4>Colour Palette Modifications</h4>
+<h5>Colour Palette Modifications</h5>
 
 <p> As the white diagonal line above the histogram indicates, the colour palette will
-    be linearily applied to the samples of the source band of the current <a href="ProductSceneView.html">Image View</a>.
+    be linearly applied to the samples of the source band of the current <a href="ProductSceneView.html">Image View</a>.
     The label below the slider indicates the sample value assigned to the position of the slider in the histogram.
-    By moving a slider with the mouse you can easily change it's sample value. You may also double-click the label,
-    then a text field appears where you can enter a sample value.
+    By moving a slider with the mouse you can easily change its sample value. If you double-click the label,
+    a text field appears where you can enter a sample value.
     By moving a slider, the colours in the palette will change accordingly. You can also click between two sliders
     in order to move the nearest slider of both under the mouse cursor.
 </p>
@@ -119,7 +136,7 @@
 <p>Slider colours are changed by clicking a slider. A popup window appears, where you can select the new colour.
     If you select <b>None</b>, a fully transparent slider results. In the <b>More Options</b> panels you can adjust the
     <b><a href="#nodata">No-Data Colour</a></b> and apply a
-        <b><a href="#histomatch">Histogram Matching</a></b> to enhance the contrast of the final image.
+    <b><a href="#histomatch">Histogram Matching</a></b> to enhance the contrast of the final image.
 </p>
 
 <p> If you right-click on a slider, a context menu will pop up. The available actions are
@@ -127,33 +144,52 @@
     Some actions may be disabled when the action cannot be performed.
 </p>
 
+<h4>Basic Mode</h4>
+
+<p> In the basic mode it is possible to select a colour ramp from a set of predefined colour palettes.
+    The selected colour ramp will be applied to the current display range.
+    You can change the bounds of the display range by editing the min/max values.
+    Also you can set the display bounds to min/max defined by the selected colour palette file, or set display
+    bounds to the minimum and maximum data values.
+</p>
+
+<div align="center">
+    <table>
+        <tr>
+            <td align="center" style="border-width:0"><img src="images/CM_basic.png"></td>
+            <td align="center" style="border-width:0"><img src="images/CM_basic_dropdown.png"></td>
+        </tr>
+    </table>
+</div>
+
 <h4>Table Mode</h4>
 
 <p>By changing the <b>Editor</b> option from <b>Sliders</b> to <b>Table</b> the sample value to colour assignment can
     be done in a table:</p>
 
-<p align="center"><img src="images/ColManip1BT.png"></p>
+<p align="center"><img src="images/CM_table.png"></p>
 
 <p>Here you can enter the colour and sample values directly by clicking into a table cell.</p>
 
 <h3>B. Editor for images of a single, index-coded band</h3>
 
-<p>Images of a single, index-coded band, e.g. the output of a <a href="clusteranalysis/ClusterAnalysis.html">cluster analysis</a>, look-up discrete colours from a
+<p>Images of a single, index-coded band, e.g. the output of a
+    <a href="clusteranalysis/ClusterAnalysis.html">cluster analysis</a>, look-up discrete colours from a
     fixed-size table:</p>
 
-<p align="center"><img src="images/ColManip1BI.png"></p>
+<p align="center"><img src="images/CM_indexCoding_view.png"></p>
 
 <p>Labels and colours are simply changed by clicking into the corresponding table cell.
     In the <b>More Options</b> panels you can adjust the <b><a href="#nodata">No-Data Colour</a></b>.</p>
 
 <h3>Editor for images using separate R,G,B channels</h3>
 
-<p>Images using separate R,G,B channels use obtain their colours from the samples of three arbitrary bands. In the
+<p>Images using separate R,G,B channels obtain their colours from the samples of three arbitrary bands. In the
     editor, users
     can switch between the channels in order to edit the contrast stretch range and gamma value of each channel
     separately.</p>
 
-<p align="center"><img src="images/ColManipRGB.png"></p>
+<p align="center"><img src="images/CM_rgb.png"></p>
 
 <p>In this mode the sliders are used for contrast stretching in each of the R,G,B channels.
     In the <b>More Options</b> panels, you can adjust the <b><a href="#nodata">No-Data Colour</a></b> and
@@ -169,15 +205,40 @@
 
 <h4><a name="nodata">No-Data Colour</a></h4>
 
-<p>In the <b>More Options</b> panel of all editors you can adjust the <b>No-Data Colour</b>. This colour which
-    will be used for no-data pixels in the source band(s). If you select <b>None</b>, no-data sample will be
-    transparent in the image.</p>
+<p>In the <b>More Options</b> panel of all editors you can adjust the <b>No-Data Colour</b>.
+    This colour will be used for no-data pixels in the source band(s).
+    If you select <b>None</b>, no-data sample will be transparent in the image.</p>
 
 <h4><a name="histomatch">Histogram Matching</a></h4>
 
-<p>It is sometimes desirable to transform an image so that it's histogram matches that of a
+<p>It is sometimes desirable to transform an image so that its histogram matches that of a
     specified functional form. It is possible to apply an equalized or normalized
     histogram matching to images which can often improve image quality.
+</p>
+
+<h4><a name="discrete">Discrete Colours</a></h4>
+
+<p>Sometimes it is needed that an image is classified by value ranges. Each value range should be displayed with a
+    defined colour.
+    To toggle the use of discrete colours use the discrete colour checkbox. Each slider position defines the
+    start or the end of a value range. The colour of an image pixel is defined by the following rule:
+</p>
+<pre>
+            lsc = leftSliderColour
+            lsv = leftSliderValue
+            rsv = rightSliderValue
+            vop = valueOfImagePixel
+            if (vop >= lsv && vop < rsv) then pixelColor = lsc
+</pre>
+
+<p align="center">
+    <b>Discrete colours 'off'</b><br><br>
+    <img src="images/CM_discrete_false.png">
+</p>
+
+<p align="center">
+    <b>Discrete colours 'on'</b><br><br>
+    <img src="images/CM_discrete_true.png">
 </p>
 
 <h4><a name="multiassign">Multiple Assignment of the current Settings</a></h4>
@@ -195,12 +256,12 @@
 </p>
 
 <p>The colour palette information used for the current image can also be exported into an image file.
-    Click the context menu item <a href="ExportColorLegend.html">Export Color Legend</a>
+    Click the context menu item <a href="ExportColorLegend.html">Export Colour Legend</a>
     over an open image view in order export the colour legend.
 </p>
 
-<p>The colour palette can be also exported as a <a href="ExportColorPalette.html">Color Palette Table</a>.
-    Choose from the <b>File</b> menu <b>Color Palette</b> to export the table as a *.csv or *.txt file.
+<p>The colour palette can be also exported as a <a href="ExportColorPalette.html">Colour Palette Table</a>.
+    Choose from the <b>File</b> menu <b>Colour Palette</b> to export the table as a *.csv or *.txt file.
 </p>
 
 <p class="inote">Note: VISAT has a couple of predefined colour palettes. They are stored
@@ -242,6 +303,23 @@
     <img src="images/icons/ZoomOut24H.gif">icon
     to zoom out of the histogram horizontally.
 </p>
+
+<h4>Logarithmic display</h4>
+
+<p> With a click on the button <img src="images/icons/LogDisplay24.png"> it is possible
+    to distribute the colour bar sliders in a logarithmic manner (right image in the figure below),
+    causing lower values to be displayed with smaller colour steps.
+</p>
+
+<div align="center">
+    <table>
+        <tr>
+            <td align="center" style="border-width:0"><img src="images/CM_Lin_Slider.png"><br>linear colour ramp</td>
+            <td align="center" style="border-width:0"><img src="images/CM_Log_Slider.png"><br>logarithmic colour ramp</td>
+        </tr>
+    </table>
+</div>
+
 
 <h4>Reset</h4>
 

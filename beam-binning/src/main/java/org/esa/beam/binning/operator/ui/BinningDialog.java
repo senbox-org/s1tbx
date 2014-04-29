@@ -18,13 +18,13 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.binning.AggregatorConfig;
+import org.esa.beam.binning.AggregatorDescriptor;
+import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
@@ -37,7 +37,9 @@ import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,39 +77,48 @@ public class BinningDialog extends SingleTargetProductDialog {
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }
 
-    static Property createProperty(String name, Class type) {
-        final DefaultPropertyAccessor defaultAccessor = new DefaultPropertyAccessor();
-        final PropertyDescriptor descriptor = new PropertyDescriptor(name, type);
-        descriptor.setDefaultConverter();
-        return new Property(descriptor, defaultAccessor);
-    }
-
     @Override
-    protected void onApply() {
+    protected boolean verifyUserInput() {
         AggregatorConfig[] aggregatorConfigs = formModel.getAggregatorConfigs();
         if (aggregatorConfigs.length == 0) {
             showErrorDialog("Please configure at least a single aggregator.");
-            return;
+            return false;
+        }
+
+        List<String> targetVarNameList = new ArrayList<>();
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
+            AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
+            String[] targetNames = descriptor.getTargetVarNames(aggregatorConfig);
+            for (String targetName : targetNames) {
+                if(targetVarNameList.contains(targetName)) {
+                    showErrorDialog(String.format("The target band with the name '%s' is defined twice.", targetName));
+                    return false;
+                }else {
+                    targetVarNameList.add(targetName);
+                }
+
+            }
         }
 
         if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY ||
             formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
             if (formModel.getStartDateTime() == null) {
                 showErrorDialog("Start date/time must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
-                return;
+                return false;
             }
             if (formModel.getPeriodDuration() == null) {
                 showErrorDialog("Period duration must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
-                return;
+                return false;
             }
         }
         if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY) {
             if (formModel.getMinDataHour() == null) {
                 showErrorDialog("Min data hour must be provided when time filter method 'spatiotemporal data day' is chosen.");
-                return;
+                return false;
             }
         }
-        super.onApply();
+        return true;
     }
 
     @Override
@@ -127,7 +138,6 @@ public class BinningDialog extends SingleTargetProductDialog {
     @Override
     public void hide() {
         form.prepareClose();
-        formModel.closeContextProduct();
         super.hide();
     }
 

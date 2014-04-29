@@ -17,27 +17,31 @@
 package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.Debug;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.util.StringUtils;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * The model responsible for managing the binning parameters.
@@ -46,20 +50,26 @@ import java.util.Date;
  */
 class BinningFormModel {
 
-    static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
+    static final String PROPERTY_KEY_WEST_BOUND = "westBound";
+    static final String PROPERTY_KEY_NORTH_BOUND = "northBound";
+    static final String PROPERTY_KEY_EAST_BOUND = "eastBound";
+    static final String PROPERTY_KEY_SOUTH_BOUND = "southBound";
+    static final String PROPERTY_KEY_WKT = "manualWkt";
     static final String PROPERTY_KEY_AGGREGATOR_CONFIGS = "aggregatorConfigs";
     static final String PROPERTY_KEY_VARIABLE_CONFIGS = "variableConfigs";
     static final String PROPERTY_KEY_REGION = "region";
+    static final String PROPERTY_KEY_BOUNDS = "bounds";
     static final String PROPERTY_KEY_COMPUTE_REGION = "compute";
     static final String PROPERTY_KEY_GLOBAL = "global";
-    static final String PROPERTY_KEY_EXPRESSION = "expression";
+    static final String PROPERTY_KEY_MASK_EXPR = "maskExpr";
     static final String PROPERTY_KEY_TIME_FILTER_METHOD = "timeFilterMethod";
     static final String PROPERTY_KEY_START_DATE_TIME = "startDateTime";
     static final String PROPERTY_KEY_PERIOD_DURATION = "periodDuration";
     static final String PROPERTY_KEY_MIN_DATA_HOUR = "minDataHour";
-    static final String PROPERTY_KEY_TARGET_HEIGHT = "targetHeight";
+    static final String PROPERTY_KEY_NUM_ROWS = "numRows";
     static final String PROPERTY_KEY_SUPERSAMPLING = "superSampling";
     static final String PROPERTY_KEY_MANUAL_WKT = "manualWktKey";
+    static final String PROPERTY_KEY_SOURCE_PRODUCTS = "sourceProducts";
     static final String PROPERTY_KEY_SOURCE_PRODUCT_PATHS = "sourceProductPaths";
     static final String PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT = "contextSourceProduct";
 
@@ -69,23 +79,32 @@ class BinningFormModel {
 
     private PropertySet propertySet;
     private BindingContext bindingContext;
-    private boolean mustCloseContextProduct = true;
 
     public BinningFormModel() {
-        propertySet = new PropertyContainer();
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, Double.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFilterPanel.PROPERTY_WKT, String.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_COMPUTE_REGION, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_REGION, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_MANUAL_WKT, Boolean.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, String.class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SOURCE_PRODUCT_PATHS, String[].class));
-        propertySet.addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));
+        propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning");
+        // Just for GUI
+        propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));                                    // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));                            // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));                                // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_WKT, String.class));                                        // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_BOUNDS, Boolean.class));                                    // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_EAST_BOUND, Double.class));                                 // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_NORTH_BOUND, Double.class));                                // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_WEST_BOUND, Double.class));                                 // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOUTH_BOUND, Double.class));                                // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // temp
+        propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
+
         propertySet.setDefaultValues();
+
+        propertySet.getProperty(PROPERTY_KEY_REGION).addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                Geometry newGeometry = (Geometry) evt.getNewValue();
+                propertySet.setValue(PROPERTY_KEY_MANUAL_WKT, true);
+                propertySet.setValue(PROPERTY_KEY_WKT, newGeometry.toText());
+            }
+        });
     }
 
     public Product[] getSourceProducts() {
@@ -104,19 +123,48 @@ class BinningFormModel {
         return getPropertyValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT);
     }
 
-    public void setContextProduct(Product contextProduct, boolean mustCloseContextProduct) {
-        closeContextProduct();
-        this.mustCloseContextProduct = mustCloseContextProduct;
-        propertySet.setValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, contextProduct);
+    public void useAsContextProduct(Product contextProduct) {
+        Product currentContextProduct = createContextProduct(contextProduct);
+        propertySet.setValue(BinningFormModel.PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, currentContextProduct);
     }
 
-    public void closeContextProduct() {
-        if (mustCloseContextProduct) {
-            Product currentContextProduct = getContextProduct();
-            if (currentContextProduct != null) {
-                currentContextProduct.dispose();
+    private Product createContextProduct(Product srcProduct) {
+        if (srcProduct == null) {
+            return null;
+        }
+        Product contextProduct = new Product("contextProduct", srcProduct.getProductType(), 10, 10);
+
+        for (String flagCodingName : srcProduct.getFlagCodingGroup().getNodeNames()) {
+            FlagCoding srcFC = srcProduct.getFlagCodingGroup().get(flagCodingName);
+            String[] flagNames = srcFC.getFlagNames();
+            FlagCoding contextFC = new FlagCoding(flagCodingName);
+            for (String flagName : flagNames) {
+                contextFC.addFlag(flagName, srcFC.getFlagMask(flagName), srcFC.getFlag(flagName).getDescription());
+            }
+            contextProduct.getFlagCodingGroup().add(contextFC);
+        }
+        for (Band srcBand : srcProduct.getBands()) {
+            Band contextBand = contextProduct.addBand(srcBand.getName(), srcBand.getDataType());
+            if (srcBand.isFlagBand()) {
+                contextBand.setSampleCoding(contextProduct.getFlagCodingGroup().get(srcBand.getFlagCoding().getName()));
             }
         }
+        for (TiePointGrid grid : srcProduct.getTiePointGrids()) {
+            contextProduct.addTiePointGrid(new TiePointGrid(grid.getName(), 10, 10, 0, 0, 1, 1, new float[100]));
+        }
+        for (String vectorDataName : srcProduct.getVectorDataGroup().getNodeNames()) {
+            VectorDataNode vectorData = srcProduct.getVectorDataGroup().get(vectorDataName);
+            contextProduct.getVectorDataGroup().add(new VectorDataNode(vectorDataName, vectorData.getFeatureType()));
+        }
+        for (String maskName : srcProduct.getMaskGroup().getNodeNames()) {
+            Mask mask = srcProduct.getMaskGroup().get(maskName);
+            contextProduct.addMask(maskName, mask.getImageType());
+        }
+        VariableConfig[] variableConfigs = getVariableConfigs();
+        for (VariableConfig variableConfig : variableConfigs) {
+            contextProduct.addBand(new VariableConfigBand(variableConfig.getName()));
+        }
+        return contextProduct;
     }
 
     public AggregatorConfig[] getAggregatorConfigs() {
@@ -135,17 +183,39 @@ class BinningFormModel {
         return variableConfigs;
     }
 
-    public String getRegion() {
-        if (getPropertyValue(PROPERTY_KEY_GLOBAL) != null && (Boolean) getPropertyValue(PROPERTY_KEY_GLOBAL)) {
-            return GLOBAL_WKT;
-        } else if (getPropertyValue(PROPERTY_KEY_COMPUTE_REGION) != null &&
-                   (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
+    public void setVariableConfigs(VariableConfig[] variableConfigs) throws ValidationException {
+        if (variableConfigs == null) {
+            variableConfigs = new VariableConfig[0];
+        }
+        setProperty(PROPERTY_KEY_VARIABLE_CONFIGS, variableConfigs);
+        Product contextProduct = getContextProduct();
+        if (contextProduct != null) {
+            removeAllVariableConfigBands(contextProduct);
+            for (VariableConfig variableConfig : variableConfigs) {
+                contextProduct.addBand(new VariableConfigBand(variableConfig.getName()));
+            }
+        }
+    }
+
+    void removeAllVariableConfigBands(Product contextProduct) {
+        Band[] bands = contextProduct.getBands();
+        for (Band band : bands) {
+            if(band instanceof VariableConfigBand) {
+                contextProduct.removeBand(band);
+            }
+        }
+    }
+
+    public Geometry getRegion() {
+        if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_GLOBAL))) {
+            return toGeometry(GLOBAL_WKT);
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_COMPUTE_REGION))) {
             return null;
-        } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
-            final double westValue = getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
-            final double eastValue = getPropertyValue(BinningFilterPanel.PROPERTY_EAST_BOUND);
-            final double northValue = getPropertyValue(BinningFilterPanel.PROPERTY_NORTH_BOUND);
-            final double southValue = getPropertyValue(BinningFilterPanel.PROPERTY_SOUTH_BOUND);
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_BOUNDS))) {
+            final double westValue = getPropertyValue(PROPERTY_KEY_WEST_BOUND);
+            final double eastValue = getPropertyValue(PROPERTY_KEY_EAST_BOUND);
+            final double northValue = getPropertyValue(PROPERTY_KEY_NORTH_BOUND);
+            final double southValue = getPropertyValue(PROPERTY_KEY_SOUTH_BOUND);
             Coordinate[] coordinates = {
                     new Coordinate(westValue, southValue), new Coordinate(westValue, northValue),
                     new Coordinate(eastValue, northValue), new Coordinate(eastValue, southValue),
@@ -153,17 +223,23 @@ class BinningFormModel {
             };
 
             final GeometryFactory geometryFactory = new GeometryFactory();
-            final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
-            return polygon.toText();
-        } else if (getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
-                   (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
-            return getPropertyValue(BinningFilterPanel.PROPERTY_WKT);
+            return geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
+        } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_MANUAL_WKT))) {
+            return toGeometry((String) getPropertyValue(PROPERTY_KEY_WKT));
         }
         throw new IllegalStateException("Should never come here");
     }
 
+    Geometry toGeometry(String wkt) {
+        try {
+            return new WKTReader().read(wkt);
+        } catch (ParseException e) {
+            throw new IllegalStateException("WKT for region is not valid:\n" + wkt);
+        }
+    }
+
     public String getMaskExpr() {
-        final String propertyValue = getPropertyValue(PROPERTY_KEY_EXPRESSION);
+        final String propertyValue = getPropertyValue(PROPERTY_KEY_MASK_EXPR);
         if (StringUtils.isNullOrEmpty(propertyValue)) {
             return "true";
         }
@@ -175,7 +251,17 @@ class BinningFormModel {
     }
 
     public String getStartDateTime() {
-        return getDate();
+        BinningOp.TimeFilterMethod temporalFilter = getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD);
+        switch (temporalFilter) {
+            case NONE: {
+                return null;
+            }
+            case TIME_RANGE:
+            case SPATIOTEMPORAL_DATA_DAY: {
+                return getPropertyValue(PROPERTY_KEY_START_DATE_TIME);
+            }
+        }
+        throw new IllegalStateException("Illegal temporal filter method: '" + temporalFilter + "'");
     }
 
     public Double getPeriodDuration() {
@@ -193,48 +279,20 @@ class BinningFormModel {
         return (Integer) getPropertyValue(PROPERTY_KEY_SUPERSAMPLING);
     }
 
-    private String getDate() {
-        BinningOp.TimeFilterMethod temporalFilter = getPropertyValue(PROPERTY_KEY_TIME_FILTER_METHOD);
-        switch (temporalFilter) {
-            case NONE: {
-                return null;
-            }
-            case TIME_RANGE:
-            case SPATIOTEMPORAL_DATA_DAY: {
-                Calendar calendar = getPropertyValue(PROPERTY_KEY_START_DATE_TIME);
-                if (calendar == null) {
-                    return null;
-                }
-                Date date = calendar.getTime();
-                return new SimpleDateFormat(BinningOp.DATE_INPUT_PATTERN).format(date);
-            }
-        }
-        throw new IllegalStateException("Illegal temporal filter method: '" + temporalFilter + "'");
-    }
-
     public int getNumRows() {
-        if (getPropertyValue(PROPERTY_KEY_TARGET_HEIGHT) == null) {
+        if (getPropertyValue(PROPERTY_KEY_NUM_ROWS) == null) {
             return DEFAULT_NUM_ROWS;
         }
-        return (Integer) getPropertyValue(PROPERTY_KEY_TARGET_HEIGHT);
+        return (Integer) getPropertyValue(PROPERTY_KEY_NUM_ROWS);
     }
 
     public void setProperty(String key, Object value) throws ValidationException {
-        final PropertyDescriptor descriptor;
-        if (value == null) {
-            descriptor = new PropertyDescriptor(key, Object.class);
+        if (propertySet.isPropertyDefined(key)) {
+            final Property property = propertySet.getProperty(key);
+            property.setValue(value);
         } else {
-            descriptor = new PropertyDescriptor(key, value.getClass());
+            throw new IllegalStateException("Unknown property: " + key);
         }
-        final Property property = new Property(descriptor, new DefaultPropertyAccessor());
-        propertySet.addProperty(property);
-        traceProperty(key, value);
-        property.setValue(value);
-    }
-
-    private void traceProperty(String name, Object value) {
-        boolean isArray = value != null && value.getClass().isArray();
-        Debug.trace(String.format("set property: 'name = %s, value = %s'", name, isArray ? Arrays.toString((Object[]) value) : value));
     }
 
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
@@ -255,6 +313,20 @@ class BinningFormModel {
             return (T) property.getValue();
         }
         return null;
+    }
+
+    private static Property createProperty(String name, Class type) {
+        final DefaultPropertyAccessor defaultAccessor = new DefaultPropertyAccessor();
+        final PropertyDescriptor descriptor = new PropertyDescriptor(name, type);
+        descriptor.setDefaultConverter();
+        return new Property(descriptor, defaultAccessor);
+    }
+
+    private static class VariableConfigBand extends Band {
+
+        public VariableConfigBand(String varName) {
+            super(varName, ProductData.TYPE_FLOAT32, 10, 10);
+        }
     }
 
 }

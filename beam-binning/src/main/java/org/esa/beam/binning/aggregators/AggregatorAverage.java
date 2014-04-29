@@ -45,13 +45,14 @@ public final class AggregatorAverage extends AbstractAggregator {
         this(varCtx, varName, varName, weightCoeff, false, false);
     }
 
-    public AggregatorAverage(VariableContext varCtx, String varName, String targetName, double weightCoeff, boolean outputCounts, boolean outputSums) {
+    public AggregatorAverage(VariableContext varCtx, String varName, String targetName, double weightCoeff, boolean outputCounts,
+                             boolean outputSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq", outputCounts ? "counts" : null),
               createFeatureNames(varName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null),
               outputSums ?
-                      createFeatureNames(targetName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null) :
-                      createFeatureNames(targetName, "mean", "sigma", outputCounts ? "counts" : null)
+              createFeatureNames(targetName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null) :
+              createFeatureNames(targetName, "mean", "sigma", outputCounts ? "counts" : null)
         );
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
@@ -207,11 +208,13 @@ public final class AggregatorAverage extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notEmpty = true, notNull = true)
+        @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation.")
         String varName;
-        @Parameter(notEmpty = true, notNull = false)
+        @Parameter(label = "Target band name prefix", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
         String targetName;
-        @Parameter(defaultValue = "0.0")
+        @Parameter(label = "Weight coefficient", defaultValue = "0.0",
+                   description = "The number of spatial observation to the power of this value \n" +
+                                 "will define the value for weighting the sums.")
         Double weightCoeff;
         @Parameter(defaultValue = "false",
                    description = "If true, the result will include the count of all valid values.")
@@ -275,8 +278,8 @@ public final class AggregatorAverage extends AbstractAggregator {
             boolean outputCounts = config.outputCounts != null ? config.outputCounts : false;
             boolean outputSums = config.outputSums != null ? config.outputSums : false;
             return outputSums ?
-                    createFeatureNames(targetName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null) :
-                    createFeatureNames(targetName, "mean", "sigma", outputCounts ? "counts" : null);
+                   createFeatureNames(targetName, "sum", "sum_sq", "weights", outputCounts ? "counts" : null) :
+                   createFeatureNames(targetName, "mean", "sigma", outputCounts ? "counts" : null);
         }
     }
 }

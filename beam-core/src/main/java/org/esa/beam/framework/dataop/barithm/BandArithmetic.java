@@ -41,6 +41,7 @@ import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -294,7 +295,7 @@ public class BandArithmetic {
             return validMaskExpression;
         }
         final Product contextProduct = products[defaultProductIndex];
-        if (validMaskExpression == null && rasters.length == 1 && contextProduct == rasters[0].getProduct()) {
+        if (StringUtils.isNullOrEmpty(validMaskExpression) && rasters.length == 1 && contextProduct == rasters[0].getProduct()) {
             return rasters[0].getValidMaskExpression();
         }
 
@@ -318,7 +319,7 @@ public class BandArithmetic {
         }
 
         final StringBuilder sb = new StringBuilder();
-        if (validMaskExpression != null) {
+        if (StringUtils.isNotNullAndNotEmpty(validMaskExpression)) {
             sb.append("(");
             sb.append(validMaskExpression);
             sb.append(")");

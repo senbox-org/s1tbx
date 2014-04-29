@@ -82,7 +82,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
-        return "ENVISAT MERIS, AATSR and ASAR products";
+        return "ENVISAT MERIS, AATSR, ASAR and ERS1/2 SAR products";
     }
 
     /**

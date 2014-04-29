@@ -16,6 +16,8 @@
 
 package org.esa.beam.binning.operator;
 
+import org.esa.beam.framework.gpf.annotations.Parameter;
+
 /**
  * Configuration of a binning variable.
  *
@@ -23,8 +25,10 @@ package org.esa.beam.binning.operator;
  * @see org.esa.beam.binning.VariableContext
  */
 public class VariableConfig {
+    @Parameter(description = "The name of the variable", notEmpty = true, notNull = true)
     private String name;
 
+    @Parameter(description = "The expression of the variable")
     private String expr;
 
     public VariableConfig() {

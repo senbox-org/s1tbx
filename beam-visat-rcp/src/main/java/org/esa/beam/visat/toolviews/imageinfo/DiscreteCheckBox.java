@@ -9,7 +9,7 @@ class DiscreteCheckBox extends JCheckBox {
     private boolean shouldFireDiscreteEvent;
 
     DiscreteCheckBox(final ColorManipulationForm parentForm) {
-        super("Discrete colors");
+        super("Discrete colours");
 
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {

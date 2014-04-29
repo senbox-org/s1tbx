@@ -16,6 +16,10 @@
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.operator.BinningOp;
@@ -30,12 +34,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.esa.beam.binning.operator.ui.BinningFormModel.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -45,6 +45,10 @@ public class BinningFormModelTest {
     @Test
     public void testSetGetProperty() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
+        PropertySet propertySet = binningFormModel.getBindingContext().getPropertySet();
+        propertySet.addProperty(createProperty("key", Float[].class));
+        propertySet.addProperty(createProperty("key2", Integer[].class));
+
         binningFormModel.setProperty("key", new Float[]{2.0f, 3.0f});
         binningFormModel.setProperty("key2", new Integer[]{10, 20, 30});
 
@@ -60,8 +64,7 @@ public class BinningFormModelTest {
 
         final AggregatorConfig aggConf1 = new AggregatorAverage.Config("x", "y", 0.4, true, false);
         final AggregatorConfig aggConf2 = new AggregatorAverage.Config("a", "b", 0.6, false, null);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_AGGREGATOR_CONFIGS,
-                                     new AggregatorConfig[]{aggConf1, aggConf2});
+        binningFormModel.setProperty(PROPERTY_KEY_AGGREGATOR_CONFIGS, new AggregatorConfig[]{aggConf1, aggConf2});
 
         assertArrayEquals(new AggregatorConfig[]{aggConf1, aggConf2}, binningFormModel.getAggregatorConfigs());
     }
@@ -74,8 +77,7 @@ public class BinningFormModelTest {
         final VariableConfig varConf = new VariableConfig();
         varConf.setName("prefix");
         varConf.setExpr("NOT algal_2");
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
-                                     new VariableConfig[]{varConf});
+        binningFormModel.setProperty(PROPERTY_KEY_VARIABLE_CONFIGS, new VariableConfig[]{varConf});
 
         assertArrayEquals(new VariableConfig[]{varConf}, binningFormModel.getVariableConfigs());
     }
@@ -83,6 +85,9 @@ public class BinningFormModelTest {
     @Test
     public void testListening() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
+        PropertySet propertySet = binningFormModel.getBindingContext().getPropertySet();
+        propertySet.addProperty(createProperty("key1", String.class));
+        propertySet.addProperty(createProperty("key2", String.class));
         final MyPropertyChangeListener listener = new MyPropertyChangeListener();
         binningFormModel.addPropertyChangeListener(listener);
 
@@ -101,11 +106,11 @@ public class BinningFormModelTest {
         assertNull(binningFormModel.getStartDateTime());
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, BinningOp.TimeFilterMethod.TIME_RANGE);
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, new GregorianCalendar(2000, 1, 1));
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_START_DATE_TIME, "2000-01-01");
 
         assertNotNull(binningFormModel.getStartDateTime());
         SimpleDateFormat dateFormat = new SimpleDateFormat(BinningOp.DATE_INPUT_PATTERN);
-        String expectedString = dateFormat.format(new GregorianCalendar(2000, 1, 1).getTime());
+        String expectedString = dateFormat.format(new GregorianCalendar(2000, 0, 1).getTime());
         assertEquals(expectedString, binningFormModel.getStartDateTime());
     }
 
@@ -113,7 +118,7 @@ public class BinningFormModelTest {
     public void testGetValidExpression() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
         assertTrue(Boolean.parseBoolean(binningFormModel.getMaskExpr()));
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EXPRESSION, "some_expression");
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_MASK_EXPR, "some_expression");
 
         assertEquals("some_expression", binningFormModel.getMaskExpr());
     }
@@ -132,19 +137,14 @@ public class BinningFormModelTest {
         final BinningFormModel binningFormModel = new BinningFormModel();
         assertEquals(2160, binningFormModel.getNumRows());
 
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, 2000);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_NUM_ROWS, 2000);
         assertEquals(2000, binningFormModel.getNumRows());
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testGetRegion_Fail() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
-        try {
-            binningFormModel.getRegion();
-            fail();
-        } catch (IllegalStateException expected) {
-            assertTrue(expected.getMessage().equals("Should never come here"));
-        }
+        binningFormModel.getRegion();
     }
 
     @Test
@@ -152,7 +152,7 @@ public class BinningFormModelTest {
         final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, true);
-        assertEquals("polygon((-180 -90, 180 -90, 180 90, -180 90, -180 -90))", binningFormModel.getRegion());
+        assertEquals("POLYGON ((-180 -90, 180 -90, 180 90, -180 90, -180 -90))", binningFormModel.getRegion().toText());
     }
 
     @Test
@@ -167,14 +167,17 @@ public class BinningFormModelTest {
     public void testGetRegion_WithSpecifiedRegion() throws Exception {
         final BinningFormModel binningFormModel = new BinningFormModel();
 
-        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_REGION, true);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_NORTH_BOUND, 50.0);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_EAST_BOUND, 15.0);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_WEST_BOUND, 10.0);
-        binningFormModel.setProperty(BinningFilterPanel.PROPERTY_SOUTH_BOUND, 40.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_BOUNDS, true);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_NORTH_BOUND, 50.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_EAST_BOUND, 15.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_WEST_BOUND, 10.0);
+        binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOUTH_BOUND, 40.0);
 
-        final String region = binningFormModel.getRegion();
-        assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", region);
+        assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", binningFormModel.getRegion().toText());
+    }
+
+    private Property createProperty(String propertyName, Class<?> type) {
+        return new Property(new PropertyDescriptor(propertyName, type), new DefaultPropertyAccessor());
     }
 
     private static class MyPropertyChangeListener implements PropertyChangeListener {

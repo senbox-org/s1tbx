@@ -33,7 +33,6 @@ import org.esa.beam.framework.ui.PixelInfoView.DisplayFilter;
 import org.esa.beam.framework.ui.PixelInfoView.DockablePaneKey;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
@@ -133,7 +132,6 @@ class PixelInfoViewModelUpdater {
             resetTableModels();
             clearRasterTableSelection = true;
         }
-        Debug.assertTrue(currentProduct != null);
         _pixelX = pixelX;
         _pixelY = pixelY;
         _level = level;

@@ -89,12 +89,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
     to NetCDF global attributes. See http://oceancolor.gsfc.nasa.gov/DOCS/Ocean_Level-3_Binned_Data_Products.pdf
     for possible attributes. Ideally, we treat the metadata file as a template and fill in placeholders, e.g.
     ${operatorParameters}, or ${operatorName} or ${operatorVersion} ...
-(2) For simplicity, we shall not use BinningConfig and FormatterConfig but simply move their @Parameter declarations
-    into the BinningOp class.
-(3) For dealing with really large amounts of bins (global binning), we need SpatialBinConsumer and TemporalBinSource
-    implementations that write to and read from local files. (E.g. use memory-mapped file I/O, see
-    MappedByteBufferTest.java)
-(4) For simplicity, we shall introduce a Boolean parameter 'global'. If it is true, 'region' will be ignored.
+(2) For simplicity, we shall introduce a Boolean parameter 'global'. If it is true, 'region' will be ignored.
 
 */
 
@@ -156,7 +151,8 @@ public class BinningOp extends Operator {
                              "input products.")
     Geometry region;
 
-    @Parameter(description = "The UTC start date of the binning period. " +
+    @Parameter(pattern ="\\d{4}-\\d{2}-\\d{2}(\\s\\d{2}:\\d{2}:\\d{2})?",
+            description = "The UTC start date of the binning period. " +
                              "The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'. If only the date part is given, the time 00:00:00 is assumed.")
     private String startDateTime;
 
@@ -173,14 +169,15 @@ public class BinningOp extends Operator {
                defaultValue = "NONE")
     private TimeFilterMethod timeFilterMethod;
 
-    @Parameter(description = "A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of " +
+    @Parameter(interval = "[0,24]",
+            description = "A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of " +
                              "observations at the date line (the 180 degree meridian). Only used if parameter 'dataDayMode' is set to 'SPATIOTEMPORAL_DATADAY'.")
     private Double minDataHour;
 
-    @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.")
+    @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.", defaultValue = "2160")
     private int numRows;
 
-    @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels")
+    @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels", defaultValue = "1")
     private Integer superSampling;
 
     @Parameter(description = "The band maths expression used to filter input pixels")
@@ -643,11 +640,16 @@ public class BinningOp extends Operator {
                 getLogger().warning("The given source file patterns did not match any files");
             }
             for (File file : fileSet) {
-                Product sourceProduct;
-                if (sourceProductFormat != null) {
-                    sourceProduct = ProductIO.readProduct(file, sourceProductFormat);
-                } else {
-                    sourceProduct = ProductIO.readProduct(file);
+                Product sourceProduct = null;
+                try {
+                    if (sourceProductFormat != null) {
+                        sourceProduct = ProductIO.readProduct(file, sourceProductFormat);
+                    } else {
+                        sourceProduct = ProductIO.readProduct(file);
+                    }
+                } catch (Exception e) {
+                    String msgPattern = "Failed to read file '%s'. %s: %s";
+                    getLogger().severe(String.format(msgPattern, file, e.getClass().getSimpleName(), e.getMessage()));
                 }
                 if (sourceProduct != null) {
                     try {

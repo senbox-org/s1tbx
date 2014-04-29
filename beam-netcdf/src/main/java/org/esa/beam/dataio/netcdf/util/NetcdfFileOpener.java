@@ -20,6 +20,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.iosp.IOServiceProvider;
 import ucar.nc2.iosp.hdf4.H4iosp;
+import ucar.nc2.iosp.hdf5.H5header;
 import ucar.nc2.iosp.hdf5.H5iosp;
 import ucar.nc2.iosp.netcdf3.N3raf;
 import ucar.nc2.util.DiskCache;
@@ -29,6 +30,8 @@ import ucar.unidata.io.bzip2.CBZip2InputStream;
 import ucar.unidata.util.StringUtil2;
 
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,6 +57,7 @@ public class NetcdfFileOpener {
     private static final Logger LOG = BeamLogManager.getSystemLogger();
 
     private static final int MAGIC_BUFFER_LENGTH = 8;
+    private static final int COPY_BUFFER_LENGTH = 100000;
     private static final byte[] NC3_MAGIC = {0x43, 0x44, 0x46, 0x01};
     private static final byte[] NC3_MAGIC_LONG = {0x43, 0x44, 0x46, 0x02}; // 64-bit offset format : only affects the variable offset value
     private static final byte[] H4_MAGIC = {0x0e, 0x03, 0x13, 0x01};
@@ -91,20 +95,44 @@ public class NetcdfFileOpener {
             if (raf != null) {
                 return new DummyNetcdfFile(spi, raf, raf.getLocation());
             }
+        } else {
+            // The HDF5 superblock, which begins with the 8-byte format signature,
+            // may begin at certain predefined offsets within the HDF5 file:
+            // 0, 512, 1024, 2048, and multiples of two thereafter.
+            // see: http://www.hdfgroup.org/HDF5/doc/H5.format.html
+            RandomAccessFile rafForTesting = getRafForTesting(input);
+            boolean isValidHdf5 = H5header.isValidFile(rafForTesting);
+            if (isValidHdf5) {
+                RandomAccessFile raf = getRaf(input);
+                if (raf != null) {
+                    return new DummyNetcdfFile(new H5iosp(), raf, raf.getLocation());
+                }
+            } else {
+                if (!(input instanceof ImageInputStream)) {
+                    rafForTesting.close();
+                }
+            }
         }
         return null;
     }
 
-    private static void readMagicBytes(Object input, byte[] buffer) throws IOException {
+    private static File getFile(Object input) {
         if (input instanceof String) {
             String inputString = (String) input;
             String filePrefix = "file:";
             if (inputString.startsWith(filePrefix)) {
                 inputString = inputString.substring(filePrefix.length());
             }
-            readMagicBytesFromFile(new File(inputString), buffer);
+            return new File(inputString);
         } else if (input instanceof File) {
-            readMagicBytesFromFile((File) input, buffer);
+            return (File) input;
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private static void readMagicBytes(Object input, byte[] buffer) throws IOException {
+        if (input instanceof String || input instanceof File) {
+            readMagicBytesFromFile(getFile(input), buffer);
         } else if (input instanceof ImageInputStream) {
             ImageInputStream imageInputStream = (ImageInputStream) input;
             imageInputStream.seek(0);
@@ -113,9 +141,21 @@ public class NetcdfFileOpener {
         }
     }
 
-    private static void readMagicBytesFromFile(File file, byte[] buffer) throws IOException {
+    private static RandomAccessFile getRafForTesting(Object input) throws IOException {
+        if (input instanceof String || input instanceof File) {
+            File file = getFile(input);
+            MemoryCacheImageInputStream imageInputStream = new MemoryCacheImageInputStream(openInputStream(file));
+            return new ImageInputStreamRandomAccessFile(imageInputStream, file.length());
+        } else if (input instanceof ImageInputStream) {
+            ImageInputStream imageInputStream = (ImageInputStream) input;
+            return new ImageInputStreamRandomAccessFile(imageInputStream, imageInputStream.length());
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private static InputStream openInputStream(File file) throws IOException {
         String fileName = file.getName().toLowerCase();
-        InputStream is = new FileInputStream(file);
+        InputStream is = new BufferedInputStream(new FileInputStream(file));
         if (fileName.endsWith(".z")) {
             is = new UncompressInputStream(is);
         } else if (fileName.endsWith(".zip")) {
@@ -129,18 +169,14 @@ public class NetcdfFileOpener {
         } else if (fileName.endsWith(".gzip") || fileName.endsWith(".gz")) {
             is = new GZIPInputStream(is);
         }
+        return is;
+    }
 
-        try (InputStream iss = is) {
+    private static void readMagicBytesFromFile(File file, byte[] buffer) throws IOException {
+        try (InputStream iss = openInputStream(file)) {
             iss.read(buffer);
         }
     }
-
-//    private static byte[] readMagicBytes(RandomAccessFile raf) throws IOException {
-//        raf.seek(0);
-//        byte[] buffer = new byte[8];
-//        raf.read(buffer);
-//        return buffer;
-//    }
 
     private static IOServiceProvider getIOSpi(byte[] buffer) {
         IOServiceProvider spi = null;
@@ -174,7 +210,7 @@ public class NetcdfFileOpener {
             return getRafFromFile(file.getAbsolutePath());
         } else if (input instanceof ImageInputStream) {
             ImageInputStream imageInputStream = (ImageInputStream) input;
-            return new ImageInputStreamRandomAccessFile(imageInputStream);
+            return new ImageInputStreamRandomAccessFile(imageInputStream, imageInputStream.length());
         }
         return null;
     }
@@ -199,32 +235,32 @@ public class NetcdfFileOpener {
 //            raf = new InMemoryRandomAccessFile(uriString, contents);
 //
 //        } else {
-            // get rid of crappy microsnot \ replace with happy /
-            uriString = StringUtil2.replace(uriString, '\\', "/");
+        // get rid of crappy microsnot \ replace with happy /
+        uriString = StringUtil2.replace(uriString, '\\', "/");
 
-            if (uriString.startsWith("file:")) {
-                // uriString = uriString.substring(5);
-                uriString = StringUtil2.unescape(uriString.substring(5));  // 11/10/2010 from erussell@ngs.org
-            }
+        if (uriString.startsWith("file:")) {
+            // uriString = uriString.substring(5);
+            uriString = StringUtil2.unescape(uriString.substring(5));  // 11/10/2010 from erussell@ngs.org
+        }
 
-            String uncompressedFileName = null;
-            try {
-                uncompressedFileName = makeUncompressed(uriString);
-            } catch (Exception e) {
-                LOG.warning("Failed to uncompress " + uriString + " err= " + e.getMessage() + "; try as a regular file.");
-                //allow to fall through to open the "compressed" file directly - may be a misnamed suffix
-            }
+        String uncompressedFileName = null;
+        try {
+            uncompressedFileName = makeUncompressed(uriString);
+        } catch (Exception e) {
+            LOG.warning("Failed to uncompress " + uriString + " err= " + e.getMessage() + "; try as a regular file.");
+            //allow to fall through to open the "compressed" file directly - may be a misnamed suffix
+        }
 
-            if (uncompressedFileName != null) {
-                // open uncompressed file as a RandomAccessFile.
-                raf = new ucar.unidata.io.RandomAccessFile(uncompressedFileName, "r");
-                //raf = new ucar.unidata.io.MMapRandomAccessFile(uncompressedFileName, "r");
+        if (uncompressedFileName != null) {
+            // open uncompressed file as a RandomAccessFile.
+            raf = new ucar.unidata.io.RandomAccessFile(uncompressedFileName, "r");
+            //raf = new ucar.unidata.io.MMapRandomAccessFile(uncompressedFileName, "r");
 
-            } else {
-                // normal case - not compressed
-                raf = new ucar.unidata.io.RandomAccessFile(uriString, "r");
-                //raf = new ucar.unidata.io.MMapRandomAccessFile(uriString, "r");
-            }
+        } else {
+            // normal case - not compressed
+            raf = new ucar.unidata.io.RandomAccessFile(uriString, "r");
+            //raf = new ucar.unidata.io.MMapRandomAccessFile(uriString, "r");
+        }
 //        }
 
         return raf;
@@ -306,25 +342,26 @@ public class NetcdfFileOpener {
         }
 
         try {
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(filename), COPY_BUFFER_LENGTH);
             if (suffix.equalsIgnoreCase("Z")) {
-                in = new UncompressInputStream(new FileInputStream(filename));
-                copy(in, fout, 100000);
+                in = new UncompressInputStream(inputStream);
+                copy(in, fout, COPY_BUFFER_LENGTH);
                 LOG.fine("uncompressed " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("zip")) {
-                ZipInputStream zin = new ZipInputStream(new FileInputStream(filename));
+                ZipInputStream zin = new ZipInputStream(inputStream);
                 ZipEntry ze = zin.getNextEntry();
                 if (ze != null) {
                     in = zin;
-                    copy(in, fout, 100000);
+                    copy(in, fout, COPY_BUFFER_LENGTH);
                     LOG.fine("unzipped " + filename + " entry " + ze.getName() + " to " + uncompressedFile);
                 }
             } else if (suffix.equalsIgnoreCase("bz2")) {
-                in = new CBZip2InputStream(new FileInputStream(filename), true);
-                copy(in, fout, 100000);
+                in = new CBZip2InputStream(inputStream, true);
+                copy(in, fout, COPY_BUFFER_LENGTH);
                 LOG.fine("unbzipped " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("gzip") || suffix.equalsIgnoreCase("gz")) {
-                in = new GZIPInputStream(new FileInputStream(filename));
-                copy(in, fout, 100000);
+                in = new GZIPInputStream(inputStream);
+                copy(in, fout, COPY_BUFFER_LENGTH);
                 LOG.fine("ungzipped " + filename + " to " + uncompressedFile);
             }
         } catch (Exception e) {
@@ -381,10 +418,12 @@ public class NetcdfFileOpener {
     private static class ImageInputStreamRandomAccessFile extends RandomAccessFile {
 
         private final ImageInputStream imageInputStream;
+        private final long length;
 
-        public ImageInputStreamRandomAccessFile(ImageInputStream imageInputStream) {
+        public ImageInputStreamRandomAccessFile(ImageInputStream imageInputStream, long length) {
             super(16000);
             this.imageInputStream = imageInputStream;
+            this.length = length;
         }
 
         @Override
@@ -394,7 +433,7 @@ public class NetcdfFileOpener {
 
         @Override
         public long length() throws IOException {
-            return imageInputStream.length();
+            return length;
         }
 
         @Override

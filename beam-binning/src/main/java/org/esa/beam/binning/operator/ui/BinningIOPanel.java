@@ -95,7 +95,7 @@ class BinningIOPanel extends JPanel {
                     appContext.handleError("Unable to set source products.", e);
                 }
                 if (sourceProducts.length > 0) {
-                    binningFormModel.setContextProduct(sourceProducts[0], false);
+                    binningFormModel.useAsContextProduct(sourceProducts[0]);
                     return;
                 }
                 String[] sourceProductPath = binningFormModel.getSourceProductPath();
@@ -103,7 +103,7 @@ class BinningIOPanel extends JPanel {
                     openFirstProduct(sourceProductPath);
                     return;
                 }
-                binningFormModel.setContextProduct(null, false);
+                binningFormModel.useAsContextProduct(null);
             }
 
             @Override
@@ -160,7 +160,8 @@ class BinningIOPanel extends JPanel {
                 try {
                     Product firstProduct = get();
                     if (firstProduct != null) {
-                        binningFormModel.setContextProduct(firstProduct, true);
+                        binningFormModel.useAsContextProduct(firstProduct);
+                        firstProduct.dispose();
                     }
                 } catch (Exception ex) {
                     String msg = String.format("Cannot open source products.\n%s", ex.getMessage());

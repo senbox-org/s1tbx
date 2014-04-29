@@ -138,11 +138,12 @@ public class AggregatorAverageML extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notEmpty = true, notNull = true)
+        @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation.")
         String varName;
-        @Parameter(notEmpty = true, notNull = false)
+        @Parameter(label = "Target band name prefix", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
         String targetName;
-        @Parameter(defaultValue = "0.5")
+        @Parameter(defaultValue = "0.5", description = "The number of spatial observation to the power of this value \n" +
+                                                       "will define the weighting factor of the sums.")
         Double weightCoeff;
         @Parameter(defaultValue = "false",
                    description = "If true, the result will include the sum of all values.")

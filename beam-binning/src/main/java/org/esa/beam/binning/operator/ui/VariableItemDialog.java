@@ -12,12 +12,9 @@ import com.bc.ceres.swing.binding.PropertyEditorRegistry;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextFieldEditor;
 import com.bc.jexp.ParseException;
-import org.esa.beam.binning.operator.VariableConfig;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.StringUtils;
@@ -32,124 +29,105 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-/**
- * @author Tonio Fincke
- */
 class VariableItemDialog extends ModalDialog {
 
-    private static final String property_variable_name = "variableName";
-    private static final String property_expression = "expression";
+    private static final String PROPERTY_VARIABLE_NAME = "name";
+    private static final String PROPERTY_EXPRESSION = "expr";
 
-    private final BindingContext bindingContext;
+    private final VariableItem variableItem;
+    private final boolean newVariable;
     private final Product contextProduct;
-    private final Window parent;
+    private final BindingContext bindingContext;
 
-    private String variableName;
-    private String expression = "";
 
-    private static int numNewBands = 0;
-    private VariableConfig variableConfig;
-
-    VariableItemDialog(final Window parent, Product contextProduct) {
-        super(parent, "Define new variable", ID_OK_CANCEL, null); /* I18N */
-        this.parent = parent;
+    VariableItemDialog(final Window parent, VariableItem variableItem, boolean createNewVariable, Product contextProduct) {
+        super(parent, "Intermediate Source Band", ID_OK_CANCEL, null);
+        this.variableItem = variableItem;
+        newVariable = createNewVariable;
         this.contextProduct = contextProduct;
         bindingContext = createBindingContext();
         makeUI();
     }
 
     @Override
-    protected void onOK() {
-        variableConfig = null;
-        if (StringUtils.isNullOrEmpty(expression.trim())) {
-            JOptionPane.showMessageDialog(parent, "The variable could not be created. The expression was empty.");
-            hide();
-            return;
+    protected boolean verifyUserInput() {
+        String expression = variableItem.variableConfig.getExpr() != null ? variableItem.variableConfig.getExpr().trim() : "";
+        if (StringUtils.isNullOrEmpty(expression)) {
+            JOptionPane.showMessageDialog(getParent(), "The source band could not be created. The expression is empty.");
+            return false;
         }
-        final String validMaskExpression;
+        String variableName = variableItem.variableConfig.getName() != null ? variableItem.variableConfig.getName().trim() : "";
+        if (StringUtils.isNullOrEmpty(variableName)) {
+            JOptionPane.showMessageDialog(getParent(), "The source band could not be created. The name is empty.");
+            return false;
+        }
+        if (newVariable && contextProduct.containsBand(variableName)) {
+            String message = String.format("A source band or band with the name '%s' is already defined", variableName);
+            JOptionPane.showMessageDialog(getParent(), message);
+            return false;
+        }
         try {
-            validMaskExpression = BandArithmetic.getValidMaskExpression(expression.trim(), new Product[]{contextProduct}, 0, null);
+            BandArithmetic.getValidMaskExpression(expression, new Product[]{contextProduct}, 0, null);
         } catch (ParseException e) {
-            String errorMessage = "The variable could not be created.\nA parse error occurred:\n" + e.getMessage(); /*I18N*/
-            JOptionPane.showMessageDialog(parent, errorMessage);
-            hide();
-            return;
+            String errorMessage = "The source band could not be created.\nThe expression could not be parsed:\n" + e.getMessage(); /*I18N*/
+            JOptionPane.showMessageDialog(getParent(), errorMessage);
+            return false;
         }
-        final int width = contextProduct.getSceneRasterWidth();
-        final int height = contextProduct.getSceneRasterHeight();
-        Band band = new VirtualBand(variableName.trim(), ProductData.TYPE_FLOAT32, width, height, expression.trim());
-        band.setValidPixelExpression(validMaskExpression);
-        contextProduct.addBand(band);
-        hide();
-        band.setModified(true);
-        variableConfig = new VariableConfig(variableName.trim(), expression.trim());
+        return true;
     }
 
-    VariableConfig getVariableConfig() {
-        return variableConfig;
+    @Override
+    protected void onOK() {
+        variableItem.variableConfig.setName(variableItem.variableConfig.getName().trim());
+        variableItem.variableConfig.setExpr(variableItem.variableConfig.getExpr().trim());
+        super.onOK();
+    }
+
+    VariableItem getVariableItem() {
+        return variableItem;
     }
 
     private BindingContext createBindingContext() {
-        final PropertyContainer container = PropertyContainer.createObjectBacked(this);
+        final PropertyContainer container = PropertyContainer.createObjectBacked(variableItem.variableConfig, new ParameterDescriptorFactory());
         final BindingContext context = new BindingContext(container);
 
-        PropertyDescriptor descriptor = container.getDescriptor(property_variable_name);
-        descriptor.setDisplayName("Name");
-        descriptor.setDescription("The name for the new variable.");
-        descriptor.setNotEmpty(true);
-        descriptor.setValidator(new ProductNodeNameValidator());
-        while (contextProduct.containsRasterDataNode("variable_" + (++numNewBands))) {
-            // loop
-        }
-        descriptor.setDefaultValue("variable_" + (numNewBands));
-
-        descriptor = container.getDescriptor(property_expression);
-        descriptor.setDisplayName("Band maths expression");
-        descriptor.setDescription("Band maths expression");
-        descriptor.setNotEmpty(true);
-
+        PropertyDescriptor descriptor = container.getDescriptor(PROPERTY_VARIABLE_NAME);
+        descriptor.setDescription("The name for the source band.");
+        descriptor.setValidator(new VariableNameValidator());
         container.setDefaultValues();
 
         return context;
     }
 
     private void makeUI() {
-        JButton editExpressionButton = new JButton("Edit Expression...");
-        editExpressionButton.setName("editExpressionButton");
-        editExpressionButton.addActionListener(createEditExpressionButtonListener());
+        JComponent[] variableComponents = createComponents(PROPERTY_VARIABLE_NAME, TextFieldEditor.class);
 
-        final TableLayout tableLayout = new TableLayout(1);
-        tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(0.0);
-        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        final JPanel panel = new JPanel(tableLayout);
+        final TableLayout layout = new TableLayout(2);
+        layout.setTablePadding(4, 3);
+        layout.setCellWeightX(0, 1, 1.0);
+        layout.setCellWeightX(1, 1, 1.0);
+        layout.setCellWeightX(2, 0, 1.0);
+        layout.setCellColspan(2, 0, 2);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        final JPanel panel = new JPanel(layout);
 
-        JComponent[] variableComponents = createComponents(property_variable_name, TextFieldEditor.class);
-
-        final TableLayout variablePanelLayout = new TableLayout(2);
-        variablePanelLayout.setTableWeightX(1.0);
-        variablePanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        final JPanel variablePanel = new JPanel(variablePanelLayout);
-
-        variablePanel.add(variableComponents[1]);
-        variablePanel.add(variableComponents[0]);
-        panel.add(variablePanel);
+        panel.add(variableComponents[1]);
+        panel.add(variableComponents[0]);
 
         JLabel expressionLabel = new JLabel("Variable expression:");
         JTextArea expressionArea = new JTextArea();
         expressionArea.setRows(3);
         TextComponentAdapter textComponentAdapter = new TextComponentAdapter(expressionArea);
-        bindingContext.bind(property_expression, textComponentAdapter);
+        bindingContext.bind(PROPERTY_EXPRESSION, textComponentAdapter);
         panel.add(expressionLabel);
+        panel.add(layout.createHorizontalSpacer());
         panel.add(expressionArea);
-        final TableLayout editExpressionPanelLayout = new TableLayout(2);
-        editExpressionPanelLayout.setTableWeightX(0.0);
-        final JPanel editExpressionPanel = new JPanel(editExpressionPanelLayout);
-        editExpressionPanel.add(editExpressionPanelLayout.createHorizontalSpacer());
-        editExpressionPanel.add(editExpressionButton);
-        panel.add(editExpressionPanel);
-        panel.add(tableLayout.createVerticalSpacer());
+
+        JButton editExpressionButton = new JButton("Edit Expression...");
+        editExpressionButton.setName("editExpressionButton");
+        editExpressionButton.addActionListener(createEditExpressionButtonListener());
+        panel.add(layout.createHorizontalSpacer());
+        panel.add(editExpressionButton);
 
         setContent(panel);
     }
@@ -169,23 +147,23 @@ class VariableItemDialog extends ModalDialog {
                         ProductExpressionPane.createGeneralExpressionPane(new Product[]{contextProduct},
                                                                           contextProduct,
                                                                           null);
-                expressionPane.setCode(expression.trim());
+                expressionPane.setCode(variableItem.variableConfig.getExpr());
                 int status = expressionPane.showModalDialog(getJDialog(), "Expression Editor");
                 if (status == ModalDialog.ID_OK) {
-                    bindingContext.getBinding(property_expression).setPropertyValue(expressionPane.getCode());
+                    bindingContext.getBinding(PROPERTY_EXPRESSION).setPropertyValue(expressionPane.getCode());
                 }
                 expressionPane.dispose();
             }
         };
     }
 
-    private class ProductNodeNameValidator implements Validator {
+    private class VariableNameValidator implements Validator {
 
         @Override
         public void validateValue(Property property, Object value) throws ValidationException {
             final String name = (String) value;
             if (contextProduct.containsRasterDataNode(name)) {
-                throw new ValidationException("The variable name must be unique.");
+                throw new ValidationException("The source band name must be unique.");
             }
         }
     }
