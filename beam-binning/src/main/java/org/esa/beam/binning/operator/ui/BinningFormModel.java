@@ -182,6 +182,23 @@ class BinningFormModel {
         return variableConfigs;
     }
 
+    public void setVariableConfigs(VariableConfig[] variableConfigs) throws ValidationException {
+        if (variableConfigs == null) {
+            variableConfigs = new VariableConfig[0];
+        }
+        VariableConfig[] oldVarConfigs = getVariableConfigs();
+        setProperty(PROPERTY_KEY_VARIABLE_CONFIGS, variableConfigs);
+        Product contextProduct = getContextProduct();
+        for (VariableConfig oldVarConfig : oldVarConfigs) {
+            contextProduct.removeBand(contextProduct.getBand(oldVarConfig.getName()));
+        }
+
+        for (VariableConfig variableConfig : variableConfigs) {
+            contextProduct.addBand(variableConfig.getName(), ProductData.TYPE_FLOAT32);
+        }
+
+    }
+
     public String getRegion() {
         if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_GLOBAL))) {
             return GLOBAL_WKT;

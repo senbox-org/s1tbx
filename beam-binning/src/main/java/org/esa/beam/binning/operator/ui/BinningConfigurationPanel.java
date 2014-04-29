@@ -22,49 +22,29 @@ import com.bc.ceres.swing.ListControlBar;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.JideSplitPane;
-import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.MouseEventFilterFactory;
-import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractButton;
-import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
@@ -302,92 +282,44 @@ class BinningConfigurationPanel extends JPanel {
     }
 
     private JPanel createVariablesPanel() {
-        JTable variableTable = createVariableTable();
-        variableTableController = new VariableTableController(variableTable, binningFormModel);
-        ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, variableTable, variableTableController);
+        final Grid grid = createVariableTable();
+        variableTableController = new VariableTableController(grid, binningFormModel);
+        final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, variableTableController);
 
-        JScrollPane scrollPane = new JScrollPane(variableTable);
-        scrollPane.setBorder(null);
+        final AbstractButton sel = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ShowSelection16.png"), true);
+        sel.setToolTipText("Show/hide selection column");
+        sel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                grid.setShowSelectionColumn(sel.isSelected());
+                gridControlBar.updateState();
+            }
+        });
+        gridControlBar.add(sel, 0);
 
-        JPanel panel = new JPanel(new BorderLayout(2, 2));
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setBorder(new TitledBorder("Intermediate Source Bands (optional)"));
         panel.add(gridControlBar, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(new JScrollPane(grid), BorderLayout.CENTER);
         return panel;
     }
 
-    private JTable createVariableTable() {
-        final DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Name", "Expression"}, 0);
-        tableModel.addTableModelListener(new VariableConfigTableListener(tableModel));
-        JTable variableTable = new JTable(tableModel);
+    private Grid createVariableTable() {
+        final Grid grid = new Grid(4, false);
+        TableLayout gridLayout = grid.getLayout();
+        gridLayout.setTablePadding(4, 3);
+        gridLayout.setTableAnchor(TableLayout.Anchor.BASELINE);
+        gridLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        gridLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
+        gridLayout.setColumnWeightX(2, 1.0);
+        grid.setHeaderRow(
+                /*0*/ //selection column
+                /*1*/ new JLabel("<html><b>Name</b>"),
+                /*2*/ new JLabel("<html><b>Expression</b>"),
+                /*5*/ null // column for edit button
+        );
 
-        variableTable.setName("variables");
-        variableTable.setRowSelectionAllowed(true);
-        variableTable.addMouseListener(createExpressionEditorMouseListener(variableTable));
-
-        final JTableHeader tableHeader = variableTable.getTableHeader();
-        tableHeader.setName("variables");
-        tableHeader.setReorderingAllowed(false);
-        tableHeader.setResizingAllowed(true);
-
-        final TableColumnModel columnModel = variableTable.getColumnModel();
-        columnModel.setColumnSelectionAllowed(false);
-
-        final TableColumn nameColumn = columnModel.getColumn(0);
-        nameColumn.setPreferredWidth(100);
-
-        final TableColumn expressionColumn = columnModel.getColumn(1);
-        expressionColumn.setPreferredWidth(360);
-        final ExprEditor cellEditor = new ExprEditor();
-        expressionColumn.setCellEditor(cellEditor);
-
-        return variableTable;
-    }
-
-    private MouseListener createExpressionEditorMouseListener(final JTable table) {
-        final MouseAdapter mouseListener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    final int column = table.getSelectedColumn();
-                    if (column == 1) {
-                        table.removeEditor();
-                        final int row = table.getSelectedRow();
-                        final String[] value = new String[]{(String) table.getValueAt(row, column)};
-                        final int i = editExpression(value);
-                        if (ModalDialog.ID_OK == i) {
-                            table.setValueAt(value[0], row, column);
-                        }
-                    }
-                }
-            }
-        };
-        return MouseEventFilterFactory.createFilter(mouseListener);
-    }
-
-    private int editExpression(String[] value) {
-        Product product;
-        product = binningFormModel.getContextProduct();
-        if (product == null) {
-            final String msg = "No source product specified.";
-            appContext.handleError(msg, new IllegalStateException(msg));
-            return 0;
-        }
-        ProductExpressionPane expressionPane =
-                ProductExpressionPane.createGeneralExpressionPane(new Product[]{product},
-                                                                  product,
-                                                                  null);
-        expressionPane.setCode(value[0]);
-        final int i = expressionPane.showModalDialog(appContext.getApplicationWindow(), value[0]);
-        final String expression = expressionPane.getCode();
-        if (i == ModalDialog.ID_OK) {
-            if (StringUtils.isNullOrEmpty(expression)) {
-                JOptionPane.showMessageDialog(appContext.getApplicationWindow(), "Expression must not be empty");
-            } else {
-                value[0] = expression;
-            }
-        }
-        return i;
+        return grid;
     }
 
     private static class IntegerTextField extends JTextField {
@@ -452,112 +384,4 @@ class BinningConfigurationPanel extends JPanel {
         }
     }
 
-    private class ExprEditor extends AbstractCellEditor implements TableCellEditor {
-
-        private final JButton button;
-        private String[] value;
-
-        private ExprEditor() {
-            button = new JButton("...");
-            final Dimension preferredSize = button.getPreferredSize();
-            preferredSize.setSize(25, preferredSize.getHeight());
-            button.setPreferredSize(preferredSize);
-            value = new String[1];
-            final ActionListener actionListener = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    final int i = editExpression(value);
-                    if (i == ModalDialog.ID_OK) {
-                        fireEditingStopped();
-                    } else {
-                        fireEditingCanceled();
-                    }
-                }
-            };
-            button.addActionListener(actionListener);
-        }
-
-        /**
-         * Returns the value contained in the editor.
-         *
-         * @return the value contained in the editor
-         */
-        @Override
-        public Object getCellEditorValue() {
-            return value[0];
-        }
-
-        /**
-         * Sets an initial <code>value</code> for the editor.  This will cause the editor to <code>stopEditing</code>
-         * and lose any partially edited value if the editor is editing when this method is called. <p>
-         * <p/>
-         * Returns the component that should be added to the client's <code>Component</code> hierarchy.  Once installed
-         * in the client's hierarchy this component will then be able to draw and receive user input.
-         *
-         * @param table      the <code>JTable</code> that is asking the editor to edit; can be <code>null</code>
-         * @param value      the value of the cell to be edited; it is up to the specific editor to interpret and draw the
-         *                   value.  For example, if value is the string "true", it could be rendered as a string or it could be rendered
-         *                   as a check box that is checked.  <code>null</code> is a valid value
-         * @param isSelected true if the cell is to be rendered with highlighting
-         * @param row        the row of the cell being edited
-         * @param column     the column of the cell being edited
-         * @return the component for editing
-         */
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-                                                     int column) {
-            final JPanel renderPanel = new JPanel(new BorderLayout());
-            final DefaultTableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
-            final Component label = defaultRenderer.getTableCellRendererComponent(table, value, isSelected,
-                                                                                  false, row, column);
-            renderPanel.add(label);
-            renderPanel.add(button, BorderLayout.EAST);
-            this.value[0] = (String) value;
-            return renderPanel;
-        }
-    }
-
-    private class VariableConfigTableListener implements TableModelListener {
-
-        private final TableModel tableModel;
-
-        VariableConfigTableListener(TableModel tableModel) {
-            this.tableModel = tableModel;
-        }
-
-        @Override
-        public void tableChanged(TableModelEvent event) {
-            if(event.getType() == TableModelEvent.INSERT) {
-                addToContextProduct((String) tableModel.getValueAt(event.getFirstRow(), 0));
-            }
-            if(event.getType() == TableModelEvent.DELETE) {
-                removeFromContextProduct((String) tableModel.getValueAt(event.getFirstRow(), 0));
-            }
-            try {
-                binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS, getVariableConfigs());
-            } catch (ValidationException e) {
-                appContext.handleError("Unable to validate variable configurations.", e);
-            }
-        }
-
-        public void addToContextProduct(String varName) {
-            binningFormModel.getContextProduct().addBand(varName, ProductData.TYPE_FLOAT32);
-        }
-
-        public void removeFromContextProduct(String varName) {
-            binningFormModel.getContextProduct().removeBand(binningFormModel.getContextProduct().getBand(varName));
-        }
-
-
-        private VariableConfig[] getVariableConfigs() {
-            final int rowCount = tableModel.getRowCount();
-            VariableConfig[] variableConfigs = new VariableConfig[rowCount];
-            for (int i = 0; i < rowCount; i++) {
-                String name = (String) tableModel.getValueAt(i, 0);
-                String expression = (String) tableModel.getValueAt(i, 1);
-                variableConfigs[i] = new VariableConfig(name, expression);
-            }
-            return variableConfigs;
-        }
-    }
 }
