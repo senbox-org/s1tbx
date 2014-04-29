@@ -29,10 +29,6 @@ import java.util.List;
  */
 class AggregatorTableController extends ListControlBar.AbstractListController {
 
-    static boolean isSourcePropertyName(String propertyName) {
-        return propertyName.toLowerCase().contains("varname");
-    }
-
     private final Grid grid;
     private final BinningFormModel binningFormModel;
     private final List<AggregatorItem> aggregatorItems;
@@ -95,6 +91,10 @@ class AggregatorTableController extends ListControlBar.AbstractListController {
         clearGrid();
         addAggregatorConfigs(configs);
         updateBinningFormModel();
+    }
+
+    static boolean isSourcePropertyName(String propertyName) {
+        return propertyName.toLowerCase().contains("varname");
     }
 
     private void clearGrid() {
