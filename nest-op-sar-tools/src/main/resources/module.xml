@@ -47,7 +47,7 @@
 	        <helpId>MultilookOp</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>sartools</parent>
+            <parent>sar-processing</parent>
 	        <text>Multilooking</text>
 	        <operatorName>Multilook</operatorName>
 	        <dialogTitle>Multilook</dialogTitle>
@@ -112,7 +112,7 @@
 	        <helpId>SLCtoPRI</helpId>
 	        <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>DatasetConversion</parent>
+            <parent>sar-processing</parent>
 	        <text>Complex to Detected GR</text>
             <shortDescr>Convert a SLC product to a detected ground range product</shortDescr>
 	        <dialogTitle>Complex to Detected Ground Range</dialogTitle>
@@ -154,7 +154,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>ASAR WSS</text>
             <placeAfter>SpeckleFilteringGroup</placeAfter>
-            <parent>sartools</parent>
+            <parent>sar-processing</parent>
         </action>
 
         <action>
@@ -240,7 +240,7 @@
             <id>SpeckleFilteringGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Speckle Filtering</text>
-            <parent>sartools</parent>
+            <parent>sar-processing</parent>
             <placeAfter>Calibration</placeAfter>
         </action>
 

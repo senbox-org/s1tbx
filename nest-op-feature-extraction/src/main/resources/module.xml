@@ -63,6 +63,32 @@
         </action>
 
         <action>
+            <id>TerrainMaskGeneration</id>
+            <helpId>TerrainMaskGeneration</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Masks</parent>
+            <text>Terrain Mask</text>
+            <shortDescr>Terrain Mask Generation</shortDescr>
+            <operatorName>Terrain-Mask</operatorName>
+            <dialogTitle>Terrain Mask Generation</dialogTitle>
+            <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>createLandMaskOp</id>
+            <helpId>CreateLandMask</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Masks</parent>
+            <text>Land/Sea Mask</text>
+            <shortDescr>Create a Land/Sea Mask</shortDescr>
+            <dialogTitle>Create a Land/Sea Mask</dialogTitle>
+            <operatorName>Create-LandMask</operatorName>
+            <targetProductNameSuffix>_msk</targetProductNameSuffix>
+        </action>
+
+        <action>
             <id>PrimitiveFeatureGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Primitive Features</text>
@@ -184,29 +210,10 @@
         </action>
 
         <action>
-            <id>TerrainMaskGeneration</id>
-            <helpId>TerrainMaskGeneration</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Masks</parent>
-            <text>Terrain Mask</text>
-            <shortDescr>Terrain Mask Generation</shortDescr>
-            <operatorName>Terrain-Mask</operatorName>
-            <dialogTitle>Terrain Mask Generation</dialogTitle>
-            <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
-        </action>
-
-		<action>
-	        <id>createLandMaskOp</id>
-	        <helpId>CreateLandMask</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Masks</parent>
-	        <text>Land/Sea Mask</text>
-            <shortDescr>Create a Land/Sea Mask</shortDescr>
-            <dialogTitle>Create a Land/Sea Mask</dialogTitle>
-            <operatorName>Create-LandMask</operatorName>
-            <targetProductNameSuffix>_msk</targetProductNameSuffix>
+            <id>oceanTools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Thematic Ocean Processing</text>
+            <parent>classification</parent>
         </action>
 
          <action>

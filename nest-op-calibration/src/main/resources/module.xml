@@ -32,7 +32,7 @@
             <id>Calibration</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Radiometric Correction</text>
-            <parent>sartools</parent>
+            <parent>sar-processing</parent>
         </action>
 
         <action>

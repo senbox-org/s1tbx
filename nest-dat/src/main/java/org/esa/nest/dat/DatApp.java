@@ -380,12 +380,10 @@ public class DatApp extends VisatApp {
                 ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX));
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Optical Processing", 'P'));
-        menuBar.add(createJMenu("sartools", "SAR Processing", 'S'));
-        menuBar.add(createJMenu("geometry", "Geometric", 'G'));
+        menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
         menuBar.add(createJMenu("insar", "Interferometric", 'I'));
         menuBar.add(createJMenu("polarimetrictools", "Polarimetric", 'L'));
         menuBar.add(createJMenu("classification", "Classification", 'C'));
-        menuBar.add(createJMenu("oceanTools", "Ocean Tools", 'O'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));

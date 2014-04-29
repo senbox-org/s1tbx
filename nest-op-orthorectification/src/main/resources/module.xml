@@ -33,6 +33,13 @@
     <extension point="beam-ui:actions">
 
         <action>
+            <id>geometry</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Geometric</text>
+            <parent>sar-processing</parent>
+        </action>
+
+        <action>
             <id>TerrainCorrection</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Terrain Correction</text>

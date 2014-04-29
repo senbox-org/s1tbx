@@ -53,7 +53,7 @@
 	        <helpId>Coregistration</helpId>
 	        <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>sartools</parent>
+            <parent>sar-processing</parent>
 	        <text>Automatic Coregistration</text>
             <shortDescr>Perform Automatic Coregistration</shortDescr>
 	        <dialogTitle>Automatic Coregistration</dialogTitle>
