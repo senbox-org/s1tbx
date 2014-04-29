@@ -151,7 +151,7 @@ public class BinningOp extends Operator {
                              "input products.")
     Geometry region;
 
-    @Parameter(pattern ="\\d{4}-\\d{2}-\\d{4}[ \\d{2}:\\d{2}:\\d{2}]?",
+    @Parameter(pattern ="\\d{4}-\\d{2}-\\d{2}[\\s\\d{2}:\\d{2}:\\d{2}]?",
             description = "The UTC start date of the binning period. " +
                              "The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'. If only the date part is given, the time 00:00:00 is assumed.")
     private String startDateTime;
