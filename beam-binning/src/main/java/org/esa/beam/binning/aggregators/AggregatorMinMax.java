@@ -100,9 +100,9 @@ public class AggregatorMinMax extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notEmpty = true, notNull = true)
+        @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation")
         String varName;
-        @Parameter(notEmpty = true, notNull = false)
+        @Parameter(label = "Target band name prefix", notEmpty = true, notNull = false, description = "The name prefix for the resulting bands")
         String targetName;
 
         public Config() {

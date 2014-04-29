@@ -207,11 +207,12 @@ public final class AggregatorAverage extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notEmpty = true, notNull = true)
+        @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation")
         String varName;
-        @Parameter(notEmpty = true, notNull = false)
+        @Parameter(label = "Target band name prefix", notEmpty = true, notNull = false, description = "The name prefix for the resulting bands")
         String targetName;
-        @Parameter(defaultValue = "0.0")
+        @Parameter(label = "Weight coefficient",defaultValue = "0.0", description = "The number of spatial observation to the power of this value \n" +
+                                                       "will define the value for weighting the sums")
         Double weightCoeff;
         @Parameter(defaultValue = "false",
                    description = "If true, the result will include the count of all valid values.")

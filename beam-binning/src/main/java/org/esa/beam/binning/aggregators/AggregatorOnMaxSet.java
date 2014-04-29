@@ -141,12 +141,13 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notEmpty = true, notNull = true)
+        @Parameter(label = "Maximum band name", notEmpty = true, notNull = true,
+                   description = "If this band reaches its maximum the values of the source bands are taken")
         String onMaxVarName;
-        @Parameter
-        String[] setVarNames;
-        @Parameter(notEmpty = true, notNull = false)
+        @Parameter(label = "Target band name prefix", notEmpty = true, notNull = false, description = "The name prefix for the resulting maximum bands")
         String targetName;
+        @Parameter(label = "Source band names", description = "The source bands used for aggregation when maximum band reaches its maximum")
+        String[] setVarNames;
 
         public Config() {
             this(null, null);

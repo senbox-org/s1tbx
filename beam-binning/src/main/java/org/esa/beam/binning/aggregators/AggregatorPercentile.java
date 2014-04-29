@@ -166,11 +166,11 @@ public class AggregatorPercentile extends AbstractAggregator {
 
     public static class Config extends AggregatorConfig {
 
-        @Parameter(notEmpty = true, notNull = true)
+        @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation")
         String varName;
-        @Parameter(notEmpty = true, notNull = false)
+        @Parameter(label = "Target band name prefix", notEmpty = true, notNull = false, description = "The name prefix for the resulting bands")
         String targetName;
-        @Parameter(defaultValue = "90",
+        @Parameter(label = "Percentile", defaultValue = "90", interval = "[0,100]",
                    description = "The percentile to be created. Must be in the interval [0..100]")
         Integer percentage;
 
