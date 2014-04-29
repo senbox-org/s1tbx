@@ -12,12 +12,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<context>nest</context>
+		
         <jlinda.version>0.8</jlinda.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
         <beam.version>5.0-SNAPSHOT</beam.version>
         <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
-        <outputdir>../../output</outputdir>
+		
+		<outputdir>../../../${context}/output</outputdir>
     </properties>
 
     <packaging>pom</packaging>

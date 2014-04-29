@@ -10,13 +10,13 @@
 	           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
 	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>				
-		<ceresContext>nest</ceresContext>
+		<context>nest</context>
 		
 		<skipTests>false</skipTests>
 		<test.jvm.maxpermsize>512m</test.jvm.maxpermsize>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
-        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${ceresContext}</surefire.jvm.args>
+        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
 		<beam.version>5.0-SNAPSHOT</beam.version>
 		<ceres.version>0.14-SNAPSHOT</ceres.version>
@@ -27,7 +27,7 @@
 		<nest.version>6.0-SNAPSHOT</nest.version>
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
 		<jlinda.version>0.8</jlinda.version>
-		<outputdir>../output</outputdir>
+		<outputdir>../../${context}/output</outputdir>
 	</properties>
 	
 	<prerequisites>
@@ -1025,6 +1025,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+					<outputDirectory>../${context}/target</outputDirectory>
                     <descriptors>
 						<descriptor>nest-src/main/assembly/bin-windows64.xml</descriptor>
 						<descriptor>nest-src/main/assembly/bin-windows.xml</descriptor>						
@@ -1211,7 +1212,10 @@
     </developers>
 
     <profiles>
+		<profile>
+            <id>nest</id>
 
+		</profile>
 		<profile>
             <id>benchmark</id>
             <modules>

@@ -38,7 +38,8 @@
         <jide.version>3.5.3</jide.version>
         <jpy.version>0.7-SNAPSHOT</jpy.version>
         <jide.version>3.5.3</jide.version>
-		<outputdir>../../output</outputdir>
+
+		<outputdir>../../../nest/output</outputdir>
     </properties>
 
     <modules>		
@@ -968,6 +969,15 @@
         </developer>
     </developers>
 
+	<profiles>
+		<profile>
+            <id>array</id>
+			<properties>
+				<context>nest</context>
+				<outputdir>../../../${context}/output</outputdir>
+			</properties>
+		</profile>
+	</profiles>	
 
     <!-- TODO - check is this is still needed in BEAM 5.0 -->
     <!-- Dependency on SLF4J binding to Java logging. -->
