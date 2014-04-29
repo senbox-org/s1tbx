@@ -39,6 +39,7 @@
         <jpy.version>0.7-SNAPSHOT</jpy.version>
         <jide.version>3.5.3</jide.version>
 
+		<context>beam</context>
 		<outputdir>../</outputdir>
     </properties>
 
