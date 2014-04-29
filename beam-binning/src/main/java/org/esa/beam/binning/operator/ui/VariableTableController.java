@@ -126,8 +126,8 @@ class VariableTableController extends ListControlBar.AbstractListController {
             JOptionPane.showMessageDialog(grid, "At least one source product must be set first");
             return false;
         }
-        boolean createNewVariable = rowIndex == -1;
-        if(createNewVariable) {
+        boolean newVariable = rowIndex == -1;
+        if(newVariable) {
             int newVarIndex = variableItems.size();
             String varName;
             do {
@@ -137,18 +137,34 @@ class VariableTableController extends ListControlBar.AbstractListController {
             variableItem.variableConfig.setName(varName);
         }
 
-        final VariableItemDialog variableItemDialog = new VariableItemDialog(SwingUtilities.getWindowAncestor(grid), variableItem, createNewVariable,
-                                                                             contextProduct);
+        String oldVarName = variableItem.variableConfig.getName();
+        final VariableItemDialog variableItemDialog = new VariableItemDialog(SwingUtilities.getWindowAncestor(grid), variableItem,
+                                                                             newVariable, contextProduct);
         if (variableItemDialog.show() == ModalDialog.ID_OK) {
-            if(createNewVariable) {
-                addDataRow(variableItemDialog.getVariableItem());
+            if(newVariable) {
+                addDataRow(variableItem);
             } else {
-                updateDataRow(variableItemDialog.getVariableItem(), rowIndex);
+                updateDataRow(variableItem, rowIndex);
+                if (!oldVarName.equals(variableItem.variableConfig.getName())) {
+                    updateVariableExpressions(oldVarName, variableItem.variableConfig.getName());
+                }
             }
             updateBinningFormModel();
             return true;
         }
         return false;
+    }
+
+    private void updateVariableExpressions(String oldVarName, String newVarName) {
+        for (int i = 0; i < variableItems.size(); i++) {
+            VariableItem updatedItem = variableItems.get(i);
+            VariableConfig updatedVarConfig = updatedItem.variableConfig;
+            if (updatedVarConfig.getExpr().contains(oldVarName)) {
+                String updatedExpr = updatedVarConfig.getExpr().replace(oldVarName, newVarName);
+                updatedVarConfig.setExpr(updatedExpr);
+                updateDataRow(updatedItem, i);
+            }
+        }
     }
 
     private void updateBinningFormModel() {

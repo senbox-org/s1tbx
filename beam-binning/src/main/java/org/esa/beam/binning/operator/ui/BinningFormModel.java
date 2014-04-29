@@ -162,7 +162,7 @@ class BinningFormModel {
         }
         VariableConfig[] variableConfigs = getVariableConfigs();
         for (VariableConfig variableConfig : variableConfigs) {
-            contextProduct.addBand(variableConfig.getName(), ProductData.TYPE_FLOAT32);
+            contextProduct.addBand(new VariableConfigBand(variableConfig.getName()));
         }
         return contextProduct;
     }
@@ -187,19 +187,23 @@ class BinningFormModel {
         if (variableConfigs == null) {
             variableConfigs = new VariableConfig[0];
         }
-        VariableConfig[] oldVarConfigs = getVariableConfigs();
         setProperty(PROPERTY_KEY_VARIABLE_CONFIGS, variableConfigs);
         Product contextProduct = getContextProduct();
         if (contextProduct != null) {
-            for (VariableConfig oldVarConfig : oldVarConfigs) {
-                contextProduct.removeBand(contextProduct.getBand(oldVarConfig.getName()));
-            }
-
+            removeAllVariableConfigBands(contextProduct);
             for (VariableConfig variableConfig : variableConfigs) {
-                contextProduct.addBand(variableConfig.getName(), ProductData.TYPE_FLOAT32);
+                contextProduct.addBand(new VariableConfigBand(variableConfig.getName()));
             }
         }
+    }
 
+    void removeAllVariableConfigBands(Product contextProduct) {
+        Band[] bands = contextProduct.getBands();
+        for (Band band : bands) {
+            if(band instanceof VariableConfigBand) {
+                contextProduct.removeBand(band);
+            }
+        }
     }
 
     public Geometry getRegion() {
@@ -316,6 +320,13 @@ class BinningFormModel {
         final PropertyDescriptor descriptor = new PropertyDescriptor(name, type);
         descriptor.setDefaultConverter();
         return new Property(descriptor, defaultAccessor);
+    }
+
+    private static class VariableConfigBand extends Band {
+
+        public VariableConfigBand(String varName) {
+            super(varName, ProductData.TYPE_FLOAT32, 10, 10);
+        }
     }
 
 }
