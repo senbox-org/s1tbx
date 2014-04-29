@@ -24,18 +24,23 @@ import com.jidesoft.swing.AutoResizingTextArea;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.RegionBoundsInputUI;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -117,7 +122,7 @@ class BinningFilterPanel extends JPanel {
     }
 
     private JComponent createWktInputPanel() {
-        final AutoResizingTextArea textArea = new AutoResizingTextArea(5, 5);
+        final JTextArea textArea = new JTextArea(3, 30);
         //Overrides behavior when set enabled
         textArea.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -133,11 +138,7 @@ class BinningFilterPanel extends JPanel {
         bindingContext.bindEnabledState(BinningFormModel.PROPERTY_KEY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
         textArea.setEnabled(false);
 
-        JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setMinimumSize(new Dimension(120, 120));
-        scrollPane.setPreferredSize(new Dimension(120, 100));
-
-        return scrollPane;
+        return new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     }
 
     private JPanel createAndInitBoundsUI() {
@@ -200,7 +201,8 @@ class BinningFilterPanel extends JPanel {
         temporalFilterLabel.setToolTipText("The method that is used to decide which source pixels are used with respect to their observation time.");
         startDateLabel.setToolTipText("The UTC start date of the binning period. If only the date part is given, the time 00:00:00 is assumed.");
         periodDurationLabel.setToolTipText("Duration of the binning period in days.");
-        minDataHourLabel.setToolTipText("A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).");
+        minDataHourLabel.setToolTipText(
+                "A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).");
         BindingContext bindingContext = binningFormModel.getBindingContext();
 
         bindingContext.bind(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD, temporalFilterComboBox);
@@ -239,7 +241,8 @@ class BinningFilterPanel extends JPanel {
         return new Enablement.Condition() {
             @Override
             public boolean evaluate(BindingContext bindingContext) {
-                BinningOp.TimeFilterMethod chosenMethod = bindingContext.getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD).getValue();
+                BinningOp.TimeFilterMethod chosenMethod = bindingContext.getPropertySet().getProperty(
+                        BinningFormModel.PROPERTY_KEY_TIME_FILTER_METHOD).getValue();
                 for (BinningOp.TimeFilterMethod condition : conditions) {
                     if (condition == chosenMethod) {
                         return true;
