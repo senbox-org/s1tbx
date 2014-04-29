@@ -152,7 +152,7 @@ public class BinningFormModelTest {
         final BinningFormModel binningFormModel = new BinningFormModel();
 
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_GLOBAL, true);
-        assertEquals("polygon((-180 -90, 180 -90, 180 90, -180 90, -180 -90))", binningFormModel.getRegion());
+        assertEquals("POLYGON ((-180 -90, 180 -90, 180 90, -180 90, -180 -90))", binningFormModel.getRegion().toText());
     }
 
     @Test
@@ -173,8 +173,7 @@ public class BinningFormModelTest {
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_WEST_BOUND, 10.0);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_SOUTH_BOUND, 40.0);
 
-        final String region = binningFormModel.getRegion();
-        assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", region);
+        assertEquals("POLYGON ((10 40, 10 50, 15 50, 15 40, 10 40))", binningFormModel.getRegion().toText());
     }
 
     private Property createProperty(String propertyName, Class<?> type) {

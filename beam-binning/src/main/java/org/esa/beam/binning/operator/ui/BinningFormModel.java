@@ -25,7 +25,8 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.VariableConfig;
@@ -201,9 +202,9 @@ class BinningFormModel {
 
     }
 
-    public String getRegion() {
+    public Geometry getRegion() {
         if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_GLOBAL))) {
-            return GLOBAL_WKT;
+            return toGeometry(GLOBAL_WKT);
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_COMPUTE_REGION))) {
             return null;
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_BOUNDS))) {
@@ -218,12 +219,19 @@ class BinningFormModel {
             };
 
             final GeometryFactory geometryFactory = new GeometryFactory();
-            final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
-            return polygon.toText();
+            return geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
         } else if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_KEY_MANUAL_WKT))) {
-            return getPropertyValue(PROPERTY_KEY_WKT);
+            return toGeometry((String) getPropertyValue(PROPERTY_KEY_WKT));
         }
         throw new IllegalStateException("Should never come here");
+    }
+
+    Geometry toGeometry(String wkt) {
+        try {
+            return new WKTReader().read(wkt);
+        } catch (ParseException e) {
+            throw new IllegalStateException("WKT for region is not valid:\n" + wkt);
+        }
     }
 
     public String getMaskExpr() {
