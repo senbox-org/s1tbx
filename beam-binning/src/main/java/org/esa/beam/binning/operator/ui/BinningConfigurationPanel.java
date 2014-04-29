@@ -130,7 +130,7 @@ class BinningConfigurationPanel extends JPanel {
         final JTextField resolutionTextField = new DoubleTextField(defaultResolution);
         JButton resolutionButton = new JButton("default");
 
-        JLabel supersamplingLabel = new JLabel("Super-sampling:");
+        JLabel superSamplingLabel = new JLabel("Super-sampling:");
         final JTextField superSamplingTextField = new IntegerTextField(1);
 
         final ResolutionTextFieldListener listener = new ResolutionTextFieldListener(resolutionTextField, numRowsTextField);
@@ -163,7 +163,7 @@ class BinningConfigurationPanel extends JPanel {
         validPixelExpressionLabel.setToolTipText("Only those pixels matching this expression are considered");
         targetHeightLabel.setToolTipText("<html>The number of rows of the <b>maximum</b> target grid</html>");
         resolutionLabel.setToolTipText("The spatial resolution, directly depending on #rows");
-        supersamplingLabel.setToolTipText("Every input pixel is subdivided into n x n sub-pixels in order to reduce or avoid the Moiré effect");
+        superSamplingLabel.setToolTipText("Every input pixel is subdivided into n x n sub-pixels in order to reduce or avoid the Moiré effect");
 
         TableLayout layout = new TableLayout(3);
         layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -187,7 +187,7 @@ class BinningConfigurationPanel extends JPanel {
         parametersPanel.add(resolutionTextField);
         parametersPanel.add(resolutionButton);
 
-        parametersPanel.add(supersamplingLabel);
+        parametersPanel.add(superSamplingLabel);
         parametersPanel.add(superSamplingTextField);
 
         return parametersPanel;
