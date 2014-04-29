@@ -87,6 +87,7 @@ class VariableTableController extends ListControlBar.AbstractListController {
         clearGrid();
         variableItems.clear();
         addVariableConfigs(variableConfigs);
+        updateBinningFormModel();
     }
 
     private void addDataRow(VariableItem vi) {
