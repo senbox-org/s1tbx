@@ -37,6 +37,15 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Geometric</text>
             <parent>sar-processing</parent>
+            <placeAfter>Calibration</placeAfter>
+        </action>
+
+        <action>
+            <id>insar</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Interferometric</text>
+            <parent>sar-processing</parent>
+            <placeAfter>geometry</placeAfter>
         </action>
 
         <action>

@@ -27,6 +27,14 @@
 	<extension point="beam-ui:actions">
 
         <action>
+            <id>polarimetrictools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Polarimetric</text>
+            <parent>sar-processing</parent>
+            <placeAfter>insar</placeAfter>
+        </action>
+
+        <action>
 	        <id>PolarimetricMatricesOp</id>
 	        <helpId>PolarimetricMatricesOp</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>

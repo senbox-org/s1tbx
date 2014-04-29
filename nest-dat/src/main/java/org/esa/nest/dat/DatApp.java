@@ -367,6 +367,17 @@ public class DatApp extends VisatApp {
         menuBar.setHidable(true);
         menuBar.setStretch(true);
 
+        boolean incImageProcessing = false;
+        final CommandManager cmdMan = getCommandManager();
+        for (int i = 0; i < cmdMan.getNumCommands(); i++) {
+            final String parent = cmdMan.getCommandAt(i).getParent();
+            if(parent == null)
+                continue;
+
+            if(parent.equals("Image Processing"))
+                incImageProcessing = true;
+        }
+
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
@@ -381,8 +392,8 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Optical Processing", 'P'));
         menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
-        menuBar.add(createJMenu("insar", "Interferometric", 'I'));
-        menuBar.add(createJMenu("polarimetrictools", "Polarimetric", 'L'));
+        if(incImageProcessing)
+            menuBar.add(createJMenu("Image Processing", "Image Processing", 'I'));
         menuBar.add(createJMenu("classification", "Classification", 'C'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
         menuBar.add(createJMenu("window", "Window", 'W'));
@@ -465,7 +476,7 @@ public class DatApp extends VisatApp {
         for(int i=0; i < numCmds; ++i) {
             final Command cmd = cmdMan.getCommandAt(i);
             final String parent = cmd.getParent();
-            if(parent != null && parent.equals(LABELS_TOOL_BAR_ID)) {
+            if(parent != null && parent.equals("labels")) {
                 placeAfterMap.put(cmd.getCommandID(), cmd.getPlaceAfter());
                 cmdList.add(cmd.getCommandID());
             }

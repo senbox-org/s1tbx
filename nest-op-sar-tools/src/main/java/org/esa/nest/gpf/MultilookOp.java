@@ -194,7 +194,6 @@ public final class MultilookOp extends Operator {
             final boolean isComplex = outputIntensity && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY);
 
             double meanValue;
-            int offset;
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
             if(nRgLooks == 1 && nAzLooks == 1) {
@@ -203,15 +202,16 @@ public final class MultilookOp extends Operator {
                     targetTile.setRawSamples(sourceRaster1.getRawSamples());
                 } else {
                     for (int ty = ty0; ty < maxy; ty++) {
-                        offset = trgIndex.calculateStride(ty);
+                        trgIndex.calculateStride(ty);
+                        srcIndex.calculateStride(ty);
                         for (int tx = tx0; tx < maxx; tx++) {
-                            final int index = tx - offset;
+                            final int index = srcIndex.getIndex(tx);
                             final double i = srcData1.getElemDoubleAt(index);
                             if(srcData2 != null) {
                                 final double q = srcData2.getElemDoubleAt(index);
-                                trgData.setElemDoubleAt(index, i*i + q*q);
+                                trgData.setElemDoubleAt(trgIndex.getIndex(tx), i*i + q*q);
                             } else {
-                                trgData.setElemDoubleAt(index, i);
+                                trgData.setElemDoubleAt(trgIndex.getIndex(tx), i);
                             }
                         }
                     }

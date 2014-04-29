@@ -39,7 +39,7 @@
         <jpy.version>0.7-SNAPSHOT</jpy.version>
         <jide.version>3.5.3</jide.version>
 
-		<outputdir>../../../nest/output</outputdir>
+		<outputdir>../</outputdir>
     </properties>
 
     <modules>		
@@ -973,7 +973,6 @@
 		<profile>
             <id>array</id>
 			<properties>
-				<context>nest</context>
 				<outputdir>../../../${context}/output</outputdir>
 			</properties>
 		</profile>
