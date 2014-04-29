@@ -189,12 +189,14 @@ class BinningFormModel {
         VariableConfig[] oldVarConfigs = getVariableConfigs();
         setProperty(PROPERTY_KEY_VARIABLE_CONFIGS, variableConfigs);
         Product contextProduct = getContextProduct();
-        for (VariableConfig oldVarConfig : oldVarConfigs) {
-            contextProduct.removeBand(contextProduct.getBand(oldVarConfig.getName()));
-        }
+        if (contextProduct != null) {
+            for (VariableConfig oldVarConfig : oldVarConfigs) {
+                contextProduct.removeBand(contextProduct.getBand(oldVarConfig.getName()));
+            }
 
-        for (VariableConfig variableConfig : variableConfigs) {
-            contextProduct.addBand(variableConfig.getName(), ProductData.TYPE_FLOAT32);
+            for (VariableConfig variableConfig : variableConfigs) {
+                contextProduct.addBand(variableConfig.getName(), ProductData.TYPE_FLOAT32);
+            }
         }
 
     }
