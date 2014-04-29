@@ -640,11 +640,16 @@ public class BinningOp extends Operator {
                 getLogger().warning("The given source file patterns did not match any files");
             }
             for (File file : fileSet) {
-                Product sourceProduct;
-                if (sourceProductFormat != null) {
-                    sourceProduct = ProductIO.readProduct(file, sourceProductFormat);
-                } else {
-                    sourceProduct = ProductIO.readProduct(file);
+                Product sourceProduct = null;
+                try {
+                    if (sourceProductFormat != null) {
+                        sourceProduct = ProductIO.readProduct(file, sourceProductFormat);
+                    } else {
+                        sourceProduct = ProductIO.readProduct(file);
+                    }
+                } catch (Exception e) {
+                    String msgPattern = "Failed to read file '%s'. %s: %s";
+                    getLogger().severe(String.format(msgPattern, file, e.getClass().getSimpleName(), e.getMessage()));
                 }
                 if (sourceProduct != null) {
                     try {
