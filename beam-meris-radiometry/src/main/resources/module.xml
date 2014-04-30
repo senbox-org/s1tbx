@@ -27,6 +27,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0</b><br/>
+        [BEAM-1647] Detection of reprocessing is wrong for FSG products<br/>
         [BEAM-1460] Component enablement in Radiometry Processor Dialog is wrong<br/>
         [BEAM-1481] Explain the radiometric correction files<br/>
         ]]>
