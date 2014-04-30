@@ -108,18 +108,6 @@ class HistogramPanel extends ChartPagePanel {
     @Override
     protected void initComponents() {
         VisatApp.getApp().getProductTree().addProductTreeListener(new ProductTreeListenerAdapter() {
-//            @Override
-//            public void bandSelected(Band band, int clickCount) {
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (isRasterChanged()) {
-//                            updateChartData(false);
-//                        }
-//                    }
-//                });
-//            }
-
             @Override
             public void productRemoved(Product product) {
                 model.removeStxFromProduct(product);
@@ -193,6 +181,7 @@ class HistogramPanel extends ChartPagePanel {
         }
         final String maskName = sourceNode.getName();
         if (roiMask.getName().equals(maskName)) {
+            model.removeStx(createHistogramConfig());
             updateComponents();
         }
     }
