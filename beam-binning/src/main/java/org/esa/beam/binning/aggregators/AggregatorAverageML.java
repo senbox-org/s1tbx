@@ -27,6 +27,7 @@ import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WeightFn;
 import org.esa.beam.binning.WritableVector;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -140,7 +141,7 @@ public class AggregatorAverageML extends AbstractAggregator {
 
         @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation.")
         String varName;
-        @Parameter(label = "Target band name prefix", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
+        @Parameter(label = "Target band name prefix (optional)", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
         String targetName;
         @Parameter(defaultValue = "0.5", description = "The number of spatial observation to the power of this value \n" +
                                                        "will define the weighting factor of the sums.")
@@ -179,9 +180,8 @@ public class AggregatorAverageML extends AbstractAggregator {
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             Config config = ((Config) aggregatorConfig);
-
             boolean outputSums = config.outputSums != null ? config.outputSums : false;
-            String targetName = config.targetName != null ? config.targetName : config.varName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.varName;
             double weightCoeff = config.weightCoeff != null ? config.weightCoeff : 0.5;
             return new AggregatorAverageML(varCtx, config.varName, targetName, weightCoeff, outputSums);
         }
@@ -196,7 +196,7 @@ public class AggregatorAverageML extends AbstractAggregator {
         public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
             Config config = ((Config) aggregatorConfig);
             boolean outputSums = config.outputSums != null ? config.outputSums : false;
-            String targetName = config.targetName != null ? config.targetName : config.varName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.varName;
             return outputSums ?
                     createFeatureNames(targetName, "sum", "sum_sq", "weights") :
                     createFeatureNames(targetName, "mean", "sigma", "median", "mode");

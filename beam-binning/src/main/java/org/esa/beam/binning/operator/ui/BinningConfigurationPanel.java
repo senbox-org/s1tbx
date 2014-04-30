@@ -81,11 +81,11 @@ class BinningConfigurationPanel extends JPanel {
 
     private JComponent createAggregatorsAndVariablesPanel() {
         JideSplitPane splitPane = new JideSplitPane(JideSplitPane.VERTICAL_SPLIT);
-        splitPane.setProportionalLayout(true);
-        splitPane.setShowGripper(true);
         splitPane.add(createAggregatorsPanel());
         splitPane.add(createVariablesPanel());
-        splitPane.setProportions(new double[]{0.7});
+        splitPane.setShowGripper(true);
+        splitPane.setProportionalLayout(true);
+        splitPane.setProportions(new double[]{0.6});
         return splitPane;
     }
 
@@ -244,7 +244,6 @@ class BinningConfigurationPanel extends JPanel {
         final Grid grid = new Grid(6, false);
         TableLayout gridLayout = grid.getLayout();
         gridLayout.setTablePadding(4, 3);
-        gridLayout.setTableAnchor(TableLayout.Anchor.BASELINE);
         gridLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         gridLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
         gridLayout.setColumnFill(3, TableLayout.Fill.HORIZONTAL);
@@ -282,7 +281,19 @@ class BinningConfigurationPanel extends JPanel {
     }
 
     private JPanel createVariablesPanel() {
-        final Grid grid = createVariableTable();
+        final Grid grid = new Grid(4, false);
+        TableLayout gridLayout = grid.getLayout();
+        gridLayout.setTablePadding(4, 3);
+        gridLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        gridLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
+        gridLayout.setColumnWeightX(2, 1.0);
+        grid.setHeaderRow(
+                /*0*/ //selection column
+                /*1*/ new JLabel("<html><b>Name</b>"),
+                /*2*/ new JLabel("<html><b>Expression</b>"),
+                /*5*/ null // column for edit button
+        );
+
         variableTableController = new VariableTableController(grid, binningFormModel);
         final ListControlBar gridControlBar = ListControlBar.create(ListControlBar.HORIZONTAL, grid, variableTableController);
 
@@ -302,24 +313,6 @@ class BinningConfigurationPanel extends JPanel {
         panel.add(gridControlBar, BorderLayout.NORTH);
         panel.add(new JScrollPane(grid), BorderLayout.CENTER);
         return panel;
-    }
-
-    private Grid createVariableTable() {
-        final Grid grid = new Grid(4, false);
-        TableLayout gridLayout = grid.getLayout();
-        gridLayout.setTablePadding(4, 3);
-        gridLayout.setTableAnchor(TableLayout.Anchor.BASELINE);
-        gridLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        gridLayout.setColumnFill(2, TableLayout.Fill.HORIZONTAL);
-        gridLayout.setColumnWeightX(2, 1.0);
-        grid.setHeaderRow(
-                /*0*/ //selection column
-                /*1*/ new JLabel("<html><b>Name</b>"),
-                /*2*/ new JLabel("<html><b>Expression</b>"),
-                /*5*/ null // column for edit button
-        );
-
-        return grid;
     }
 
     private static class IntegerTextField extends JTextField {

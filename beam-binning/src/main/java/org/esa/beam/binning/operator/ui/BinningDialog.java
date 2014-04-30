@@ -66,8 +66,8 @@ public class BinningDialog extends SingleTargetProductDialog {
 
         ParameterUpdater parameterUpdater = new BinningParameterUpdater();
         OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(),
-                                                                                 null,
-                                                                                 null,
+                                                                                 formModel.getPropertySet(),
+                                                                                 formModel.getParameterMap(),
                                                                                  parameterUpdater);
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
                                                      operatorSpi.getOperatorDescriptor(),
@@ -80,46 +80,24 @@ public class BinningDialog extends SingleTargetProductDialog {
     @Override
     protected boolean verifyUserInput() {
         AggregatorConfig[] aggregatorConfigs = formModel.getAggregatorConfigs();
-        if (aggregatorConfigs.length == 0) {
-            showErrorDialog("Please configure at least a single aggregator.");
+        if (!isAtLeastOneAggreatorConfigDefined(aggregatorConfigs)) {
             return false;
         }
 
-        List<String> targetVarNameList = new ArrayList<>();
-        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
-            AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
-            String[] targetNames = descriptor.getTargetVarNames(aggregatorConfig);
-            for (String targetName : targetNames) {
-                if(targetVarNameList.contains(targetName)) {
-                    showErrorDialog(String.format("The target band with the name '%s' is defined twice.", targetName));
-                    return false;
-                }else {
-                    targetVarNameList.add(targetName);
-                }
-
-            }
+        if (!doUsedVariablesStillExist(aggregatorConfigs)) {
+            return false;
         }
 
-        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY ||
-            formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
-            if (formModel.getStartDateTime() == null) {
-                showErrorDialog("Start date/time must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
-                return false;
-            }
-            if (formModel.getPeriodDuration() == null) {
-                showErrorDialog("Period duration must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
-                return false;
-            }
+        if (!areTargetNamesUnique(aggregatorConfigs)) {
+            return false;
         }
-        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY) {
-            if (formModel.getMinDataHour() == null) {
-                showErrorDialog("Min data hour must be provided when time filter method 'spatiotemporal data day' is chosen.");
-                return false;
-            }
+
+        if (!isTimeFilterWellConfigured()) {
+            return false;
         }
         return true;
     }
+
 
     @Override
     protected Product createTargetProduct() throws Exception {
@@ -141,12 +119,79 @@ public class BinningDialog extends SingleTargetProductDialog {
         super.hide();
     }
 
+    private boolean doUsedVariablesStillExist(AggregatorConfig[] aggregatorConfigs) {
+        Product contextProduct = formModel.getContextProduct();
+        // assuming that the variables are defined in the context product
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
+            String aggregatorConfigName = aggregatorConfig.getName();
+            AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfigName);
+            String[] sourceVarNames = descriptor.getSourceVarNames(aggregatorConfig);
+            for (String sourceVarName : sourceVarNames) {
+                if(!contextProduct.containsBand(sourceVarName)) {
+                    String msg = String.format(
+                            "Source band name '%s' of aggregator '%s' is unknown.\nIt is neither one of the bands of the source products,\n" +
+                            "nor is it defined by an intermediate source band.", sourceVarName, aggregatorConfigName);
+                    showErrorDialog(msg);
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
+
+    private boolean isTimeFilterWellConfigured() {
+        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY ||
+            formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.TIME_RANGE) {
+            if (formModel.getStartDateTime() == null) {
+                showErrorDialog("Start date/time must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
+                return false;
+            }
+            if (formModel.getPeriodDuration() == null) {
+                showErrorDialog("Period duration must be provided when time filter method 'spatiotemporal data day' or 'time range' is chosen.");
+                return false;
+            }
+        }
+        if (formModel.getTimeFilterMethod() == BinningOp.TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY) {
+            if (formModel.getMinDataHour() == null) {
+                showErrorDialog("Min data hour must be provided when time filter method 'spatiotemporal data day' is chosen.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isAtLeastOneAggreatorConfigDefined(AggregatorConfig[] aggregatorConfigs) {
+        if (aggregatorConfigs.length == 0) {
+            showErrorDialog("Please configure at least a single aggregator.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean areTargetNamesUnique(AggregatorConfig[] aggregatorConfigs) {
+        List<String> targetVarNameList = new ArrayList<>();
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        for (AggregatorConfig aggregatorConfig : aggregatorConfigs) {
+            AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
+            String[] targetNames = descriptor.getTargetVarNames(aggregatorConfig);
+            for (String targetName : targetNames) {
+                if(targetVarNameList.contains(targetName)) {
+                    showErrorDialog(String.format("The target band with the name '%s' is defined twice.", targetName));
+                    return false;
+                }else {
+                    targetVarNameList.add(targetName);
+                }
+            }
+        }
+        return true;
+    }
+
     private void updateParameterMap(Map<String, Object> parameters) {
         parameters.put("variableConfigs", formModel.getVariableConfigs());
         parameters.put("aggregatorConfigs", formModel.getAggregatorConfigs());
 
-        parameters.put("outputFormat", "BEAM-DIMAP");
-        parameters.put("outputType", "Product");
         parameters.put("outputFile", getTargetProductSelector().getModel().getProductFile().getPath());
 
         parameters.put("maskExpr", formModel.getMaskExpr());

@@ -33,11 +33,11 @@ import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
  */
 public class FormatterConfig {
 
-    @Parameter(valueSet = {"Product", "RGB", "Grey"})
+    @Parameter(valueSet = {"Product", "RGB", "Grey"}, defaultValue = "Product")
     private String outputType;
     @Parameter
     private String outputFile;
-    @Parameter
+    @Parameter(defaultValue = "BEAM-DIMAP")
     private String outputFormat;
     @Parameter(alias = "outputBands", itemAlias = "band", description = "Configures the target bands. Not needed " +
             "if output type 'Product' is chosen.")

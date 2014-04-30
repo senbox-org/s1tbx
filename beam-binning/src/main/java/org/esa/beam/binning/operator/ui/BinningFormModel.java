@@ -42,6 +42,7 @@ import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 
 /**
  * The model responsible for managing the binning parameters.
@@ -79,21 +80,35 @@ class BinningFormModel {
 
     private PropertySet propertySet;
     private BindingContext bindingContext;
+    private HashMap<String, Object> parameterMap;
 
     public BinningFormModel() {
-        propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning");
+        parameterMap = new HashMap<>();
+        propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning", parameterMap);
+
+        // are not shown in GUI and shall not go into parameter file
+        propertySet.removeProperty(propertySet.getProperty("metadataPropertiesFile"));  // default: './metadata.properties'
+        propertySet.removeProperty(propertySet.getProperty("metadataTemplateDir"));     // default: '.'
+        propertySet.removeProperty(propertySet.getProperty("outputType"));              // default: Product
+        propertySet.removeProperty(propertySet.getProperty("outputFormat"));            // default: BEAM-DIMAP
+        propertySet.removeProperty(propertySet.getProperty("outputBinnedData"));        // default: false
+        propertySet.removeProperty(propertySet.getProperty("outputMappedProduct"));     // default: true
+
+
         // Just for GUI
-        propertySet.addProperty(createProperty(PROPERTY_KEY_GLOBAL, Boolean.class));                                    // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));                            // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));                                // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_WKT, String.class));                                        // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_BOUNDS, Boolean.class));                                    // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_EAST_BOUND, Double.class));                                 // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_NORTH_BOUND, Double.class));                                // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_WEST_BOUND, Double.class));                                 // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SOUTH_BOUND, Double.class));                                // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // temp
-        propertySet.addProperty(createProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_GLOBAL, Boolean.class));                                    // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_COMPUTE_REGION, Boolean.class));                            // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_MANUAL_WKT, Boolean.class));                                // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_WKT, String.class));                                        // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_BOUNDS, Boolean.class));                                    // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_EAST_BOUND, Double.class));                                 // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_NORTH_BOUND, Double.class));                                // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_WEST_BOUND, Double.class));                                 // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_SOUTH_BOUND, Double.class));                                // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_SOURCE_PRODUCTS, Product[].class));                         // temp
+        propertySet.addProperty(createTransientProperty(PROPERTY_KEY_CONTEXT_SOURCE_PRODUCT, Product.class));                    // temp
+
+
 
         propertySet.setDefaultValues();
 
@@ -105,6 +120,14 @@ class BinningFormModel {
                 propertySet.setValue(PROPERTY_KEY_WKT, newGeometry.toText());
             }
         });
+    }
+
+    public PropertySet getPropertySet() {
+        return propertySet;
+    }
+
+    public HashMap<String, Object> getParameterMap() {
+        return parameterMap;
     }
 
     public Product[] getSourceProducts() {
@@ -315,9 +338,10 @@ class BinningFormModel {
         return null;
     }
 
-    private static Property createProperty(String name, Class type) {
+    private static Property createTransientProperty(String name, Class type) {
         final DefaultPropertyAccessor defaultAccessor = new DefaultPropertyAccessor();
         final PropertyDescriptor descriptor = new PropertyDescriptor(name, type);
+        descriptor.setTransient(true);
         descriptor.setDefaultConverter();
         return new Property(descriptor, defaultAccessor);
     }

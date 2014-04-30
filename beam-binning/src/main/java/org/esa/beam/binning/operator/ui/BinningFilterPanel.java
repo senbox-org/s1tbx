@@ -23,29 +23,21 @@ import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
 import com.jidesoft.swing.AutoResizingTextArea;
 import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.binning.operator.BinningOp;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.RegionBoundsInputUI;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -104,25 +96,28 @@ class BinningFilterPanel extends JPanel {
 
         computeOption.setSelected(true);
 
-        final GridBagLayout layout = new GridBagLayout();
+        final TableLayout layout = new TableLayout(1);
+        layout.setTableAnchor(TableLayout.Anchor.NORTHEAST);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableWeightX(1.0);
+        layout.setTablePadding(4, 3);
         setLayout(layout);
-        GridBagConstraints gbc = new GridBagConstraints();
 
-        GridBagUtils.addToPanel(this, new TitledSeparator("Spatial Filter / Region", SwingConstants.CENTER), gbc, "insets=5,weighty=0,anchor=NORTHWEST,fill=HORIZONTAL");
-        GridBagUtils.addToPanel(this, computeOption, gbc, "insets=3,gridy=1");
-        GridBagUtils.addToPanel(this, globalOption, gbc, "gridy=2");
-        GridBagUtils.addToPanel(this, wktOption, gbc, "gridy=3");
-        GridBagUtils.addToPanel(this, createWktInputPanel(), gbc, "gridy=4");
-        GridBagUtils.addToPanel(this, regionOption, gbc, "gridy=5");
-        GridBagUtils.addToPanel(this, createAndInitBoundsUI(), gbc, "gridy=6,insets.bottom=5");
+        add(new TitledSeparator("Spatial Filter / Region", SwingConstants.CENTER));
+        add(computeOption);
+        add(globalOption);
+        add(wktOption);
+        add(createWktInputPanel());
+        add(regionOption);
+        add(createAndInitBoundsUI());
 
-        GridBagUtils.addToPanel(this, new TitledSeparator("Temporal Filter", SwingConstants.CENTER), gbc, "gridy=7,insets.bottom=3");
-        GridBagUtils.addToPanel(this, createTemporalFilterPanel(), gbc, "gridy=8");
-        GridBagUtils.addVerticalFiller(this, gbc);
+        add(new TitledSeparator("Temporal Filter", SwingConstants.CENTER));
+        add(createTemporalFilterPanel());
+        add(layout.createVerticalSpacer());
     }
 
     private JComponent createWktInputPanel() {
-        final JTextArea textArea = new JTextArea(3, 30);
+        final JTextArea textArea = new AutoResizingTextArea(3, 30);
         //Overrides behavior when set enabled
         textArea.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -138,7 +133,7 @@ class BinningFilterPanel extends JPanel {
         bindingContext.bindEnabledState(BinningFormModel.PROPERTY_KEY_WKT, false, BinningFormModel.PROPERTY_KEY_MANUAL_WKT, false);
         textArea.setEnabled(false);
 
-        return new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        return new JScrollPane(textArea);
     }
 
     private JPanel createAndInitBoundsUI() {

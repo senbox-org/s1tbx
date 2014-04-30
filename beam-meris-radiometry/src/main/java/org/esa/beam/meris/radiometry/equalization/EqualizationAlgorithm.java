@@ -17,11 +17,9 @@
 package org.esa.beam.meris.radiometry.equalization;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,14 +33,6 @@ import java.util.TimeZone;
 
 public class EqualizationAlgorithm {
 
-    private static final String ELEM_NAME_DSD = "DSD";
-    private static final String ELEM_NAME_DSD23 = "DSD.23";
-    private static final String ATTRIBUTE_FILE_NAME = "FILE_NAME";
-    private static final String REDUCED_RESOLUTION_PREFIX = "MER_R";
-    private static final int REPRO2_RR_START_DATE = 20050607;
-    private static final int REPRO2_FR_START_DATE = 20050708;
-    private static final int REPRO3_RR_START_DATE = 20091008;
-    private static final int REPRO3_FR_START_DATE = 20091008;
 
     private EqualizationLUT equalizationLUT;
     private long julianDate;
@@ -109,55 +99,24 @@ public class EqualizationAlgorithm {
         return (long) (utc.getTimeInMillis() / millisPerDay - epochJulianDate);
     }
 
-    private static int getReprocessingVersion(Product product, ReprocessingVersion version) {
+    private static ReprocessingVersion getReprocessingVersion(Product product, ReprocessingVersion version) {
         if (ReprocessingVersion.AUTO_DETECT.equals(version)) {
             return autoDetectReprocessingVersion(product);
         } else {
-            return version.getVersion();
+            return version;
         }
     }
 
-    private static int autoDetectReprocessingVersion(Product product) {
-        final MetadataElement dsdElement = product.getMetadataRoot().getElement(ELEM_NAME_DSD);
-        if (dsdElement != null) {
-            final MetadataElement dsd23 = dsdElement.getElement(ELEM_NAME_DSD23);
-            final String calibrationFileName = dsd23.getAttributeString(ATTRIBUTE_FILE_NAME);
-            if (StringUtils.isNotNullAndNotEmpty(calibrationFileName)) {
-                final boolean reduced = product.getProductType().startsWith(REDUCED_RESOLUTION_PREFIX);
-                final int version = detectReprocessingVersion(calibrationFileName, reduced);
-                if (version != -1) {
-                    return version;
-                }
-            }
+    private static ReprocessingVersion autoDetectReprocessingVersion(Product product) {
+        ReprocessingVersion reprocessingVersion = ReprocessingVersion.autoDetect(product);
+        if (ReprocessingVersion.AUTO_DETECT.equals(reprocessingVersion)) {
+            throw new OperatorException("Reprocessing version could not be detected.\n" +
+                                        "Please specify reprocessing version manually.");
         }
-        throw new OperatorException("Reprocessing version could not be detected.\n" +
-                                    "Please specify reprocessing version manually.");
+        return reprocessingVersion;
     }
 
-    static int detectReprocessingVersion(String calibrationFileName, boolean isReduced) {
-        if (StringUtils.isNullOrEmpty(calibrationFileName)) {
-            return -1;
-        }
-        final String parsedDate = calibrationFileName.substring(14, 22);
-        final int date = Integer.parseInt(parsedDate);
-        if (isReduced) {
-            return getReprocessingVersion(date, REPRO2_RR_START_DATE, REPRO3_RR_START_DATE);
-        } else {
-            return getReprocessingVersion(date, REPRO2_FR_START_DATE, REPRO3_FR_START_DATE);
-        }
-    }
-
-    private static int getReprocessingVersion(int date, int repro2RrStartDate, int repro3FrStartDate) {
-        if (date >= repro2RrStartDate && date < repro3FrStartDate) {
-            return 2;
-        } else if (date >= repro3FrStartDate) {
-            return 3;
-        } else {
-            return -1;
-        }
-    }
-
-    private static EqualizationLUT createLut(int reprocessingVersion, boolean fullResolution) {
+    private static EqualizationLUT createLut(ReprocessingVersion reprocessingVersion, boolean fullResolution) {
         EqualizationLUT lut;
         try {
             List<Reader> readerList = getCoefficientsReaders(reprocessingVersion, fullResolution);
@@ -169,13 +128,13 @@ public class EqualizationAlgorithm {
         return lut;
     }
 
-    private static List<Reader> getCoefficientsReaders(int reprocessingVersion, boolean fullResolution) {
+    private static List<Reader> getCoefficientsReaders(ReprocessingVersion reprocessingVersion, boolean fullResolution) {
         final String coefFilePattern = "Equalization_coefficient_band_%02d_reprocessing_r%d_%s.txt";
         final int bandCount = 15;
         List<Reader> readerList = new ArrayList<>();
         for (int i = 1; i <= bandCount; i++) {
             final InputStream stream = EqualizationLUT.class.getResourceAsStream(
-                    String.format(coefFilePattern, i, reprocessingVersion, fullResolution ? "FR" : "RR"));
+                    String.format(coefFilePattern, i, reprocessingVersion.getVersion(), fullResolution ? "FR" : "RR"));
             readerList.add(new InputStreamReader(stream));
         }
         return readerList;

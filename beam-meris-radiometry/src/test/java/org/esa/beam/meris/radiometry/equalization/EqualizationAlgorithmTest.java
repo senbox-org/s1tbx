@@ -25,7 +25,6 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
-import static org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm.*;
 import static org.junit.Assert.*;
 
 public class EqualizationAlgorithmTest {
@@ -53,47 +52,6 @@ public class EqualizationAlgorithmTest {
                      algorithm.performEqualization(sample, 1, 1), 1.0e-6);
     }
 
-//        // RR
-//        MER_RAC_AXVIEC20050606_071652_20021224_121445_20041213_220000    // before Repro2
-//        MER_RAC_AXVIEC20050607_071652_20021224_121445_20041213_220000    // first Repro2
-//        MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000    // last Repro2
-//        MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000    // first Repro3
-//
-//        // FR
-//        MER_RAC_AXVIEC20050707_135806_20041213_220000_20141213_220000    // before Repro2
-//        MER_RAC_AXVIEC20050708_135806_20041213_220000_20141213_220000    // first Repro2
-//        MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000    // last Repro2
-//        MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000    // first Repro3
-
-    @Test
-    public void testParseReprocessingVersion_RR() {
-        assertEquals(-1, detectReprocessingVersion("MER_RAC_AXVIEC20050606_071652_20021224_121445_20041213_220000",
-                                                   true));
-        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20050607_071652_20021224_121445_20041213_220000",
-                                                  true));
-        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20070302", true));
-        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000",
-                                                  true));
-        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000",
-                                                  true));
-        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20111008",
-                                                  true));
-    }
-
-    @Test
-    public void testParseReprocessingVersion_FR() {
-        assertEquals(-1, detectReprocessingVersion("MER_RAC_AXVIEC20050707_135806_20041213_220000_20141213_220000",
-                                                   false));
-        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20050708_135806_20041213_220000_20141213_220000",
-                                                  false));
-        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVIEC20070302", false));
-        assertEquals(2, detectReprocessingVersion("MER_RAC_AXVACR20091007_171024_20061009_220000_20161009_220000",
-                                                  false));
-        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20091008_171024_20061009_220000_20161009_220000",
-                                                  false));
-        assertEquals(3, detectReprocessingVersion("MER_RAC_AXVACR20111008",
-                                                  false));
-    }
 
     @Test
     public void testGetJulianDate() throws ParseException, IOException {

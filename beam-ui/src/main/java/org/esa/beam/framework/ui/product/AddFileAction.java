@@ -17,12 +17,8 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.ValidationException;
-import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
@@ -41,6 +37,7 @@ import java.util.List;
  */
 class AddFileAction extends AbstractAction {
 
+    public static final String ALL_FILES_FORMAT = "ALL_FILES";
     private final AppContext appContext;
     private final InputListModel listModel;
     private final String lastOpenInputDir;
@@ -59,8 +56,7 @@ class AddFileAction extends AbstractAction {
         final PropertyMap preferences = appContext.getPreferences();
         String lastDir = preferences.getPropertyString(lastOpenInputDir,
                                                        SystemUtils.getUserHomeDir().getPath());
-        String lastFormat = preferences.getPropertyString(lastOpenedFormat,
-                                                          DimapProductConstants.DIMAP_FORMAT_NAME);
+        String lastFormat = preferences.getPropertyString(lastOpenedFormat, ALL_FILES_FORMAT);
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(lastDir));
@@ -72,14 +68,14 @@ class AddFileAction extends AbstractAction {
         List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(allReaderPlugIns);
         for (BeamFileFilter productFileFilter : sortedFileFilters) {
             fileChooser.addChoosableFileFilter(productFileFilter);
-            if (!"ALL_FILES".equals(lastFormat) &&
+            if (!ALL_FILES_FORMAT.equals(lastFormat) &&
                 productFileFilter.getFormatName().equals(lastFormat)) {
                 actualFileFilter = productFileFilter;
             }
         }
         fileChooser.setFileFilter(actualFileFilter);
 
-        int result = fileChooser.showDialog(appContext.getApplicationWindow(), "Select product(s)");    /*I18N*/
+        int result = fileChooser.showDialog(appContext.getApplicationWindow(), "Select product(s)");
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
@@ -95,27 +91,17 @@ class AddFileAction extends AbstractAction {
             appContext.handleError("Invalid input path", ve);
         }
 
-        setLastOpenedFormat(preferences, selectedProducts);
+        setLastOpenedFormat(preferences, fileChooser.getFileFilter());
     }
 
-    private void setLastOpenedFormat(PropertyMap preferences, Object[] selectedProducts) {
-        String format = DimapProductConstants.DIMAP_FORMAT_NAME;
-        if (selectedProducts.length > 0) {
-            Object lastSelectedProduct = selectedProducts[selectedProducts.length - 1];
-            ProductReader productReader = null;
-            if (lastSelectedProduct instanceof File) {
-                productReader = ProductIO.getProductReaderForInput(lastSelectedProduct);
-            } else if (lastSelectedProduct instanceof Product) {
-                productReader = ((Product) lastSelectedProduct).getProductReader();
+    private void setLastOpenedFormat(PropertyMap preferences, FileFilter fileFilter) {
+        if (fileFilter instanceof BeamFileFilter) {
+            String currentFormat = ((BeamFileFilter) fileFilter).getFormatName();
+            if (currentFormat != null) {
+                preferences.setPropertyString(lastOpenedFormat, currentFormat);
             }
-            if (productReader != null) {
-                String[] formatNames = productReader.getReaderPlugIn().getFormatNames();
-                if (formatNames.length > 0) {
-                    format = formatNames[formatNames.length - 1];
-                }
-            }
-
+        } else {
+            preferences.setPropertyString(lastOpenedFormat, ALL_FILES_FORMAT);
         }
-        preferences.setPropertyString(this.lastOpenedFormat, format);
     }
 }

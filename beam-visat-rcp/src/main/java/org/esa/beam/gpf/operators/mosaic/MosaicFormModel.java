@@ -137,7 +137,7 @@ class MosaicFormModel {
     }
 
     Map<String, Object> getParameterMap() {
-        return Collections.unmodifiableMap(parameterMap);
+        return parameterMap;
     }
 
     Map<String, Product> getSourceProductMap() {

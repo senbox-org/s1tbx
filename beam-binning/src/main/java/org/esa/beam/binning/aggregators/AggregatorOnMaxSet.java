@@ -144,10 +144,10 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         @Parameter(label = "Maximum band name", notEmpty = true, notNull = true,
                    description = "If this band reaches its maximum the values of the source bands are taken.")
         String onMaxVarName;
-        @Parameter(label = "Target band name prefix", description = "The name prefix for the resulting maximum bands. " +
+        @Parameter(label = "Target band name prefix (optional)", description = "The name prefix for the resulting maximum bands. " +
                                                                     "If empty, the source band name is used")
         String targetName;
-        @Parameter(label = "Source band names", description = "The source bands used for aggregation when maximum band reaches its maximum.")
+        @Parameter(label = "Source band names", notNull = true, description = "The source bands used for aggregation when maximum band reaches its maximum.")
         String[] setVarNames;
 
         public Config() {
@@ -179,7 +179,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetName = config.targetName != null ? config.targetName : config.onMaxVarName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.onMaxVarName;
             return new AggregatorOnMaxSet(varCtx, config.onMaxVarName, targetName, config.setVarNames);
         }
 
@@ -201,7 +201,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         @Override
         public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetName = config.targetName != null ? config.targetName : config.onMaxVarName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.onMaxVarName;
             String[] setVarNames = config.setVarNames != null ? config.setVarNames : new String[0];
             return createOutputFeatureNames(targetName, setVarNames);
         }

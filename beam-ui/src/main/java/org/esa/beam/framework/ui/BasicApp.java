@@ -144,7 +144,7 @@ public class BasicApp {
 
     private static final String _IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
 
-    private boolean uiDefaultsInitialized;
+    protected boolean uiDefaultsInitialized;
 
     private final ApplicationDescriptor applicationDescriptor;
 
@@ -476,7 +476,7 @@ public class BasicApp {
         logger = BeamLogManager.getSystemLogger();
     }
 
-    private boolean initLookAndFeel() {
+    protected boolean initLookAndFeel() {
 
         try {
             UIManager.installLookAndFeel("Napkin", "net.sourceforge.napkinlaf.NapkinLookAndFeel");
@@ -500,9 +500,7 @@ public class BasicApp {
                 // ignore
             }
             try {
-                LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
-                // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
-                // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
+                loadJideExtension();
             } catch (Throwable ignored) {
                 // ignore
             }
@@ -511,7 +509,13 @@ public class BasicApp {
         return false;
     }
 
-    private String getDefaultLookAndFeelClassName() {
+    protected void loadJideExtension() {
+        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
+        // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
+        // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
+    }
+
+    protected String getDefaultLookAndFeelClassName() {
         String defaultLookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
         String osName = System.getProperty("os.name").toLowerCase();
         // returning Nimbus as default LAF if not Mac OS and not Windows
@@ -903,15 +907,25 @@ public class BasicApp {
             menu = findMenu(parent);
         }
         if (menu == null) {
-            menu = findDefaultMenu(command);
+            menu = createNewMenu(parent);
         }
         if (menu != null) {
             commandMenuInserter.insertCommandIntoMenu(command, menu);
         }
     }
 
-    protected JMenu findDefaultMenu(Command command) {
-        return findMainMenu("tools");
+    /**
+     * Create a new menu if the parent menu is not found
+     * @param parent name
+     * @return menu
+     */
+    protected JMenu createNewMenu(String parent) {
+        if(parent == null)
+            return findMenu("tools");
+        final JMenuBar menuBar = getMainFrame().getJMenuBar();
+        final JMenu newMenu = createJMenu(parent, parent, parent.charAt(0));
+        menuBar.add(newMenu);
+        return newMenu;
     }
 
     protected final JMenu findMenu(String name, boolean deepSearch) {
@@ -988,7 +1002,7 @@ public class BasicApp {
         }
     }
 
-    protected final void savePreferences() {
+    public final void savePreferences() {
 
         if (preferencesFile == null) {
             return;
@@ -1661,7 +1675,7 @@ public class BasicApp {
         this.closeHandler = closeHandler;
     }
 
-    private String getMainFrameTitle() {
+    protected String getMainFrameTitle() {
         return getAppName() + " " + getAppVersion();
     }
 
@@ -1811,7 +1825,7 @@ public class BasicApp {
         }
     }
 
-    private class ToolBarListener extends DockableBarAdapter {
+    public class ToolBarListener extends DockableBarAdapter {
 
         @Override
         public void dockableBarHidden(DockableBarEvent dockableBarEvent) {

@@ -61,6 +61,10 @@ class HistogramPanelModel {
         }
     }
 
+    public void removeStx(HistogramConfig histogramPlotConfig) {
+        stxMap.remove(histogramPlotConfig);
+    }
+
     static class HistogramConfig {
 
         RasterDataNode raster;

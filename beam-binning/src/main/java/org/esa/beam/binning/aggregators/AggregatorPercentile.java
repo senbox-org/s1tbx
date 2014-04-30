@@ -27,6 +27,7 @@ import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WritableVector;
 import org.esa.beam.binning.support.GrowableVector;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -168,7 +169,7 @@ public class AggregatorPercentile extends AbstractAggregator {
 
         @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation.")
         String varName;
-        @Parameter(label = "Target band name prefix", description = "The name prefix for the resulting bands. If empty, the source band name is used")
+        @Parameter(label = "Target band name prefix (optional)", description = "The name prefix for the resulting bands. If empty, the source band name is used")
         String targetName;
         @Parameter(label = "Percentile", defaultValue = "90", interval = "[0,100]",
                    description = "The percentile to be created. Must be in the interval [0..100].")
@@ -208,7 +209,7 @@ public class AggregatorPercentile extends AbstractAggregator {
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetName = config.targetName != null ? config.targetName : config.varName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.varName;
             int effectivePercentage = getEffectivePercentage(config.percentage);
             return new AggregatorPercentile(varCtx, config.varName, targetName, effectivePercentage);
         }
@@ -222,7 +223,7 @@ public class AggregatorPercentile extends AbstractAggregator {
         @Override
         public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetName = config.targetName != null ? config.targetName : config.varName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.varName;
             int percentage = getEffectivePercentage(config.percentage);
             return createFeatureNames(targetName, "p" + percentage);
         }
