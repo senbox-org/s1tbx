@@ -79,6 +79,11 @@ public class ProductIOPlugInManager {
         readerPlugIns.addService(readerPlugIn);
     }
 
+
+    public ProductReaderPlugIn getReaderPlugIn(final String className) {
+        return readerPlugIns.getService(className);
+    }
+
     /**
      * Removes the first occurrence of the specified reader plug-in. If this manager does not contain the reader, it is
      * unchanged.
