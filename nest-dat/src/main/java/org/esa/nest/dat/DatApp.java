@@ -25,6 +25,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -144,11 +145,17 @@ public class DatApp extends VisatApp {
     }
     
     protected void disableOperatorPlugins() {
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
 
-        //final OperatorSpi pcaOp = registry.getOperatorSpi("org.esa.nest.gpf.PCAOp$Spi");
-        //if(pcaOp != null)
-        //    registry.removeOperatorSpi(pcaOp);
+        removeOperator("org.esa.beam.gpf.operators.standard.MergeOp$Spi");
+        removeOperator("org.esa.beam.gpf.operators.standard.MosaicOp$Spi");
+    }
+
+    protected void removeOperator(final String spi) {
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        final OperatorSpi op = registry.getOperatorSpi(spi);
+        if(op != null) {
+            registry.removeOperatorSpi(op);
+        }
     }
 
     protected void disableIOPlugins() {
