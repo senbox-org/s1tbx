@@ -79,7 +79,7 @@ public final class FlipOp extends Operator {
             else if(flipType.equalsIgnoreCase("Vertical"))
                 flippingType = ProductFlipper.FLIP_VERTICAL;
 
-            sourceProduct = ProductFlipper.createFlippedProduct(sourceProduct, flippingType,
+            sourceProduct = ProductFlipperExt.createFlippedProduct(sourceProduct, flippingType,
                     sourceProduct.getName(), sourceProduct.getDescription());
 
             targetProduct = new Product(sourceProduct.getName(),
