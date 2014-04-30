@@ -17,12 +17,8 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.ValidationException;
-import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
@@ -79,7 +75,7 @@ class AddFileAction extends AbstractAction {
         }
         fileChooser.setFileFilter(actualFileFilter);
 
-        int result = fileChooser.showDialog(appContext.getApplicationWindow(), "Select product(s)");    /*I18N*/
+        int result = fileChooser.showDialog(appContext.getApplicationWindow(), "Select product(s)");
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
