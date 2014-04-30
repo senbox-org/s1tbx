@@ -525,6 +525,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Wizards</text>
             <parent>help</parent>
+            <placeAfter>helpTopics</placeAfter>
         </action>
 
         <action>

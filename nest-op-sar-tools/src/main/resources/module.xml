@@ -153,8 +153,8 @@
             <id>ASARWSS</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>ASAR WSS</text>
-            <placeAfter>SpeckleFilteringGroup</placeAfter>
             <parent>sar-processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 
         <action>
@@ -237,7 +237,7 @@
         </action>
 
         <action>
-            <id>SpeckleFilteringGroup</id>
+            <id>SpeckleFiltering</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Speckle Filtering</text>
             <parent>sar-processing</parent>
@@ -249,7 +249,7 @@
 	        <helpId>SpeckleFilterOp</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>SpeckleFilteringGroup</parent>
+            <parent>SpeckleFiltering</parent>
 	        <text>Single Product Speckle Filter</text>
 	        <operatorName>Speckle-Filter</operatorName>
 	        <dialogTitle>Speckle filtering</dialogTitle>
@@ -262,7 +262,7 @@
 	        <helpId>MultiTemporalSpeckleFilterOp</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>SpeckleFilteringGroup</parent>
+            <parent>SpeckleFiltering</parent>
 	        <text>Multi-temporal Product Speckle Filter</text>
 	        <operatorName>Multi-Temporal-Speckle-Filter</operatorName>
             <shortDescr>Speckle filter a stack</shortDescr>

@@ -974,6 +974,7 @@
 		<profile>
             <id>array</id>
 			<properties>
+				<context>s1tbx</context>
 				<outputdir>../../../${context}/output</outputdir>
 			</properties>
 		</profile>
