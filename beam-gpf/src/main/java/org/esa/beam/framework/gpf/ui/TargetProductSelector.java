@@ -55,7 +55,7 @@ public class TargetProductSelector {
     private JLabel productDirLabel;
     private JTextField productDirTextField;
     private JButton productDirChooserButton;
-    private JComboBox formatNameComboBox;
+    private JComboBox<String> formatNameComboBox;
 
     private JCheckBox openInAppCheckBox;
     private TargetProductSelectorModel model;
@@ -92,7 +92,7 @@ public class TargetProductSelector {
 
         if (!alwaysWriteOutput) {
             saveToFileCheckBox = new JCheckBox("Save as:");
-            formatNameComboBox = new JComboBox(model.getFormatNames());
+            formatNameComboBox = new JComboBox<>(model.getFormatNames());
             openInAppCheckBox = new JCheckBox("Open in application");
         }
     }
@@ -150,7 +150,7 @@ public class TargetProductSelector {
         return productDirChooserButton;
     }
 
-    public JComboBox getFormatNameComboBox() {
+    public JComboBox<String> getFormatNameComboBox() {
         return formatNameComboBox;
     }
 
@@ -247,9 +247,7 @@ public class TargetProductSelector {
             Window windowAncestor = null;
             if (event.getSource() instanceof JComponent) {
                 JButton button = (JButton) event.getSource();
-                if (button != null) {
-                    windowAncestor = SwingUtilities.getWindowAncestor(button);
-                }
+                windowAncestor = SwingUtilities.getWindowAncestor(button);
             }
             final JFileChooser chooser = FileChooserFactory.getInstance().createDirChooser(model.getProductDir());
             chooser.setDialogTitle("Select Target Directory");
