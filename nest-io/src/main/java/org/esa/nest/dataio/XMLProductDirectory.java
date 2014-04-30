@@ -147,7 +147,7 @@ public class XMLProductDirectory {
                     final Band band = new Band(img.getName()+bandCnt++, img.getDataType(), width, height);
                     band.setUnit(Unit.AMPLITUDE);
                     product.addBand(band);
-                    bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
+                    bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                 }
             }
         }

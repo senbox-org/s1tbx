@@ -157,16 +157,12 @@ public class TerraSarXProductReader extends SARReader {
 
             } else {
 
-                boolean oneOfTwo = true;
-                if(destBand.getUnit().equals(Unit.IMAGINARY))
-                    oneOfTwo = false;
-
                 final ImageInputStream iiStream = dataDir.getCosarImageInputStream(destBand);
                 readBandRasterDataSLCShort(sourceOffsetX, sourceOffsetY,
                                                  sourceWidth, sourceHeight,
                                                  sourceStepX, sourceStepY,
                                                  destWidth, destBuffer,
-                                                 oneOfTwo, iiStream, pm);
+                                                 !bandInfo.isImaginary, iiStream, pm);
             }
         } catch(Exception e) {
             System.out.println(e.getMessage());

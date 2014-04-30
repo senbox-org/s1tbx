@@ -80,7 +80,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         band.setUnit(unit);
 
                         product.addBand(band);
-                        bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
+                        bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
                         if(real)
                             lastRealBand = band;
@@ -100,7 +100,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         band.setUnit(Unit.AMPLITUDE);
 
                         product.addBand(band);
-                        bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
+                        bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
                         SARReader.createVirtualIntensityBand(product, band,
                                 '_' + polarizationMap.get(imgName));

@@ -37,7 +37,6 @@ import java.io.IOException;
 
 /**
  * The product reader for Sentinel1 products.
- *
  */
 public class Sentinel1ProductReader extends SARReader {
 
@@ -50,7 +49,7 @@ public class Sentinel1ProductReader extends SARReader {
      *                     implementations
      */
     public Sentinel1ProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     /**
@@ -88,9 +87,9 @@ public class Sentinel1ProductReader extends SARReader {
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             final File baseFolder = fileFromInput.getParentFile();
-            if(Sentinel1ProductReaderPlugIn.isLevel1(baseFolder) || Sentinel1ProductReaderPlugIn.isLevel2(baseFolder)) {
+            if (Sentinel1ProductReaderPlugIn.isLevel1(baseFolder) || Sentinel1ProductReaderPlugIn.isLevel2(baseFolder)) {
                 dataDir = new Sentinel1Level1Directory(fileFromInput, new File(baseFolder, "measurement"));
-            } else if(Sentinel1ProductReaderPlugIn.isLevel0(baseFolder)) {
+            } else if (Sentinel1ProductReaderPlugIn.isLevel0(baseFolder)) {
                 dataDir = new Sentinel1Level0Directory(fileFromInput, baseFolder);
             }
             dataDir.readProductDirectory();
@@ -120,62 +119,54 @@ public class Sentinel1ProductReader extends SARReader {
                                           ProgressMonitor pm) throws IOException {
 
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
-        if(bandInfo != null && bandInfo.img != null) {
-            if(dataDir.isSLC()) {
-                boolean oneOfTwo = true;
-                if(destBand.getUnit().equals(Unit.IMAGINARY))
-                    oneOfTwo = false;
+        if (bandInfo != null && bandInfo.img != null) {
+            if (dataDir.isSLC()) {
 
                 readSLCRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                        bandInfo.bandSampleOffset, bandInfo.img, oneOfTwo);
+                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo);
             } else {
                 bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                                bandInfo.imageID, bandInfo.bandSampleOffset);
+                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                        bandInfo.imageID, bandInfo.bandSampleOffset);
             }
         }
     }
 
-    public synchronized void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
-                                                   final int sourceStepX, final int sourceStepY,
-                                                   final ProductData destBuffer,
-                                                   final int destOffsetX, final int destOffsetY,
-                                                   int destWidth, int destHeight,
-                                                   final int imageID, final ImageIOFile img,
-                                                   final boolean oneOfTwo) throws IOException {
-        final double[] srcArray;
-        final ImageReader reader = img.getReader();
+    public void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+                                  final int sourceStepX, final int sourceStepY,
+                                  final ProductData destBuffer,
+                                  final int destOffsetX, final int destOffsetY,
+                                  int destWidth, int destHeight,
+                                  final ImageIOFile.BandInfo bandInfo) throws IOException {
+
+        final ImageReader reader = bandInfo.img.getReader();
         final ImageReadParam param = reader.getDefaultReadParam();
         param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
 
-        final RenderedImage image = reader.readAsRenderedImage(0, param);
-        final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        Raster data;
+        synchronized (reader) {
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+            data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        }
 
         final SampleModel sampleModel = data.getSampleModel();
         destWidth = Math.min(destWidth, sampleModel.getWidth());
         destHeight = Math.min(destHeight, sampleModel.getHeight());
 
-        srcArray = new double[destWidth * destHeight];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, data.getDataBuffer());
+        final int length = destWidth * destHeight;
+        final double[] srcArray = new double[length];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
 
-        if (oneOfTwo)
-            copyLine1Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
-        else
-            copyLine2Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
-    }
 
-    public static void copyLine1Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {
-        final int length = srcArray.length;
-        for (int i = 0; i < length; i += sourceStepX) {
-            destArray[i] = (short)srcArray[i];
-        }
-    }
-
-    public static void copyLine2Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {
-        final int length = srcArray.length;
-        for (int i = 0; i < length; i += sourceStepX) {
-            destArray[i] = (short)((int)srcArray[i] >> 16);
+        final short[] destArray = (short[]) destBuffer.getElems();
+        if (!bandInfo.isImaginary) {
+            for (int i = 0; i < length; i += sourceStepX) {
+                destArray[i] = (short) srcArray[i];
+            }
+        } else {
+            for (int i = 0; i < length; i += sourceStepX) {
+                destArray[i] = (short) ((int) srcArray[i] >> 16);
+            }
         }
     }
 }

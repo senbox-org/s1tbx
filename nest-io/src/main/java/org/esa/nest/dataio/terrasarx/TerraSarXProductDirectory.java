@@ -753,7 +753,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                     SARReader.createVirtualIntensityBand(product, band, '_'+pol);
 
-                    bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
+                    bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                 }
             }
         }

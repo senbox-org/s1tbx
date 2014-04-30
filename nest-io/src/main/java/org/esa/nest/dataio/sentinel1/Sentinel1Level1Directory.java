@@ -110,7 +110,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         band.setUnit(unit);
 
                         product.addBand(band);
-                        bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
+                        bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
                         if(real)
@@ -131,7 +131,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         band.setUnit(Unit.AMPLITUDE);
 
                         product.addBand(band);
-                        bandMap.put(band, new ImageIOFile.BandInfo(img, i, b));
+                        bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
                         SARReader.createVirtualIntensityBand(product, band, '_' + suffix);

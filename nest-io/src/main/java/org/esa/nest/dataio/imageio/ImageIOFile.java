@@ -16,10 +16,8 @@
 package org.esa.nest.dataio.imageio;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.nest.datamodel.Unit;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
@@ -264,11 +262,13 @@ public class ImageIOFile {
         public final int imageID;
         public final int bandSampleOffset;
         public final ImageIOFile img;
+        public boolean isImaginary = false;
         
-        public BandInfo(ImageIOFile imgFile, int id, int offset) {
+        public BandInfo(final Band band, final ImageIOFile imgFile, final int id, final int offset) {
             img = imgFile;
             imageID = id;
             bandSampleOffset = offset;
+            isImaginary = band.getUnit() != null && band.getUnit().equals(Unit.IMAGINARY);
         }
     }
 }
