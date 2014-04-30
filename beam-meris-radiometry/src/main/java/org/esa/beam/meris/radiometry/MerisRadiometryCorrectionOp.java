@@ -292,7 +292,9 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private void initAlgorithms() {
         final String productType = sourceProduct.getProductType();
-        if (doCalibration) {
+        boolean isReprocessing2 = reproVersion == ReprocessingVersion.REPROCESSING_2 ||
+                                  ReprocessingVersion.autoDetect(sourceProduct) == ReprocessingVersion.REPROCESSING_2;
+        if (doCalibration && isReprocessing2) {
             InputStream sourceRacStream = null;
             InputStream targetRacStream = null;
             try {
@@ -316,6 +318,10 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             }
             // If calibration is performed the equalization  has to use the LUTs of Reprocessing 3
             reproVersion = ReprocessingVersion.REPROCESSING_3;
+        }else {
+            if(doCalibration){
+                getLogger().warning("Skipping calibration. Source product is already of 3rd reprocessing.");
+            }
         }
         if (doSmile) {
             try {
