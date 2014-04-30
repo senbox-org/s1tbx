@@ -41,6 +41,7 @@ import java.util.List;
  */
 class AddFileAction extends AbstractAction {
 
+    public static final String ALL_FILES_FORMAT = "ALL_FILES";
     private final AppContext appContext;
     private final InputListModel listModel;
     private final String lastOpenInputDir;
@@ -59,8 +60,7 @@ class AddFileAction extends AbstractAction {
         final PropertyMap preferences = appContext.getPreferences();
         String lastDir = preferences.getPropertyString(lastOpenInputDir,
                                                        SystemUtils.getUserHomeDir().getPath());
-        String lastFormat = preferences.getPropertyString(lastOpenedFormat,
-                                                          DimapProductConstants.DIMAP_FORMAT_NAME);
+        String lastFormat = preferences.getPropertyString(lastOpenedFormat, ALL_FILES_FORMAT);
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(lastDir));
@@ -72,7 +72,7 @@ class AddFileAction extends AbstractAction {
         List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(allReaderPlugIns);
         for (BeamFileFilter productFileFilter : sortedFileFilters) {
             fileChooser.addChoosableFileFilter(productFileFilter);
-            if (!"ALL_FILES".equals(lastFormat) &&
+            if (!ALL_FILES_FORMAT.equals(lastFormat) &&
                 productFileFilter.getFormatName().equals(lastFormat)) {
                 actualFileFilter = productFileFilter;
             }
@@ -95,27 +95,17 @@ class AddFileAction extends AbstractAction {
             appContext.handleError("Invalid input path", ve);
         }
 
-        setLastOpenedFormat(preferences, selectedProducts);
+        setLastOpenedFormat(preferences, fileChooser.getFileFilter());
     }
 
-    private void setLastOpenedFormat(PropertyMap preferences, Object[] selectedProducts) {
-        String format = DimapProductConstants.DIMAP_FORMAT_NAME;
-        if (selectedProducts.length > 0) {
-            Object lastSelectedProduct = selectedProducts[selectedProducts.length - 1];
-            ProductReader productReader = null;
-            if (lastSelectedProduct instanceof File) {
-                productReader = ProductIO.getProductReaderForInput(lastSelectedProduct);
-            } else if (lastSelectedProduct instanceof Product) {
-                productReader = ((Product) lastSelectedProduct).getProductReader();
+    private void setLastOpenedFormat(PropertyMap preferences, FileFilter fileFilter) {
+        if (fileFilter instanceof BeamFileFilter) {
+            String currentFormat = ((BeamFileFilter) fileFilter).getFormatName();
+            if (currentFormat != null) {
+                preferences.setPropertyString(lastOpenedFormat, currentFormat);
             }
-            if (productReader != null) {
-                String[] formatNames = productReader.getReaderPlugIn().getFormatNames();
-                if (formatNames.length > 0) {
-                    format = formatNames[formatNames.length - 1];
-                }
-            }
-
+        } else {
+            preferences.setPropertyString(lastOpenedFormat, ALL_FILES_FORMAT);
         }
-        preferences.setPropertyString(this.lastOpenedFormat, format);
     }
 }
