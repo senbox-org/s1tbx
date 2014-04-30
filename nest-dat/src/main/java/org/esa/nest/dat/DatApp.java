@@ -23,6 +23,7 @@ import com.jidesoft.status.LabelStatusBarItem;
 import org.esa.beam.framework.dataio.ProductCache;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -150,6 +151,11 @@ public class DatApp extends VisatApp {
         removeOperator("org.esa.beam.gpf.operators.standard.MosaicOp$Spi");
     }
 
+    protected void disableIOPlugins() {
+
+        removeReaderPlugIn("org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn");
+    }
+
     protected void removeOperator(final String spi) {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         final OperatorSpi op = registry.getOperatorSpi(spi);
@@ -158,10 +164,12 @@ public class DatApp extends VisatApp {
         }
     }
 
-    protected void disableIOPlugins() {
-        ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        //registry.removeReaderPlugIn()
-
+    protected void removeReaderPlugIn(final String name) {
+        final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
+        ProductReaderPlugIn rp = registry.getReaderPlugIn(name);
+        if(rp != null) {
+            registry.removeReaderPlugIn(rp);
+        }
     }
 
     private static void validateAuxDataFolder() throws IOException {
