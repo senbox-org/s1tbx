@@ -557,7 +557,6 @@ public class CosmoSkymedReader extends SARReader {
                 bandMap.put(bandQ, variable);
 
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, cntStr);
-                ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, cntStr);
             } else {
                 final Band band = NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, band, "Amplitude" + cntStr);

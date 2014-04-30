@@ -784,7 +784,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 product.addBand(imaginaryBand);
 
                 ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, '_'+pol+extraInfo);
-                ReaderUtils.createVirtualPhaseBand(product, realBand, imaginaryBand, '_'+pol+extraInfo);
 
                 try {
                     cosarBandMap.put(realBand.getName(), FileImageInputStreamExtImpl.createInputStream(file));

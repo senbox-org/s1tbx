@@ -87,8 +87,6 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         else {
                             ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band,
                                     '_'+polarizationMap.get(imgName));
-                            ReaderUtils.createVirtualPhaseBand(product, lastRealBand, band,
-                                    '_'+polarizationMap.get(imgName));
                         }
                         real = !real;
                     }

@@ -102,7 +102,6 @@ public class GenericComplexReader extends GenericReader {
         product.addBand(bandQ);
 
         ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "");
-        ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, "");
 
         addMetaData(product, inputFile);
 

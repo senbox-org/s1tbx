@@ -342,7 +342,6 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             trgQ.setNoDataValue(srcBand.getNoDataValue());
 
             ReaderUtils.createVirtualIntensityBand(targetProduct, trgI, trgQ, '_' + pol);
-            ReaderUtils.createVirtualPhaseBand(targetProduct, trgI, trgQ, '_' + pol);
         }
 
         copyMetaData(sourceProduct.getMetadataRoot(), targetProduct.getMetadataRoot());

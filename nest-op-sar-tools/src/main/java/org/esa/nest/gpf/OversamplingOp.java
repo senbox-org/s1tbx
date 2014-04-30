@@ -419,7 +419,6 @@ public class OversamplingOp extends Operator {
                     suffix = '_' + suffix;
                 }
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
-                ReaderUtils.createVirtualPhaseBand(targetProduct, targetBandI, targetBandQ, suffix);
                 i++;
             } else {
                 final String targetBandName = sourceBands[i].getName();

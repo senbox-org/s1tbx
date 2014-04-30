@@ -163,7 +163,6 @@ public class BaseCalibrator {
 
             final String suffix = "_"+OperatorUtils.getSuffixFromBandName(srcBandI.getName());
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
-            ReaderUtils.createVirtualPhaseBand(targetProduct, targetBandI, targetBandQ, suffix);
         }
     }
 

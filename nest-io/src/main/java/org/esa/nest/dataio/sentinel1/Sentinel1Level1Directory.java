@@ -113,11 +113,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
-                        if(real)
+                        if(real) {
                             lastRealBand = band;
-                        else {
+                        } else {
                             ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_'+suffix);
-                            ReaderUtils.createVirtualPhaseBand(product, lastRealBand, band, '_'+suffix);
                         }
                         real = !real;
 

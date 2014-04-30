@@ -139,7 +139,6 @@ public final class DeburstWSSOp extends Operator {
                 trgQ.setNoDataValue(nodatavalue);
                 bandMap.put(trgI, new ComplexBand(sourceBands[subSwathBandNum], sourceBands[subSwathBandNum+1]));
                 ReaderUtils.createVirtualIntensityBand(targetProduct, trgI, trgQ, '_'+subSwath);
-                ReaderUtils.createVirtualPhaseBand(targetProduct, trgI, trgQ, '_'+subSwath);
             }
 
             copyMetaData(sourceProduct.getMetadataRoot(), targetProduct.getMetadataRoot());

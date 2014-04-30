@@ -99,7 +99,6 @@ class JERSProductDirectory extends CEOSProductDirectory {
                     final Band bandI = createBand(product, "i_" + index, Unit.REAL, imageFile);
                     final Band bandQ = createBand(product, "q_" + index, Unit.IMAGINARY, imageFile);
                     ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_"+index);
-                    ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, "_"+index);
                 } else {
                     Band band = createBand(product, "Amplitude_" + index, Unit.AMPLITUDE, imageFile);
                     SARReader.createVirtualIntensityBand(product, band, "_" + index);
@@ -112,7 +111,6 @@ class JERSProductDirectory extends CEOSProductDirectory {
                 final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "");
-                ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, "");
             } else {
                 Band band = createBand(product, "Amplitude", Unit.AMPLITUDE, imageFile);
                 SARReader.createVirtualIntensityBand(product, band, "");

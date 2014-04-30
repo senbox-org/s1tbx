@@ -139,7 +139,6 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 final Band bandI = createBand(product, "i_" + pol, Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q_" + pol, Unit.IMAGINARY, imageFile);
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, '_' +pol);
-                ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, '_' +pol);
             } else {                
                 final Band band = createBand(product, "Amplitude_" + pol, Unit.AMPLITUDE, imageFile);
                 SARReader.createVirtualIntensityBand(product, band, '_' + pol);
