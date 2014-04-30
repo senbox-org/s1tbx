@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.binding.Binding;
@@ -112,6 +113,11 @@ class HistogramPanel extends ChartPagePanel {
             public void productRemoved(Product product) {
                 model.removeStxFromProduct(product);
             }
+
+            @Override
+            public void productSelected(Product product, int clickCount) {
+                handleMasklessProduct(product);
+            }
         });
         model = new HistogramPanelModel();
         xAxisRangeControl = new AxisRangeControl("X-Axis");
@@ -145,6 +151,16 @@ class HistogramPanel extends ChartPagePanel {
         updateRefreshButton();
     }
 
+    private void handleMasklessProduct(Product product) {
+        if (product != null && product.getMaskGroup().getNodeCount() == 0) {
+            try {
+                bindingContext.getPropertySet().getProperty("useRoiMask").setValue(Boolean.FALSE);
+            } catch (ValidationException e) {
+                throw new IllegalStateException("Cannot come here");
+            }
+        }
+    }
+
     private void updateRefreshButton() {
         refreshButton.setEnabled(!model.hasStx(createHistogramConfig()));
     }
@@ -157,6 +173,7 @@ class HistogramPanel extends ChartPagePanel {
     @Override
     protected void handleNodeSelectionChanged() {
         super.handleNodeSelectionChanged();
+        handleMasklessProduct(getProduct());
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
