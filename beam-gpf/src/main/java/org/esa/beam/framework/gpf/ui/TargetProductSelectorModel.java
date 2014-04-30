@@ -176,30 +176,30 @@ public class TargetProductSelectorModel {
     }
 
     public void setProductName(String productName) {
-        setValueContainerValue(PROPERTY_PRODUCT_NAME, productName);
+        setPropertyContainerValue(PROPERTY_PRODUCT_NAME, productName);
     }
 
     public void setSaveToFileSelected(boolean saveToFileSelected) {
-        setValueContainerValue(PROPERTY_SAVE_TO_FILE_SELECTED, saveToFileSelected);
+        setPropertyContainerValue(PROPERTY_SAVE_TO_FILE_SELECTED, saveToFileSelected);
     }
 
     public void setOpenInAppSelected(boolean openInAppSelected) {
-        setValueContainerValue(PROEPRTY_OPEN_IN_APP_SELECTED, openInAppSelected);
+        setPropertyContainerValue(PROEPRTY_OPEN_IN_APP_SELECTED, openInAppSelected);
     }
 
     public void setProductDir(File productDir) {
-        setValueContainerValue(PROPERTY_PRODUCT_DIR, productDir);
+        setPropertyContainerValue(PROPERTY_PRODUCT_DIR, productDir);
     }
 
     public void setFormatName(String formatName) {
-        setValueContainerValue(PROPERTY_FORMAT_NAME, formatName);
+        setPropertyContainerValue(PROPERTY_FORMAT_NAME, formatName);
     }
 
     public PropertyContainer getValueContainer() {
         return propertyContainer;
     }
 
-    private void setValueContainerValue(String name, Object value) {
+    private void setPropertyContainerValue(String name, Object value) {
         propertyContainer.setValue(name, value);
     }
 
