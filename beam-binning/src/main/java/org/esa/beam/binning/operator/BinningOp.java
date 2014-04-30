@@ -151,8 +151,8 @@ public class BinningOp extends Operator {
                              "input products.")
     Geometry region;
 
-    @Parameter(pattern ="\\d{4}-\\d{2}-\\d{2}(\\s\\d{2}:\\d{2}:\\d{2})?",
-            description = "The UTC start date of the binning period. " +
+    @Parameter(pattern = "\\d{4}-\\d{2}-\\d{2}(\\s\\d{2}:\\d{2}:\\d{2})?",
+               description = "The UTC start date of the binning period. " +
                              "The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'. If only the date part is given, the time 00:00:00 is assumed.")
     private String startDateTime;
 
@@ -170,7 +170,7 @@ public class BinningOp extends Operator {
     private TimeFilterMethod timeFilterMethod;
 
     @Parameter(interval = "[0,24]",
-            description = "A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of " +
+               description = "A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of " +
                              "observations at the date line (the 180 degree meridian). Only used if parameter 'dataDayMode' is set to 'SPATIOTEMPORAL_DATADAY'.")
     private Double minDataHour;
 
@@ -195,11 +195,11 @@ public class BinningOp extends Operator {
     @Parameter(alias = "postProcessor", domConverter = CellProcessorConfigDomConverter.class)
     private CellProcessorConfig postProcessorConfig;
 
-    @Parameter(valueSet = {"Product", "RGB", "Grey"})
+    @Parameter(valueSet = {"Product", "RGB", "Grey"}, defaultValue = "Product")
     private String outputType;
     @Parameter
     private String outputFile;
-    @Parameter
+    @Parameter(defaultValue = "BEAM-DIMAP")
     private String outputFormat;
     @Parameter(alias = "outputBands", itemAlias = "band", description = "Configures the target bands. Not needed " +
                                                                         "if output type 'Product' is chosen.")
@@ -209,7 +209,7 @@ public class BinningOp extends Operator {
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
                              "target product. The output file name will be <target>-bins.nc",
-               defaultValue = "true")
+               defaultValue = "false")
     private boolean outputBinnedData;
 
     @Parameter(description = "If true, a mapped product is written. Set this to 'false' if only a binned product is needed.",
@@ -322,7 +322,7 @@ public class BinningOp extends Operator {
         return variableConfigs;
     }
 
-    public void setVariableConfigs(VariableConfig...variableConfigs) {
+    public void setVariableConfigs(VariableConfig... variableConfigs) {
         this.variableConfigs = variableConfigs;
     }
 
@@ -330,7 +330,7 @@ public class BinningOp extends Operator {
         return aggregatorConfigs;
     }
 
-    public void setAggregatorConfigs(AggregatorConfig...aggregatorConfigs) {
+    public void setAggregatorConfigs(AggregatorConfig... aggregatorConfigs) {
         this.aggregatorConfigs = aggregatorConfigs;
     }
 
@@ -490,11 +490,12 @@ public class BinningOp extends Operator {
         }
     }
 
-    static BinningProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime, Geometry region) {
+    static BinningProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime,
+                                                          Geometry region) {
         BinningProductFilter productFilter = new GeoCodingProductFilter();
 
         if (dataPeriod != null) {
-            if( dataPeriod instanceof SpatialDataPeriod) {
+            if (dataPeriod instanceof SpatialDataPeriod) {
                 productFilter = new SpatialDataDaySourceProductFilter(productFilter, dataPeriod);
             } else {
                 productFilter = new TimeRangeProductFilter(productFilter, startTime, endTime);
@@ -742,7 +743,7 @@ public class BinningOp extends Operator {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-            Exception {
+                                                                                                                  Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -886,6 +887,7 @@ public class BinningOp extends Operator {
     }
 
     public static class BandConfiguration {
+
         public String index;
         public String name;
         public String minValue;
@@ -893,15 +895,27 @@ public class BinningOp extends Operator {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             BandConfiguration that = (BandConfiguration) o;
 
-            if (index != null ? !index.equals(that.index) : that.index != null) return false;
-            if (maxValue != null ? !maxValue.equals(that.maxValue) : that.maxValue != null) return false;
-            if (minValue != null ? !minValue.equals(that.minValue) : that.minValue != null) return false;
-            if (name != null ? !name.equals(that.name) : that.name != null) return false;
+            if (index != null ? !index.equals(that.index) : that.index != null) {
+                return false;
+            }
+            if (maxValue != null ? !maxValue.equals(that.maxValue) : that.maxValue != null) {
+                return false;
+            }
+            if (minValue != null ? !minValue.equals(that.minValue) : that.minValue != null) {
+                return false;
+            }
+            if (name != null ? !name.equals(that.name) : that.name != null) {
+                return false;
+            }
 
             return true;
         }

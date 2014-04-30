@@ -66,8 +66,8 @@ public class BinningDialog extends SingleTargetProductDialog {
 
         ParameterUpdater parameterUpdater = new BinningParameterUpdater();
         OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor(),
-                                                                                 null,
-                                                                                 null,
+                                                                                 formModel.getPropertySet(),
+                                                                                 formModel.getParameterMap(),
                                                                                  parameterUpdater);
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
                                                      operatorSpi.getOperatorDescriptor(),
@@ -186,12 +186,12 @@ public class BinningDialog extends SingleTargetProductDialog {
             }
         }
         return true;
-    }    private void updateParameterMap(Map<String, Object> parameters) {
+    }
+
+    private void updateParameterMap(Map<String, Object> parameters) {
         parameters.put("variableConfigs", formModel.getVariableConfigs());
         parameters.put("aggregatorConfigs", formModel.getAggregatorConfigs());
 
-        parameters.put("outputFormat", "BEAM-DIMAP");
-        parameters.put("outputType", "Product");
         parameters.put("outputFile", getTargetProductSelector().getModel().getProductFile().getPath());
 
         parameters.put("maskExpr", formModel.getMaskExpr());
