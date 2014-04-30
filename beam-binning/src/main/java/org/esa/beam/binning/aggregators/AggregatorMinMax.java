@@ -26,6 +26,7 @@ import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WritableVector;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -102,7 +103,7 @@ public class AggregatorMinMax extends AbstractAggregator {
 
         @Parameter(label = "Source band name", notEmpty = true, notNull = true, description = "The source band used for aggregation.")
         String varName;
-        @Parameter(label = "Target band name prefix", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
+        @Parameter(label = "Target band name prefix (optional)", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
         String targetName;
 
         public Config() {
@@ -146,7 +147,7 @@ public class AggregatorMinMax extends AbstractAggregator {
         @Override
         public String[] getTargetVarNames(AggregatorConfig aggregatorConfig) {
             Config config = (Config) aggregatorConfig;
-            String targetName = config.targetName != null ? config.targetName : config.varName;
+            String targetName = StringUtils.isNotNullAndNotEmpty(config.targetName)  ? config.targetName : config.varName;
             return createFeatureNames(targetName, "min", "max");
         }
 
