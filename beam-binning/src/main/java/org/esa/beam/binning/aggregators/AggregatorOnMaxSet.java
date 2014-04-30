@@ -147,7 +147,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         @Parameter(label = "Target band name prefix (optional)", description = "The name prefix for the resulting maximum bands. " +
                                                                     "If empty, the source band name is used")
         String targetName;
-        @Parameter(label = "Source band names", description = "The source bands used for aggregation when maximum band reaches its maximum.")
+        @Parameter(label = "Source band names", notNull = true, description = "The source bands used for aggregation when maximum band reaches its maximum.")
         String[] setVarNames;
 
         public Config() {
