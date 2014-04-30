@@ -589,12 +589,14 @@ public class StringUtils {
     /**
      * Gets a String[] from the given comma separated value string given a delimiter.
      *
-     * @param csvString the CSV (comma separated value) String.
+     * @param csvString the delimited String.
      * @param delim     the separator string, e.g. ","
      * @return an array of strings created from the given comma separated value string, never <code>null</code>
      * @throws IllegalArgumentException if the given Object is not an <code>array</code> or <code>null</code>.
      */
     public static String[] stringToArray(final String csvString, final String delim) {
+		Guardian.assertNotNullOrEmpty("csvString", csvString);
+		Guardian.assertNotNullOrEmpty("delim", delim);
         final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
         final List<String> strList = new ArrayList<>(tokenizer.countTokens());
         while (tokenizer.hasMoreTokens()) {
