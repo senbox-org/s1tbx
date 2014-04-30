@@ -583,17 +583,26 @@ public class StringUtils {
      * @throws IllegalArgumentException if the given csvString is <code>null</code> or <code>empty</code>.
      */
     public static String[] csvToArray(String csvString) {
-        Guardian.assertNotNullOrEmpty("csvString", csvString);
-        StringTokenizer tokenizer = new StringTokenizer(csvString, ",");
-        List<String> strList = new ArrayList<>();
+        return stringToArray(csvString, ",");
+    }
+
+    /**
+     * Gets a String[] from the given comma separated value string given a delimiter.
+     *
+     * @param csvString the delimited String.
+     * @param delim     the separator string, e.g. ","
+     * @return an array of strings created from the given comma separated value string, never <code>null</code>
+     * @throws IllegalArgumentException if the given Object is not an <code>array</code> or <code>null</code>.
+     */
+    public static String[] stringToArray(final String csvString, final String delim) {
+		Guardian.assertNotNullOrEmpty("csvString", csvString);
+		Guardian.assertNotNullOrEmpty("delim", delim);
+        final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
+        final List<String> strList = new ArrayList<>(tokenizer.countTokens());
         while (tokenizer.hasMoreTokens()) {
             strList.add(tokenizer.nextToken());
         }
-        final String[] strings = new String[strList.size()];
-        for (int i = 0; i < strings.length; i++) {
-            strings[i] = strList.get(i);
-        }
-        return strings;
+        return strList.toArray(new String[strList.size()]);
     }
 
 //    /**
@@ -800,4 +809,19 @@ public class StringUtils {
         return indexOfLastOccurrence;
     }
 
+    /**
+     * Adds padding to an integer
+     * 1 becomes 001 or __1
+     * @param num the integer value
+     * @param max the desired string length
+     * @param c the inserted character
+     * @return padded number as string
+     */
+    public static String padNum(final int num, final int max, final char c) {
+        final StringBuilder str = new StringBuilder(String.valueOf(num));
+        while (str.length() < max) {
+            str.insert(0, c);
+        }
+        return str.toString();
+    }
 }
