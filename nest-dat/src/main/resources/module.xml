@@ -538,6 +538,7 @@
             <separatorAfter>true</separatorAfter>
             <smallIcon>/org/esa/nest/icons/esa.png</smallIcon>
             <largeIcon>/org/esa/nest/icons/esa.png</largeIcon>
+            <placeLast>true</placeLast>
         </action>
 
         <action>
