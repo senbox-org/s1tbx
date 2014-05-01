@@ -139,24 +139,24 @@ public class Sentinel1ProductReader extends SARReader {
                                   int destWidth, int destHeight,
                                   final ImageIOFile.BandInfo bandInfo) throws IOException {
 
-        final ImageReader reader = bandInfo.img.getReader();
-        final ImageReadParam param = reader.getDefaultReadParam();
-        param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+        int length;
+        double[] srcArray;
+        synchronized (dataDir) {
+            final ImageReader reader = bandInfo.img.getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
 
-        Raster data;
-        synchronized (reader) {
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+            final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+
+            final SampleModel sampleModel = data.getSampleModel();
+            destWidth = Math.min(destWidth, sampleModel.getWidth());
+            destHeight = Math.min(destHeight, sampleModel.getHeight());
+
+            length = destWidth * destHeight;
+            srcArray = new double[length];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
         }
-
-        final SampleModel sampleModel = data.getSampleModel();
-        destWidth = Math.min(destWidth, sampleModel.getWidth());
-        destHeight = Math.min(destHeight, sampleModel.getHeight());
-
-        final int length = destWidth * destHeight;
-        final double[] srcArray = new double[length];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
-
 
         final short[] destArray = (short[]) destBuffer.getElems();
         if (!bandInfo.isImaginary) {
