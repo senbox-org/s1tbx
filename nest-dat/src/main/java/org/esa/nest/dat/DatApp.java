@@ -21,7 +21,6 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import com.jidesoft.status.LabelStatusBarItem;
 import org.esa.beam.framework.dataio.ProductCache;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
@@ -294,6 +293,16 @@ public class DatApp extends VisatApp {
         } else {
             return "Satellite coordinates";
         }
+    }
+
+    /**
+     * Creates a default frame icon for this application.
+     * <p/> Override this method if you want another behaviour.
+     *
+     * @return the frame icon, or <code>null</code> if no icon is used
+     */
+    protected ImageIcon createFrameIcon() {
+        return ResourceUtils.nestIcon;
     }
 
     /**
