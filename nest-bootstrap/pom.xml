@@ -42,6 +42,10 @@
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-reader-dem</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-calibration</artifactId>
+        </dependency>
 		<dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
