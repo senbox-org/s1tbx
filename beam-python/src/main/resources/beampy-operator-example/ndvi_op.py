@@ -6,24 +6,22 @@ jpy = beampy.jpy
 Rectangle = jpy.get_type('java.awt.Rectangle')
 Tile = jpy.get_type('org.esa.beam.framework.gpf.Tile')
 
-class MerisNdviTileComputer:
 
+class NdviComputer:
     def initialize(self, operator):
+        sourceProduct = operator.getSourceProduct('source')
+        print('initialize: source product is', sourceProduct.getFileLocation())
 
-        merisProduct = operator.getSourceProduct('source')
-        print('initialize: source product is', merisProduct.getFileLocation())
-
-        width = merisProduct.getSceneRasterWidth()
-        height = merisProduct.getSceneRasterHeight()
+        width = sourceProduct.getSceneRasterWidth()
+        height = sourceProduct.getSceneRasterHeight()
 
         self.lowFactor = operator.getParameter('lowerFactor')
         self.lowerBandName = operator.getParameter('lowerName')
+        self.lowerBand = self.getBand(sourceProduct, self.lowerBandName)
 
         self.upperFactor = operator.getParameter('upperFactor')
         self.upperBandName = operator.getParameter('upperName')
-
-        self.lowerBand = self.getBand(merisProduct, self.lowerBandName)
-        self.upperBand = self.getBand(merisProduct, self.upperBandName)
+        self.upperBand = self.getBand(sourceProduct, self.upperBandName)
 
         ndviProduct = beampy.Product('pyNDVI', 'pyNDVI', width, height)
         self.ndviBand = ndviProduct.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
@@ -32,7 +30,6 @@ class MerisNdviTileComputer:
         operator.setTargetProduct(ndviProduct)
 
     def compute(self, operator, targetTiles, targetRectangle):
-
         lowerTile = operator.getSourceTile(self.lowerBand, targetRectangle)
         upperTile = operator.getSourceTile(self.upperBand, targetRectangle)
 

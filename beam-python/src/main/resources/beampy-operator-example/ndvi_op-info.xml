@@ -55,13 +55,6 @@
             <dataType>java.lang.String</dataType>
             <defaultValue>radiance_10</defaultValue>
         </parameter>
-        <parameter>
-            <name>validExpression</name>
-            <label>Valid pixel Expression</label>
-            <description>Only valid pixels are processed</description>
-            <dataType>java.lang.String</dataType>
-            <defaultValue>not l1_flags.INVALID</defaultValue>
-        </parameter>
     </parameters>
 
 </operator>
