@@ -398,7 +398,7 @@ public class DatApp extends VisatApp {
             if(parent == null)
                 continue;
 
-            if(parent.equals("Image Processing"))
+            if(parent.equals("image-processing"))
                 incImageProcessing = true;
         }
 
@@ -414,10 +414,10 @@ public class DatApp extends VisatApp {
                 DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX));
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
-        menuBar.add(createJMenu("processing", "Optical Processing", 'P'));
+        menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
         if(incImageProcessing)
-            menuBar.add(createJMenu("Image Processing", "Image Processing", 'I'));
+            menuBar.add(createJMenu("image-processing", "Image Processing", 'I'));
         menuBar.add(createJMenu("classification", "Classification", 'C'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
         menuBar.add(createJMenu("window", "Window", 'W'));
