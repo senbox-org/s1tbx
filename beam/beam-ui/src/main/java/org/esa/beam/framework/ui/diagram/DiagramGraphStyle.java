@@ -24,8 +24,6 @@ public interface DiagramGraphStyle {
 
     boolean isShowingPoints();
 
-    int getPointSize();
-
     Paint getFillPaint();
 
     Stroke getOutlineStroke();

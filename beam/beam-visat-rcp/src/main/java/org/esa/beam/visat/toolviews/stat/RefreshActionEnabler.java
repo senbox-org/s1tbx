@@ -14,7 +14,7 @@ import java.util.HashSet;
 * Time: 11:07
 * To change this template use File | Settings | File Templates.
 */
-class RefreshActionEnabler implements PropertyChangeListener {
+public class RefreshActionEnabler implements PropertyChangeListener {
 
     public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
     public final static String PROPERTY_NAME_MIN = "min";
@@ -28,7 +28,7 @@ class RefreshActionEnabler implements PropertyChangeListener {
     HashSet<String> names = new HashSet<String>();
     AbstractButton refreshButton;
 
-    RefreshActionEnabler(AbstractButton rb, String ... componentNames) {
+    public RefreshActionEnabler(AbstractButton rb, String ... componentNames) {
         for(String name:componentNames){
             names.add(name);
         }

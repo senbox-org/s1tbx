@@ -36,7 +36,7 @@ import java.awt.event.MouseEvent;
  *
  * @author Marco Peters
  */
-abstract class PagePanel extends JPanel implements ProductNodeListener {
+public abstract class PagePanel extends JPanel implements ProductNodeListener {
 
     private final ToolView parentDialog;
     private final String helpId;

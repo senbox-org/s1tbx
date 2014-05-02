@@ -30,7 +30,7 @@ import java.awt.event.ActionListener;
 /**
  * @author Norman Fomferra
  */
-abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action {
+public abstract class MaskSelectionToolSupport implements PlotAreaSelectionTool.Action {
     private final PagePanel pagePanel;
     private final ChartPanel chartPanel;
     private final String maskName;

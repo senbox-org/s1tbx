@@ -20,7 +20,7 @@ import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.data.xy.XYDataset;
 
 
-class XYPlotToolTipGenerator extends CustomXYToolTipGenerator {
+public class XYPlotToolTipGenerator extends CustomXYToolTipGenerator {
 
     @Override
     public String generateToolTip(XYDataset data, int series, int item) {

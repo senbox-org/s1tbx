@@ -20,7 +20,7 @@ import static java.lang.Math.min;
 /**
  * @author Norman Fomferra
  */
-class PlotAreaSelectionTool extends MouseAdapter {
+public class PlotAreaSelectionTool extends MouseAdapter {
     public enum AreaType {
         /**
          * Shape is an instance of {@link Rectangle2D}, only X-coordinates are valid.

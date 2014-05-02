@@ -21,7 +21,7 @@ import java.awt.GridBagConstraints;
 /**
  * @author Norman Fomferra
  */
-class AxisRangeControl {
+public class AxisRangeControl {
 
     public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
     public final static String PROPERTY_NAME_MIN = "min";
@@ -32,13 +32,13 @@ class AxisRangeControl {
     private JPanel panel;
     private TitledSeparator titledSeparator;
 
-    AxisRangeControl(String axisName) {
+    public AxisRangeControl(String axisName) {
         this.axisName = axisName;
         PropertySet propertyContainer = PropertyContainer.createObjectBacked(new Model());
         bindingContext = new BindingContext(propertyContainer);
     }
 
-    JPanel getPanel() {
+    public JPanel getPanel() {
         if (panel == null) {
             panel = createPanel();
             panel.setName(axisName);

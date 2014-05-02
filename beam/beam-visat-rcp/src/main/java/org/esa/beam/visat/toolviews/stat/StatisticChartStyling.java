@@ -11,7 +11,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-class StatisticChartStyling {
+public class StatisticChartStyling {
 
     static final Paint CORRELATIVE_POINT_PAINT = new Color(200, 0, 0);
     static final Paint CORRELATIVE_POINT_OUTLINE_PAINT = CORRELATIVE_POINT_PAINT;

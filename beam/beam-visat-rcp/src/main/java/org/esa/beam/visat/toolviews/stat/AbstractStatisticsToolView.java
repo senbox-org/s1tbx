@@ -40,7 +40,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @author Marco Peters
  */
-abstract class AbstractStatisticsToolView extends AbstractToolView {
+public abstract class AbstractStatisticsToolView extends AbstractToolView {
 
     private PagePanel pagePanel;
     private Product product;

@@ -1,1 +1,0 @@
-mvn %1 -Parray -Dcontext=%2
