@@ -1,5 +1,11 @@
+<!-- This XML file describes the interface of the python operator. It defines the required source product(s) and the parameters
+     for the processing. By using the information of this file the graphical user interface is automatically generated and also
+     the help on the command line is derived from the information provided here.
+-->
 <operator>
-    <name>com.bc.python.NdviOp</name>
+    <!-- The name uniquely identifies the operator within BEAM -->
+    <name>com.bc.python.example.NdviOp</name>
+    <!-- The alias is also unique but more usable by humans, e.g on the command line-->
     <alias>py_ndvi_op</alias>
 
     <version>0.0</version>
@@ -8,6 +14,10 @@
     <description>Just an example</description>
 
     <namedSourceProducts>
+        <!-- One or more source products can be specified.
+             In the GUI only one is currently supported. On the command line multiple source products
+             can be specified by referencing them with the here defined names.
+         -->
         <sourceProduct>
             <name>source</name>
         </sourceProduct>
@@ -15,11 +25,13 @@
 
     <parameters>
         <parameter>
-            <!-- the name of the parameter; by this name the specified value can be retrieved in the python implementation -->
+            <!-- The name of the parameter; by this name the specified value can be retrieved in the python implementation -->
             <name>lowerFactor</name>
-            <!-- the type of the parameter; can be boolean, byte, short, int, long, float, double, java.lang.String-->
+            <!-- The description is shown in the help on the command line and also as tooltip in the GUI -->
+            <description>The value of the lower band is multiplied with this value.</description>
+            <!-- The type of the parameter; can be boolean, byte, short, int, long, float, double, java.lang.String -->
             <dataType>double</dataType>
-            <!-- the default value of the parameter; this is used if no value is specified by the user-->
+            <!-- The default value of the parameter; this is used if no value is specified by the user -->
             <defaultValue>1.3</defaultValue>
         </parameter>
         <parameter>
@@ -32,6 +44,7 @@
         </parameter>
         <parameter>
             <name>upperFactor</name>
+            <description>The value of the upper band is multiplied with this value.</description>
             <dataType>double</dataType>
             <defaultValue>0.98</defaultValue>
         </parameter>
@@ -44,7 +57,6 @@
         <parameter>
             <name>validExpression</name>
             <label>Valid pixel Expression</label>
-            <!-- The description is shown in the help on the command line and also as tooltip in the GUI.-->
             <description>Only valid pixels are processed</description>
             <dataType>java.lang.String</dataType>
             <defaultValue>not l1_flags.INVALID</defaultValue>
