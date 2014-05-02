@@ -1,8 +1,10 @@
 <operator>
-    <name>com.acme.NdviOp</name>
+    <name>com.bc.python.NdviOp</name>
     <alias>py_ndvi_op</alias>
-    <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
 
+    <version>0.0</version>
+    <authors>Brockmann Consult</authors>
+    <copyright>(c) Brockmann Consult</copyright>
     <description>Just an example</description>
 
     <namedSourceProducts>
