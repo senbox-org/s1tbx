@@ -123,9 +123,17 @@ public class PyOperatorSpi extends OperatorSpi {
         }
 
         PyOperatorSpi operatorSpi = new PyOperatorSpi(operatorDescriptor) {
+
             @Override
             public Operator createOperator() throws OperatorException {
-                PyOperator pyOperator = (PyOperator) super.createOperator();
+                PyOperator pyOperator;
+                try {
+                    pyOperator = PyOperator.class.newInstance();
+                    pyOperator.setSpi(this);
+                    pyOperator.setParameterDefaultValues();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new OperatorException(e);
+                }
                 pyOperator.setParameterDefaultValues();
                 pyOperator.setPythonModulePath(pythonModuleDir.getPath());
                 pyOperator.setPythonModuleName(pythonModuleName);
