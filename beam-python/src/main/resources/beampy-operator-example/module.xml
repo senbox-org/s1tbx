@@ -43,7 +43,7 @@
             <id>MerisNDVIPythonOperator</id>
             <helpId>MerisNDVIPythonOperator</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>tools</parent>
+            <parent>processing</parent>
             <text>Python NDVI Operator...</text>
             <operatorName>py_ndvi_op</operatorName>
             <dialogTitle>Python MERIS NDVI operator</dialogTitle>
