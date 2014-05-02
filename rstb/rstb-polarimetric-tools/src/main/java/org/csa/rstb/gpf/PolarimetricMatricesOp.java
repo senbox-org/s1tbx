@@ -32,6 +32,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.PolBandUtils;
+import org.esa.nest.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -228,6 +229,13 @@ public final class PolarimetricMatricesOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
+        final int x0 = targetRectangle.x;
+        final int y0 = targetRectangle.y;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
+
         final double[][] Sr = new double[2][2];
         final double[][] Si = new double[2][2];
         final double[][] tempRe;
@@ -259,7 +267,40 @@ public final class PolarimetricMatricesOp extends Operator {
                     sourceTiles[j] = getSourceTile(bandList.srcBands[j], targetRectangle);
                     dataBuffers[j] = sourceTiles[j].getDataBuffer();
                 }
+                final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+                final TileIndex tgtIndex = new TileIndex(tileDataList[0].tile);
 
+                int srcIdx, tgtIdx;
+                for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
+                    srcIndex.calculateStride(y);
+                    tgtIndex.calculateStride(y);
+                    for (int x = x0, xx = 0; x < maxX; ++x, ++xx) {
+                        srcIdx = srcIndex.getIndex(x);
+                        tgtIdx = tgtIndex.getIndex(x);
+
+                        PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
+
+                        if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
+                            PolOpUtils.computeCovarianceMatrixC3(Sr, Si, tempRe, tempIm);
+                        } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
+                            PolOpUtils.computeCovarianceMatrixC4(Sr, Si, tempRe, tempIm);
+                        } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
+                            PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempRe, tempIm);
+                        } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
+                            PolOpUtils.computeCoherencyMatrixT4(Sr, Si, tempRe, tempIm);
+                        }
+
+                        for (final TileData tileData : tileDataList){
+
+                            if(tileData.elem.isImaginary) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float)tempIm[tileData.elem.i][tileData.elem.j]);
+                            } else {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float)tempRe[tileData.elem.i][tileData.elem.j]);
+                            }
+                        }
+                    }
+                }
+                /*
                 final int numElems = tileDataList[0].dataBuffer.getNumElems();
                 for(int idx=0; idx<numElems; ++idx) {
 
@@ -283,7 +324,7 @@ public final class PolarimetricMatricesOp extends Operator {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tempRe[tileData.elem.i][tileData.elem.j]);
                         }
                     }
-                }
+                }*/
 
             } catch(Throwable e) {
                 OperatorUtils.catchOperatorException(getId(), e);
