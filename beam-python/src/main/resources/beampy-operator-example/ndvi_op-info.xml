@@ -15,17 +15,37 @@
 
     <parameters>
         <parameter>
-            <name>a</name>
+            <!-- the name of the parameter; by this name the specified value can be retrieved in the python implementation -->
+            <name>lowerFactor</name>
+            <!-- the type of the parameter; can be boolean, byte, short, int, long, float, double, java.lang.String-->
             <dataType>double</dataType>
+            <!-- the default value of the parameter; this is used if no value is specified by the user-->
             <defaultValue>1.3</defaultValue>
         </parameter>
         <parameter>
-            <name>b</name>
+            <name>lowerName</name>
+            <!-- The label use used in the graphical user interface before the, if not given the name of the parameter is
+            converted into a human readable label -->
+            <label>Lower band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>radiance_7</defaultValue>
+        </parameter>
+        <parameter>
+            <name>upperFactor</name>
             <dataType>double</dataType>
             <defaultValue>0.98</defaultValue>
         </parameter>
         <parameter>
-            <name>mask</name>
+            <name>upperName</name>
+            <label>Upper band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>radiance_10</defaultValue>
+        </parameter>
+        <parameter>
+            <name>validExpression</name>
+            <label>Valid pixel Expression</label>
+            <!-- The description is shown in the help on the command line and also as tooltip in the GUI.-->
+            <description>Only valid pixels are processed</description>
             <dataType>java.lang.String</dataType>
             <defaultValue>not l1_flags.INVALID</defaultValue>
         </parameter>
