@@ -560,7 +560,7 @@ public class OperatorContext {
             MetadataAttribute procTimeAttribute = targetGraphME.getAttribute("processingTime");
             procTimeAttribute.setData(procTime);
         }else {
-            MetadataAttribute procTimeAttribute = new MetadataAttribute("processingTime", procTime, true);
+            MetadataAttribute procTimeAttribute = new MetadataAttribute("processingTime", procTime, false);
             targetGraphME.addAttribute(procTimeAttribute);
         }
 
