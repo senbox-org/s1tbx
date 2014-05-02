@@ -5,7 +5,7 @@
 <operator>
     <!-- The name uniquely identifies the operator within BEAM -->
     <name>com.bc.python.example.NdviOp</name>
-    <!-- The alias is also unique but more usable by humans, e.g on the command line-->
+    <!-- The alias is also unique but more usable by humans, e.g on the command line -->
     <alias>py_ndvi_op</alias>
 
     <version>0.0</version>
@@ -37,7 +37,8 @@
         <parameter>
             <name>lowerName</name>
             <!-- The label use used in the graphical user interface before the, if not given the name of the parameter is
-            converted into a human readable label -->
+                 converted into a human readable label
+            -->
             <label>Lower band name</label>
             <dataType>java.lang.String</dataType>
             <defaultValue>radiance_7</defaultValue>
