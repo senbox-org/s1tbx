@@ -20,7 +20,6 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.SourceProductList;
@@ -41,24 +40,18 @@ import java.util.logging.Logger;
 
 /**
  * The panel in the binning operator UI which allows for setting input products and the path of the output product.
- *
- * @author Olaf Danne
- * @author Thomas Storm
  */
 class BinningIOPanel extends JPanel {
 
     private final AppContext appContext;
     private final BinningFormModel binningFormModel;
-    private final TargetProductSelector targetProductSelectorPanel;
+    private final TargetProductSelector targetProductSelector;
     private SourceProductList sourceProductList;
 
-    BinningIOPanel(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelectorPanel) {
+    BinningIOPanel(AppContext appContext, BinningFormModel binningFormModel, TargetProductSelector targetProductSelector) {
         this.appContext = appContext;
         this.binningFormModel = binningFormModel;
-        this.targetProductSelectorPanel = targetProductSelectorPanel;
-        this.targetProductSelectorPanel.getModel().setProductName("level-3");
-        final SourceProductSelector sourceProductSelectorPanel = new SourceProductSelector(appContext);
-        sourceProductSelectorPanel.setProductFilter(null); // todo -- set product filter
+        this.targetProductSelector = targetProductSelector;
         init();
     }
 
@@ -76,7 +69,8 @@ class BinningIOPanel extends JPanel {
         setLayout(tableLayout);
         tableLayout.setRowWeightY(0, 1.0);
         add(createSourceProductsPanel());
-        add(targetProductSelectorPanel.createDefaultPanel());
+        targetProductSelector.getModel().setProductName("level-3");
+        add(targetProductSelector.createDefaultPanel());
     }
 
     private JPanel createSourceProductsPanel() {
