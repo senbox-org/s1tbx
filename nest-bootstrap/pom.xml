@@ -233,6 +233,11 @@
             <artifactId>hadoop-core</artifactId>
             <version>0.20.2</version>
         </dependency>
+		
+		<dependency>
+            <groupId>com.alee</groupId>
+            <artifactId>weblaf</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -39,6 +39,10 @@
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-graph-builder</artifactId>
         </dependency>
+		<dependency>
+            <groupId>com.alee</groupId>
+            <artifactId>weblaf</artifactId>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

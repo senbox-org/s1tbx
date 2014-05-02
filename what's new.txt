@@ -1,41 +1,8 @@
 #################################################
-### New in NEST 5
+### New in S1TBX 0.1
 #################################################
 
-* SENTINEL-1 prototype readers
-* SENTINEL-1 TOPSAR Deburst and Merge
-* Autoupdate installation
-* New abstraction for left/right facing missions
-* Rigorous TerraSAR-X calibration
-* TC of TerraSAR-X detected products
-* Copy, move, delete from product library
-* Graphical subset selection
-* Mapping tools layers
-* Mosaic several bands at once to create RGB mosaics
-* Import vector operator
-* Flip operator
-* Update to ENVISAT reader for ASAR 4/C specification
-* Fix for GeoTIFF projection issue
-* Deskewing of ALOS L1.1 to allow terrain correction
-* Support for ASTER and external DEM's in InSAR modules
-* Additional information in InSAR Overview tables
+* Everything!
 
-+ fix for TSX detected 
-+ fix for writing file format from GPT
-+ fix to layer manager to allow multiple selections
-+ fix to apply DELFT orbit file
-+ fix for TSX SSC flipping
-+ fix for land mask
-+ fix RTC no dem area
-+ fix Apply Orbit to use 8th order Lagrange interpolator
-+ fix for Generic Writer to not write virtual bands
-+ fix for occasional polynomial normalization issues in interferogram formation
-+ fix for occasional artifacts in topo phase removal
-+ fix PRF in ASAR 4B, 4C specs
-+ fix ERS JDom character issue
 
-Visit our website for updates to tutorial and forums
-We want to hear from you.
-
-http://earth.esa.int/nest
 

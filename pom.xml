@@ -869,6 +869,13 @@
 				<version>1.5.r0196</version>
 	        </dependency>
 		
+			<!-- Look and Feel ###############################################-->
+
+            <dependency>
+                <groupId>com.alee</groupId>
+                <artifactId>weblaf</artifactId>
+                <version>1.27</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -32,13 +32,13 @@
     <categories>Application,DAT</categories>
 
     <extension point="ceres-core:applications">
-        <application id="DatMain" class="org.esa.nest.dat.DatMain"/>
+		<application id="S1TBXMain" class="org.esa.nest.dat.S1TBXMain"/>
     </extension>
 
     <extension point="beam-ui:applicationDescriptors">
             <applicationDescriptor>
-                <applicationId>DatMain</applicationId>
-                <displayName>NEST DAT</displayName>
+                <applicationId>S1TBXMain</applicationId>
+                <displayName>SENTINEL-1 TOOLBOX</displayName>
                 <frameIcon>/org/esa/nest/icons/dat.png</frameIcon>
                 <image>/org/esa/nest/icons/dat.png</image>
                 <excludedActions>

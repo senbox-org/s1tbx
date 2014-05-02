@@ -16,9 +16,9 @@ Building S1TBX from the source
 7. Use the following configuration to run DAT:
 
     * Main class: com.bc.ceres.launcher.Launcher
-    * VM parameters: -Xmx1024M -Dceres.context=s1tbx
+    * VM parameters: -Xmx2G -Dceres.context=s1tbx
     * Program parameters: none
-    * Working directory: $MY_PROJECTS/nest/output
+    * Working directory: $MY_PROJECTS/s1tbx/output
     * Use classpath of module: s1tbx-bootstrap
 
 
