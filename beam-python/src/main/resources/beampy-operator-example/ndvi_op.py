@@ -15,7 +15,7 @@ class NdviComputer:
         width = sourceProduct.getSceneRasterWidth()
         height = sourceProduct.getSceneRasterHeight()
 
-        self.lowFactor = operator.getParameter('lowerFactor')
+        self.lowerFactor = operator.getParameter('lowerFactor')
         self.lowerBandName = operator.getParameter('lowerName')
         self.lowerBand = self.getBand(sourceProduct, self.lowerBandName)
 
@@ -36,13 +36,13 @@ class NdviComputer:
         ndviTile = targetTiles.get(self.ndviBand)
         ndviFlagsTile = targetTiles.get(self.ndviFlagsBand)
 
-        b7Data = lowerTile.getSamplesFloat()
-        b10Data = upperTile.getSamplesFloat()
+        lowerData = lowerTile.getSamplesFloat()
+        upperData = upperTile.getSamplesFloat()
 
-        r7 = numpy.array(b7Data, dtype=numpy.float32)
-        r10 = numpy.array(b10Data, dtype=numpy.float32)
+        r7 = numpy.array(lowerData, dtype=numpy.float32)
+        r10 = numpy.array(upperData, dtype=numpy.float32)
 
-        ndvi = (r10 - r7) / (r10 + r7)
+        ndvi = (r10 * self.upperFactor - r7 * self.lowerFactor) / (r10 * self.upperFactor + r7 * self.lowerFactor)
 
         ndviLow = ndvi < 0.0
         ndviHigh = ndvi > 0.1
