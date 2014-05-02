@@ -126,6 +126,10 @@ public class PyOperatorSpi extends OperatorSpi {
 
             @Override
             public Operator createOperator() throws OperatorException {
+                // todo - actually super.createOperator() should work (mp - 02.05.2014) but is doesn't because the descriptor has
+                // todo - the wrong class when loaded from file
+//                PyOperator pyOperator = (PyOperator) super.createOperator();
+
                 PyOperator pyOperator;
                 try {
                     pyOperator = PyOperator.class.newInstance();
@@ -134,6 +138,7 @@ public class PyOperatorSpi extends OperatorSpi {
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new OperatorException(e);
                 }
+
                 pyOperator.setParameterDefaultValues();
                 pyOperator.setPythonModulePath(pythonModuleDir.getPath());
                 pyOperator.setPythonModuleName(pythonModuleName);
