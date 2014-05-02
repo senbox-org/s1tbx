@@ -200,6 +200,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     static XStream createXStream() {
         XStream xStream = new XStream();
 
+        // todo - when using this class loader only class known to beam-gpf can be loaded, but not PyOperator. (mp - 02.05.2014)
         xStream.setClassLoader(DefaultOperatorDescriptor.class.getClassLoader());
 
         xStream.alias("operator", DefaultOperatorDescriptor.class);
