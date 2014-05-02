@@ -5,22 +5,22 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+	<parent>
+        <groupId>org.esa.nest</groupId>
+		<artifactId>s1tbx</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+	
     <name>RADARSAT-2 Toolbox</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb</artifactId>
     <version>6.0-SNAPSHOT</version>
 
     <description>RADARSAT-2 Polarimetric Tools</description>
-
-	<parent>
-        <groupId>org.esa.nest</groupId>
-        <artifactId>nest</artifactId>
-        <version>6.0-SNAPSHOT</version>
-    </parent>
 	
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<context>nest</context>
+		<context>s1tbx</context>
 		
         <jlinda.version>0.8</jlinda.version>
         <nest.version>6.0-SNAPSHOT</nest.version>

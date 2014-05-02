@@ -10,7 +10,7 @@
 	           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
 	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>				
-		<context>nest</context>
+		<context>s1tbx</context>
 		
 		<skipTests>false</skipTests>
 		<test.jvm.maxpermsize>512m</test.jvm.maxpermsize>
@@ -19,14 +19,17 @@
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
 		<beam.version>5.0-SNAPSHOT</beam.version>
-		<ceres.version>0.14-SNAPSHOT</ceres.version>
-		<geotools.version>2.7.4</geotools.version>
+        <ceres.version>0.14-SNAPSHOT</ceres.version>
+        <nest.version>6.0-SNAPSHOT</nest.version>
+		<jlinda.version>0.8</jlinda.version>
+		<rstb.version>6.0-SNAPSHOT</rstb.version>
+		<s1tbx.version>0.1-SNAPSHOT</s1tbx.version>
+		
+		<geotools.version>9.0-M0</geotools.version>
 		<jide.version>3.5.3</jide.version>
 		<hdf.version>2.7</hdf.version>
-		<netcdf.version>4.3.19</netcdf.version>
-		<nest.version>6.0-SNAPSHOT</nest.version>
-		<rstb.version>6.0-SNAPSHOT</rstb.version>
-		<jlinda.version>0.8</jlinda.version>
+        <netcdf.version>4.3.19</netcdf.version>	
+		
 		<outputdir>../../${context}/output</outputdir>
 	</properties>
 	
@@ -34,11 +37,11 @@
        <maven>3.0.1</maven>
     </prerequisites>
 	
-    <name>NEST Project</name>
-    <url>http://www.array.ca/nest</url>
+    <name>SENTINEL-1 Toolbox</name>
+    <url>https://earth.esa.int/web/sentinel-tbx/home</url>
     <groupId>org.esa.nest</groupId>
-    <artifactId>nest</artifactId>
-    <version>6.0-SNAPSHOT</version>
+    <artifactId>s1tbx</artifactId>
+    <version>0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
   
@@ -70,7 +73,7 @@
 	
     <organization>
         <name>Array Systems Computing Inc</name>
-        <url>http://www.array.ca/nest</url>
+        <url>http://www.array.ca</url>
     </organization>
 
     <inceptionYear>2007</inceptionYear>
@@ -84,8 +87,8 @@
     </licenses>
 
     <scm>
-	 <connection>scm:git:git://github.com/lveci/nest.git</connection>
-     <url>www.array.ca/nest</url>
+	 <connection>scm:git:git://github.com/arraydev/s1tbx.git</connection>
+     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
     </scm>
 
 	<repositories>
@@ -111,17 +114,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-		<!--repository>
-            <id>ppolabs-mvn-repo</id>
-            <name>Public Maven Repository of PPO.labs</name>
-            <url>http://maven.ppolabs.me/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository-->
         <repository>
           <id>repo1.maven.org</id>
           <name>maven repository</name>
@@ -1209,10 +1201,6 @@
     </developers>
 
     <profiles>
-		<profile>
-            <id>nest</id>
-
-		</profile>
 		<profile>
             <id>benchmark</id>
             <modules>

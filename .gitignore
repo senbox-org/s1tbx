@@ -4,6 +4,4 @@
 .idea/
 modules/
 target/
-CVS/
-.cvsignore
-.svn
+output/
