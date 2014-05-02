@@ -39,7 +39,8 @@
         <jpy.version>0.7-SNAPSHOT</jpy.version>
         <jide.version>3.5.3</jide.version>
 
-		<outputdir>../</outputdir>
+		<!--outputdir>../</outputdir-->
+		<outputdir>../../../s1tbx/output</outputdir>
     </properties>
 
     <modules>		
