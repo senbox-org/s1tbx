@@ -63,10 +63,10 @@ public class NdviOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Lower factor", defaultValue = "1.0F")
+    @Parameter(label = "Red factor", defaultValue = "1.0F")
     private float redFactor;
 
-    @Parameter(label = "Upper factor", defaultValue = "1.0F")
+    @Parameter(label = "NIR factor", defaultValue = "1.0F")
     private float nirFactor;
 
     @Parameter(label = "Red input band",
