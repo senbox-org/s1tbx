@@ -86,13 +86,7 @@ class BinningFormModel {
         parameterMap = new HashMap<>();
         propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Binning", parameterMap);
 
-        // are not shown in GUI and shall not go into parameter file
-        propertySet.removeProperty(propertySet.getProperty("metadataPropertiesFile"));  // default: './metadata.properties'
-        propertySet.removeProperty(propertySet.getProperty("metadataTemplateDir"));     // default: '.'
-        propertySet.removeProperty(propertySet.getProperty("outputType"));              // default: Product
-        propertySet.removeProperty(propertySet.getProperty("outputFormat"));            // default: BEAM-DIMAP
-        propertySet.removeProperty(propertySet.getProperty("outputBinnedData"));        // default: false
-        propertySet.removeProperty(propertySet.getProperty("outputMappedProduct"));     // default: true
+        hideProperties();
 
 
         // Just for GUI
@@ -120,6 +114,16 @@ class BinningFormModel {
                 propertySet.setValue(PROPERTY_KEY_WKT, newGeometry.toText());
             }
         });
+    }
+
+    void hideProperties() {
+        // those properties are not shown in GUI and shall not go into parameter file
+        propertySet.getProperty("metadataPropertiesFile").getDescriptor().setTransient(true);
+        propertySet.getProperty("metadataTemplateDir").getDescriptor().setTransient(true);
+        propertySet.getProperty("outputType").getDescriptor().setTransient(true);
+        propertySet.getProperty("outputFormat").getDescriptor().setTransient(true);
+        propertySet.getProperty("outputBinnedData").getDescriptor().setTransient(true);
+        propertySet.getProperty("outputMappedProduct").getDescriptor().setTransient(true);
     }
 
     public PropertySet getPropertySet() {
