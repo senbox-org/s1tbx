@@ -43,6 +43,9 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
     private final ConnectMenuListener connectListener = new ConnectMenuListener(this);
     private final RemoveSourceMenuListener removeSourceListener = new RemoveSourceMenuListener(this);
 
+    private static final ImageIcon opIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/operator.png");
+    private static final ImageIcon folderIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/folder.png");
+
     private static final Font font = new Font("Ariel", Font.BOLD, 10);
     private static final Color opColor = new Color(200, 200, 255, 128);
     private static final Color selColor = new Color(200, 255, 200, 150);
@@ -72,7 +75,6 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
      * Creates a menu containing the list of operators to the addMenu
      */
     private void CreateAddOpMenu() {
-        final ImageIcon opIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/cog_add.png");
         addMenu = new JMenu("Add");
 
         // get operator list from graph executor
@@ -138,6 +140,7 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         }
         if (!menuExists) {
             final JMenu newMenu = new JMenu(folderName);
+            newMenu.setIcon(folderIcon);
             subMenuList.add(newMenu);
             currentMenu.add(newMenu);
             currentMenu = newMenu;

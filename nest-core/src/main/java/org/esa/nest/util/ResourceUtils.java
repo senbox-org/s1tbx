@@ -49,6 +49,7 @@ public final class ResourceUtils {
     public static ImageIcon arrayIcon = LoadIcon("array/rstb/icons/array_logo.png");
     public static ImageIcon esaIcon = LoadIcon("org/esa/nest/icons/esa.png");
     public static ImageIcon esaPlanetIcon = LoadIcon("org/esa/nest/icons/esa-planet.png");
+    public static ImageIcon s1Icon = LoadIcon("org/esa/nest/icons/Sentinel1.png");
     public static ImageIcon geoAusIcon = LoadIcon("org/esa/nest/icons/geo_aus.png");
 
     public static ImageIcon LoadIcon(final String path) {
