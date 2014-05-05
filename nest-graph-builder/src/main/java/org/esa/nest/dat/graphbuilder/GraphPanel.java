@@ -47,7 +47,7 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
     private static final ImageIcon folderIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/folder.png");
 
     private static final Font font = new Font("Ariel", Font.BOLD, 10);
-    private static final Color opColor = new Color(200, 200, 255, 128);
+    private static final Color opColor = new Color(0, 177, 255, 128);
     private static final Color selColor = new Color(200, 255, 200, 150);
     private static final Color helpColor = new Color(250, 255, 250, 150);
     private static final char[] folderDelim = new char[]{'\\'};

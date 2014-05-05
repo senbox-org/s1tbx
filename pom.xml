@@ -47,7 +47,7 @@
   
 	    <modules>
 		<module>../ceres</module>
-		<module>beam</module>
+		<module>../beam</module>
 		<module>jlinda</module>
 		<module>rstb</module>
 		<module>nest-benchmark</module>
@@ -68,7 +68,7 @@
 		<module>nest-world-wind-view</module>
 		
 		<module>nest-op-sentinel1</module>
-		<!--module>../esa-pfa</module-->
+		<module>../esa-pfa</module>
 	</modules>
 	
     <organization>

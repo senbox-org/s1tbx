@@ -168,15 +168,6 @@
         </action>
 
         <action>
-            <id>CrossResamplingOp</id>
-            <class>org.jlinda.nest.dat.CrossResamplingAction</class>
-            <text>Cross Interferometry Resampling</text>
-            <shortDescr>Spectral Resampling for Cross Interferometry Applications</shortDescr>
-            <placeAfter>PhaseFilterOp</placeAfter>
-            <parent>insar_tools</parent>
-        </action>
-
-        <action>
             <id>InSARMaster</id>
             <helpId>InSARMaster</helpId>
             <class>org.jlinda.nest.dat.InSARMasterAction</class>
