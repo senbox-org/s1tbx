@@ -34,8 +34,8 @@
             <mnemonic>3</mnemonic>
             <accelerator>ctrl alt 3</accelerator>
             <description>Display product in a 3D view.</description>
-            <smallIcon>/org/esa/nest/icons/earth.gif</smallIcon>
-            <largeIcon>/org/esa/nest/icons/earth.gif</largeIcon>
+            <smallIcon>/org/esa/nest/icons/earth24.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/earth24.png</largeIcon>
             <helpId>show3DMapWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -48,8 +48,8 @@
             <title>World Map</title>
             <tabTitle>World Map</tabTitle>
             <description>Display product in a Flat Earth view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/WorldMap16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/WorldMap24.gif</largeIcon>
+            <smallIcon>/org/esa/nest/icons/WorldMap16.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/WorldMap24.png</largeIcon>
             <helpId>show3DMapWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>

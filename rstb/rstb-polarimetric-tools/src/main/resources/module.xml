@@ -18,9 +18,6 @@
 	<dependency>
         <module>nest-dat</module>
     </dependency>
-    <dependency>
-        <module>nest-reader-dem</module>
-    </dependency>
 	
     <categories>Application,DAT</categories>
 
@@ -31,6 +28,8 @@
             <title>H-a Alpha Plane</title>
             <tabTitle>H-a Alpha Plane</tabTitle>
             <description>H-a Alpha Plane Plot</description>
+            <smallIcon>/org/esa/nest/icons/h-a-alpha.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/h-a-alpha.png</largeIcon>
             <helpId></helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
