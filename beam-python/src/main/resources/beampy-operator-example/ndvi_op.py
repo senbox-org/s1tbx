@@ -3,9 +3,6 @@ import numpy
 
 jpy = beampy.jpy
 
-Rectangle = jpy.get_type('java.awt.Rectangle')
-Tile = jpy.get_type('org.esa.beam.framework.gpf.Tile')
-
 
 class NdviComputer:
     def initialize(self, operator):

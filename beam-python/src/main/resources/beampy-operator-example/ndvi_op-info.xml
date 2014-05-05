@@ -5,14 +5,14 @@
 <operator>
     <!-- The name uniquely identifies the operator within BEAM -->
     <name>org.esa.beam.python.example.NdviOp</name>
-    <!-- The alias is also unique but more usable by humans, e.g on the command line -->
+    <!-- The alias is a more user-friendly name, e.g. to be used on the command line -->
     <alias>py_ndvi_op</alias>
     <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
 
-    <version>0.0</version>
+    <version>1.0</version>
     <authors>Brockmann Consult</authors>
-    <copyright>(c) Brockmann Consult</copyright>
-    <description>Just an example</description>
+    <copyright>(c) 2014 Brockmann Consult</copyright>
+    <description>Code example for the BEAM Python API</description>
 
     <namedSourceProducts>
         <!-- One or more source products can be specified.
@@ -29,11 +29,11 @@
             <!-- The name of the parameter; by this name the specified value can be retrieved in the python implementation -->
             <name>lowerFactor</name>
             <!-- The description is shown in the help on the command line and also as tooltip in the GUI -->
-            <description>The value of the lower band is multiplied with this value.</description>
+            <description>The value of the lower band is multiplied by this value.</description>
             <!-- The type of the parameter; can be boolean, byte, short, int, long, float, double, java.lang.String -->
             <dataType>double</dataType>
             <!-- The default value of the parameter; this is used if no value is specified by the user -->
-            <defaultValue>1.3</defaultValue>
+            <defaultValue>1.0</defaultValue>
         </parameter>
         <parameter>
             <name>lowerName</name>
@@ -46,9 +46,9 @@
         </parameter>
         <parameter>
             <name>upperFactor</name>
-            <description>The value of the upper band is multiplied with this value.</description>
+            <description>The value of the upper band is multiplied by this value.</description>
             <dataType>double</dataType>
-            <defaultValue>0.98</defaultValue>
+            <defaultValue>1.0</defaultValue>
         </parameter>
         <parameter>
             <name>upperName</name>
