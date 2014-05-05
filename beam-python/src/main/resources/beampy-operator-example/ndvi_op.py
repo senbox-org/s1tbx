@@ -36,13 +36,13 @@ class NdviComputer:
         ndviTile = targetTiles.get(self.ndviBand)
         ndviFlagsTile = targetTiles.get(self.ndviFlagsBand)
 
-        lowerData = lowerTile.getSamplesFloat()
-        upperData = upperTile.getSamplesFloat()
+        lowerSamples = lowerTile.getSamplesFloat()
+        upperSamples = upperTile.getSamplesFloat()
 
-        r7 = numpy.array(lowerData, dtype=numpy.float32)
-        r10 = numpy.array(upperData, dtype=numpy.float32)
+        lowerData = numpy.array(lowerSamples, dtype=numpy.float32) * self.lowerFactor
+        upperData = numpy.array(upperSamples, dtype=numpy.float32) * self.upperFactor
 
-        ndvi = (r10 * self.upperFactor - r7 * self.lowerFactor) / (r10 * self.upperFactor + r7 * self.lowerFactor)
+        ndvi = (upperData - lowerData ) / (upperData + lowerData )
 
         ndviLow = ndvi < 0.0
         ndviHigh = ndvi > 0.1
