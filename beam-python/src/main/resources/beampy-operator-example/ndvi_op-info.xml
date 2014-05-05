@@ -10,9 +10,14 @@
     <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
 
     <version>1.0</version>
-    <authors>Brockmann Consult</authors>
-    <copyright>(c) 2014 Brockmann Consult</copyright>
-    <description>Code example for the BEAM Python API</description>
+    <authors>Brockmann Consult GmbH</authors>
+    <copyright>(C) 2014 Brockmann Consult GmbH</copyright>
+
+    <description>
+        This is an example for the BEAM Python API.
+        It demonstrates the development of a a Python processor plug-in
+        taking the optical NDVI 'algorithm' as an example.
+    </description>
 
     <namedSourceProducts>
         <!-- One or more source products can be specified.
@@ -37,6 +42,7 @@
         </parameter>
         <parameter>
             <name>lowerName</name>
+            <description>The name of the spectral band with the lower (red) wavelength.</description>
             <!-- The label use used in the graphical user interface before the, if not given the name of the parameter is
                  converted into a human readable label
             -->
@@ -52,6 +58,7 @@
         </parameter>
         <parameter>
             <name>upperName</name>
+            <description>The name of the spectral band with the higher (NIR) wavelength.</description>
             <label>Upper band name</label>
             <dataType>java.lang.String</dataType>
             <defaultValue>radiance_10</defaultValue>
