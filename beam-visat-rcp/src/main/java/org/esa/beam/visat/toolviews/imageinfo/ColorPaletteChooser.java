@@ -25,6 +25,7 @@ import java.util.Vector;
 class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrapper> {
 
     private final String DERIVED_FROM = "derived from";
+    private final String UNNAMED = "unnamed";
     private boolean discreteDisplay;
     private boolean log10Display;
 
@@ -35,7 +36,8 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
     }
 
     public void removeUserDefinedPalette() {
-        if (getItemAt(0).name.startsWith(DERIVED_FROM)) {
+        final String name = getItemAt(0).name;
+        if (UNNAMED.equals(name) || name.startsWith(DERIVED_FROM)) {
             removeItemAt(0);
         }
     }
@@ -63,7 +65,13 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
 
     private void setUserDefinedPalette(ColorPaletteDef userPalette) {
         final String suffix = userPalette.getFirstPoint().getLabel();
-        final ColorPaletteWrapper item = new ColorPaletteWrapper(DERIVED_FROM + " (" + suffix + ")", userPalette);
+        final String name;
+        if (suffix != null && suffix.trim().length() > 0) {
+            name = DERIVED_FROM + " " + suffix.trim();
+        } else {
+            name = UNNAMED;
+        }
+        final ColorPaletteWrapper item = new ColorPaletteWrapper(name, userPalette);
         insertItemAt(item, 0);
         setSelectedIndex(0);
     }
