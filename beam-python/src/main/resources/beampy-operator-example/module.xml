@@ -40,8 +40,8 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>SampleNDVIPythonOperator</id>
-            <helpId>SampleNDVIPythonOperator</helpId>
+            <id>ExampleNDVIPythonOperator</id>
+            <helpId>ExampleNDVIPythonOperator</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <parent>processing</parent>
             <text>Python NDVI Operator...</text>
