@@ -51,8 +51,14 @@ public abstract class PropertyEditor {
      */
     public JComponent[] createComponents(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JComponent editorComponent = createEditorComponent(propertyDescriptor, bindingContext);
-        
+
+
         JLabel label = new JLabel(propertyDescriptor.getDisplayName() + ":");
+        String toolTipText = editorComponent.getToolTipText();
+        if (toolTipText != null) {
+            label.setToolTipText(toolTipText);
+        }
+
         Binding binding = bindingContext.getBinding(propertyDescriptor.getName());
         binding.addComponent(label);
         
