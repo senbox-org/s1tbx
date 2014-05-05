@@ -84,7 +84,7 @@ public abstract class OperatorSpi {
      * @since BEAM 5
      */
     protected OperatorSpi(URL operatorDescriptorUrl) {
-        this(DefaultOperatorDescriptor.fromXml(operatorDescriptorUrl));
+        this(DefaultOperatorDescriptor.fromXml(operatorDescriptorUrl, DefaultOperatorDescriptor.class.getClassLoader()));
     }
 
     /**

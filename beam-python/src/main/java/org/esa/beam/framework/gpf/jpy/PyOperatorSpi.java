@@ -116,7 +116,7 @@ public class PyOperatorSpi extends OperatorSpi {
         File pythonInfoXmlFile = new File(pythonModuleDir, pythonModuleName + "-info.xml");
         DefaultOperatorDescriptor operatorDescriptor;
         if (pythonInfoXmlFile.exists()) {
-            operatorDescriptor = DefaultOperatorDescriptor.fromXml(pythonInfoXmlFile);
+            operatorDescriptor = DefaultOperatorDescriptor.fromXml(pythonInfoXmlFile, PyOperatorSpi.class.getClassLoader());
         } else {
             operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, PyOperator.class);
             BeamLogManager.getSystemLogger().warning(String.format("Missing operator metadata file '%s'", pythonInfoXmlFile));
@@ -126,18 +126,7 @@ public class PyOperatorSpi extends OperatorSpi {
 
             @Override
             public Operator createOperator() throws OperatorException {
-                // todo - actually super.createOperator() should work (mp - 02.05.2014) but is doesn't because the descriptor has
-                // todo - the wrong class when loaded from file
-//                PyOperator pyOperator = (PyOperator) super.createOperator();
-
-                PyOperator pyOperator;
-                try {
-                    pyOperator = PyOperator.class.newInstance();
-                    pyOperator.setSpi(this);
-                    pyOperator.setParameterDefaultValues();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new OperatorException(e);
-                }
+                PyOperator pyOperator = (PyOperator) super.createOperator();
 
                 pyOperator.setParameterDefaultValues();
                 pyOperator.setPythonModulePath(pythonModuleDir.getPath());

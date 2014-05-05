@@ -4,9 +4,10 @@
 -->
 <operator>
     <!-- The name uniquely identifies the operator within BEAM -->
-    <name>com.bc.python.example.NdviOp</name>
+    <name>org.esa.beam.python.example.NdviOp</name>
     <!-- The alias is also unique but more usable by humans, e.g on the command line -->
     <alias>py_ndvi_op</alias>
+    <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
 
     <version>0.0</version>
     <authors>Brockmann Consult</authors>
