@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf;
 
-import com.bc.ceres.core.runtime.RuntimeContext;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.*;
@@ -168,8 +167,10 @@ public final class ReaderUtils {
     }
 
     public static void addMetadataProductSize(final Product product) {
-        AbstractMetadata.setAttribute(AbstractMetadata.getAbstractedMetadata(product),
-                AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        if(absRoot != null) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+        }
     }
 
     public static int getTotalSize(final Product product) {

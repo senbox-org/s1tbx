@@ -5,13 +5,14 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.DBQuery;
 import org.esa.nest.db.ProductDB;
 import org.esa.nest.db.ProductEntry;
 
 import java.io.File;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -33,20 +34,16 @@ public class DBSearch {
     }
 
     private static ProductEntry[] findCCDPairs(final ProductDB db, final ProductEntry master, final GeoPos centerGeoPos,
-                                               final int maxSlaves, final boolean anyDate) {
+                                               final int maxSlaves, final boolean anyDate) throws SQLException {
 
         final DBQuery dbQuery = new DBQuery();
         dbQuery.setFreeQuery(AbstractMetadata.PRODUCT+" <> '"+master.getName()+ '\'');
         dbQuery.setSelectionRect(new GeoPos[] { centerGeoPos });
         dbQuery.setSelectedPass(master.getPass());
         dbQuery.setSelectedProductTypes(new String[] {master.getProductType()});
-        try {
-            final ProductEntry[] entries = dbQuery.queryDatabase(db);
-            return getClosestDatePairs(entries, master, dbQuery, maxSlaves, anyDate);
-        } catch(Throwable t) {
-            VisatApp.getApp().showErrorDialog("Query database error:"+t.getMessage());
-            return null;
-        }
+
+        final ProductEntry[] entries = dbQuery.queryDatabase(db);
+        return getClosestDatePairs(entries, master, dbQuery, maxSlaves, anyDate);
     }
 
     private static ProductEntry[] getClosestDatePairs(final ProductEntry[] entries,

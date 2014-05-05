@@ -73,19 +73,6 @@ public final class ResourceUtils {
             System.out.println("Could not delete "+file.getName());
     }
 
-    public static boolean validateFolder(final File file) {
-        if(!file.exists()) {
-            if(!file.mkdirs()) {
-                if(VisatApp.getApp() != null)
-                    VisatApp.getApp().showErrorDialog("Unable to create folder\n"+file.getAbsolutePath());
-                else
-                    System.out.println("Unable to create folder\n"+file.getAbsolutePath());
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static File GetFilePath(final String title, final String formatName, final String extension,
                                    final String fileName, final String description, final boolean isSave) {
         return GetFilePath(title, formatName, extension, fileName, description, isSave,

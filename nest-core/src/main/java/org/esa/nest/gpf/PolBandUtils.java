@@ -102,7 +102,7 @@ public class PolBandUtils {
      * @throws org.esa.beam.framework.gpf.OperatorException if sourceProduct is not quad-pol
      */
     public static QuadSourceBand[] getSourceBands(final Product srcProduct,
-                                                  final MATRIX sourceProductType) throws OperatorException {
+                                                  final MATRIX sourceProductType) throws Exception {
 
         final boolean isCoregistered = StackUtils.isCoregisteredStack(srcProduct);
         final List<QuadSourceBand> quadSrcBandList = new ArrayList<QuadSourceBand>(10);
@@ -135,7 +135,7 @@ public class PolBandUtils {
      * @param bandNames the src band names
      * @return QuadSourceBand[]
      */
-    private static Band[] getBands(final Product srcProduct, final MATRIX sourceProductType, final String[] bandNames) {
+    private static Band[] getBands(final Product srcProduct, final MATRIX sourceProductType, final String[] bandNames) throws Exception {
 
         if (sourceProductType == MATRIX.FULL) { // full pol
             return getQuadPolSrcBands(srcProduct, bandNames);
@@ -158,7 +158,7 @@ public class PolBandUtils {
     }
 
     private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames)
-            throws OperatorException {
+            throws Exception {
 
         final Band[] sourceBands = new Band[8];
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
@@ -392,7 +392,7 @@ public class PolBandUtils {
         };
     }
 
-    public static String getPolarType(final Product product) {
+    public static String getPolarType(final Product product) throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if(absRoot != null) {
             final String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, "").trim();

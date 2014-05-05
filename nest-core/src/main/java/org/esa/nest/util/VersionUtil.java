@@ -3,8 +3,6 @@ package org.esa.nest.util;
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import org.esa.beam.util.VersionChecker;
 
-import java.io.IOException;
-
 /**
     check if version of the software is up to date
  */

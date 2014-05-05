@@ -102,7 +102,7 @@ public class XMLProductDirectory {
         isSLC = flag;
     }
 
-    public Product createProduct() throws IOException {
+    public Product createProduct() throws Exception {
         final Product product = new Product(getProductName(),
                                             getProductType(),
                                             sceneWidth, sceneHeight);
