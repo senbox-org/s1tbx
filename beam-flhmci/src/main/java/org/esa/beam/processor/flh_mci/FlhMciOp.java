@@ -52,8 +52,7 @@ import java.awt.image.Raster;
                   description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
 public class FlhMciOp extends PixelOperator {
 
-    @SourceProduct(alias = "source",
-                   label = "Source product")
+    @SourceProduct(alias = "source", label = "Source product", description="The source product.")
     private Product sourceProduct;
 
     @Parameter(description = "The name for the lower wavelength band defining the baseline",
