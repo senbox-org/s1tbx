@@ -16,7 +16,6 @@
 package org.esa.nest.dat.toolviews.worldmap;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.worldmap.WorldMapToolView;
@@ -35,13 +34,13 @@ public class NestWorldMapToolView extends WorldMapToolView {
 
     public NestWorldMapToolView() {
     }
-
+/*
     @Override
     public JComponent createControl() {
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setPreferredSize(new Dimension(320, 160));
 
-        worldMapDataModel = new WorldMapPaneDataModel();
+        worldMapDataModel = new NestWorldMapPaneDataModel();
         final NestWorldMapPane worldMapPane = new NestWorldMapPane(worldMapDataModel);
         worldMapPane.setNavControlVisible(true);
         mainPane.add(worldMapPane, BorderLayout.CENTER);
@@ -72,5 +71,5 @@ public class NestWorldMapToolView extends WorldMapToolView {
             }
             setSelectedProduct(product);
         }
-    }
+    }*/
 }

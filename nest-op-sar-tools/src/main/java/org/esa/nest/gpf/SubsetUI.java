@@ -28,6 +28,7 @@ import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.WorldMapUI;
+import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
 import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;
@@ -203,7 +204,7 @@ public class SubsetUI extends BaseOperatorUI {
         DialogUtils.addComponent(pixelPanel, pixgbc, "Sub-sampling Y:", subSamplingY);
         DialogUtils.fillPanel(pixelPanel, pixgbc);
 
-        final WorldMapPane worldPane = worldMapUI.getWorlMapPane();
+        final NestWorldMapPane worldPane = worldMapUI.getWorlMapPane();
         worldPane.setPreferredSize(new Dimension(500, 130));
 
         final JPanel geoTextPanel = new JPanel(new BorderLayout());
