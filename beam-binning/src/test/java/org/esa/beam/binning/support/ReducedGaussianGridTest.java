@@ -31,7 +31,7 @@ public class ReducedGaussianGridTest {
         assertEquals(68.36775, gaussianGrid.getCenterLatLon(300)[0], 1.0e-6);
         assertEquals(-53.4375, gaussianGrid.getCenterLatLon(300)[1], 1.0e-6);
 
-        // lat=45.0,lon=90.0 -> row=15,col=91 -> 1026
+        // lat=45.0,lon=90.0 -> row=15,col=81 -> 1026
         assertEquals(1026, gaussianGrid.getBinIndex(45.0, 90.0));
     }
 
