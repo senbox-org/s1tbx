@@ -309,8 +309,25 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      * Update the metadata in the target product.
      */
     private void updateTargetProductMetadata() {
+
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
+
+        final String[] targetBandNames = targetProduct.getBandNames();
+        final MetadataElement[] children = abs.getElements();
+        for(MetadataElement child : children) {
+            final String childName = child.getName();
+            if(childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
+                final String pol = childName.substring(childName.indexOf("_") + 1);
+                String bandNameArray = "";
+                for (String bandName:targetBandNames) {
+                    if (bandName.contains(pol)) {
+                        bandNameArray += bandName + " ";
+                    }
+                }
+                child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
+            }
+        }
     }
 
     /**
