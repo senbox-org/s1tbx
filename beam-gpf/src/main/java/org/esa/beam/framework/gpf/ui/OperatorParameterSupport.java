@@ -134,9 +134,7 @@ public class OperatorParameterSupport {
                 } catch (ConversionException e) {
                     throw new IllegalStateException("Not able to init OperatorParameterSupport.", e);
                 }
-                String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
-                propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(opName, this.parameterMap,
-                                                                                                  descriptorFactory.getSourceProductMap());
+                propertySet = PropertyContainer.createMapBacked(this.parameterMap, propertySetDescriptor);
                 propertySet.setDefaultValues();
             } else {
                 propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
