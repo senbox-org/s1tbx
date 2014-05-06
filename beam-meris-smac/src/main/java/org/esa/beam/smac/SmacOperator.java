@@ -144,7 +144,7 @@ public class SmacOperator extends Operator {
     @Parameter(description = "Bands to process", label = "Bands to process", notNull = true, rasterDataNodeType = Band.class)
     private String[] bandNames;
 
-    @SourceProduct(alias = "source", label = "Source product")
+    @SourceProduct(alias = "source", label = "Source product", description="The source product.")
     private Product sourceProduct;
 
     @TargetProduct(label = "SMAC product")

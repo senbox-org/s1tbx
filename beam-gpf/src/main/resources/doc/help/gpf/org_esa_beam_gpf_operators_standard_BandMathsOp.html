@@ -19,7 +19,7 @@
   <tr><td><b>Name:</b></td><td><code>BandMaths</code></td></tr>
   <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.BandMathsOp</code></td></tr>
   <tr><td><b>Purpose:</b></td><td>Create a product with one or more bands using mathematical expressions.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+  <tr><td><b>Version:</b></td><td>1.1</td></tr>
 </table>
 <h2>Description</h2>
 <p>
@@ -88,6 +88,14 @@
         &lt;/parameters&gt;
     &lt;/node&gt;
  </pre>
+ <p>
+ <b>Changes from version 1.0 to 1.1</b>:
+ <ol>
+ <li>Added setter and getter methods for parameters</li>
+ <li>Changed type of BandDescriptor.noDataValue from String to Double</li>
+ <li>Deprecated API method 'createBooleanExpressionBand'</li>
+ </ol>
+ </p>
 <h2>Sources</h2>
 <table>
 <tr>

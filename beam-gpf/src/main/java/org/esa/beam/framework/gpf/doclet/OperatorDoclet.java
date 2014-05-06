@@ -28,6 +28,8 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
 // This Main must be started with ceres launcher. Otherwise not all dependencies are on the classpath.
+// Main class: com.bc.ceres.launcher.Launcher
+// VM options: -Dceres.context=beam -Dbeam.mainClass=org.esa.beam.framework.gpf.doclet.OperatorDoclet
 
 
 /**
@@ -67,7 +69,6 @@ public class OperatorDoclet extends Doclet {
             System.exit(1);
         }
 
-        // Todo (mp) -  Binning does not work; always getting error : java.lang.NoClassDefFoundError: ucar/ma2/InvalidRangeException
         com.sun.tools.javadoc.Main.main(new String[]{
                 "-doclet", OperatorDoclet.class.getName(),
                 "-sourcepath", "" +
@@ -78,23 +79,30 @@ public class OperatorDoclet extends Doclet {
                                "./beam-collocation/src/main/java;" +
                                "./beam-flhmci/src/main/java;" +
                                "./beam-meris-radiometry/src/main/java;" +
+                               "./beam-meris-smac/src/main/java;" +
+                               "./beam-meris-cloud/src/main/java;" +
                                "./beam-pixel-extraction/src/main/java;" +
                                "./beam-statistics-op/src/main/java;" +
-                               "./beam-temporal-percentile/src/main/java;" +
+                               "./beam-temporal-percentile-op/src/main/java;" +
+                               "./beam-ndvi/src/main/java;" +
                                "./beam-unmix/src/main/java",
 
                 "-classpath", "" +
-                              "./modules/beam-core-4.11;" +
-                              "./modules/beam-gpf-4.11;" +
-                              "./modules/beam-aatsr-sst-1.5.1;" +
-                              "./modules/beam-binning-0.8.2-SNAPSHOT;" +
-                              "./modules/beam-collocation-1.4.1;" +
-                              "./modules/beam-flhmci-1.6.204;" +
-                              "./modules/beam-meris-radiometry-1.1.2;" +
-                              "./modules/beam-pixel-extraction-1.3;" +
-                              "./modules/beam-statistics-op-1.0;" +
-                              "./modules/beam-temporal-percentile-op-1.0;" +
-                              "./modules/beam-unmix-1.2.1",
+                              "./modules/beam-core-5.0-SNAPSHOT;" +
+                              "./modules/beam-gpf-5.0-SNAPSHOT;" +
+                              "./modules/beam-aatsr-sst-5.0-SNAPSHOT;" +
+                              "./modules/beam-binning-5.0-SNAPSHOT;" +
+                              "./modules/beam-cluster-analysis-5.0-SNAPSHOT;" +
+                              "./modules/beam-collocation-5.0-SNAPSHOT;" +
+                              "./modules/beam-flhmci-5.0-SNAPSHOT;" +
+                              "./modules/beam-meris-radiometry-5.0-SNAPSHOT;" +
+                              "./modules/beam-meris-smac-5.0-SNAPSHOT;" +
+                              "./modules/beam-meris-cloud-5.0-SNAPSHOT;" +
+                              "./modules/beam-pixel-extraction-5.0-SNAPSHOT;" +
+                              "./modules/beam-statistics-op-5.0-SNAPSHOT;" +
+                              "./modules/beam-temporal-percentile-op-5.0-SNAPSHOT;" +
+                              "./modules/beam-ndvi-5.0-SNAPSHOT;" +
+                              "./modules/beam-unmix-5.0-SNAPSHOT",
 
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",
@@ -103,11 +111,14 @@ public class OperatorDoclet extends Doclet {
                 "org.esa.beam.binning.operator",
                 "org.esa.beam.cluster",
                 "org.esa.beam.collocation",
-                "org.esa.beam.meris.radiometry",
-                "org.esa.beam.pixex",
                 "org.esa.beam.processor.flh_mci",
+                "org.esa.beam.meris.radiometry",
+                "org.esa.beam.smac",
+                "org.esa.beam.operator.cloud",
+                "org.esa.beam.pixex",
                 "org.esa.beam.statistics",
                 "org.esa.beam.statistics.percentile.interpolated",
+                "org.esa.beam.ndvi",
                 "org.esa.beam.unmixing",
         });
     }
@@ -130,6 +141,8 @@ public class OperatorDoclet extends Doclet {
             }
             throw new RuntimeException(t);
         }
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        operatorSpiRegistry.loadOperatorSpis();
 
         ClassDoc[] classDocs = root.classes();
         for (ClassDoc classDoc : classDocs) {
@@ -138,14 +151,17 @@ public class OperatorDoclet extends Doclet {
                     System.out.println("Processing " + classDoc.typeName() + "...");
                     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                     Class<? extends Operator> type = (Class<? extends Operator>) contextClassLoader.loadClass(classDoc.qualifiedTypeName());
-                    OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
                     OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(OperatorSpi.getOperatorAlias(type));
-                    OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-                    if (!operatorDescriptor.isInternal()) {
-                        OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, operatorDescriptor);
-                        operatorHandler.processOperator(operatorDesc);
+                    if (operatorSpi != null) {
+                        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+                        if (!operatorDescriptor.isInternal()) {
+                            OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, operatorDescriptor);
+                            operatorHandler.processOperator(operatorDesc);
+                        } else {
+                            System.err.printf("Warning: Skipping %s because it is internal.%n", classDoc.typeName());
+                        }
                     } else {
-                        System.err.println("Warning: Skipping " + classDoc.typeName() + " because it is internal.");
+                        System.err.printf("No SPI found for operator class '%s'.%n", type.getName());
                     }
                 } catch (Throwable e) {
                     System.err.println("Error: " + classDoc.typeName() + ": " + e.getMessage());

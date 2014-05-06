@@ -58,28 +58,28 @@ public class NdviOp extends Operator {
     public static final int NDVI_LOW_FLAG_VALUE = 1 << 1;
     public static final int NDVI_HIGH_FLAG_VALUE = 1 << 2;
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", description="The source product.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Red factor", defaultValue = "1.0F")
+    @Parameter(label = "Red factor", defaultValue = "1.0F", description = "The value of the red source band is multiplied by this value.")
     private float redFactor;
 
-    @Parameter(label = "NIR factor", defaultValue = "1.0F")
+    @Parameter(label = "NIR factor", defaultValue = "1.0F", description = "The value of the NIR source band is multiplied by this value.")
     private float nirFactor;
 
-    @Parameter(label = "Red input band",
+    @Parameter(label = "Red source band",
                description = "The red band for the NDVI computation. If not provided, the " +
-                                                         "operator will try to find the best fitting band.",
+                             "operator will try to find the best fitting band.",
                rasterDataNodeType = Band.class)
-    private String redInputBand;
+    private String redSourceBand;
 
-    @Parameter(label = "NIR input band",
+    @Parameter(label = "NIR source band",
                description = "The near-infrared band for the NDVI computation. If not provided," +
-                                                     " the operator will try to find the best fitting band.",
+                             " the operator will try to find the best fitting band.",
                rasterDataNodeType = Band.class)
-    private String nirInputBand;
+    private String nirSourceBand;
 
 
     @Override
@@ -124,8 +124,8 @@ public class NdviOp extends Operator {
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
         pm.beginTask("Computing NDVI", rectangle.height);
         try {
-            Tile redTile = getSourceTile(getSourceProduct().getBand(redInputBand), rectangle);
-            Tile nirTile = getSourceTile(getSourceProduct().getBand(nirInputBand), rectangle);
+            Tile redTile = getSourceTile(getSourceProduct().getBand(redSourceBand), rectangle);
+            Tile nirTile = getSourceTile(getSourceProduct().getBand(nirSourceBand), rectangle);
 
             Tile ndvi = targetTiles.get(targetProduct.getBand(NDVI_BAND_NAME));
             Tile ndviFlags = targetTiles.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
@@ -162,18 +162,18 @@ public class NdviOp extends Operator {
     }
 
     private void loadSourceBands(Product product) throws OperatorException {
-        if (redInputBand == null) {
-            redInputBand = findBand(600, 650, product);
-            getLogger().info("Using band '" + redInputBand + "' as red input band.");
+        if (redSourceBand == null) {
+            redSourceBand = findBand(600, 650, product);
+            getLogger().info("Using band '" + redSourceBand + "' as red input band.");
         }
-        if (nirInputBand == null) {
-            nirInputBand = findBand(800, 900, product);
-            getLogger().info("Using band '" + nirInputBand + "' as NIR input band.");
+        if (nirSourceBand == null) {
+            nirSourceBand = findBand(800, 900, product);
+            getLogger().info("Using band '" + nirSourceBand + "' as NIR input band.");
         }
-        if (redInputBand == null) {
+        if (redSourceBand == null) {
             throw new OperatorException("Unable to find band that could be used as red input band. Please specify band.");
         }
-        if (nirInputBand == null) {
+        if (nirSourceBand == null) {
             throw new OperatorException("Unable to find band that could be used as nir input band. Please specify band.");
         }
     }

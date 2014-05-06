@@ -40,7 +40,7 @@ public class GaussianGridConfig {
         GaussianGridConfig config = new GaussianGridConfig();
         config.regularColumnCount = regularColumnCount;
         config.regularLongitudePoints = computeLongitudePoints(regularColumnCount);
-        config.reducedLongitudePoints = new ArrayList<double[]>(numRecords);
+        config.reducedLongitudePoints = new ArrayList<>(numRecords);
         for (int i = 0; i < numRecords; i++) {
             double[] longitudePointsInRow = computeLongitudePoints(reducedColumnCount[i]);
             config.reducedLongitudePoints.add(i, longitudePointsInRow);
@@ -87,7 +87,7 @@ public class GaussianGridConfig {
     static double[] computeLongitudePoints(int columnCount) {
         double[] longitudePoints = new double[columnCount];
         for (int i = 0; i < longitudePoints.length; i++) {
-            longitudePoints[i] = 360.0 * ((i + 0.5) / columnCount) - 180.0;
+            longitudePoints[i] = (i + 0.5) * (360.0 / columnCount) - 180.0;
         }
         return longitudePoints;
     }
@@ -95,9 +95,8 @@ public class GaussianGridConfig {
     private static void readGridConfig(int rowCount, int numRecords, int[] reducedColumnCount, double[] latitudePoints,
                                        int[] reducedFirstBinIndexes) throws IOException {
         InputStream is = GaussianGridConfig.class.getResourceAsStream(String.format("N%d.txt", rowCount));
-        CsvReader csvReader = new CsvReader(new InputStreamReader(is), new char[]{'\t'}, true, "#");
         reducedFirstBinIndexes[0] = 0;
-        try {
+        try (CsvReader csvReader = new CsvReader(new InputStreamReader(is), new char[]{'\t'}, true, "#")) {
             for (int i = 0; i < numRecords; i++) {
                 String[] record = csvReader.readRecord();
                 reducedColumnCount[i] = Integer.parseInt(record[0]);
@@ -106,8 +105,6 @@ public class GaussianGridConfig {
                     reducedFirstBinIndexes[i] = reducedFirstBinIndexes[i - 1] + reducedColumnCount[i - 1];
                 }
             }
-        } finally {
-            csvReader.close();
         }
     }
 

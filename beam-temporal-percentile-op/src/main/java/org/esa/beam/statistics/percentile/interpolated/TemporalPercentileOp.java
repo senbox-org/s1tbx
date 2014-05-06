@@ -128,7 +128,7 @@ public class TemporalPercentileOp extends Operator {
     private final static String COUNT_BAND_NAME = "values_count";
 
 
-    @SourceProducts(description = "Don't use this parameter. Use sourceProductPaths instead")
+    @SourceProducts(description = "Using this parameter is discouraged. For performance reasons use sourceProductPaths instead")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +

@@ -35,7 +35,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
     private File baseDir;
 
     public OperatorHandlerHtml() {
-        operatorDescs = new ArrayList<OperatorDesc>();
+        operatorDescs = new ArrayList<>();
     }
 
     @Override
@@ -60,11 +60,8 @@ public class OperatorHandlerHtml implements OperatorHandler {
         });
 
         File indexFile = new File(baseDir, "OperatorIndex.html");
-        PrintWriter writer = new PrintWriter(new FileWriter(indexFile));
-        try {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(indexFile))) {
             writeIndex(writer);
-        } finally {
-            writer.close();
         }
     }
 
@@ -74,12 +71,9 @@ public class OperatorHandlerHtml implements OperatorHandler {
         if (file.exists()) {
             System.out.println("Warning: File exists and will be overwritten: " + file);
         }
-        PrintWriter writer = new PrintWriter(new FileWriter(file));
-        try {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             writeOperatorPage(operatorDesc, writer);
             operatorDescs.add(operatorDesc);
-        } finally {
-            writer.close();
         }
     }
 
