@@ -20,7 +20,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ReportDialog;
-import org.esa.nest.reports.MetadataReport;
+import org.esa.nest.dat.reports.MetadataReport;
 
 /**
  * This Action shows the report dialog

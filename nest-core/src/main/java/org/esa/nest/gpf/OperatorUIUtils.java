@@ -33,11 +33,11 @@ public final class OperatorUIUtils {
     public final static String SOURCE_BAND_NAMES = "sourceBandNames";
 
     public static void initParamList(final JList paramList, final String[] availNames, final Object[] paramDefaults) {
-        if(paramDefaults != null) {
+        if (paramDefaults != null) {
             final String[] srcBandNames = new String[paramDefaults.length];
             final int[] indixes = new int[paramDefaults.length];
-            for(int i=0;i < srcBandNames.length; ++i) {
-                srcBandNames[i] = (String)paramDefaults[i];
+            for (int i = 0; i < srcBandNames.length; ++i) {
+                srcBandNames[i] = (String) paramDefaults[i];
                 indixes[i] = i;
             }
             paramList.setListData(srcBandNames);
@@ -53,7 +53,7 @@ public final class OperatorUIUtils {
         paramList.setListData(availNames);
         paramList.setFixedCellWidth(200);
         paramList.setMinimumSize(new Dimension(50, 4));
-        
+
         final int size = paramList.getModel().getSize();
         final List<Integer> indices = new ArrayList<Integer>(size);
 
@@ -73,7 +73,7 @@ public final class OperatorUIUtils {
 
     public static void setSelectedListIndices(final JList list, final List<Integer> indices) {
         final int[] selIndex = new int[indices.size()];
-        for(int i=0; i < indices.size(); ++i) {
+        for (int i = 0; i < indices.size(); ++i) {
             selIndex[i] = indices.get(i);
         }
         list.setSelectedIndices(selIndex);
@@ -82,9 +82,9 @@ public final class OperatorUIUtils {
     public static void updateParamList(final JList paramList, final Map<String, Object> paramMap, final String paramName) {
         final List selectedValues = paramList.getSelectedValuesList();
         final String names[] = new String[selectedValues.size()];
-        int i=0;
+        int i = 0;
         for (Object selectedValue : selectedValues) {
-            names[i++] = (String)selectedValue;
+            names[i++] = (String) selectedValue;
         }
         paramMap.put(paramName, names);
     }
@@ -92,9 +92,9 @@ public final class OperatorUIUtils {
     public static double getNoDataValue(final File extFile) {
         try {
             final Product product = ProductIO.readProduct(extFile);
-            if(product != null)
+            if (product != null)
                 return product.getBandAt(0).getNoDataValue();
-        } catch(Exception e) {
+        } catch (Exception e) {
             //
         }
         return 0;

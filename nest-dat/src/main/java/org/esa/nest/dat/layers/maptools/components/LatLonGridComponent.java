@@ -34,10 +34,10 @@ public class LatLonGridComponent implements MapToolsComponent {
         final int height = raster.getRasterHeight();
         final GeoCoding geoCoding = raster.getGeoCoding();
 
-        final PixelPos tlPix = new PixelPos(0,0);
+        final PixelPos tlPix = new PixelPos(0, 0);
         final PixelPos trPix = new PixelPos(width, 0);
-        final PixelPos blPix = new PixelPos(0,height);
-        final PixelPos brPix = new PixelPos(width,height);
+        final PixelPos blPix = new PixelPos(0, height);
+        final PixelPos brPix = new PixelPos(width, height);
         final GeoPos tlGeo = geoCoding.getGeoPos(tlPix, null);
         final GeoPos trGeo = geoCoding.getGeoPos(trPix, null);
 
@@ -45,11 +45,11 @@ public class LatLonGridComponent implements MapToolsComponent {
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
-        final double[] pts = new double[] { 0, 0, 100, 0};
+        final double[] pts = new double[]{0, 0, 100, 0};
         final double[] vpts = new double[pts.length];
         screenPixel.pixelToScreen(pts, vpts);
 
         graphics.setColor(Color.YELLOW);
-        graphics.drawLine((int)vpts[0], (int)vpts[1], (int)vpts[2], (int)vpts[3]);
+        graphics.drawLine((int) vpts[0], (int) vpts[1], (int) vpts[2], (int) vpts[3]);
     }
 }

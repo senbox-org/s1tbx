@@ -57,7 +57,9 @@ import java.io.File;
  */
 public abstract class WizardPanel extends JPanel {
 
-    /** The owner. */
+    /**
+     * The owner.
+     */
     private WizardDialog owner;
     private final String panelTitle;
 
@@ -69,13 +71,13 @@ public abstract class WizardPanel extends JPanel {
     /**
      * Creates a new panel.
      *
-     * @param name  the panel name.
+     * @param name the panel name.
      */
     protected WizardPanel(final String name) {
-        super(new BorderLayout(1,1));
+        super(new BorderLayout(1, 1));
         this.panelTitle = name;
 
-        this.setPreferredSize(new Dimension(500,500));
+        this.setPreferredSize(new Dimension(500, 500));
     }
 
     public String getPanelTitle() {
@@ -95,7 +97,7 @@ public abstract class WizardPanel extends JPanel {
      * Sets the reference to the dialog that owns the panel (this is called automatically by
      * the dialog when the panel is added to the dialog).
      *
-     * @param owner  the owner.
+     * @param owner the owner.
      */
     public void setOwner(final WizardDialog owner) {
         this.owner = owner;
@@ -162,20 +164,21 @@ public abstract class WizardPanel extends JPanel {
 
     public class GraphProcessListener implements GraphBuilderDialog.ProcessingListener {
         public void notifyMSG(final MSG msg, final String text) {
-            if(msg.equals(MSG.DONE)) {
+            if (msg.equals(MSG.DONE)) {
                 getOwner().updateState();
-                
-                if(finishing)  {
+
+                if (finishing) {
                     getOwner().dispose();
                 }
             }
         }
+
         public void notifyMSG(final MSG msg, final File[] fileList) {
-            if(msg.equals(MSG.DONE)) {
+            if (msg.equals(MSG.DONE)) {
                 targetFileList = fileList;
                 getOwner().updateState();
 
-                if(finishing)  {
+                if (finishing) {
                     getOwner().dispose();
                 }
             }
@@ -184,13 +187,14 @@ public abstract class WizardPanel extends JPanel {
 
     public class MyBatchProcessListener implements BatchGraphDialog.BatchProcessListener {
         public void notifyMSG(final BatchMSG msg, final File[] inputFileList, final File[] outputFileList) {
-            if(msg.equals(BatchMSG.DONE)) {
+            if (msg.equals(BatchMSG.DONE)) {
                 targetFileList = outputFileList;
                 getOwner().updateState();
             }
         }
+
         public void notifyMSG(final BatchMSG msg, final String text) {
-            if(msg.equals(BatchMSG.UPDATE)) {
+            if (msg.equals(BatchMSG.UPDATE)) {
             }
         }
     }

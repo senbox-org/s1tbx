@@ -34,7 +34,6 @@ import javax.swing.event.InternalFrameEvent;
 
 /**
  * This action opens a polar wave view for the currently selected wave product.
- *
  */
 public class ShowCrossSpectraViewAction extends ExecCommand {
     public static String ID = "showPolarWaveView";
@@ -52,66 +51,66 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
         final Product product = VisatApp.getApp().getSelectedProduct();
 
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(visatApp.getMainFrame(),
-               visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
+                visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
 
-                @Override
-                protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
-                    try {
-                        return createProductSceneImage(selectedProductNode, pm);
-                    } finally {
-                        if (pm.isCanceled()) {
-                            selectedProductNode.unloadRasterData();
-                        }
+            @Override
+            protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
+                try {
+                    return createProductSceneImage(selectedProductNode, pm);
+                } finally {
+                    if (pm.isCanceled()) {
+                        selectedProductNode.unloadRasterData();
                     }
                 }
+            }
 
-                @Override
-                public void done() {
-                    UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
-                    visatApp.clearStatusBarMessage();
+            @Override
+            public void done() {
+                UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
+                visatApp.clearStatusBarMessage();
 
-                    final ProductSceneImage productSceneImage;
-                    try {
-                        productSceneImage = get();
-                    } catch (OutOfMemoryError e) {
-                        visatApp.showOutOfMemoryErrorDialog("The polar view could not be created.");
-                        return;
-                    } catch (Exception e) {
-                        visatApp.handleUnknownException(e);
-                        return;
+                final ProductSceneImage productSceneImage;
+                try {
+                    productSceneImage = get();
+                } catch (OutOfMemoryError e) {
+                    visatApp.showOutOfMemoryErrorDialog("The polar view could not be created.");
+                    return;
+                } catch (Exception e) {
+                    visatApp.handleUnknownException(e);
+                    return;
+                }
+
+                final PolarView view = new PolarView(product, productSceneImage);
+                view.setCommandUIFactory(visatApp.getCommandUIFactory());
+
+                final String title = createInternalFrameTitle(selectedProductNode);
+                final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
+                final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
+                final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
+                    @Override
+                    public void nodeChanged(final ProductNodeEvent event1) {
+                        if (event1.getSourceNode() == selectedProductNode &&
+                                event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                            internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
+                        }
+                    }
+                };
+                final Product product = selectedProductNode.getProduct();
+                internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+                    @Override
+                    public void internalFrameOpened(InternalFrameEvent event1) {
+                        product.addProductNodeListener(pnl);
                     }
 
-                    final PolarView view = new PolarView(product, productSceneImage);
-                    view.setCommandUIFactory(visatApp.getCommandUIFactory());
-                    
-                    final String title = createInternalFrameTitle(selectedProductNode);
-                    final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-                    final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
-                    final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
-                        @Override
-                        public void nodeChanged(final ProductNodeEvent event1) {
-                            if (event1.getSourceNode() == selectedProductNode &&
-                                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
-                                internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
-                            }
-                        }
-                    };
-                    final Product product = selectedProductNode.getProduct();
-                    internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-                        @Override
-                        public void internalFrameOpened(InternalFrameEvent event1) {
-                            product.addProductNodeListener(pnl);
-                        }
+                    @Override
+                    public void internalFrameClosed(InternalFrameEvent event11) {
+                        product.removeProductNodeListener(pnl);
+                    }
+                });
 
-                        @Override
-                        public void internalFrameClosed(InternalFrameEvent event11) {
-                            product.removeProductNodeListener(pnl);
-                        }
-                    });
-
-                    visatApp.updateState();
-                }
-            };
+                visatApp.updateState();
+            }
+        };
         visatApp.getExecutorService().submit(worker);
     }
 
@@ -120,7 +119,7 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
     }
 
     private static ProductSceneImage createProductSceneImage(final RasterDataNode raster,
-                                                     ProgressMonitor pm) {
+                                                             ProgressMonitor pm) {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
         final VisatApp app = VisatApp.getApp();
@@ -145,10 +144,10 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
     @Override
     public void updateState(final CommandEvent event) {
         final Product product = VisatApp.getApp().getSelectedProduct();
-        if(product != null) {
+        if (product != null) {
             final String productType = VisatApp.getApp().getSelectedProduct().getProductType();
             setEnabled(productType.startsWith("ASA_WV") &&
-                VisatApp.getApp().getSelectedProductNode() instanceof RasterDataNode);
+                    VisatApp.getApp().getSelectedProductNode() instanceof RasterDataNode);
         } else
             setEnabled(false);
     }

@@ -41,7 +41,7 @@ public class OpenVectorAction extends AbstractVisatAction {
         pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
     }
 
-     @Override
+    @Override
     public void updateState(final CommandEvent event) {
         event.getCommand().setEnabled(VisatApp.getApp().getSelectedProductSceneView() != null);
     }

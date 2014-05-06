@@ -55,7 +55,7 @@ public class MemUtils {
     }
 
     public static void createTileCache() {
- 
+
         //final Map<String, Object> cacheParams = new HashMap<String, Object>();
         //cacheParams.put(DiskMemTileCache.KEY_INITIAL_MEMORY_CAPACITY, 1L * 1024 * 1024);
 
@@ -64,6 +64,6 @@ public class MemUtils {
 
         //final SwappingTileCache cache = new SwappingTileCache();
 
-       // JAI.getDefaultInstance().setTileCache( cache );  
+        // JAI.getDefaultInstance().setTileCache( cache );
     }
 }

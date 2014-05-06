@@ -24,6 +24,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.graphbuilder.GraphExecuter;
 import org.esa.nest.dat.graphbuilder.GraphNode;
 import org.esa.nest.dat.graphbuilder.ProgressBarProgressMonitor;
@@ -31,7 +32,6 @@ import org.esa.nest.db.ProductEntry;
 import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.ProcessTimeMonitor;
 import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.Settings;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -216,16 +216,25 @@ public class BatchGraphDialog extends ModelessDialog {
 
     private static File getFilePath(Component component, String title) {
 
-        final File graphPath = new File(Settings.getPref("batch.last_graph_path", defaultGraphPath.getAbsolutePath()));
+        final File graphPath = new File(getPref("batch.last_graph_path", defaultGraphPath.getAbsolutePath()));
         final JFileChooser chooser = FileChooserFactory.getInstance().createFileChooser(graphPath);
         chooser.setMultiSelectionEnabled(false);
         chooser.setDialogTitle(title);
         if (chooser.showDialog(component, "ok") == JFileChooser.APPROVE_OPTION) {
             final File file = chooser.getSelectedFile();
-            Settings.setPref("batch.last_graph_path", file.getAbsolutePath());
+            setPref("batch.last_graph_path", file.getAbsolutePath());
             return file;
         }
         return null;
+    }
+
+    private static String getPref(final String id, final String defaultStr) {
+        return VisatApp.getApp().getPreferences().getPropertyString(id, defaultStr);
+    }
+
+    private static void setPref(final String id, final String value) {
+        VisatApp.getApp().getPreferences().setPropertyString(id, value);
+        VisatApp.getApp().savePreferences();
     }
 
     @Override

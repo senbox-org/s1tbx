@@ -11,12 +11,12 @@
     <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
-	
+    <funding>European Space Agency</funding>
+
     <dependency>
         <module>beam-visat-rcp</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>beam-gpf</module>
     </dependency>
     <dependency>
@@ -28,46 +28,46 @@
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
-	
+
     <categories>Application,DAT</categories>
 
     <extension point="ceres-core:applications">
-		<application id="S1TBXMain" class="org.esa.nest.dat.S1TBXMain"/>
+        <application id="S1TBXMain" class="org.esa.nest.dat.S1TBXMain"/>
     </extension>
 
     <extension point="beam-ui:applicationDescriptors">
-            <applicationDescriptor>
-                <applicationId>S1TBXMain</applicationId>
-                <displayName>SENTINEL-1 TOOLBOX</displayName>
-                <frameIcon>/org/esa/nest/icons/dat.png</frameIcon>
-                <image>/org/esa/nest/icons/dat.png</image>
-                <excludedActions>
-                    <id>orthorectificationAction</id>
-                    <id>showDataSources</id>
-                    <id>new</id>
-                    <id>open</id>
-                    <id>createAsarNrcsBands</id>
-                    <id>showHomePage</id>
-                    <id>about</id>
-                    <id>createXYDisplacementBandsAction</id>
-                    <id>productGrabber</id>
-                    <id>createFilteredBand</id>
-                    <id>mosaicAction</id>
-                    <id>selectTool</id>
-                    <id>PCAOp</id>
-                    <id>importMermaid</id>
-                    <id>importSeaDASTrack</id>
-                    <id>openSession</id>
-                    <id>saveSession</id>
-                    <id>saveSessionAs</id>
-                    <id>createDemRelatedBands</id>
-                    <id>showImageView</id>
-                </excludedActions>
-                <excludedToolViews>
-                    <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
-                    <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->
-                </excludedToolViews>
-            </applicationDescriptor>
+        <applicationDescriptor>
+            <applicationId>S1TBXMain</applicationId>
+            <displayName>SENTINEL-1 TOOLBOX</displayName>
+            <frameIcon>/org/esa/nest/icons/dat.png</frameIcon>
+            <image>/org/esa/nest/icons/dat.png</image>
+            <excludedActions>
+                <id>orthorectificationAction</id>
+                <id>showDataSources</id>
+                <id>new</id>
+                <id>open</id>
+                <id>createAsarNrcsBands</id>
+                <id>showHomePage</id>
+                <id>about</id>
+                <id>createXYDisplacementBandsAction</id>
+                <id>productGrabber</id>
+                <id>createFilteredBand</id>
+                <id>mosaicAction</id>
+                <id>selectTool</id>
+                <id>PCAOp</id>
+                <id>importMermaid</id>
+                <id>importSeaDASTrack</id>
+                <id>openSession</id>
+                <id>saveSession</id>
+                <id>saveSessionAs</id>
+                <id>createDemRelatedBands</id>
+                <id>showImageView</id>
+            </excludedActions>
+            <excludedToolViews>
+                <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
+                <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->
+            </excludedToolViews>
+        </applicationDescriptor>
     </extension>
 
 
@@ -194,7 +194,7 @@
             <helpId>imageView</helpId>
         </action>
 
-      <action>
+        <action>
             <id>newProject</id>
             <class>org.esa.nest.dat.actions.NewProjectAction</class>
             <parent>file</parent>
@@ -206,9 +206,9 @@
             <smallIcon>/org/esa/nest/icons/project-new.png</smallIcon>
             <largeIcon>/org/esa/nest/icons/project-new.png</largeIcon>
             <helpId>newProject</helpId>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <id>loadProject</id>
             <class>org.esa.nest.dat.actions.LoadProjectAction</class>
             <parent>file</parent>
@@ -220,9 +220,9 @@
             <smallIcon>/org/esa/nest/icons/project_sm.png</smallIcon>
             <largeIcon>/org/esa/nest/icons/project.png</largeIcon>
             <helpId>loadProject</helpId>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <id>saveProject</id>
             <class>org.esa.nest.dat.actions.SaveProjectAction</class>
             <parent>file</parent>
@@ -232,9 +232,9 @@
             <description>Save current project</description>
             <smallIcon>icons/Save16.gif</smallIcon>
             <largeIcon>icons/Save24.gif</largeIcon>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <id>saveProjectAs</id>
             <class>org.esa.nest.dat.actions.SaveProjectAsAction</class>
             <parent>file</parent>
@@ -244,9 +244,9 @@
             <description>Save current project to a new location</description>
             <smallIcon>icons/Save16.gif</smallIcon>
             <largeIcon>icons/Save24.gif</largeIcon>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <id>closeProject</id>
             <class>org.esa.nest.dat.actions.CloseProjectAction</class>
             <parent>file</parent>
@@ -254,9 +254,9 @@
             <placeAfter>saveProjectAs</placeAfter>
             <shortDescr>Close current project</shortDescr>
             <description>Close current project</description>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <parent>Session</parent>
             <id>openDATSession</id>
             <class>org.esa.nest.dat.actions.session.OpenDATSessionAction</class>
@@ -265,9 +265,9 @@
             <shortDescr>Open a session.</shortDescr>
             <longDescr>Open a session.</longDescr>
             <helpId>openSession</helpId>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <parent>Session</parent>
             <id>saveDATSession</id>
             <class>org.esa.nest.dat.actions.session.SaveDATSessionAction</class>
@@ -276,9 +276,9 @@
             <shortDescr>Save the current session.</shortDescr>
             <longDescr>Save the current session.</longDescr>
             <helpId>saveSession</helpId>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <parent>Session</parent>
             <placeAfter>saveDATSession</placeAfter>
             <id>saveDATSessionAs</id>
@@ -288,9 +288,9 @@
             <shortDescr>Save the current session using a different name.</shortDescr>
             <longDescr>Save the current session using a different name.</longDescr>
             <helpId>saveSessionAs</helpId>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <id>openRaster</id>
             <class>org.esa.beam.visat.actions.OpenAction</class>
             <parent>file</parent>
@@ -304,9 +304,9 @@
             <smallIcon>icons/Open16.gif</smallIcon>
             <largeIcon>icons/Open24.gif</largeIcon>
             <helpId>open</helpId>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <id>showProductLibrary</id>
             <class>org.esa.nest.dat.actions.ShowProductLibraryAction</class>
             <parent>file</parent>
@@ -316,9 +316,9 @@
             <description>Show Product Library Metadata Database</description>
             <smallIcon>/org/esa/nest/icons/product_library16.png</smallIcon>
             <largeIcon>/org/esa/nest/icons/product_library24.png</largeIcon>
-      </action>
+        </action>
 
-      <action>
+        <action>
             <parent>file</parent>
             <id>createSubset</id>
             <class>org.esa.beam.visat.actions.NewAction</class>
@@ -330,22 +330,22 @@
             <helpId>new</helpId>
             <context>product</context>
             <placeAfter>showProductLibrary</placeAfter>
-      </action>
+        </action>
 
-      <!--action>
-            <id>openVector</id>
-            <class>org.esa.nest.dat.actions.OpenVectorAction</class>
-            <parent>file</parent>
-            <placeAfter>openRaster</placeAfter>
-            <text>Open Vector Dataset</text>
-            <mnemonic>V</mnemonic>
-            <accelerator>control V</accelerator>
-            <shortDescr>Open a vector product.</shortDescr>
-            <description>Open a vector product.</description>
-            <smallIcon>icons/Open16.gif</smallIcon>
-            <largeIcon>icons/Open24.gif</largeIcon>
-            <helpId>open</helpId>
-      </action-->
+        <!--action>
+              <id>openVector</id>
+              <class>org.esa.nest.dat.actions.OpenVectorAction</class>
+              <parent>file</parent>
+              <placeAfter>openRaster</placeAfter>
+              <text>Open Vector Dataset</text>
+              <mnemonic>V</mnemonic>
+              <accelerator>control V</accelerator>
+              <shortDescr>Open a vector product.</shortDescr>
+              <description>Open a vector product.</description>
+              <smallIcon>icons/Open16.gif</smallIcon>
+              <largeIcon>icons/Open24.gif</largeIcon>
+              <helpId>open</helpId>
+        </action-->
 
         <action>
             <id>reopen</id>
@@ -534,7 +534,7 @@
             <class>org.esa.nest.dat.actions.LaunchPolsarProAction</class>
             <text>Launch PolSARPro</text>
             <shortDescr>Start PolSARPro</shortDescr>
-			<separatorBefore>true</separatorBefore>
+            <separatorBefore>true</separatorBefore>
             <separatorAfter>true</separatorAfter>
             <smallIcon>/org/esa/nest/icons/esa.png</smallIcon>
             <largeIcon>/org/esa/nest/icons/esa.png</largeIcon>
@@ -711,10 +711,10 @@
 
     </extension>
 
-	<extension point="beam-ui:helpSets">
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>DATHelp</id>
+            <id>DATHelp</id>
             <path>doc/help/dat.hs</path>
         </helpSet>
     </extension>

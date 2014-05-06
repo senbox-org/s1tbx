@@ -55,7 +55,7 @@ public class ProductLibraryConfig {
      * @param baseDir the repository base directory.
      */
     public void addBaseDir(final File baseDir) {
-        properties.setPropertyString(BASE_DIR+baseDir.getAbsolutePath(), baseDir.getAbsolutePath());
+        properties.setPropertyString(BASE_DIR + baseDir.getAbsolutePath(), baseDir.getAbsolutePath());
         VisatApp.getApp().savePreferences();
     }
 
@@ -65,7 +65,7 @@ public class ProductLibraryConfig {
      * @param baseDir the repository base directory.
      */
     public void removeBaseDir(final File baseDir) {
-        properties.setPropertyString(BASE_DIR+baseDir.getAbsolutePath(), null);
+        properties.setPropertyString(BASE_DIR + baseDir.getAbsolutePath(), null);
         VisatApp.getApp().savePreferences();
     }
 
@@ -77,14 +77,14 @@ public class ProductLibraryConfig {
     public File[] getBaseDirs() {
         final List<File> dirList = new ArrayList<File>();
         final Set keys = properties.getProperties().keySet();
-        for(Object o : keys) {
-            if( o instanceof String) {
-                final String key = (String)o;
-                if(key.startsWith(BASE_DIR)) {
+        for (Object o : keys) {
+            if (o instanceof String) {
+                final String key = (String) o;
+                if (key.startsWith(BASE_DIR)) {
                     final String path = properties.getPropertyString(key);
-                    if(path != null) {
+                    if (path != null) {
                         final File file = new File(path);
-                        if(file.exists()) {
+                        if (file.exists()) {
                             dirList.add(file);
                         }
                     }

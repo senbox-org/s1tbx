@@ -7,7 +7,7 @@
 
     <parent>
         <groupId>org.esa.nest</groupId>
-		<artifactId>s1tbx</artifactId>
+        <artifactId>s1tbx</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
@@ -35,11 +35,11 @@
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-core</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-graph-builder</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
         </dependency>
@@ -50,7 +50,7 @@
         </dependency>
     </dependencies>
 
-	<build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>

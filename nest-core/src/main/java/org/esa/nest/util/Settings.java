@@ -16,10 +16,9 @@
 package org.esa.nest.util;
 
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.visat.VisatApp;
 import org.jdom2.Attribute;
-import org.jdom2.Element;
 import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,10 +45,10 @@ public final class Settings {
     public static final String LABEL = "label";
 
     /**
-    * @return The unique instance of this class.
-    */
+     * @return The unique instance of this class.
+     */
     public static Settings instance() {
-        if(_instance == null) {
+        if (_instance == null) {
             _instance = new Settings();
         }
         return _instance;
@@ -93,7 +92,7 @@ public final class Settings {
 
         try {
             doc = XMLSupport.LoadXML(filePath.getAbsolutePath());
-        } catch(IOException e) {
+        } catch (IOException e) {
             return;
         }
 
@@ -109,35 +108,34 @@ public final class Settings {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
                 try {
-                    if(!id.isEmpty())
+                    if (!id.isEmpty())
                         newId = id + '/';
                     newId += child.getName();
                     final Attribute attrib = child.getAttribute(VALUE);
                     if (attrib != null) {
 
                         String value = attrib.getValue();
-                        if(value.contains("${"))
+                        if (value.contains("${"))
                             value = resolve(value);
                         settingMap.put(newId, value);
                     }
-                } catch(Exception e) {
-                    System.out.println("Settings error: "+e.getMessage() + " " + newId);
+                } catch (Exception e) {
+                    System.out.println("Settings error: " + e.getMessage() + " " + newId);
                 }
 
                 final List grandChildren = child.getChildren();
-                if(!grandChildren.isEmpty()) {
+                if (!grandChildren.isEmpty()) {
                     recurseElements(grandChildren, newId);
                 }
             }
         }
     }
 
-    private String resolve(String value)
-    {
+    private String resolve(String value) {
         String out;
         final int idx1 = value.indexOf("${");
         final int idx2 = value.indexOf('}') + 1;
-        final String keyWord = value.substring(idx1+2, idx2-1);
+        final String keyWord = value.substring(idx1 + 2, idx2 - 1);
         final String fullKey = value.substring(idx1, idx2);
 
         final String property = System.getProperty(keyWord);
@@ -151,7 +149,7 @@ public final class Settings {
             } else {
 
                 final String settingStr = get(keyWord);
-                if(settingStr != null) {
+                if (settingStr != null) {
                     out = value.replace(fullKey, settingStr);
                 } else {
                     out = value.substring(0, idx1) + value.substring(idx2, value.length());
@@ -159,45 +157,34 @@ public final class Settings {
             }
         }
 
-        if(keyWord.equalsIgnoreCase(ResourceUtils.getContextID()+".home") || keyWord.equalsIgnoreCase("NEST_HOME")) {
+        if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")) {
             final String valStr = value.substring(0, idx1) + value.substring(idx2, value.length());
             final File file = ResourceUtils.findInHomeFolder(valStr);
-            if(file != null)
+            if (file != null)
                 return file.getAbsolutePath();
         }
 
-        if(out.contains("${"))
-           out = resolve(out);
+        if (out.contains("${"))
+            out = resolve(out);
 
         return out;
     }
 
-    public String get(String key)
-    {
+    public String get(String key) {
         return settingMap.get(key);
     }
 
-    public boolean isTrue(String key)
-    {
+    public boolean isTrue(String key) {
         final String val = settingMap.get(key);
         return val != null && val.equals("true");
     }
 
     public static File getAuxDataFolder() {
         String auxDataPath = Settings.instance().get("AuxDataPath");
-        if(auxDataPath == null)
+        if (auxDataPath == null)
             auxDataPath = Settings.instance().get("dataPath");
-        if(auxDataPath == null)
+        if (auxDataPath == null)
             return new File(SystemUtils.getApplicationDataDir(true), "AuxData");
         return new File(auxDataPath);
-    }
-
-    public static String getPref(final String id, final String defaultStr) {
-        return VisatApp.getApp().getPreferences().getPropertyString(id, defaultStr);
-    }
-
-    public static void setPref(final String id, final String value) {
-        VisatApp.getApp().getPreferences().setPropertyString(id, value);
-        VisatApp.getApp().savePreferences();
     }
 }

@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- *  Base Data Access Object
+ * Base Data Access Object
  */
 public abstract class DAO {
 
@@ -39,15 +39,15 @@ public abstract class DAO {
         this.dbName = name;
 
         setDBSystemDir();
-        final File dbPropFile = ResourceUtils.findConfigFile(dbName+".properties");
-        if(dbPropFile == null) {
-            throw new IOException(dbName+".properties does not exist");
+        final File dbPropFile = ResourceUtils.findConfigFile(dbName + ".properties");
+        if (dbPropFile == null) {
+            throw new IOException(dbName + ".properties does not exist");
         }
         dbProperties = ResourceUtils.loadProperties(dbPropFile.getAbsolutePath());
         loadDatabaseDriver(dbProperties.getProperty("derby.driver"));
-        if(!dbExists()) {
-            if(!createDatabase()) {
-                throw new IOException("Unable to create tables\n"+getLastSQLException().getMessage());
+        if (!dbExists()) {
+            if (!createDatabase()) {
+                throw new IOException("Unable to create tables\n" + getLastSQLException().getMessage());
             }
         }
     }
@@ -80,6 +80,7 @@ public abstract class DAO {
     }
 
     protected abstract boolean createTables(final Connection dbConnection) throws SQLException;
+
     protected abstract void validateTables(final Connection dbConnection) throws SQLException;
 
     protected abstract void prepareStatements() throws SQLException;
@@ -112,10 +113,10 @@ public abstract class DAO {
     }
 
     protected boolean connect() {
-        if(isConnected) return isConnected;
+        if (isConnected) return isConnected;
 
         try {
-            if(dbConnect == null)
+            if (dbConnect == null)
                 dbConnect = DriverManager.getConnection(getDatabaseUrl(), dbProperties);
 
             validateDatabase(dbConnect);
@@ -131,7 +132,7 @@ public abstract class DAO {
     }
 
     protected void disconnect() {
-        if(isConnected) {
+        if (isConnected) {
             dbProperties.put("shutdown", "true");
             try {
                 DriverManager.getConnection(getDatabaseUrl(), dbProperties);

@@ -63,45 +63,60 @@ import java.util.logging.Logger;
 /**
  * A dialog that presents the user with a sequence of steps for completing a task.  The dialog
  * contains "Next" and "Previous" buttons, allowing the user to navigate through the task.
- * <P>
+ * <p/>
  * When the user backs up by one or more steps, the dialog keeps the completed steps so that
  * they can be reused if the user doesn't change anything - this handles the cases where the user
  * backs up a few steps just to review what has been completed.
- * <p>
+ * <p/>
  * But if the user changes some options in an earlier step, then the dialog may have to discard
  * the later steps and have them repeated.
- * <P>
- *
+ * <p/>
  *
  * @author David Gilbert
  */
 public class WizardDialog extends JDialog implements ActionListener {
 
-    /** The end result of the wizard sequence. */
+    /**
+     * The end result of the wizard sequence.
+     */
     private Object result;
 
-    /** The current step in the wizard process (starting at step zero). */
+    /**
+     * The current step in the wizard process (starting at step zero).
+     */
     private int step;
 
-    /** A reference to the current panel. */
+    /**
+     * A reference to the current panel.
+     */
     private WizardPanel currentPanel;
 
     private String wizardName = "";
 
-    /** A list of references to the panels the user has already seen - used for navigating through
-        the steps that have already been completed. */
+    /**
+     * A list of references to the panels the user has already seen - used for navigating through
+     * the steps that have already been completed.
+     */
     private List<WizardPanel> panels;
 
-    /** A handy reference to the "previous" button. */
+    /**
+     * A handy reference to the "previous" button.
+     */
     private JButton previousButton;
 
-    /** A handy reference to the "next" button. */
+    /**
+     * A handy reference to the "next" button.
+     */
     private JButton nextButton;
 
-    /** A handy reference to the "finish" button. */
+    /**
+     * A handy reference to the "finish" button.
+     */
     private JButton finishButton;
 
-    /** A handy reference to the "help" button. */
+    /**
+     * A handy reference to the "help" button.
+     */
     private JButton helpButton;
 
     // Java help support
@@ -111,11 +126,11 @@ public class WizardDialog extends JDialog implements ActionListener {
     /**
      * Standard constructor - builds and returns a new WizardDialog.
      *
-     * @param owner  the owner.
-     * @param modal  modal?
-     * @param title  the title.
-     * @param helpID the help id
-     * @param firstPanel  the first panel.
+     * @param owner      the owner.
+     * @param modal      modal?
+     * @param title      the title.
+     * @param helpID     the help id
+     * @param firstPanel the first panel.
      */
     public WizardDialog(final JDialog owner, final boolean modal,
                         final String title, final String helpID, final WizardPanel firstPanel) {
@@ -128,11 +143,11 @@ public class WizardDialog extends JDialog implements ActionListener {
     /**
      * Standard constructor - builds a new WizardDialog owned by the specified JFrame.
      *
-     * @param owner  the owner.
-     * @param modal  modal?
-     * @param title  the title.
-     * @param helpID the help id
-     * @param firstPanel  the first panel.
+     * @param owner      the owner.
+     * @param modal      modal?
+     * @param title      the title.
+     * @param helpID     the help id
+     * @param firstPanel the first panel.
      */
     public WizardDialog(final JFrame owner, final boolean modal,
                         final String title, final String helpID, final WizardPanel firstPanel) {
@@ -159,18 +174,19 @@ public class WizardDialog extends JDialog implements ActionListener {
 
     private void setLocation(final Dimension ownerDim) {
         final int size = 500;
-        final int half = size/2;
-        this.setLocation((int)(ownerDim.getWidth()/2)-half, (int)(ownerDim.getHeight()/2)-half);
+        final int half = size / 2;
+        this.setLocation((int) (ownerDim.getWidth() / 2) - half, (int) (ownerDim.getHeight() / 2) - half);
         this.setMinimumSize(new Dimension(size, size));
     }
 
     public void setIcon(final ImageIcon ico) {
-        if(ico == null) return;
+        if (ico == null) return;
         this.setIconImage(ico.getImage());
     }
 
     /**
      * Gets the help identifier for the dialog.
+     *
      * @return The help identifier.
      */
     public String getHelpID() {
@@ -179,6 +195,7 @@ public class WizardDialog extends JDialog implements ActionListener {
 
     /**
      * Sets the help identifier for the dialog.
+     *
      * @param helpID The help identifier.
      */
     public void setHelpID(String helpID) {
@@ -282,8 +299,7 @@ public class WizardDialog extends JDialog implements ActionListener {
     /**
      * Returns the panel for the specified step (steps are numbered from zero).
      *
-     * @param step  the current step.
-     *
+     * @param step the current step.
      * @return the panel.
      */
     public WizardPanel getWizardPanel(final int step) {
@@ -297,7 +313,7 @@ public class WizardDialog extends JDialog implements ActionListener {
     /**
      * Handles events.
      *
-     * @param event  the event.
+     * @param event the event.
      */
     public void actionPerformed(final ActionEvent event) {
         final String command = event.getActionCommand();
@@ -312,9 +328,9 @@ public class WizardDialog extends JDialog implements ActionListener {
 
     private String createTitle() {
         String stepStr = "";
-        if(step != 0)
-            stepStr = "Step "+ this.step + ' ';
-        return wizardName + " : "+ stepStr + currentPanel.getPanelTitle();
+        if (step != 0)
+            stepStr = "Step " + this.step + ' ';
+        return wizardName + " : " + stepStr + currentPanel.getPanelTitle();
     }
 
     /**
@@ -342,7 +358,7 @@ public class WizardDialog extends JDialog implements ActionListener {
      */
     public void next() {
 
-        if(!this.currentPanel.validateInput()) {
+        if (!this.currentPanel.validateInput()) {
             return;
         }
         WizardPanel nextPanel = getWizardPanel(this.step + 1);

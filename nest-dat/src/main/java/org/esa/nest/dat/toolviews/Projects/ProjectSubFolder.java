@@ -24,10 +24,10 @@ import java.util.Vector;
 
 /**
  * Created by IntelliJ IDEA.
-* User: lveci
-* Date: Jul 2, 2008
-* To change this template use File | Settings | File Templates.
-*/
+ * User: lveci
+ * Date: Jul 2, 2008
+ * To change this template use File | Settings | File Templates.
+ */
 public class ProjectSubFolder {
 
     private String folderName;
@@ -39,7 +39,7 @@ public class ProjectSubFolder {
     private boolean createdByUser = false;
     private FolderType folderType;
 
-    enum FolderType { ROOT, PRODUCTSET, GRAPH, PRODUCT }
+    enum FolderType {ROOT, PRODUCTSET, GRAPH, PRODUCT}
 
     ProjectSubFolder(File newPath, String name, boolean isPhysical, FolderType type) {
         path = newPath;
@@ -47,7 +47,7 @@ public class ProjectSubFolder {
         physical = isPhysical;
         folderType = type;
 
-        if(physical && !path.exists())
+        if (physical && !path.exists())
             path.mkdir();
     }
 
@@ -97,7 +97,7 @@ public class ProjectSubFolder {
     }
 
     boolean addFile(ProjectFile file) {
-        if(!containsFile(file.getFile())) {
+        if (!containsFile(file.getFile())) {
             file.setFolderType(this.folderType);
             fileList.add(file);
             return true;
@@ -107,7 +107,7 @@ public class ProjectSubFolder {
 
     ProjectSubFolder addSubFolder(String name) {
         ProjectSubFolder newFolder = findFolder(name);
-        if(newFolder != null)
+        if (newFolder != null)
             return newFolder;
 
         newFolder = new ProjectSubFolder(new File(path, name), name, physical, folderType);
@@ -116,12 +116,12 @@ public class ProjectSubFolder {
     }
 
     ProjectSubFolder addSubFolder(ProjectSubFolder newFolder) {
-        if(findFolder(newFolder.getName()) != null)
+        if (findFolder(newFolder.getName()) != null)
             return newFolder;
 
-        if(physical) {
+        if (physical) {
             newFolder.setPhysical(physical);
-            if(!newFolder.getPath().exists())
+            if (!newFolder.getPath().exists())
                 newFolder.getPath().mkdir();
         }
         subFolders.add(newFolder);
@@ -130,10 +130,10 @@ public class ProjectSubFolder {
 
     void renameTo(String newName) {
 
-        if(physical) {
+        if (physical) {
             final String newPath = path.getParent() + File.separator + folderName;
             final File newFile = new File(newPath);
-            if(path.renameTo(newFile))
+            if (path.renameTo(newFile))
                 folderName = newName;
         } else
             folderName = newName;
@@ -145,8 +145,8 @@ public class ProjectSubFolder {
 
     void removeFile(File file) {
 
-        for(ProjectFile projFile : fileList) {
-            if(projFile.getFile().equals(file)) {
+        for (ProjectFile projFile : fileList) {
+            if (projFile.getFile().equals(file)) {
                 fileList.remove(projFile);
                 return;
             }
@@ -154,23 +154,23 @@ public class ProjectSubFolder {
     }
 
     public ProjectSubFolder findFolder(String name) {
-        for(int i=0; i < subFolders.size(); ++i) {
+        for (int i = 0; i < subFolders.size(); ++i) {
             final ProjectSubFolder folder = subFolders.elementAt(i);
-            if(folder.getName().equals(name))
+            if (folder.getName().equals(name))
                 return folder;
         }
         return null;
     }
 
     public boolean containsFile(File file) {
-        for(ProjectFile projFile : fileList) {
-            if(projFile.getFile().equals(file)) {
+        for (ProjectFile projFile : fileList) {
+            if (projFile.getFile().equals(file)) {
                 return true;
             }
         }
-        for(int i=0; i < subFolders.size(); ++i) {
+        for (int i = 0; i < subFolders.size(); ++i) {
             final ProjectSubFolder folder = subFolders.elementAt(i);
-            if(folder.containsFile(file))
+            if (folder.containsFile(file))
                 return true;
         }
         return false;
@@ -187,16 +187,16 @@ public class ProjectSubFolder {
     public Element toXML() {
         final Element elem = new Element("subFolder");
         elem.setAttribute("name", folderName);
-        if(createdByUser)
+        if (createdByUser)
             elem.setAttribute("user", "true");
 
-        for(int i=0; i < subFolders.size(); ++i) {
+        for (int i = 0; i < subFolders.size(); ++i) {
             final ProjectSubFolder sub = subFolders.elementAt(i);
             final Element subElem = sub.toXML();
             elem.addContent(subElem);
         }
 
-        for(int i=0; i < fileList.size(); ++i) {
+        for (int i = 0; i < fileList.size(); ++i) {
             final ProjectFile projFile = fileList.elementAt(i);
             final Element fileElem = new Element("product");
             fileElem.setAttribute("path", projFile.getFile().getAbsolutePath());
@@ -212,14 +212,14 @@ public class ProjectSubFolder {
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
-                if(child.getName().equals("subFolder")) {
+                if (child.getName().equals("subFolder")) {
                     final Attribute attrib = child.getAttribute("name");
                     final ProjectSubFolder subFolder = addSubFolder(attrib.getValue());
                     final Attribute attribUser = child.getAttribute("user");
-                    if(attribUser != null && attrib.getValue().equals("true"))
+                    if (attribUser != null && attrib.getValue().equals("true"))
                         createdByUser = true;
                     subFolder.fromXML(child, folderList, prodList);
-                } else if(child.getName().equals("product")) {
+                } else if (child.getName().equals("product")) {
                     final Attribute pathAttrib = child.getAttribute("path");
                     final Attribute nameAttrib = child.getAttribute("name");
 
@@ -228,7 +228,7 @@ public class ProjectSubFolder {
                         folderList.add(this);
                         final ProjectFile newFile = new ProjectFile(file, nameAttrib.getValue());
                         boolean added = prodList.add(newFile);
-                        if(added) {
+                        if (added) {
                             newFile.setFolderType(this.folderType);
                         }
                     }

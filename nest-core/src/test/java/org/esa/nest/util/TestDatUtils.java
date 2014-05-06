@@ -38,8 +38,7 @@ public class TestDatUtils extends TestCase {
         super.tearDown();
     }
 
-    public void testFindHomeFolder()
-    {
+    public void testFindHomeFolder() {
         final File homeFolder = ResourceUtils.findHomeFolder();
         final File file = new File(homeFolder, "config" + File.separator + "settings_win.xml");
 

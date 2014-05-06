@@ -24,7 +24,6 @@ import java.io.File;
 
 /**
  * Opens a session.
- *
  */
 public class OpenDATSessionAction extends OpenSessionAction {
 
@@ -32,7 +31,7 @@ public class OpenDATSessionAction extends OpenSessionAction {
 
     protected void restoreProject(final RestoredSession restoredSession) {
         final File projectFile = restoredSession.getProjectFile();
-        if(projectFile != null) {
+        if (projectFile != null) {
             Project.instance().LoadProject(projectFile);
         }
     }

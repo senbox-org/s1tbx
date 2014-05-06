@@ -44,11 +44,11 @@ public class LogoComponent implements MapToolsComponent {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
         final int size = Math.min(rasterWidth, rasterHeight);
-        final int margin = (int)(size * marginPct);
+        final int margin = (int) (size * marginPct);
 
-        scale = (marginPct*2 * size) / (double)image.getWidth();
-        point = new Point((int)(rasterWidth-(image.getWidth()*scale)-margin),
-                (int)(rasterHeight-(image.getHeight()*scale)-margin));
+        scale = (marginPct * 2 * size) / (double) image.getWidth();
+        point = new Point((int) (rasterWidth - (image.getWidth() * scale) - margin),
+                (int) (rasterHeight - (image.getHeight() * scale) - margin));
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {

@@ -16,14 +16,13 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.visat.VisatApp;
 
 /**
  * status bar Progress monitor
  * This is used for showing progress on sub threads within an operator execution
  */
 public final class StatusProgressMonitor {
-    private final VisatApp visatApp = VisatApp.getApp();
+    private final StatusPresenter statusPresenter;
     private final float max;
     private final String msg;
     private int lastPct = 0;
@@ -32,6 +31,11 @@ public final class StatusProgressMonitor {
     private int workInc = 0;
 
     public StatusProgressMonitor(final float max, final String msg) {
+        this(null, max, msg);
+    }
+
+    public StatusProgressMonitor(final StatusPresenter presenter, final float max, final String msg) {
+        this.statusPresenter = presenter;
         this.max = max;
         this.msg = msg;
     }
@@ -43,34 +47,34 @@ public final class StatusProgressMonitor {
 
     public synchronized void worked(final int i) {
 
-        if(visatApp != null) {
-            final int pct = (int)((i/max) * 100);
-            if(pct >= lastPct + 1) {
-                setText(msg+pct+'%');
+        if (statusPresenter != null) {
+            final int pct = (int) ((i / max) * 100);
+            if (pct >= lastPct + 1) {
+                setText(msg + pct + '%');
                 lastPct = pct;
             }
-        } else if(allowStdOut) {
-            final int pct = (int)((i/max) * 100);
-            if(pct >= lastPct + 10) {
-                if(lastPct==0) {
+        } else if (allowStdOut) {
+            final int pct = (int) ((i / max) * 100);
+            if (pct >= lastPct + 10) {
+                if (lastPct == 0) {
                     System.out.print(msg);
                 }
-                System.out.print(" "+pct+'%');
+                System.out.print(" " + pct + '%');
                 lastPct = pct;
             }
         }
     }
 
     public void working() {
-        if(visatApp != null) {
+        if (statusPresenter != null) {
             setText(msg);
         }
     }
 
     public void done() {
-        if(visatApp != null) {
+        if (statusPresenter != null) {
             setText(" ");
-        } else if(allowStdOut) {
+        } else if (allowStdOut) {
             System.out.println(" 100%");
         }
     }
@@ -80,13 +84,13 @@ public final class StatusProgressMonitor {
     }
 
     private void setText(final String msg) {
-        if(!ProgressMonitorList.instance().isEmpty()) {
+        if (!ProgressMonitorList.instance().isEmpty()) {
             final ProgressMonitor[] pmList = ProgressMonitorList.instance().getList();
-            for(ProgressMonitor pm : pmList) {
+            for (ProgressMonitor pm : pmList) {
                 pm.setTaskName(msg);
             }
         } else {
-            visatApp.setStatusBarMessage(msg);
+            statusPresenter.setStatusBarMessage(msg);
         }
     }
 

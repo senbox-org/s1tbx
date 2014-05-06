@@ -22,18 +22,19 @@ import java.util.List;
  * Manages how many threads are working cuncurrently
  */
 public class ThreadManager {
-    
+
     private static int numCPU = Runtime.getRuntime().availableProcessors();
     private final List<Thread> threadList = new ArrayList<Thread>(numCPU);
 
-    public ThreadManager() {}
+    public ThreadManager() {
+    }
 
     public void add(final Thread worker) throws InterruptedException {
         threadList.add(worker);
         worker.start();
 
-        if(threadList.size() >= numCPU) {
-            for(Thread t: threadList) {
+        if (threadList.size() >= numCPU) {
+            for (Thread t : threadList) {
                 t.join();
             }
             threadList.clear();
@@ -41,8 +42,8 @@ public class ThreadManager {
     }
 
     public void finish() throws InterruptedException {
-        if(!threadList.isEmpty()) {
-            for(Thread t: threadList) {
+        if (!threadList.isEmpty()) {
+            for (Thread t : threadList) {
                 t.join();
             }
         }

@@ -20,9 +20,6 @@ package org.esa.nest.datamodel;
  */
 public class Orbits {
 
-
-
-
     public final static class OrbitData {
         public double xPos;
         public double yPos;

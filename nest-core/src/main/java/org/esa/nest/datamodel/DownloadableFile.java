@@ -15,10 +15,8 @@
  */
 package org.esa.nest.datamodel;
 
-import java.io.File;
-
 /**
-  Interface for downloaded files
+ * Interface for downloaded files
  */
 public interface DownloadableFile {
 

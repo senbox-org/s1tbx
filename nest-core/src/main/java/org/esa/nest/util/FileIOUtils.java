@@ -36,7 +36,8 @@ public class FileIOUtils {
 
     /**
      * Reads a text file and replaces all outText with newText
-     * @param inFile input file
+     *
+     * @param inFile  input file
      * @param outFile output file
      * @param oldText text to replace
      * @param newText replacement text
@@ -56,7 +57,7 @@ public class FileIOUtils {
             }
         }
 
-        if(!lines.isEmpty()) {
+        if (!lines.isEmpty()) {
             try (FileWriter fileWriter = new FileWriter(outFile)) {
                 IOUtils.writeLines(lines, "\n", fileWriter);
             }
@@ -77,7 +78,7 @@ public class FileIOUtils {
 
         private boolean copyFile(final Path source, final Path target) throws IOException {
             try {
-                if(isMove)
+                if (isMove)
                     Files.move(source, target, ATOMIC_MOVE, REPLACE_EXISTING);
                 else
                     Files.copy(source, target, COPY_ATTRIBUTES, REPLACE_EXISTING);
@@ -92,7 +93,7 @@ public class FileIOUtils {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetPath = target.resolve(source.relativize(dir));
-            if(!Files.exists(targetPath)){
+            if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
             return FileVisitResult.CONTINUE;

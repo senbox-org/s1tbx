@@ -38,8 +38,7 @@ public class TestSettings extends TestCase {
         super.tearDown();
     }
 
-    public void testLoadSettings()
-    {        
+    public void testLoadSettings() {
         final Settings settings = Settings.instance();
 
         String value1 = settings.get("AuxData/envisatAuxDataPath");
@@ -47,8 +46,7 @@ public class TestSettings extends TestCase {
         String value2 = settings.get("DEM/srtm3GeoTiffDEM_FTP");
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         final Settings settings = Settings.instance();
 
         String value = settings.get("DEM/srtm3GeoTiffDEM_FTP");

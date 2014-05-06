@@ -24,7 +24,7 @@ import java.awt.*;
 import java.io.File;
 
 /**
-    Input Panel
+ * Input Panel
  */
 public abstract class AbstractMultipleInputPanel extends WizardPanel {
 
@@ -53,7 +53,7 @@ public abstract class AbstractMultipleInputPanel extends WizardPanel {
 
     public boolean validateInput() {
         final File[] fileList = productSetPanel.getFileList();
-        if(fileList.length == 0 || (fileList.length == 1 && !fileList[0].exists())) {
+        if (fileList.length == 0 || (fileList.length == 1 && !fileList[0].exists())) {
             showErrorMsg("Please add some products to the table");
             return false;
         }
@@ -63,8 +63,8 @@ public abstract class AbstractMultipleInputPanel extends WizardPanel {
     public abstract WizardPanel getNextPanel();
 
     protected String getInstructions() {
-        return "Browse for input products with the Add button, use the Add All Open button to add every product opened "+
-                "or drag and drop products into the table.\n"+
+        return "Browse for input products with the Add button, use the Add All Open button to add every product opened " +
+                "or drag and drop products into the table.\n" +
                 "Specify the target folder where the products will be written to.\n";
     }
 

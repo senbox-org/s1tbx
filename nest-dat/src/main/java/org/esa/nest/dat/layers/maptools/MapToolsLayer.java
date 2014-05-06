@@ -60,25 +60,25 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     @Override
     public void regenerate() {
         components.clear();
-        if(options.showNorthArrow()) {
+        if (options.showNorthArrow()) {
             components.add(new NorthArrowComponent(raster));
         }
-        if(options.showLatLonGrid()) {
+        if (options.showLatLonGrid()) {
             components.add(new LatLonGridComponent(raster));
         }
-        if(options.showLookDirection()) {
+        if (options.showLookDirection()) {
             components.add(new LookDirectionComponent(raster));
         }
-        if(options.showMapOverview()) {
+        if (options.showMapOverview()) {
 
         }
-        if(options.showInfo()) {
+        if (options.showInfo()) {
             components.add(new InfoComponent(raster));
         }
-        if(options.showScale()) {
+        if (options.showScale()) {
             components.add(new ScaleComponent(raster));
         }
-        if(options.showNestLogo()) {
+        if (options.showNestLogo()) {
             components.add(new LogoComponent(raster));
         }
     }
@@ -87,7 +87,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     protected void renderLayer(final Rendering rendering) {
 
         final GeoCoding geoCoding = product.getGeoCoding();
-        if(geoCoding == null) return;
+        if (geoCoding == null) return;
 
         final Viewport vp = rendering.getViewport();
         final RasterDataNode raster = product.getRasterDataNode(product.getBandAt(0).getName());
@@ -95,10 +95,10 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         if (!screenPixel.withInBounds()) {
             return;
         }
-        
+
         final Graphics2D graphics = rendering.getGraphics();
 
-        for(MapToolsComponent component : components) {
+        for (MapToolsComponent component : components) {
             component.render(graphics, screenPixel);
         }
     }

@@ -52,7 +52,7 @@ public abstract class AbstractInputPanel extends WizardPanel {
 
     public boolean validateInput() {
         final Product product = sourcePanel.getSelectedSourceProduct();
-        if(product == null) {
+        if (product == null) {
             showErrorMsg("Please select a source product");
             return false;
         }

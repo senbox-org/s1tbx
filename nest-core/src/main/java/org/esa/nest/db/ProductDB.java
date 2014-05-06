@@ -42,13 +42,13 @@ public class ProductDB extends DAO {
     public static final String DEFAULT_PRODUCT_DATABASE_NAME = "productDB";
 
     private static final String strGetProductsWhere =
-            "SELECT * FROM "+ProductTable.TABLE+", "+MetadataTable.TABLE+" WHERE "+ProductTable.TABLE+".ID = "+MetadataTable.TABLE+".ID AND ";
+            "SELECT * FROM " + ProductTable.TABLE + ", " + MetadataTable.TABLE + " WHERE " + ProductTable.TABLE + ".ID = " + MetadataTable.TABLE + ".ID AND ";
 
     public static ProductDB instance() throws Exception {
-        if(_instance == null) {
+        if (_instance == null) {
             _instance = new ProductDB();
             boolean connected = _instance.connect();
-            if(!connected) {
+            if (!connected) {
                 final String dbLocation = _instance.getDatabaseLocation();
                 deleteInstance();
 
@@ -59,8 +59,8 @@ public class ProductDB extends DAO {
 
                 _instance = new ProductDB();
                 connected = _instance.connect();
-                if(!connected) {
-                    throw new Exception("Unable to connect to database\n"+_instance.getLastSQLException().getMessage());
+                if (!connected) {
+                    throw new Exception("Unable to connect to database\n" + _instance.getLastSQLException().getMessage());
                 }
             }
         }
@@ -89,9 +89,9 @@ public class ProductDB extends DAO {
     @Override
     protected void validateTables(final Connection connection) throws SQLException {
         this.dbConnection = connection;
-        if(productTable == null)
+        if (productTable == null)
             productTable = new ProductTable(dbConnection);
-        if(metadataTable == null)
+        if (metadataTable == null)
             metadataTable = new MetadataTable(dbConnection);
         productTable.validateTable();
         metadataTable.validateTable();
@@ -117,7 +117,7 @@ public class ProductDB extends DAO {
     public ProductEntry saveProduct(final Product product) throws SQLException {
         final ProductEntry newEntry = new ProductEntry(product);
 
-        if(productTable.pathExists(newEntry.getFile())) {
+        if (productTable.pathExists(newEntry.getFile())) {
             // update
         } else {
             addRecord(newEntry);
@@ -139,8 +139,8 @@ public class ProductDB extends DAO {
     public void cleanUpRemovedProducts() throws SQLException {
         final DBQuery dbQuery = new DBQuery();
         final ProductEntry[] entries = dbQuery.queryDatabase(this);
-        for(ProductEntry entry : entries) {
-            if(!entry.getFile().exists()) {
+        for (ProductEntry entry : entries) {
+            if (!entry.getFile().exists()) {
                 deleteProductEntry(entry);
             }
         }
@@ -157,9 +157,9 @@ public class ProductDB extends DAO {
     }
 
     public void removeProducts(final File baseDir) throws SQLException {
-        final String queryStr = AbstractMetadata.PATH+" LIKE '"+baseDir.getAbsolutePath()+"%'";
+        final String queryStr = AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + "%'";
         final ProductEntry[] list = queryProduct(queryStr);
-        for(ProductEntry entry : list) {
+        for (ProductEntry entry : list) {
             deleteProductEntry(entry);
         }
     }
@@ -167,19 +167,19 @@ public class ProductDB extends DAO {
     public void removeAllProducts() throws SQLException {
         final String queryStr = "";
         final ProductEntry[] list = queryProduct(queryStr);
-        for(ProductEntry entry : list) {
+        for (ProductEntry entry : list) {
             deleteProductEntry(entry);
         }
     }
 
     public ProductEntry[] getProductEntryList(final boolean validate) throws SQLException {
-        if(!validate)
+        if (!validate)
             return productTable.getProductEntryList();
 
         final ProductEntry[] entries = productTable.getProductEntryList();
         final List<ProductEntry> list = new ArrayList<ProductEntry>(entries.length);
-        for(ProductEntry entry : entries) {
-            if(entry.getFile().exists()) {
+        for (ProductEntry entry : entries) {
+            if (entry.getFile().exists()) {
                 list.add(entry);
             } else {
                 deleteRecord(entry.getId());
@@ -193,11 +193,11 @@ public class ProductDB extends DAO {
 
         final Statement queryStatement = dbConnection.createStatement();
         String whereStr = strGetProductsWhere;
-        if(queryStr.isEmpty()) {
+        if (queryStr.isEmpty()) {
             whereStr = strGetProductsWhere.substring(0, strGetProductsWhere.lastIndexOf(" AND "));
         }
         final ResultSet results = queryStatement.executeQuery(whereStr + queryStr);
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(new ProductEntry(results));
         }
         return listEntries.toArray(new ProductEntry[listEntries.size()]);

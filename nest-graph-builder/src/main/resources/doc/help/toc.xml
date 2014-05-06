@@ -7,20 +7,20 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-	<tocitem text="Graph Processing">
+    <tocitem text="Graph Processing">
         <tocitem text="Introduction" target="introduction"/>
-		
-		<tocitem text="Graph Tools">
-	        <tocitem text="Graph Processing Tool" target="gpt"/>			
-	        <tocitem text="Graph Builder" target="graph_builder"/>
-			<tocitem text="Batch Processing" target="batchProcessing"/>
-		</tocitem>
-			
-		<tocitem text="Utility Operators">
-			<tocitem text="Create Subset" target="SubsetOp"/>
-			<tocitem text="Band Arithmetic" target="BandArithmeticOp"/>
-		</tocitem>	
-			
-	</tocitem>
-		
+
+        <tocitem text="Graph Tools">
+            <tocitem text="Graph Processing Tool" target="gpt"/>
+            <tocitem text="Graph Builder" target="graph_builder"/>
+            <tocitem text="Batch Processing" target="batchProcessing"/>
+        </tocitem>
+
+        <tocitem text="Utility Operators">
+            <tocitem text="Create Subset" target="SubsetOp"/>
+            <tocitem text="Band Arithmetic" target="BandArithmeticOp"/>
+        </tocitem>
+
+    </tocitem>
+
 </toc>

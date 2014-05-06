@@ -82,7 +82,7 @@ public class PolarData {
                 }
                 lastRad = rad;
                 rad2 = rad + rad;
-                for (int thi = 0; thi < Nth;) {
+                for (int thi = 0; thi < Nth; ) {
                     int angle = (int) th;
                     g.setColor(colors[thi][ri]);
                     g.fillArc(-rad, -rad, rad2, rad2, angle, arcAngle);
@@ -107,7 +107,7 @@ public class PolarData {
                 }
                 lastRad = rad;
                 rad2 = rad + rad;
-                for (int thi = 0; thi < Nth;) {
+                for (int thi = 0; thi < Nth; ) {
                     int angle = (int) th;
                     g.setColor(colors[thi][ri]);
                     g.fillArc(-rad, -rad, rad2, rad2, angle, arcAngle);
@@ -222,7 +222,7 @@ public class PolarData {
         if (cData.touched) {
             cData.touched = false;
             cScale.setRange(cData.axis.getRange());
-            computeColors((float[][])cValues, colors, cScale);
+            computeColors((float[][]) cValues, colors, cScale);
         }
     }
 

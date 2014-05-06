@@ -272,7 +272,7 @@ class PolarCanvas extends Container {
                 final int rad2 = rad + rad;
                 graphics.setColor(Color.lightGray);
                 graphics.drawOval(-rad, -rad, rad2, rad2);
-                if(ringText != null && ringText[ri] != null) {
+                if (ringText != null && ringText[ri] != null) {
                     graphics.setColor(Color.black);
                     graphics.drawString(ringText[ri], 0, -rad);
                 }
@@ -283,27 +283,27 @@ class PolarCanvas extends Container {
         }
 
         // draw wind direction & speed
-        if(showWindDirection)
-            drawWindDirection(graphics, plotRadius, windDirection-90);
+        if (showWindDirection)
+            drawWindDirection(graphics, plotRadius, windDirection - 90);
 
         graphics.translate(-origin.x, -origin.y);
 
         drawAxisLabels(graphics);
-        
+
         graphics.dispose();
     }
 
     private static void drawWindDirection(Graphics graphics, double radius, double theta) {
         final double a = theta * MathUtils.DTOR;
-        final int x1 = (int)(radius * Math.cos(a));
-        final int y1 = (int)(radius * Math.sin(a));
-        final int x2 = (int)((radius+50) * Math.cos(a));
-        final int y2 = (int)((radius+50) * Math.sin(a));
+        final int x1 = (int) (radius * Math.cos(a));
+        final int y1 = (int) (radius * Math.sin(a));
+        final int x2 = (int) ((radius + 50) * Math.cos(a));
+        final int y2 = (int) ((radius + 50) * Math.sin(a));
 
         graphics.setColor(Color.black);
         graphics.drawLine(x1, y1, x2, y2);
 
-        drawArrowHead(graphics, x2, y2, theta, radius+40);
+        drawArrowHead(graphics, x2, y2, theta, radius + 40);
     }
 
     private void drawAxisLabels(Graphics graphics) {
@@ -313,28 +313,28 @@ class PolarCanvas extends Container {
 
         graphics.setColor(Color.black);
 
-        final int y2 = y-d;
-        graphics.drawLine(x, y, x, y-d);
-        graphics.drawLine(x, y2, x-5, y2+5);
-        graphics.drawLine(x, y2, x+5, y2+5);
-        graphics.drawString(axisLabel1, x-15, y2-10);        
+        final int y2 = y - d;
+        graphics.drawLine(x, y, x, y - d);
+        graphics.drawLine(x, y2, x - 5, y2 + 5);
+        graphics.drawLine(x, y2, x + 5, y2 + 5);
+        graphics.drawString(axisLabel1, x - 15, y2 - 10);
 
-        final int x2 = x+d;
+        final int x2 = x + d;
         graphics.drawLine(x, y, x2, y);
-        graphics.drawLine(x2, y, x2-5, y-5);
-        graphics.drawLine(x2, y, x2-5, y+5);
-        graphics.drawString(axisLabel2, x2-10, y+20);
+        graphics.drawLine(x2, y, x2 - 5, y - 5);
+        graphics.drawLine(x2, y, x2 - 5, y + 5);
+        graphics.drawString(axisLabel2, x2 - 10, y + 20);
     }
 
     private static void drawArrowHead(Graphics graphics, int x, int y, double theta, double length) {
         final double b = (theta + 1) * MathUtils.DTOR;
-        final int x3 = (int)(length * Math.cos(b));
-        final int y3 = (int)(length * Math.sin(b));
+        final int x3 = (int) (length * Math.cos(b));
+        final int y3 = (int) (length * Math.sin(b));
         graphics.drawLine(x, y, x3, y3);
 
         final double c = (theta - 1) * MathUtils.DTOR;
-        final int x4 = (int)(length * Math.cos(c));
-        final int y4 = (int)(length * Math.sin(c));
+        final int x4 = (int) (length * Math.cos(c));
+        final int y4 = (int) (length * Math.sin(c));
         graphics.drawLine(x, y, x4, y4);
     }
 

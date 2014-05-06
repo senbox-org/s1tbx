@@ -25,13 +25,15 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.OperatorUI;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.graph.*;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
+import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.GPFProcessor;
 import org.esa.nest.gpf.ProductSetReaderOp;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -300,8 +302,9 @@ public class GraphExecuter extends Observable {
         String filename = "myGraph";
         if (lastLoadedGraphFile != null)
             filename = lastLoadedGraphFile.getAbsolutePath();
-        final File filePath = ResourceUtils.GetFilePath("Save Graph", "XML", "xml", filename, "Graph", true,
-                LAST_GRAPH_PATH, ResourceUtils.getGraphFolder("").getAbsolutePath());
+        final BeamFileFilter fileFilter = new BeamFileFilter("XML", "xml", "Graph");
+        final File filePath = VisatApp.getApp().showFileSaveDialog("Save Graph", false, fileFilter, ".xml", filename,
+                BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR);
         if (filePath != null)
             writeGraph(filePath.getAbsolutePath());
         return filePath;

@@ -19,13 +19,13 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.util.ResourceUtils;
 
 import java.io.*;
 
 /**
  * This action launches PolSARPro
- *
  */
 public class LaunchPolsarProAction extends ExecCommand {
 
@@ -45,23 +45,23 @@ public class LaunchPolsarProAction extends ExecCommand {
         // find tcl wish
         File tclFile = new File(pref.getPropertyString(TCLPathStr));
 
-        if(!tclFile.exists()) {
+        if (!tclFile.exists()) {
             tclFile = findTCLWish();
-            if(tclFile.exists())
+            if (tclFile.exists())
                 pref.setPropertyString(TCLPathStr, tclFile.getAbsolutePath());
         }
 
         // find polsar pro
         File polsarProFile = new File(pref.getPropertyString(PolsarProPathStr));
-        
-        if(!polsarProFile.exists()) {
+
+        if (!polsarProFile.exists()) {
             polsarProFile = findPolsarPro();
         }
-        if(!polsarProFile.exists()) {
+        if (!polsarProFile.exists()) {
             // ask for location
-            polsarProFile = ResourceUtils.GetFilePath("PolSARPro Location", "tcl", "tcl", null, "PolSARPro File", false);
+            polsarProFile = FileFolderUtils.GetFilePath("PolSARPro Location", "tcl", "tcl", null, "PolSARPro File", false);
         }
-        if(polsarProFile.exists()) {
+        if (polsarProFile.exists()) {
             externalExecute(polsarProFile, tclFile);
 
             // save location
@@ -72,52 +72,52 @@ public class LaunchPolsarProAction extends ExecCommand {
 
     private static void externalExecute(final File prog, final File tclWishFile) {
         final File homeFolder = ResourceUtils.findHomeFolder();
-        final File program = new File(homeFolder, "bin"+File.separator+"exec.bat");
+        final File program = new File(homeFolder, "bin" + File.separator + "exec.bat");
 
         String wish = "wish";
-        final String args = '\"' +prog.getParent()+"\" "+wish+ ' ' +prog.getName();
+        final String args = '\"' + prog.getParent() + "\" " + wish + ' ' + prog.getName();
 
-        System.out.println("Launching PolSARPro "+args);
+        System.out.println("Launching PolSARPro " + args);
 
         final Thread worker = new Thread() {
 
             @Override
             public void run() {
                 try {
-                    final Process proc = Runtime.getRuntime().exec(program.getAbsolutePath()+ ' ' +args);
+                    final Process proc = Runtime.getRuntime().exec(program.getAbsolutePath() + ' ' + args);
 
                     outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getInputStream())));
                     boolean hasErrors = outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getErrorStream())));
 
-                    if(hasErrors && tclWishFile.exists()) {
-                        String wish = '\"' +tclWishFile.getAbsolutePath()+'\"';
-                        final String args = '\"' +prog.getParent()+"\" "+wish+ ' ' +prog.getName();
-                        System.out.println("Launching PolSARPro 2nd attempt "+args);
+                    if (hasErrors && tclWishFile.exists()) {
+                        String wish = '\"' + tclWishFile.getAbsolutePath() + '\"';
+                        final String args = '\"' + prog.getParent() + "\" " + wish + ' ' + prog.getName();
+                        System.out.println("Launching PolSARPro 2nd attempt " + args);
 
-                        final Process proc2 = Runtime.getRuntime().exec(program.getAbsolutePath()+ ' ' +args);
+                        final Process proc2 = Runtime.getRuntime().exec(program.getAbsolutePath() + ' ' + args);
 
                         outputTextBuffers(new BufferedReader(new InputStreamReader(proc2.getInputStream())));
                         outputTextBuffers(new BufferedReader(new InputStreamReader(proc2.getErrorStream())));
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     VisatApp.getApp().showErrorDialog(e.getMessage());
                 }
             }
         };
-        worker.start();   
+        worker.start();
     }
 
     private static File findTCLWish() {
         File progFiles = new File("C:\\Program Files (x86)\\TCL\\bin");
-        if(!progFiles.exists())
+        if (!progFiles.exists())
             progFiles = new File("C:\\Program Files\\TCL\\bin");
-        if(!progFiles.exists())
+        if (!progFiles.exists())
             progFiles = new File("C:\\TCL\\bin");
-        if(progFiles.exists()) {
+        if (progFiles.exists()) {
             final File[] files = progFiles.listFiles();
-            for(File file : files) {
+            for (File file : files) {
                 final String name = file.getName().toLowerCase();
-                if(name.equals("wish.exe")) {
+                if (name.equals("wish.exe")) {
                     return file;
                 }
             }
@@ -127,14 +127,14 @@ public class LaunchPolsarProAction extends ExecCommand {
 
     private static File findPolsarPro() {
         File progFiles = new File("C:\\Program Files (x86)");
-        if(!progFiles.exists())
+        if (!progFiles.exists())
             progFiles = new File("C:\\Program Files");
-        if(progFiles.exists()) {
+        if (progFiles.exists()) {
             final File[] progs = progFiles.listFiles(new PolsarFileFilter());
-            for(File prog : progs) {
+            for (File prog : progs) {
                 final File[] fileList = prog.listFiles(new PolsarFileFilter());
-                for(File file : fileList) {
-                    if(file.getName().toLowerCase().endsWith("tcl")) {
+                for (File file : fileList) {
+                    if (file.getName().toLowerCase().endsWith("tcl")) {
                         return file;
                     }
                 }
@@ -154,7 +154,7 @@ public class LaunchPolsarProAction extends ExecCommand {
     private static boolean outputTextBuffers(BufferedReader in) throws IOException {
         char c;
         boolean hasData = false;
-        while ((c = (char)in.read()) != -1 && c != 65535) {
+        while ((c = (char) in.read()) != -1 && c != 65535) {
             //errStr += c;
             System.out.print(c);
             hasData = true;

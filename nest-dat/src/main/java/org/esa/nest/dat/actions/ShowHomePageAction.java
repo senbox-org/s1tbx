@@ -25,7 +25,6 @@ import java.net.URI;
 
 /**
  * This action launches the default browser to display the NEST web page.
- *
  */
 public class ShowHomePageAction extends ExecCommand {
     private static final String HOME_PAGE_URL_DEFAULT = "http://www.array.ca/nest/";
@@ -38,7 +37,7 @@ public class ShowHomePageAction extends ExecCommand {
      */
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String homePageUrl = System.getProperty(ResourceUtils.getContextID()+".homePageUrl", HOME_PAGE_URL_DEFAULT);
+        final String homePageUrl = System.getProperty(ResourceUtils.getContextID() + ".homePageUrl", HOME_PAGE_URL_DEFAULT);
         final Desktop desktop = Desktop.getDesktop();
 
         try {

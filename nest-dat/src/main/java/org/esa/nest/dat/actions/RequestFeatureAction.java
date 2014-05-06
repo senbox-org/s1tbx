@@ -24,7 +24,6 @@ import java.net.URI;
 
 /**
  * This action emails a problem to Array
- *
  */
 public class RequestFeatureAction extends ExecCommand {
     private static final String PR_EMAIL = "mailto:nest_pr@array.ca";

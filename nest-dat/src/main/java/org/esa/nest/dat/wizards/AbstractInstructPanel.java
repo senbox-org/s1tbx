@@ -20,7 +20,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
-    Instructions Panel
+ * Instructions Panel
  */
 public abstract class AbstractInstructPanel extends WizardPanel {
     private final String title;
@@ -81,7 +81,7 @@ public abstract class AbstractInstructPanel extends WizardPanel {
     public void paint(final Graphics g) {
         super.paint(g);
 
-        if(image != null) {
+        if (image != null) {
             g.drawImage(image, imgPosX, imgPosY, null);
         }
     }

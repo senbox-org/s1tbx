@@ -33,38 +33,38 @@ public abstract class RecursiveProcessor {
                                     final String[] exceptionExemptions) throws Exception {
         final int maxIteration = TestUtils.getMaxIterations();
         final File[] fileList = folder.listFiles(new ProductFunctions.ValidProductFileFilter(true));
-        for(File file : fileList) {
-            if(maxIteration > 0 && iterations >= maxIteration)
+        for (File file : fileList) {
+            if (maxIteration > 0 && iterations >= maxIteration)
                 break;
 
-            if(file.isDirectory()) {
-                if(!file.getName().contains("skipTest")) {
+            if (file.isDirectory()) {
+                if (!file.getName().contains("skipTest")) {
                     iterations = recurseProcessFolder(file, iterations, productTypeExemptions, exceptionExemptions);
                 }
             } else {
                 try {
                     final Product sourceProduct = ProductIO.readProduct(file);
-                    if(sourceProduct != null) {
-                        if(productTypeExemptions != null && TestUtils.containsProductType(productTypeExemptions, sourceProduct.getProductType()))
+                    if (sourceProduct != null) {
+                        if (productTypeExemptions != null && TestUtils.containsProductType(productTypeExemptions, sourceProduct.getProductType()))
                             continue;
 
                         process(sourceProduct);
 
                         ++iterations;
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     boolean ok = false;
-                    if(exceptionExemptions != null) {
-                        for(String excemption : exceptionExemptions) {
-                            if(e.getMessage().contains(excemption)) {
+                    if (exceptionExemptions != null) {
+                        for (String excemption : exceptionExemptions) {
+                            if (e.getMessage().contains(excemption)) {
                                 ok = true;
-                                System.out.println("Excemption for "+e.getMessage());
+                                System.out.println("Excemption for " + e.getMessage());
                                 break;
                             }
                         }
                     }
-                    if(!ok) {
-                        System.out.println("Failed to process "+ file.toString());
+                    if (!ok) {
+                        System.out.println("Failed to process " + file.toString());
                         throw e;
                     }
                 }

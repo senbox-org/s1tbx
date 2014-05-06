@@ -40,7 +40,7 @@ public class StatusBarVPI extends AbstractVisatPlugIn {
     private LabelStatusBarItem _dimensionStatusBarItem;
     private LabelStatusBarItem _valueStatusBarItem;
     private HashMap<Product, PixelPositionListener> _pixelPosListeners;
-    private static final Font monoFont = new Font("Courier New",Font.PLAIN,12);
+    private static final Font monoFont = new Font("Courier New", Font.PLAIN, 12);
 
     public void start(final VisatApp visatApp) {
         _visatApp = visatApp;
@@ -129,14 +129,14 @@ public class StatusBarVPI extends AbstractVisatPlugIn {
                 dimensionStatusBarItem.setText(_text.toString());
 
                 final ProductNode prodNode = _visatApp.getSelectedProductNode();
-                if(prodNode != null) {
+                if (prodNode != null) {
                     final Band band = prod.getBand(prodNode.getName());
-                    if(band != null) {
+                    if (band != null) {
                         PixelPos pixelPos = ScreenPixelConverter.computeLevelZeroPixelPos(imageLayer,
-                                                                                        pixelX, pixelY, currentLevel);
+                                pixelX, pixelY, currentLevel);
 
                         valueStatusBarItem.setText(GraphicsUtils.padString(
-                                band.getPixelString((int)pixelPos.getX(), (int)pixelPos.getY()), 15));
+                                band.getPixelString((int) pixelPos.getX(), (int) pixelPos.getY()), 15));
                     }
                 }
             } else {

@@ -36,9 +36,9 @@ public class SearchMetadataAction extends ExecCommand {
 
         final PromptDialog dlg = new PromptDialog("Search Metadata", "Item Name", "", false);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             final String tag = dlg.getValue().toUpperCase();
-            final MetadataElement resultElem = new MetadataElement("Search result ("+dlg.getValue()+')');
+            final MetadataElement resultElem = new MetadataElement("Search result (" + dlg.getValue() + ')');
 
             final Product product = VisatApp.getApp().getSelectedProduct();
             final boolean isModified = product.isModified();
@@ -47,8 +47,8 @@ public class SearchMetadataAction extends ExecCommand {
 
             searchMetadata(resultElem, root, tag);
             product.setModified(isModified);
-            
-            if(resultElem.getNumElements() > 0 || resultElem.getNumAttributes() > 0) {
+
+            if (resultElem.getNumElements() > 0 || resultElem.getNumAttributes() > 0) {
                 VisatApp.getApp().createProductMetadataView(resultElem);
             } else {
                 // no attributes found
@@ -66,12 +66,12 @@ public class SearchMetadataAction extends ExecCommand {
     private static void searchMetadata(final MetadataElement resultElem, final MetadataElement elem, final String tag) {
 
         final MetadataElement[] elemList = elem.getElements();
-        for(MetadataElement e : elemList) {
+        for (MetadataElement e : elemList) {
             searchMetadata(resultElem, e, tag);
         }
         final MetadataAttribute[] attribList = elem.getAttributes();
-        for(MetadataAttribute attrib : attribList) {
-            if(attrib.getName().toUpperCase().contains(tag)) {
+        for (MetadataAttribute attrib : attribList) {
+            if (attrib.getName().toUpperCase().contains(tag)) {
                 final MetadataAttribute newAttrib = attrib.createDeepClone();
                 newAttrib.setDescription(getAttributePath(attrib));
                 resultElem.addAttribute(newAttrib);
@@ -82,9 +82,9 @@ public class SearchMetadataAction extends ExecCommand {
     static String getAttributePath(final MetadataAttribute attrib) {
         MetadataElement parentElem = attrib.getParentElement();
         String path = parentElem.getName();
-        while(parentElem != null && !parentElem.getName().equals("metadata")) {
+        while (parentElem != null && !parentElem.getName().equals("metadata")) {
             parentElem = parentElem.getParentElement();
-            if(parentElem != null)
+            if (parentElem != null)
                 path = parentElem.getName() + "/" + path;
         }
         return path;

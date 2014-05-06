@@ -52,7 +52,7 @@ public class ExportKmzProductAction extends ExecCommand {
     private static final String OVERLAY_TIF = "overlay.tif";
     private static final String IMAGE_TYPE = "TIF";
     private static final String LEGEND_PNG = "legend.png";
-    private static final String[] KMZ_FORMAT_DESCRIPTION = {"KMZ", "kmz","KMZ - Google Earth File Format"};
+    private static final String[] KMZ_FORMAT_DESCRIPTION = {"KMZ", "kmz", "KMZ - Google Earth File Format"};
     private static final String IMAGE_EXPORT_DIR_PREFERENCES_KEY = "user.image.export.dir";
 
     private final BeamFileFilter kmzFileFilter;
@@ -77,16 +77,16 @@ public class ExportKmzProductAction extends ExecCommand {
             if (typeID.equals(IdentityTransformDescriptor.TYPE_ID)) {
                 isGeographic = true;
             }
-        } else if(geoCoding instanceof CrsGeoCoding){
+        } else if (geoCoding instanceof CrsGeoCoding) {
             isGeographic = CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
         }
 
-        if(isGeographic) {
+        if (isGeographic) {
 
             final StringSelectorDialog dlg = new StringSelectorDialog("Select band",
-                                                    getValidBandNames(product));
+                    getValidBandNames(product));
             dlg.show();
-            if(dlg.IsOK()) {
+            if (dlg.IsOK()) {
                 exportImage(product, dlg.getSelectedItem());
             }
         } else {
@@ -104,7 +104,7 @@ public class ExportKmzProductAction extends ExecCommand {
 
     private static String[] getValidBandNames(final Product product) {
         final List<String> bandNames = new ArrayList<String>(4);
-        for(Band band : product.getBands()) {
+        for (Band band : product.getBands()) {
             bandNames.add(band.getName());
         }
 
@@ -155,7 +155,7 @@ public class ExportKmzProductAction extends ExecCommand {
         }
 
         final SaveKMLSwingWorker worker = new SaveKMLSwingWorker(visatApp, "Save KMZ",
-                                            product, selectedBandName, file);
+                product, selectedBandName, file);
         worker.executeWithBlocking();
     }
 
@@ -168,7 +168,7 @@ public class ExportKmzProductAction extends ExecCommand {
         final GeoCoding geoCoding = product.getGeoCoding();
         final PixelPos upperLeftPP = new PixelPos(0.5f, 0.5f);
         final PixelPos lowerRightPP = new PixelPos(product.getSceneRasterWidth() - 0.5f,
-                                                   product.getSceneRasterHeight() - 0.5f);
+                product.getSceneRasterHeight() - 0.5f);
         final GeoPos upperLeftGP = geoCoding.getGeoPos(upperLeftPP, null);
         final GeoPos lowerRightGP = geoCoding.getGeoPos(lowerRightPP, null);
         float eastLon = lowerRightGP.getLon();
@@ -191,20 +191,21 @@ public class ExportKmzProductAction extends ExecCommand {
                                 + "</Placemark>\n",
                         placemark.getLabel(),
                         geoPos.lon,
-                        geoPos.lat);
+                        geoPos.lat
+                );
             }
         }
 
         final String name = product.getName();
         final String description = product.getDescription() + '\n' + product.getName();
         final String legendKml = "  <ScreenOverlay>\n"
-                    + "    <name>Legend</name>\n"
-                    + "    <Icon>\n"
-                    + "      <href>legend.png</href>\n"
-                    + "    </Icon>\n"
-                    + "    <overlayXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
-                    + "    <screenXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
-                    + "  </ScreenOverlay>\n";
+                + "    <name>Legend</name>\n"
+                + "    <Icon>\n"
+                + "      <href>legend.png</href>\n"
+                + "    </Icon>\n"
+                + "    <overlayXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
+                + "    <screenXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
+                + "  </ScreenOverlay>\n";
 
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<kml xmlns=\"http://earth.google.com/kml/2.0\">\n"
@@ -280,13 +281,13 @@ public class ExportKmzProductAction extends ExecCommand {
                     outStream.write(kmlContent.getBytes());
                     pm.worked(1);
 
-                    final File imgFile = new File(file.getParent(), product.getName()+".tif");
+                    final File imgFile = new File(file.getParent(), product.getName() + ".tif");
                     final File graphFile = new File(GraphBuilderDialog.getInternalGraphFolder(), "DataConvertGraph.xml");
 
                     final GPFProcessor proc = new GPFProcessor(graphFile);
                     proc.setIO(product.getFileLocation(), imgFile, "GeoTIFF");
                     proc.executeGraph(SubProgressMonitor.create(pm, 1));
-                    
+
                     //ProductIO.writeProduct(subsetProduct, imgFile, "GeoTIFF", true, SubProgressMonitor.create(pm, 1));
                     pm.worked(1);
 
@@ -297,7 +298,7 @@ public class ExportKmzProductAction extends ExecCommand {
                         final int size = 8192;
                         final byte[] buf = new byte[size];
                         int n;
-                        while ((n = fin.read(buf, 0, size)) > -1)  {
+                        while ((n = fin.read(buf, 0, size)) > -1) {
                             outStream.write(buf, 0, n);
                         }
                     } finally {
@@ -308,11 +309,11 @@ public class ExportKmzProductAction extends ExecCommand {
                     imgFile.delete();
                     pm.worked(1);
 
-                   // final Band selectedBand = product.getBandAt(0);
-                   // outStream.putNextEntry(new ZipEntry(LEGEND_PNG));
-                   // ImageEncoder encoder = ImageCodec.createImageEncoder("PNG", outStream, null);
-                  //  encoder.encode(createImageLegend(selectedBand));
-                  //  pm.worked(1);
+                    // final Band selectedBand = product.getBandAt(0);
+                    // outStream.putNextEntry(new ZipEntry(LEGEND_PNG));
+                    // ImageEncoder encoder = ImageCodec.createImageEncoder("PNG", outStream, null);
+                    //  encoder.encode(createImageLegend(selectedBand));
+                    //  pm.worked(1);
                 } finally {
                     outStream.close();
                 }
@@ -329,13 +330,13 @@ public class ExportKmzProductAction extends ExecCommand {
         }
 
         private static Product createSubsetProduct(final Product product, final String selectedBandName)
-                                                    throws IOException {
+                throws IOException {
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
             final Band srcBand = product.getBand(selectedBandName);
 
             // if not virtual set as single band in subset
-            if(!(srcBand instanceof VirtualBand)) {
-                productSubsetDef.setNodeNames(new String[] {selectedBandName});
+            if (!(srcBand instanceof VirtualBand)) {
+                productSubsetDef.setNodeNames(new String[]{selectedBandName});
             }
 
             return product.createSubset(productSubsetDef, null, null);

@@ -30,16 +30,9 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import javax.swing.AbstractAction;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -49,14 +42,13 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class displays a world map specified by the {@link NestWorldMapPaneDataModel}.
  *
  * @author Marco Peters
-
  */
 public class NestWorldMapPane extends JPanel {
 
@@ -136,7 +128,7 @@ public class NestWorldMapPane extends JPanel {
             return;
         }
 
-		//NESTMOD
+        //NESTMOD
         final GeneralPath[] generalPaths;
         if (product != null && product.getGeoCoding() != null) {
             generalPaths = getGeoBoundaryPaths(product);
@@ -152,7 +144,7 @@ public class NestWorldMapPane extends JPanel {
             if (modelArea.isEmpty()) {
                 if (!viewport.isModelYAxisDown()) {
                     modelArea.setFrame(rectangle2D.getX(), rectangle2D.getMaxY(),
-                                       rectangle2D.getWidth(), rectangle2D.getHeight());
+                            rectangle2D.getWidth(), rectangle2D.getHeight());
                 }
                 modelArea = rectangle2D;
             } else {
@@ -161,7 +153,7 @@ public class NestWorldMapPane extends JPanel {
         }
         Rectangle2D modelBounds = modelArea.getBounds2D();
         modelBounds.setFrame(modelBounds.getX() - 2, modelBounds.getY() - 2,
-                             modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
+                modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
 
         modelBounds = cropToMaxModelBounds(modelBounds);
 
@@ -178,7 +170,7 @@ public class NestWorldMapPane extends JPanel {
         if (oldValue != navControlShown) {
             if (navControlShown) {
                 final ButtonOverlayControl navControl = new ButtonOverlayControl(new ZoomAllAction(),
-                                                                                 new ZoomToSelectedAction());
+                        new ZoomToSelectedAction());
                 navControlWrapper = new WakefulComponent(navControl);
                 navControlWrapper.setMinAlpha(0.3f);
                 layerCanvas.add(navControlWrapper);
@@ -208,7 +200,7 @@ public class NestWorldMapPane extends JPanel {
             }
         }
         if (NestWorldMapPaneDataModel.PROPERTY_ADDITIONAL_GEO_BOUNDARIES.equals(evt.getPropertyName()) ||
-            NestWorldMapPaneDataModel.PROPERTY_SELECTED_GEO_BOUNDARIES.equals(evt.getPropertyName())) {
+                NestWorldMapPaneDataModel.PROPERTY_SELECTED_GEO_BOUNDARIES.equals(evt.getPropertyName())) {
             repaint();
         }
     }
@@ -294,7 +286,7 @@ public class NestWorldMapPane extends JPanel {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if(e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
                 leftButtonDown = true;
                 final AffineTransform viewToModelTransform = layerCanvas.getViewport().getViewToModelTransform();
                 viewToModelTransform.transform(e.getPoint(), selectionStart);
@@ -308,7 +300,7 @@ public class NestWorldMapPane extends JPanel {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if(e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
                 leftButtonDown = false;
             }
         }
@@ -316,12 +308,12 @@ public class NestWorldMapPane extends JPanel {
         @Override
         public void mouseDragged(MouseEvent e) {
             final Point p = e.getPoint();
-            if(leftButtonDown) {
+            if (leftButtonDown) {
                 final AffineTransform viewToModelTransform = layerCanvas.getViewport().getViewToModelTransform();
                 viewToModelTransform.transform(e.getPoint(), selectionEnd);
                 dataModel.setSelectionBoxEnd(selectionEnd.y, selectionEnd.x);
                 layerCanvas.updateUI();
-            } else if(p0 != null){
+            } else if (p0 != null) {
                 final double dx = p.x - p0.x;
                 final double dy = p.y - p0.y;
                 layerCanvas.getViewport().moveViewDelta(dx, dy);
@@ -365,12 +357,12 @@ public class NestWorldMapPane extends JPanel {
 
             for (final GeoPos[] extraGeoBoundary : dataModel.getAdditionalGeoBoundaries()) {
                 drawGeoBoundary(rendering.getGraphics(), extraGeoBoundary, null, null,
-                                transWhiteColor, Color.WHITE);
+                        transWhiteColor, Color.WHITE);
             }
 
             for (final GeoPos[] selectGeoBoundary : dataModel.getSelectedGeoBoundaries()) {
                 drawGeoBoundary(rendering.getGraphics(), selectGeoBoundary, null, null,
-                                transRedColor, Color.RED);
+                        transRedColor, Color.RED);
             }
 
             final Product selectedProduct = dataModel.getSelectedProduct();
@@ -383,11 +375,11 @@ public class NestWorldMapPane extends JPanel {
 
             if (selectedProduct != null) {
                 drawProduct(rendering.getGraphics(), selectedProduct,
-                            transWhiteColor, Color.RED);
+                        transWhiteColor, Color.RED);
             }
 
             drawGeoBoundary(rendering.getGraphics(), dataModel.getSelectionBox(), null, null,
-                            selectionFillColor, selectionBorderColor);
+                    selectionFillColor, selectionBorderColor);
         }
 
         private void drawProduct(final Graphics2D g2d, final Product product,
@@ -466,8 +458,8 @@ public class NestWorldMapPane extends JPanel {
             g2d.setColor(Color.black);
 
             g2d.drawString(text,
-                           textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
-                           textCenter.y + fontMetrics.getAscent() / 2.0f);
+                    textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
+                    textCenter.y + fontMetrics.getAscent() / 2.0f);
             g2d.setColor(color);
         }
 

@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.util.DialogUtils;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.Settings;
@@ -81,7 +82,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
         browseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = ResourceUtils.GetFilePath("Classification Training Dataset",
+                final File file = FileFolderUtils.GetFilePath("Classification Training Dataset",
                         "Training Datasets", "txt", defaultSavePath, "", true);
                 savePath.setText(file.getAbsolutePath());
             }

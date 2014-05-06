@@ -23,8 +23,8 @@ import org.esa.beam.framework.ui.product.ProductMetadataTable;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.datamodel.AbstractMetadataIO;
-import org.esa.nest.util.ResourceUtils;
 
 import java.io.File;
 
@@ -50,12 +50,12 @@ public class ExportMetadataXMLAction extends ExecCommand {
             final Product srcProduct = productMetadataView.getProduct();
 
             final String fileName = srcProduct.getName() + "_metadata.xml";
-            final File file = ResourceUtils.GetFilePath("Save Metadata", "XML", "xml", fileName, "Metadata XML File", true);
-            if(file == null) return;
+            final File file = FileFolderUtils.GetFilePath("Save Metadata", "XML", "xml", fileName, "Metadata XML File", true);
+            if (file == null) return;
 
             AbstractMetadataIO.Save(srcProduct, root, file);
-        } catch(Exception e) {
-            VisatApp.getApp().showErrorDialog("Unable to save metadata\n"+e.getMessage());
+        } catch (Exception e) {
+            VisatApp.getApp().showErrorDialog("Unable to save metadata\n" + e.getMessage());
         }
     }
 

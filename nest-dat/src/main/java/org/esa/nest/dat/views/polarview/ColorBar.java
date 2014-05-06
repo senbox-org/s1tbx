@@ -64,7 +64,7 @@ class ColorBar implements ImageProducer {
     }
 
     private synchronized void removeAllConsumers() {
-        for (Enumeration elem = theConsumers.elements(); elem.hasMoreElements();) {
+        for (Enumeration elem = theConsumers.elements(); elem.hasMoreElements(); ) {
             ImageConsumer ic = (ImageConsumer) elem.nextElement();
             ic.imageComplete(3);
             if (isConsumer(ic))
@@ -114,8 +114,7 @@ class ColorBar implements ImageProducer {
             deliverPixels(ic, imageArea);
             if (isConsumer(ic))
                 ic.imageComplete(2);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             if (isConsumer(ic))
                 ic.imageComplete(1);
         }
@@ -143,8 +142,7 @@ class ColorBar implements ImageProducer {
                 deliverPixels(ic, area);
                 if (isConsumer(ic))
                     ic.imageComplete(2);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 if (isConsumer(ic))
                     ic.imageComplete(1);
             }

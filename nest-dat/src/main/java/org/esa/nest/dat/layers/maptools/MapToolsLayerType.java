@@ -69,9 +69,9 @@ public class MapToolsLayerType extends LayerType {
     public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer propertyContainer = new PropertyContainer();
         propertyContainer.addProperty(new Property(new PropertyDescriptor("raster", RasterDataNode.class),
-                                                   new DefaultPropertyAccessor()));
+                new DefaultPropertyAccessor()));
         propertyContainer.addProperty(new Property(new PropertyDescriptor("options", MapToolsOptions.class),
-                                      new DefaultPropertyAccessor()));
+                new DefaultPropertyAccessor()));
         return propertyContainer;
     }
 }

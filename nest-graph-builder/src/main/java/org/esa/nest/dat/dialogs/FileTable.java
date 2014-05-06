@@ -123,8 +123,8 @@ public class FileTable extends JTable {
                 setFiles(fileList);
             }
         } catch (Exception e) {
-            if(VisatApp.getApp() != null) {
-                VisatApp.getApp().showErrorDialog("Unable to paste from clipboard: "+e.getMessage());
+            if (VisatApp.getApp() != null) {
+                VisatApp.getApp().showErrorDialog("Unable to paste from clipboard: " + e.getMessage());
             }
         }
     }

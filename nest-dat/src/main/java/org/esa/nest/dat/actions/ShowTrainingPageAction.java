@@ -25,7 +25,6 @@ import java.net.URI;
 
 /**
  * This action launches the default browser to display the training page
- *
  */
 public class ShowTrainingPageAction extends ExecCommand {
     private static final String URL_DEFAULT = "http://nest.array.ca/web/array/training";
@@ -38,7 +37,7 @@ public class ShowTrainingPageAction extends ExecCommand {
      */
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String pageUrl = System.getProperty(ResourceUtils.getContextID()+".trainingUrl", URL_DEFAULT);
+        final String pageUrl = System.getProperty(ResourceUtils.getContextID() + ".trainingUrl", URL_DEFAULT);
         final Desktop desktop = Desktop.getDesktop();
 
         try {

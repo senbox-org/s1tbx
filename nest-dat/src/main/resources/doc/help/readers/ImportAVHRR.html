@@ -9,8 +9,9 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp; Import AVHRR/3</td>
-        
-    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border=0></a></td>
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border=0></a></td>
     </tr>
 </table>
 
@@ -41,16 +42,19 @@
 <ul>
     <li>autodetection of the existence of an Archive Retrieval System (ARS) Header Record.</li>
     <li>autodetection of products in 8 bit, 10 bit and 16 bit format, as long as they contain all 5
-        AVHRR bands.</li>
+        AVHRR bands.
+    </li>
     <li>autodetection whether band 3a or band 3b or both are present in a single scene.</li>
     <li>reading of products which contain AVHRR/3 Local Area Coverage (LAC) and High Resolution
-        Picture Transmission (HRPT) data sets.</li>
+        Picture Transmission (HRPT) data sets.
+    </li>
     <li>reading extensive Metadata from the header record.</li>
     <li>calibrating the raw values by applying calibration coefficients contained in the metadata.</li>
     <li>reading different quality flags.</li>
     <li>setting the no data value, if either the data or the calibration coefficients are invalid.</li>
     <li>geolocating the data products according to the given navigation data (solar zenith angle,
-        satellite zenith angle, relative azimuth angle, latitude, longitude).</li>
+        satellite zenith angle, relative azimuth angle, latitude, longitude).
+    </li>
     <li>setting the start and end date of the data acquisition.</li>
 </ul>
 

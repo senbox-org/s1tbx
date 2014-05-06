@@ -40,7 +40,6 @@ import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.views.polarview.PolarView;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.ProductDB;
-import org.esa.nest.eo.MapProjectionHandler;
 import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.Settings;
@@ -68,8 +67,8 @@ public class DatApp extends VisatApp {
 
         // enable anti-aliased text:
 
-        System.setProperty("sun.java2d.opengl","true");
-        System.setProperty("awt.useSystemAAFontSettings","on");
+        System.setProperty("sun.java2d.opengl", "true");
+        System.setProperty("awt.useSystemAAFontSettings", "on");
         System.setProperty("swing.aatext", "true");
     }
 
@@ -79,8 +78,8 @@ public class DatApp extends VisatApp {
 
     @Override
     protected String getMainFrameTitle() {
-        final String ver = System.getProperty(ResourceUtils.getContextID()+".version");
-        return getAppName() + ' '+ver;
+        final String ver = System.getProperty(ResourceUtils.getContextID() + ".version");
+        return getAppName() + ' ' + ver;
     }
 
     // You can now override numerous createXXX() methods
@@ -121,7 +120,7 @@ public class DatApp extends VisatApp {
     protected void postInit() {
         try {
             final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
-            if(getStarted == null || getStarted.equals("true")) {
+            if (getStarted == null || getStarted.equals("true")) {
                 LoadTabbedLayoutAction.loadTabbedLayout();
 
                 HelpSys.showTheme("top");
@@ -139,11 +138,11 @@ public class DatApp extends VisatApp {
             UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
 
             backgroundInitTasks();
-        } catch(Throwable t) {
-            VisatApp.getApp().showErrorDialog("PostInit failed. "+t.toString());
+        } catch (Throwable t) {
+            VisatApp.getApp().showErrorDialog("PostInit failed. " + t.toString());
         }
     }
-    
+
     protected void disableOperatorPlugins() {
 
         removeOperator("org.esa.beam.gpf.operators.standard.MergeOp$Spi");
@@ -158,7 +157,7 @@ public class DatApp extends VisatApp {
     protected void removeOperator(final String spi) {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         final OperatorSpi op = registry.getOperatorSpi(spi);
-        if(op != null) {
+        if (op != null) {
             registry.removeOperatorSpi(op);
         }
     }
@@ -166,19 +165,19 @@ public class DatApp extends VisatApp {
     protected void removeReaderPlugIn(final String name) {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         ProductReaderPlugIn rp = registry.getReaderPlugIn(name);
-        if(rp != null) {
+        if (rp != null) {
             registry.removeReaderPlugIn(rp);
         }
     }
 
     private static void validateAuxDataFolder() throws IOException {
         File NestData = new File("~\\NestData");
-        if(Settings.isWindowsOS()) {
+        if (Settings.isWindowsOS()) {
             NestData = new File("c:\\NestData");
         }
         File auxDataFolder = Settings.getAuxDataFolder();
-        if(!auxDataFolder.exists()) {
-            if(NestData.exists()) {
+        if (!auxDataFolder.exists()) {
+            if (NestData.exists()) {
                 NestData.renameTo(auxDataFolder);
             }
         }
@@ -200,9 +199,7 @@ public class DatApp extends VisatApp {
                 //speed up init of Product Library
                 ProductDB.instance();
 
-                //speed up init of projections in terrain correction
-                MapProjectionHandler dummyMapProj = new MapProjectionHandler();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -218,7 +215,7 @@ public class DatApp extends VisatApp {
             final Product product = products[i];
             closeProduct(product);
         }
-        
+
         ProductCache.instance().clearCache();
         MemUtils.freeAllMemory();
     }
@@ -248,31 +245,31 @@ public class DatApp extends VisatApp {
         final File tempFolder = ResourceUtils.getApplicationUserTempDataDir();
 
         File[] fileList = tempFolder.listFiles();
-        if(fileList == null) return;
+        if (fileList == null) return;
 
-        for(File file : fileList) {
-            if(file.getName().startsWith("tmp_")) {
+        for (File file : fileList) {
+            if (file.getName().startsWith("tmp_")) {
                 ResourceUtils.deleteFile(file);
             }
         }
 
         long freeSpace = tempFolder.getFreeSpace() / 1024 / 1024 / 1024;
         int cutoff = 20;
-        if(freeSpace > 30)
+        if (freeSpace > 30)
             cutoff = 60;
 
         fileList = tempFolder.listFiles();
-        if(fileList != null && fileList.length > cutoff) {
+        if (fileList != null && fileList.length > cutoff) {
             final long[] dates = new long[fileList.length];
             int i = 0;
-            for(File file : fileList) {
+            for (File file : fileList) {
                 dates[i++] = file.lastModified();
             }
             Arrays.sort(dates);
             final long cutoffDate = dates[dates.length - cutoff];
 
-            for(File file : fileList) {
-                if(file.lastModified() < cutoffDate) {
+            for (File file : fileList) {
+                if (file.lastModified() < cutoffDate) {
                     file.delete();
                 }
             }
@@ -283,7 +280,7 @@ public class DatApp extends VisatApp {
     protected String getCSName(final RasterDataNode raster) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(raster.getProduct());
         final String mapProjStr = absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim();
-        if(!mapProjStr.isEmpty()) {
+        if (!mapProjStr.isEmpty()) {
             return mapProjStr;
         }
 
@@ -395,10 +392,10 @@ public class DatApp extends VisatApp {
         final CommandManager cmdMan = getCommandManager();
         for (int i = 0; i < cmdMan.getNumCommands(); i++) {
             final String parent = cmdMan.getCommandAt(i).getParent();
-            if(parent == null)
+            if (parent == null)
                 continue;
 
-            if(parent.equals("image-processing"))
+            if (parent.equals("image-processing"))
                 incImageProcessing = true;
         }
 
@@ -416,7 +413,7 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
-        if(incImageProcessing)
+        if (incImageProcessing)
             menuBar.add(createJMenu("image-processing", "Image Processing", 'I'));
         menuBar.add(createJMenu("classification", "Classification", 'C'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
@@ -433,28 +430,28 @@ public class DatApp extends VisatApp {
         }
 
         final File graphPath = ResourceUtils.getGraphFolder("");
-        if(!graphPath.exists()) return;
+        if (!graphPath.exists()) return;
 
         createGraphMenu(menu, graphPath);
     }
 
     private static void createGraphMenu(final JMenu menu, final File path) {
         final File[] filesList = path.listFiles();
-        if(filesList == null || filesList.length == 0) return;
+        if (filesList == null || filesList.length == 0) return;
 
         for (final File file : filesList) {
             final String name = file.getName();
-            if(file.isDirectory() && !file.isHidden() && !name.equalsIgnoreCase("internal")) {
+            if (file.isDirectory() && !file.isHidden() && !name.equalsIgnoreCase("internal")) {
                 final JMenu subMenu = new JMenu(name);
                 menu.add(subMenu);
                 createGraphMenu(subMenu, file);
-            } else if(name.toLowerCase().endsWith(".xml")) {
+            } else if (name.toLowerCase().endsWith(".xml")) {
                 final JMenuItem item = new JMenuItem(name.substring(0, name.indexOf(".xml")));
                 item.addActionListener(new ActionListener() {
 
                     public void actionPerformed(final ActionEvent e) {
                         final GraphBuilderDialog dialog = new GraphBuilderDialog(VisatApp.getApp(),
-                            "Graph Builder", "graph_builder");
+                                "Graph Builder", "graph_builder");
                         dialog.show();
                         dialog.LoadGraph(file);
                     }
@@ -494,13 +491,13 @@ public class DatApp extends VisatApp {
 
         cmdList.add("pinTool");
         cmdList.add("gcpTool");
-        
+
         final CommandManager cmdMan = getCommandManager();
         final int numCmds = cmdMan.getNumCommands();
-        for(int i=0; i < numCmds; ++i) {
+        for (int i = 0; i < numCmds; ++i) {
             final Command cmd = cmdMan.getCommandAt(i);
             final String parent = cmd.getParent();
-            if(parent != null && parent.equals("labels")) {
+            if (parent != null && parent.equals("labels")) {
                 placeAfterMap.put(cmd.getCommandID(), cmd.getPlaceAfter());
                 cmdList.add(cmd.getCommandID());
             }
@@ -508,13 +505,13 @@ public class DatApp extends VisatApp {
 
         // order
         final Set<String> placeAfterSet = placeAfterMap.keySet();
-        for(String id : placeAfterSet) {
+        for (String id : placeAfterSet) {
             final String placeAfter = placeAfterMap.get(id);
             int index = cmdList.indexOf(placeAfter);
-            if(index != -1) {
+            if (index != -1) {
                 cmdList.remove(id);
                 index = cmdList.indexOf(placeAfter);
-                cmdList.add(index+1, id);
+                cmdList.add(index + 1, id);
             }
         }
 
@@ -545,7 +542,7 @@ public class DatApp extends VisatApp {
         return toolBar;
     }
 
-        /**
+    /**
      * Closes all (internal) frames associated with the given product.
      *
      * @param product The product to close the internal frames for.

@@ -29,7 +29,7 @@ public class ProgressMonitorList {
     private List<ProgressMonitor> list = new ArrayList<ProgressMonitor>(1);
 
     public static ProgressMonitorList instance() {
-        if(_instance == null) {
+        if (_instance == null) {
             _instance = new ProgressMonitorList();
         }
         return _instance;

@@ -20,8 +20,8 @@ import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.util.ResourceUtils;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -76,9 +76,11 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
 
     private int currentRecord = 0;
 
-    private enum Unit { REAL, IMAGINARY, AMPLITUDE, INTENSITY }
-    private final String[] unitTypes = new String[] { "Real", "Imaginary", "Amplitude", "Intensity" };
-    private enum WaveProductType { CROSS_SPECTRA, WAVE_SPECTRA }
+    private enum Unit {REAL, IMAGINARY, AMPLITUDE, INTENSITY}
+
+    private final String[] unitTypes = new String[]{"Real", "Imaginary", "Amplitude", "Intensity"};
+
+    private enum WaveProductType {CROSS_SPECTRA, WAVE_SPECTRA}
 
     private final ControlPanel controlPanel;
     private final PolarPanel polarPanel;
@@ -97,7 +99,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         product = prod;
         sceneImage = image;
 
-        if(prod.getProductType().equals("ASA_WVW_2P")) {
+        if (prod.getProductType().equals("ASA_WVW_2P")) {
             waveProductType = WaveProductType.WAVE_SPECTRA;
             graphUnit = Unit.AMPLITUDE;
         } else {
@@ -109,7 +111,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
 
         final RasterDataNode[] rasters = sceneImage.getRasters();
         final RasterDataNode rasterNode = rasters[0];
-        numRecords = rasterNode.getRasterHeight()-1;
+        numRecords = rasterNode.getRasterHeight() - 1;
         recordLength = rasterNode.getRasterWidth();
 
         addMouseListener(this);
@@ -156,7 +158,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         firstWLBin = (float) sph.getAttributeDouble("FIRST_WL_BIN", 0);
         lastWLBin = (float) sph.getAttributeDouble("LAST_WL_BIN", 0);
 
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             spectraMetadataRoot = root.getElement("OCEAN_WAVE_SPECTRA_MDS");
         } else {
             spectraMetadataRoot = root.getElement("CROSS_SPECTRA_MDS");
@@ -165,14 +167,14 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
 
     private void getSpectraMetadata(int rec) {
         try {
-            final String elemName = spectraMetadataRoot.getName()+'.'+(rec+1);
+            final String elemName = spectraMetadataRoot.getName() + '.' + (rec + 1);
             final MetadataElement spectraMetadata = spectraMetadataRoot.getElement(elemName);
 
             zeroDopplerTime = spectraMetadata.getAttributeUTC("zero_doppler_time");
             maxSpecDir = spectraMetadata.getAttributeDouble("spec_max_dir", 0);
             maxSpecWL = spectraMetadata.getAttributeDouble("spec_max_wl", 0);
 
-            if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+            if (waveProductType == WaveProductType.WAVE_SPECTRA) {
                 minSpectrum = spectraMetadata.getAttributeDouble("min_spectrum", 0);
                 maxSpectrum = spectraMetadata.getAttributeDouble("max_spectrum", 255);
                 windSpeed = spectraMetadata.getAttributeDouble("wind_speed", 0);
@@ -186,8 +188,8 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
                 minImaginary = spectraMetadata.getAttributeDouble("min_imag", 0);
                 maxImaginary = spectraMetadata.getAttributeDouble("max_imag", 255);
             }
-        } catch(Exception e) {
-            System.out.println("Unable to get metadata for "+spectraMetadataRoot.getName());
+        } catch (Exception e) {
+            System.out.println("Unable to get metadata for " + spectraMetadataRoot.getName());
         }
 
         final DecimalFormat frmt = new DecimalFormat("0.0000");
@@ -197,7 +199,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         metadataList.add("Peak Direction: " + maxSpecDir + " deg");
         metadataList.add("Peak Wavelength: " + frmt.format(maxSpecWL) + " m");
 
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             metadataList.add("Min Spectrum: " + frmt.format(minSpectrum));
             metadataList.add("Max Spectrum: " + frmt.format(maxSpectrum));
 
@@ -212,18 +214,18 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
     }
 
     private float getMinValue(boolean real) {
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
-            return (float)minSpectrum;
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
+            return (float) minSpectrum;
         } else {
-            return real ? (float)minReal : (float)minImaginary;
+            return real ? (float) minReal : (float) minImaginary;
         }
     }
 
     private float getMaxValue(boolean real) {
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
-            return (float)maxSpectrum;
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
+            return (float) maxSpectrum;
         } else {
-            return real ? (float)maxReal : (float)maxImaginary;
+            return real ? (float) maxReal : (float) maxImaginary;
         }
     }
 
@@ -235,14 +237,14 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         float minValue = getMinValue(graphUnit != Unit.IMAGINARY);
         float maxValue = getMaxValue(graphUnit != Unit.IMAGINARY);
 
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
-            if(graphUnit == Unit.INTENSITY) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
+            if (graphUnit == Unit.INTENSITY) {
                 minValue = Float.MAX_VALUE;
-                maxValue = Float.MIN_VALUE; 
+                maxValue = Float.MIN_VALUE;
                 for (int i = 0; i < spectrum.length; i++) {
                     for (int j = 0; j < spectrum[0].length; j++) {
                         final float realVal = spectrum[i][j];
-                        final float val = realVal*realVal;
+                        final float val = realVal * realVal;
                         spectrum[i][j] = val;
                         minValue = Math.min(minValue, val);
                         maxValue = Math.max(maxValue, val);
@@ -279,7 +281,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
 
         final float thFirst;
         final float thStep;
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             thFirst = firstDirBins + 5f;
             thStep = -dirBinStep;
         } else {
@@ -299,7 +301,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         final PolarCanvas polarCanvas = polarPanel.getPolarCanvas();
         polarCanvas.setAxisNames("Azimuth", "Range");
 
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             polarCanvas.setWindDirection(windDirection);
             polarCanvas.showWindDirection(true);
             polarCanvas.setAxisNames("North", "East");
@@ -341,7 +343,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         final float spectrum[][] = new float[numDirBins][numWLBins];
 
         int index = 0;
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             for (int i = 0; i < numDirBins; i++) {
                 for (int j = 0; j < numWLBins; j++) {
                     spectrum[i][j] = dataset[index++] * scale + minValue;
@@ -397,7 +399,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         final JMenu unitMenu = new JMenu("Unit");
         popup.add(unitMenu);
 
-        if(waveProductType == WaveProductType.WAVE_SPECTRA) {
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             createCheckedMenuItem(unitTypes[Unit.AMPLITUDE.ordinal()], unitMenu, graphUnit == Unit.AMPLITUDE);
             createCheckedMenuItem(unitTypes[Unit.INTENSITY.ordinal()], unitMenu, graphUnit == Unit.INTENSITY);
         } else {
@@ -440,24 +442,24 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
      */
     public void actionPerformed(ActionEvent event) {
 
-        if(event.getActionCommand().equals("Next")) {
+        if (event.getActionCommand().equals("Next")) {
             showNextPlot();
-        } else if(event.getActionCommand().equals("Previous")) {
+        } else if (event.getActionCommand().equals("Previous")) {
             showPreviousPlot();
-        } else if(event.getActionCommand().equals("Colour Scale")) {
+        } else if (event.getActionCommand().equals("Colour Scale")) {
             callColourScaleDlg();
-        } else if(event.getActionCommand().equals("Export Readouts")) {
+        } else if (event.getActionCommand().equals("Export Readouts")) {
             exportReadouts();
-        } else if(event.getActionCommand().equals("Real")) {
+        } else if (event.getActionCommand().equals("Real")) {
             graphUnit = Unit.REAL;
             createPlot(currentRecord);
-        } else if(event.getActionCommand().equals("Imaginary")) {
+        } else if (event.getActionCommand().equals("Imaginary")) {
             graphUnit = Unit.IMAGINARY;
             createPlot(currentRecord);
-        } else if(event.getActionCommand().equals("Amplitude")) {
+        } else if (event.getActionCommand().equals("Amplitude")) {
             graphUnit = Unit.AMPLITUDE;
             createPlot(currentRecord);
-        } else if(event.getActionCommand().equals("Intensity")) {
+        } else if (event.getActionCommand().equals("Intensity")) {
             graphUnit = Unit.INTENSITY;
             createPlot(currentRecord);
         }
@@ -501,11 +503,11 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
     }
 
     private void exportReadouts() {
-        final File file = ResourceUtils.GetFilePath("Export Wave Mode Readout", "txt", "txt",
-                                   product.getName()+"_rec"+currentRecord, "Wave mode readout", true);
+        final File file = FileFolderUtils.GetFilePath("Export Wave Mode Readout", "txt", "txt",
+                product.getName() + "_rec" + currentRecord, "Wave mode readout", true);
         try {
             polarPanel.exportReadout(file);
-        } catch(Exception e) {
+        } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }
@@ -544,9 +546,9 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
 
         final Object src = e.getSource();
         final PolarCanvas polarCanvas = polarPanel.getPolarCanvas();
-        if(src == polarCanvas) {
+        if (src == polarCanvas) {
             final Axis axis = polarCanvas.selectAxis(e.getPoint());
-            if(axis != null && axis == polarCanvas.getColourAxis()) {
+            if (axis != null && axis == polarCanvas.getColourAxis()) {
                 callColourScaleDlg();
             }
         }
@@ -575,11 +577,11 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
     }
 
     private void updateReadout(MouseEvent evt) {
-        if(spectrum == null)
+        if (spectrum == null)
             return;
 
         final double rTh[] = polarPanel.getPolarCanvas().getRTheta(evt.getPoint());
-        if(rTh != null) {
+        if (rTh != null) {
             final float thFirst;
             final int thBin;
             final float thStep;
@@ -587,29 +589,29 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
             final int direction;
 
             final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
-            int wvBin = (int)(((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
+            int wvBin = (int) (((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
             wvBin = Math.min(wvBin, spectrum[0].length - 1);
-            final int wl = (int)Math.round(Math.exp((double)wvBin * rStep + Math.log(firstWLBin)));
+            final int wl = (int) Math.round(Math.exp((double) wvBin * rStep + Math.log(firstWLBin)));
 
-            if(waveProductType == WaveProductType.CROSS_SPECTRA) {
+            if (waveProductType == WaveProductType.CROSS_SPECTRA) {
                 thFirst = firstDirBins - 5f;
                 thStep = dirBinStep;
-                thBin = (int)(((rTh[1] - (double)thFirst) % 360.0) / (double)thStep);
+                thBin = (int) (((rTh[1] - (double) thFirst) % 360.0) / (double) thStep);
                 element = (thBin % (spectrum.length / 2)) * spectrum[0].length + wvBin;
-                direction = (int)((float)thBin * thStep + thStep / 2.0f + thFirst);
+                direction = (int) ((float) thBin * thStep + thStep / 2.0f + thFirst);
             } else {
                 thFirst = firstDirBins + 5f;
                 thStep = -dirBinStep;
-                thBin = (int)((((360.0 - rTh[1]) + (double)thFirst) % 360.0) / (double)(-thStep));
+                thBin = (int) ((((360.0 - rTh[1]) + (double) thFirst) % 360.0) / (double) (-thStep));
                 element = thBin * spectrum[0].length + wvBin;
-                direction = (int)(-((float)thBin * thStep + thStep / 2.0f + thFirst));
-            }             
+                direction = (int) (-((float) thBin * thStep + thStep / 2.0f + thFirst));
+            }
 
             final List<String> readoutList = new ArrayList<String>(5);
-            readoutList.add("Record: " + (currentRecord+1) + " of " + (numRecords+1));
+            readoutList.add("Record: " + (currentRecord + 1) + " of " + (numRecords + 1));
             readoutList.add("Wavelength: " + wl + " m");
             readoutList.add("Direction: " + direction + " deg");
-            readoutList.add("Bin: " + (thBin+1) + "," + (wvBin+1) + " Element: " + element);
+            readoutList.add("Bin: " + (thBin + 1) + "," + (wvBin + 1) + " Element: " + element);
             readoutList.add("Value: " + spectrum[thBin][wvBin]);
 
             polarPanel.setReadout(readoutList.toArray(new String[readoutList.size()]));

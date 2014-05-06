@@ -26,13 +26,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-   File list selection
+ * File list selection
  */
-public class FileListSelection extends AbstractSelection implements Transferable  {
+public class FileListSelection extends AbstractSelection implements Transferable {
 
     private static final DataFlavor[] flavors = {
-        DataFlavor.stringFlavor,
-	    DataFlavor.javaFileListFlavor
+            DataFlavor.stringFlavor,
+            DataFlavor.javaFileListFlavor
     };
 
     private final List<File> fileList = new ArrayList<File>();
@@ -54,10 +54,11 @@ public class FileListSelection extends AbstractSelection implements Transferable
     /**
      * Returns an array of flavors in which this <code>Transferable</code>
      * can provide the data. <code>DataFlavor.stringFlavor</code>
+     *
      * @return an array of flavors
      */
     public DataFlavor[] getTransferDataFlavors() {
-	    return flavors;
+        return flavors;
     }
 
     public boolean isDataFlavorSupported(final DataFlavor flavor) {
@@ -71,13 +72,13 @@ public class FileListSelection extends AbstractSelection implements Transferable
 
     /**
      * Returns the <code>Transferable</code>'s data in the requested <code>DataFlavor</code> if possible.
+     *
      * @param flavor the requested flavor for the data
      * @return the data in the requested flavor, as outlined above
      * @throws java.awt.datatransfer.UnsupportedFlavorException if the requested data flavor not supported
      */
     public Object getTransferData(final DataFlavor flavor)
-        throws UnsupportedFlavorException
-    {
+            throws UnsupportedFlavorException {
         if (flavor.equals(DataFlavor.javaFileListFlavor)) {
             return fileList;
         } else if (flavor.equals(DataFlavor.stringFlavor)) {

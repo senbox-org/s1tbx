@@ -36,7 +36,7 @@ public class EditMetadataAction extends ExecCommand {
         final Product product = VisatApp.getApp().getSelectedProduct();
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
-        if(absRoot != null) {
+        if (absRoot != null) {
             VisatApp.getApp().createProductMetadataView(absRoot);
         } else {
             // no attributes found

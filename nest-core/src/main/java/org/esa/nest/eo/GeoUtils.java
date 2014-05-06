@@ -23,21 +23,20 @@ import org.esa.nest.datamodel.Orbits;
 
 import static org.esa.beam.util.math.MathUtils.DTOR;
 
-public final class GeoUtils
-{
+public final class GeoUtils {
     private static final double EPS5 = 1e-5;
     private static final double EPS = 1e-10;
 
-    public enum EarthModel { WGS84, GRS80 }
+    public enum EarthModel {WGS84, GRS80}
 
-    private GeoUtils()
-    {
+    private GeoUtils() {
     }
 
     /**
      * Convert geodetic coordinate into cartesian XYZ coordinate (WGS84 geodetic system is used).
+     *
      * @param geoPos The geodetic coordinate of a given pixel.
-     * @param xyz The xyz coordinates of the given pixel.
+     * @param xyz    The xyz coordinates of the given pixel.
      */
     public static void geo2xyz(final GeoPos geoPos, final double xyz[]) {
         geo2xyz(geoPos.lat, geoPos.lon, 0.0, xyz, EarthModel.WGS84);
@@ -45,10 +44,11 @@ public final class GeoUtils
 
     /**
      * Convert geodetic coordinate into cartesian XYZ coordinate with specified geodetic system.
-     * @param latitude The latitude of a given pixel (in degree).
+     *
+     * @param latitude  The latitude of a given pixel (in degree).
      * @param longitude The longitude of the given pixel (in degree).
-     * @param altitude The altitude of the given pixel (in m)
-     * @param xyz The xyz coordinates of the given pixel.
+     * @param altitude  The altitude of the given pixel (in m)
+     * @param xyz       The xyz coordinates of the given pixel.
      * @param geoSystem The geodetic system.
      */
     public static void geo2xyz(final double latitude, final double longitude, final double altitude,
@@ -76,7 +76,7 @@ public final class GeoUtils
 
         final double sinLat = FastMath.sin(lat);
         final double cosLat = FastMath.cos(lat);
-        final double N = a / Math.sqrt(1 - e2*sinLat*sinLat);
+        final double N = a / Math.sqrt(1 - e2 * sinLat * sinLat);
 
         xyz[0] = (N + altitude) * cosLat * FastMath.cos(lon); // in m
         xyz[1] = (N + altitude) * cosLat * FastMath.sin(lon); // in m
@@ -85,10 +85,11 @@ public final class GeoUtils
 
     /**
      * Convert geodetic coordinate into cartesian XYZ coordinate with specified geodetic system.
-     * @param latitude The latitude of a given pixel (in degree).
+     *
+     * @param latitude  The latitude of a given pixel (in degree).
      * @param longitude The longitude of the given pixel (in degree).
-     * @param altitude The altitude of the given pixel (in m)
-     * @param xyz The xyz coordinates of the given pixel.
+     * @param altitude  The altitude of the given pixel (in m)
+     * @param xyz       The xyz coordinates of the given pixel.
      */
     public static void geo2xyzWGS84(final double latitude, final double longitude, final double altitude,
                                     final double xyz[]) {
@@ -97,7 +98,7 @@ public final class GeoUtils
         final double lon = longitude * org.esa.beam.util.math.MathUtils.DTOR;
 
         final double sinLat = FastMath.sin(lat);
-        final double N = (WGS84.a / Math.sqrt(1.0 - WGS84.e2*sinLat*sinLat));
+        final double N = (WGS84.a / Math.sqrt(1.0 - WGS84.e2 * sinLat * sinLat));
         final double NcosLat = (N + altitude) * FastMath.cos(lat);
 
         xyz[0] = NcosLat * FastMath.cos(lon); // in m
@@ -108,7 +109,8 @@ public final class GeoUtils
 
     /**
      * Convert cartesian XYZ coordinate into geodetic coordinate (WGS84 geodetic system is used).
-     * @param xyz The xyz coordinate of the given pixel.
+     *
+     * @param xyz    The xyz coordinate of the given pixel.
      * @param geoPos The geodetic coordinate of the given pixel.
      */
     public static void xyz2geo(final double xyz[], final GeoPos geoPos) {
@@ -117,8 +119,9 @@ public final class GeoUtils
 
     /**
      * Convert cartesian XYZ coordinate into geodetic coordinate with specified geodetic system.
-     * @param xyz The xyz coordinate of the given pixel.
-     * @param geoPos The geodetic coordinate of the given pixel.
+     *
+     * @param xyz       The xyz coordinate of the given pixel.
+     * @param geoPos    The geodetic coordinate of the given pixel.
      * @param geoSystem The geodetic system.
      */
     public static void xyz2geo(final double xyz[], final GeoPos geoPos, final EarthModel geoSystem) {
@@ -149,10 +152,10 @@ public final class GeoUtils
         final double x = xyz[0];
         final double y = xyz[1];
         final double z = xyz[2];
-        final double s = Math.sqrt(x*x + y*y);
-        final double theta = FastMath.atan(z*a/(s*b));
+        final double s = Math.sqrt(x * x + y * y);
+        final double theta = FastMath.atan(z * a / (s * b));
 
-        geoPos.lon = (float)(FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD);
+        geoPos.lon = (float) (FastMath.atan(y / x) * org.esa.beam.util.math.MathUtils.RTOD);
 
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
@@ -160,14 +163,15 @@ public final class GeoUtils
             geoPos.lon -= 180.0;
         }
 
-        geoPos.lat = (float)(FastMath.atan((z + ep2*b*FastMath.pow(FastMath.sin(theta), 3)) /
-                (s - e2*a*FastMath.pow(FastMath.cos(theta), 3))) *
+        geoPos.lat = (float) (FastMath.atan((z + ep2 * b * FastMath.pow(FastMath.sin(theta), 3)) /
+                (s - e2 * a * FastMath.pow(FastMath.cos(theta), 3))) *
                 org.esa.beam.util.math.MathUtils.RTOD);
     }
 
     /**
      * Convert cartesian XYZ coordinate into geodetic coordinate with specified geodetic system.
-     * @param xyz The xyz coordinate of the given pixel.
+     *
+     * @param xyz    The xyz coordinate of the given pixel.
      * @param geoPos The geodetic coordinate of the given pixel.
      */
     public static void xyz2geoWGS84(final double xyz[], final GeoPos geoPos) {
@@ -175,10 +179,10 @@ public final class GeoUtils
         final double x = xyz[0];
         final double y = xyz[1];
         final double z = xyz[2];
-        final double s = Math.sqrt(x*x + y*y);
-        final double theta = FastMath.atan(z*WGS84.a/(s*WGS84.b));
+        final double s = Math.sqrt(x * x + y * y);
+        final double theta = FastMath.atan(z * WGS84.a / (s * WGS84.b));
 
-        geoPos.lon = (float)(FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD);
+        geoPos.lon = (float) (FastMath.atan(y / x) * org.esa.beam.util.math.MathUtils.RTOD);
 
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
@@ -186,8 +190,8 @@ public final class GeoUtils
             geoPos.lon -= 180.0;
         }
 
-        geoPos.lat = (float)(FastMath.atan((z + WGS84.ep2*WGS84.b*FastMath.pow(FastMath.sin(theta), 3)) /
-                (s - WGS84.e2*WGS84.a*FastMath.pow(FastMath.cos(theta), 3))) *
+        geoPos.lat = (float) (FastMath.atan((z + WGS84.ep2 * WGS84.b * FastMath.pow(FastMath.sin(theta), 3)) /
+                (s - WGS84.e2 * WGS84.a * FastMath.pow(FastMath.cos(theta), 3))) *
                 org.esa.beam.util.math.MathUtils.RTOD);
     }
 
@@ -195,17 +199,17 @@ public final class GeoUtils
      * Convert polar coordinates to Cartesian vector.
      * <p>
      * <b>Definitions:<b/>
-     *  <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
-     *  <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
+     * <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
+     * <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
      * </p>
      * <p>
      * Note: Apache's FastMath used in implementation.
      * </p>
-     * @param latitude The latitude of a given pixel (in degree).
-     * @param longitude The longitude of the given pixel (in degree).
-     * @param radius The radius of the given point (in m)
-     * @param xyz The return array vector of X, Y and Z coordinates for the input point.
      *
+     * @param latitude  The latitude of a given pixel (in degree).
+     * @param longitude The longitude of the given pixel (in degree).
+     * @param radius    The radius of the given point (in m)
+     * @param xyz       The return array vector of X, Y and Z coordinates for the input point.
      * @author Petar Marikovic, PPO.labs
      */
     public static void polar2cartesian(final double latitude, final double longitude, final double radius, final double xyz[]) {
@@ -226,19 +230,19 @@ public final class GeoUtils
      * Convert Cartesian to Polar coordinates.
      * <p>
      * <b>Definitions:<b/>
-     *  <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
-     *  <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
+     * <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
+     * <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
      * </p>
      * <p>
-     *  Implementation Details: Unlike for rest of utility methods GeoPos class container is not used for storing polar
-     *  coordinates. GeoPos fields are declared as floats and can introduced numerical errors, especially in radius/height.
+     * Implementation Details: Unlike for rest of utility methods GeoPos class container is not used for storing polar
+     * coordinates. GeoPos fields are declared as floats and can introduced numerical errors, especially in radius/height.
      * </p>
      * <p>
-     *  Note: Apache's FastMath used in implementation.
+     * Note: Apache's FastMath used in implementation.
      * </p>
-     * @param xyz Array of x, y, and z coordinates.
-     * @param phiLamHeight Array of latitude (in radians), longitude (in radians), and radius (in meters).
      *
+     * @param xyz          Array of x, y, and z coordinates.
+     * @param phiLamHeight Array of latitude (in radians), longitude (in radians), and radius (in meters).
      * @author Petar Marikovic, PPO.labs
      */
     public static void cartesian2polar(final double[] xyz, final double[] phiLamHeight) {
@@ -252,16 +256,17 @@ public final class GeoUtils
 
     /**
      * Compute accurate target position for given orbit information using Newton's method.
+     *
      * @param data The orbit data.
-     * @param xyz The xyz coordinate for the target.
+     * @param xyz  The xyz coordinate for the target.
      * @param time The slant range time in seconds.
      */
     public static void computeAccurateXYZ(final Orbits.OrbitData data, final double[] xyz, final double time) {
 
         final double a = Constants.semiMajorAxis;
         final double b = Constants.semiMinorAxis;
-        final double a2 = a*a;
-        final double b2 = b*b;
+        final double a2 = a * a;
+        final double b2 = b * b;
         final double del = 0.001;
         final int maxIter = 10;
 
@@ -277,56 +282,57 @@ public final class GeoUtils
         J.set(0, 1, data.yVel);
         J.set(0, 2, data.zVel);
 
-        final double time2 = FastMath.pow(time*Constants.halfLightSpeed, 2.0);
+        final double time2 = FastMath.pow(time * Constants.halfLightSpeed, 2.0);
         for (int i = 0; i < maxIter; i++) {
 
-            final double x = X.get(0,0);
-            final double y = X.get(1,0);
-            final double z = X.get(2,0);
+            final double x = X.get(0, 0);
+            final double y = X.get(1, 0);
+            final double z = X.get(2, 0);
 
             final double dx = x - data.xPos;
             final double dy = y - data.yPos;
             final double dz = z - data.zPos;
 
-            F.set(0, 0, data.xVel*dx + data.yVel*dy + data.zVel*dz);
-            F.set(1, 0, dx*dx + dy*dy + dz*dz - time2);
-            F.set(2, 0, x*x/a2 + y*y/a2 + z*z/b2 - 1);
+            F.set(0, 0, data.xVel * dx + data.yVel * dy + data.zVel * dz);
+            F.set(1, 0, dx * dx + dy * dy + dz * dz - time2);
+            F.set(2, 0, x * x / a2 + y * y / a2 + z * z / b2 - 1);
 
-            J.set(1, 0, 2.0*dx);
-            J.set(1, 1, 2.0*dy);
-            J.set(1, 2, 2.0*dz);
-            J.set(2, 0, 2.0*x/a2);
-            J.set(2, 1, 2.0*y/a2);
-            J.set(2, 2, 2.0*z/b2);
+            J.set(1, 0, 2.0 * dx);
+            J.set(1, 1, 2.0 * dy);
+            J.set(1, 2, 2.0 * dz);
+            J.set(2, 0, 2.0 * x / a2);
+            J.set(2, 1, 2.0 * y / a2);
+            J.set(2, 2, 2.0 * z / b2);
 
             X = X.minus(J.inverse().times(F));
 
-            if (Math.abs(F.get(0,0)) <= del && Math.abs(F.get(1,0)) <= del && Math.abs(F.get(2,0)) <= del)  {
+            if (Math.abs(F.get(0, 0)) <= del && Math.abs(F.get(1, 0)) <= del && Math.abs(F.get(2, 0)) <= del) {
                 break;
             }
         }
 
-        xyz[0] = X.get(0,0);
-        xyz[1] = X.get(1,0);
-        xyz[2] = X.get(2,0);
+        xyz[0] = X.get(0, 0);
+        xyz[1] = X.get(1, 0);
+        xyz[2] = X.get(2, 0);
     }
 
     /**
-     // Given starting point GLON1,GLAT1, head1 = initial heading,and distance
-     // in meters, calculate destination GLON2,GLAT2, and head2=initial heading
-     // from destination to starting point
-
-     // Input:
-     // lon1:	longitude
-     // lat1:	latitude
-     // dist:	distance in m
-     // head1:	azimuth in degree measured in the diretion North east south west
-
-     // Output:
-     // GLON2:	longitude
-     // GLAT2:	latitude
-     // head2:	azimuth in degree measured in the direction North east south west
-     //			from (GLON2,GLAT2) to (GLON1, GLAT1)
+     * // Given starting point GLON1,GLAT1, head1 = initial heading,and distance
+     * // in meters, calculate destination GLON2,GLAT2, and head2=initial heading
+     * // from destination to starting point
+     * <p/>
+     * // Input:
+     * // lon1:	longitude
+     * // lat1:	latitude
+     * // dist:	distance in m
+     * // head1:	azimuth in degree measured in the diretion North east south west
+     * <p/>
+     * // Output:
+     * // GLON2:	longitude
+     * // GLAT2:	latitude
+     * // head2:	azimuth in degree measured in the direction North east south west
+     * //			from (GLON2,GLAT2) to (GLON1, GLAT1)
+     *
      * @param lon1
      * @param lat1
      * @param dist
@@ -339,7 +345,7 @@ public final class GeoUtils
 
         lat1 *= org.esa.beam.util.math.MathUtils.DTOR;
         lon1 *= org.esa.beam.util.math.MathUtils.DTOR;
-        final double  FAZ = head1 * org.esa.beam.util.math.MathUtils.DTOR;
+        final double FAZ = head1 * org.esa.beam.util.math.MathUtils.DTOR;
 
         // Model WGS84:
         //    F=1/298.25722210;	// flatteing
@@ -416,6 +422,7 @@ public final class GeoUtils
      * //			from (lon1,lat1) to (lon2, lat2)
      * // head2:	azimuth in degrees mesured in the direction North east south west
      * //			from (lon2,lat2) to (lon1, lat1)
+     *
      * @param lon1
      * @param lat1
      * @param lon2
@@ -489,10 +496,10 @@ public final class GeoUtils
         output.heading1 = FAZ * org.esa.beam.util.math.MathUtils.RTOD;
         output.heading2 = BAZ * org.esa.beam.util.math.MathUtils.RTOD;
 
-        while (output.heading1< 0)
+        while (output.heading1 < 0)
             output.heading1 += 360;
-        while (output.heading2<0)
-            output.heading2+=360;
+        while (output.heading2 < 0)
+            output.heading2 += 360;
 
         return output;
     }
@@ -512,7 +519,7 @@ public final class GeoUtils
     public static interface WGS84 {
         public static final double a = 6378137.0; // m
         public static final double b = 6356752.3142451794975639665996337; //6356752.31424518; // m
-        public static final double earthFlatCoef = 1.0 / ((a-b)/ a); //298.257223563;
+        public static final double earthFlatCoef = 1.0 / ((a - b) / a); //298.257223563;
         public static final double e2 = 2.0 / earthFlatCoef - 1.0 / (earthFlatCoef * earthFlatCoef);
         public static final double e2inv = 1 - WGS84.e2;
         public static final double ep2 = e2 / (1 - e2);
@@ -520,8 +527,8 @@ public final class GeoUtils
 
     public static interface GRS80 {
         public static final double a = 6378137; // m
-        public static final double b = 6356752.314140 ; // m
-        public static final double earthFlatCoef = 1.0 / ((a-b)/ a); //298.257222101;
+        public static final double b = 6356752.314140; // m
+        public static final double earthFlatCoef = 1.0 / ((a - b) / a); //298.257222101;
         public static final double e2 = 2.0 / earthFlatCoef - 1.0 / (earthFlatCoef * earthFlatCoef);
         public static final double ep2 = e2 / (1 - e2);
     }

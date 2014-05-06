@@ -38,8 +38,8 @@ public class CheckListDialog extends ModalDialog {
 
         final JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        
-        for(String name : items.keySet()) {
+
+        for (String name : items.keySet()) {
             final JCheckBox checkBox = new JCheckBox(name);
             checkBoxList.add(checkBox);
             content.add(checkBox);
@@ -53,7 +53,7 @@ public class CheckListDialog extends ModalDialog {
     }
 
     protected void onOK() {
-        for(JCheckBox checkBox : checkBoxList) {
+        for (JCheckBox checkBox : checkBoxList) {
             items.put(checkBox.getText(), checkBox.isSelected());
         }
 

@@ -5,14 +5,14 @@
 
 <map version="2.0">
 
-	<!--Graph Processing-->
-	<mapID target="introduction" url="operators/introduction.html"/>
-	<mapID target="gpt" url="operators/gpt.html"/>
-	<mapID target="graph_builder" url="operators/graph_builder.html"/>
-	<mapID target="batchProcessing" url="operators/batch_processing.html"/>
-	
-	<!--Utility Operators-->
-	<mapID target="SubsetOp" url="operators/SubsetOp.html"/>
-	<mapID target="BandArithmeticOp" url="operators/BandArithmeticOp.html"/>
-	
+    <!--Graph Processing-->
+    <mapID target="introduction" url="operators/introduction.html"/>
+    <mapID target="gpt" url="operators/gpt.html"/>
+    <mapID target="graph_builder" url="operators/graph_builder.html"/>
+    <mapID target="batchProcessing" url="operators/batch_processing.html"/>
+
+    <!--Utility Operators-->
+    <mapID target="SubsetOp" url="operators/SubsetOp.html"/>
+    <mapID target="BandArithmeticOp" url="operators/BandArithmeticOp.html"/>
+
 </map>

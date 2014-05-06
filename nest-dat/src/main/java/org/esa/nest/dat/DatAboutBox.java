@@ -39,7 +39,7 @@ class DatAboutBox extends ModalDialog {
     }
 
     private DatAboutBox(JButton[] others) {
-        super(DatApp.getApp().getMainFrame(), "About "+DatApp.getApp().getAppName(),
+        super(DatApp.getApp().getMainFrame(), "About " + DatApp.getApp().getAppName(),
                 ModalDialog.ID_OK, others, null);    /*I18N*/
 
         final JButton creditsButton = others[0];
@@ -59,7 +59,7 @@ class DatAboutBox extends ModalDialog {
         });
 
         final File homeFolder = ResourceUtils.findHomeFolder();
-        final File imgFile = new File(homeFolder, "res"+File.separator+"s1tbx_logo.png");
+        final File imgFile = new File(homeFolder, "res" + File.separator + "s1tbx_logo.png");
         final Icon icon = new ImageIcon(imgFile.getAbsolutePath());
 
         final JLabel imageLabel = new JLabel(icon);
@@ -102,39 +102,39 @@ class DatAboutBox extends ModalDialog {
     }
 
     private static String getVersionHtml() {
-        final String ver = System.getProperty(ResourceUtils.getContextID()+".version");
+        final String ver = System.getProperty(ResourceUtils.getContextID() + ".version");
         final String pattern =
                 "<html>" +
-                "<b>NEST  Version "+ver+"</b>" +
-                "<br>(c) Copyright 2007-2013 by Array Systems Computing Inc. and contributors. All rights reserved." +
-                "<br>Visit http://www.array.ca/nest" +
-                "<br>" +
-                "<b>JLINDA</b>" +
-                "<br>(c) Copyright 2009-2013 by PPO.labs and contributors. All rights reserved." +
-                "<br>" +
-                "<b>BEAM </b>" +
-                "<br>(c) Copyright 2002-2013 by Brockmann Consult and contributors. All rights reserved." +
-                "<br>Visit http://www.brockmann-consult.de/beam/" +
-                "<br>" +
-                "<br>This program has been developed under contract to ESA (ESRIN)." +
-                "<br>Visit http://envisat.esa.int/services/" +
-                "<br>" +
-                "<br>This program is free software; you can redistribute it and/or modify it" +
-                "<br>under the terms of the GNU General Public License as published by the" +
-                "<br>Free Software Foundation. This program is distributed in the hope it will be" +
-                "<br>useful, but WITHOUT ANY WARRANTY; without even the implied warranty" +
-                "<br>of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
-                "<br>See the GNU General Public License for more details." +
-                "<br>" +
-                "<br>This product includes software developed by Unidata and NCSA" +
-                "<br>Visit http://www.unidata.ucar.edu/ and http://hdf.ncsa.uiuc.edu/" +
-                "</html>";
+                        "<b>NEST  Version " + ver + "</b>" +
+                        "<br>(c) Copyright 2007-2013 by Array Systems Computing Inc. and contributors. All rights reserved." +
+                        "<br>Visit http://www.array.ca/nest" +
+                        "<br>" +
+                        "<b>JLINDA</b>" +
+                        "<br>(c) Copyright 2009-2013 by PPO.labs and contributors. All rights reserved." +
+                        "<br>" +
+                        "<b>BEAM </b>" +
+                        "<br>(c) Copyright 2002-2013 by Brockmann Consult and contributors. All rights reserved." +
+                        "<br>Visit http://www.brockmann-consult.de/beam/" +
+                        "<br>" +
+                        "<br>This program has been developed under contract to ESA (ESRIN)." +
+                        "<br>Visit http://envisat.esa.int/services/" +
+                        "<br>" +
+                        "<br>This program is free software; you can redistribute it and/or modify it" +
+                        "<br>under the terms of the GNU General Public License as published by the" +
+                        "<br>Free Software Foundation. This program is distributed in the hope it will be" +
+                        "<br>useful, but WITHOUT ANY WARRANTY; without even the implied warranty" +
+                        "<br>of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
+                        "<br>See the GNU General Public License for more details." +
+                        "<br>" +
+                        "<br>This product includes software developed by Unidata and NCSA" +
+                        "<br>Visit http://www.unidata.ucar.edu/ and http://hdf.ncsa.uiuc.edu/" +
+                        "</html>";
         return pattern; /*I18N*/
     }
 
     private static String getCreditsHtml() {
         return "<html>" +
-                "<hr><center><u><b>The NEST team</b></u></center>"+
+                "<hr><center><u><b>The NEST team</b></u></center>" +
                 "<b>Array Systems Computing</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
@@ -167,7 +167,7 @@ class DatAboutBox extends ModalDialog {
                 "</td></tr>" +
                 "</table>" +
 
-                "<hr><center><u><b>The RSTB team</b></u></center>"+
+                "<hr><center><u><b>The RSTB team</b></u></center>" +
                 "<b>Array Systems Computing</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +

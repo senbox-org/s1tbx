@@ -23,9 +23,9 @@ import java.io.File;
 
 /**
  * Defines a File in a Project
-* User: lveci
-* Date: Aug 28, 2008
-*/
+ * User: lveci
+ * Date: Aug 28, 2008
+ */
 public class ProjectFile {
     private final File file;
     private final String displayName;
@@ -40,19 +40,19 @@ public class ProjectFile {
 
     void setFolderType(ProjectSubFolder.FolderType folder) {
         folderType = folder;
-        if(folderType == ProjectSubFolder.FolderType.GRAPH) {
+        if (folderType == ProjectSubFolder.FolderType.GRAPH) {
             try {
                 Graph graph = GPFProcessor.readGraph(file, null);
-                if(graph != null) {
+                if (graph != null) {
                     XppDom presXML = graph.getApplicationData("Presentation");
-                    if(presXML != null) {
+                    if (presXML != null) {
                         XppDom descXML = presXML.getChild("Description");
-                        if(descXML != null && descXML.getValue() != null) {
+                        if (descXML != null && descXML.getValue() != null) {
                             tooltipText = descXML.getValue();
                         }
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

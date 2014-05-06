@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.geom.Line2D;
 
 /**
-   Draws an arrow overlay
+ * Draws an arrow overlay
  */
 public class ArrowOverlay {
 
@@ -28,8 +28,7 @@ public class ArrowOverlay {
         this.text = text;
     }
 
-    private void createArrow(final int x, final int y, final int xx, final int yy)
-    {
+    private void createArrow(final int x, final int y, final int xx, final int yy) {
         ipts[0] = x;
         ipts[1] = y;
         ipts[2] = xx;
@@ -40,34 +39,34 @@ public class ArrowOverlay {
         final double d3;
         final double size = 2.0;
         //final int headSize = Math.max(5, (int)((xx-x)*0.1));
-        final int headSize = Math.max(3, (int)size);
-        if(d2 > (3.0 * headSize))
+        final int headSize = Math.max(3, (int) size);
+        if (d2 > (3.0 * headSize))
             d3 = headSize;
         else
             d3 = d2 / 3.0;
-        if(d2 < 1.0)
+        if (d2 < 1.0)
             d2 = 1.0;
 
         final double d4 = (d3 * d) / d2;
         final double d5 = -((d3 * d1) / d2);
-        final double d6 = (double)xx - size * d4;
-        final double d7 = (double)yy - size * d5;
-        ipts[4] = (int)(d6 - d5);
-        ipts[5] = (int)(d7 + d4);
-        ipts[6] = (int)(d6 + d5);
-        ipts[7] = (int)(d7 - d4);
+        final double d6 = (double) xx - size * d4;
+        final double d7 = (double) yy - size * d5;
+        ipts[4] = (int) (d6 - d5);
+        ipts[5] = (int) (d7 + d4);
+        ipts[6] = (int) (d6 + d5);
+        ipts[7] = (int) (d7 - d4);
 
         // text point
-        ipts[8] = xx + (d/10.0);
-        ipts[9] = yy - (d1/10.0);
+        ipts[8] = xx + (d / 10.0);
+        ipts[9] = yy - (d1 / 10.0);
     }
 
     public void drawArrow(final Graphics2D g, final ScreenPixelConverter screenPixel) {
 
         screenPixel.pixelToScreen(ipts, vpts);
-        headPoint = new Point((int)vpts[0], (int)vpts[1]);
-        tailPoint = new Point((int)vpts[2], (int)vpts[3]);
-        textPoint = new Point((int)vpts[8], (int)vpts[9]);
+        headPoint = new Point((int) vpts[0], (int) vpts[1]);
+        tailPoint = new Point((int) vpts[2], (int) vpts[3]);
+        textPoint = new Point((int) vpts[8], (int) vpts[9]);
 
         g.setColor(outlineColour);
         g.setStroke(thickStroke);
@@ -79,7 +78,7 @@ public class ArrowOverlay {
         paintTriangleArrowHead(g);
         paintStraightBody(g);
 
-        if(text != null) {
+        if (text != null) {
             paintText(g);
         }
     }
@@ -92,10 +91,10 @@ public class ArrowOverlay {
         g.draw(new Line2D.Double(vpts[4], vpts[5], vpts[2], vpts[3]));
         g.draw(new Line2D.Double(vpts[6], vpts[7], vpts[2], vpts[3]));
         final Polygon head = new Polygon();
-        head.addPoint((int)vpts[4], (int)vpts[5]);
-        head.addPoint((int)vpts[2], (int)vpts[3]);
-        head.addPoint((int)vpts[6], (int)vpts[7]);
-        head.addPoint((int)vpts[4], (int)vpts[5]);
+        head.addPoint((int) vpts[4], (int) vpts[5]);
+        head.addPoint((int) vpts[2], (int) vpts[3]);
+        head.addPoint((int) vpts[6], (int) vpts[7]);
+        head.addPoint((int) vpts[4], (int) vpts[5]);
         g.fill(head);
     }
 

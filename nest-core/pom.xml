@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.esa.nest</groupId>
-		<artifactId>s1tbx</artifactId>
+        <artifactId>s1tbx</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
@@ -27,13 +27,9 @@
             <artifactId>beam-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-		</dependency>
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
@@ -46,7 +42,7 @@
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>sevenzipjbinding</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>native-libs</artifactId>
         </dependency>

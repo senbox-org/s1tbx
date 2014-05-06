@@ -28,12 +28,12 @@ import java.io.*;
  */
 public class ZipUtils {
 
-    private final static String[] extList = { ".zip", ".gz", ".z", ".7z" };
+    private final static String[] extList = {".zip", ".gz", ".z", ".7z"};
 
     public static boolean isZipped(final File file) {
         final String name = file.getName().toLowerCase();
-        for(String ext : extList) {
-            if(name.endsWith(ext))
+        for (String ext : extList) {
+            if (name.endsWith(ext))
                 return true;
         }
         return false;
@@ -52,7 +52,7 @@ public class ZipUtils {
                 in[i] = i;
             }
             final ExtractCallback extractCB = new ExtractCallback(inArchive, inFile, outFolder);
-            inArchive.extract(in, false,  extractCB);
+            inArchive.extract(in, false, extractCB);
 
             return extractCB.getTargetFiles();
         } finally {
@@ -96,11 +96,12 @@ public class ZipUtils {
 
         private final ISimpleInArchiveItem item;
         private ByteArrayInputStream arrayInputStream;
+
         public ArchiveInputStreamHandler(final ISimpleInArchiveItem item) {
             this.item = item;
         }
 
-        public InputStream getInputStream() throws SevenZipException{
+        public InputStream getInputStream() throws SevenZipException {
 
             item.extractSlow(new ISequentialOutStream() {
                 @Override
@@ -135,7 +136,7 @@ public class ZipUtils {
         }
 
         public ISequentialOutStream getStream(final int index, final ExtractAskMode extractAskMode)
-                                              throws SevenZipException {
+                throws SevenZipException {
             this.index = index;
             skipExtraction = (Boolean) inArchive.getProperty(index, PropID.IS_FOLDER);
             if (skipExtraction || extractAskMode != ExtractAskMode.EXTRACT) {
@@ -152,8 +153,8 @@ public class ZipUtils {
                             current = index;
 
                             Object path = inArchive.getProperty(index, PropID.PATH);
-                            if(path == null) {
-                                path = FileUtils.getFilenameWithoutExtension(inFile);   
+                            if (path == null) {
+                                path = FileUtils.getFilenameWithoutExtension(inFile);
                             }
                             final File target = new File(outFolder, String.valueOf(path));
                             targetFiles[index] = target;
@@ -186,7 +187,7 @@ public class ZipUtils {
             } catch (Exception ex) {
                 //
             }
-            
+
             if (extractOperationResult != ExtractOperationResult.OK) {
                 //System.err.println("Extraction error");
             } else {
