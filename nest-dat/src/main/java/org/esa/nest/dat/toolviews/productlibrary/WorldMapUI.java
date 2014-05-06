@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
-import org.esa.nest.db.AOI;
+import org.esa.nest.db.GeoPosList;
 import org.esa.nest.db.ProductEntry;
 
 import javax.swing.event.MouseInputAdapter;
@@ -86,21 +86,21 @@ public class WorldMapUI {
         return worlMapPane;
     }
 
-    public void setAOIList(final AOI[] aoiList) {
+    public void setAOIList(final GeoPosList[] aoiList) {
         final GeoPos[][] geoBoundaries = new GeoPos[aoiList.length][4];
         int i = 0;
-        for(AOI aoi : aoiList) {
-            geoBoundaries[i++] = aoi.getAOIPoints();
+        for(GeoPosList aoi : aoiList) {
+            geoBoundaries[i++] = aoi.getPoints();
         }
 
         worldMapDataModel.setAdditionalGeoBoundaries(geoBoundaries);
     }
 
-    public void setSelectedAOIList(final AOI[] selectedAOIList) {
+    public void setSelectedAOIList(final GeoPosList[] selectedAOIList) {
         final GeoPos[][] geoBoundaries = new GeoPos[selectedAOIList.length][4];
         int i = 0;
-        for(AOI aoi : selectedAOIList) {
-            geoBoundaries[i++] = aoi.getAOIPoints();
+        for(GeoPosList aoi : selectedAOIList) {
+            geoBoundaries[i++] = aoi.getPoints();
         }
 
         worldMapDataModel.setSelectedGeoBoundaries(geoBoundaries);

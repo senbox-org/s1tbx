@@ -128,8 +128,8 @@
             <mnemonic>W</mnemonic>
             <accelerator>ctrl alt W</accelerator>
             <description>Display product boundaries in a world map.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/WorldMap16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/WorldMap24.gif</largeIcon>
+            <smallIcon>/org/esa/nest/icons/WorldMap16.png</smallIcon>
+            <largeIcon>/org/esa/nest/icons/WorldMap24.png</largeIcon>
             <helpId>showWorldMapWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>

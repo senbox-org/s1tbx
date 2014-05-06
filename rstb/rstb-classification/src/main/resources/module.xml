@@ -22,6 +22,9 @@
         <module>nest-core</module>
     </dependency>
     <dependency>
+        <module>nest-dat</module>
+    </dependency>
+    <dependency>
         <module>nest-graph-builder</module>
     </dependency>
     <dependency>

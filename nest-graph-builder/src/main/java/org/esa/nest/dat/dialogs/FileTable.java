@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dat.dialogs;
 
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.db.ProductEntry;
 import org.esa.nest.util.ClipboardUtils;
 import org.esa.nest.util.ProductFunctions;
@@ -116,9 +117,15 @@ public class FileTable extends JTable {
     }
 
     private void paste() {
-        final File[] fileList = ClipboardUtils.getClipboardFileList();
-        if (fileList != null) {
-            setFiles(fileList);
+        try {
+            final File[] fileList = ClipboardUtils.getClipboardFileList();
+            if (fileList != null) {
+                setFiles(fileList);
+            }
+        } catch (Exception e) {
+            if(VisatApp.getApp() != null) {
+                VisatApp.getApp().showErrorDialog("Unable to paste from clipboard: "+e.getMessage());
+            }
         }
     }
 

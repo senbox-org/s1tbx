@@ -35,8 +35,16 @@ public class TestConnectivityAction extends ExecCommand {
         final String delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ERS2_precise_remotePath");
 
         boolean failed = false;
+        boolean result;
+        Exception exception1 = null, exception2 = null;
         String msg1 = "Connection to FTP "+ remoteFTPSRTM + remotePathSRTM;
-        if(ftpUtils.testFTP(remoteFTPSRTM, remotePathSRTM)) {
+        try {
+            result = ftpUtils.testFTP(remoteFTPSRTM, remotePathSRTM);
+        } catch (Exception e) {
+            result = false;
+            exception1 = e;
+        }
+        if(result) {
             msg1 += " PASSED";
         } else {
             msg1 += " FAILED";
@@ -44,7 +52,13 @@ public class TestConnectivityAction extends ExecCommand {
         }
 
         String msg2 = "Connection to FTP "+ delftFTP + delftFTPPath;
-        if(ftpUtils.testFTP(delftFTP, delftFTPPath)) {
+        try {
+            result = ftpUtils.testFTP(delftFTP, delftFTPPath);
+        } catch (Exception e) {
+            result = false;
+            exception2 = e;
+        }
+        if(result) {
             msg2 += " PASSED";
         } else {
             msg2 += " FAILED";
@@ -55,6 +69,10 @@ public class TestConnectivityAction extends ExecCommand {
         if(failed) {
             msg += "\n\nPlease verify that all paths are correct in your $NEST_HOME/config/settings.xml";
             msg += "\nAlso verify that FTP is not blocked by your firewall.";
+            if(exception1 != null)
+                msg +="\n\n"+exception1.getMessage();
+            if(exception2 != null)
+                msg +="\n\n"+exception2.getMessage();
         }
         VisatApp.getApp().showInfoDialog(msg, null);
     }

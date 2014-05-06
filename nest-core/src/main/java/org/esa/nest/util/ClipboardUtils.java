@@ -16,14 +16,15 @@
 package org.esa.nest.util;
 
 import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.db.FileListSelection;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ public class ClipboardUtils {
 
     /**
      * Copies the given text to the system clipboard.
+     *
      * @param text the text to copy
      */
     public static void copyToClipboard(final String text) {
@@ -47,22 +49,20 @@ public class ClipboardUtils {
 
     /**
      * Retrieves text from the system clipboard.
+     *
      * @return string
      */
-    public static String getClipboardString() {
-        try {
+    public static String getClipboardString() throws IOException, UnsupportedFlavorException {
             final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             if (clipboard != null) {
-                return (String)clipboard.getData(DataFlavor.stringFlavor);
+                return (String) clipboard.getData(DataFlavor.stringFlavor);
             }
-        } catch(Exception e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
-        }
         return null;
     }
 
     /**
      * Copies the given file list to the system clipboard.
+     *
      * @param fileList the list to copy
      */
     public static void copyToClipboard(final File[] fileList) {
@@ -77,17 +77,14 @@ public class ClipboardUtils {
 
     /**
      * Retrieves a list of files from the system clipboard.
+     *
      * @return file[] list
      */
-    public static File[] getClipboardFileList() {
-        try {
-            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            if (clipboard != null) {
-                final List<File> fileList = (List<File>)clipboard.getData(DataFlavor.javaFileListFlavor);
-                return fileList.toArray(new File[fileList.size()]);
-            }
-        } catch(Exception e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+    public static File[] getClipboardFileList() throws IOException, UnsupportedFlavorException {
+        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        if (clipboard != null) {
+            final List<File> fileList = (List<File>) clipboard.getData(DataFlavor.javaFileListFlavor);
+            return fileList.toArray(new File[fileList.size()]);
         }
         return new File[0];
     }

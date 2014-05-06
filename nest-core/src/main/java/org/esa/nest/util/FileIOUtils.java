@@ -75,7 +75,7 @@ public class FileIOUtils {
             this.isMove = move;
         }
 
-        private boolean copyFile(final Path source, final Path target) {
+        private boolean copyFile(final Path source, final Path target) throws IOException {
             try {
                 if(isMove)
                     Files.move(source, target, ATOMIC_MOVE, REPLACE_EXISTING);
@@ -85,9 +85,6 @@ public class FileIOUtils {
                 // ignore
             } catch (NoSuchFileException x) {
                 // ignore
-            } catch (IOException e) {
-                ErrorHandler.reportError(e.toString());
-                return false;
             }
             return true;
         }

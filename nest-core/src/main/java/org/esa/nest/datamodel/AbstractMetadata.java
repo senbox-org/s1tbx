@@ -16,7 +16,6 @@
 package org.esa.nest.datamodel;
 
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.StringUtils;
 
 import java.io.File;
@@ -440,6 +439,8 @@ public final class AbstractMetadata {
      * @param value the string value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final String value) {
+        if(dest == null)
+            return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
         if(attrib != null && value != null) {
             if(value.isEmpty())
@@ -461,6 +462,8 @@ public final class AbstractMetadata {
      * @param value the UTC value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final ProductData.UTC value) {
+        if(dest == null)
+            return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
         if(attrib != null && value != null) {
             attrib.getData().setElems(value.getArray());
@@ -479,6 +482,8 @@ public final class AbstractMetadata {
      * @param value the string value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final int value) {
+        if(dest == null)
+            return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
         if(attrib == null)
             System.out.println(tag + " not found in metadata");
@@ -493,6 +498,8 @@ public final class AbstractMetadata {
      * @param value the string value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final double value) {
+        if(dest == null)
+            return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
         if(attrib == null)
             System.out.println(tag + " not found in metadata");
@@ -501,6 +508,8 @@ public final class AbstractMetadata {
     }
 
     public static void setAttribute(final MetadataElement dest, final String tag, final Double value) {
+        if(dest == null)
+            return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
         if(attrib == null)
             System.out.println(tag + " not found in metadata");
@@ -582,13 +591,12 @@ public final class AbstractMetadata {
      * Check if abstracted metadata exists.
      * @param sourceProduct the product
      * @return true if abstractmetadata exists
-     * @throws OperatorException if abs metadata not found
      */
-    public static boolean hasAbstractedMetadata(final Product sourceProduct) throws OperatorException {
+    public static boolean hasAbstractedMetadata(final Product sourceProduct) {
 
         final MetadataElement root = sourceProduct.getMetadataRoot();
         if (root == null) {
-            throw new OperatorException("Root Metadata not found");
+            return false;
         }
         MetadataElement abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         return (abstractedMetadata != null);
@@ -597,14 +605,13 @@ public final class AbstractMetadata {
     /**
      * Get abstracted metadata.
      * @param sourceProduct the product
-     * @return MetadataElement
-     * @throws OperatorException if abs metadata not found
+     * @return MetadataElement or null if no root found
      */
-    public static MetadataElement getAbstractedMetadata(final Product sourceProduct) throws OperatorException {
+    public static MetadataElement getAbstractedMetadata(final Product sourceProduct) {
 
         final MetadataElement root = sourceProduct.getMetadataRoot();
         if (root == null) {
-            throw new OperatorException("Root Metadata not found");
+            return null;
         }
         MetadataElement abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         if (abstractedMetadata == null) {
@@ -708,13 +715,12 @@ public final class AbstractMetadata {
      * Get orbit state vectors.
      * @param absRoot Abstracted metadata root.
      * @return orbitStateVectors Array of orbit state vectors.
-     * @throws OperatorException The exceptions.
      */
-    public static OrbitStateVector[] getOrbitStateVectors(final MetadataElement absRoot) throws OperatorException {
+    public static OrbitStateVector[] getOrbitStateVectors(final MetadataElement absRoot) {
 
         final MetadataElement elemRoot = absRoot.getElement(orbit_state_vectors);
         if(elemRoot == null) {
-            throw new OperatorException("This product has no orbit state vectors");
+            return new OrbitStateVector[] {};
         }
         final int numElems = elemRoot.getNumElements();
         final OrbitStateVector[] orbitStateVectors = new OrbitStateVector[numElems];
@@ -738,13 +744,14 @@ public final class AbstractMetadata {
      * Set orbit state vectors.
      * @param absRoot Abstracted metadata root.
      * @param orbitStateVectors The orbit state vectors.
+     * @throws Exception if orbit state vector length is not correct
      */
-    public static void setOrbitStateVectors(final MetadataElement absRoot, OrbitStateVector[] orbitStateVectors) {
+    public static void setOrbitStateVectors(final MetadataElement absRoot, OrbitStateVector[] orbitStateVectors) throws Exception {
 
         final MetadataElement elemRoot = absRoot.getElement(orbit_state_vectors);
         final int numElems = elemRoot.getNumElements();
         if (numElems != orbitStateVectors.length) {
-            throw new OperatorException("Length of orbit state vector array is not correct");
+            throw new Exception("Length of orbit state vector array is not correct");
         }
 
         for (int i = 0; i < numElems; i++) {

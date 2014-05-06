@@ -19,7 +19,6 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.StatusProgressMonitor;
 import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.ZipUtils;
 import org.esa.nest.util.ftpUtils;
 
 import java.io.*;
