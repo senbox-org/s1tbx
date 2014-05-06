@@ -23,11 +23,10 @@ import com.bc.ceres.swing.TableLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import static com.bc.ceres.swing.TableLayout.cell;
+import static com.bc.ceres.swing.TableLayout.*;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
