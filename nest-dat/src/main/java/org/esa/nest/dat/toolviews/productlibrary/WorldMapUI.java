@@ -17,8 +17,8 @@ package org.esa.nest.dat.toolviews.productlibrary;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.WorldMapPane;
-import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
+import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPaneDataModel;
 import org.esa.nest.db.GeoPosList;
 import org.esa.nest.db.ProductEntry;
 
@@ -32,14 +32,14 @@ import java.util.List;
  */
 public class WorldMapUI {
 
-    private final WorldMapPaneDataModel worldMapDataModel;
+    private final NestWorldMapPaneDataModel worldMapDataModel;
     private final NestWorldMapPane worlMapPane;
 
     private final List<DatabaseQueryListener> listenerList = new ArrayList<DatabaseQueryListener>(1);
 
     public WorldMapUI() {
 
-        worldMapDataModel = new WorldMapPaneDataModel();
+        worldMapDataModel = new NestWorldMapPaneDataModel();
         worlMapPane = new NestWorldMapPane(worldMapDataModel);
         worlMapPane.getLayerCanvas().addMouseListener(new MouseHandler());
     }
@@ -82,7 +82,7 @@ public class WorldMapUI {
         }
     }
 
-    public WorldMapPane getWorlMapPane() {
+    public NestWorldMapPane getWorlMapPane() {
         return worlMapPane;
     }
 
@@ -132,7 +132,7 @@ public class WorldMapUI {
         worldMapDataModel.setSelectedGeoBoundaries(geoBoundaries);
     }
 
-    public WorldMapPaneDataModel getModel() {
+    public NestWorldMapPaneDataModel getModel() {
         return worldMapDataModel;
     }
 
