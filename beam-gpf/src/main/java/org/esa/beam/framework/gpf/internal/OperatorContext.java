@@ -1098,10 +1098,13 @@ public class OperatorContext {
     private void configureOperator(OperatorConfiguration operatorConfiguration)
             throws ValidationException, ConversionException {
 
-        Class<? extends Operator> operatorType = getOperatorSpi().getOperatorDescriptor().getOperatorClass();
+        OperatorDescriptor operatorDescriptor = getOperatorSpi().getOperatorDescriptor();
         ParameterDescriptorFactory descriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        PropertySetDescriptor propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
 
+        PropertySetDescriptor propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor,
+                                                                                                     descriptorFactory.getSourceProductMap());
+
+        Class<? extends Operator> operatorType = operatorDescriptor.getOperatorClass();
         DefaultDomConverter domConverter = new DefaultDomConverter(operatorType, descriptorFactory, propertySetDescriptor);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), getParameterSet());
 

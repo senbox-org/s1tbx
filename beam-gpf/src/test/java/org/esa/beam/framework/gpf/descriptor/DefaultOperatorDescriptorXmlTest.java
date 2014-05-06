@@ -2,10 +2,9 @@ package org.esa.beam.framework.gpf.descriptor;
 
 import org.junit.Test;
 
-import java.io.StringWriter;
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -105,7 +104,7 @@ public class DefaultOperatorDescriptorXmlTest {
     @Test
     public void testXmlOfCollocOp() {
         URL url = getClass().getResource("CollocOp-descriptor.xml");
-        DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(url);
+        DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(url, DefaultOperatorDescriptor.class.getClassLoader());
         assertXmlCorrect(descriptor, "<operator>\n" +
                                      "  <name>com.acme.CollocOp</name>\n" +
                                      "  <alias>colloc</alias>\n" +
@@ -143,7 +142,7 @@ public class DefaultOperatorDescriptorXmlTest {
     @Test
     public void testXmlOfStatsOp() {
         URL url = getClass().getResource("StatsOp-descriptor.xml");
-        DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(url);
+        DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(url, DefaultOperatorDescriptor.class.getClassLoader());
         assertXmlCorrect(descriptor, "<operator>\n" +
                                      "  <name>com.acme.StatsOp</name>\n" +
                                      "  <alias>stats</alias>\n" +
@@ -183,8 +182,7 @@ public class DefaultOperatorDescriptorXmlTest {
     }
 
     private void assertXmlCorrect(DefaultOperatorDescriptor operatorDescriptor, String expectedXml) {
-        StringWriter sw = new StringWriter();
-        String actualXml = operatorDescriptor.toXml();
+        String actualXml = operatorDescriptor.toXml(DefaultOperatorDescriptor.class.getClassLoader());
         assertEquals(expectedXml, actualXml);
     }
 }

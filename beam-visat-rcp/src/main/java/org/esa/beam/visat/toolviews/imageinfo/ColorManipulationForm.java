@@ -340,6 +340,7 @@ class ColorManipulationForm {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 exportColorPaletteDef();
+                ColorPalettesManager.loadAvailableColorPalettes(getIODir());
             }
         });
         exportButton.setEnabled(true);

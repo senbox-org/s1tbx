@@ -1,4 +1,4 @@
 # In order to introduce the python operator implementations to BEAM they need to be listed in this file. On each
 # line a operator is specified by its relative python module path and its python class name. Both elements need
 # to be separated by one or more white spaces.
-ndvi_op                MerisNdviTileComputer
+ndvi_op                NdviComputer

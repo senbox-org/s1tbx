@@ -260,8 +260,7 @@ class CommandLineTool implements GraphProcessingObserver {
         Product targetProduct = operator.getTargetProduct();
 
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        boolean autoWriteDisabled = operator instanceof Output
-                                      || operatorDescriptor.isAutoWriteDisabled();
+        boolean autoWriteDisabled = operator instanceof Output || operatorDescriptor.isAutoWriteDisabled();
         if (autoWriteDisabled) {
             // operator has its own output management, we "execute" by pulling at tiles
             final OperatorExecutor executor = OperatorExecutor.create(operator);
@@ -275,12 +274,10 @@ class CommandLineTool implements GraphProcessingObserver {
 
         // Fill velocity context with operator metadata
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
-        if (operator != null) {
-            velocityContext.put("operator", operator);
-            velocityContext.put("operatorSpi", operatorSpi);
-            velocityContext.put("operatorMetadata", operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class));
-            velocityContext.put("operatorDescriptor", operatorSpi.getOperatorDescriptor());
-        }
+        velocityContext.put("operator", operator);
+        velocityContext.put("operatorSpi", operatorSpi);
+        velocityContext.put("operatorMetadata", operatorDescriptor.getOperatorClass().getAnnotation(OperatorMetadata.class));
+        velocityContext.put("operatorDescriptor", operatorDescriptor);
         velocityContext.put("operatorName", operatorName);
         velocityContext.put("parameters", parameters); // Check if we should use parameterMap here (nf)
         velocityContext.put("sourceProduct", sourceProducts.get("sourceProduct"));
@@ -327,8 +324,7 @@ class CommandLineTool implements GraphProcessingObserver {
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
 
         boolean autoWriteDisabled = false;
-        if (Output.class.isAssignableFrom(operatorSpi.getOperatorClass())
-            || operatorDescriptor != null && operatorDescriptor.isAutoWriteDisabled()) {
+        if (Output.class.isAssignableFrom(operatorDescriptor.getOperatorClass()) || operatorDescriptor.isAutoWriteDisabled()) {
             autoWriteDisabled = true;
         }
 
@@ -375,8 +371,7 @@ class CommandLineTool implements GraphProcessingObserver {
                 OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
                 OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
                 Class<? extends Operator> operatorClass = operatorSpi.getOperatorDescriptor().getOperatorClass();
-                DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
-                                                                           new ParameterDescriptorFactory());
+                DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass, new ParameterDescriptorFactory());
 
                 DomElement parametersElement = createDomElement(parametersResource.getContent());
                 try {

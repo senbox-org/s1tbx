@@ -1,13 +1,29 @@
+<!-- This XML file describes the interface of the python operator. It defines the required source product(s) and the parameters
+     for the processing. By using the information of this file the graphical user interface is automatically generated and also
+     the help on the command line is derived from the information provided here.
+-->
 <operator>
-    <name>com.bc.python.NdviOp</name>
+    <!-- The name uniquely identifies the operator within BEAM -->
+    <name>org.esa.beam.python.example.NdviOp</name>
+    <!-- The alias is a more user-friendly name, e.g. to be used on the command line -->
     <alias>py_ndvi_op</alias>
+    <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
 
-    <version>0.0</version>
-    <authors>Brockmann Consult</authors>
-    <copyright>(c) Brockmann Consult</copyright>
-    <description>Just an example</description>
+    <version>1.0</version>
+    <authors>Brockmann Consult GmbH</authors>
+    <copyright>(C) 2014 Brockmann Consult GmbH</copyright>
+
+    <description>
+        This is an example for the BEAM Python API.
+        It demonstrates the development of a a Python processor plug-in
+        taking the optical NDVI 'algorithm' as an example.
+    </description>
 
     <namedSourceProducts>
+        <!-- One or more source products can be specified.
+             In the GUI only one is currently supported. On the command line multiple source products
+             can be specified by referencing them with the here defined names.
+         -->
         <sourceProduct>
             <name>source</name>
         </sourceProduct>
@@ -15,19 +31,37 @@
 
     <parameters>
         <parameter>
-            <name>a</name>
+            <!-- The name of the parameter; by this name the specified value can be retrieved in the python implementation -->
+            <name>lowerFactor</name>
+            <!-- The description is shown in the help on the command line and also as tooltip in the GUI -->
+            <description>The value of the lower band is multiplied by this value.</description>
+            <!-- The type of the parameter; can be boolean, byte, short, int, long, float, double, java.lang.String -->
             <dataType>double</dataType>
-            <defaultValue>1.3</defaultValue>
+            <!-- The default value of the parameter; this is used if no value is specified by the user -->
+            <defaultValue>1.0</defaultValue>
         </parameter>
         <parameter>
-            <name>b</name>
-            <dataType>double</dataType>
-            <defaultValue>0.98</defaultValue>
-        </parameter>
-        <parameter>
-            <name>mask</name>
+            <name>lowerName</name>
+            <description>The name of the spectral band with the lower (red) wavelength.</description>
+            <!-- The label use used in the graphical user interface before the, if not given the name of the parameter is
+                 converted into a human readable label
+            -->
+            <label>Lower band name</label>
             <dataType>java.lang.String</dataType>
-            <defaultValue>not l1_flags.INVALID</defaultValue>
+            <defaultValue>radiance_7</defaultValue>
+        </parameter>
+        <parameter>
+            <name>upperFactor</name>
+            <description>The value of the upper band is multiplied by this value.</description>
+            <dataType>double</dataType>
+            <defaultValue>1.0</defaultValue>
+        </parameter>
+        <parameter>
+            <name>upperName</name>
+            <description>The name of the spectral band with the higher (NIR) wavelength.</description>
+            <label>Upper band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>radiance_10</defaultValue>
         </parameter>
     </parameters>
 
