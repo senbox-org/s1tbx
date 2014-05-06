@@ -28,6 +28,8 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 
 // This Main must be started with ceres launcher. Otherwise not all dependencies are on the classpath.
+// Main class: com.bc.ceres.launcher.Launcher
+// VM options: -Dceres.context=beam -Dbeam.mainClass=org.esa.beam.framework.gpf.doclet.OperatorDoclet
 
 
 /**
