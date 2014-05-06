@@ -46,12 +46,14 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     private final AbstractButton logDisplayButton;
     private final MoreOptionsForm moreOptionsForm;
     private final ColorPaletteChooser colorPaletteChooser;
-    private boolean shouldFireChooserEvent;
     private final JFormattedTextField minField;
     private final JFormattedTextField maxField;
     private final DiscreteCheckBox discreteCheckBox;
 
-    private enum RangeKey {FromPaletteSource, FromData, FromMinMaxFields, FromCurrentPalette}
+
+    private enum RangeKey {FromPaletteSource, FromData, FromMinMaxFields, FromCurrentPalette;}
+    private boolean shouldFireChooserEvent;
+    private boolean hidden = false;
 
     Continuous1BandBasicForm(final ColorManipulationForm parentForm) {
         ColorPalettesManager.loadAvailableColorPalettes(parentForm.getIODir());
@@ -143,15 +145,22 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
 
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
+        hidden = false;
         updateFormModel(productSceneView);
     }
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
+        hidden = true;
     }
 
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
+        if (!hidden) {
+            ColorPalettesManager.loadAvailableColorPalettes(parentForm.getIODir());
+            colorPaletteChooser.reloadPalettes();
+        }
+
         final ImageInfo imageInfo = productSceneView.getImageInfo();
         final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
 

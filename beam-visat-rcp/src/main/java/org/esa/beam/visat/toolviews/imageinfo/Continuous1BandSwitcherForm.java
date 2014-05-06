@@ -116,9 +116,9 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
             }
             newForm = tabularPaletteEditorForm;
         } else if (basicButton.isSelected()) {
-//            if (basicPaletteEditorForm == null) {
+            if (basicPaletteEditorForm == null) {
                 basicPaletteEditorForm = new Continuous1BandBasicForm(parentForm);
-//            }
+            }
             newForm = basicPaletteEditorForm;
         } else {
             if (graphicalPaletteEditorForm == null) {
