@@ -24,12 +24,12 @@ import org.esa.nest.util.ResourceUtils;
 import java.io.File;
 
 /**
-*/
+ */
 public class LoadTabbedLayoutAction extends AbstractVisatAction {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        loadTabbedLayout();    
+        loadTabbedLayout();
     }
 
     public static void loadTabbedLayout() {

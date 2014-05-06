@@ -104,7 +104,7 @@ public class MapToolsOptions {
     }
 
     private void updateState() {
-        if(layer != null) {
+        if (layer != null) {
             layer.regenerate();
         }
     }

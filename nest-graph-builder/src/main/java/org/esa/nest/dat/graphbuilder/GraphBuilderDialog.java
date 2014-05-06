@@ -25,6 +25,7 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.gpf.operators.standard.ReadOp;
+import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.dialogs.PromptDialog;
 import org.esa.nest.gpf.ProductSetReaderOp;
@@ -306,9 +307,9 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      * Loads a new graph from a file
      */
     private void LoadGraph() {
-        final File file = ResourceUtils.GetFilePath("Load Graph", "XML", "xml", null, "Graph", false,
-                GraphExecuter.LAST_GRAPH_PATH,
-                ResourceUtils.getGraphFolder("").getAbsolutePath());
+        final BeamFileFilter fileFilter = new BeamFileFilter("XML", "xml", "Graph");
+        final File file = VisatApp.getApp().showFileOpenDialog("Load Graph", false, fileFilter,
+                GraphExecuter.LAST_GRAPH_PATH);
         if (file == null) return;
 
         LoadGraph(file);

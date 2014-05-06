@@ -40,9 +40,9 @@ public class TestMathUtils extends TestCase {
         int windowLength = 5;
         double w0 = MathUtils.hanning(-2.0, windowLength);
         double w1 = MathUtils.hanning(-1.0, windowLength);
-        double w2 = MathUtils.hanning( 0.0, windowLength);
-        double w3 = MathUtils.hanning( 1.0, windowLength);
-        double w4 = MathUtils.hanning( 2.0, windowLength);
+        double w2 = MathUtils.hanning(0.0, windowLength);
+        double w3 = MathUtils.hanning(1.0, windowLength);
+        double w4 = MathUtils.hanning(2.0, windowLength);
         assertTrue(Double.compare(w0, 0.2500000000000001) == 0);
         assertTrue(Double.compare(w1, 0.75) == 0);
         assertTrue(Double.compare(w2, 1.0) == 0);
@@ -52,11 +52,11 @@ public class TestMathUtils extends TestCase {
 
     public void testInterpolationSinc() {
 
-        double y0 = (-2.0 - 0.3)*(-2.0 - 0.3);
-        double y1 = (-1.0 - 0.3)*(-1.0 - 0.3);
-        double y2 = (0.0 - 0.3)*(0.0 - 0.3);
-        double y3 = (1.0 - 0.3)*(1.0 - 0.3);
-        double y4 = (2.0 - 0.3)*(2.0 - 0.3);
+        double y0 = (-2.0 - 0.3) * (-2.0 - 0.3);
+        double y1 = (-1.0 - 0.3) * (-1.0 - 0.3);
+        double y2 = (0.0 - 0.3) * (0.0 - 0.3);
+        double y3 = (1.0 - 0.3) * (1.0 - 0.3);
+        double y4 = (2.0 - 0.3) * (2.0 - 0.3);
         double mu = 0.3;
         double y = MathUtils.interpolationSinc(y0, y1, y2, y3, y4, mu);
 

@@ -39,7 +39,7 @@ public class SelectLayerInteractor extends SelectionInteractor {
     }
 
     public SelectRectangleTool createSelectRectangleTool() {
-        return new SelectLayerRectangleTool();        
+        return new SelectLayerRectangleTool();
     }
 
     public SelectPointTool createSelectPointTool() {
@@ -54,7 +54,7 @@ public class SelectLayerInteractor extends SelectionInteractor {
             final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
             final List<Layer> layers = findLayerSelections(view);
 
-            for(Layer layer : layers) {
+            for (Layer layer : layers) {
                 LayerSelection laySel = (LayerSelection) layer;
                 laySel.selectPoint(event.getX(), event.getY());
             }
@@ -83,7 +83,7 @@ public class SelectLayerInteractor extends SelectionInteractor {
             final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
             final List<Layer> layers = findLayerSelections(view);
 
-            for(Layer layer : layers) {
+            for (Layer layer : layers) {
                 LayerSelection laySel = (LayerSelection) layer;
                 laySel.selectRectangle(new Rectangle(x, y, width, height));
             }

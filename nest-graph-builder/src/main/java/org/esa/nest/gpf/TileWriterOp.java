@@ -34,9 +34,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.MathUtils;
 
 import java.awt.*;
 import java.io.File;

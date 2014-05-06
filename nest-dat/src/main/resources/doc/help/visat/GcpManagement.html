@@ -1,24 +1,31 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-    
-    <title>Help - GCP Management</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <link rel="stylesheet" href="../style.css"></head>
+<html>
+<head>
+
+    <title>Help - GCP Management</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
 <body>
 <table class="header">
-    <tbody><tr class="header">
+    <tbody>
+    <tr class="header">
         <td class="header">&nbsp;
             GCP Management
         </td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
     </tr>
-</tbody></table>
+    </tbody>
+</table>
 
 <h4>GCP Management in DAT</h4>
 
 <p>
     A GCP is a marker for a certain geographical position within a geo-referenced image.
     The properties of a GCP are
-</p><ul>
+</p>
+<ul>
     <li>the geographical co-ordinate,</li>
     <li>a graphical symbol,</li>
     <li>the name (label),</li>
@@ -55,18 +62,21 @@
     The GCP manager is used to display all GCPs stored in the current product within a
     table and provides some GCP related operations.
 
-</p><p align="center"><img src="images/GcpManager.png"></p>
+</p>
+
+<p align="center"><img src="images/GcpManager.png"></p>
 
 <p>
     If you click on a GCP within the table it becomes the selected GCP.
     Double-clicking on GCP in the table opens the <a href="#editGcpDialog">Edit GCP</a>.
-    You can also change the values for <code>X, Y, Lat and Lon</code> of the GCP by editing the table cells directly. 
+    You can also change the values for <code>X, Y, Lat and Lon</code> of the GCP by editing the table cells directly.
 </p>
 
 <p>In the following, the tool buttons of the GCP manager are explained.</p>
 
 <table border="0" cellpadding="2" cellspacing="0">
-    <tbody><tr>
+    <tbody>
+    <tr>
         <td><img src="images/icons/New24.gif"></td>
         <td>Creates a new GCP and adds it to the product.</td>
     </tr>
@@ -98,7 +108,8 @@
         <td><img src="images/icons/ExportTable.gif"></td>
         <td>Exports all values of the displayed table to a flat text
             file.
-            The exported text is tabulator-separated and may therefore be imported directly into a spreadsheet application
+            The exported text is tabulator-separated and may therefore be imported directly into a spreadsheet
+            application
             (e.g. MS Excel).
         </td>
     </tr>
@@ -107,7 +118,8 @@
         <td>Centers the image view on the selected GCP.</td>
     </tr>
 
-</tbody></table>
+    </tbody>
+</table>
 
 <h4><a name="editGcpDialog">The Edit GCP Dialog</a></h4>
 
@@ -115,16 +127,20 @@
     The GCP edit dialog is used to edit the properties of a GCP after a new GCP has been created or after a
     selected GCP has been double-clicked. This dialog is also available in the GCP manager.
 
-</p><p align="center"><img src="images/GcpEditor.png"></p>
+</p>
+
+<p align="center"><img src="images/GcpEditor.png"></p>
 
 <p>The editable GCP properties are
-</p><ul>
+</p>
+<ul>
     <li>the geographical co-ordinate, which can also be given as pixel position</li>
     <li>the name for the GCP</li>
     <li>and a textual description.</li>
 </ul>
 
 <h4><a name="gcpGeoCoding">GCP Geo-Coding</a></h4>
+
 <p>
     This geo-coding is calculated by using the defined GCPs as reference points and the given polynomial method type.
     You can choose between the <code>linear, quadratic or a cubic</code> polynomial method.
@@ -139,4 +155,5 @@
 </p>
 
 <hr>
-</body></html>
+</body>
+</html>

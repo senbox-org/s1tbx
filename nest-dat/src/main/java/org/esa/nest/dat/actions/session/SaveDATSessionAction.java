@@ -25,7 +25,6 @@ import java.io.File;
 
 /**
  * Saves a session.
- *
  */
 public class SaveDATSessionAction extends SaveSessionAction {
 
@@ -35,7 +34,7 @@ public class SaveDATSessionAction extends SaveSessionAction {
     protected Session createSession(VisatApp app) {
         final Session session = super.createSession(app);
 
-        if(Project.instance().IsProjectOpen()) {
+        if (Project.instance().IsProjectOpen()) {
             final File file = Project.instance().getProjectFile();
             session.setProjectFile(file);
         }

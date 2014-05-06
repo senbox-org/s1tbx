@@ -17,7 +17,7 @@ package org.esa.nest.dat.dialogs;
 
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.nest.dat.DatApp;
-import org.esa.nest.reports.Report;
+import org.esa.nest.dat.reports.Report;
 import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;
@@ -31,14 +31,14 @@ import java.awt.event.ActionListener;
 public class ReportDialog extends ModalDialog {
 
     public ReportDialog(final Report report) {
-        super(DatApp.getApp().getMainFrame(), DatApp.getApp().getAppName()+" Report Preview",
+        super(DatApp.getApp().getMainFrame(), DatApp.getApp().getAppName() + " Report Preview",
                 ModalDialog.ID_CANCEL, null);    /*I18N*/
 
         getJDialog().setPreferredSize(new Dimension(800, 800));
 
         final JLabel reportLabel = new JLabel(report.getAsHTML());
 
-        final JPanel dialogContent = new JPanel(new BorderLayout(4,4));
+        final JPanel dialogContent = new JPanel(new BorderLayout(4, 4));
 
         final JPanel labelPane = new JPanel(new BorderLayout());
         labelPane.add(BorderLayout.NORTH, reportLabel);

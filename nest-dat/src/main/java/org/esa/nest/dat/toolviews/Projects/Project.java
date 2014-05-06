@@ -30,6 +30,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.dialogs.PromptDialog;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
 import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
@@ -60,8 +61,8 @@ public class Project extends Observable {
     private final Timer timer = new Timer();
 
     /**
-    * @return The unique instance of this class.
-    */
+     * @return The unique instance of this class.
+     */
     public static Project instance() {
         return _instance;
     }
@@ -76,7 +77,7 @@ public class Project extends Observable {
         setChanged();
         notifyObservers();
         clearChanged();
-        if(saveProject)
+        if (saveProject)
             SaveProject();
     }
 
@@ -87,13 +88,13 @@ public class Project extends Observable {
     }
 
     public void CreateNewProject() {
-        final File file = ResourceUtils.GetFilePath("Create Project", "xml", "xml", "myProject", "Project File", true);
+        final File file = FileFolderUtils.GetFilePath("Create Project", "xml", "xml", "myProject", "Project File", true);
 
-        if(file != null) {
+        if (file != null) {
             final String prjName = file.getName();
             final String folderName = prjName.substring(0, prjName.lastIndexOf('.'));
             final File prjFolder = new File(file.getParentFile(), folderName);
-            if(!prjFolder.exists())
+            if (!prjFolder.exists())
                 prjFolder.mkdir();
             final File newProjectFile = new File(prjFolder, prjName);
 
@@ -107,7 +108,7 @@ public class Project extends Observable {
     private void addExistingOpenedProducts() {
         final ProductManager prodman = VisatApp.getApp().getProductManager();
         final int numProducts = prodman.getProductCount();
-        for(int i=0; i < numProducts; ++i) {
+        for (int i = 0; i < numProducts; ++i) {
             addProductLink(prodman.getProduct(i));
         }
     }
@@ -115,29 +116,29 @@ public class Project extends Observable {
     private static boolean findSubFolders(final File currentFolder, final ProjectSubFolder projSubFolder) {
         final File[] files = currentFolder.listFiles();
         boolean hasProducts = false;
-        if(files == null) return false;
+        if (files == null) return false;
 
-        for(File f : files) {
-            if(f.isDirectory()) {
-                if(!f.getName().endsWith(DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION)) {
+        for (File f : files) {
+            if (f.isDirectory()) {
+                if (!f.getName().endsWith(DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION)) {
                     final ProjectSubFolder newProjFolder = projSubFolder.addSubFolder(f.getName());
 
-                    if(findSubFolders(f, newProjFolder))
+                    if (findSubFolders(f, newProjFolder))
                         hasProducts = true;
                     //else if(!newProjFolder.isCreatedByUser())
-                        //projSubFolder.removeSubFolder(newProjFolder);
+                    //projSubFolder.removeSubFolder(newProjFolder);
                 }
-            } else if(!projSubFolder.containsFile(f)) {
+            } else if (!projSubFolder.containsFile(f)) {
                 boolean found = false;
                 final ProjectSubFolder.FolderType folderType = projSubFolder.getFolderType();
-                if(folderType == ProjectSubFolder.FolderType.PRODUCT) {
+                if (folderType == ProjectSubFolder.FolderType.PRODUCT) {
                     found = ProductFunctions.isValidProduct(f);
-                } else if(folderType == ProjectSubFolder.FolderType.PRODUCTSET ||
+                } else if (folderType == ProjectSubFolder.FolderType.PRODUCTSET ||
                         folderType == ProjectSubFolder.FolderType.GRAPH) {
                     found = f.getName().toLowerCase().endsWith(".xml");
                 }
 
-                if(found) {
+                if (found) {
                     hasProducts = true;
                     final ProjectFile newFile = new ProjectFile(f, f.getName());
                     boolean added = projSubFolder.addFile(newFile);
@@ -161,13 +162,13 @@ public class Project extends Observable {
 
     String getProjectName() {
         final String name = projectFile.getName();
-        if(name.endsWith(".xml"))
-            return name.substring(0, name.length()-4);
+        if (name.endsWith(".xml"))
+            return name.substring(0, name.length() - 4);
         return name;
     }
 
     protected void initProject(final File file) {
-        if(productTreeListener == null && VisatApp.getApp() != null) {
+        if (productTreeListener == null && VisatApp.getApp() != null) {
             productTreeListener = new Project.ProjectPTL();
             VisatApp.getApp().addProductTreeListener(productTreeListener);
         }
@@ -176,7 +177,7 @@ public class Project extends Observable {
         projectFolder = file.getParentFile();
 
         projectSubFolders = new ProjectSubFolder(projectFolder, getProjectName(), false,
-                                                ProjectSubFolder.FolderType.ROOT);
+                ProjectSubFolder.FolderType.ROOT);
         projectSubFolders.setRemoveable(false);
 
         final ProjectSubFolder productSetsFolder = new ProjectSubFolder(
@@ -208,14 +209,14 @@ public class Project extends Observable {
         refreshProjectTree();
 
         final String[] defaultFolders = getDefaultProjectFolders();
-        for(String folderName : defaultFolders) {
+        for (String folderName : defaultFolders) {
             final ProjectSubFolder newFolder = processedFolder.addSubFolder(folderName);
             newFolder.setCreatedByUser(true);
         }
 
-        if(VisatApp.getApp() != null) {
+        if (VisatApp.getApp() != null) {
             VisatApp.getApp().getPreferences().setPropertyString(
-                BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, processedFolder.getPath().getAbsolutePath());
+                    BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, processedFolder.getPath().getAbsolutePath());
             VisatApp.getApp().updateState();
         }
 
@@ -225,7 +226,7 @@ public class Project extends Observable {
 
     private static String[] getDefaultProjectFolders() {
         String defaultProjectFolders = System.getProperty("defaultProjectFolders");
-        if(defaultProjectFolders == null) {
+        if (defaultProjectFolders == null) {
             defaultProjectFolders = "Calibrated Products, Coregistered Products, Orthorectified Products";
         }
 
@@ -241,30 +242,30 @@ public class Project extends Observable {
     private void startUpdateTimer() {
 
         timer.scheduleAtFixedRate(new TimerTask() {
-                public void run() {
-                    if(IsProjectOpen()) {
-                        if(refreshProjectTree())
-                            notifyEvent(SAVE_PROJECT);
-                    }
+            public void run() {
+                if (IsProjectOpen()) {
+                    if (refreshProjectTree())
+                        notifyEvent(SAVE_PROJECT);
                 }
-            }, 2000, 1000*5);
+            }
+        }, 2000, 1000 * 5);
     }
 
     private void addProductLink(final Product product) {
         final File productFile = product.getFileLocation();
-        if(productFile == null)
+        if (productFile == null)
             return;
-        if(projectSubFolders.containsFile(productFile))
+        if (projectSubFolders.containsFile(productFile))
             return;
-        
+
         refreshProjectTree();
-        if(projectSubFolders.containsFile(productFile))
+        if (projectSubFolders.containsFile(productFile))
             return;
 
         final ProjectSubFolder productLinksFolder = projectSubFolders.addSubFolder("External Product Links");
         ProjectSubFolder destFolder = productLinksFolder;
         final String[] formats = product.getProductReader().getReaderPlugIn().getFormatNames();
-        if(formats.length > 0)
+        if (formats.length > 0)
             destFolder = productLinksFolder.addSubFolder(formats[0]);
 
         final ProjectFile newFile = new ProjectFile(productFile, product.getName());
@@ -275,20 +276,20 @@ public class Project extends Observable {
     public boolean refreshProjectTree() {
         boolean found = false;
         final ProjectSubFolder productSetsFolder = projectSubFolders.findFolder("ProductSets");
-        if(findSubFolders(productSetsFolder.getPath(), productSetsFolder))
+        if (findSubFolders(productSetsFolder.getPath(), productSetsFolder))
             found = true;
         pruneNonExistantFiles(productSetsFolder);
         final ProjectSubFolder graphsFolder = projectSubFolders.findFolder("Graphs");
-        if(findSubFolders(graphsFolder.getPath(), graphsFolder))
+        if (findSubFolders(graphsFolder.getPath(), graphsFolder))
             found = true;
         pruneNonExistantFiles(graphsFolder);
         final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
-        if(findSubFolders(importedFolder.getPath(), importedFolder))
+        if (findSubFolders(importedFolder.getPath(), importedFolder))
             found = true;
         pruneNonExistantFiles(importedFolder);
         final ProjectSubFolder processedFolder = projectSubFolders.findFolder("Processed Products");
-        if(findSubFolders(processedFolder.getPath(), processedFolder))
-                found = true;
+        if (findSubFolders(processedFolder.getPath(), processedFolder))
+            found = true;
         pruneNonExistantFiles(processedFolder);
         return found;
     }
@@ -296,13 +297,13 @@ public class Project extends Observable {
     private static void pruneNonExistantFiles(final ProjectSubFolder projSubFolder) {
         // check for files to remove
         final ProjectFile[] fileList = projSubFolder.getFileList().toArray(new ProjectFile[projSubFolder.getFileList().size()]);
-        for(ProjectFile projFile : fileList) {
+        for (ProjectFile projFile : fileList) {
             final File f = projFile.getFile();
-            if(!f.exists() || f.getName().endsWith(DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION)) {
+            if (!f.exists() || f.getName().endsWith(DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION)) {
                 projSubFolder.removeFile(f);
             }
         }
-        for(ProjectSubFolder subFolder : projSubFolder.getSubFolders()) {
+        for (ProjectSubFolder subFolder : projSubFolder.getSubFolders()) {
             pruneNonExistantFiles(subFolder);
         }
     }
@@ -310,21 +311,21 @@ public class Project extends Observable {
     public void createNewFolder(final ProjectSubFolder subFolder) {
         final PromptDialog dlg = new PromptDialog("New Folder", "Name", "", false);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             final ProjectSubFolder newFolder = subFolder.addSubFolder(dlg.getValue());
             newFolder.setCreatedByUser(true);
-            if(subFolder == projectSubFolders || subFolder.isPhysical())
+            if (subFolder == projectSubFolders || subFolder.isPhysical())
                 newFolder.setPhysical(true);
             notifyEvent(SAVE_PROJECT);
         }
     }
 
     public void createNewProductSet(final ProjectSubFolder subFolder) {
-        final String name = "ProductSet"+(subFolder.getFileList().size()+1);
+        final String name = "ProductSet" + (subFolder.getFileList().size() + 1);
         final ProductSet prodSet = new ProductSet(new File(subFolder.getPath(), name));
         final ProductSetDialog dlg = new ProductSetDialog("New ProductSet", prodSet);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             final ProjectFile newFile = new ProjectFile(prodSet.getFile(), prodSet.getName());
             newFile.setFolderType(ProjectSubFolder.FolderType.PRODUCTSET);
             subFolder.addFile(newFile);
@@ -339,13 +340,13 @@ public class Project extends Observable {
     }
 
     public static void openFile(final ProjectSubFolder parentFolder, final File file) {
-        if(parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCTSET) {
+        if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCTSET) {
             ProductSet.OpenProductSet(file);
-        } else if(parentFolder.getFolderType() == ProjectSubFolder.FolderType.GRAPH) {
+        } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.GRAPH) {
             final GraphBuilderDialog dialog = new GraphBuilderDialog(VisatApp.getApp(), "Graph Builder", "graph_builder");
             dialog.show();
             dialog.LoadGraph(file);
-        } else if(parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
+        } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
             VisatApp.getApp().openProduct(file);
         }
     }
@@ -354,12 +355,12 @@ public class Project extends Observable {
 
         try {
             final Product product = ProductIO.readProduct(prodFile);
-            if(product != null) {
+            if (product != null) {
                 final Product subsetProduct = getProductSubset(product);
-                if(subsetProduct != null)
+                if (subsetProduct != null)
                     VisatApp.getApp().getProductManager().addProduct(subsetProduct);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }
@@ -367,18 +368,18 @@ public class Project extends Observable {
     public void importSubset(final ProjectSubFolder parentFolder, final File prodFile) {
         final ProductReader reader = ProductIO.getProductReaderForInput(prodFile);
         if (reader != null) {
-                final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
-                try {
-                    final Product product = reader.readProductNodes(prodFile, null);
+            final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
+            try {
+                final Product product = reader.readProductNodes(prodFile, null);
 
-                    final Product subsetProduct = getProductSubset(product);
-                    if(subsetProduct != null) {
-                        final File destFile = new File(importedFolder.getPath(), subsetProduct.getName());
-                        writeProduct(subsetProduct, destFile);
-                    }
-                } catch(Exception e) {
-                    VisatApp.getApp().showErrorDialog(e.getMessage());
+                final Product subsetProduct = getProductSubset(product);
+                if (subsetProduct != null) {
+                    final File destFile = new File(importedFolder.getPath(), subsetProduct.getName());
+                    writeProduct(subsetProduct, destFile);
                 }
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog(e.getMessage());
+            }
         }
     }
 
@@ -408,6 +409,7 @@ public class Project extends Observable {
     private static class ImportProducts extends ProgressMonitorSwingWorker {
         final File[] productFilesToOpen;
         final ProjectSubFolder importedFolder;
+
         ImportProducts(final File[] productFilesToOpen, final ProjectSubFolder importedFolder) {
             super(VisatApp.getApp().getMainFrame(), "Writing...");
             this.productFilesToOpen = productFilesToOpen;
@@ -417,22 +419,22 @@ public class Project extends Observable {
         @Override
         protected Object doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
             pm.beginTask("Importing", productFilesToOpen.length);
-            if(importedFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
-                for(File prodFile : productFilesToOpen) {
+            if (importedFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
+                for (File prodFile : productFilesToOpen) {
                     final ProductReader reader = ProductIO.getProductReaderForInput(prodFile);
                     if (reader != null) {
                         try {
                             final Product product = reader.readProductNodes(prodFile, null);
-                            if(product != null) {
+                            if (product != null) {
                                 // special case for WSS products
-                                if(product.getProductType().equals("ASA_WSS_1P")) {
+                                if (product.getProductType().equals("ASA_WSS_1P")) {
                                     throw new Exception("WSS products need to be debursted before saving as DIMAP");
                                 }
                                 final File destFile = new File(importedFolder.getPath(), product.getName());
 
                                 VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
                             }
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             VisatApp.getApp().showErrorDialog(e.getMessage());
                         }
                     }
@@ -452,6 +454,7 @@ public class Project extends Observable {
                 VisatApp.getApp().writeProduct(product, destFile, "BEAM-DIMAP");
                 return null;
             }
+
             @Override
             public void done() {
                 refreshProjectTree();
@@ -462,7 +465,7 @@ public class Project extends Observable {
     }
 
     public void ImportFileList(final File[] productFilesToOpen) {
-        if(!IsProjectOpen()) {
+        if (!IsProjectOpen()) {
             CreateNewProject();
         }
         final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
@@ -487,7 +490,7 @@ public class Project extends Observable {
     public void renameFolder(final ProjectSubFolder subFolder) {
         final PromptDialog dlg = new PromptDialog("Rename Folder", "Name", "", false);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             subFolder.renameTo(dlg.getValue());
             notifyEvent(SAVE_PROJECT);
         }
@@ -495,14 +498,14 @@ public class Project extends Observable {
 
     public void removeFile(final ProjectSubFolder parentFolder, final File file) {
         parentFolder.removeFile(file);
-        if(parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCTSET ||
-           parentFolder.getFolderType() == ProjectSubFolder.FolderType.GRAPH)
+        if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCTSET ||
+                parentFolder.getFolderType() == ProjectSubFolder.FolderType.GRAPH)
             file.delete();
-        else if(parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
-            if(file.getName().endsWith(DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION)) {
+        else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
+            if (file.getName().endsWith(DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION)) {
                 final String pathStr = file.getAbsolutePath();
-                final File dataDir = new File(pathStr.substring(0, pathStr.length()-4) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
-                if(dataDir.exists()) {
+                final File dataDir = new File(pathStr.substring(0, pathStr.length() - 4) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
+                if (dataDir.exists()) {
                     ResourceUtils.deleteFile(dataDir);
                     file.delete();
                 }
@@ -521,7 +524,7 @@ public class Project extends Observable {
         projectSubFolders = null;
         notifyEvent(false);
 
-        if(VisatApp.getApp() != null) {
+        if (VisatApp.getApp() != null) {
             VisatApp.getApp().updateState();
         }
     }
@@ -531,9 +534,9 @@ public class Project extends Observable {
     }
 
     public void SaveProjectAs() {
-        final File file = ResourceUtils.GetFilePath("Save Project", "XML", "xml", getProjectName(), "Project File", true);
-        if(file == null) return;
-        
+        final File file = FileFolderUtils.GetFilePath("Save Project", "XML", "xml", getProjectName(), "Project File", true);
+        if (file == null) return;
+
         projectFile = file;
         projectFolder = file.getParentFile();
 
@@ -541,7 +544,7 @@ public class Project extends Observable {
     }
 
     public void SaveProject() {
-        if(projectSubFolders == null)
+        if (projectSubFolders == null)
             return;
 
         final Element root = new Element("Project");
@@ -549,9 +552,8 @@ public class Project extends Observable {
         final Document doc = new Document(root);
 
         final Vector subFolders = projectSubFolders.getSubFolders();
-        for (Enumeration e = subFolders.elements(); e.hasMoreElements();)
-        {
-            final ProjectSubFolder folder = (ProjectSubFolder)e.nextElement();
+        for (Enumeration e = subFolders.elements(); e.hasMoreElements(); ) {
+            final ProjectSubFolder folder = (ProjectSubFolder) e.nextElement();
             final Element elem = folder.toXML();
             root.addContent(elem);
         }
@@ -561,8 +563,8 @@ public class Project extends Observable {
 
     public void LoadProject() {
 
-        final File file = ResourceUtils.GetFilePath("Load Project", "XML", "xml", "", "Project File", false);
-        if(file == null) return;
+        final File file = FileFolderUtils.GetFilePath("Load Project", "XML", "xml", "", "Project File", false);
+        if (file == null) return;
 
         LoadProject(file);
     }
@@ -574,7 +576,7 @@ public class Project extends Observable {
         Document doc;
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
-        } catch(IOException e) {
+        } catch (IOException e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
             return;
         }
@@ -588,7 +590,7 @@ public class Project extends Observable {
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
-                if(child.getName().equals("subFolder")) {
+                if (child.getName().equals("subFolder")) {
                     final Attribute attrib = child.getAttribute("name");
                     final ProjectSubFolder subFolder = projectSubFolders.addSubFolder(attrib.getValue());
                     subFolder.fromXML(child, folderList, prodList);
@@ -610,7 +612,7 @@ public class Project extends Observable {
             protected Object doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
                 pm.beginTask("Opening Project...", prodList.size());
                 try {
-                    for(int i=0; i < prodList.size(); ++i) {
+                    for (int i = 0; i < prodList.size(); ++i) {
 
                         final ProjectSubFolder subFolder = folderList.get(i);
                         final ProjectFile projFile = prodList.get(i);
@@ -636,7 +638,7 @@ public class Project extends Observable {
         }
 
         public void productAdded(final Product product) {
-            if(projectSubFolders == null) return;
+            if (projectSubFolders == null) return;
             addProductLink(product);
             notifyEvent(SAVE_PROJECT);
         }
@@ -645,7 +647,7 @@ public class Project extends Observable {
             //if (getSelectedProduct() == product) {
             //    setSelectedProduct(product);
             //}
-           // setProducts(VisatApp.getApp());
+            // setProducts(VisatApp.getApp());
         }
 
         public void productSelected(final Product product, final int clickCount) {

@@ -21,7 +21,7 @@ import org.esa.beam.visat.VisatApp;
 
 
 /**
-    Shows the Product Library
+ * Shows the Product Library
  */
 public class ShowProductLibraryAction extends ExecCommand {
 

@@ -16,7 +16,6 @@
 package org.esa.nest.datamodel;
 
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.StatusProgressMonitor;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.ftpUtils;
@@ -56,19 +55,19 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     public void dispose() {
         try {
-            if(ftp != null)
+            if (ftp != null)
                 ftp.disconnect();
             ftp = null;
             contentFile.dispose();
             contentFile = null;
-        } catch(Exception e) {
+        } catch (Exception e) {
             //
         }
     }
 
     public final DownloadableFile getContentFile() throws IOException {
-        if(contentFile == null) {
-            if(!remoteFileExists && !localFileExists)
+        if (contentFile == null) {
+            if (!remoteFileExists && !localFileExists)
                 return null;
             findFile();
         }
@@ -85,8 +84,8 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         return (localFile.exists() && localFile.isFile()) || (localZipFile.exists() && localZipFile.isFile());
     }
 
-    private boolean getRemoteFile() throws IOException{
-        if(remoteURL.getProtocol().contains("http"))
+    private boolean getRemoteFile() throws IOException {
+        if (remoteURL.getProtocol().contains("http"))
             return getRemoteHttpFile(remoteURL.toString());
         else
             return getRemoteFTPFile(remoteURL);
@@ -94,32 +93,32 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     private synchronized void findFile() throws IOException {
         try {
-            if(contentFile != null) return;
-            if(!localFileExists && !errorInLocalFile) {
+            if (contentFile != null) return;
+            if (!localFileExists && !errorInLocalFile) {
                 localFileExists = findLocalFile();
             }
-            if(localFileExists) {
+            if (localFileExists) {
                 getLocalFile();
-            } else if(remoteFileExists) {
-                if(getRemoteFile()) {
+            } else if (remoteFileExists) {
+                if (getRemoteFile()) {
                     getLocalFile();
                 }
             }
-            if(contentFile != null) {
+            if (contentFile != null) {
                 errorInLocalFile = false;
             } else {
-                if(!remoteFileExists && localFileExists) {
-                    System.out.println("Unable to read product "+localFile.getAbsolutePath());
+                if (!remoteFileExists && localFileExists) {
+                    System.out.println("Unable to read product " + localFile.getAbsolutePath());
                 }
                 localFileExists = false;
                 errorInLocalFile = true;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             contentFile = null;
             localFileExists = false;
             errorInLocalFile = true;
-            if(unrecoverableError) {
+            if (unrecoverableError) {
                 throw new IOException(e);
             }
         }
@@ -127,28 +126,21 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     private void getLocalFile() throws IOException {
         File dataFile = localFile;
-        if(!dataFile.exists())
+        if (!dataFile.exists())
             dataFile = getFileFromZip(localZipFile);
-        if(dataFile != null) {
+        if (dataFile != null) {
             contentFile = createContentFile(dataFile);
         }
     }
 
     private boolean getRemoteHttpFile(final String baseUrl) throws IOException {
-        final VisatApp visatApp = VisatApp.getApp();
-        final String remotePath = baseUrl+localZipFile.getName();
-        System.out.println("http retrieving "+remotePath);
+        final String remotePath = baseUrl + localZipFile.getName();
+        System.out.println("http retrieving " + remotePath);
         try {
-            if(visatApp != null)
-                visatApp.setStatusBarMessage("Downloading "+localZipFile.getName());
-
             downloadFile(new URL(remotePath), localZipFile);
-
-            if(visatApp != null)
-                    visatApp.setStatusBarMessage("");
             return true;
-        } catch(Exception e) {
-            System.out.println("http error:"+e.getMessage() + " on " + remotePath);
+        } catch (Exception e) {
+            System.out.println("http error:" + e.getMessage() + " on " + remotePath);
             remoteFileExists = false;
         }
         return false;
@@ -157,10 +149,11 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     /**
      * Downloads a file from the specified URL to the specified local target directory.
      * The method uses a Swing progress monitor to visualize the download process.
-     * @param fileUrl the URL of the file to be downloaded
+     *
+     * @param fileUrl      the URL of the file to be downloaded
      * @param localZipFile the target file
-     * @throws java.io.IOException if an I/O error occurs
      * @return File the downloaded file
+     * @throws java.io.IOException if an I/O error occurs
      */
     private static File downloadFile(final URL fileUrl, final File localZipFile) throws IOException {
         final File outputFile = new File(localZipFile.getParentFile(), new File(fileUrl.getFile()).getName());
@@ -169,7 +162,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final InputStream is = new BufferedInputStream(urlConnection.getInputStream(), contentLength);
         final OutputStream os;
         try {
-            if(!outputFile.getParentFile().exists())
+            if (!outputFile.getParentFile().exists())
                 outputFile.getParentFile().mkdirs();
             os = new BufferedOutputStream(new FileOutputStream(outputFile));
         } catch (IOException e) {
@@ -179,14 +172,14 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
         try {
             final StatusProgressMonitor status = new StatusProgressMonitor(contentLength,
-                    "Downloading "+localZipFile.getName()+"... ");
+                    "Downloading " + localZipFile.getName() + "... ");
             status.setAllowStdOut(false);
 
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
             int total = 0;
-            while ((n = is.read(buf, 0, size)) > -1)  {
+            while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
                 total += n;
                 status.worked(total);
@@ -215,7 +208,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     private boolean getRemoteFTPFile(final URL remoteURL) throws IOException {
         try {
-            if(ftp == null) {
+            if (ftp == null) {
                 ftp = new ftpUtils(remoteURL.getHost());
                 fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteURL.getHost(), remoteURL.getPath());
             }
@@ -224,10 +217,10 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
             final ftpUtils.FTPError result = ftp.retrieveFile(remoteURL.getPath() + remoteFileName, localZipFile, fileSize);
-            if(result == ftpUtils.FTPError.OK) {
+            if (result == ftpUtils.FTPError.OK) {
                 return true;
             } else {
-                if(result == ftpUtils.FTPError.FILE_NOT_FOUND) {
+                if (result == ftpUtils.FTPError.FILE_NOT_FOUND) {
                     remoteFileExists = false;
                 } else {
                     dispose();
@@ -235,15 +228,15 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                 localZipFile.delete();
             }
             return false;
-        } catch(SocketException e) {
+        } catch (SocketException e) {
             unrecoverableError = true;
             throw e;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            if(ftp == null) {
+            if (ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
-                throw new IOException("Failed to connect to FTP "+ remoteURL.getHost() + '\n' +e.getMessage());
+                throw new IOException("Failed to connect to FTP " + remoteURL.getHost() + '\n' + e.getMessage());
             }
             dispose();
         }
@@ -255,7 +248,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         if (ext.equalsIgnoreCase(".zip")) {
             final String baseName = localFile.getName();
             final File newFile = new File(ResourceUtils.getApplicationUserTempDataDir(), baseName);
-            if(newFile.exists())
+            if (newFile.exists())
                 return newFile;
 
             ZipFile zipFile = null;
@@ -269,7 +262,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                     zipEntry = zipFile.getEntry(baseName.toLowerCase());
                     if (zipEntry == null) {
                         final String folderName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
-                        zipEntry = zipFile.getEntry(folderName +'/'+ localFile.getName());
+                        zipEntry = zipFile.getEntry(folderName + '/' + localFile.getName());
                         if (zipEntry == null) {
                             localFileExists = false;
                             throw new IOException("Entry '" + baseName + "' not found in zip file.");
@@ -286,14 +279,14 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                     fileoutputstream.write(buf, 0, n);
 
                 return newFile;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
                 dataFile.delete();
                 return null;
             } finally {
-                if(zipFile != null)
+                if (zipFile != null)
                     zipFile.close();
-                if(fileoutputstream != null)
+                if (fileoutputstream != null)
                     fileoutputstream.close();
             }
         }

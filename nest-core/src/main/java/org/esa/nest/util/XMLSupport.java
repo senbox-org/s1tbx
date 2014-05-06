@@ -50,7 +50,7 @@ public final class XMLSupport {
         try {
             final Format xmlFormat = Format.getPrettyFormat();
             final XMLOutputter outputter = new XMLOutputter(xmlFormat);
-                             
+
             final FileWriter writer = new FileWriter(filePath);
             outputter.output(doc, writer);
             //outputter.output(doc, System.out);
@@ -74,9 +74,9 @@ public final class XMLSupport {
             w3cDocument = builder.parse(filePath);
 
             return domBuilder.build(w3cDocument);
-        } catch(MalformedURLException e) {
-            final String msg = "Cannot parse xml file path : " + e.getMessage()+
-                    '\n'+filePath+
+        } catch (MalformedURLException e) {
+            final String msg = "Cannot parse xml file path : " + e.getMessage() +
+                    '\n' + filePath +
                     "\n\nPlease check the characters being used and if your operating system locale is set correctly";
             System.out.println(msg);
             throw new IOException(msg);
@@ -93,7 +93,7 @@ public final class XMLSupport {
     }
 
     public static Document LoadXMLFromResource(final String filePath, final Class theClass) throws IOException {
-       
+
         final java.net.URL resURL = theClass.getClassLoader().getResource(filePath);
         if (resURL != null)
             return LoadXML(resURL.toString());
@@ -104,21 +104,21 @@ public final class XMLSupport {
     public static void metadataElementToDOMElement(final MetadataElement metadataElem, final Element domElem) {
 
         final MetadataElement[] metaElements = metadataElem.getElements();
-        for(MetadataElement childMetaElem : metaElements) {
+        for (MetadataElement childMetaElem : metaElements) {
             final Element childDomElem = new Element(childMetaElem.getName());
             metadataElementToDOMElement(childMetaElem, childDomElem);
             domElem.addContent(childDomElem);
         }
 
         final MetadataAttribute[] metaAttributes = metadataElem.getAttributes();
-        for(MetadataAttribute childMetaAttrib : metaAttributes) {
+        for (MetadataAttribute childMetaAttrib : metaAttributes) {
             final Element childDomElem = new Element("attrib");
             setAttribute(childDomElem, "name", childMetaAttrib.getName());
             setAttribute(childDomElem, "value", childMetaAttrib.getData().getElemString());
-            if((childMetaAttrib.getUnit() != null && childMetaAttrib.getUnit().equalsIgnoreCase("utc")) ||
-                childMetaAttrib.getData() instanceof ProductData.UTC)
+            if ((childMetaAttrib.getUnit() != null && childMetaAttrib.getUnit().equalsIgnoreCase("utc")) ||
+                    childMetaAttrib.getData() instanceof ProductData.UTC)
                 setAttribute(childDomElem, "type", String.valueOf(ProductData.TYPE_UTC));
-            else if(childMetaAttrib.getData() instanceof ProductData.ASCII)
+            else if (childMetaAttrib.getData() instanceof ProductData.ASCII)
                 setAttribute(childDomElem, "type", String.valueOf(ProductData.TYPE_ASCII));
             else
                 setAttribute(childDomElem, "type", String.valueOf(childMetaAttrib.getDataType()));
@@ -129,7 +129,7 @@ public final class XMLSupport {
     }
 
     private static void setAttribute(final Element childDomElem, final String tag, final String val) {
-        if(val != null)
+        if (val != null)
             childDomElem.setAttribute(tag, val);
     }
 
@@ -140,13 +140,13 @@ public final class XMLSupport {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
                 final List grandChildren = child.getContent();
-                if(!grandChildren.isEmpty()) {
+                if (!grandChildren.isEmpty()) {
                     final MetadataElement newElem = new MetadataElement(child.getName());
                     domElementToMetadataElement(child, newElem);
                     metadataElem.addElement(newElem);
                 }
 
-                if(child.getName().equals("attrib")) {
+                if (child.getName().equals("attrib")) {
                     addAttribute(metadataElem, child);
                 }
             }
@@ -162,15 +162,15 @@ public final class XMLSupport {
         final Attribute unitAttrib = domElem.getAttribute("unit");
         final Attribute descAttrib = domElem.getAttribute("desc");
 
-        if(nameAttrib == null || valueAttrib == null)
+        if (nameAttrib == null || valueAttrib == null)
             return;
 
         final MetadataAttribute attribute = new MetadataAttribute(nameAttrib.getName(), ProductData.TYPE_ASCII, 1);
         attribute.getData().setElems(valueAttrib.getValue());
 
-        if(unitAttrib != null)
+        if (unitAttrib != null)
             attribute.setUnit(unitAttrib.getValue());
-        if(descAttrib != null)
+        if (descAttrib != null)
             attribute.setDescription(descAttrib.getValue());
 
         root.addAttribute(attribute);
@@ -178,7 +178,7 @@ public final class XMLSupport {
 
     public static String getAttrib(final Element elem, final String tag) {
         final Attribute attrib = elem.getAttribute(tag);
-        if(attrib != null)
+        if (attrib != null)
             return attrib.getValue();
         return "";
     }
@@ -188,18 +188,18 @@ public final class XMLSupport {
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element elem = (Element) aChild;
-                if(elem.getName().equalsIgnoreCase(name))
+                if (elem.getName().equalsIgnoreCase(name))
                     return elem;
             }
         }
-        throw new IOException("Element "+name+" not found");
+        throw new IOException("Element " + name + " not found");
     }
 
     public static Text getElementText(final Element root) throws IOException {
         final List children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Text) {
-                return (Text)aChild;
+                return (Text) aChild;
             }
         }
         throw new IOException("Element Text not found");
@@ -210,7 +210,7 @@ public final class XMLSupport {
         final List contentList = elem.getContent();
         for (Object o : contentList) {
             if (o instanceof Element) {
-                array.add( ((Element)o).getName() );
+                array.add(((Element) o).getName());
             }
         }
         return array.toArray(new String[array.size()]);

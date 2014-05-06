@@ -28,11 +28,11 @@ import java.util.Calendar;
 public class SQLUtils {
 
     public static String getOrList(final String columnStr, final String values[]) {
-        final StringBuilder orListStr = new StringBuilder(columnStr.length()*values.length);
+        final StringBuilder orListStr = new StringBuilder(columnStr.length() * values.length);
         orListStr.append('(');
-        int i=0;
-        for(String v : values) {
-            if(i>0)
+        int i = 0;
+        for (String v : values) {
+            if (i > 0)
                 orListStr.append(" OR ");
             orListStr.append(columnStr);
             orListStr.append(" = '");
@@ -60,26 +60,26 @@ public class SQLUtils {
     }
 
     public static void addAND(StringBuilder str) {
-        if(str.length() > 0)
+        if (str.length() > 0)
             str.append(" AND ");
     }
 
     public static String insertTableName(final String[] tokens, final String tableName, final String freeQuery) {
         String query = freeQuery;
-        for(String tok : tokens) {
-            query = query.replaceAll(tok, tableName+'.'+tok);
+        for (String tok : tokens) {
+            query = query.replaceAll(tok, tableName + '.' + tok);
         }
         return query;
     }
 
     public static void printResults(final ResultSet results) throws SQLException {
-        while(results.next()) {
+        while (results.next()) {
             final ResultSetMetaData meta = results.getMetaData();
             final int colCnt = meta.getColumnCount();
 
-            for(int i=1; i<= colCnt; ++i) {
+            for (int i = 1; i <= colCnt; ++i) {
                 final String str = results.getString(i);
-                System.out.print(meta.getColumnName(i)+":"+str+" ");
+                System.out.print(meta.getColumnName(i) + ":" + str + " ");
             }
             System.out.println();
         }

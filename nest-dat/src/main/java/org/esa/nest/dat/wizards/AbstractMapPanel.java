@@ -23,7 +23,7 @@ import java.awt.*;
 import java.io.File;
 
 /**
-   Map Panel
+ * Map Panel
  */
 public abstract class AbstractMapPanel extends WizardPanel {
 
@@ -60,7 +60,7 @@ public abstract class AbstractMapPanel extends WizardPanel {
     }
 
     protected String getInstructions() {
-        return  "View the footprint of the input products on the world map\n"+
+        return "View the footprint of the input products on the world map\n" +
                 "Use the mouse wheel to zoom in and out. Hold and drag the right mouse button to pan\n";
     }
 

@@ -38,6 +38,7 @@ public final class TileIndex {
 
     /**
      * calculates offset
+     *
      * @param ty y pos
      * @return offset
      */

@@ -55,8 +55,8 @@ public final class DialogUtils {
         return label;
     }
 
-    public static void addInnerPanel(JPanel contentPane, GridBagConstraints gbc, JLabel label, 
-                                      JComponent component1, JComponent component2) {
+    public static void addInnerPanel(JPanel contentPane, GridBagConstraints gbc, JLabel label,
+                                     JComponent component1, JComponent component2) {
         contentPane.add(label, gbc);
 
         final JPanel innerPane = new JPanel(new GridBagLayout());
@@ -70,11 +70,11 @@ public final class DialogUtils {
     }
 
     public static JFormattedTextField createFormattedTextField(final NumberFormat numFormat, final Object value,
-                                                     final PropertyChangeListener propListener) {
+                                                               final PropertyChangeListener propListener) {
         final JFormattedTextField field = new JFormattedTextField(numFormat);
         field.setValue(value);
         field.setColumns(10);
-        if(propListener != null)
+        if (propListener != null)
             field.addPropertyChangeListener("value", propListener);
 
         return field;
@@ -106,11 +106,11 @@ public final class DialogUtils {
         private final JPanel fieldPanel;
 
         public ComponentListPanel() {
-            final GridLayout grid = new GridLayout(0,1);
+            final GridLayout grid = new GridLayout(0, 1);
             grid.setVgap(5);
 
             labelPanel = new JPanel(grid);
-            fieldPanel = new JPanel(new GridLayout(0,1));
+            fieldPanel = new JPanel(new GridLayout(0, 1));
 
             this.add(labelPanel, BorderLayout.CENTER);
             this.add(fieldPanel, BorderLayout.LINE_END);
@@ -137,11 +137,14 @@ public final class DialogUtils {
 
     public static class TextAreaKeyListener implements KeyListener {
         private boolean changedByUser = false;
+
         public void keyPressed(KeyEvent e) {
         }
+
         public void keyReleased(KeyEvent e) {
             changedByUser = true;
         }
+
         public void keyTyped(KeyEvent e) {
         }
 

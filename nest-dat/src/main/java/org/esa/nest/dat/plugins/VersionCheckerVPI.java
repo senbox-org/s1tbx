@@ -76,7 +76,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         CommandManager commandManager = visatApp.getCommandManager();
         ExecCommand versionCheckerCommand = commandManager.createExecCommand("checkForUpdate", versinoCheckerAction);
         versionCheckerCommand.setText("Check for New Release...");
-        versionCheckerCommand.setShortDescription("Checks for a new "+VisatApp.getApp().getAppName()+" release");
+        versionCheckerCommand.setShortDescription("Checks for a new " + VisatApp.getApp().getAppName() + " release");
         versionCheckerCommand.setParent("help");
         versionCheckerCommand.setPlaceAfter("showUpdateDialog");
         versionCheckerCommand.setPlaceBefore("about");
@@ -127,7 +127,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
 
     private static int getVersionStatus() throws IOException {
         final VersionChecker versionChecker = new VersionChecker();
-        String localVersion = "VERSION "+System.getProperty(ResourceUtils.getContextID()+".version");
+        String localVersion = "VERSION " + System.getProperty(ResourceUtils.getContextID() + ".version");
         localVersion = localVersion.replace("beta", "").trim();
         versionChecker.setLocalVersion(localVersion);
         versionChecker.setRemoteVersionUrlString(remoteVersionUrl);
@@ -153,15 +153,15 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
             beamHomeLabel.setForeground(Color.BLUE.darker());
         }
         Object[] message = new Object[]{
-                "A new software version is available. "+remoteVersionStr+'\n' +
-                "Would you like to update your software with the latest features and bug fixes?\n"
+                "A new software version is available. " + remoteVersionStr + '\n' +
+                        "Would you like to update your software with the latest features and bug fixes?\n"
         };
         final int answer = JOptionPane.showConfirmDialog(VisatApp.getApp().getMainFrame(),
-                                      message,
-                                      MESSAGE_BOX_TITLE,
-                                      JOptionPane.YES_NO_OPTION,
-                                      JOptionPane.QUESTION_MESSAGE);
-        if(answer==JOptionPane.YES_OPTION) {
+                message,
+                MESSAGE_BOX_TITLE,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (answer == JOptionPane.YES_OPTION) {
             runAutoUpdate();
         }
     }
@@ -172,33 +172,33 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
 
         String command;
         File autoUpdateExe;
-        if(platform.getId() == Platform.ID.win) {
+        if (platform.getId() == Platform.ID.win) {
             autoUpdateExe = new File(homeFolder, "autoupdate-windows.exe");
 
-            final File program = new File(homeFolder, "bin"+File.separator+"exec1.bat");
+            final File program = new File(homeFolder, "bin" + File.separator + "exec1.bat");
 
-            final String arg = '\"' +autoUpdateExe.getParent()+"\" "+autoUpdateExe.getName();
-            command = '\"' +program.getAbsolutePath() +"\" "+ arg;
-        } else if(platform.getId() == Platform.ID.macosx) {
+            final String arg = '\"' + autoUpdateExe.getParent() + "\" " + autoUpdateExe.getName();
+            command = '\"' + program.getAbsolutePath() + "\" " + arg;
+        } else if (platform.getId() == Platform.ID.macosx) {
             autoUpdateExe = new File(homeFolder, "autoupdate-osx.app");
             command = autoUpdateExe.getAbsolutePath();
         } else {
-            if(platform.getBitCount() == 64) {
+            if (platform.getBitCount() == 64) {
                 autoUpdateExe = new File(homeFolder, "autoupdate-linux-x64.run");
             } else {
                 autoUpdateExe = new File(homeFolder, "autoupdate-linux.run");
             }
             command = autoUpdateExe.getAbsolutePath();
         }
-        if(autoUpdateExe.exists()) {
+        if (autoUpdateExe.exists()) {
             try {
                 externalExecute(command);
                 System.exit(0);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         } else {
-            VisatApp.getApp().showErrorDialog("Unable to locate AutoUpdate "+autoUpdateExe.getAbsolutePath());
+            VisatApp.getApp().showErrorDialog("Unable to locate AutoUpdate " + autoUpdateExe.getAbsolutePath());
         }
     }
 
@@ -213,7 +213,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
                     boolean hasErrors = outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getErrorStream())));
                     System.out.println(hasErrors);
 
-                } catch(Throwable e) {
+                } catch (Throwable e) {
                     VisatApp.getApp().showErrorDialog(e.getMessage());
                 }
             }
@@ -224,7 +224,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
     private static boolean outputTextBuffers(BufferedReader in) throws IOException {
         char c;
         boolean hasData = false;
-        while ((c = (char)in.read()) != -1 && c != 65535) {
+        while ((c = (char) in.read()) != -1 && c != 65535) {
             //errStr += c;
             System.out.print(c);
             hasData = true;
@@ -236,9 +236,9 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         VisatApp.getApp().getLogger().info("version check performed, application is up-to-date");
         if (prompt && !auto) {
             JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(),
-                                          "Your "+VisatApp.getApp().getAppName()+" software is up-to-date.\n",
-                                          MESSAGE_BOX_TITLE,
-                                          JOptionPane.INFORMATION_MESSAGE);
+                    "Your " + VisatApp.getApp().getAppName() + " software is up-to-date.\n",
+                    MESSAGE_BOX_TITLE,
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -246,10 +246,11 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         VisatApp.getApp().getLogger().severe("I/O error: " + t.getMessage());
         if (prompt && !auto) {
             JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(),
-                                          "The on-line version check failed,\n" +
-                                                  "an I/O error occured.\n",
-                                          MESSAGE_BOX_TITLE,
-                                          JOptionPane.ERROR_MESSAGE);
+                    "The on-line version check failed,\n" +
+                            "an I/O error occured.\n",
+                    MESSAGE_BOX_TITLE,
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 

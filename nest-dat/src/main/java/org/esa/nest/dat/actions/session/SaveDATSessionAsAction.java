@@ -22,11 +22,10 @@ import org.esa.beam.visat.actions.session.SaveSessionAsAction;
 
 /**
  * Saves a session with a new filename.
- *
  */
 public class SaveDATSessionAsAction extends SaveSessionAsAction {
     public static final String ID = "saveDATSessionAs";
-    
+
     @Override
     public final void actionPerformed(final CommandEvent event) {
         final SaveDATSessionAction action = (SaveDATSessionAction) VisatApp.getApp().getCommandManager().getCommand(SaveSessionAction.ID);

@@ -39,7 +39,7 @@ class ColourScaleDialog extends ModalDialog {
         this.colourAxis = colourAxis;
         final double[] range = colourAxis.getRange();
         min.setText(String.valueOf(range[0]));
-        max.setText(String.valueOf(range[range.length-1]));
+        max.setText(String.valueOf(range[range.length - 1]));
 
         setContent(createPanel());
     }
@@ -48,7 +48,7 @@ class ColourScaleDialog extends ModalDialog {
     protected void onOK() {
 
         colourAxis.setDataRange(Double.parseDouble(min.getText()), Double.parseDouble(max.getText()));
-        
+
         ok = true;
         hide();
     }

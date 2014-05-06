@@ -21,17 +21,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.swing.JideTabbedPane;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.DatApp;
 import org.esa.nest.util.ResourceUtils;
 
 import javax.swing.*;
-import javax.swing.plaf.UIResource;
 import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,14 +44,12 @@ public final class S1TBXApp extends DatApp {
     }
 
     protected TabbedDesktopPane createDesktop() {
-        final JDesktopPane desktopPane = new JDesktopPane()
-        {
+        final JDesktopPane desktopPane = new JDesktopPane() {
             //final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/desktop-pane.jpg");
             final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/azure5.jpg");
             private final Image image = Toolkit.getDefaultToolkit().getImage(imgPath);
 
-            protected void paintComponent(Graphics g)
-            {
+            protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
             }
@@ -70,7 +63,7 @@ public final class S1TBXApp extends DatApp {
 
         try {
             UIManager.installLookAndFeel("WebLookAndFeel", "com.alee.laf.WebLookAndFeel");
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
@@ -87,7 +80,7 @@ public final class S1TBXApp extends DatApp {
                 UIManager.setLookAndFeel(newLafClassName);
                 getPreferences().setPropertyString(PROPERTY_KEY_APP_UI_LAF, newLafClassName);
 
-                if("WebLookAndFeel".equals(newLafClassName)) {
+                if ("WebLookAndFeel".equals(newLafClassName)) {
                     // Enabling dialog decoration
                     WebLookAndFeel.setDecorateAllWindows(true);
                 }
@@ -123,10 +116,10 @@ public final class S1TBXApp extends DatApp {
             List<String> list = new ArrayList();
             while (newKeys.hasMoreElements()) {
                 Object obj = newKeys.nextElement();
-                list.add(obj +" = "+ UIManager.get(obj));
+                list.add(obj + " = " + UIManager.get(obj));
             }
             Collections.sort(list);
-            for(String s : list) {
+            for (String s : list) {
                 System.out.println(s);
             }
         } catch (Exception e) {
@@ -148,10 +141,10 @@ public final class S1TBXApp extends DatApp {
         UIManager.getDefaults().put("SidePane.alwaysShowTabText", Boolean.TRUE);
         UIManager.getDefaults().put("SidePane.orientation", 1);
 
-        UIManager.getDefaults().put("DockableFrame.background", new Color(200,220,230));
+        UIManager.getDefaults().put("DockableFrame.background", new Color(200, 220, 230));
 
-        UIManager.getDefaults().put("DockableFrame.activeTitleBackground", new Color(200,220,220));//new Color(0,127,190));
-        UIManager.getDefaults().put("DockableFrame.activeTitleBackground2", new Color(100,200,255));//new Color(100,200,200));
+        UIManager.getDefaults().put("DockableFrame.activeTitleBackground", new Color(200, 220, 220));//new Color(0,127,190));
+        UIManager.getDefaults().put("DockableFrame.activeTitleBackground2", new Color(100, 200, 255));//new Color(100,200,200));
 
         //UIManager.getDefaults().put("JideTabbedPane.showIconOnTab", Boolean.TRUE);
     }
@@ -159,7 +152,7 @@ public final class S1TBXApp extends DatApp {
     @Override
     protected String getMainFrameTitle() {
         final String ver = System.getProperty("rstb.version");
-        return getAppName() + ' '+ver;
+        return getAppName() + ' ' + ver;
     }
 
     @Override

@@ -76,41 +76,40 @@ public class ProjectsToolView extends AbstractToolView implements Observer {
 
     private static void PopulateNode(Vector<ProjectSubFolder> subFolders, DefaultMutableTreeNode treeNode) {
 
-        for (Enumeration e = subFolders.elements(); e.hasMoreElements();)
-        {
-            final ProjectSubFolder folder = (ProjectSubFolder)e.nextElement();
+        for (Enumeration e = subFolders.elements(); e.hasMoreElements(); ) {
+            final ProjectSubFolder folder = (ProjectSubFolder) e.nextElement();
 
             final DefaultMutableTreeNode folderNode = new DefaultMutableTreeNode(folder);
             treeNode.add(folderNode);
 
             final Vector<ProjectFile> fileList = folder.getFileList();
-            for (Enumeration file = fileList.elements(); file.hasMoreElements();)
-            {
+            for (Enumeration file = fileList.elements(); file.hasMoreElements(); ) {
                 final DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file.nextElement());
                 folderNode.add(fileNode);
             }
 
             final Vector<ProjectSubFolder> moreFolders = folder.getSubFolders();
-            if(!moreFolders.isEmpty())
+            if (!moreFolders.isEmpty())
                 PopulateNode(moreFolders, folderNode);
         }
     }
 
     /**
-     Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
-     dependency between a Subject object and any number of Observer objects so that when the
-     Subject object changes state, all its Observer objects are notified and updated automatically.
-
-     Defines an updating interface for objects that should be notified of changes in a subject.
+     * Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
+     * dependency between a Subject object and any number of Observer objects so that when the
+     * Subject object changes state, all its Observer objects are notified and updated automatically.
+     * <p/>
+     * Defines an updating interface for objects that should be notified of changes in a subject.
+     *
      * @param subject The Observerable subject
-     * @param data optional data
+     * @param data    optional data
      */
     public void update(java.util.Observable subject, java.lang.Object data) {
 
         rootNode.removeAllChildren();
 
         final ProjectSubFolder projectFolders = project.getProjectSubFolders();
-        if(projectFolders == null) {
+        if (projectFolders == null) {
             projectTree.setRootVisible(false);
             projectTree.populateTree(rootNode);
         } else {

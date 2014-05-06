@@ -24,7 +24,6 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.MapProjectionHandler;
 import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.util.DialogUtils;
 

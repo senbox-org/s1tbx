@@ -53,10 +53,10 @@ public class ClipboardUtils {
      * @return string
      */
     public static String getClipboardString() throws IOException, UnsupportedFlavorException {
-            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            if (clipboard != null) {
-                return (String) clipboard.getData(DataFlavor.stringFlavor);
-            }
+        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        if (clipboard != null) {
+            return (String) clipboard.getData(DataFlavor.stringFlavor);
+        }
         return null;
     }
 

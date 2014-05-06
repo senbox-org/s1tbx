@@ -48,22 +48,24 @@ public final class OperatorUtils {
 
     /**
      * Get radar frequency from the abstracted metadata (in Hz).
+     *
      * @param absRoot the AbstractMetadata
      * @return wavelength
      * @throws Exception The exceptions.
      */
     public static double getRadarFrequency(final MetadataElement absRoot) throws Exception {
         final double radarFreq = AbstractMetadata.getAttributeDouble(absRoot,
-                                                    AbstractMetadata.radar_frequency)*Constants.oneMillion; // Hz
+                AbstractMetadata.radar_frequency) * Constants.oneMillion; // Hz
         if (Double.compare(radarFreq, 0.0) <= 0) {
             throw new OperatorException("Invalid radar frequency: " + radarFreq);
         }
         return Constants.lightSpeed / radarFreq;
     }
-    
+
     /**
      * Get incidence angle tie point grid.
-     * @param sourceProduct The source product.
+     *
+     * @param sourceProduct    The source product.
      * @param tiePointGridName The tie point grid name.
      * @return srcTPG The incidence angle tie point grid.
      */
@@ -81,6 +83,7 @@ public final class OperatorUtils {
 
     /**
      * Get incidence angle tie point grid.
+     *
      * @param sourceProduct The source product.
      * @return srcTPG The incidence angle tie point grid.
      */
@@ -91,6 +94,7 @@ public final class OperatorUtils {
 
     /**
      * Get slant range time tie point grid.
+     *
      * @param sourceProduct The source product.
      * @return srcTPG The slant range time tie point grid.
      */
@@ -101,6 +105,7 @@ public final class OperatorUtils {
 
     /**
      * Get latitude tie point grid.
+     *
      * @param sourceProduct The source product.
      * @return srcTPG The latitude tie point grid.
      */
@@ -111,6 +116,7 @@ public final class OperatorUtils {
 
     /**
      * Get longitude tie point grid.
+     *
      * @param sourceProduct The source product.
      * @return srcTPG The longitude tie point grid.
      */
@@ -131,37 +137,38 @@ public final class OperatorUtils {
 
     public static String getPolarizationFromBandName(final String bandName) {
 
-    	// Account for possibilities like "x_HH_dB" or "x_HH_times_VV_conj"
-    	// where the last one will return an exception because it appears to contain
-    	// multiple polarizations
-    	String pol = "";
-    	final String bandNameLower = bandName.toLowerCase();
-    	if (bandNameLower.contains("_hh"))
-    		pol += "hh";
-    	if (bandNameLower.contains("_vv"))
-    		pol += "vv";
-    	if (bandNameLower.contains("_hv"))
-    		pol += "hv";
-    	if (bandNameLower.contains("_vh"))
-    		pol += "vh";
-    	
-    	if (pol.length() == 2)
-    		return pol;
-    	else if (pol.length() > 2)
-    		throw new OperatorException("Band name contains multiple polarziations: " + pol);
-    
+        // Account for possibilities like "x_HH_dB" or "x_HH_times_VV_conj"
+        // where the last one will return an exception because it appears to contain
+        // multiple polarizations
+        String pol = "";
+        final String bandNameLower = bandName.toLowerCase();
+        if (bandNameLower.contains("_hh"))
+            pol += "hh";
+        if (bandNameLower.contains("_vv"))
+            pol += "vv";
+        if (bandNameLower.contains("_hv"))
+            pol += "hv";
+        if (bandNameLower.contains("_vh"))
+            pol += "vh";
+
+        if (pol.length() == 2)
+            return pol;
+        else if (pol.length() > 2)
+            throw new OperatorException("Band name contains multiple polarziations: " + pol);
+
         return null;
     }
 
     /**
      * Get product polarizations for each band in the product.
+     *
      * @param absRoot the AbstractMetadata
      * @return mdsPolar the string array to hold the polarization names
      */
     public static String[] getProductPolarization(final MetadataElement absRoot) {
 
         final String[] mdsPolar = new String[4];
-        for(int i=0; i < mdsPolar.length; ++i) {
+        for (int i = 0; i < mdsPolar.length; ++i) {
             final String polarName = absRoot.getAttributeString(AbstractMetadata.polarTags[i], "").toLowerCase();
             mdsPolar[i] = "";
             if (polarName.contains("hh") || polarName.contains("hv") || polarName.contains("vh") || polarName.contains("vv")) {
@@ -192,15 +199,15 @@ public final class OperatorUtils {
 
         final int idx1 = bandName.indexOf('_');
         if (idx1 != -1) {
-            return bandName.substring(idx1+1);
+            return bandName.substring(idx1 + 1);
         }
         final int idx2 = bandName.indexOf('-');
         if (idx2 != -1) {
-            return bandName.substring(idx2+1);
+            return bandName.substring(idx2 + 1);
         }
         final int idx3 = bandName.indexOf('.');
         if (idx3 != -1) {
-            return bandName.substring(idx3+1);
+            return bandName.substring(idx3 + 1);
         }
         return null;
     }
@@ -221,11 +228,11 @@ public final class OperatorUtils {
 
     public static boolean isDIMAP(final Product prod) {
         return StringUtils.contains(prod.getProductReader().getReaderPlugIn().getFormatNames(),
-                                    DimapProductConstants.DIMAP_FORMAT_NAME);
+                DimapProductConstants.DIMAP_FORMAT_NAME);
     }
 
     public static boolean isMapProjected(final Product product) {
-        if(product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
+        if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         return absRoot != null && !absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim().isEmpty();
@@ -233,9 +240,9 @@ public final class OperatorUtils {
 
     public static boolean isComplex(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
+        if (absRoot != null) {
             final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, "").trim();
-            if(sampleType.equalsIgnoreCase("complex"))
+            if (sampleType.equalsIgnoreCase("complex"))
                 return true;
         }
         return false;
@@ -243,12 +250,12 @@ public final class OperatorUtils {
 
     public static boolean isQuadPol(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
+        if (absRoot != null) {
             final String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, "").trim();
             final String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar, "").trim();
             final String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar, "").trim();
             final String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar, "").trim();
-            if(!pol1.isEmpty() && !pol2.isEmpty() && !pol3.isEmpty() && !pol4.isEmpty())
+            if (!pol1.isEmpty() && !pol2.isEmpty() && !pol3.isEmpty() && !pol4.isEmpty())
                 return true;
         }
         return false;
@@ -256,8 +263,9 @@ public final class OperatorUtils {
 
     /**
      * Copy master GCPs to target product.
-     * @param group input master GCP group
-     * @param targetGCPGroup output master GCP group
+     *
+     * @param group           input master GCP group
+     * @param targetGCPGroup  output master GCP group
      * @param targetGeoCoding the geocoding of the target product
      */
     public static void copyGCPsToTarget(final ProductNodeGroup<Placemark> group,
@@ -265,29 +273,29 @@ public final class OperatorUtils {
                                         final GeoCoding targetGeoCoding) {
         targetGCPGroup.removeAll();
 
-        for(int i = 0; i < group.getNodeCount(); ++i) {
+        for (int i = 0; i < group.getNodeCount(); ++i) {
             final Placemark sPin = group.get(i);
             final Placemark tPin = Placemark.createPointPlacemark(GcpDescriptor.getInstance(),
-                               sPin.getName(),
-                               sPin.getLabel(),
-                               sPin.getDescription(),
-                               sPin.getPixelPos(),
-                               sPin.getGeoPos(),
-                               targetGeoCoding);
-                                            
+                    sPin.getName(),
+                    sPin.getLabel(),
+                    sPin.getDescription(),
+                    sPin.getPixelPos(),
+                    sPin.getGeoPos(),
+                    targetGeoCoding);
+
             targetGCPGroup.add(tPin);
         }
     }
 
     public static Product createDummyTargetProduct(final Product[] sourceProducts) {
         final Product targetProduct = new Product(sourceProducts[0].getName(),
-                                        sourceProducts[0].getProductType(),
-                                        sourceProducts[0].getSceneRasterWidth(),
-                                        sourceProducts[0].getSceneRasterHeight());
+                sourceProducts[0].getProductType(),
+                sourceProducts[0].getSceneRasterWidth(),
+                sourceProducts[0].getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProducts[0], targetProduct);
-        for(Product prod : sourceProducts) {
-            for(Band band : prod.getBands()) {
+        for (Product prod : sourceProducts) {
+            for (Band band : prod.getBands()) {
                 ProductUtils.copyBand(band.getName(), prod, band.getName(), targetProduct, false);
             }
         }
@@ -300,7 +308,7 @@ public final class OperatorUtils {
             final ProductData.UTC date = root.getAttributeUTC(AbstractMetadata.first_line_time);
             final DateFormat dateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
             dateString = dateFormat.format(date.getAsDate());
-        } catch(Exception e) {
+        } catch (Exception e) {
             dateString = "";
         }
         return dateString;
@@ -315,9 +323,9 @@ public final class OperatorUtils {
         TiePointGrid latGrid = null;
         TiePointGrid lonGrid = null;
 
-        for(TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
+        for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
 
-            final float[] tiePoints = new float[gridWidth*gridHeight];
+            final float[] tiePoints = new float[gridWidth * gridHeight];
             for (int k = 0; k < newTiePointPos.length; k++) {
                 tiePoints[k] = srcTPG.getPixelFloat(newTiePointPos[k].x, newTiePointPos[k].y);
             }
@@ -328,14 +336,14 @@ public final class OperatorUtils {
             }
 
             final TiePointGrid tgtTPG = new TiePointGrid(srcTPG.getName(),
-                                                   gridWidth,
-                                                   gridHeight,
-                                                   0.0f,
-                                                   0.0f,
-                                                   subSamplingX,
-                                                   subSamplingY,
-                                                   tiePoints,
-                                                   discontinuity);
+                    gridWidth,
+                    gridHeight,
+                    0.0f,
+                    0.0f,
+                    subSamplingX,
+                    subSamplingY,
+                    tiePoints,
+                    discontinuity);
 
             targetProduct.addTiePointGrid(tgtTPG);
 
@@ -351,8 +359,10 @@ public final class OperatorUtils {
         targetProduct.setGeoCoding(gc);
     }
 
-    /** get the selected bands
-     * @param sourceProduct the input product
+    /**
+     * get the selected bands
+     *
+     * @param sourceProduct   the input product
      * @param sourceBandNames the select band names
      * @return band list
      * @throws OperatorException if source band not found
@@ -363,7 +373,7 @@ public final class OperatorUtils {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if(!(band instanceof VirtualBand))
+                if (!(band instanceof VirtualBand))
                     bandNameList.add(band.getName());
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
@@ -382,15 +392,15 @@ public final class OperatorUtils {
     }
 
     public static void catchOperatorException(String opName, final Throwable e) throws OperatorException {
-        if(opName.contains("$"))
+        if (opName.contains("$"))
             opName = opName.substring(0, opName.indexOf('$'));
         String message = opName + ": ";
-        if(e.getMessage() != null)
+        if (e.getMessage() != null)
             message += e.getMessage();
         else
             message += e.toString();
 
-        if(Settings.instance().isTrue("sendErrorOnException")) {
+        if (Settings.instance().isTrue("sendErrorOnException")) {
             ExceptionLog.log(message);
         }
 
@@ -404,8 +414,9 @@ public final class OperatorUtils {
     /**
      * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
      * latitude/longitude.
+     *
      * @param sourceProducts the list of input products
-     * @param scnProp the output scene properties
+     * @param scnProp        the output scene properties
      */
     public static void computeImageGeoBoundary(final Product[] sourceProducts, final SceneProperties scnProp) {
 
@@ -450,24 +461,25 @@ public final class OperatorUtils {
     /**
      * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
      * latitude/longitude.
+     *
      * @param sourceProduct The input source product.
-     * @throws OperatorException for no geocoding
      * @return geoBoundary The object to pass back the max/min lat/lon.
+     * @throws OperatorException for no geocoding
      */
     public static ImageGeoBoundary computeImageGeoBoundary(final Product sourceProduct) throws OperatorException {
         final ImageGeoBoundary geoBoundary = new ImageGeoBoundary();
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
-        if(geoCoding == null) {
+        if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }
-        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0.5f,0.5f), null);
-        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth()-0.5f,0.5f), null);
-        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0.5f,sourceProduct.getSceneRasterHeight()-0.5f), null);
-        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth()-0.5f,
-                                                                      sourceProduct.getSceneRasterHeight()-0.5f), null);
+        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth() - 0.5f, 0.5f), null);
+        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0.5f, sourceProduct.getSceneRasterHeight() - 0.5f), null);
+        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth() - 0.5f,
+                sourceProduct.getSceneRasterHeight() - 0.5f), null);
 
-        final double[] lats  = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
-        final double[] lons  = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+        final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+        final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
 
         geoBoundary.latMin = 90.0;
         geoBoundary.latMax = -90.0;
@@ -528,8 +540,9 @@ public final class OperatorUtils {
 
     /**
      * Add geocoding to the target product.
+     *
      * @param targetProduct the destination product
-     * @param scnProp the scene properties
+     * @param scnProp       the scene properties
      */
     public static void addGeoCoding(final Product targetProduct, final SceneProperties scnProp) {
 
@@ -567,7 +580,7 @@ public final class OperatorUtils {
 
     public static class ImageGeoBoundary {
         public double latMin = 0.0, latMax = 0.0;
-        public double lonMin = 0.0, lonMax= 0.0;
+        public double lonMin = 0.0, lonMax = 0.0;
     }
 
     public static class SceneProperties {
@@ -580,12 +593,13 @@ public final class OperatorUtils {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     public static void addSelectedBands(final Product sourceProduct, final String[] sourceBandNames,
-                                  final Product targetProduct,
-                                  final Map<String, String[]> targetBandNameToSourceBandName,
-                                  final boolean outputIntensity, final boolean outputFloat) throws OperatorException {
+                                        final Product targetProduct,
+                                        final Map<String, String[]> targetBandNameToSourceBandName,
+                                        final boolean outputIntensity, final boolean outputFloat) throws OperatorException {
 
         final Band[] sourceBands = getSourceBands(sourceProduct, sourceBandNames);
 
@@ -597,7 +611,7 @@ public final class OperatorUtils {
 
             final Band srcBand = sourceBands[i];
             String unit = srcBand.getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 unit = Unit.AMPLITUDE;  // assume amplitude
             }
 
@@ -615,14 +629,14 @@ public final class OperatorUtils {
                 if (i == sourceBands.length - 1) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
-                final String nextUnit = sourceBands[i+1].getUnit();
+                final String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !((unit.equals(Unit.REAL) && nextUnit.equals(Unit.IMAGINARY)) ||
-                                          (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
+                        (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
                 final String[] srcBandNames = new String[2];
                 srcBandNames[0] = srcBand.getName();
-                srcBandNames[1] = sourceBands[i+1].getName();
+                srcBandNames[1] = sourceBands[i + 1].getName();
                 targetBandName = "Intensity";
                 final String suff = getSuffixFromBandName(srcBandNames[0]);
                 if (suff != null) {
@@ -632,12 +646,12 @@ public final class OperatorUtils {
                 if (pol != null && !pol.isEmpty() && !isPolsar && !targetBandName.toLowerCase().contains(pol)) {
                     targetBandName += '_' + pol.toUpperCase();
                 }
-                if(isPolsar) {
+                if (isPolsar) {
                     final String pre = getprefixFromBandName(srcBandNames[0]);
                     targetBandName = "Intensity_" + pre;
                 }
                 ++i;
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetUnit = Unit.INTENSITY;
                 }
@@ -650,25 +664,25 @@ public final class OperatorUtils {
                 if (pol != null && !pol.isEmpty() && !isPolsar && !targetBandName.toLowerCase().contains(pol)) {
                     targetBandName += '_' + pol.toUpperCase();
                 }
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetUnit = unit;
                 }
             }
 
-            if(targetProduct.getBand(targetBandName) == null) {
+            if (targetProduct.getBand(targetBandName) == null) {
                 int dataType = srcBand.getDataType();
-                if(outputFloat)
+                if (outputFloat)
                     dataType = ProductData.TYPE_FLOAT32;
-                if(outputIntensity && (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_INT16))
+                if (outputIntensity && (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_INT16))
                     dataType = ProductData.TYPE_INT32;
-                if(outputIntensity && (dataType == ProductData.TYPE_UINT8 || dataType == ProductData.TYPE_UINT16))
+                if (outputIntensity && (dataType == ProductData.TYPE_UINT8 || dataType == ProductData.TYPE_UINT16))
                     dataType = ProductData.TYPE_UINT32;
 
                 final Band targetBand = new Band(targetBandName,
-                                                 dataType,
-                                                 targetProduct.getSceneRasterWidth(),
-                                                 targetProduct.getSceneRasterHeight());
+                        dataType,
+                        targetProduct.getSceneRasterWidth(),
+                        targetProduct.getSceneRasterHeight());
 
                 targetBand.setUnit(targetUnit);
                 targetBand.setDescription(srcBand.getDescription());
@@ -682,16 +696,17 @@ public final class OperatorUtils {
 
     /**
      * Get an array of rectangles for all source tiles of the image
+     *
      * @param sourceProduct the input
-     * @param tileSize the rect
-     * @param margin feathered area
+     * @param tileSize      the rect
+     * @param margin        feathered area
      * @return Array of rectangles
      */
     public static Rectangle[] getAllTileRectangles(final Product sourceProduct, final Dimension tileSize,
                                                    final int margin) {
 
-        final int rasterHeight = sourceProduct.getSceneRasterHeight()-margin-margin;
-        final int rasterWidth = sourceProduct.getSceneRasterWidth()-margin-margin;
+        final int rasterHeight = sourceProduct.getSceneRasterHeight() - margin - margin;
+        final int rasterWidth = sourceProduct.getSceneRasterWidth() - margin - margin;
 
         final Rectangle boundary = new Rectangle(margin, margin, rasterWidth, rasterHeight);
 
@@ -702,10 +717,10 @@ public final class OperatorUtils {
         int index = 0;
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
-                final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width+margin,
-                                                              tileY * tileSize.height+margin,
-                                                              tileSize.width,
-                                                              tileSize.height);
+                final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width + margin,
+                        tileY * tileSize.height + margin,
+                        tileSize.width,
+                        tileSize.height);
                 final Rectangle intersection = boundary.intersection(tileRectangle);
                 rectangles[index] = intersection;
                 index++;

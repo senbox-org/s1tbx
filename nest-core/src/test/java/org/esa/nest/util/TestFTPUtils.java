@@ -53,7 +53,7 @@ public class TestFTPUtils extends TestCase {
         final Long fileSize = fileSizeMap.get(remoteFileName);
 
         final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-        assertTrue(result==ftpUtils.FTPError.OK);
+        assertTrue(result == ftpUtils.FTPError.OK);
     }
 
 }

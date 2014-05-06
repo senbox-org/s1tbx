@@ -47,18 +47,18 @@ public final class DatabasePane extends JPanel {
 
     private final JList missionJList = new JList();
     private final JList productTypeJList = new JList();
-    private final JComboBox acquisitionModeCombo = new JComboBox(new String[] { DBQuery.ALL_MODES });
-    private final JComboBox passCombo = new JComboBox(new String[] {
-            DBQuery.ALL_PASSES, DBQuery.ASCENDING_PASS, DBQuery.DESCENDING_PASS });
+    private final JComboBox acquisitionModeCombo = new JComboBox(new String[]{DBQuery.ALL_MODES});
+    private final JComboBox passCombo = new JComboBox(new String[]{
+            DBQuery.ALL_PASSES, DBQuery.ASCENDING_PASS, DBQuery.DESCENDING_PASS});
     private final JTextField trackField = new JTextField();
     private final DateComboBox startDateBox = new DateComboBox();
     private final DateComboBox endDateBox = new DateComboBox();
-    private final JComboBox polarizationCombo = new JComboBox(new String[] {
-            DBQuery.ANY, DBQuery.QUADPOL, DBQuery.DUALPOL, "HH", "VV", "HV", "VH" });
-    private final JComboBox calibrationCombo = new JComboBox(new String[] {
-            DBQuery.ANY, DBQuery.CALIBRATED, DBQuery.NOT_CALIBRATED });
-    private final JComboBox orbitCorrectionCombo = new JComboBox(new String[] {
-            DBQuery.ANY, DBQuery.ORBIT_PRELIMINARY, DBQuery.ORBIT_PRECISE, DBQuery.ORBIT_VERIFIED });
+    private final JComboBox polarizationCombo = new JComboBox(new String[]{
+            DBQuery.ANY, DBQuery.QUADPOL, DBQuery.DUALPOL, "HH", "VV", "HV", "VH"});
+    private final JComboBox calibrationCombo = new JComboBox(new String[]{
+            DBQuery.ANY, DBQuery.CALIBRATED, DBQuery.NOT_CALIBRATED});
+    private final JComboBox orbitCorrectionCombo = new JComboBox(new String[]{
+            DBQuery.ANY, DBQuery.ORBIT_PRELIMINARY, DBQuery.ORBIT_PRECISE, DBQuery.ORBIT_VERIFIED});
 
     private final JComboBox metadataNameCombo = new JComboBox();
     private final JTextField metdataValueField = new JTextField();
@@ -80,7 +80,7 @@ public final class DatabasePane extends JPanel {
 
             missionJList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent event) {
-                    if(modifyingCombos || event.getValueIsAdjusting()) return;
+                    if (modifyingCombos || event.getValueIsAdjusting()) return;
                     updateProductTypeCombo();
                     queryDatabase();
                 }
@@ -88,7 +88,7 @@ public final class DatabasePane extends JPanel {
             productTypeJList.setFixedCellWidth(100);
             productTypeJList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent event) {
-                    if(modifyingCombos || event.getValueIsAdjusting()) return;
+                    if (modifyingCombos || event.getValueIsAdjusting()) return;
                     queryDatabase();
                 }
             });
@@ -100,13 +100,13 @@ public final class DatabasePane extends JPanel {
 
             startDateBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent event) {
-                    if(modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
+                    if (modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
                     queryDatabase();
                 }
             });
             endDateBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent event) {
-                    if(modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
+                    if (modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
                     queryDatabase();
                 }
             });
@@ -120,7 +120,7 @@ public final class DatabasePane extends JPanel {
                     queryDatabase();
                 }
             });
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             handleException(t);
         }
     }
@@ -128,7 +128,7 @@ public final class DatabasePane extends JPanel {
     private void addComboListener(final JComboBox combo) {
         combo.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                if(modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
+                if (modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
                 queryDatabase();
             }
         });
@@ -163,7 +163,7 @@ public final class DatabasePane extends JPanel {
     private static void handleException(Throwable t) {
         t.printStackTrace();
         final VisatApp app = VisatApp.getApp();
-        if(app != null) {
+        if (app != null) {
             app.showErrorDialog(t.getMessage());
         }
     }
@@ -243,7 +243,7 @@ public final class DatabasePane extends JPanel {
     }
 
     public ProductDB getDB() {
-        if(db == null) {
+        if (db == null) {
             queryDatabase();
         }
         return db;
@@ -253,16 +253,16 @@ public final class DatabasePane extends JPanel {
         try {
             boolean origState = lockCombos(true);
 
-            if(metadataNameCombo.getItemCount() == 0) {
+            if (metadataNameCombo.getItemCount() == 0) {
                 final String[] metadataNames = db.getMetadataNames();
-                for(String name : metadataNames) {
+                for (String name : metadataNames) {
                     metadataNameCombo.insertItemAt(name, metadataNameCombo.getItemCount());
                 }
             }
 
             updateMissionCombo();
             lockCombos(origState);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             handleException(t);
         }
     }
@@ -292,7 +292,7 @@ public final class DatabasePane extends JPanel {
             final String selectedMissions[] = toStringArray(missionJList.getSelectedValues());
             String[] productTypeList;
             String[] acquisitionModeList;
-            if(StringUtils.contains(selectedMissions, DBQuery.ALL_MISSIONS)) {
+            if (StringUtils.contains(selectedMissions, DBQuery.ALL_MISSIONS)) {
                 productTypeList = db.getAllProductTypes();
                 acquisitionModeList = db.getAllAcquisitionModes();
             } else {
@@ -301,11 +301,11 @@ public final class DatabasePane extends JPanel {
             }
             productTypeJList.setListData(SQLUtils.prependString(DBQuery.ALL_PRODUCT_TYPES, productTypeList));
             final String[] modeItems = SQLUtils.prependString(DBQuery.ALL_MODES, acquisitionModeList);
-            for(String item : modeItems) {
+            for (String item : modeItems) {
                 acquisitionModeCombo.addItem(item);
             }
 
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             handleException(t);
         } finally {
             lockCombos(origState);
@@ -314,33 +314,33 @@ public final class DatabasePane extends JPanel {
 
     private static String[] toStringArray(Object[] objects) {
         final String strArray[] = new String[objects.length];
-        for(int i=0; i<objects.length; ++i) {
-            strArray[i] = (String)objects[i];
+        for (int i = 0; i < objects.length; ++i) {
+            strArray[i] = (String) objects[i];
         }
         return strArray;
     }
 
     public void setBaseDir(final File dir) {
         dbQuery.setBaseDir(dir);
-        if(db != null)
+        if (db != null)
             queryDatabase();
     }
 
     public void removeProducts(final File baseDir) {
         try {
             db.removeProducts(baseDir);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             handleException(t);
         }
     }
 
     private void addMetadataText() {
-        final String name = (String)metadataNameCombo.getSelectedItem();
+        final String name = (String) metadataNameCombo.getSelectedItem();
         final String value = metdataValueField.getText();
-        if(!name.isEmpty() && !value.isEmpty()) {
-            if(metadataArea.getText().length() > 0)
+        if (!name.isEmpty() && !value.isEmpty()) {
+            if (metadataArea.getText().length() > 0)
                 metadataArea.append(" AND ");
-            metadataArea.append(name+"='"+value+"' ");
+            metadataArea.append(name + "='" + value + "' ");
         }
     }
 
@@ -348,34 +348,34 @@ public final class DatabasePane extends JPanel {
         dbQuery.setSelectedMissions(toStringArray(missionJList.getSelectedValues()));
         dbQuery.setSelectedProductTypes(toStringArray(productTypeJList.getSelectedValues()));
         dbQuery.setSelectedAcquisitionMode((String) acquisitionModeCombo.getSelectedItem());
-        dbQuery.setSelectedPass((String)passCombo.getSelectedItem());
+        dbQuery.setSelectedPass((String) passCombo.getSelectedItem());
         dbQuery.setSelectedTrack(trackField.getText());
         dbQuery.setStartEndDate(startDateBox.getCalendar(), endDateBox.getCalendar());
 
-        dbQuery.setSelectedPolarization((String)polarizationCombo.getSelectedItem());
-        dbQuery.setSelectedCalibration((String)calibrationCombo.getSelectedItem());
-        dbQuery.setSelectedOrbitCorrection((String)orbitCorrectionCombo.getSelectedItem());
+        dbQuery.setSelectedPolarization((String) polarizationCombo.getSelectedItem());
+        dbQuery.setSelectedCalibration((String) calibrationCombo.getSelectedItem());
+        dbQuery.setSelectedOrbitCorrection((String) orbitCorrectionCombo.getSelectedItem());
 
         dbQuery.clearMetadataQuery();
         dbQuery.setFreeQuery(metadataArea.getText());
     }
 
     private void queryDatabase() {
-        if(db == null) {
+        if (db == null) {
             try {
                 connectToDatabase();
-            } catch(Throwable t) {
+            } catch (Throwable t) {
                 handleException(t);
             }
         }
         setData();
 
-        if(productEntryList != null) {
+        if (productEntryList != null) {
             ProductEntry.dispose(productEntryList);
         }
         try {
             productEntryList = dbQuery.queryDatabase(db);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             handleException(t);
         }
 
@@ -397,9 +397,9 @@ public final class DatabasePane extends JPanel {
     }
 
     public void setDBQuery(final DBQuery query) throws Exception {
-        if(query == null) return;
+        if (query == null) return;
         dbQuery = query;
-        if(db == null) {
+        if (db == null) {
             connectToDatabase();
         }
         boolean origState = lockCombos(true);
@@ -425,14 +425,14 @@ public final class DatabasePane extends JPanel {
     private static int[] findIndices(final JList list, final String[] values) {
         final int size = list.getModel().getSize();
         final List<Integer> indices = new ArrayList<Integer>(size);
-        for(int i=0; i < size; ++i) {
-            final String str = (String)list.getModel().getElementAt(i);
-            if(StringUtils.contains(values, str)) {
+        for (int i = 0; i < size; ++i) {
+            final String str = (String) list.getModel().getElementAt(i);
+            if (StringUtils.contains(values, str)) {
                 indices.add(i);
             }
         }
         final int[] intIndices = new int[indices.size()];
-        for(int i=0; i < indices.size(); ++i) {
+        for (int i = 0; i < indices.size(); ++i) {
             intIndices[i] = indices.get(i);
         }
         return intIndices;

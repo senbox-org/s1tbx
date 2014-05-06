@@ -15,8 +15,7 @@
  */
 package org.esa.nest.eo;
 
-public final class Constants
-{
+public final class Constants {
     public static final double secondsInDay = 86400.0;
     public static final double lightSpeed = 299792458.0; //  m / s
     public static final double halfLightSpeed = lightSpeed / 2.0;
@@ -33,7 +32,7 @@ public final class Constants
     public static final double oneBillionth = 1.0 / oneBillion;
 
     public static final double PI = 3.14159265358979323846264338327950288;
-    public static final double TWO_PI = 2.0*PI;
+    public static final double TWO_PI = 2.0 * PI;
 
     public static final double EPS = 1e-15;
 
@@ -41,7 +40,6 @@ public final class Constants
     public static final String USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM = "Use local incidence angle from DEM";
     public static final String USE_INCIDENCE_ANGLE_FROM_ELLIPSOID = "Use incidence angle from Ellipsoid";
 
-    private Constants()
-    {
+    private Constants() {
     }
 }

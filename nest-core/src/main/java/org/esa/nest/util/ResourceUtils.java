@@ -18,17 +18,10 @@ package org.esa.nest.util;
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import org.esa.beam.framework.dataio.ProductCache;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.VisatApp;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,86 +58,12 @@ public final class ResourceUtils {
             }
         }
         final Product prod = ProductCache.instance().getProduct(file);
-        if(prod != null) {
+        if (prod != null) {
             ProductCache.instance().removeProduct(file);
             prod.dispose();
         }
-        if(!file.delete())
-            System.out.println("Could not delete "+file.getName());
-    }
-
-    public static File GetFilePath(final String title, final String formatName, final String extension,
-                                   final String fileName, final String description, final boolean isSave) {
-        return GetFilePath(title, formatName, extension, fileName, description, isSave,
-                           BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR,
-                           FileSystemView.getFileSystemView().getRoots()[0].getAbsolutePath());
-    }
-
-    public static File GetSaveFilePath(final String title, final String formatName, final String extension,
-                                   final String fileName, final String description) {
-        return GetFilePath(title, formatName, extension, fileName, description, true,
-                           BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR,
-                           FileSystemView.getFileSystemView().getRoots()[0].getAbsolutePath());
-    }
-
-    public static File GetFilePath(final String title, final String formatName, final String extension,
-                                   final String fileName, final String description, final boolean isSave,
-                                   final String lastDirPropertyKey, final String defaultPath) {
-        BeamFileFilter fileFilter = null;
-        if(!extension.isEmpty()) {
-            fileFilter = new BeamFileFilter(formatName, extension, description);
-        }
-        File file;
-        if (isSave) {
-            file = VisatApp.getApp().showFileSaveDialog(title, false, fileFilter, '.' + extension, fileName,
-                                                        lastDirPropertyKey);
-        } else {
-            String lastDir = VisatApp.getApp().getPreferences().getPropertyString(lastDirPropertyKey, defaultPath);
-            if(fileName == null)
-                file = showFileOpenDialog(title, false, fileFilter, lastDir, lastDirPropertyKey);
-            else
-                file = showFileOpenDialog(title, false, fileFilter, fileName, lastDirPropertyKey);
-        }
-        
-        return file == null ? null : FileUtils.ensureExtension(file, extension);
-    }
-
-    /**
-     * allows the choice of picking directories only
-     * @param title
-     * @param dirsOnly
-     * @param fileFilter
-     * @param currentDir
-     * @param lastDirPropertyKey
-     * @return
-     */
-    private static File showFileOpenDialog(String title,
-                                         boolean dirsOnly,
-                                         FileFilter fileFilter,
-                                         String currentDir,
-                                         String lastDirPropertyKey) {
-        final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setCurrentDirectory(new File(currentDir));
-        if (fileFilter != null) {
-            fileChooser.setFileFilter(fileFilter);
-        }
-        fileChooser.setDialogTitle(VisatApp.getApp().getAppName() + " - " + title);
-        fileChooser.setFileSelectionMode(dirsOnly ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY);
-        int result = fileChooser.showOpenDialog(VisatApp.getApp().getMainFrame());
-        if (fileChooser.getCurrentDirectory() != null) {
-            final String lastDirPath = fileChooser.getCurrentDirectory().getAbsolutePath();
-            if (lastDirPath != null) {
-                VisatApp.getApp().getPreferences().setPropertyString(lastDirPropertyKey, lastDirPath);
-            }
-        }
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            if (file == null || file.getName().isEmpty()) {
-                return null;
-            }
-            return file.getAbsoluteFile();
-        }
-        return null;
+        if (!file.delete())
+            System.out.println("Could not delete " + file.getName());
     }
 
     public static Properties loadProperties(final String filename) throws IOException {
@@ -172,7 +91,7 @@ public final class ResourceUtils {
         if (resURL != null) {
             try {
                 return new FileInputStream(resURL.toURI().getPath());
-            } catch(URISyntaxException e) {
+            } catch (URISyntaxException e) {
                 //
             }
         }
@@ -188,10 +107,10 @@ public final class ResourceUtils {
             if (resURL != null) {
                 return new File(resURL.getFile());
             }
-        } catch(Exception e) {
-            throw new IOException("Unable to open "+ filename);
+        } catch (Exception e) {
+            throw new IOException("Unable to open " + filename);
         }
-        throw new IOException("resURL==null Unable to open "+ filename);
+        throw new IOException("resURL==null Unable to open " + filename);
     }
 
     /**
@@ -217,16 +136,17 @@ public final class ResourceUtils {
     }
 
     public static String getHomeUrl() {
-        return System.getProperty(getContextID()+".home", ".");
+        return System.getProperty(getContextID() + ".home", ".");
     }
 
     /**
      * get the temporary data folder in the user's application data directory
+     *
      * @return the temp folder
      */
     public static File getApplicationUserTempDataDir() {
         final File tmpDir = new File(ResourceUtils.getApplicationUserDir(true), "temp");
-        if(!tmpDir.exists())
+        if (!tmpDir.exists())
             tmpDir.mkdirs();
         return tmpDir;
     }
@@ -239,15 +159,14 @@ public final class ResourceUtils {
         return new File(ResourceUtils.getHomeUrl(), "res");
     }
 
-    public static File findUserAppFile(String filename)
-    {
+    public static File findUserAppFile(String filename) {
         // check userhome/.nest first
         final File appHomePath = ResourceUtils.getApplicationUserDir(false);
         final String filePath = appHomePath.getAbsolutePath()
                 + File.separator + filename;
-        
+
         final File outFile = new File(filePath);
-        if(outFile.exists())
+        if (outFile.exists())
             return outFile;
 
         // next check config folder
@@ -255,7 +174,7 @@ public final class ResourceUtils {
     }
 
     public static File findConfigFile(String filename) {
-        final String homeDir = System.getProperty(getContextID()+".home");
+        final String homeDir = System.getProperty(getContextID() + ".home");
         if (homeDir != null && homeDir.length() > 0) {
             final File homeDirFile = new File(homeDir);
 
@@ -263,14 +182,14 @@ public final class ResourceUtils {
             String settingsfilePath = homeDirStr + File.separator + "config" + File.separator + filename;
 
             final File outFile2 = new File(settingsfilePath);
-            if(outFile2.exists())
+            if (outFile2.exists())
                 return outFile2;
 
             final int idx = homeDirStr.lastIndexOf(File.separator);
             settingsfilePath = homeDirStr.substring(0, idx) + File.separator + "config" + File.separator + filename;
 
             final File outFile3 = new File(settingsfilePath);
-            if(outFile3.exists())
+            if (outFile3.exists())
                 return outFile3;
         }
 
@@ -278,49 +197,47 @@ public final class ResourceUtils {
         return new File(homeFolder, "config" + File.separator + filename);
     }
 
-    public static File findHomeFolder()
-    {
-        final String nestHome = System.getProperty(getContextID()+".home");
+    public static File findHomeFolder() {
+        final String nestHome = System.getProperty(getContextID() + ".home");
         File homePath;
-        if(nestHome == null)
+        if (nestHome == null)
             homePath = SystemUtils.getApplicationHomeDir();
         else
             homePath = new File(nestHome);
         String homePathStr = homePath.getAbsolutePath();
-        if(homePathStr.endsWith(".") && homePathStr.length() > 1)
+        if (homePathStr.endsWith(".") && homePathStr.length() > 1)
             homePathStr = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator));
         return new File(homePathStr);
     }
 
-    public static File findInHomeFolder(String filename)
-    {
+    public static File findInHomeFolder(String filename) {
         final File homePath = findHomeFolder();
         String homePathStr = homePath.getAbsolutePath();
         filename = filename.replaceAll("/", File.separator);
-        if(!File.separator.equals("\\")) {
+        if (!File.separator.equals("\\")) {
             filename = filename.replaceAll("\\\\", File.separator);
         }
-        if(homePathStr.endsWith(".") && homePathStr.length() > 1)
+        if (homePathStr.endsWith(".") && homePathStr.length() > 1)
             homePathStr = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator));
         String filePath = homePathStr + filename;
 
         final File outFile = new File(filePath);
-        if(outFile.exists())
+        if (outFile.exists())
             return outFile;
 
         filePath = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator)) + filename;
 
         final File outFile2 = new File(filePath);
-        if(outFile2.exists())
+        if (outFile2.exists())
             return outFile2;
 
         filePath = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator)) + File.separator + "beam" + filename;
 
         final File outFile3 = new File(filePath);
-        if(outFile3.exists())
+        if (outFile3.exists())
             return outFile3;
 
-        System.out.println("findInHomeFolder "+filename+ " not found in " + homePath);
+        System.out.println("findInHomeFolder " + filename + " not found in " + homePath);
 
         return null;
     }
@@ -348,14 +265,15 @@ public final class ResourceUtils {
 
     /**
      * can be overriden to load the image to use
+     *
      * @param imgFile the file to load
      * @return BufferedImage
      */
     public static BufferedImage loadImage(final File imgFile) {
-        if(imgFile != null && imgFile.exists()) {
+        if (imgFile != null && imgFile.exists()) {
             try {
                 return ImageIO.read(imgFile);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //
             }
         }

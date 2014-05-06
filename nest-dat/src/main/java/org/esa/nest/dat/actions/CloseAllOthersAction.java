@@ -23,7 +23,6 @@ import org.esa.nest.util.MemUtils;
 
 /**
  * This action closes all opened products other than the one selected.
- *
  */
 public class CloseAllOthersAction extends ExecCommand {
 
@@ -32,7 +31,7 @@ public class CloseAllOthersAction extends ExecCommand {
         final Product selectedProduct = VisatApp.getApp().getSelectedProduct();
         final Product[] products = VisatApp.getApp().getProductManager().getProducts();
         for (int i = products.length - 1; i >= 0; i--) {
-            if(products[i] != selectedProduct)
+            if (products[i] != selectedProduct)
                 VisatApp.getApp().closeProduct(products[i]);
         }
         // free cache

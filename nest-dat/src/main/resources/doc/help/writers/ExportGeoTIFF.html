@@ -1,17 +1,23 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-    
-    <title>Help - Export GeoTIFF</title><link rel="stylesheet" href="../style.css"></head>
+<html>
+<head>
+
+    <title>Help - Export GeoTIFF</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
 <body>
 <table class="header">
-    <tbody><tr class="header">
+    <tbody>
+    <tr class="header">
         <td class="header">&nbsp;
             Export GeoTIFF
         </td>
 
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
     </tr>
-</tbody></table>
+    </tbody>
+</table>
 
 
 <h3>Export GeoTIFF Product</h3>
@@ -22,7 +28,8 @@
     additional information about their georeference and their spatial resolution. A wide range of
     projected coordinate systems are supported including UTM, US State Plane, and National Grids.
     For further information have a look at the following documentation:
-</p><ul>
+</p>
+<ul>
     <li><a href="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF Homepage</a></li>
     <li><a href="http://partners.adobe.com/public/developer/tiff/index.html">TIFF Specification</a></li>
 </ul>
@@ -30,9 +37,9 @@
 <h3>Constraints on created GeoTIFF product files</h3>
 
 <p>Exported GeoTIFF files contain additional information beside the
-tags defined by the GeoTIFF specification. The BEAM-DIMAP header is
-used to hold this additional information. This allows a better support
-of several&nbsp;features including:
+    tags defined by the GeoTIFF specification. The BEAM-DIMAP header is
+    used to hold this additional information. This allows a better support
+    of several&nbsp;features including:
 </p>
 <ul>
     <li>Name and type of the product.</li>
@@ -48,8 +55,9 @@ of several&nbsp;features including:
 </p>
 <ul>
     <li>All bands of a GeoTiff file must have the same data type.
-Therefore a common data type is identified which is suitable for all
-bands. Double precision data type is not supported. </li>
+        Therefore a common data type is identified which is suitable for all
+        bands. Double precision data type is not supported.
+    </li>
     <li>The data of a band is always written raw and unscaled.
     </li>
     <li>Virtual and filtered bands can only be reimported by the Toolbox.</li>
@@ -66,4 +74,5 @@ bands. Double precision data type is not supported. </li>
 </ul>
 
 <hr>
-</body></html>
+</body>
+</html>

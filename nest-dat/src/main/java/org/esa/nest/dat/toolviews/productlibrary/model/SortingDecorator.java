@@ -50,7 +50,8 @@ public class SortingDecorator extends AbstractTableModel {
     private Row[] viewToModel = null;
     private boolean doSortBy = false;
 
-    public enum SORT_BY { NAME, DATE, MISSON, TYPE, FILESIZE }
+    public enum SORT_BY {NAME, DATE, MISSON, TYPE, FILESIZE}
+
     private SORT_BY sortBy;
     private int sortedByDirection = NOT_SORTED;
 
@@ -105,9 +106,9 @@ public class SortingDecorator extends AbstractTableModel {
 
     public int getSortedIndex(final int rowIndex) {
         final Row[] view = getViewToModel();
-        if(rowIndex < view.length) {
+        if (rowIndex < view.length) {
             return view[rowIndex].modelIndex;
-        } else if(view.length > 0) {
+        } else if (view.length > 0) {
             return view[0].modelIndex;
         }
         return 0;
@@ -194,8 +195,8 @@ public class SortingDecorator extends AbstractTableModel {
                                                        final int row,
                                                        final int column) {
             final Component c = tableCellRenderer.getTableCellRendererComponent(table,
-                                                                                value, isSelected, hasFocus, row,
-                                                                                column);
+                    value, isSelected, hasFocus, row,
+                    column);
             if (c instanceof JLabel) {
                 final JLabel l = (JLabel) c;
                 l.setHorizontalTextPosition(JLabel.LEFT);
@@ -310,7 +311,7 @@ public class SortingDecorator extends AbstractTableModel {
             final int idxRow1 = modelIndex;
             final int idxRow2 = ((Row) o).modelIndex;
 
-            if(doSortBy) {
+            if (doSortBy) {
                 final Object o1 = _tableModel.getValueAt(idxRow1, 0);
                 final Object o2 = _tableModel.getValueAt(idxRow2, 0);
 
@@ -370,19 +371,19 @@ public class SortingDecorator extends AbstractTableModel {
                 return -1;
             } else if (o2 == null) {
                 return 1;
-            } else if(o1 instanceof ProductEntry && o2 instanceof ProductEntry) {
-                final ProductEntry e1 = (ProductEntry)o1;
-                final ProductEntry e2 = (ProductEntry)o2;
+            } else if (o1 instanceof ProductEntry && o2 instanceof ProductEntry) {
+                final ProductEntry e1 = (ProductEntry) o1;
+                final ProductEntry e2 = (ProductEntry) o2;
 
-                if(sortBy.equals(SORT_BY.NAME)) {
+                if (sortBy.equals(SORT_BY.NAME)) {
                     return e1.getName().compareTo(e2.getName());
-                } else if(sortBy.equals(SORT_BY.TYPE)) {
+                } else if (sortBy.equals(SORT_BY.TYPE)) {
                     return e1.getProductType().compareTo(e2.getProductType());
-                } else if(sortBy.equals(SORT_BY.MISSON)) {
+                } else if (sortBy.equals(SORT_BY.MISSON)) {
                     return e1.getMission().compareTo(e2.getMission());
-                } else if(sortBy.equals(SORT_BY.DATE)) {
+                } else if (sortBy.equals(SORT_BY.DATE)) {
                     return e1.getFirstLineTime().getAsDate().compareTo(e2.getFirstLineTime().getAsDate());
-                } else if(sortBy.equals(SORT_BY.FILESIZE)) {
+                } else if (sortBy.equals(SORT_BY.FILESIZE)) {
                     final Long size1 = e1.getFileSize();
                     final Long size2 = e2.getFileSize();
                     return size1.compareTo(size2);

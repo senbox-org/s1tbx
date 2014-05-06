@@ -13,7 +13,7 @@
     <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
         <module>beam-visat-rcp</module>
@@ -21,10 +21,10 @@
     <dependency>
         <module>beam-gpf</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>nest-core</module>
     </dependency>
-    
+
     <categories>System</categories>
 
     <extension point="beam-ui:actions">
@@ -57,10 +57,10 @@
 
     </extension>
 
-	<extension point="beam-ui:helpSets">
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>graphHelp</id>
+            <id>graphHelp</id>
             <path>doc/help/graph.hs</path>
         </helpSet>
     </extension>

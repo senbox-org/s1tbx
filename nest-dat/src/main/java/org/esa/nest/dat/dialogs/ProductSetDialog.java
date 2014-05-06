@@ -61,7 +61,7 @@ public class ProductSetDialog extends ModelessDialog {
         productSet.setName(nameField.getText());
         productSet.setFileList(productSetTable.getFileList());
         productSet.Save();
-        
+
         ok = true;
         hide();
     }

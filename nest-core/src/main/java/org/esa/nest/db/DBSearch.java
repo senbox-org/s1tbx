@@ -6,12 +6,8 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.db.DBQuery;
-import org.esa.nest.db.ProductDB;
-import org.esa.nest.db.ProductEntry;
 
 import java.io.File;
-import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -28,7 +24,7 @@ public class DBSearch {
     public static ProductEntry[] search(final Product srcProduct) throws Exception {
 
         final GeoPos centerGeoPos = srcProduct.getGeoCoding().getGeoPos(
-                new PixelPos(srcProduct.getSceneRasterWidth()/2, srcProduct.getSceneRasterHeight()/2), null);
+                new PixelPos(srcProduct.getSceneRasterWidth() / 2, srcProduct.getSceneRasterHeight() / 2), null);
         final ProductEntry masterEntry = new ProductEntry(srcProduct);
         return findCCDPairs(ProductDB.instance(), masterEntry, centerGeoPos, 1, false);
     }
@@ -37,10 +33,10 @@ public class DBSearch {
                                                final int maxSlaves, final boolean anyDate) throws SQLException {
 
         final DBQuery dbQuery = new DBQuery();
-        dbQuery.setFreeQuery(AbstractMetadata.PRODUCT+" <> '"+master.getName()+ '\'');
-        dbQuery.setSelectionRect(new GeoPos[] { centerGeoPos });
+        dbQuery.setFreeQuery(AbstractMetadata.PRODUCT + " <> '" + master.getName() + '\'');
+        dbQuery.setSelectionRect(new GeoPos[]{centerGeoPos});
         dbQuery.setSelectedPass(master.getPass());
-        dbQuery.setSelectedProductTypes(new String[] {master.getProductType()});
+        dbQuery.setSelectedProductTypes(new String[]{master.getProductType()});
 
         final ProductEntry[] entries = dbQuery.queryDatabase(db);
         return getClosestDatePairs(entries, master, dbQuery, maxSlaves, anyDate);
@@ -51,9 +47,9 @@ public class DBSearch {
                                                       final int maxSlaves, final boolean anyDate) {
         final double masterTime = master.getFirstLineTime().getMJD();
         double cutoffTime = masterTime;
-        if(dbQuery != null && dbQuery.getEndDate() != null) {
+        if (dbQuery != null && dbQuery.getEndDate() != null) {
             final double endTime = ProductData.UTC.create(dbQuery.getEndDate().getTime(), 0).getMJD();
-            if(endTime > masterTime)
+            if (endTime > masterTime)
                 cutoffTime = endTime;
         }
 
@@ -61,9 +57,9 @@ public class DBSearch {
         final Map<Double, ProductEntry> timesMap = new HashMap<Double, ProductEntry>();
         final List<Double> diffList = new ArrayList<Double>();
         // find all before masterTime
-        for(ProductEntry entry : entries) {
+        for (ProductEntry entry : entries) {
             final double entryTime = entry.getFirstLineTime().getMJD();
-            if(anyDate || entryTime < cutoffTime) {
+            if (anyDate || entryTime < cutoffTime) {
                 final double diff = Math.abs(masterTime - entryTime);
                 timesMap.put(diff, entry);
                 diffList.add(diff);
@@ -71,9 +67,9 @@ public class DBSearch {
         }
         Collections.sort(diffList);
         // select only the closest up to maxPairs
-        for(Double diff : diffList) {
+        for (Double diff : diffList) {
             resultList.add(timesMap.get(diff));
-            if(resultList.size() >= maxSlaves)
+            if (resultList.size() >= maxSlaves)
                 break;
         }
 

@@ -26,8 +26,8 @@ import java.util.Set;
  * GraphExecuter Tester.
  *
  * @author lveci
- * @since 12/21/2007
  * @version 1.0
+ * @since 12/21/2007
  */
 public class TestGraphExecuter extends TestCase implements Observer {
 
@@ -116,24 +116,25 @@ public class TestGraphExecuter extends TestCase implements Observer {
     }
 
     /**
-     Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
-     dependency between a Subject object and any number of Observer objects so that when the
-     Subject object changes state, all its Observer objects are notified and updated automatically.
-
-     Defines an updating interface for objects that should be notified of changes in a subject.
+     * Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
+     * dependency between a Subject object and any number of Observer objects so that when the
+     * Subject object changes state, all its Observer objects are notified and updated automatically.
+     * <p/>
+     * Defines an updating interface for objects that should be notified of changes in a subject.
+     *
      * @param subject The Observerable subject
-     * @param data optional data
+     * @param data    optional data
      */
     public void update(java.util.Observable subject, java.lang.Object data) {
 
-        GraphExecuter.GraphEvent event = (GraphExecuter.GraphEvent)data;
-        GraphNode node = (GraphNode)event.getData();
+        GraphExecuter.GraphEvent event = (GraphExecuter.GraphEvent) data;
+        GraphNode node = (GraphNode) event.getData();
         String opID = node.getNode().getId();
-        if(event.getEventType() == GraphExecuter.events.ADD_EVENT) {
+        if (event.getEventType() == GraphExecuter.events.ADD_EVENT) {
             updateValue = "Add";
-        } else if(event.getEventType() == GraphExecuter.events.REMOVE_EVENT) {
+        } else if (event.getEventType() == GraphExecuter.events.REMOVE_EVENT) {
             updateValue = "Remove";
-        } else if(event.getEventType() == GraphExecuter.events.SELECT_EVENT) {
+        } else if (event.getEventType() == GraphExecuter.events.SELECT_EVENT) {
             updateValue = "Selected";
         }
     }

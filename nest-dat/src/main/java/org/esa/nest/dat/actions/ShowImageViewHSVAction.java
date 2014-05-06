@@ -34,8 +34,6 @@ import java.awt.*;
 
 /**
  * This action opens an HSV image view on the currently selected Product.
- *
-
  */
 public class ShowImageViewHSVAction extends ExecCommand {
 
@@ -132,8 +130,8 @@ public class ShowImageViewHSVAction extends ExecCommand {
     }
 
     private static ProductSceneImage createProductSceneImageHSV(final String name, final Product product,
-                                                         final String[] hsvExpressions,
-                                                         final ProgressMonitor pm) throws Exception {
+                                                                final String[] hsvExpressions,
+                                                                final ProgressMonitor pm) throws Exception {
         final VisatApp visatApp = VisatApp.getApp();
         UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
         ShowImageViewRGBAction.RGBBand[] rgbBands = null;
@@ -145,10 +143,10 @@ public class ShowImageViewHSVAction extends ExecCommand {
             rgbBands = ShowImageViewRGBAction.allocateRgbBands(product, rgbaExpressions);
 
             productSceneImage = new ProductSceneImage(name, rgbBands[0].band,
-                                                      rgbBands[1].band,
-                                                      rgbBands[2].band,
-                                                      visatApp.getPreferences(),
-                                                      SubProgressMonitor.create(pm, 1));
+                    rgbBands[1].band,
+                    rgbBands[2].band,
+                    visatApp.getPreferences(),
+                    SubProgressMonitor.create(pm, 1));
             productSceneImage.initVectorDataCollectionLayer();
             productSceneImage.initMaskCollectionLayer();
         } catch (Exception e) {
@@ -169,19 +167,19 @@ public class ShowImageViewHSVAction extends ExecCommand {
         //normvalue = min(max(((v- min)/range),0), 1);
         boolean modified = product.isModified();
 
-        int i=0;
-        for(String exp : hsvExpressions) {
-            if(exp.isEmpty()) continue;
+        int i = 0;
+        for (String exp : hsvExpressions) {
+            if (exp.isEmpty()) continue;
 
             final String checkForNoDataValue = "";//getCheckForNoDataExpression(product, exp);
 
-            final Band virtBand = createVirtualBand(product, exp, "tmpVirtBand"+i);
+            final Band virtBand = createVirtualBand(product, exp, "tmpVirtBand" + i);
 
             final Stx stx = virtBand.getStx(false, ProgressMonitor.NULL);
-            if(stx != null) {
+            if (stx != null) {
                 final double min = stx.getMinimum();
                 final double range = stx.getMaximum() - min;
-                hsvExpressions[i] = checkForNoDataValue + "min(max(((("+exp+")- "+min+")/"+range+"), 0), 1)";
+                hsvExpressions[i] = checkForNoDataValue + "min(max((((" + exp + ")- " + min + ")/" + range + "), 0), 1)";
             }
             product.removeBand(virtBand);
             ++i;
@@ -191,10 +189,10 @@ public class ShowImageViewHSVAction extends ExecCommand {
 
     private static String getCheckForNoDataExpression(final Product product, final String exp) {
         final String[] bandNames = product.getBandNames();
-        StringBuilder checkForNoData = new StringBuilder("("+exp+" == NaN");
-        if(StringUtils.contains(bandNames, exp)) {
+        StringBuilder checkForNoData = new StringBuilder("(" + exp + " == NaN");
+        if (StringUtils.contains(bandNames, exp)) {
             double nodatavalue = product.getBand(exp).getNoDataValue();
-            checkForNoData.append(" or "+exp+" == "+nodatavalue);
+            checkForNoData.append(" or " + exp + " == " + nodatavalue);
         }
         checkForNoData.append(") ? NaN : ");
 
@@ -221,7 +219,7 @@ public class ShowImageViewHSVAction extends ExecCommand {
 
         // h,s,v in [0,1]
    /*   float rr = 0, gg = 0, bb = 0;
-		float hh = (6 * h) % 6;
+        float hh = (6 * h) % 6;
 		int   c1 = (int) hh;                // floor((6*(h))%6)
 		float c2 = hh - c1;                 // ((6*(h))%6)-floor((6*(h))%6)
 		float x = (1 - s) * v;              // ((1-(s))*(v))
@@ -243,9 +241,9 @@ public class ShowImageViewHSVAction extends ExecCommand {
 
 
         final String[] rgbExpressions = new String[3];
-        rgbExpressions[0] = r.replace("(h)", '(' +h+ ')').replace("(s)", '(' +s+ ')').replace("(v)", '(' +v+ ')');
-        rgbExpressions[1] = g.replace("(h)", '(' +h+ ')').replace("(s)", '(' +s+ ')').replace("(v)", '(' +v+ ')');
-        rgbExpressions[2] = b.replace("(h)", '(' +h+ ')').replace("(s)", '(' +s+ ')').replace("(v)", '(' +v+ ')');
+        rgbExpressions[0] = r.replace("(h)", '(' + h + ')').replace("(s)", '(' + s + ')').replace("(v)", '(' + v + ')');
+        rgbExpressions[1] = g.replace("(h)", '(' + h + ')').replace("(s)", '(' + s + ')').replace("(v)", '(' + v + ')');
+        rgbExpressions[2] = b.replace("(h)", '(' + h + ')').replace("(s)", '(' + s + ')').replace("(v)", '(' + v + ')');
         return rgbExpressions;
     }
 

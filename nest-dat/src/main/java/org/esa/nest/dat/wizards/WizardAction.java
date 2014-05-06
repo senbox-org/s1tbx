@@ -41,7 +41,7 @@ public class WizardAction extends OperatorAction {
             String panelClass = getConfigString(config, "wizardPanelClass");
             Class wizardClass = config.getDeclaringExtension().getDeclaringModule().loadClass(panelClass);
 
-            wizardPanel = (WizardPanel)wizardClass.newInstance();
+            wizardPanel = (WizardPanel) wizardClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }

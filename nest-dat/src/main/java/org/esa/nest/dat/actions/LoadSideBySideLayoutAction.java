@@ -25,8 +25,8 @@ import java.io.File;
 
 /**
  * User: Marco Peters
-* Date: 11.06.2008
-*/
+ * Date: 11.06.2008
+ */
 public class LoadSideBySideLayoutAction extends AbstractVisatAction {
 
     @Override

@@ -40,23 +40,23 @@ public class InfoComponent implements MapToolsComponent {
         final int startPosX = rasterWidth;
         final int startPosY = 100;
 
-        pts = new double[] { startPosX, startPosY };
+        pts = new double[]{startPosX, startPosY};
         vpts = new double[pts.length];
 
         infoList.add(absRoot.getAttributeString(AbstractMetadata.PRODUCT));
         infoList.add(absRoot.getAttributeString(AbstractMetadata.first_line_time));
-        infoList.add(absRoot.getAttributeString(AbstractMetadata.MISSION)+' '+
-                absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE)+' '+
+        infoList.add(absRoot.getAttributeString(AbstractMetadata.MISSION) + ' ' +
+                absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE) + ' ' +
                 absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE));
 
-        for(String str : infoList) {
-            if(str.length() > maxLength)
+        for (String str : infoList) {
+            if (str.length() > maxLength)
                 maxLength = str.length();
         }
     }
 
     public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
-        if(pts == null)
+        if (pts == null)
             return;
 
         screenPixel.pixelToScreen(pts, vpts);
@@ -66,12 +66,12 @@ public class InfoComponent implements MapToolsComponent {
         int w = g.getFontMetrics().charWidth('B');
         int h = g.getFontMetrics().getHeight();
 
-        final int x = pt[0].x - (w*(maxLength+5));
+        final int x = pt[0].x - (w * (maxLength + 5));
         int y = pt[0].y;
 
-        for(String str : infoList) {
+        for (String str : infoList) {
             GraphicsUtils.outlineText(g, Color.YELLOW, str, x, y);
-            y+=h;
+            y += h;
         }
     }
 }

@@ -90,7 +90,7 @@ public class DBQuery {
     }
 
     public void setSelectedAcquisitionMode(final String mode) {
-        if(mode != null)
+        if (mode != null)
             selectedAcquisitionMode = mode;
     }
 
@@ -99,7 +99,7 @@ public class DBQuery {
     }
 
     public void setSelectedPass(final String pass) {
-        if(pass != null)
+        if (pass != null)
             selectedPass = pass;
     }
 
@@ -108,7 +108,7 @@ public class DBQuery {
     }
 
     public void setSelectedTrack(final String track) {
-        if(track != null)
+        if (track != null)
             selectedTrack = track;
     }
 
@@ -117,7 +117,7 @@ public class DBQuery {
     }
 
     public void setSelectedSampleType(final String sampleType) {
-        if(sampleType != null)
+        if (sampleType != null)
             selectedSampleType = sampleType;
     }
 
@@ -126,7 +126,7 @@ public class DBQuery {
     }
 
     public void setSelectedPolarization(final String pol) {
-        if(pol != null)
+        if (pol != null)
             selectedPolarization = pol;
     }
 
@@ -135,7 +135,7 @@ public class DBQuery {
     }
 
     public void setSelectedCalibration(final String calib) {
-        if(calib != null)
+        if (calib != null)
             selectedCalibration = calib;
     }
 
@@ -144,7 +144,7 @@ public class DBQuery {
     }
 
     public void setSelectedOrbitCorrection(final String orbitCor) {
-        if(orbitCor != null)
+        if (orbitCor != null)
             selectedOrbitCorrection = orbitCor;
     }
 
@@ -191,110 +191,110 @@ public class DBQuery {
 
     public ProductEntry[] queryDatabase(final ProductDB db) throws SQLException {
 
-        if(StringUtils.contains(selectedMissions, ALL_MISSIONS))
-            selectedMissions = new String[] {};
-        if(StringUtils.contains(selectedProductTypes, ALL_PRODUCT_TYPES))
-            selectedProductTypes = new String[] {};
+        if (StringUtils.contains(selectedMissions, ALL_MISSIONS))
+            selectedMissions = new String[]{};
+        if (StringUtils.contains(selectedProductTypes, ALL_PRODUCT_TYPES))
+            selectedProductTypes = new String[]{};
 
         final StringBuilder queryStr = new StringBuilder(1000);
-        if(selectedMissions.length > 0) {
-            queryStr.append(SQLUtils.getOrList(ProductTable.TABLE+'.'+AbstractMetadata.MISSION, selectedMissions));
+        if (selectedMissions.length > 0) {
+            queryStr.append(SQLUtils.getOrList(ProductTable.TABLE + '.' + AbstractMetadata.MISSION, selectedMissions));
         }
-        if(selectedProductTypes.length > 0) {
+        if (selectedProductTypes.length > 0) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(SQLUtils.getOrList(ProductTable.TABLE+'.'+AbstractMetadata.PRODUCT_TYPE, selectedProductTypes));
+            queryStr.append(SQLUtils.getOrList(ProductTable.TABLE + '.' + AbstractMetadata.PRODUCT_TYPE, selectedProductTypes));
         }
-        if(!selectedAcquisitionMode.isEmpty() && !selectedAcquisitionMode.equals(ALL_MODES)) {
+        if (!selectedAcquisitionMode.isEmpty() && !selectedAcquisitionMode.equals(ALL_MODES)) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(ProductTable.TABLE+'.'+AbstractMetadata.ACQUISITION_MODE+"='"+selectedAcquisitionMode+ '\'');
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.ACQUISITION_MODE + "='" + selectedAcquisitionMode + '\'');
         }
-        if(!selectedPass.isEmpty() && !selectedPass.equals(ALL_PASSES)) {
+        if (!selectedPass.isEmpty() && !selectedPass.equals(ALL_PASSES)) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(ProductTable.TABLE+'.'+AbstractMetadata.PASS+"='"+selectedPass+ '\'');
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PASS + "='" + selectedPass + '\'');
         }
-        if(!selectedTrack.isEmpty()) {
+        if (!selectedTrack.isEmpty()) {
             SQLUtils.addAND(queryStr);
-            queryStr.append("( "+ MetadataTable.TABLE+'.'+AbstractMetadata.REL_ORBIT+'='+selectedTrack+" )");
+            queryStr.append("( " + MetadataTable.TABLE + '.' + AbstractMetadata.REL_ORBIT + '=' + selectedTrack + " )");
         }
-        if(!selectedSampleType.isEmpty() && !selectedSampleType.equals(ANY)) {
+        if (!selectedSampleType.isEmpty() && !selectedSampleType.equals(ANY)) {
             SQLUtils.addAND(queryStr);
-            queryStr.append("( "+ MetadataTable.TABLE+'.'+AbstractMetadata.SAMPLE_TYPE+"='"+selectedSampleType+"' )");
+            queryStr.append("( " + MetadataTable.TABLE + '.' + AbstractMetadata.SAMPLE_TYPE + "='" + selectedSampleType + "' )");
         }
-        if(!selectedPolarization.isEmpty() && !selectedPolarization.equals(ANY)) {
+        if (!selectedPolarization.isEmpty() && !selectedPolarization.equals(ANY)) {
             SQLUtils.addAND(queryStr);
-            if(selectedPolarization.equals(DUALPOL)) {
-               queryStr.append( "( "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds1_tx_rx_polar+"!='' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds2_tx_rx_polar+"!='' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds3_tx_rx_polar+"='' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds4_tx_rx_polar+"='' )");
-            } else if(selectedPolarization.equals(QUADPOL)) {
-                queryStr.append( "( "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds1_tx_rx_polar+"!='' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds2_tx_rx_polar+"!='' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds3_tx_rx_polar+"!='' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds4_tx_rx_polar+"!='' )");
+            if (selectedPolarization.equals(DUALPOL)) {
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='' )");
+            } else if (selectedPolarization.equals(QUADPOL)) {
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='' )");
             } else {
-                queryStr.append("( "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds1_tx_rx_polar+"='"+selectedPolarization+ '\'' + " OR "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds2_tx_rx_polar+"='"+selectedPolarization+ '\'' + " OR "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds3_tx_rx_polar+"='"+selectedPolarization+ '\'' + " OR "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.mds4_tx_rx_polar+"='"+selectedPolarization+ '\'' + " )");
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='" + selectedPolarization + '\'' + " )");
             }
         }
-        if(!selectedCalibration.isEmpty() && !selectedCalibration.equals(ANY)) {
+        if (!selectedCalibration.isEmpty() && !selectedCalibration.equals(ANY)) {
             SQLUtils.addAND(queryStr);
-            if(selectedCalibration.equals(CALIBRATED))
-                queryStr.append(MetadataTable.TABLE+'.'+AbstractMetadata.abs_calibration_flag+"=1");
-            else if(selectedCalibration.equals(NOT_CALIBRATED))
-                queryStr.append(MetadataTable.TABLE+'.'+AbstractMetadata.abs_calibration_flag+"=0");
+            if (selectedCalibration.equals(CALIBRATED))
+                queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.abs_calibration_flag + "=1");
+            else if (selectedCalibration.equals(NOT_CALIBRATED))
+                queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.abs_calibration_flag + "=0");
         }
-        if(!selectedOrbitCorrection.isEmpty() && !selectedOrbitCorrection.equals(ANY)) {
+        if (!selectedOrbitCorrection.isEmpty() && !selectedOrbitCorrection.equals(ANY)) {
             formOrbitCorrectionQuery(queryStr);
         }
 
-        if(startDate != null) {
+        if (startDate != null) {
             SQLUtils.addAND(queryStr);
             final Date start = SQLUtils.toSQLDate(startDate);
-            if(endDate != null) {
+            if (endDate != null) {
                 final Date end = SQLUtils.toSQLDate(endDate);
-                queryStr.append("( "+ProductTable.TABLE+'.'+AbstractMetadata.first_line_time
-                        +" BETWEEN '"+ start.toString() +"' AND '"+ end.toString() + "' )");
+                queryStr.append("( " + ProductTable.TABLE + '.' + AbstractMetadata.first_line_time
+                        + " BETWEEN '" + start.toString() + "' AND '" + end.toString() + "' )");
             } else {
-                queryStr.append(ProductTable.TABLE+'.'+AbstractMetadata.first_line_time +">='"+ start.toString()+ '\'');
+                queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + ">='" + start.toString() + '\'');
             }
-        } else if(endDate != null) {
+        } else if (endDate != null) {
             SQLUtils.addAND(queryStr);
             final Date end = SQLUtils.toSQLDate(endDate);
-            queryStr.append(ProductTable.TABLE+'.'+AbstractMetadata.first_line_time +"<='"+ end.toString()+ '\'');
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + "<='" + end.toString() + '\'');
         }
 
         final Set<String> metadataNames = metadataQueryMap.keySet();
-        for(String name : metadataNames) {
+        for (String name : metadataNames) {
             final String value = metadataQueryMap.get(name);
-            if(value != null && !value.isEmpty()) {
+            if (value != null && !value.isEmpty()) {
                 SQLUtils.addAND(queryStr);
-                queryStr.append(MetadataTable.TABLE+'.'+name+"='"+value+ '\'');
+                queryStr.append(MetadataTable.TABLE + '.' + name + "='" + value + '\'');
             }
         }
 
-        if(!freeQuery.isEmpty()) {
+        if (!freeQuery.isEmpty()) {
             SQLUtils.addAND(queryStr);
             final String metadataFreeQuery = SQLUtils.insertTableName(db.getMetadataNames(), MetadataTable.TABLE, freeQuery);
-            queryStr.append("( "+metadataFreeQuery+" )");
+            queryStr.append("( " + metadataFreeQuery + " )");
         }
 
-        if(baseDir != null) {
+        if (baseDir != null) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(ProductTable.TABLE+'.'+AbstractMetadata.PATH+" LIKE '"+baseDir.getAbsolutePath()+"%'");
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + "%'");
         }
-        if(excludeDir != null) {
+        if (excludeDir != null) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(ProductTable.TABLE+'.'+AbstractMetadata.PATH+" NOT LIKE '"+excludeDir.getAbsolutePath()+"%'");
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PATH + " NOT LIKE '" + excludeDir.getAbsolutePath() + "%'");
         }
 
-        if(queryStr.length() > 0) {
-            Debug.trace("Query="+queryStr);
+        if (queryStr.length() > 0) {
+            Debug.trace("Query=" + queryStr);
             return instersectMapSelection(db.queryProduct(queryStr.toString()));
         } else {
             return instersectMapSelection(db.getProductEntryList(false));
@@ -303,18 +303,18 @@ public class DBQuery {
 
     private void formOrbitCorrectionQuery(final StringBuilder queryStr) {
         SQLUtils.addAND(queryStr);
-        if(selectedOrbitCorrection.equals(ORBIT_VERIFIED)) {
-            queryStr.append(MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" LIKE 'DORIS Verified%'");
-        } else if(selectedOrbitCorrection.equals(ORBIT_PRECISE)) {
-            queryStr.append("( "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" LIKE 'DORIS Precise%' OR "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" LIKE 'DELFT Precise%' OR "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" LIKE 'PRARE Precise%'"+ " )");
-        } else if(selectedOrbitCorrection.equals(ORBIT_PRELIMINARY)) {
-            queryStr.append("( "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" NOT LIKE 'DORIS%' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" NOT LIKE 'DELFT%' AND "+
-                    MetadataTable.TABLE+'.'+AbstractMetadata.orbit_state_vector_file+" NOT LIKE 'PRARE%'"+ " )");
+        if (selectedOrbitCorrection.equals(ORBIT_VERIFIED)) {
+            queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Verified%'");
+        } else if (selectedOrbitCorrection.equals(ORBIT_PRECISE)) {
+            queryStr.append("( " +
+                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Precise%' OR " +
+                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DELFT Precise%' OR " +
+                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'PRARE Precise%'" + " )");
+        } else if (selectedOrbitCorrection.equals(ORBIT_PRELIMINARY)) {
+            queryStr.append("( " +
+                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DORIS%' AND " +
+                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DELFT%' AND " +
+                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'PRARE%'" + " )");
         }
     }
 
@@ -324,47 +324,47 @@ public class DBQuery {
 
     private ProductEntry[] instersectMapSelection(final ProductEntry[] resultsList) {
 
-        if(selectionRectangle == null)
+        if (selectionRectangle == null)
             return resultsList;
 
         final List<ProductEntry> intersectList = new ArrayList<ProductEntry>(resultsList.length);
         final int mult = 100000; //float to integer
-        final Rectangle selRect = new Rectangle((int)(selectionRectangle.x*mult), (int)(selectionRectangle.y*mult),
-                (int)(selectionRectangle.width*mult), (int)(selectionRectangle.height*mult));
+        final Rectangle selRect = new Rectangle((int) (selectionRectangle.x * mult), (int) (selectionRectangle.y * mult),
+                (int) (selectionRectangle.width * mult), (int) (selectionRectangle.height * mult));
 
         final boolean singlePointSelection = selectionRectangle.getWidth() == 0 && selectionRectangle.getHeight() == 0;
 
         final Polygon p = new Polygon();
-        for(final ProductEntry entry : resultsList) {
+        for (final ProductEntry entry : resultsList) {
             p.reset();
             final GeoPos[] geoBox = entry.getBox();
-            for(GeoPos geo : geoBox) {
-                p.addPoint((int)(geo.getLat()*mult), (int)(geo.getLon()*mult));
+            for (GeoPos geo : geoBox) {
+                p.addPoint((int) (geo.getLat() * mult), (int) (geo.getLon() * mult));
             }
-            p.addPoint((int)(geoBox[0].getLat()*mult), (int)(geoBox[0].getLon()*mult));
-            if(singlePointSelection) {
-                if(p.contains(selRect.x, selRect.y)) {
+            p.addPoint((int) (geoBox[0].getLat() * mult), (int) (geoBox[0].getLon() * mult));
+            if (singlePointSelection) {
+                if (p.contains(selRect.x, selRect.y)) {
                     intersectList.add(entry);
                 }
             } else {
-                if(p.contains(selRect)) {
+                if (p.contains(selRect)) {
                     intersectList.add(entry);
                 } else {
                     // check all points
                     boolean allPoints = true;
-                    for(GeoPos geo : geoBox) {
-                        if(!selRect.contains((int)(geo.getLat()*mult), (int)(geo.getLon()*mult))) {
+                    for (GeoPos geo : geoBox) {
+                        if (!selRect.contains((int) (geo.getLat() * mult), (int) (geo.getLon() * mult))) {
                             allPoints = false;
                             break;
                         }
                     }
-                    if(allPoints)
+                    if (allPoints)
                         intersectList.add(entry);
                 }
             }
         }
 
-        if(singlePointSelection && intersectList.isEmpty())
+        if (singlePointSelection && intersectList.isEmpty())
             return resultsList;
 
         return intersectList.toArray(new ProductEntry[intersectList.size()]);
@@ -404,15 +404,15 @@ public class DBQuery {
         final Element elem = new Element(DB_QUERY);
         final Element missionsElem = new Element("selectedMissions");
         elem.addContent(missionsElem);
-        for(String m : selectedMissions) {
+        for (String m : selectedMissions) {
             missionsElem.addContent(new Element(m));
         }
         final Element productTypesElem = new Element("selectedProductTypes");
         elem.addContent(productTypesElem);
-        for(String p : selectedProductTypes) {
+        for (String p : selectedProductTypes) {
             productTypesElem.addContent(new Element(p));
         }
-        if(selectionRectangle != null) {
+        if (selectionRectangle != null) {
             final Element rectElem = new Element("selectionRectangle");
             elem.addContent(rectElem);
             rectElem.setAttribute("x", String.valueOf(selectionRectangle.getX()));
@@ -423,16 +423,16 @@ public class DBQuery {
 
         elem.setAttribute("selectedAcquisitionMode", selectedAcquisitionMode);
         elem.setAttribute("selectedPass", selectedPass);
-        if(baseDir != null)
+        if (baseDir != null)
             elem.setAttribute("baseDir", baseDir.getAbsolutePath());
-        if(startDate != null) {
+        if (startDate != null) {
             final Element startDateElem = new Element("startDate");
             elem.addContent(startDateElem);
             startDateElem.setAttribute("year", String.valueOf(startDate.get(Calendar.YEAR)));
             startDateElem.setAttribute("month", String.valueOf(startDate.get(Calendar.MONTH)));
             startDateElem.setAttribute("day", String.valueOf(startDate.get(Calendar.DAY_OF_MONTH)));
         }
-        if(endDate != null) {
+        if (endDate != null) {
             final Element endDateElem = new Element("endDate");
             elem.addContent(endDateElem);
             endDateElem.setAttribute("year", String.valueOf(endDate.get(Calendar.YEAR)));
@@ -446,20 +446,20 @@ public class DBQuery {
     public void fromXML(final Element dbQueryElem) {
 
         final Element missionsElem = dbQueryElem.getChild("selectedMissions");
-        if(missionsElem != null) {
+        if (missionsElem != null) {
             selectedMissions = XMLSupport.getStringList(missionsElem);
         }
         final Element productTypesElem = dbQueryElem.getChild("selectedProductTypes");
-        if(productTypesElem != null) {
+        if (productTypesElem != null) {
             selectedProductTypes = XMLSupport.getStringList(productTypesElem);
         }
         final Element rectElem = dbQueryElem.getChild("selectionRectangle");
-        if(rectElem != null) {
+        if (rectElem != null) {
             final Attribute x = rectElem.getAttribute("x");
             final Attribute y = rectElem.getAttribute("y");
             final Attribute w = rectElem.getAttribute("w");
             final Attribute h = rectElem.getAttribute("h");
-            if(x != null && y != null && w != null && h != null) {
+            if (x != null && y != null && w != null && h != null) {
                 selectionRectangle = new Rectangle.Float(
                         Float.parseFloat(x.getValue()),
                         Float.parseFloat(y.getValue()),
@@ -471,14 +471,14 @@ public class DBQuery {
         selectedAcquisitionMode = XMLSupport.getAttrib(dbQueryElem, "selectedAcquisitionMode");
         selectedPass = XMLSupport.getAttrib(dbQueryElem, "selectedPass");
         final String baseDirStr = XMLSupport.getAttrib(dbQueryElem, "baseDir");
-        if(!baseDirStr.isEmpty())
+        if (!baseDirStr.isEmpty())
             baseDir = new File(baseDirStr);
         final Element startDateElem = dbQueryElem.getChild("startDate");
-        if(startDateElem != null) {
+        if (startDateElem != null) {
             startDate = getCalendarDate(startDateElem);
         }
         final Element endDateElem = dbQueryElem.getChild("endDate");
-        if(endDateElem != null) {
+        if (endDateElem != null) {
             endDate = getCalendarDate(endDateElem);
         }
         freeQuery = XMLSupport.getAttrib(dbQueryElem, "freeQuery");
@@ -488,7 +488,7 @@ public class DBQuery {
         final Attribute y = elem.getAttribute("year");
         final Attribute m = elem.getAttribute("month");
         final Attribute d = elem.getAttribute("day");
-        if(y != null && m != null && d != null) {
+        if (y != null && m != null && d != null) {
             return new GregorianCalendar(Integer.parseInt(y.getValue()),
                     Integer.parseInt(m.getValue()),
                     Integer.parseInt(d.getValue()));

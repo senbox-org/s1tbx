@@ -41,51 +41,51 @@ public class ScaleComponent implements MapToolsComponent {
     public ScaleComponent(final RasterDataNode raster) {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
-        final int thirdWidth = rasterWidth/3;
+        final int thirdWidth = rasterWidth / 3;
 
-        margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
+        margin = (int) (Math.min(rasterWidth, rasterHeight) * marginPct);
         final int length = 100;
         final GeoCoding geoCoding = raster.getGeoCoding();
-        if(geoCoding == null) {
+        if (geoCoding == null) {
             pts = vpts = null;
             return;
         }
-        final PixelPos startPix = new PixelPos(0 + margin, rasterHeight-margin);
-        final PixelPos endPix = new PixelPos(margin+length, rasterHeight-margin);
+        final PixelPos startPix = new PixelPos(0 + margin, rasterHeight - margin);
+        final PixelPos endPix = new PixelPos(margin + length, rasterHeight - margin);
         final GeoPos startGeo = geoCoding.getGeoPos(startPix, null);
         final GeoPos endGeo = geoCoding.getGeoPos(endPix, null);
 
         // get heading in x direction
         GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(startGeo.getLon(), startGeo.getLat(),
-                                                                     endGeo.getLon(), endGeo.getLat());
+                endGeo.getLon(), endGeo.getLat());
         // get position for 1000m at that heading
         GeoUtils.LatLonHeading LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 1000, heading.heading1);
-        final PixelPos pix1K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix1K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 2000, heading.heading1);
-        final PixelPos pix2K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix2K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 3000, heading.heading1);
-        final PixelPos pix3K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix3K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 4000, heading.heading1);
-        final PixelPos pix4K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix4K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 5000, heading.heading1);
-        final PixelPos pix5K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix5K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 10000, heading.heading1);
-        final PixelPos pix10K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix10K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 50000, heading.heading1);
-        final PixelPos pix50K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix50K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 100000, heading.heading1);
-        final PixelPos pix100K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix100K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 200000, heading.heading1);
-        final PixelPos pix500K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        final PixelPos pix500K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
 
         use500k = (pix500K.getX() < thirdWidth);
         use100k = (pix100K.getX() < thirdWidth);
         use50k = (pix50K.getX() < thirdWidth);
         use10k = (pix10K.getX() < thirdWidth);
-        use5k = (pix5K.getX() < rasterWidth/2);
+        use5k = (pix5K.getX() < rasterWidth / 2);
         use1k = (pix1K.getX() < rasterWidth);
 
-        pts = new double[] { startPix.getX(), startPix.getY(),
+        pts = new double[]{startPix.getX(), startPix.getY(),
                 pix1K.getX(), pix1K.getY(), pix2K.getX(), pix2K.getY(), pix3K.getX(), pix3K.getY(),
                 pix4K.getX(), pix4K.getY(), pix5K.getX(), pix5K.getY(),
                 pix10K.getX(), pix10K.getY(), pix50K.getX(), pix50K.getY(),
@@ -94,7 +94,7 @@ public class ScaleComponent implements MapToolsComponent {
     }
 
     public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
-        if(pts == null || !use1k)
+        if (pts == null || !use1k)
             return;
 
         screenPixel.pixelToScreen(pts, vpts);
@@ -106,62 +106,62 @@ public class ScaleComponent implements MapToolsComponent {
         g.setColor(Color.YELLOW);
 
         //ticks
-        g.drawLine(pt[0].x, y-h, pt[0].x, y-h-tick); // 0
-        g.drawLine(pt[1].x, y-h, pt[1].x, y-h-tick); // 1
-        if(use5k)
-            g.drawLine(pt[5].x, y-h, pt[5].x, y-h-tick); // 5
-        if(use10k)
-            g.drawLine(pt[6].x, y-h, pt[6].x, y-h-tick); // 10
-        if(use50k)
-            g.drawLine(pt[7].x, y-h, pt[7].x, y-h-tick); // 50
-        if(use100k)
-            g.drawLine(pt[8].x, y-h, pt[8].x, y-h-tick); // 100
-        if(use500k)
-            g.drawLine(pt[9].x, y-h, pt[9].x, y-h-tick); // 500
+        g.drawLine(pt[0].x, y - h, pt[0].x, y - h - tick); // 0
+        g.drawLine(pt[1].x, y - h, pt[1].x, y - h - tick); // 1
+        if (use5k)
+            g.drawLine(pt[5].x, y - h, pt[5].x, y - h - tick); // 5
+        if (use10k)
+            g.drawLine(pt[6].x, y - h, pt[6].x, y - h - tick); // 10
+        if (use50k)
+            g.drawLine(pt[7].x, y - h, pt[7].x, y - h - tick); // 50
+        if (use100k)
+            g.drawLine(pt[8].x, y - h, pt[8].x, y - h - tick); // 100
+        if (use500k)
+            g.drawLine(pt[9].x, y - h, pt[9].x, y - h - tick); // 500
 
         //labels
-        GraphicsUtils.outlineText(g, Color.YELLOW, "1km", pt[1].x+2, y-h-tick);
-        if(use5k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "5km", pt[5].x+2, y-h-tick);
-        if(use10k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "10km", pt[6].x+2, y-h-tick);
-        if(use50k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "50km", pt[7].x+2, y-h-tick);
-        if(use100k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "100km", pt[8].x+2, y-h-tick);
-        if(use500k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "500km", pt[9].x+2, y-h-tick);
+        GraphicsUtils.outlineText(g, Color.YELLOW, "1km", pt[1].x + 2, y - h - tick);
+        if (use5k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "5km", pt[5].x + 2, y - h - tick);
+        if (use10k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "10km", pt[6].x + 2, y - h - tick);
+        if (use50k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "50km", pt[7].x + 2, y - h - tick);
+        if (use100k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "100km", pt[8].x + 2, y - h - tick);
+        if (use500k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "500km", pt[9].x + 2, y - h - tick);
 
         //fill rects
         g.setColor(Color.BLACK);
-        g.fillRect(pt[0].x, y-h, pt[1].x-pt[0].x, h);
-        if(use5k) {
-            g.fillRect(pt[2].x, y-h, pt[3].x-pt[2].x, h);
-            g.fillRect(pt[4].x, y-h, pt[5].x-pt[4].x, h);
+        g.fillRect(pt[0].x, y - h, pt[1].x - pt[0].x, h);
+        if (use5k) {
+            g.fillRect(pt[2].x, y - h, pt[3].x - pt[2].x, h);
+            g.fillRect(pt[4].x, y - h, pt[5].x - pt[4].x, h);
         }
 
         g.setColor(Color.WHITE);
-        if(use5k) {
-            g.fillRect(pt[1].x, y-h, pt[2].x-pt[1].x, h);
-            g.fillRect(pt[3].x, y-h, pt[4].x-pt[3].x, h);
+        if (use5k) {
+            g.fillRect(pt[1].x, y - h, pt[2].x - pt[1].x, h);
+            g.fillRect(pt[3].x, y - h, pt[4].x - pt[3].x, h);
         }
-        if(use10k)
-            g.fillRect(pt[5].x, y-h, pt[6].x-pt[5].x, h);
-        if(use100k)
-            g.fillRect(pt[7].x, y-h, pt[8].x-pt[7].x, h);
+        if (use10k)
+            g.fillRect(pt[5].x, y - h, pt[6].x - pt[5].x, h);
+        if (use100k)
+            g.fillRect(pt[7].x, y - h, pt[8].x - pt[7].x, h);
 
         g.setColor(Color.YELLOW);
-        if(use500k)
-            g.drawRect(pt[0].x, y-h, pt[9].x-pt[0].x, h);
-        else if(use100k)
-            g.drawRect(pt[0].x, y-h, pt[8].x-pt[0].x, h);
-        else if(use50k)
-            g.drawRect(pt[0].x, y-h, pt[7].x-pt[0].x, h);
-        else if(use10k)
-            g.drawRect(pt[0].x, y-h, pt[6].x-pt[0].x, h);
-        else if(use5k)
-            g.drawRect(pt[0].x, y-h, pt[5].x-pt[0].x, h);
+        if (use500k)
+            g.drawRect(pt[0].x, y - h, pt[9].x - pt[0].x, h);
+        else if (use100k)
+            g.drawRect(pt[0].x, y - h, pt[8].x - pt[0].x, h);
+        else if (use50k)
+            g.drawRect(pt[0].x, y - h, pt[7].x - pt[0].x, h);
+        else if (use10k)
+            g.drawRect(pt[0].x, y - h, pt[6].x - pt[0].x, h);
+        else if (use5k)
+            g.drawRect(pt[0].x, y - h, pt[5].x - pt[0].x, h);
         else
-            g.drawRect(pt[0].x, y-h, pt[1].x-pt[0].x, h);
+            g.drawRect(pt[0].x, y - h, pt[1].x - pt[0].x, h);
     }
 }

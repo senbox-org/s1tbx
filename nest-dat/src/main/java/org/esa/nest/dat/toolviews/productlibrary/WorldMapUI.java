@@ -16,7 +16,6 @@
 package org.esa.nest.dat.toolviews.productlibrary;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPaneDataModel;
 import org.esa.nest.db.GeoPosList;
@@ -89,7 +88,7 @@ public class WorldMapUI {
     public void setAOIList(final GeoPosList[] aoiList) {
         final GeoPos[][] geoBoundaries = new GeoPos[aoiList.length][4];
         int i = 0;
-        for(GeoPosList aoi : aoiList) {
+        for (GeoPosList aoi : aoiList) {
             geoBoundaries[i++] = aoi.getPoints();
         }
 
@@ -99,7 +98,7 @@ public class WorldMapUI {
     public void setSelectedAOIList(final GeoPosList[] selectedAOIList) {
         final GeoPos[][] geoBoundaries = new GeoPos[selectedAOIList.length][4];
         int i = 0;
-        for(GeoPosList aoi : selectedAOIList) {
+        for (GeoPosList aoi : selectedAOIList) {
             geoBoundaries[i++] = aoi.getPoints();
         }
 
@@ -107,10 +106,10 @@ public class WorldMapUI {
     }
 
     public void setProductEntryList(final ProductEntry[] productEntryList) {
-        if(productEntryList == null) return;
+        if (productEntryList == null) return;
         final GeoPos[][] geoBoundaries = new GeoPos[productEntryList.length][4];
         int i = 0;
-        for(ProductEntry entry : productEntryList) {
+        for (ProductEntry entry : productEntryList) {
             geoBoundaries[i++] = entry.getGeoBoundary();
         }
 
@@ -119,13 +118,13 @@ public class WorldMapUI {
 
     public void setSelectedProductEntryList(final ProductEntry[] selectedProductEntryList) {
 
-        if(selectedProductEntryList == null) {
+        if (selectedProductEntryList == null) {
             worldMapDataModel.setSelectedGeoBoundaries(null);
             return;
         }
         final GeoPos[][] geoBoundaries = new GeoPos[selectedProductEntryList.length][4];
         int i = 0;
-        for(ProductEntry entry : selectedProductEntryList) {
+        for (ProductEntry entry : selectedProductEntryList) {
             geoBoundaries[i++] = entry.getGeoBoundary();
         }
 
@@ -140,7 +139,7 @@ public class WorldMapUI {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if(e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
                 notifyQuery();
             }
         }

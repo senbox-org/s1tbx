@@ -53,8 +53,8 @@ public class QuicklookProvider implements DataProvider {
                 quickLookColumn.setResizable(true);
                 quickLookColumn.setCellRenderer(new QuickLookRenderer(preferredHeight));
                 quickLookColumn.setCellEditor(new QuickLookEditor());
-            } catch(Throwable e) {
-                System.out.println("QuicklookProvider: "+e.getMessage());
+            } catch (Throwable e) {
+                System.out.println("QuicklookProvider: " + e.getMessage());
             }
         }
         return quickLookColumn;
@@ -98,15 +98,15 @@ public class QuicklookProvider implements DataProvider {
                 }
 
                 if (value instanceof ProductEntry) {
-                    final BufferedImage image = ((ProductEntry)value).getQuickLook();
-                    if(image == null) {
+                    final BufferedImage image = ((ProductEntry) value).getQuickLook();
+                    if (image == null) {
                         tableComponent.setIcon(null);
                         tableComponent.setText("Not available!");
                     } else {
                         final TableColumn tableColumn = table.getColumnModel().getColumn(column);
                         int cellWidth = tableColumn.getWidth();
                         int cellHeight = tableColumn.getWidth();
-                        if(image.getHeight() > image.getWidth())
+                        if (image.getHeight() > image.getWidth())
                             cellWidth = -1;
                         else
                             cellHeight = -1;
@@ -119,15 +119,15 @@ public class QuicklookProvider implements DataProvider {
                     tableComponent.setIcon(null);
                     //tableComponent.setText("Not available!");
                 }
-            } catch(Throwable e) {
-                System.out.println("QuicklookRenderer: "+e.getMessage());
+            } catch (Throwable e) {
+                System.out.println("QuicklookRenderer: " + e.getMessage());
             }
             return tableComponent;
         }
 
         private void setBackground(final JTable table, final boolean isSelected) {
-            if(tableComponent == null) return;
-            
+            if (tableComponent == null) return;
+
             Color backGroundColor = table.getBackground();
             if (isSelected) {
                 backGroundColor = table.getSelectionBackground();
@@ -173,8 +173,8 @@ public class QuicklookProvider implements DataProvider {
                 final Color backgroundColor = table.getSelectionBackground();
                 scrollPane.setBackground(backgroundColor);
                 scrollPane.setBorder(BorderFactory.createLineBorder(backgroundColor, 3));
-            } catch(Throwable e) {
-                System.out.println("QuicklookEditor: "+e.getMessage());   
+            } catch (Throwable e) {
+                System.out.println("QuicklookEditor: " + e.getMessage());
             }
             return scrollPane;
         }

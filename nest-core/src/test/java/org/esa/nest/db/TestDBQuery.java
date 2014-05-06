@@ -46,7 +46,7 @@ public class TestDBQuery extends TestCase {
 
     public void testQuery() throws SQLException {
         final DBQuery dbQuery = new DBQuery();
-        dbQuery.setSelectedMissions(new String[] { "ENVISAT"});
+        dbQuery.setSelectedMissions(new String[]{"ENVISAT"});
 
         final ProductEntry[] productEntryList = dbQuery.queryDatabase(db);
         showProductEntries(productEntryList);
@@ -54,14 +54,14 @@ public class TestDBQuery extends TestCase {
 
     public void testFreeQuery() throws SQLException {
         final DBQuery dbQuery = new DBQuery();
-        dbQuery.setFreeQuery(AbstractMetadata.PRODUCT+" LIKE 'RS2_SGF%'");
+        dbQuery.setFreeQuery(AbstractMetadata.PRODUCT + " LIKE 'RS2_SGF%'");
 
         final ProductEntry[] productEntryList = dbQuery.queryDatabase(db);
         showProductEntries(productEntryList);
     }
 
     private static void showProductEntries(final ProductEntry[] productEntryList) {
-        for(ProductEntry entry : productEntryList) {
+        for (ProductEntry entry : productEntryList) {
             //System.out.println(entry.getId() +" "+ entry.getName());
         }
     }

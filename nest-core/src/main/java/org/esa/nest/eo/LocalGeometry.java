@@ -27,41 +27,41 @@ public class LocalGeometry {
                          final double[] earthPoint, final double[] sensorPos) {
         final GeoPos geo = new GeoPos();
 
-        tileGeoRef.getGeoPos(x-1, y, geo);
-        this.leftPointLat  = geo.lat;
-        this.leftPointLon  = geo.lon;
+        tileGeoRef.getGeoPos(x - 1, y, geo);
+        this.leftPointLat = geo.lat;
+        this.leftPointLon = geo.lon;
 
-        tileGeoRef.getGeoPos(x+1, y, geo);
+        tileGeoRef.getGeoPos(x + 1, y, geo);
         this.rightPointLat = geo.lat;
         this.rightPointLon = geo.lon;
 
-        tileGeoRef.getGeoPos(x, y-1, geo);
-        this.upPointLat    = geo.lat;
-        this.upPointLon    = geo.lon;
+        tileGeoRef.getGeoPos(x, y - 1, geo);
+        this.upPointLat = geo.lat;
+        this.upPointLon = geo.lon;
 
-        tileGeoRef.getGeoPos(x, y+1, geo);
-        this.downPointLat  = geo.lat;
-        this.downPointLon  = geo.lon;
-        this.centrePoint   = earthPoint;
-        this.sensorPos     = sensorPos;
+        tileGeoRef.getGeoPos(x, y + 1, geo);
+        this.downPointLat = geo.lat;
+        this.downPointLon = geo.lon;
+        this.centrePoint = earthPoint;
+        this.sensorPos = sensorPos;
     }
 
     public LocalGeometry(final double lat, final double lon, final double delLat, final double delLon,
                          final double[] earthPoint, final double[] sensorPos) {
 
-        this.leftPointLat  = lat;
-        this.leftPointLon  = lon - delLon;
+        this.leftPointLat = lat;
+        this.leftPointLon = lon - delLon;
 
         this.rightPointLat = lat;
         this.rightPointLon = lon + delLon;
 
-        this.upPointLat    = lat - delLat;
-        this.upPointLon    = lon;
+        this.upPointLat = lat - delLat;
+        this.upPointLon = lon;
 
-        this.downPointLat  = lat + delLat;
-        this.downPointLon  = lon;
-        this.centrePoint   = earthPoint;
-        this.sensorPos     = sensorPos;
+        this.downPointLat = lat + delLat;
+        this.downPointLon = lon;
+        this.centrePoint = earthPoint;
+        this.sensorPos = sensorPos;
     }
 
 }

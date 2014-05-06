@@ -92,52 +92,52 @@ public class ProductTable implements TableInterface {
 
     private static String createTableString() {
         int i = 0;
-        String s = "create table "+TABLE+" (" +
-            "    ID          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),";
-        for(String n : colNames) {
-            s += n +" "+ colTypes[i++]+", ";
+        String s = "create table " + TABLE + " (" +
+                "    ID          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),";
+        for (String n : colNames) {
+            s += n + " " + colTypes[i++] + ", ";
         }
-        return s.substring(0, s.length()-2) +')';
+        return s.substring(0, s.length() - 2) + ')';
     }
 
     private static final String strGetProduct =
-            "SELECT * FROM "+TABLE+' ' +
-            "WHERE ID = ?";
+            "SELECT * FROM " + TABLE + ' ' +
+                    "WHERE ID = ?";
 
     private static final String strSaveProduct = createSaveString();
 
     private static String createSaveString() {
-        String s = "INSERT INTO "+TABLE+" ( ";
-        for(String n : colNames) {
-            s += n +", ";
+        String s = "INSERT INTO " + TABLE + " ( ";
+        for (String n : colNames) {
+            s += n + ", ";
         }
-        s = s.substring(0, s.length()-2) +')';
+        s = s.substring(0, s.length() - 2) + ')';
         s += " VALUES (";
-        for(String n : colNames) {
+        for (String n : colNames) {
             s += "?, ";
         }
-        return s.substring(0, s.length()-2) +')';
+        return s.substring(0, s.length() - 2) + ')';
     }
 
     private static final String strGetListEntries =
-            "SELECT * FROM "+TABLE+" ORDER BY "+AbstractMetadata.MISSION+" ASC";
+            "SELECT * FROM " + TABLE + " ORDER BY " + AbstractMetadata.MISSION + " ASC";
 
     private static final String strGetProductWithPath =
-            "SELECT * FROM "+TABLE+" WHERE "+AbstractMetadata.PATH+" = ?";
+            "SELECT * FROM " + TABLE + " WHERE " + AbstractMetadata.PATH + " = ?";
 
     private static final String strUpdateProduct =
-            "UPDATE "+TABLE+" SET " +
-            AbstractMetadata.PATH+" = ?, " +
-            AbstractMetadata.MISSION+" = ?, " +
-            AbstractMetadata.PRODUCT_TYPE+" = ? " +
-            "WHERE ID = ?";
+            "UPDATE " + TABLE + " SET " +
+                    AbstractMetadata.PATH + " = ?, " +
+                    AbstractMetadata.MISSION + " = ?, " +
+                    AbstractMetadata.PRODUCT_TYPE + " = ? " +
+                    "WHERE ID = ?";
 
     private static final String strDeleteProduct =
-            "DELETE FROM "+TABLE+" WHERE ID = ?";
+            "DELETE FROM " + TABLE + " WHERE ID = ?";
 
-    private static final String strAllMissions = "SELECT DISTINCT "+AbstractMetadata.MISSION+" FROM "+TABLE;
-    private static final String strAllProductTypes = "SELECT DISTINCT "+AbstractMetadata.PRODUCT_TYPE+" FROM "+TABLE;
-    private static final String strAllAcquisitionModes = "SELECT DISTINCT "+AbstractMetadata.ACQUISITION_MODE+" FROM "+TABLE;
+    private static final String strAllMissions = "SELECT DISTINCT " + AbstractMetadata.MISSION + " FROM " + TABLE;
+    private static final String strAllProductTypes = "SELECT DISTINCT " + AbstractMetadata.PRODUCT_TYPE + " FROM " + TABLE;
+    private static final String strAllAcquisitionModes = "SELECT DISTINCT " + AbstractMetadata.ACQUISITION_MODE + " FROM " + TABLE;
 
     public ProductTable(final Connection dbConnection) {
         this.dbConnection = dbConnection;
@@ -153,14 +153,14 @@ public class ProductTable implements TableInterface {
         final Statement alterStatement = dbConnection.createStatement();
 
         // add missing columns to the table
-        int i=0;
-        for(String n : colNames) {
-            final String testStr = "SELECT '"+n+"' FROM "+TABLE;
+        int i = 0;
+        for (String n : colNames) {
+            final String testStr = "SELECT '" + n + "' FROM " + TABLE;
             try {
                 alterStatement.executeQuery(testStr);
-            } catch(SQLException e) {
-                if(e.getSQLState().equals("42X04")) {
-                    final String alterStr = "ALTER TABLE "+TABLE+" ADD '"+ n +"' "+ colTypes[i];
+            } catch (SQLException e) {
+                if (e.getSQLState().equals("42X04")) {
+                    final String alterStr = "ALTER TABLE " + TABLE + " ADD '" + n + "' " + colTypes[i];
                     alterStatement.execute(alterStr);
                 }
             }
@@ -202,7 +202,7 @@ public class ProductTable implements TableInterface {
         stmtSaveNewRecord.setDouble(i++, record.getLastModified());
         stmtSaveNewRecord.setString(i++, record.getFileFormat());
         final String geoStr = record.formatGeoBoundayString();
-        if(geoStr.length() > 1200) {
+        if (geoStr.length() > 1200) {
             System.out.println("Geoboundary string exceeds 1200");
             stmtSaveNewRecord.setString(i++, "");
         } else {
@@ -220,7 +220,7 @@ public class ProductTable implements TableInterface {
         stmtUpdateExistingRecord.setInt(12, record.getId());
         stmtUpdateExistingRecord.executeUpdate();
     } */
-    
+
     public void deleteRecord(final int id) throws SQLException {
         stmtDeleteProduct.clearParameters();
         stmtDeleteProduct.setInt(1, id);
@@ -231,14 +231,14 @@ public class ProductTable implements TableInterface {
         stmtGetProductWithPath.clearParameters();
         stmtGetProductWithPath.setString(1, path.getAbsolutePath());
         final ResultSet results = stmtGetProductWithPath.executeQuery();
-        if(results.next()) {
+        if (results.next()) {
             return new ProductEntry(results);
         }
         return null;
     }
 
     public boolean pathExists(final File path) throws SQLException {
-        if(path == null)
+        if (path == null)
             return false;
         stmtGetProductWithPath.clearParameters();
         stmtGetProductWithPath.setString(1, path.getAbsolutePath());
@@ -251,7 +251,7 @@ public class ProductTable implements TableInterface {
 
         final Statement queryStatement = dbConnection.createStatement();
         final ResultSet results = queryStatement.executeQuery(strGetListEntries);
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(new ProductEntry(results));
         }
         return listEntries.toArray(new ProductEntry[listEntries.size()]);
@@ -260,7 +260,7 @@ public class ProductTable implements TableInterface {
     public String[] getAllMissions() throws SQLException {
         final List<String> listEntries = new ArrayList<String>();
         final ResultSet results = stmtAllMissions.executeQuery();
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(results.getString(1));
         }
         return listEntries.toArray(new String[listEntries.size()]);
@@ -268,13 +268,14 @@ public class ProductTable implements TableInterface {
 
     /**
      * Get All product types
+     *
      * @return list of product types
      * @throws SQLException .
      */
     public String[] getAllProductTypes() throws SQLException {
         final List<String> listEntries = new ArrayList<String>();
         final ResultSet results = stmtAllProductTypes.executeQuery();
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(results.getString(1));
         }
         return listEntries.toArray(new String[listEntries.size()]);
@@ -282,20 +283,21 @@ public class ProductTable implements TableInterface {
 
     /**
      * Get All product types for specified mission
+     *
      * @param missions the selected missions
      * @return list of product types
      * @throws SQLException .
      */
     public String[] getProductTypes(final String[] missions) throws SQLException {
-        if(missions == null || missions.length == 0)
-            return new String[] {};
-        String strMissionProductTypes = "SELECT DISTINCT "+AbstractMetadata.PRODUCT_TYPE+" FROM "+TABLE+" WHERE ";
+        if (missions == null || missions.length == 0)
+            return new String[]{};
+        String strMissionProductTypes = "SELECT DISTINCT " + AbstractMetadata.PRODUCT_TYPE + " FROM " + TABLE + " WHERE ";
         strMissionProductTypes += SQLUtils.getOrList(AbstractMetadata.MISSION, missions);
 
         final List<String> listEntries = new ArrayList<String>();
         final Statement queryStatement = dbConnection.createStatement();
         final ResultSet results = queryStatement.executeQuery(strMissionProductTypes);
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(results.getString(1));
         }
         return listEntries.toArray(new String[listEntries.size()]);
@@ -303,13 +305,14 @@ public class ProductTable implements TableInterface {
 
     /**
      * Get All acquisition modes
+     *
      * @return list of acquisition modes
      * @throws SQLException .
      */
     public String[] getAllAcquisitionModes() throws SQLException {
         final List<String> listEntries = new ArrayList<String>();
         final ResultSet results = stmtAllAcquisitionModes.executeQuery();
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(results.getString(1));
         }
         return listEntries.toArray(new String[listEntries.size()]);
@@ -317,20 +320,21 @@ public class ProductTable implements TableInterface {
 
     /**
      * Get All acquisition modes for specified mission
+     *
      * @param missions the selected missions
      * @return list of acquisition modes
      * @throws SQLException .
      */
     public String[] getAcquisitionModes(final String[] missions) throws SQLException {
-        if(missions == null || missions.length == 0)
-            return new String[] {};
-        String strMissionAcquisitionModes = "SELECT DISTINCT "+AbstractMetadata.ACQUISITION_MODE+" FROM "+TABLE+" WHERE ";
+        if (missions == null || missions.length == 0)
+            return new String[]{};
+        String strMissionAcquisitionModes = "SELECT DISTINCT " + AbstractMetadata.ACQUISITION_MODE + " FROM " + TABLE + " WHERE ";
         strMissionAcquisitionModes += SQLUtils.getOrList(AbstractMetadata.MISSION, missions);
 
         final List<String> listEntries = new ArrayList<String>();
         final Statement queryStatement = dbConnection.createStatement();
         final ResultSet results = queryStatement.executeQuery(strMissionAcquisitionModes);
-        while(results.next()) {
+        while (results.next()) {
             listEntries.add(results.getString(1));
         }
         return listEntries.toArray(new String[listEntries.size()]);

@@ -25,24 +25,24 @@ class ReadoutCanvas {
     }
 
     public void paint(Graphics g) {
-            draw(g);
+        draw(g);
     }
 
     private synchronized void draw(Graphics g) {
         g.translate(readoutOrigin.x, readoutOrigin.y);
-        if(readoutList != null) {
+        if (readoutList != null) {
 
             int x = 0, y = 0;
-            for(String str : readoutList) {
+            for (String str : readoutList) {
                 g.drawString(str, x, y);
                 y += 20;
             }
         }
-        if(metadataList != null) {
-            g.translate((int)g.getClipBounds().getWidth() - 230, 0);
+        if (metadataList != null) {
+            g.translate((int) g.getClipBounds().getWidth() - 230, 0);
 
             int x = 0, y = 0;
-            for(String str : metadataList) {
+            for (String str : metadataList) {
                 g.drawString(str, x, y);
                 y += 20;
             }
@@ -50,19 +50,19 @@ class ReadoutCanvas {
     }
 
     public void exportReadout(final File file) throws IOException {
-        if(metadataList != null) {
+        if (metadataList != null) {
             final FileOutputStream out = new FileOutputStream(file.getAbsolutePath(), false);
             // Connect print stream to the output stream
             final PrintStream p = new PrintStream(out);
 
-            if(readoutList != null) {
-                for(String str : readoutList) {
-                    p.println(str +",");
+            if (readoutList != null) {
+                for (String str : readoutList) {
+                    p.println(str + ",");
                 }
             }
 
-            for(String str : metadataList) {
-                p.println(str +",");
+            for (String str : metadataList) {
+                p.println(str + ",");
             }
         }
     }

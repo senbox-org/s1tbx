@@ -34,7 +34,7 @@ import java.util.Arrays;
 public final class ReaderUtils {
 
     public static void createVirtualPhaseBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
-        final String expression = "atan2("+bandQ.getName()+ ',' +bandI.getName()+ ')';
+        final String expression = "atan2(" + bandQ.getName() + ',' + bandI.getName() + ')';
 
         final VirtualBand virtBand = new VirtualBand("Phase" + countStr,
                 ProductData.TYPE_FLOAT32,
@@ -70,7 +70,6 @@ public final class ReaderUtils {
      * otherwise it returns null;
      *
      * @param input an input object of unknown type
-     *
      * @return a <code>File</code> or <code>null</code> it the input can not be resolved to a <code>File</code>.
      */
     public static File getFileFromInput(final Object input) {
@@ -84,24 +83,24 @@ public final class ReaderUtils {
 
     public static void addGeoCoding(final Product product, final float[] latCorners, final float[] lonCorners) {
 
-        if(latCorners == null || lonCorners == null) return;
+        if (latCorners == null || lonCorners == null) return;
 
         final int gridWidth = 10;
         final int gridHeight = 10;
 
-        final float[] fineLatTiePoints = new float[gridWidth*gridHeight];
+        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latCorners, fineLatTiePoints);
 
-        float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
-        float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
-        if(subSamplingX == 0 || subSamplingY == 0)
+        float subSamplingX = (float) product.getSceneRasterWidth() / (gridWidth - 1);
+        float subSamplingY = (float) product.getSceneRasterHeight() / (gridHeight - 1);
+        if (subSamplingX == 0 || subSamplingY == 0)
             return;
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
-        final float[] fineLonTiePoints = new float[gridWidth*gridHeight];
+        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
@@ -122,12 +121,12 @@ public final class ReaderUtils {
                                               final float[] coarseTiePoints,
                                               final float[] fineTiePoints) {
 
-        if (coarseTiePoints == null || coarseTiePoints.length != coarseGridWidth*coarseGridHeight) {
+        if (coarseTiePoints == null || coarseTiePoints.length != coarseGridWidth * coarseGridHeight) {
             throw new IllegalArgumentException(
                     "coarse tie point array size does not match 'coarseGridWidth' x 'coarseGridHeight'");
         }
 
-        if (fineTiePoints == null || fineTiePoints.length != fineGridWidth*fineGridHeight) {
+        if (fineTiePoints == null || fineTiePoints.length != fineGridWidth * fineGridHeight) {
             throw new IllegalArgumentException(
                     "fine tie point array size does not match 'fineGridWidth' x 'fineGridHeight'");
         }
@@ -135,51 +134,51 @@ public final class ReaderUtils {
         int k = 0;
         for (int r = 0; r < fineGridHeight; r++) {
 
-            final float lambdaR = (float)(r) / (float)(fineGridHeight - 1);
-            final float betaR = lambdaR*(coarseGridHeight - 1);
-            final int j0 = (int)(betaR);
+            final float lambdaR = (float) (r) / (float) (fineGridHeight - 1);
+            final float betaR = lambdaR * (coarseGridHeight - 1);
+            final int j0 = (int) (betaR);
             final int j1 = Math.min(j0 + 1, coarseGridHeight - 1);
             final float wj = betaR - j0;
 
             for (int c = 0; c < fineGridWidth; c++) {
 
-                final float lambdaC = (float)(c) / (float)(fineGridWidth - 1);
-                final float betaC = lambdaC*(coarseGridWidth - 1);
-                final int i0 = (int)(betaC);
+                final float lambdaC = (float) (c) / (float) (fineGridWidth - 1);
+                final float betaC = lambdaC * (coarseGridWidth - 1);
+                final int i0 = (int) (betaC);
                 final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
                 final float wi = betaC - i0;
 
                 fineTiePoints[k++] = MathUtils.interpolate2D(wi, wj,
-                                                           coarseTiePoints[i0 + j0 * coarseGridWidth],
-                                                           coarseTiePoints[i1 + j0 * coarseGridWidth],
-                                                           coarseTiePoints[i0 + j1 * coarseGridWidth],
-                                                           coarseTiePoints[i1 + j1 * coarseGridWidth]);
+                        coarseTiePoints[i0 + j0 * coarseGridWidth],
+                        coarseTiePoints[i1 + j0 * coarseGridWidth],
+                        coarseTiePoints[i0 + j1 * coarseGridWidth],
+                        coarseTiePoints[i1 + j1 * coarseGridWidth]);
             }
         }
     }
 
     public static double getLineTimeInterval(final ProductData.UTC startUTC, final ProductData.UTC endUTC, final int sceneHeight) {
-        if(startUTC == null || endUTC == null)
+        if (startUTC == null || endUTC == null)
             return 0;
         final double startTime = startUTC.getMJD() * 24.0 * 3600.0;
         final double stopTime = endUTC.getMJD() * 24.0 * 3600.0;
-        return (stopTime-startTime) / (double)(sceneHeight-1);
+        return (stopTime - startTime) / (double) (sceneHeight - 1);
     }
 
     public static void addMetadataProductSize(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
+        if (absRoot != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
         }
     }
 
     public static int getTotalSize(final Product product) {
-        return (int)(product.getRawStorageSize() / (1024.0f * 1024.0f));
+        return (int) (product.getRawStorageSize() / (1024.0f * 1024.0f));
     }
 
     public static void addMetadataIncidenceAngles(final Product product) {
         final TiePointGrid tpg = product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE);
-        if(tpg == null)
+        if (tpg == null)
             return;
 
         final int midAz = product.getSceneRasterHeight() / 2;
@@ -192,39 +191,39 @@ public final class ReaderUtils {
     }
 
     public static void verifyProduct(final Product product, final boolean verifyTimes) throws Exception {
-        verifyProduct(product, verifyTimes, true);    
+        verifyProduct(product, verifyTimes, true);
     }
 
     public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding) throws Exception {
-        if(product == null)
+        if (product == null)
             throw new Exception("product is null");
-        if(verifyGeoCoding && product.getGeoCoding() == null) {
-            System.out.println("Geocoding is null for "+product.getFileLocation().getAbsolutePath());
+        if (verifyGeoCoding && product.getGeoCoding() == null) {
+            System.out.println("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
             //throw new Exception("geocoding is null");
         }
-        if(product.getMetadataRoot() == null)
+        if (product.getMetadataRoot() == null)
             throw new Exception("metadataroot is null");
-        if(product.getNumBands() == 0)
+        if (product.getNumBands() == 0)
             throw new Exception("numbands is zero");
-        if(product.getProductType() == null || product.getProductType().isEmpty())
+        if (product.getProductType() == null || product.getProductType().isEmpty())
             throw new Exception("productType is null");
-        if(verifyTimes) {
-            if(product.getStartTime() == null)
+        if (verifyTimes) {
+            if (product.getStartTime() == null)
                 throw new Exception("startTime is null");
-             if(product.getEndTime() == null)
+            if (product.getEndTime() == null)
                 throw new Exception("endTime is null");
         }
-        for(Band b : product.getBands()) {
-            if(b.getUnit() == null || b.getUnit().isEmpty())
+        for (Band b : product.getBands()) {
+            if (b.getUnit() == null || b.getUnit().isEmpty())
                 throw new Exception("band " + b.getName() + " has null unit");
         }
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
-        if(elem == null)
+        if (elem == null)
             return AbstractMetadata.NO_METADATA_UTC;
         final String timeStr = createValidUTCString(elem.getAttributeString(tag, " ").toUpperCase(),
-                new char[]{':','.','-'}, ' ').trim();
+                new char[]{':', '.', '-'}, ' ').trim();
         return AbstractMetadata.parseUTC(timeStr, timeFormat);
     }
 

@@ -96,8 +96,8 @@ public final class AbstractMetadata {
     public static final String mds4_tx_rx_polar = "mds4_tx_rx_polar";
     public static final String polarization = "polarization";
     public static final String polsarData = "polsar_data";
-    public static final String[] polarTags = { AbstractMetadata.mds1_tx_rx_polar,AbstractMetadata.mds2_tx_rx_polar,
-                                               AbstractMetadata.mds3_tx_rx_polar,AbstractMetadata.mds4_tx_rx_polar };
+    public static final String[] polarTags = {AbstractMetadata.mds1_tx_rx_polar, AbstractMetadata.mds2_tx_rx_polar,
+            AbstractMetadata.mds3_tx_rx_polar, AbstractMetadata.mds4_tx_rx_polar};
     public static final String algorithm = "algorithm";
     public static final String azimuth_looks = "azimuth_looks";
     public static final String range_looks = "range_looks";
@@ -193,16 +193,17 @@ public final class AbstractMetadata {
 
     /**
      * Abstract common metadata from products to be used uniformly by all operators
+     *
      * @param root the product metadata root
      * @return abstracted metadata root
      */
     public static MetadataElement addAbstractedMetadataHeader(MetadataElement root) {
         MetadataElement absRoot;
-        if(root == null) {
-            absRoot = new MetadataElement(ABSTRACT_METADATA_ROOT);    
+        if (root == null) {
+            absRoot = new MetadataElement(ABSTRACT_METADATA_ROOT);
         } else {
             absRoot = root.getElement(ABSTRACT_METADATA_ROOT);
-            if(absRoot == null) {
+            if (absRoot == null) {
                 absRoot = new MetadataElement(ABSTRACT_METADATA_ROOT);
                 root.addElementAt(absRoot, 0);
             }
@@ -291,7 +292,7 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, ref_slant_range, ProductData.TYPE_FLOAT64, "", "Reference slant range");
         addAbstractedAttribute(absRoot, ref_slant_range_exp, ProductData.TYPE_FLOAT64, "", "Reference slant range exponent");
         addAbstractedAttribute(absRoot, rescaling_factor, ProductData.TYPE_FLOAT64, "", "Rescaling factor");
-         
+
         addAbstractedAttribute(absRoot, range_sampling_rate, ProductData.TYPE_FLOAT64, "MHz", "Range Sampling Rate");
 
         // range and azimuth bandwidths for InSAR
@@ -326,13 +327,14 @@ public final class AbstractMetadata {
     /**
      * Abstract common metadata from products to be used uniformly by all operators
      * name should be in the form swath_pol_date
+     *
      * @param absRoot the abstracted metadata root
-     * @param name the name of the element
+     * @param name    the name of the element
      * @return abstracted metadata root
      */
     public static MetadataElement addBandAbstractedMetadata(final MetadataElement absRoot, final String name) {
         MetadataElement bandRoot = absRoot.getElement(name);
-        if(bandRoot == null) {
+        if (bandRoot == null) {
             bandRoot = new MetadataElement(name);
             absRoot.addElement(bandRoot);
         }
@@ -357,7 +359,7 @@ public final class AbstractMetadata {
 
     public static void addBandToBandMap(final MetadataElement bandAbsRoot, final String name) {
         String bandNames = bandAbsRoot.getAttributeString(band_names);
-        if(!bandNames.isEmpty())
+        if (!bandNames.isEmpty())
             bandNames += ' ';
         bandNames += name;
         bandAbsRoot.setAttributeString(band_names, bandNames);
@@ -365,11 +367,11 @@ public final class AbstractMetadata {
 
     public static MetadataElement getBandAbsMetadata(final MetadataElement absRoot, final Band band) {
         final MetadataElement[] children = absRoot.getElements();
-        for(MetadataElement child : children) {
-            if(child.getName().startsWith(BAND_PREFIX)) {
+        for (MetadataElement child : children) {
+            if (child.getName().startsWith(BAND_PREFIX)) {
                 final String[] bandNameArray = StringUtils.stringToArray(child.getAttributeString(band_names), " ");
-                for(String bandName : bandNameArray) {
-                    if(bandName.equals(band.getName()))
+                for (String bandName : bandNameArray) {
+                    if (bandName.equals(band.getName()))
                         return child;
                 }
             }
@@ -379,13 +381,14 @@ public final class AbstractMetadata {
 
     /**
      * Returns the orignal product metadata or the root if not found
+     *
      * @param product input product
      * @return original metadata
      */
     public static MetadataElement getOriginalProductMetadata(final Product product) {
         final MetadataElement root = product.getMetadataRoot();
         MetadataElement origMetadata = root.getElement(ORIGINAL_PRODUCT_METADATA);
-        if(origMetadata == null) {
+        if (origMetadata == null) {
             return root;
         }
         return origMetadata;
@@ -393,13 +396,14 @@ public final class AbstractMetadata {
 
     /**
      * Creates and returns the orignal product metadata
+     *
      * @param product input product
      * @return original metadata
      */
     public static MetadataElement addOriginalProductMetadata(final Product product) {
         final MetadataElement root = product.getMetadataRoot();
         MetadataElement origMetadata = root.getElement(ORIGINAL_PRODUCT_METADATA);
-        if(origMetadata == null) {
+        if (origMetadata == null) {
             origMetadata = new MetadataElement(ORIGINAL_PRODUCT_METADATA);
             root.addElement(origMetadata);
         }
@@ -408,22 +412,23 @@ public final class AbstractMetadata {
 
     /**
      * Adds an attribute into dest
-     * @param dest the destination element
-     * @param tag the name of the attribute
+     *
+     * @param dest     the destination element
+     * @param tag      the name of the attribute
      * @param dataType the ProductData type
-     * @param unit The unit
-     * @param desc The description
+     * @param unit     The unit
+     * @param desc     The description
      * @return the newly created attribute
      */
     public static MetadataAttribute addAbstractedAttribute(final MetadataElement dest, final String tag, final int dataType,
-                                               final String unit, final String desc) {
+                                                           final String unit, final String desc) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, dataType, 1);
-        if(dataType == ProductData.TYPE_ASCII) {
+        if (dataType == ProductData.TYPE_ASCII) {
             attribute.getData().setElems(NO_METADATA_STRING);
-        } else if(dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_UINT8) {
-            attribute.getData().setElems( new String[] {String.valueOf(NO_METADATA_BYTE)} );
-        } else if(dataType != ProductData.TYPE_UTC) {
-            attribute.getData().setElems( new String[] {String.valueOf(NO_METADATA)} );
+        } else if (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_UINT8) {
+            attribute.getData().setElems(new String[]{String.valueOf(NO_METADATA_BYTE)});
+        } else if (dataType != ProductData.TYPE_UTC) {
+            attribute.getData().setElems(new String[]{String.valueOf(NO_METADATA)});
         }
         attribute.setUnit(unit);
         attribute.setDescription(desc);
@@ -434,58 +439,61 @@ public final class AbstractMetadata {
 
     /**
      * Sets an attribute as a string
-     * @param dest the destination element
-     * @param tag the name of the attribute
+     *
+     * @param dest  the destination element
+     * @param tag   the name of the attribute
      * @param value the string value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final String value) {
-        if(dest == null)
+        if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if(attrib != null && value != null) {
-            if(value.isEmpty())
+        if (attrib != null && value != null) {
+            if (value.isEmpty())
                 attrib.getData().setElems(NO_METADATA_STRING);
             else
                 attrib.getData().setElems(value);
         } else {
-            if(attrib == null)
+            if (attrib == null)
                 System.out.println(tag + " not found in metadata");
-            if(value == null)
+            if (value == null)
                 System.out.println(tag + " metadata value is null");
         }
     }
 
     /**
      * Sets an attribute as a UTC
-     * @param dest the destination element
-     * @param tag the name of the attribute
+     *
+     * @param dest  the destination element
+     * @param tag   the name of the attribute
      * @param value the UTC value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final ProductData.UTC value) {
-        if(dest == null)
+        if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if(attrib != null && value != null) {
+        if (attrib != null && value != null) {
             attrib.getData().setElems(value.getArray());
         } else {
-            if(attrib == null)
+            if (attrib == null)
                 System.out.println(tag + " not found in metadata");
-            if(value == null)
+            if (value == null)
                 System.out.println(tag + " metadata value is null");
         }
     }
 
     /**
      * Sets an attribute as an int
-     * @param dest the destination element
-     * @param tag the name of the attribute
+     *
+     * @param dest  the destination element
+     * @param tag   the name of the attribute
      * @param value the string value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final int value) {
-        if(dest == null)
+        if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if(attrib == null)
+        if (attrib == null)
             System.out.println(tag + " not found in metadata");
         else
             attrib.getData().setElemInt(value);
@@ -493,36 +501,37 @@ public final class AbstractMetadata {
 
     /**
      * Sets an attribute as a double
-     * @param dest the destination element
-     * @param tag the name of the attribute
+     *
+     * @param dest  the destination element
+     * @param tag   the name of the attribute
      * @param value the string value
      */
     public static void setAttribute(final MetadataElement dest, final String tag, final double value) {
-        if(dest == null)
+        if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if(attrib == null)
+        if (attrib == null)
             System.out.println(tag + " not found in metadata");
         else
             attrib.getData().setElemDouble(value);
     }
 
     public static void setAttribute(final MetadataElement dest, final String tag, final Double value) {
-        if(dest == null)
+        if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if(attrib == null)
+        if (attrib == null)
             System.out.println(tag + " not found in metadata");
-        else if(value != null)
+        else if (value != null)
             attrib.getData().setElemDouble(value);
     }
 
     public static ProductData.UTC parseUTC(final String timeStr) {
         try {
-            if(timeStr == null)
+            if (timeStr == null)
                 return NO_METADATA_UTC;
             return ProductData.UTC.parse(timeStr);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             return NO_METADATA_UTC;
         }
     }
@@ -531,34 +540,34 @@ public final class AbstractMetadata {
         try {
             final int dotPos = timeStr.lastIndexOf('.');
             if (dotPos > 0) {
-                final String newTimeStr = timeStr.substring(0, Math.min(dotPos+6, timeStr.length()));
+                final String newTimeStr = timeStr.substring(0, Math.min(dotPos + 6, timeStr.length()));
                 return ProductData.UTC.parse(newTimeStr, format);
             }
             return ProductData.UTC.parse(timeStr, format);
-        } catch(ParseException e) {
-            System.out.println("UTC parse error:"+ e.toString());
+        } catch (ParseException e) {
+            System.out.println("UTC parse error:" + e.toString());
             return NO_METADATA_UTC;
         }
     }
 
     public static boolean getAttributeBoolean(final MetadataElement elem, final String tag) throws Exception {
         final int val = elem.getAttributeInt(tag);
-        if(val == NO_METADATA)
-            throw new Exception("Metadata "+tag+" has not been set");
+        if (val == NO_METADATA)
+            throw new Exception("Metadata " + tag + " has not been set");
         return val != 0;
     }
 
-    public static double getAttributeDouble(final MetadataElement elem, final String tag) throws Exception {       
+    public static double getAttributeDouble(final MetadataElement elem, final String tag) throws Exception {
         final double val = elem.getAttributeDouble(tag);
-        if(val == NO_METADATA)
-            throw new Exception("Metadata "+tag+" has not been set");
+        if (val == NO_METADATA)
+            throw new Exception("Metadata " + tag + " has not been set");
         return val;
     }
 
     public static int getAttributeInt(final MetadataElement elem, final String tag) throws Exception {
         final int val = elem.getAttributeInt(tag);
-        if(val == NO_METADATA)
-            throw new Exception("Metadata "+tag+" has not been set");
+        if (val == NO_METADATA)
+            throw new Exception("Metadata " + tag + " has not been set");
         return val;
     }
 
@@ -568,7 +577,7 @@ public final class AbstractMetadata {
         final String inputStr = productFile.getAbsolutePath();
         final String metadataStr = inputStr.substring(0, inputStr.lastIndexOf('.')) + ".xml";
         File metadataFile = new File(metadataStr);
-        if(metadataFile.exists() && AbstractMetadataIO.Load(product, absRoot, metadataFile)) {
+        if (metadataFile.exists() && AbstractMetadataIO.Load(product, absRoot, metadataFile)) {
             return true;
         } else {
             metadataFile = new File(productFile.getParentFile(), "metadata.xml");
@@ -577,10 +586,10 @@ public final class AbstractMetadata {
     }
 
     public static void saveExternalMetadata(final Product product, final MetadataElement absRoot, final File productFile) {
-         // load metadata xml file if found
+        // load metadata xml file if found
         final String inputStr = productFile.getAbsolutePath();
         int dotPos = inputStr.lastIndexOf('.');
-        if(dotPos < 0)
+        if (dotPos < 0)
             dotPos = inputStr.length();
         final String metadataStr = inputStr.substring(0, dotPos) + ".xml";
         final File metadataFile = new File(metadataStr);
@@ -589,6 +598,7 @@ public final class AbstractMetadata {
 
     /**
      * Check if abstracted metadata exists.
+     *
      * @param sourceProduct the product
      * @return true if abstractmetadata exists
      */
@@ -604,6 +614,7 @@ public final class AbstractMetadata {
 
     /**
      * Get abstracted metadata.
+     *
      * @param sourceProduct the product
      * @return MetadataElement or null if no root found
      */
@@ -620,7 +631,7 @@ public final class AbstractMetadata {
                 abstractedMetadata.setName(AbstractMetadata.ABSTRACT_METADATA_ROOT);
             }
         }
-        if(abstractedMetadata == null) {
+        if (abstractedMetadata == null) {
             abstractedMetadata = addAbstractedMetadataHeader(root);
         } else {
             migrateToCurrentVersion(abstractedMetadata);
@@ -632,7 +643,7 @@ public final class AbstractMetadata {
     private static void migrateToCurrentVersion(final MetadataElement abstractedMetadata) {
         // check if version has changed
         final String version = abstractedMetadata.getAttributeString(abstracted_metadata_version, "");
-        if(version.equals(METADATA_VERSION))
+        if (version.equals(METADATA_VERSION))
             return;
 
         //todo
@@ -641,15 +652,15 @@ public final class AbstractMetadata {
     private static void patchMissingMetadata(final MetadataElement abstractedMetadata) {
         // check if version has changed
         final String version = abstractedMetadata.getAttributeString(abstracted_metadata_version, "");
-        if(version.equals(METADATA_VERSION))
+        if (version.equals(METADATA_VERSION))
             return;
 
         final MetadataElement tmpElem = new MetadataElement("tmp");
         final MetadataElement completeMetadata = addAbstractedMetadataHeader(tmpElem);
 
         final MetadataAttribute[] attribs = completeMetadata.getAttributes();
-        for(MetadataAttribute at : attribs) {
-            if(!abstractedMetadata.containsAttribute(at.getName())) {
+        for (MetadataAttribute at : attribs) {
+            if (!abstractedMetadata.containsAttribute(at.getName())) {
                 abstractedMetadata.addAttribute(at);
                 abstractedMetadata.getProduct().setModified(false);
             }
@@ -659,7 +670,7 @@ public final class AbstractMetadata {
     public static MetadataElement getSlaveMetadata(final Product product) {
         final MetadataElement targetRoot = product.getMetadataRoot();
         MetadataElement targetSlaveMetadataRoot = targetRoot.getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(targetSlaveMetadataRoot == null) {
+        if (targetSlaveMetadataRoot == null) {
             targetSlaveMetadataRoot = new MetadataElement(AbstractMetadata.SLAVE_METADATA_ROOT);
             targetRoot.addElement(targetSlaveMetadataRoot);
         }
@@ -668,14 +679,15 @@ public final class AbstractMetadata {
 
     /**
      * Create sub-metadata element.
+     *
      * @param root The root metadata element.
-     * @param tag The sub-metadata element name.
+     * @param tag  The sub-metadata element name.
      * @return The sub-metadata element.
      */
     public static MetadataElement addElement(final MetadataElement root, final String tag) {
 
         MetadataElement subElemRoot = root.getElement(tag);
-        if(subElemRoot == null) {
+        if (subElemRoot == null) {
             subElemRoot = new MetadataElement(tag);
             root.addElement(subElemRoot);
         }
@@ -684,26 +696,27 @@ public final class AbstractMetadata {
 
     /**
      * Band metadata element within AbstractedMetadata
-     * @param root abstracted metadata root
+     *
+     * @param root     abstracted metadata root
      * @param bandName the name of the band
-     * @param create if null
+     * @param create   if null
      * @return MetadataElement of band
      */
     @Deprecated
     public static MetadataElement getBandAbsMetadata(final MetadataElement root, final String bandName,
                                                      final boolean create) {
-        final String bandElemName = "Band_"+bandName;
+        final String bandElemName = "Band_" + bandName;
         MetadataElement bandElem = root.getElement(bandElemName);
-        if(bandElem == null) {
+        if (bandElem == null) {
             // check real band
-            if(bandName.startsWith("Intensity")) {
+            if (bandName.startsWith("Intensity")) {
                 String realBandName = bandName.replace("Intensity_", "i_");
-                bandElem = root.getElement("Band_"+realBandName);
-            } else if(bandName.startsWith("Phase")) {
-                String realBandName = bandName.replace("Phase_", "i_");    
-                bandElem = root.getElement("Band_"+realBandName);
+                bandElem = root.getElement("Band_" + realBandName);
+            } else if (bandName.startsWith("Phase")) {
+                String realBandName = bandName.replace("Phase_", "i_");
+                bandElem = root.getElement("Band_" + realBandName);
             }
-            if(bandElem == null && create) {
+            if (bandElem == null && create) {
                 bandElem = new MetadataElement(bandElemName);
                 root.addElement(bandElem);
             }
@@ -713,28 +726,29 @@ public final class AbstractMetadata {
 
     /**
      * Get orbit state vectors.
+     *
      * @param absRoot Abstracted metadata root.
      * @return orbitStateVectors Array of orbit state vectors.
      */
     public static OrbitStateVector[] getOrbitStateVectors(final MetadataElement absRoot) {
 
         final MetadataElement elemRoot = absRoot.getElement(orbit_state_vectors);
-        if(elemRoot == null) {
-            return new OrbitStateVector[] {};
+        if (elemRoot == null) {
+            return new OrbitStateVector[]{};
         }
         final int numElems = elemRoot.getNumElements();
         final OrbitStateVector[] orbitStateVectors = new OrbitStateVector[numElems];
         for (int i = 0; i < numElems; i++) {
 
-            final MetadataElement subElemRoot = elemRoot.getElement(orbit_vector + (i+1));
+            final MetadataElement subElemRoot = elemRoot.getElement(orbit_vector + (i + 1));
             final OrbitStateVector vector = new OrbitStateVector(
-                        subElemRoot.getAttributeUTC(orbit_vector_time),
-                        subElemRoot.getAttributeDouble(orbit_vector_x_pos),
-                        subElemRoot.getAttributeDouble(orbit_vector_y_pos),
-                        subElemRoot.getAttributeDouble(orbit_vector_z_pos),
-                        subElemRoot.getAttributeDouble(orbit_vector_x_vel),
-                        subElemRoot.getAttributeDouble(orbit_vector_y_vel),
-                        subElemRoot.getAttributeDouble(orbit_vector_z_vel));
+                    subElemRoot.getAttributeUTC(orbit_vector_time),
+                    subElemRoot.getAttributeDouble(orbit_vector_x_pos),
+                    subElemRoot.getAttributeDouble(orbit_vector_y_pos),
+                    subElemRoot.getAttributeDouble(orbit_vector_z_pos),
+                    subElemRoot.getAttributeDouble(orbit_vector_x_vel),
+                    subElemRoot.getAttributeDouble(orbit_vector_y_vel),
+                    subElemRoot.getAttributeDouble(orbit_vector_z_vel));
             orbitStateVectors[i] = vector;
         }
         return orbitStateVectors;
@@ -742,7 +756,8 @@ public final class AbstractMetadata {
 
     /**
      * Set orbit state vectors.
-     * @param absRoot Abstracted metadata root.
+     *
+     * @param absRoot           Abstracted metadata root.
      * @param orbitStateVectors The orbit state vectors.
      * @throws Exception if orbit state vector length is not correct
      */
@@ -756,7 +771,7 @@ public final class AbstractMetadata {
 
         for (int i = 0; i < numElems; i++) {
             final OrbitStateVector vector = orbitStateVectors[i];
-            final MetadataElement subElemRoot = elemRoot.getElement(orbit_vector + (i+1));
+            final MetadataElement subElemRoot = elemRoot.getElement(orbit_vector + (i + 1));
             subElemRoot.setAttributeUTC(orbit_vector_time, vector.time);
             subElemRoot.setAttributeDouble(orbit_vector_x_pos, vector.x_pos);
             subElemRoot.setAttributeDouble(orbit_vector_y_pos, vector.y_pos);
@@ -769,6 +784,7 @@ public final class AbstractMetadata {
 
     /**
      * Get SRGR Coefficients.
+     *
      * @param absRoot Abstracted metadata root.
      * @return Array of SRGR coefficient data sets.
      */
@@ -780,13 +796,13 @@ public final class AbstractMetadata {
         int k = 0;
         for (MetadataElement listElem : srgr_coef_listElem) {
             final SRGRCoefficientList srgrList = new SRGRCoefficientList();
-            srgrList.time  = listElem.getAttributeUTC(srgr_coef_time);
+            srgrList.time = listElem.getAttributeUTC(srgr_coef_time);
             srgrList.timeMJD = srgrList.time.getMJD();
             srgrList.ground_range_origin = listElem.getAttributeDouble(ground_range_origin);
 
             final int numSubElems = listElem.getNumElements();
             srgrList.coefficients = new double[numSubElems];
-            for (int i=0; i < numSubElems; ++i) {
+            for (int i = 0; i < numSubElems; ++i) {
                 final MetadataElement coefElem = listElem.getElementAt(i);
                 srgrList.coefficients[i] = coefElem.getAttributeDouble(srgr_coef, 0.0);
             }
@@ -797,6 +813,7 @@ public final class AbstractMetadata {
 
     /**
      * Get Doppler Centroid Coefficients.
+     *
      * @param absRoot Abstracted metadata root.
      * @return Array of Doppler centroid coefficient data sets.
      */
@@ -808,13 +825,13 @@ public final class AbstractMetadata {
         int k = 0;
         for (MetadataElement listElem : dop_coef_listElem) {
             final DopplerCentroidCoefficientList dopList = new DopplerCentroidCoefficientList();
-            dopList.time  = listElem.getAttributeUTC(srgr_coef_time);
+            dopList.time = listElem.getAttributeUTC(srgr_coef_time);
             dopList.timeMJD = dopList.time.getMJD();
             dopList.slant_range_time = listElem.getAttributeDouble(slant_range_time, 0.0);
 
             final int numSubElems = listElem.getNumElements();
             dopList.coefficients = new double[numSubElems];
-            for (int i=0; i < numSubElems; ++i) {
+            for (int i = 0; i < numSubElems; ++i) {
                 final MetadataElement coefElem = listElem.getElementAt(i);
                 dopList.coefficients[i] = coefElem.getAttributeDouble(dop_coef, 0.0);
             }
@@ -829,6 +846,7 @@ public final class AbstractMetadata {
         public final double time_mjd;
         public double x_pos, y_pos, z_pos;
         public double x_vel, y_vel, z_vel;
+
         public OrbitStateVector(final ProductData.UTC t,
                                 final double xpos, final double ypos, final double zpos,
                                 final double xvel, final double yvel, final double zvel) {

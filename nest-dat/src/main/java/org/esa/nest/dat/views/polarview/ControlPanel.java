@@ -103,7 +103,7 @@ class ControlPanel extends JPanel {
         nextBtn.setEnabled(currentRecord < numRecords && !animate);
         recordSlider.setValue(currentRecord);
 
-        recordLabel.setText("Record "+ (currentRecord+1) + " of " + (numRecords+1));
+        recordLabel.setText("Record " + (currentRecord + 1) + " of " + (numRecords + 1));
     }
 
     private void startUpdateTimer() {
@@ -112,8 +112,8 @@ class ControlPanel extends JPanel {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if(animate) {
-                    if(polarView.getCurrentRecord() >= polarView.getNumRecords())
+                if (animate) {
+                    if (polarView.getCurrentRecord() >= polarView.getNumRecords())
                         polarView.showPlot(0);
                     else
                         polarView.showNextPlot();

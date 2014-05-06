@@ -26,8 +26,8 @@ import java.awt.*;
  * GraphNode Tester.
  *
  * @author lveci
- * @since <pre>12/21/2007</pre>
  * @version 1.0
+ * @since <pre>12/21/2007</pre>
  */
 public class TestGraphNode extends TestCase {
 
@@ -54,8 +54,8 @@ public class TestGraphNode extends TestCase {
     }
 
     public void testPosition() {
-        Point p1 = new Point(1,2);
-        graphNode.setPos(p1);  
+        Point p1 = new Point(1, 2);
+        graphNode.setPos(p1);
 
         Point p2 = graphNode.getPos();
 
@@ -87,8 +87,8 @@ public class TestGraphNode extends TestCase {
         // test disconnect
         graphNode.disconnectOperatorSources(sourceGraphNode.getID());
 
-        NodeSource [] nsList = node.getSources();
+        NodeSource[] nsList = node.getSources();
         assertEquals(nsList.length, 0);
     }
-    
+
 }

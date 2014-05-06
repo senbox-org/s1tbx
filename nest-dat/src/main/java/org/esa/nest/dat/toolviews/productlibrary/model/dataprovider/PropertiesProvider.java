@@ -33,7 +33,6 @@ import java.util.Comparator;
 
 /**
  * Description of ProductPropertiesProvider
- *
  */
 public class PropertiesProvider implements DataProvider {
 
@@ -65,8 +64,8 @@ public class PropertiesProvider implements DataProvider {
                 propertiesColumn.setPreferredWidth(250);
                 propertiesColumn.setHeaderValue("Product Properties");
                 propertiesColumn.setCellRenderer(new ProductPropertiesRenderer());
-            } catch(Throwable e) {
-                System.out.println("PropertiesProvider: "+e.getMessage());
+            } catch (Throwable e) {
+                System.out.println("PropertiesProvider: " + e.getMessage());
             }
         }
         return propertiesColumn;
@@ -110,29 +109,29 @@ public class PropertiesProvider implements DataProvider {
                 if (value instanceof ProductEntry) {
                     final ProductEntry entry = (ProductEntry) value;
 
-                    final String pixelSpacing = df.format(entry.getRangeSpacing()) +" x "+
-                                                df.format(entry.getAzimuthSpacing()) +" m";
+                    final String pixelSpacing = df.format(entry.getRangeSpacing()) + " x " +
+                            df.format(entry.getAzimuthSpacing()) + " m";
                     final File file = entry.getFile();
-                    final String fileSize = "("+(entry.getFileSize() / (1024 * 1024)) +" MB)";
+                    final String fileSize = "(" + (entry.getFileSize() / (1024 * 1024)) + " MB)";
 
                     final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy");
                     final String dateString = dateFormat.format(entry.getFirstLineTime().getAsDate());
 
                     String polStr = "";
                     final MetadataElement absRoot = entry.getMetadata();
-                    if(absRoot != null) {
+                    if (absRoot != null) {
                         final String pol1 = entry.getMetadata().getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
                         final String pol2 = entry.getMetadata().getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
                         final String pol3 = entry.getMetadata().getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
                         final String pol4 = entry.getMetadata().getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
-                        polStr = pol1 +' '+ pol2 +' '+ pol3 +' '+ pol4;
+                        polStr = pol1 + ' ' + pol2 + ' ' + pol3 + ' ' + pol4;
                     }
 
                     values = new String[]{
                             entry.getName(),
-                            entry.getMission()+"   "+entry.getProductType()+"   "+entry.getPass()+"  "+ polStr,
-                            dateString+"   Pixel Size: "+pixelSpacing,
-                            entry.getFileFormat()+"   "+fileSize
+                            entry.getMission() + "   " + entry.getProductType() + "   " + entry.getPass() + "  " + polStr,
+                            dateString + "   Pixel Size: " + pixelSpacing,
+                            entry.getFileFormat() + "   " + fileSize
                     };
                     for (int i = 0; i < values.length; i++) {
                         setValueAt(values[i], i, 1);
@@ -162,8 +161,8 @@ public class PropertiesProvider implements DataProvider {
 
                 centeringPanel.setToolTipText(toolTip);
                 adjustCellSize(table, row, column, values);
-            } catch(Throwable e) {
-                System.out.println("ProductPropertiesRenderer: "+e.getMessage());
+            } catch (Throwable e) {
+                System.out.println("ProductPropertiesRenderer: " + e.getMessage());
             }
             return centeringPanel;
         }
@@ -187,8 +186,8 @@ public class PropertiesProvider implements DataProvider {
             increasePreferredColumnWidth(valueColumn, valueColWidth);
         }
 
-         private void increasePreferredColumnWidth(TableColumn column, int length) {
-             if (column.getPreferredWidth() < length) {
+        private void increasePreferredColumnWidth(TableColumn column, int length) {
+            if (column.getPreferredWidth() < length) {
                 column.setPreferredWidth(length);
             }
         }
@@ -226,15 +225,15 @@ public class PropertiesProvider implements DataProvider {
                                                            final int row, final int column) {
                 try {
                     final JLabel jLabel = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-                                                                                       row, column);
-                    if(jLabel != null) {
+                            row, column);
+                    if (jLabel != null) {
                         jLabel.setHorizontalAlignment(JLabel.LEFT);
-                        if(row == 0)
+                        if (row == 0)
                             jLabel.setFont(_font);
                         return jLabel;
                     }
-                } catch(Throwable e) {
-                    System.out.println("PropertyValueCellRenderer: "+e.getMessage());
+                } catch (Throwable e) {
+                    System.out.println("PropertyValueCellRenderer: " + e.getMessage());
                 }
                 return null;
             }

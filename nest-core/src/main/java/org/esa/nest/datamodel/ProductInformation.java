@@ -9,8 +9,8 @@ import org.esa.beam.framework.datamodel.Product;
 public class ProductInformation {
 
     public static MetadataElement getProductInformation(final MetadataElement abstractedMetadata) {
-        MetadataElement productElem =  abstractedMetadata.getElement("Product_Information");
-        if(productElem == null) {
+        MetadataElement productElem = abstractedMetadata.getElement("Product_Information");
+        if (productElem == null) {
             productElem = new MetadataElement("Product_Information");
             abstractedMetadata.addElement(productElem);
         }
@@ -24,8 +24,8 @@ public class ProductInformation {
 
     private static MetadataElement getInputProducts(final MetadataElement abstractedMetadata) {
         final MetadataElement productElem = getProductInformation(abstractedMetadata);
-        MetadataElement inputElem =  productElem.getElement("InputProducts");
-        if(inputElem == null) {
+        MetadataElement inputElem = productElem.getElement("InputProducts");
+        if (inputElem == null) {
             inputElem = new MetadataElement("InputProducts");
             productElem.addElement(inputElem);
         }

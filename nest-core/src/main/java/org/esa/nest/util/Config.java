@@ -36,25 +36,25 @@ public class Config {
 
     private Config() {
         try {
-            configPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".config"));
+            configPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config" + File.separator + SystemUtils.getApplicationContextId() + ".config"));
 
             final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationHomeDir(), "config"));
-            for(File testFile : testFiles) {
+            for (File testFile : testFiles) {
                 PropertyMap testPref = new PropertyMap();
                 testPref.load(testFile);
                 testPrefs.put(testFile.getName(), testPref);
             }
-        } catch(IOException e) {
-            System.out.println("Unable to load config preferences "+e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Unable to load config preferences " + e.getMessage());
         }
     }
 
     private static File[] getTestFiles(final File folder) {
         final List<File> testFiles = new ArrayList<File>(10);
         final File[] files = folder.listFiles();
-        if(files != null) {
-            for(File file : files) {
-                if(file.getName().toLowerCase().endsWith(".tests")) {
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().toLowerCase().endsWith(".tests")) {
                     testFiles.add(file);
                 }
             }
@@ -63,14 +63,14 @@ public class Config {
     }
 
     public static PropertyMap getConfigPropertyMap() {
-        if(instance == null) {
-            instance = new Config();    
+        if (instance == null) {
+            instance = new Config();
         }
         return instance.configPrefs;
     }
 
     public static PropertyMap getAutomatedTestConfigPropertyMap(final String name) {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Config();
         }
         return instance.testPrefs.get(name);

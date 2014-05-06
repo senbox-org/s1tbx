@@ -36,76 +36,76 @@ public class LookDirectionComponent implements MapToolsComponent {
 
     public LookDirectionComponent(final RasterDataNode raster) {
         try {
-            final int arrowLength = (int)(raster.getSceneRasterWidth() * 0.05);
+            final int arrowLength = (int) (raster.getSceneRasterWidth() * 0.05);
             final Product product = raster.getProduct();
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             final MetadataElement lookDirectionListElem = absRoot.getElement("Look_Direction_List");
-            if(lookDirectionListElem != null) {
+            if (lookDirectionListElem != null) {
                 final GeoCoding geoCoding = raster.getGeoCoding();
 
                 final MetadataElement[] dirDataElems = lookDirectionListElem.getElements();
-                for(MetadataElement dirElem : dirDataElems) {
-                    final float tailLat = (float)dirElem.getAttributeDouble("tail_lat");
-                    final float tailLon = (float)dirElem.getAttributeDouble("tail_lon");
-                    final float headLat = (float)dirElem.getAttributeDouble("head_lat");
-                    final float headLon = (float)dirElem.getAttributeDouble("head_lon");
+                for (MetadataElement dirElem : dirDataElems) {
+                    final float tailLat = (float) dirElem.getAttributeDouble("tail_lat");
+                    final float tailLon = (float) dirElem.getAttributeDouble("tail_lon");
+                    final float headLat = (float) dirElem.getAttributeDouble("head_lat");
+                    final float headLon = (float) dirElem.getAttributeDouble("head_lon");
 
                     final PixelPos tailPix = geoCoding.getPixelPos(new GeoPos(tailLat, tailLon), null);
                     final PixelPos headPix = geoCoding.getPixelPos(new GeoPos(headLat, headLon), null);
 
-                    final double m = (headPix.getY()-tailPix.getY()) / (headPix.getX()-tailPix.getX());
+                    final double m = (headPix.getY() - tailPix.getY()) / (headPix.getX() - tailPix.getX());
                     int length = arrowLength;
-                    if(tailPix.getX() > headPix.getX())
+                    if (tailPix.getX() > headPix.getX())
                         length = -length;
-                    final int x = (int)tailPix.getX() + length;
-                    final int y = (int)(m*x + (headPix.getY() - m*headPix.getX()));
+                    final int x = (int) tailPix.getX() + length;
+                    final int y = (int) (m * x + (headPix.getY() - m * headPix.getX()));
 
-                    tails.add(new Point((int)tailPix.getX(), (int)tailPix.getY()));
+                    tails.add(new Point((int) tailPix.getX(), (int) tailPix.getY()));
                     heads.add(new Point(x, y));
                 }
             } else {
                 final String pass = absRoot.getAttributeString(AbstractMetadata.PASS, null);
                 String antennaPointing = absRoot.getAttributeString(AbstractMetadata.antenna_pointing, null);
-                if(!antennaPointing.equalsIgnoreCase("right"))
+                if (!antennaPointing.equalsIgnoreCase("right"))
                     antennaPointing = "left";
 
                 int x = 0;
                 int length = arrowLength;
-                if((pass.equalsIgnoreCase("DESCENDING") && antennaPointing.equalsIgnoreCase("right")) ||
-                   (pass.equalsIgnoreCase("ASCENDING") && antennaPointing.equalsIgnoreCase("left"))) {
+                if ((pass.equalsIgnoreCase("DESCENDING") && antennaPointing.equalsIgnoreCase("right")) ||
+                        (pass.equalsIgnoreCase("ASCENDING") && antennaPointing.equalsIgnoreCase("left"))) {
                     x = raster.getRasterWidth();
                     length = -length;
                 }
                 int y = 0;
                 tails.add(new Point(x, y));
-                heads.add(new Point(x+length, y));
+                heads.add(new Point(x + length, y));
                 y = raster.getSceneRasterHeight() / 2;
                 tails.add(new Point(x, y));
-                heads.add(new Point(x+length, y));
+                heads.add(new Point(x + length, y));
                 y = raster.getSceneRasterHeight();
                 tails.add(new Point(x, y));
-                heads.add(new Point(x+length, y));
+                heads.add(new Point(x + length, y));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             valid = false;
         }
     }
 
     public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
-        if(!valid) return;
+        if (!valid) return;
 
-        for(int i=0; i < tails.size(); ++i) {
+        for (int i = 0; i < tails.size(); ++i) {
 
             g.setColor(Color.BLACK);
             g.setStroke(thickStroke);
             GraphicsUtils.drawArrow(g, screenPixel,
-                    (int)tails.get(i).getX(), (int)tails.get(i).getY(),
-                    (int)heads.get(i).getX(), (int)heads.get(i).getY());
+                    (int) tails.get(i).getX(), (int) tails.get(i).getY(),
+                    (int) heads.get(i).getX(), (int) heads.get(i).getY());
             g.setColor(Color.CYAN);
             g.setStroke(thinStroke);
             GraphicsUtils.drawArrow(g, screenPixel,
-                    (int)tails.get(i).getX(), (int)tails.get(i).getY(),
-                    (int)heads.get(i).getX(), (int)heads.get(i).getY());
+                    (int) tails.get(i).getX(), (int) tails.get(i).getY(),
+                    (int) heads.get(i).getX(), (int) heads.get(i).getY());
         }
 
 

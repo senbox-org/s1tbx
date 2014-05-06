@@ -15,20 +15,10 @@
  */
 package org.esa.nest.dat.toolviews.worldmap;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.worldmap.WorldMapToolView;
-import org.esa.nest.dat.views.polarview.PolarView;
-
-import javax.swing.*;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import java.awt.*;
 
 /**
  * The window displaying the world map.
- *
  */
 public class NestWorldMapToolView extends WorldMapToolView {
 

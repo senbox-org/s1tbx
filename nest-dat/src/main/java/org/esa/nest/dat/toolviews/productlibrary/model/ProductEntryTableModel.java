@@ -41,9 +41,9 @@ public class ProductEntryTableModel extends AbstractTableModel {
         dataProviders.add(new PropertiesProvider());
         try {
             dataProviders.add(new QuicklookProvider());
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 VisatApp.getApp().showErrorDialog(e.getMessage());
             }
         }
@@ -55,7 +55,7 @@ public class ProductEntryTableModel extends AbstractTableModel {
     }
 
     public DataProvider getDataProvider(final int columnIndex) {
-        if(columnIndex >= 0 && columnIndex < dataProviders.size()) {
+        if (columnIndex >= 0 && columnIndex < dataProviders.size()) {
             return dataProviders.get(columnIndex);
         }
         return null;
@@ -93,7 +93,7 @@ public class ProductEntryTableModel extends AbstractTableModel {
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         if (productEntryList != null) {
             final ProductEntry entry = productEntryList[rowIndex];
-            if(entry != null)
+            if (entry != null)
                 return entry;
         }
         return null;

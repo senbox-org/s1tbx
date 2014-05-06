@@ -92,17 +92,17 @@ public class ScreenPixelConverter {
 
     public void pixelToScreen(final double[] inpts, final double[] vpts) {
         final double[] tmppts = new double[inpts.length];
-        i2m.transform(inpts, 0, tmppts, 0, inpts.length/2);
-        m2v.transform(tmppts, 0, vpts, 0, inpts.length/2);
+        i2m.transform(inpts, 0, tmppts, 0, inpts.length / 2);
+        m2v.transform(tmppts, 0, vpts, 0, inpts.length / 2);
     }
 
     public static Point[] arrayToPoints(final double[] vpts) {
-        int j=0;
+        int j = 0;
         final Point[] pt = new Point[vpts.length];
-        for(int i=0; i < vpts.length; i+=2) {
-            pt[j++] = new Point((int)vpts[i], (int)vpts[i+1]);
+        for (int i = 0; i < vpts.length; i += 2) {
+            pt[j++] = new Point((int) vpts[i], (int) vpts[i + 1]);
         }
-        return  pt;
+        return pt;
     }
 
     public static PixelPos computeLevelZeroPixelPos(final ImageLayer imageLayer,

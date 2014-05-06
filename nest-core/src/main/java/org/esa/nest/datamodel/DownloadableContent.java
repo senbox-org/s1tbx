@@ -18,7 +18,7 @@ package org.esa.nest.datamodel;
 import java.io.IOException;
 
 /**
-  Interface for Land Cover tiles
+ * Interface for Land Cover tiles
  */
 public interface DownloadableContent {
 

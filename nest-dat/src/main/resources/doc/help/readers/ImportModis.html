@@ -1,23 +1,31 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-    
-    <title>Help - Import MODIS</title><link rel="stylesheet" href="../style.css"></head>
+<html>
+<head>
+
+    <title>Help - Import MODIS</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
 <body>
 <table class="header">
-    <tbody><tr class="header">
+    <tbody>
+    <tr class="header">
         <td class="header">&nbsp;
-            Import MODIS</td>
+            Import MODIS
+        </td>
 
-    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
     </tr>
-</tbody></table>
+    </tbody>
+</table>
 
 <h3>Import MODIS Product</h3>
 
 <h4>The MODIS Product Reader</h4>
 
 <p>A&nbsp;subset of the products available of the NASA sensor MODIS are supported
-    both on the Aqua and Terra platform. These products can be imported and combined with SAR data products using the <a href="../visat/LayerManagerWindow.html">layer management</a>.
+    both on the Aqua and Terra platform. These products can be imported and combined with SAR data products using the <a
+            href="../visat/LayerManagerWindow.html">layer management</a>.
 </p>
 
 <p>Due to the size of the MODIS products, especially in 250 m resolution, it is strongly recommended to work with
@@ -30,50 +38,79 @@
 </p>
 
 <table>
-    <tbody><tr><th>Product Type</th><th>Content</th><th>Description</th></tr>
-    <tr><td><code>MOD021KM</code><br><code>MYD021KM</code></td>
+    <tbody>
+    <tr>
+        <th>Product Type</th>
+        <th>Content</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>MOD021KM</code><br><code>MYD021KM</code></td>
         <td>MODIS/Terra/Aqua Calibrated Radiances 5-Min L1B Swath 1 km</td>
         <td>This Level 1B product contains calibrated and geolocated radiances at-aperture for all 36 MODIS spectral
-            bands at 1km resolution.</td></tr>
-    <tr><td><code>MOD02HKM</code><br><code>MYD02HKM</code></td>
+            bands at 1km resolution.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MOD02HKM</code><br><code>MYD02HKM</code></td>
         <td>MODIS/Terra/Aqua Calibrated Radiances 5-Min L1B Swath 500 m</td>
         <td>This Level 1B product contains calibrated and geolocated radiances at-aperture for MODIS spectral bands 1
-            through 7 at 500m resolution.</td></tr>
-    <tr><td><code>MOD02QKM</code><br><code>MYD02QKM</code></td>
+            through 7 at 500m resolution.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MOD02QKM</code><br><code>MYD02QKM</code></td>
         <td>MODIS/Terra/Aqua Calibrated Radiances 5-Min L1B Swath 250 m</td>
         <td>This Level 1B product contains calibrated and geolocated radiances at-aperture for MODIS spectral bands 1
-            and 2 at 250m resolution.</td></tr>
-    <tr><td><code>MODOCL2</code><br><code>MYDOCL2</code></td>
+            and 2 at 250m resolution.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MODOCL2</code><br><code>MYDOCL2</code></td>
         <td>MODIS/Terra/Aqua Ocean Color Radiance Products 5-Min L2 Swath 1 km Day</td>
         <td>The MODIS Level 2 Ocean Color water leaving radiance product, MxDOCL2, contains normalized water-leaving
             radiance for 7 of the 36 wavelengths/spectral bands (Band 8 through 14, 412 through 618nm) of MODIS which
             are used to derive nearly all the ocean products, ocean aerosol properties and clear water epsilons
             (parameters numbers 1-12). This Level 2 data collection has daily coverage with a 1-km resolution at
-            nadir.</td></tr>
-    <tr><td><code>MODOCL2A</code><br><code>MYDOCL2A</code></td>
+            nadir.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MODOCL2A</code><br><code>MYDOCL2A</code></td>
         <td>MODIS/Terra/Aqua Ocean Color Derived Products Group 1 5-Min L2 Swath 1 km Day</td>
         <td>This MODIS Level 2 Ocean Color Derived Products Group 1, MxDOCL2A, product contains the following ocean
             products: chlorophyll derived from several different algorithms, phycobilin pigment concentrations,
             chlorophyll fluorescence, suspended solids concentration, coccolith, calcite, coccolith corrected pigment
             concentration and ocean water attenuation (ocean parameter number 13-25). This Level 2 product has daily
-            coverage with a l-km resolution at nadir.</td></tr>
-    <tr><td><code>MODOCL2B</code><br><code>MYDOCL2B</code></td>
+            coverage with a l-km resolution at nadir.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MODOCL2B</code><br><code>MYDOCL2B</code></td>
         <td>MODIS/Terra/Aqua Ocean Color Derived Products Group 2 5-Min L2 Swath 1 km Day</td>
         <td>This MODIS Level 2 Ocean Color Derived Products Group 2, MxDOCL2B, product contains the following ocean
             products: chlorophyll_a pigment concentration for Case 2 waters using 2 and 3 band algorithms,
             photosynthetic available radiation (PAR) and absorbed radiation by phytoplankton (ARP), organic matter
             concentration, total absorption at 5 wavebands, chlorophyll and gelbstoff absorption coefficients. (ocean
-            parameter number 26-36). This Level 2 product has daily coverage with a 1-km resolution at nadir.</td></tr>
-    <tr><td><code>MODOCQC</code><br><code>MYDOCQC</code></td>
+            parameter number 26-36). This Level 2 product has daily coverage with a 1-km resolution at nadir.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MODOCQC</code><br><code>MYDOCQC</code></td>
         <td>MODIS/Terra/Aqua Ocean Color Quality Control Product</td>
-        <td>This MODIS Level 2 Ocean Color product contains quality control data.</td></tr>
-    <tr><td><code>MOD28L2</code><br><code>MYD28L2</code></td>
+        <td>This MODIS Level 2 Ocean Color product contains quality control data.</td>
+    </tr>
+    <tr>
+        <td><code>MOD28L2</code><br><code>MYD28L2</code></td>
         <td>MODIS/Terra/Aqua Sea Surface Temperature Products 5-Min L2 Swath 1 km</td>
         <td>This MODIS Level 2 Sea Surface Temperature Product,MxD28L2, product provides a long wavelength (11-12um,
             SST) sea surface temperature and a short wavelength sea surface temperature (3-4um, SST4) at 1-km resolution
             over the global oceans. Day and night retrievals are provided as separate products for both SST and
-            SST4.</td></tr>
-    <tr><td><code>MOD13A2</code><br><code>MYD13A2</code></td>
+            SST4.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MOD13A2</code><br><code>MYD13A2</code></td>
         <td>MODIS/Terra/Aqua Vegetation Indices 16-Day L3 Global 1km</td>
         <td>Global MODIS vegetation indices are designed to provide consistent spatial and temporal
             comparisons of vegetation conditions. Blue, red, and near-infrared reflectances, centered
@@ -86,8 +123,11 @@
             conditions. The EVI also uses the blue band to remove residual atmosphere contamination
             caused by smoke and sub-pixel thin cloud clouds. The MODIS NDVI and EVI products are
             computed from atmospherically corrected bi-directional surface reflectances that have
-            been masked for water, clouds, heavy aerosols, and cloud shadows.</td></tr>
-    <tr><td><code>MOD15A2</code><br><code>MYD15A2</code></td>
+            been masked for water, clouds, heavy aerosols, and cloud shadows.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MOD15A2</code><br><code>MYD15A2</code></td>
         <td>MODIS/Terra/Aqua Leaf Area Index - Fraction of Photosynthetically Active Radiation 8-Day L4 Global 1km</td>
         <td>The level-4 MODIS global Leaf Area Index (LAI) and Fraction of Photosynthetically Active
             Radiation (FPAR) product is composited every 8 days at 1-kilometer resolution on a
@@ -98,8 +138,11 @@
             photosynthetically active wavelengths that are absorbed by a canopy. Both variables
             are used as satellite-derived parameters for calculating surface photosynthesis,
             evapotranspiration, and net primary production, which in turn are used to calculate
-            terrestrial energy, carbon, water cycle processes, and biogeochemistry of vegetation.</td></tr>
-    <tr><td><code>MOD09GA</code><br><code>MYD09GA</code></td>
+            terrestrial energy, carbon, water cycle processes, and biogeochemistry of vegetation.
+        </td>
+    </tr>
+    <tr>
+        <td><code>MOD09GA</code><br><code>MYD09GA</code></td>
         <td>MODIS/Terra/Aqua Surface Reflectance Daily L2G Global 1km and 500m</td>
         <td>The MODIS Surface Reflectance products provide an estimate of the surface spectral reflectance
             as it would be measured at ground level in the absence of atmospheric scattering or absorption.
@@ -110,8 +153,11 @@
             statistics. 500-m Science Data Sets provided for this product include reflectance
             for Bands 1-7, a quality rating, observation coverage, observation number, and 250-m scan
             information. 1-kilometer Science Data Sets provided include number of observations,
-            quality state, sensor angles, solar angles, geolocation flags, and orbit pointers.</td></tr>
-</tbody></table>
+            quality state, sensor angles, solar angles, geolocation flags, and orbit pointers.
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 
 <h4>Geolocation of MODIS Products</h4>
@@ -125,5 +171,7 @@
     information is stored in an accompagnying quality control file (<code>MxDOCQC</code>). The&nbsp;software tries
     to locate this file in the same directory as the Level 2 product resides. If the geo-location file is not
     present, the Level 2 product will be opened as raw datasets without geo-coding.
-</p><br><hr>
-</body></html>
+</p><br>
+<hr>
+</body>
+</html>

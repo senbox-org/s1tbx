@@ -37,9 +37,9 @@ public final class StackUtils {
 
     public static String getBandTimeStamp(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
+        if (absRoot != null) {
             String dateString = OperatorUtils.getAcquisitionDate(absRoot);
-            if(!dateString.isEmpty())
+            if (!dateString.isEmpty())
                 dateString = '_' + dateString;
             return StringUtils.createValidName(dateString, new char[]{'_', '.'}, '_');
         }
@@ -49,7 +49,7 @@ public final class StackUtils {
     public static void saveMasterProductBandNames(final Product targetProduct, final String[] masterProductBands) {
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
         final StringBuilder value = new StringBuilder(255);
-        for(String name : masterProductBands) {
+        for (String name : masterProductBands) {
             value.append(name);
             value.append(' ');
         }
@@ -58,14 +58,14 @@ public final class StackUtils {
     }
 
     public static void saveSlaveProductBandNames(final Product targetProduct, final String slvProductName,
-                                              final String[] bandNames) {
-        if(bandNames.length == 0)
+                                                 final String[] bandNames) {
+        if (bandNames.length == 0)
             return;
 
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
         final MetadataElement elem = targetSlaveMetadataRoot.getElement(slvProductName);
         StringBuilder value = new StringBuilder(255);
-        for(String name : bandNames) {
+        for (String name : bandNames) {
             value.append(name);
             value.append(' ');
         }
@@ -74,30 +74,30 @@ public final class StackUtils {
 
     public static String[] getMasterBandNames(final Product sourceProduct) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                                                        AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(slaveMetadataRoot != null) {
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
             final String mstBandNames = slaveMetadataRoot.getAttributeString(AbstractMetadata.MASTER_BANDS, "");
             return StringUtils.stringToArray(mstBandNames, " ");
 
         }
-        return new String[] {};
+        return new String[]{};
     }
 
     public static String[] getSlaveBandNames(final Product sourceProduct, final String slvProductName) {
-       final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                                                        AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(slaveMetadataRoot != null) {
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
             final MetadataElement elem = slaveMetadataRoot.getElement(slvProductName);
-                final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-                return StringUtils.stringToArray(slvBandNames, " ");
+            final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
+            return StringUtils.stringToArray(slvBandNames, " ");
         }
-        return new String[] {};
+        return new String[]{};
     }
 
     public static String[] getSlaveProductNames(final Product sourceProduct) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                                                        AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(slaveMetadataRoot != null) {
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
             return slaveMetadataRoot.getElementNames();
         }
         return new String[]{};
@@ -105,26 +105,26 @@ public final class StackUtils {
 
     public static String getSlaveProductName(final Product sourceProduct, final Band slvBand, final String mstPol) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                                                        AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(slaveMetadataRoot != null) {
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
             final String slvBandName = slvBand.getName();
-            for(MetadataElement elem : slaveMetadataRoot.getElements()) {
+            for (MetadataElement elem : slaveMetadataRoot.getElements()) {
                 final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-                if(mstPol == null && slvBandNames.contains(slvBandName)) {
+                if (mstPol == null && slvBandNames.contains(slvBandName)) {
                     return elem.getName();
-                } else if(mstPol != null) {
+                } else if (mstPol != null) {
                     // find slave with same pol
                     final String[] bandNames = StringUtils.toStringArray(slvBandNames, " ");
                     boolean polExist = false;
-                    for(String slvName : bandNames) {
+                    for (String slvName : bandNames) {
                         final String slvPol = OperatorUtils.getPolarizationFromBandName(slvName);
-                        if(slvPol != null && slvPol.equalsIgnoreCase(mstPol)) {
+                        if (slvPol != null && slvPol.equalsIgnoreCase(mstPol)) {
                             polExist = true;
-                            if(slvName.equals(slvBandName))
+                            if (slvName.equals(slvBandName))
                                 return elem.getName();
                         }
                     }
-                    if(!polExist && slvBandNames.contains(slvBandName)) {
+                    if (!polExist && slvBandNames.contains(slvBandName)) {
                         return elem.getName();
                     }
                 }
@@ -135,12 +135,12 @@ public final class StackUtils {
 
     public static ProductData.UTC getSlaveTime(final Product sourceProduct, final Band slvBand) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                                                        AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(slaveMetadataRoot != null) {
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
             final String slvBandName = slvBand.getName();
-            for(MetadataElement elem : slaveMetadataRoot.getElements()) {
+            for (MetadataElement elem : slaveMetadataRoot.getElements()) {
                 final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-                if(slvBandNames.contains(slvBandName))
+                if (slvBandNames.contains(slvBandName))
                     return elem.getAttributeUTC(AbstractMetadata.first_line_time);
             }
         }
@@ -151,14 +151,14 @@ public final class StackUtils {
         final List<ProductData.UTC> utcList = new ArrayList<ProductData.UTC>();
         // add master time
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        if(absRoot != null) {
+        if (absRoot != null) {
             utcList.add(absRoot.getAttributeUTC(AbstractMetadata.first_line_time));
 
             // add slave times
             final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                                                            AbstractMetadata.SLAVE_METADATA_ROOT);
-            if(slaveMetadataRoot != null) {
-                for(MetadataElement elem : slaveMetadataRoot.getElements()) {
+                    AbstractMetadata.SLAVE_METADATA_ROOT);
+            if (slaveMetadataRoot != null) {
+                for (MetadataElement elem : slaveMetadataRoot.getElements()) {
                     utcList.add(elem.getAttributeUTC(AbstractMetadata.first_line_time));
                 }
             }

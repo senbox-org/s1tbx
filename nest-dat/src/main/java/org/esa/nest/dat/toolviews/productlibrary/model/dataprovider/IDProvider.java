@@ -33,15 +33,15 @@ public class IDProvider implements DataProvider {
     }
 
     public TableColumn getTableColumn() {
-        if(column == null) {
+        if (column == null) {
             try {
                 column = new TableColumn();
                 column.setHeaderValue("ID");
                 column.setPreferredWidth(34);
                 column.setResizable(true);
                 column.setCellRenderer(new IDCellRenderer());
-            } catch(Throwable e) {
-                System.out.println("IDProvider: "+e.getMessage());
+            } catch (Throwable e) {
+                System.out.println("IDProvider: " + e.getMessage());
             }
         }
         return column;
@@ -57,7 +57,7 @@ public class IDProvider implements DataProvider {
                                                        final int row, final int column) {
             try {
                 final ProductEntry entry = (ProductEntry) value;
-                if(entry != null) {
+                if (entry != null) {
                     final String text = String.valueOf(entry.getId());
 
                     final JLabel jlabel = (JLabel) super
@@ -67,8 +67,8 @@ public class IDProvider implements DataProvider {
                     jlabel.setToolTipText(entry.getFile().getAbsolutePath());
                     return jlabel;
                 }
-            } catch(Throwable e) {
-                System.out.println("IDCellRenderer: "+e.getMessage());
+            } catch (Throwable e) {
+                System.out.println("IDCellRenderer: " + e.getMessage());
             }
             return null;
         }
@@ -77,19 +77,19 @@ public class IDProvider implements DataProvider {
     private static class IntComparator implements Comparator {
 
         public int compare(final Object o1, final Object o2) {
-            if(o1 == o2) {
+            if (o1 == o2) {
                 return 0;
             }
             if (o1 == null) {
                 return -1;
-            } else if(o2 == null) {
+            } else if (o2 == null) {
                 return 1;
             }
 
             final ProductEntry s1 = (ProductEntry) o1;
             final ProductEntry s2 = (ProductEntry) o2;
 
-            if(s1.getId() < s2.getId())
+            if (s1.getId() < s2.getId())
                 return -1;
             return 1;
         }

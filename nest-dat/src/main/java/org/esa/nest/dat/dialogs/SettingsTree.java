@@ -96,7 +96,7 @@ class SettingsTree extends JTree implements PopupMenuFactory, ActionListener {
         final JPopupMenu popup = new JPopupMenu();
         menuContext = context;
 
-        
+
         return popup;
     }
 
@@ -133,7 +133,7 @@ class SettingsTree extends JTree implements PopupMenuFactory, ActionListener {
      * If expand is true, expands all nodes in the tree.
      * Otherwise, collapses all nodes in the tree.
      *
-     * @param tree the tree
+     * @param tree   the tree
      * @param parent the parent path
      * @param expand or collapse
      */
@@ -141,7 +141,7 @@ class SettingsTree extends JTree implements PopupMenuFactory, ActionListener {
         // Traverse children
         final TreeNode node = (TreeNode) parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
-            for (Enumeration e = node.children(); e.hasMoreElements();) {
+            for (Enumeration e = node.children(); e.hasMoreElements(); ) {
                 final TreeNode n = (TreeNode) e.nextElement();
                 final TreePath path = parent.pathByAddingChild(n);
                 expandAll(tree, path, expand);
@@ -173,7 +173,7 @@ class SettingsTree extends JTree implements PopupMenuFactory, ActionListener {
                 treeNode.add(newNode);
 
                 final List grandChildren = child.getChildren();
-                if(!grandChildren.isEmpty()) {
+                if (!grandChildren.isEmpty()) {
                     populateNode(child, newNode);
                 }
             }

@@ -31,10 +31,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class ProductFileHandler {
 
-    private static final String[] singleFileExt = {"n1","e1","e2","tif","tiff"};
+    private static final String[] singleFileExt = {"n1", "e1", "e2", "tif", "tiff"};
     private static final String[] folderExt = {"safe"};
-    private static final String[] folderMissions = {"RS2","TSX","TDX","CSKS1","CSKS2","CSKS3","CSKS4",
-                                                    "ALOS","JERS1","RS1"};
+    private static final String[] folderMissions = {"RS2", "TSX", "TDX", "CSKS1", "CSKS2", "CSKS3", "CSKS4",
+            "ALOS", "JERS1", "RS1"};
 
     public static boolean canMove(final ProductEntry entry) {
         return isDimap(entry) || isFolderProduct(entry) || isSingleFile(entry) || isSMOS(entry);
@@ -42,7 +42,7 @@ public class ProductFileHandler {
 
     public static void copyTo(final ProductEntry entry, final File targetFolder) throws Exception {
 
-        if(isDimap(entry)) {
+        if (isDimap(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
             final String dataFolderName = entry.getFile().getName().replace(
@@ -51,16 +51,16 @@ public class ProductFileHandler {
             final File oldDataFolder = new File(entry.getFile().getParentFile(), dataFolderName);
             final File newDataFolder = new File(targetFolder, dataFolderName);
             FileIOUtils.copyFolder(oldDataFolder.toPath(), newDataFolder.toPath());
-        } else if(isSMOS(entry)) {
+        } else if (isSMOS(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
             final File hdrFile = FileUtils.exchangeExtension(entry.getFile(), ".HDR");
             final File newHdrFile = new File(targetFolder, hdrFile.getName());
             Files.copy(hdrFile.toPath(), newHdrFile.toPath(), REPLACE_EXISTING);
-        } else if(isFolderProduct(entry)) {
+        } else if (isFolderProduct(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getParentFile().getName());
             FileIOUtils.copyFolder(entry.getFile().getParentFile().toPath(), newFile.toPath());
-        } else if(isSingleFile(entry)) {
+        } else if (isSingleFile(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
         }
@@ -68,7 +68,7 @@ public class ProductFileHandler {
 
     public static void moveTo(final ProductEntry entry, final File targetFolder) throws Exception {
 
-        if(isDimap(entry)) {
+        if (isDimap(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.move(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
             final String dataFolderName = entry.getFile().getName().replace(
@@ -77,16 +77,16 @@ public class ProductFileHandler {
             final File oldDataFolder = new File(entry.getFile().getParentFile(), dataFolderName);
             final File newDataFolder = new File(targetFolder, dataFolderName);
             FileIOUtils.moveFolder(oldDataFolder.toPath(), newDataFolder.toPath());
-        } else if(isSMOS(entry)) {
+        } else if (isSMOS(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.move(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
             final File hdrFile = FileUtils.exchangeExtension(entry.getFile(), ".HDR");
             final File newHdrFile = new File(targetFolder, hdrFile.getName());
             Files.move(hdrFile.toPath(), newHdrFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
-        } else if(isFolderProduct(entry)) {
+        } else if (isFolderProduct(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getParentFile().getName());
             FileIOUtils.moveFolder(entry.getFile().getParentFile().toPath(), newFile.toPath());
-        } else if(isSingleFile(entry)) {
+        } else if (isSingleFile(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.move(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
         }
@@ -94,20 +94,20 @@ public class ProductFileHandler {
 
     public static void delete(final ProductEntry entry) throws Exception {
 
-        if(isDimap(entry)) {
+        if (isDimap(entry)) {
             Files.delete(entry.getFile().toPath());
             final String dataFolderName = entry.getFile().getName().replace(
                     DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION,
                     DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
             final File dataFolder = new File(entry.getFile().getParentFile(), dataFolderName);
             FileIOUtils.deleteFolder(dataFolder.toPath());
-        } else if(isSMOS(entry)) {
+        } else if (isSMOS(entry)) {
             Files.delete(entry.getFile().toPath());
             final File hdrFile = FileUtils.exchangeExtension(entry.getFile(), ".HDR");
             Files.delete(hdrFile.toPath());
-        } else if(isFolderProduct(entry)) {
+        } else if (isFolderProduct(entry)) {
             FileIOUtils.deleteFolder(entry.getFile().getParentFile().toPath());
-        } else if(isSingleFile(entry)) {
+        } else if (isSingleFile(entry)) {
             Files.delete(entry.getFile().toPath());
         }
     }
@@ -122,8 +122,8 @@ public class ProductFileHandler {
 
     private static boolean isSingleFile(final ProductEntry entry) {
         final String fileName = entry.getFile().getName().toLowerCase();
-        for(String ext : singleFileExt) {
-            if(fileName.endsWith(ext))
+        for (String ext : singleFileExt) {
+            if (fileName.endsWith(ext))
                 return true;
         }
         return false;
@@ -131,17 +131,17 @@ public class ProductFileHandler {
 
     private static boolean isFolderProduct(final ProductEntry entry) {
         final String mission = entry.getMission();
-        for(String folderMission : folderMissions) {
-            if(mission.equals(folderMission))
+        for (String folderMission : folderMissions) {
+            if (mission.equals(folderMission))
                 return true;
         }
         final String fileName = entry.getFile().getName().toLowerCase();
-        for(String ext : folderExt) {
-            if(fileName.endsWith(ext))
+        for (String ext : folderExt) {
+            if (fileName.endsWith(ext))
                 return true;
         }
-        if(mission.equals("ERS1") || mission.equals("ERS2")) {
-            if(!isSingleFile(entry))  // if not .e1 or .e2
+        if (mission.equals("ERS1") || mission.equals("ERS2")) {
+            if (!isSingleFile(entry))  // if not .e1 or .e2
                 return true;
         }
         return false;

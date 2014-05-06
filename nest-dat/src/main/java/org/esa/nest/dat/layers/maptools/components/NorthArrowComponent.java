@@ -37,44 +37,44 @@ public class NorthArrowComponent implements MapToolsComponent {
     public NorthArrowComponent(final RasterDataNode raster) {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
-        final int margin = (int)(0.02 * FastMath.hypot(rasterWidth, rasterHeight));
+        final int margin = (int) (0.02 * FastMath.hypot(rasterWidth, rasterHeight));
         final PixelPos point1 = new PixelPos(margin, margin);
 
         final GeoCoding geoCoding = raster.getGeoCoding();
-        if(geoCoding == null) {
+        if (geoCoding == null) {
             angle = Double.NaN;
             return;
         }
 
         final GeoPos point1Geo = geoCoding.getGeoPos(point1, null);
-        final GeoPos centrePointGeo = geoCoding.getGeoPos(new PixelPos(rasterWidth/2, rasterHeight/2), null);
+        final GeoPos centrePointGeo = geoCoding.getGeoPos(new PixelPos(rasterWidth / 2, rasterHeight / 2), null);
         final PixelPos point2 = geoCoding.getPixelPos(new GeoPos(centrePointGeo.getLat(), point1Geo.getLon()), null);
 
-        final double op = point1.x-point2.x;
-        final double hyp = FastMath.hypot(op, point1.y-point2.y);
+        final double op = point1.x - point2.x;
+        final double hyp = FastMath.hypot(op, point1.y - point2.y);
         angle = FastMath.asin(op / hyp);
 
-        if(point1Geo.getLat() < centrePointGeo.getLat()) {
+        if (point1Geo.getLat() < centrePointGeo.getLat()) {
             angle += Math.PI;
         }
 
         // determine distance
-        final GeoPos x5Geo = geoCoding.getGeoPos(new PixelPos((int)(margin*1.5),margin), null);
+        final GeoPos x5Geo = geoCoding.getGeoPos(new PixelPos((int) (margin * 1.5), margin), null);
         final GeoUtils.DistanceHeading dist = GeoUtils.vincenty_inverse(point1Geo.getLon(), point1Geo.getLat(),
-                                                                        x5Geo.getLon(), x5Geo.getLat());
+                x5Geo.getLon(), x5Geo.getLat());
 
-        GeoUtils.LatLonHeading coord = GeoUtils.vincenty_direct(point1Geo.getLon(), point1Geo.getLat(), dist.distance,angle);
-        final PixelPos point3 = geoCoding.getPixelPos(new GeoPos((float)coord.lat, (float)coord.lon), null);
+        GeoUtils.LatLonHeading coord = GeoUtils.vincenty_direct(point1Geo.getLon(), point1Geo.getLat(), dist.distance, angle);
+        final PixelPos point3 = geoCoding.getPixelPos(new GeoPos((float) coord.lat, (float) coord.lon), null);
 
         final PixelPos dispTail = point1;
         final PixelPos dispHead = point3;
 
-        arrow = new ArrowOverlay((int)dispTail.getX(), (int)dispTail.getY(), (int)dispHead.getX(), (int)dispHead.getY());
+        arrow = new ArrowOverlay((int) dispTail.getX(), (int) dispTail.getY(), (int) dispHead.getX(), (int) dispHead.getY());
         arrow.setText("N");
     }
 
     public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
-        if(Double.isNaN(angle))
+        if (Double.isNaN(angle))
             return;
 
         arrow.drawArrow(g, screenPixel);

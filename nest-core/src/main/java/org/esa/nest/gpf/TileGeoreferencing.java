@@ -44,56 +44,56 @@ public final class TileGeoreferencing {
         this.x1 = x1;
         this.y1 = y1;
         width = w;
-        size = w*h;
+        size = w * h;
 
         final boolean isCrsGeoCoding = geocoding instanceof CrsGeoCoding;
         isCached = !(latTPG == null || lonTPG == null) || isCrsGeoCoding;
 
         try {
-            if(isCrsGeoCoding) {
+            if (isCrsGeoCoding) {
                 latPixels = new float[size];
                 lonPixels = new float[size];
-                ((CrsGeoCoding)geocoding).getPixels(x1, y1, w, h, latPixels, lonPixels);
+                ((CrsGeoCoding) geocoding).getPixels(x1, y1, w, h, latPixels, lonPixels);
             } else {
-                if(latTPG != null) {
+                if (latTPG != null) {
                     latPixels = new float[size];
                     latTPG.getPixels(x1, y1, w, h, latPixels, ProgressMonitor.NULL);
                 }
 
-                if(lonTPG != null) {
+                if (lonTPG != null) {
                     lonPixels = new float[size];
                     lonTPG.getPixels(x1, y1, w, h, lonPixels, ProgressMonitor.NULL);
                 }
             }
-        } catch(Exception e) {
-            System.out.println("TileGeoreferencing tiepoint error "+e.getMessage());
+        } catch (Exception e) {
+            System.out.println("TileGeoreferencing tiepoint error " + e.getMessage());
             isCached = false;
         }
     }
 
     public void getGeoPos(final int x, final int y, final GeoPos geo) {
 
-        if(isCached) {
+        if (isCached) {
             final int xx = x - x1;
             final int yy = y - y1;
-            if(xx >= 0 && yy >= 0) {
-                final int pos = yy*width+xx;
-                if(pos < size) {
+            if (xx >= 0 && yy >= 0) {
+                final int pos = yy * width + xx;
+                if (pos < size) {
                     geo.setLocation(latPixels[pos], lonPixels[pos]);
                     return;
                 }
             }
         }
-        geocoding.getGeoPos(new PixelPos(x+0.5f,y+0.5f), geo);
+        geocoding.getGeoPos(new PixelPos(x + 0.5f, y + 0.5f), geo);
     }
 
     public void getGeoPos(final PixelPos pix, final GeoPos geo) {
 
-        if(isCached) {
-            final int xx = (int)pix.getX() - x1;
-            final int yy = (int)pix.getY() - y1;
-            final int pos = yy*width+xx;
-            if(xx >= 0 && yy >= 0 && pos < size) {
+        if (isCached) {
+            final int xx = (int) pix.getX() - x1;
+            final int yy = (int) pix.getY() - y1;
+            final int pos = yy * width + xx;
+            if (xx >= 0 && yy >= 0 && pos < size) {
                 geo.setLocation(latPixels[pos], lonPixels[pos]);
                 return;
             }

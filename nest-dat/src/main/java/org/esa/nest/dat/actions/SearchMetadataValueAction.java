@@ -36,19 +36,19 @@ public class SearchMetadataValueAction extends ExecCommand {
 
         final PromptDialog dlg = new PromptDialog("Search Metadata", "Value", "", false);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             final String value = dlg.getValue().toUpperCase();
-            final MetadataElement resultElem = new MetadataElement("Search result ("+dlg.getValue()+')');
+            final MetadataElement resultElem = new MetadataElement("Search result (" + dlg.getValue() + ')');
 
             final Product product = VisatApp.getApp().getSelectedProduct();
             final boolean isModified = product.isModified();
             final MetadataElement root = product.getMetadataRoot();
             resultElem.setOwner(product);
 
-            searchMetadataValue(resultElem, root, value);              
+            searchMetadataValue(resultElem, root, value);
             product.setModified(isModified);
 
-            if(resultElem.getNumElements() > 0 || resultElem.getNumAttributes() > 0) {
+            if (resultElem.getNumElements() > 0 || resultElem.getNumAttributes() > 0) {
                 VisatApp.getApp().createProductMetadataView(resultElem);
             } else {
                 // no attributes found
@@ -66,12 +66,12 @@ public class SearchMetadataValueAction extends ExecCommand {
     private static void searchMetadataValue(final MetadataElement resultElem, final MetadataElement elem, final String value) {
 
         final MetadataElement[] elemList = elem.getElements();
-        for(MetadataElement e : elemList) {
+        for (MetadataElement e : elemList) {
             searchMetadataValue(resultElem, e, value);
         }
         final MetadataAttribute[] attribList = elem.getAttributes();
-        for(MetadataAttribute attrib : attribList) {
-            if(attrib.getData().getElemString().toUpperCase().contains(value)) {
+        for (MetadataAttribute attrib : attribList) {
+            if (attrib.getData().getElemString().toUpperCase().contains(value)) {
                 final MetadataAttribute newAttrib = attrib.createDeepClone();
                 newAttrib.setDescription(SearchMetadataAction.getAttributePath(attrib));
                 resultElem.addAttribute(newAttrib);

@@ -1,11 +1,11 @@
 package org.esa.nest.util;
 
-import java.util.Date;
-import java.util.Calendar;
 import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
-    
+
  */
 public final class ProcessTimeMonitor {
 
@@ -30,7 +30,7 @@ public final class ProcessTimeMonitor {
 
     public static String formatDuration(final long dur) {
         final DecimalFormat df = new DecimalFormat("#.##");
-        if(dur > 120) {
+        if (dur > 120) {
             final float minutes = dur / 60f;
             return df.format(minutes) + " minutes";
         } else {

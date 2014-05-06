@@ -18,7 +18,7 @@ package org.esa.nest.datamodel;
 import org.esa.beam.framework.datamodel.Band;
 
 /**
-    Valid unit values
+ * Valid unit values
  */
 public final class Unit {
 
@@ -33,20 +33,22 @@ public final class Unit {
 
     public static final String DB = "db";
 
-    public static final String AMPLITUDE_DB = AMPLITUDE+'_'+DB;
-    public static final String INTENSITY_DB = INTENSITY+'_'+DB;
+    public static final String AMPLITUDE_DB = AMPLITUDE + '_' + DB;
+    public static final String INTENSITY_DB = INTENSITY + '_' + DB;
 
     public static final String METERS = "meters";
     public static final String CLASS = "class";
 
-    public enum UnitType { AMPLITUDE, INTENSITY, REAL, IMAGINARY, PHASE, ABS_PHASE, COHERENCE,
-                           AMPLITUDE_DB, INTENSITY_DB, METERS, CLASS, UNKNOWN }
+    public enum UnitType {
+        AMPLITUDE, INTENSITY, REAL, IMAGINARY, PHASE, ABS_PHASE, COHERENCE,
+        AMPLITUDE_DB, INTENSITY_DB, METERS, CLASS, UNKNOWN
+    }
 
     public static UnitType getUnitType(final Band sourceBand) {
 
-        if(sourceBand.getUnit() == null)
+        if (sourceBand.getUnit() == null)
             return UnitType.UNKNOWN;
-        final String  unit =  sourceBand.getUnit().toLowerCase();
+        final String unit = sourceBand.getUnit().toLowerCase();
         if (unit.contains(AMPLITUDE)) {
             if (unit.contains(DB))
                 return UnitType.AMPLITUDE_DB;
@@ -62,11 +64,11 @@ public final class Unit {
         } else if (unit.contains(ABS_PHASE)) {
             return UnitType.ABS_PHASE;
         } else if (unit.contains(REAL)) {
-             return UnitType.REAL;
+            return UnitType.REAL;
         } else if (unit.contains(IMAGINARY)) {
-             return UnitType.IMAGINARY;
+            return UnitType.IMAGINARY;
         } else if (unit.contains(METERS)) {
-             return UnitType.METERS;
+            return UnitType.METERS;
         } else if (unit.contains(COHERENCE)) {
             return UnitType.COHERENCE;
         } else if (unit.contains(CLASS)) {

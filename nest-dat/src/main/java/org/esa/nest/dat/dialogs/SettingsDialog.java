@@ -67,7 +67,7 @@ public class SettingsDialog extends ModelessDialog {
         editField.addKeyListener(new SettingsKeyListener());
         editField.setMargin(new Insets(2, 5, 2, 5));
         editField.setMaximumSize(new Dimension(500, 20));
-        
+
         setContent(splitPane);
     }
 
@@ -77,7 +77,7 @@ public class SettingsDialog extends ModelessDialog {
         editPanel.setLayout(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
         gbc.ipady = 5;
-        
+
         gbc.gridy = 20;
         gbc.gridy++;
         gbc.gridx = 0;
@@ -119,7 +119,7 @@ public class SettingsDialog extends ModelessDialog {
 
                 final Object o = node.getUserObject();
                 if (o instanceof Element) {
-                    selectSetting((Element)o);
+                    selectSetting((Element) o);
                 }
             }
         }
@@ -132,7 +132,7 @@ public class SettingsDialog extends ModelessDialog {
         if (label != null) {
             labelText = label.getValue();
         }
-        editLabel.setText("  "+labelText+": ");
+        editLabel.setText("  " + labelText + ": ");
 
         final Attribute elemValue = elem.getAttribute(Settings.VALUE);
         if (elemValue != null) {

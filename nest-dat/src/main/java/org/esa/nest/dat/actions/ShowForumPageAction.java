@@ -25,7 +25,6 @@ import java.net.URI;
 
 /**
  * This action launches the default browser to display the NEST forum
- *
  */
 public class ShowForumPageAction extends ExecCommand {
     private static final String FORUM_URL_DEFAULT = "http://nest.array.ca/web/nest/forum";
@@ -38,7 +37,7 @@ public class ShowForumPageAction extends ExecCommand {
      */
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String homePageUrl = System.getProperty(ResourceUtils.getContextID()+".forumUrl", FORUM_URL_DEFAULT);
+        final String homePageUrl = System.getProperty(ResourceUtils.getContextID() + ".forumUrl", FORUM_URL_DEFAULT);
         final Desktop desktop = Desktop.getDesktop();
 
         try {

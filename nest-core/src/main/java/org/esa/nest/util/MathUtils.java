@@ -20,14 +20,13 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 
-public final class MathUtils
-{
-    private MathUtils()
-    {
+public final class MathUtils {
+    private MathUtils() {
     }
 
     /**
      * Perform linear interpolation.
+     *
      * @param y0 First sample value.
      * @param y1 Second sample value.
      * @param mu A perameter in range [0,1] that defines the interpolated sample position between y0 and y1.
@@ -40,6 +39,7 @@ public final class MathUtils
 
     /**
      * Perform cubic interpolation.
+     *
      * @param y0 First sample value.
      * @param y1 Second sample value.
      * @param y2 Third sample value.
@@ -51,16 +51,17 @@ public final class MathUtils
     public static double interpolationCubic(
             final double y0, final double y1, final double y2, final double y3, final double mu) {
 
-        final double mu2 = mu*mu;
-        final double a0 = -0.5*y0 + 1.5*y1 - 1.5*y2 + 0.5*y3;
-        final double a1 = y0 - 2.5*y1 + 2*y2 - 0.5*y3;
-        final double a2 = -0.5*y0 + 0.5*y2;
+        final double mu2 = mu * mu;
+        final double a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
+        final double a1 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3;
+        final double a2 = -0.5 * y0 + 0.5 * y2;
 
-        return (a0*mu*mu2 + a1*mu2 + a2*mu + y1);
+        return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + y1);
     }
 
     /**
      * Perform cubic2 interpolation.
+     *
      * @param y0 First sample value.
      * @param y1 Second sample value.
      * @param y2 Third sample value.
@@ -72,16 +73,17 @@ public final class MathUtils
     public static double interpolationCubic2(
             final double y0, final double y1, final double y2, final double y3, final double mu) {
 
-        final double mu2 = mu*mu;
+        final double mu2 = mu * mu;
         final double a0 = y3 - y2 - y0 + y1;
         final double a1 = y0 - y1 - a0;
         final double a2 = y2 - y0;
 
-        return (a0*mu*mu2 + a1*mu2 + a2*mu + y1);
+        return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + y1);
     }
 
     /**
      * Perform sinc interpolation.
+     *
      * @param y0 First sample value.
      * @param y1 Second sample value.
      * @param y2 Third sample value.
@@ -101,35 +103,37 @@ public final class MathUtils
         final double f3 = sinc(mu - 1.0) * hanning(mu - 1.0, filterLength);
         final double f4 = sinc(mu - 2.0) * hanning(mu - 2.0, filterLength);
         double sum = f0 + f1 + f2 + f3 + f4;
-        return (f0*y0 + f1*y1 + f2*y2 + f3*y3 + f4*y4)/sum;
+        return (f0 * y0 + f1 * y1 + f2 * y2 + f3 * y3 + f4 * y4) / sum;
     }
 
     /**
      * Perform Bi-linear interpolation.
+     *
      * @param v00 Sample value for pixel at (x0, y0).
      * @param v01 Sample value for pixel at (x1, y0).
      * @param v10 Sample value for pixel at (x0, y1).
      * @param v11 Sample value for pixel at (x1, y1).
      * @param muX A perameter in range [0,1] that defines the interpolated sample position between x0 and x1.
-     *           A 0 value of muX corresponds to sample x0.
+     *            A 0 value of muX corresponds to sample x0.
      * @param muY A perameter in range [0,1] that defines the interpolated sample position between y0 and y1.
-     *           A 0 value of muY corresponds to sample y0.
+     *            A 0 value of muY corresponds to sample y0.
      * @return The interpolated sample value.
      */
     public static double interpolationBiLinear(
             final double v00, final double v01, final double v10, final double v11, final double muX, final double muY) {
 
         //return interpolationLinear(interpolationLinear(v00, v01, muX), interpolationLinear(v10, v11, muX), muY);
-        return (1 - muY)*((1 - muX)*v00 + muX*v01) + muY*((1 - muX)*v10 + muX*v11);
+        return (1 - muY) * ((1 - muX) * v00 + muX * v01) + muY * ((1 - muX) * v10 + muX * v11);
     }
 
     /**
      * Perform Bi-cubic interpolation.
-     * @param v Array of 4x4 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3.
+     *
+     * @param v   Array of 4x4 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3.
      * @param muX A perameter in range [0,1] that defines the interpolated sample position between x1 and x2.
-     *           A 0 value of muX corresponds to sample x1.
+     *            A 0 value of muX corresponds to sample x1.
      * @param muY A perameter in range [0,1] that defines the interpolated sample position between y1 and y2.
-     *           A 0 value of muY corresponds to sample y1.
+     *            A 0 value of muY corresponds to sample y1.
      * @return The interpolated sample value.
      */
     public static double interpolationBiCubic(final double[][] v, final double muX, final double muY) {
@@ -145,11 +149,12 @@ public final class MathUtils
 
     /**
      * Perform Bi-cubic2 interpolation.
-     * @param v Array of 4x4 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3.
+     *
+     * @param v   Array of 4x4 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3.
      * @param muX A perameter in range [0,1] that defines the interpolated sample position between x1 and x2.
-     *           A 0 value of muX corresponds to sample x1.
+     *            A 0 value of muX corresponds to sample x1.
      * @param muY A perameter in range [0,1] that defines the interpolated sample position between y1 and y2.
-     *           A 0 value of muY corresponds to sample y1.
+     *            A 0 value of muY corresponds to sample y1.
      * @return The interpolated sample value.
      */
     public static double interpolationBiCubic2(final double[][] v, final double muX, final double muY) {
@@ -164,11 +169,12 @@ public final class MathUtils
 
     /**
      * Perform Bi-sinc interpolation.
-     * @param v Array of 5x5 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3,4.
+     *
+     * @param v   Array of 5x5 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3,4.
      * @param muX A perameter in range [-0.5, 0.5] that defines the interpolated sample position wrt x2.
-     *           A 0 value of mu corresponds to sample x2.
+     *            A 0 value of mu corresponds to sample x2.
      * @param muY A perameter in range [-0.5, 0.5] that defines the interpolated sample position wrt y2.
-     *           A 0 value of mu corresponds to sample y2.
+     *            A 0 value of mu corresponds to sample y2.
      * @return The interpolated sample value.
      */
     public static double interpolationBiSinc(final double[][] v, final double muX, final double muY) {
@@ -186,18 +192,19 @@ public final class MathUtils
 
     /**
      * Precalculate weight for Lagrange polynomial based interpolation.
-     * @param pos Position array.
+     *
+     * @param pos        Position array.
      * @param desiredPos Desired position.
      * @return The array of the weights.
      */
-    public static double[] lagrangeWeight(final double pos[], final double desiredPos)  {
+    public static double[] lagrangeWeight(final double pos[], final double desiredPos) {
 
         final int length = pos.length;
-        if (desiredPos < pos[0] || desiredPos > pos[length-1]) {
-            double time = desiredPos - (int)desiredPos;
+        if (desiredPos < pos[0] || desiredPos > pos[length - 1]) {
+            double time = desiredPos - (int) desiredPos;
             final double[] timeArray = new double[length];
             for (int i = 0; i < length; i++) {
-                timeArray[i] = pos[i] - (int)pos[i];
+                timeArray[i] = pos[i] - (int) pos[i];
             }
 
             return computeWeight(timeArray, time);
@@ -226,14 +233,17 @@ public final class MathUtils
 
     /**
      * Perform Lagrange polynomial based interpolation.
-     * @param xVal Sample value array.
-     * @param yVal Sample value array.
-     * @param zVal Sample value array.
+     *
+     * @param xVal   Sample value array.
+     * @param yVal   Sample value array.
+     * @param zVal   Sample value array.
      * @param weight the weights.
      */
     public static void lagrangeInterpolatingPolynomial(final double xVal[], final double yVal[], final double zVal[],
-                                                       final double[] weight, final PosVector vector)  {
-        vector.x = 0; vector.y = 0; vector.z = 0;
+                                                       final double[] weight, final PosVector vector) {
+        vector.x = 0;
+        vector.y = 0;
+        vector.z = 0;
         for (int i = 0; i < xVal.length; ++i) {
             vector.x += weight[i] * xVal[i];
             vector.y += weight[i] * yVal[i];
@@ -243,12 +253,13 @@ public final class MathUtils
 
     /**
      * Perform Lagrange polynomial based interpolation.
-     * @param pos Position array.
-     * @param val Sample value array.
+     *
+     * @param pos        Position array.
+     * @param val        Sample value array.
      * @param desiredPos Desired position.
      * @return The interpolated sample value.
      */
-    public static double lagrangeInterpolatingPolynomial (final double pos[], final double val[], final double desiredPos)  {
+    public static double lagrangeInterpolatingPolynomial(final double pos[], final double val[], final double desiredPos) {
 
         double retVal = 0;
         final int length = pos.length;
@@ -266,19 +277,18 @@ public final class MathUtils
 
     /**
      * Interpolate vector using 8th order Legendre interpolation.
-     *
+     * <p/>
      * <p>The method interpolates a n-dimensional vector, at desired point given as input an equidistant
      * n-dimensional vectors.</p>
-     *
+     * <p/>
      * <p><b>Notes:</b> Coefficients for 8th order interpolation are pre-computed. Method is primarily designed for
      * interpolating orbits, and it should be used with care in other applications, although it should work anywhere.</p>
-     *
+     * <p/>
      * <p><b>Implementation details:</b> Adapted from 'getorb' package.</p>
      *
      * @param samples Sample value array.
-     * @param x Desired position.
+     * @param x       Desired position.
      * @return The interpolated sample value.
-     *
      * @author Petar Marinkovic, PPO.labs
      */
     public static double lagrangeEightOrderInterpolation(double[] samples, double x) {
@@ -301,7 +311,8 @@ public final class MathUtils
 
     /**
      * Get Vandermonde matrix constructed from a given array.
-     * @param d The given range distance array.
+     *
+     * @param d                   The given range distance array.
      * @param warpPolynomialOrder The warp polynomial order.
      * @return The Vandermonde matrix.
      */
@@ -311,7 +322,7 @@ public final class MathUtils
         final double[][] array = new double[n][warpPolynomialOrder + 1];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j <= warpPolynomialOrder; j++) {
-                array[i][j] = Math.pow(d[i], (double)j);
+                array[i][j] = Math.pow(d[i], (double) j);
             }
         }
         return new Matrix(array);
@@ -319,6 +330,7 @@ public final class MathUtils
 
     /**
      * The sinc function.
+     *
      * @param x The input variable.
      * @return The sinc function value.
      */
@@ -327,20 +339,21 @@ public final class MathUtils
         if (Double.compare(x, 0.0) == 0) {
             return 1.0;
         } else {
-            return FastMath.sin(x * Math.PI) / (x*Math.PI);
+            return FastMath.sin(x * Math.PI) / (x * Math.PI);
         }
     }
 
     /**
      * The Hanning window.
-     * @param x The input variable.
+     *
+     * @param x            The input variable.
      * @param windowLength The window length.
      * @return The Hanning window value.
      */
     public static double hanning(final double x, final int windowLength) {
 
-        if (x >= -0.5*windowLength && x <= 0.5*windowLength) {
-            return 0.5*(1.0 + FastMath.cos(Constants.TWO_PI*x/(windowLength + 1)));
+        if (x >= -0.5 * windowLength && x <= 0.5 * windowLength) {
+            return 0.5 * (1.0 + FastMath.cos(Constants.TWO_PI * x / (windowLength + 1)));
         } else {
             return 0.0;
         }
@@ -349,14 +362,15 @@ public final class MathUtils
     /**
      * Compute polynomial value. Given variable x and polynomial coefficients c[0], c[1], ..., c[n], this
      * function returns f(x) = c[0] + c[1]*x + ... + c[n]*x^n.
-     * @param x The variable.
+     *
+     * @param x     The variable.
      * @param coeff The polynomial coefficients.
      * @return The function value.
      */
     public static double computePolynomialValue(final double x, final double[] coeff) {
         double v = 0.0;
-        for (int i = coeff.length-1; i > 0; i--) {
-            v = (v + coeff[i])*x;
+        for (int i = coeff.length - 1; i > 0; i--) {
+            v = (v + coeff[i]) * x;
         }
         return v + coeff[0];
     }
@@ -369,7 +383,7 @@ public final class MathUtils
     }
 
     public static double innerProduct(final double[] a, final double[] b) {
-        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     }
 
 }

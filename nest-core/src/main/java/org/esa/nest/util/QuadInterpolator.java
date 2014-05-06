@@ -45,17 +45,17 @@ class QuadInterpolator {
         final String tiePointGridName = tpg.getName();
         boolean imageFlipped = false;
         if ((tiePointGridName.equals(OperatorUtils.TPG_INCIDENT_ANGLE) ||
-             tiePointGridName.equals(OperatorUtils.TPG_SLANT_RANGE_TIME)) &&
-            (tiePoints[0] > tiePoints[width - 1])) {
+                tiePointGridName.equals(OperatorUtils.TPG_SLANT_RANGE_TIME)) &&
+                (tiePoints[0] > tiePoints[width - 1])) {
             imageFlipped = true;
         }
 
         final double[] sampleIndexArray = new double[width];
         for (int c = 0; c < width; c++) {
             if (imageFlipped) {
-                sampleIndexArray[width - 1 - c] = imageWidth - 1 - Math.min(c*((int)subSamplinX - 1), imageWidth - 1);
+                sampleIndexArray[width - 1 - c] = imageWidth - 1 - Math.min(c * ((int) subSamplinX - 1), imageWidth - 1);
             } else {
-                sampleIndexArray[c] = Math.min(c*((int)subSamplinX - 1), imageWidth - 1);
+                sampleIndexArray[c] = Math.min(c * ((int) subSamplinX - 1), imageWidth - 1);
             }
         }
 
@@ -65,7 +65,7 @@ class QuadInterpolator {
         warpPolynomialCoef = new double[height][warpPolynomialOrder + 1];
         for (int r = 0; r < height; r++) {
             for (int c = 0; c < width; c++) {
-                tiePointArray[c] = (double)tiePoints[r*width + c];
+                tiePointArray[c] = (double) tiePoints[r * width + c];
             }
             final Matrix b = new Matrix(tiePointArray, width);
             final Matrix x = A.solve(b);
@@ -75,10 +75,11 @@ class QuadInterpolator {
 
     /**
      * Get pixel values for given rectangle.
-     * @param x0 The x coordinate for the upper left corner of the rectangle.
-     * @param y0 The y coordinate for the upper left corner of the rectangle.
-     * @param w The width of the rectangle.
-     * @param h The height of the rectangle.
+     *
+     * @param x0     The x coordinate for the upper left corner of the rectangle.
+     * @param y0     The y coordinate for the upper left corner of the rectangle.
+     * @param w      The width of the rectangle.
+     * @param h      The height of the rectangle.
      * @param pixels The pixel array.
      * @return The pixel array.
      */
@@ -91,7 +92,7 @@ class QuadInterpolator {
             final double a1 = warpPolynomialCoef[r][1];
             final double a2 = warpPolynomialCoef[r][2];
             for (int x = x0; x < x0 + w; x++) {
-                pixels[k++] = (float)(a0 + a1*x + a2*x*x);
+                pixels[k++] = (float) (a0 + a1 * x + a2 * x * x);
             }
         }
         return pixels;

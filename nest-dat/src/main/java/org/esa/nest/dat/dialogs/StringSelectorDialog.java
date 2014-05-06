@@ -50,12 +50,12 @@ public class StringSelectorDialog extends ModalDialog {
 
     public String getSelectedItem() {
         Object selection = list.getSelectedItem();
-        if(selection == null) {
-            if(list.getModel().getSize() > 0) {
+        if (selection == null) {
+            if (list.getModel().getSize() > 0) {
                 selection = list.getModel().getElementAt(0);
             }
         }
-        return (String)selection;
+        return (String) selection;
     }
 
     protected void onOK() {

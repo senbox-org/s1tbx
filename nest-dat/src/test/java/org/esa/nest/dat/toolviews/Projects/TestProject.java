@@ -17,7 +17,6 @@ package org.esa.nest.dat.toolviews.Projects;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.nest.util.ResourceUtils;
 
 import java.io.File;
@@ -39,7 +38,7 @@ public class TestProject extends TestCase {
 
     @Override
     public void setUp() throws Exception {
-        if(!projectFolder.exists())
+        if (!projectFolder.exists())
             projectFolder.mkdir();
     }
 
@@ -62,7 +61,6 @@ public class TestProject extends TestCase {
         assertEquals(files[3].getName(), "ProductSets");  */
 
     }
-
 
 
 }

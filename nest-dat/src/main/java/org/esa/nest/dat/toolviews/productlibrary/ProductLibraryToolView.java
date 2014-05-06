@@ -29,6 +29,7 @@ import org.esa.nest.dat.toolviews.Projects.Project;
 import org.esa.nest.dat.toolviews.productlibrary.model.ProductEntryTableModel;
 import org.esa.nest.dat.toolviews.productlibrary.model.ProductLibraryConfig;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
+import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.DBQuery;
@@ -102,7 +103,7 @@ public class ProductLibraryToolView extends AbstractToolView {
 
             @Override
             public void componentHidden(final ComponentEvent e) {
-                if(progMon != null)
+                if (progMon != null)
                     progMon.setCanceled(true);
             }
         });
@@ -127,10 +128,10 @@ public class ProductLibraryToolView extends AbstractToolView {
     private void applyConfig(final ProductLibraryConfig config) {
         final File[] baseDirList = config.getBaseDirs();
         repositoryListCombo.insertItemAt(DBQuery.ALL_FOLDERS, 0);
-        for(File f : baseDirList) {
+        for (File f : baseDirList) {
             repositoryListCombo.insertItemAt(f, repositoryListCombo.getItemCount());
         }
-        if(baseDirList.length > 0)
+        if (baseDirList.length > 0)
             repositoryListCombo.setSelectedIndex(0);
     }
 
@@ -146,8 +147,8 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private void updateContextMenu(final ProductEntry[] selections) {
         boolean allValid = true;
-        for(ProductEntry entry : selections) {
-            if(!ProductFileHandler.canMove(entry)) {
+        for (ProductEntry entry : selections) {
+            if (!ProductFileHandler.canMove(entry)) {
                 allValid = false;
                 break;
             }
@@ -158,7 +159,7 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private void updateProductSelectionText(final ProductEntry[] selections) {
-        if(selections.length == 1) {
+        if (selections.length == 1) {
             final ProductEntry entry = selections[0];
             final StringBuilder text = new StringBuilder(255);
 
@@ -172,22 +173,25 @@ public class ProductLibraryToolView extends AbstractToolView {
             final int tc = absRoot.getAttributeInt(AbstractMetadata.is_terrain_corrected, AbstractMetadata.NO_METADATA);
             final int coreg = absRoot.getAttributeInt(AbstractMetadata.coregistered_stack, AbstractMetadata.NO_METADATA);
 
-            text.append(entry.getName());  text.append("\n\n");
-            text.append(entry.getAcquisitionMode()+"   "+ sampleType+'\n');
-            text.append(acqTime.format());  text.append('\n');
-
-            text.append("Orbit: "+absOrbit);
-            if(relOrbit != AbstractMetadata.NO_METADATA)
-                text.append("  Track: "+relOrbit); 
+            text.append(entry.getName());
+            text.append("\n\n");
+            text.append(entry.getAcquisitionMode() + "   " + sampleType + '\n');
+            text.append(acqTime.format());
             text.append('\n');
-            if(!map.isEmpty()) {
-                text.append(map);  text.append('\n');   
+
+            text.append("Orbit: " + absOrbit);
+            if (relOrbit != AbstractMetadata.NO_METADATA)
+                text.append("  Track: " + relOrbit);
+            text.append('\n');
+            if (!map.isEmpty()) {
+                text.append(map);
+                text.append('\n');
             }
-            if(cal==1)
+            if (cal == 1)
                 text.append("Calibrated ");
-            if(coreg==1)
+            if (coreg == 1)
                 text.append("Coregistered ");
-            if(tc==1)
+            if (tc == 1)
                 text.append("Terrain Corrected ");
 
             productText.setText(text.toString());
@@ -207,36 +211,36 @@ public class ProductLibraryToolView extends AbstractToolView {
      */
     private void performCopyAction() {
         final File[] fileList = getSelectedFiles();
-        if(fileList.length != 0)
+        if (fileList.length != 0)
             ClipboardUtils.copyToClipboard(fileList);
     }
 
     private void performCopyToAction() {
         final File targetFolder = promptForRepositoryBaseDir();
-        if(targetFolder == null) return;
+        if (targetFolder == null) return;
 
         final ProductEntry[] entries = getSelectedProductEntries();
-        for(ProductEntry entry : entries) {
+        for (ProductEntry entry : entries) {
             try {
                 ProductFileHandler.copyTo(entry, targetFolder);
-            } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to copy file "+entry.getFile().getAbsolutePath()+
-                        '\n'+e.getMessage());
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to copy file " + entry.getFile().getAbsolutePath() +
+                        '\n' + e.getMessage());
             }
         }
     }
 
     private void performMoveToAction() {
         final File targetFolder = promptForRepositoryBaseDir();
-        if(targetFolder == null) return;
+        if (targetFolder == null) return;
 
         final ProductEntry[] entries = getSelectedProductEntries();
-        for(ProductEntry entry : entries) {
+        for (ProductEntry entry : entries) {
             try {
                 ProductFileHandler.moveTo(entry, targetFolder);
-            } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to move file "+entry.getFile().getAbsolutePath()+
-                        '\n'+e.getMessage());
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to move file " + entry.getFile().getAbsolutePath() +
+                        '\n' + e.getMessage());
             }
         }
         rescanFolder();
@@ -245,13 +249,13 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private void performDeleteAction() {
         final ProductEntry[] entries = getSelectedProductEntries();
-        for(ProductEntry entry : entries) {
+        for (ProductEntry entry : entries) {
             try {
                 ProductFileHandler.delete(entry);
 
-            } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to delete file "+entry.getFile().getAbsolutePath()+
-                        '\n'+e.getMessage());
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to delete file " + entry.getFile().getAbsolutePath() +
+                        '\n' + e.getMessage());
             }
         }
         rescanFolder();
@@ -263,8 +267,8 @@ public class ProductLibraryToolView extends AbstractToolView {
         final ProductEntry[] selectedEntries = new ProductEntry[selectedRows.length];
         for (int i = 0; i < selectedRows.length; i++) {
             final Object entry = productEntryTable.getValueAt(selectedRows[i], 0);
-            if(entry instanceof ProductEntry) {
-                selectedEntries[i] = (ProductEntry)entry;
+            if (entry instanceof ProductEntry) {
+                selectedEntries[i] = (ProductEntry) entry;
             }
         }
         return selectedEntries;
@@ -275,8 +279,8 @@ public class ProductLibraryToolView extends AbstractToolView {
         final File[] selectedFiles = new File[selectedRows.length];
         for (int i = 0; i < selectedRows.length; i++) {
             final Object entry = productEntryTable.getValueAt(selectedRows[i], 0);
-            if(entry instanceof ProductEntry) {
-                selectedFiles[i] = ((ProductEntry)entry).getFile();
+            if (entry instanceof ProductEntry) {
+                selectedFiles[i] = ((ProductEntry) entry).getFile();
             }
         }
         return selectedFiles;
@@ -296,7 +300,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         final JMenuItem openSelectedItem = new JMenuItem("Open Selected");
         openSelectedItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                performOpenAction();              
+                performOpenAction();
             }
         });
         popup.add(openSelectedItem);
@@ -342,14 +346,14 @@ public class ProductLibraryToolView extends AbstractToolView {
             public void actionPerformed(final ActionEvent e) {
                 final Point pos = productEntryTable.getMousePosition();
                 int row = 0;
-                if(pos != null)
+                if (pos != null)
                     row = productEntryTable.rowAtPoint(pos);
                 final Object entry = productEntryTable.getValueAt(row, 0);
-                if(entry != null && entry instanceof ProductEntry) {
-                    final ProductEntry prodEntry = (ProductEntry)entry;
+                if (entry != null && entry instanceof ProductEntry) {
+                    final ProductEntry prodEntry = (ProductEntry) entry;
                     try {
                         Desktop.getDesktop().open(prodEntry.getFile().getParentFile());
-                    } catch(Exception ex) {
+                    } catch (Exception ex) {
                         System.out.println(ex.getMessage());
                     }
                 }
@@ -385,7 +389,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         final File graphPath = ResourceUtils.getGraphFolder("");
 
         final JPopupMenu popup = new JPopupMenu();
-        if(graphPath.exists()) {
+        if (graphPath.exists()) {
             createGraphMenu(popup, graphPath);
         }
         return popup;
@@ -393,20 +397,20 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private void createGraphMenu(final JPopupMenu menu, final File path) {
         final File[] filesList = path.listFiles();
-        if(filesList == null || filesList.length == 0) return;
+        if (filesList == null || filesList.length == 0) return;
 
         for (final File file : filesList) {
             final String name = file.getName();
-            if(file.isDirectory() && !file.isHidden() && !name.equalsIgnoreCase("internal")) {
+            if (file.isDirectory() && !file.isHidden() && !name.equalsIgnoreCase("internal")) {
                 final JMenu subMenu = new JMenu(name);
                 menu.add(subMenu);
                 createGraphMenu(subMenu, file);
-            } else if(name.toLowerCase().endsWith(".xml")) {
+            } else if (name.toLowerCase().endsWith(".xml")) {
                 final JMenuItem item = new JMenuItem(name.substring(0, name.indexOf(".xml")));
                 item.addActionListener(new ActionListener() {
 
                     public void actionPerformed(final ActionEvent e) {
-                        if(batchProcessButton.isEnabled())
+                        if (batchProcessButton.isEnabled())
                             batchProcess(getSelectedProductEntries(), file);
                     }
                 });
@@ -417,20 +421,20 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private void createGraphMenu(final JMenu menu, final File path) {
         final File[] filesList = path.listFiles();
-        if(filesList == null || filesList.length == 0) return;
+        if (filesList == null || filesList.length == 0) return;
 
         for (final File file : filesList) {
             final String name = file.getName();
-            if(file.isDirectory() && !file.isHidden() && !name.equalsIgnoreCase("internal")) {
+            if (file.isDirectory() && !file.isHidden() && !name.equalsIgnoreCase("internal")) {
                 final JMenu subMenu = new JMenu(name);
                 menu.add(subMenu);
                 createGraphMenu(subMenu, file);
-            } else if(name.toLowerCase().endsWith(".xml")) {
+            } else if (name.toLowerCase().endsWith(".xml")) {
                 final JMenuItem item = new JMenuItem(name.substring(0, name.indexOf(".xml")));
                 item.addActionListener(new ActionListener() {
 
                     public void actionPerformed(final ActionEvent e) {
-                        if(batchProcessButton.isEnabled())
+                        if (batchProcessButton.isEnabled())
                             batchProcess(getSelectedProductEntries(), file);
                     }
                 });
@@ -443,7 +447,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         final BatchGraphDialog batchDlg = new BatchGraphDialog(VisatApp.getApp(),
                 "Batch Processing", "batchProcessing", false);
         batchDlg.setInputFiles(productEntryList);
-        if(graphFile != null) {
+        if (graphFile != null) {
             batchDlg.LoadGraphFile(graphFile);
         }
         batchDlg.show();
@@ -474,7 +478,7 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
-        if(baseDir == null) return;
+        if (baseDir == null) return;
         progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
         progMon.addListener(new MyProgressBarListener());
         final DBScanner scanner = new DBScanner(dbPane.getDB(), baseDir, doRecursive, doQuicklooks, progMon);
@@ -486,26 +490,26 @@ public class ProductLibraryToolView extends AbstractToolView {
 
         final Object selectedItem = repositoryListCombo.getSelectedItem();
         final int index = repositoryListCombo.getSelectedIndex();
-        if(index == 0) {
-            final int status=VisatApp.getApp().showQuestionDialog("This will remove all folders and products from the database.\n" +
+        if (index == 0) {
+            final int status = VisatApp.getApp().showQuestionDialog("This will remove all folders and products from the database.\n" +
                     "Are you sure you wish to continue?", null);
             if (status == JOptionPane.NO_OPTION)
                 return;
-            while(repositoryListCombo.getItemCount() > 1) {
-                final File baseDir = (File)repositoryListCombo.getItemAt(1);
+            while (repositoryListCombo.getItemCount() > 1) {
+                final File baseDir = (File) repositoryListCombo.getItemAt(1);
                 libConfig.removeBaseDir(baseDir);
                 repositoryListCombo.removeItemAt(1);
                 dbPane.removeProducts(baseDir);
             }
             try {
                 dbPane.getDB().removeAllProducts();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("Failed to remove all products");
             }
-        } else if(selectedItem instanceof File) {
-            final File baseDir = (File)selectedItem;
-            final int status=VisatApp.getApp().showQuestionDialog("This will remove all products within " +
-                    baseDir.getAbsolutePath()+" from the database\n" +
+        } else if (selectedItem instanceof File) {
+            final File baseDir = (File) selectedItem;
+            final int status = VisatApp.getApp().showQuestionDialog("This will remove all products within " +
+                    baseDir.getAbsolutePath() + " from the database\n" +
                     "Are you sure you wish to continue?", null);
             if (status == JOptionPane.NO_OPTION)
                 return;
@@ -551,7 +555,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         final int response = fileChooser.showOpenDialog(mainPanel);
         currentDirectory = fileChooser.getCurrentDirectory();
         File selectedDir = fileChooser.getSelectedFile();
-        if(selectedDir != null && selectedDir.isFile())
+        if (selectedDir != null && selectedDir.isFile())
             selectedDir = selectedDir.getParentFile();
         if (response == JFileChooser.APPROVE_OPTION) {
             return selectedDir;
@@ -671,7 +675,7 @@ public class ProductLibraryToolView extends AbstractToolView {
                 final int clickCount = e.getClickCount();
                 if (clickCount == 2) {
                     performOpenAction();
-                } else if(clickCount == 1) {
+                } else if (clickCount == 1) {
                     performSelectAction();
                 }
             }
@@ -737,10 +741,10 @@ public class ProductLibraryToolView extends AbstractToolView {
         setComponentName(repositoryListCombo, "repositoryListCombo");
         repositoryListCombo.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                if(event.getStateChange() == ItemEvent.SELECTED) {
+                if (event.getStateChange() == ItemEvent.SELECTED) {
                     final Object selectedItem = repositoryListCombo.getSelectedItem();
-                    if(selectedItem instanceof File) {
-                        dbPane.setBaseDir((File)selectedItem);
+                    if (selectedItem instanceof File) {
+                        dbPane.setBaseDir((File) selectedItem);
                     } else {
                         dbPane.setBaseDir(null);
                     }
@@ -777,11 +781,11 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private void rescanFolder() {
-        if(repositoryListCombo.getSelectedIndex() != 0) {
-            updateRepostitory((File)repositoryListCombo.getSelectedItem(), true, true);
+        if (repositoryListCombo.getSelectedIndex() != 0) {
+            updateRepostitory((File) repositoryListCombo.getSelectedItem(), true, true);
         } else {
             final File[] baseDirList = libConfig.getBaseDirs();
-            for(File f : baseDirList) {
+            for (File f : baseDirList) {
                 updateRepostitory(f, true, true);
             }
         }
@@ -797,13 +801,13 @@ public class ProductLibraryToolView extends AbstractToolView {
     private void updateStatusLabel() {
         String selectedText = "";
         final int selecteRows = productEntryTable.getSelectedRowCount();
-        
+
         setOpenProductButtonsEnabled(selecteRows > 0);
-        if(selecteRows > 0)
-            selectedText = ", "+selecteRows+" Selected";
+        if (selecteRows > 0)
+            selectedText = ", " + selecteRows + " Selected";
         else
             productText.setText("");
-        statusLabel.setText(productEntryTable.getRowCount() + " Products"+ selectedText);
+        statusLabel.setText(productEntryTable.getRowCount() + " Products" + selectedText);
     }
 
     public void ShowRepository(final ProductEntry[] productEntryList) {
@@ -819,33 +823,33 @@ public class ProductLibraryToolView extends AbstractToolView {
     private static void handleErrorList(final java.util.List<DBScanner.ErrorFile> errorList) {
         final StringBuilder str = new StringBuilder();
         int cnt = 1;
-        for(DBScanner.ErrorFile err : errorList) {
+        for (DBScanner.ErrorFile err : errorList) {
             str.append(err.message);
             str.append("   ");
             str.append(err.file.getAbsolutePath());
             str.append('\n');
-            if(cnt >= 20) {
-                str.append("plus "+(errorList.size()-20)+" other errors...\n");
+            if (cnt >= 20) {
+                str.append("plus " + (errorList.size() - 20) + " other errors...\n");
                 break;
             }
             ++cnt;
         }
         final String question = "\nWould you like to save the list to a text file?";
-        if(VisatApp.getApp().showQuestionDialog("Product Errors",
-                "The follow files have errors:\n"+ str.toString() + question,
-                null)== 0) {
+        if (VisatApp.getApp().showQuestionDialog("Product Errors",
+                "The follow files have errors:\n" + str.toString() + question,
+                null) == 0) {
 
-            File file = ResourceUtils.GetSaveFilePath("Save as...", "Text", "txt",
-                                   "ProductErrorList", "Products with errors");
+            File file = FileFolderUtils.GetSaveFilePath("Save as...", "Text", "txt",
+                    "ProductErrorList", "Products with errors");
             try {
                 writeErrors(errorList, file);
-            } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to save to "+file.getAbsolutePath());
-                file = ResourceUtils.GetSaveFilePath("Save as...", "Text", "txt",
-                                   "ProductErrorList", "Products with errors");
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to save to " + file.getAbsolutePath());
+                file = FileFolderUtils.GetSaveFilePath("Save as...", "Text", "txt",
+                        "ProductErrorList", "Products with errors");
                 try {
                     writeErrors(errorList, file);
-                } catch(Exception ignore) {
+                } catch (Exception ignore) {
                     //
                 }
             }
@@ -860,7 +864,7 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private static void writeErrors(final java.util.List<DBScanner.ErrorFile> errorList, final File file) throws Exception {
-        if(file == null) return;
+        if (file == null) return;
 
         PrintStream p = null; // declare a print stream object
         try {
@@ -868,8 +872,8 @@ public class ProductLibraryToolView extends AbstractToolView {
             // Connect print stream to the output stream
             p = new PrintStream(out);
 
-            for(DBScanner.ErrorFile err : errorList) {
-                p.println(err.message +"   "+ err.file.getAbsolutePath());
+            for (DBScanner.ErrorFile err : errorList) {
+                p.println(err.message + "   " + err.file.getAbsolutePath());
             }
         } finally {
             if (p != null)
@@ -891,9 +895,9 @@ public class ProductLibraryToolView extends AbstractToolView {
     private class MyDatabaseScannerListener implements DBScanner.DBScannerListener {
 
         public void notifyMSG(final DBScanner dbScanner, final MSG msg) {
-            if(msg.equals(DBScanner.DBScannerListener.MSG.DONE)) {
+            if (msg.equals(DBScanner.DBScannerListener.MSG.DONE)) {
                 final java.util.List<DBScanner.ErrorFile> errorList = dbScanner.getErrorList();
-                if(!errorList.isEmpty()) {
+                if (!errorList.isEmpty()) {
                     handleErrorList(errorList);
                 }
             }
