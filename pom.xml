@@ -17,11 +17,6 @@
 
     <packaging>pom</packaging>
 
-    <!--
-    In version 2.1 of Maven the sourceEncoding property will be embedded in the
-    build tag. For now the convention is to that it as property.
-    TODO: Move the sourceEncoding property to the build tag if version 2.1 is released
-    -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
