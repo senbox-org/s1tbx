@@ -2,7 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o xx.xx.xxxx: Version 5.0
+    o 07.05.2014: Version 5.0
     o 28.03.2013: Version 4.11
     o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
@@ -35,44 +35,213 @@ _____________________________________________________________________________
  Changes from 4.11 to 5.0
 _____________________________________________________________________________
 
-BEAM 5.0 is a new major version.
+o Python
+    This release comes with support for Python. You can now use the BEAM API from within your Python code,
+    and you can also write extensions for BEAM. For now only processors are supported. For an introduction
+    on how to use it please refer to .......
+
+o Performance & Usability
+    For this release a special goal was the improvement of the performance when reading, writing or processing
+    EO data. Also the overall usability of BEAM has been improved at several location, e.g. pins can now be
+    copied to an other product just by a few clicks. Also the main menu of VISAT has been restructured in order
+    to find processors and tools easier.
+
+o Binning GUI
+    The graphical user interface for the binning processor has been totally reworked and greatly improved.
+    The old binning implementation has been removed and now completely replaced by the new implementation
+    introduced in version BEAM 4.11.
+
+o Colour Manipulation
+    The Colour Manipulation window has been extended by an other editor panel. Beside the already existing
+    Slider and Table editors there is now also the 'Basic' editor. It allows to easily switch between stored
+    colour palettes.
+    Beside this change also the Apply button has been removed. Also changes made to the Colour Manipulation are
+    now applied instantaneous and therefor give immediate user feedback.
+
+o Magic Wand
+    With BEAM 5.0 the new Magic Wand tool is introduced. This tool will be familiar for users how already have
+    worked with Adobe Photoshop. It's also known as Magic Stick tool in other applications. The purpose of this tool
+    is to select pixels by the similarity of their spectra.
+
+o Filter operations
+    New predefined morphological filters, like erosion and dilation, are supported. Not only predefined filters
+    are supported but also user defined filters. The graphical user interface has been enhanced to allow the editing
+    of the filter configurations.
+
 
 Complete list of BEAM 5.0 bug fixes and improvements
 
-New BEAM Features
+New Feature
+    [BEAM-108] - Missing function "Apply to other products" in contrast stretch window
+    [BEAM-745] - Propagate tile sizes through processing graph
+    [BEAM-750] - Grouping of spectral bands in spectrum view
+    [BEAM-753] - Manual adjustment of axes in spectrum view
+    [BEAM-1139] - Function to convert a virtual band into a real band
+    [BEAM-1323] - Add "magic stick" to VISAT that lets users create masks of similar pixels
+    [BEAM-1358] - Support parameter deprecation
+    [BEAM-1524] - Support Landsat8 in GeoTIFF format
+    [BEAM-1527] - Add missing Standard Deviation nonlinear image filter
+    [BEAM-1531] - Implement support for Landsat 4 GeoTIFF products
+    [BEAM-1558] - Support MSS data products of Landsat 1-5
+    [BEAM-1563] - Copy WKT of selected geometry
+    [BEAM-1625] - Add topological images filters
+    [BEAM-1633] - Allow users to define custom image filters
+    [BEAM-1639] - Support ASAR 4C specification
 
-Improvements
+Bug
+    [BEAM-276] - Product flipping removes important metadata attributes
+    [BEAM-670] - Batch-mode of FUB/WeW Water processor is slow
+    [BEAM-692] - Incorrect Date in Pixel view for ATSR1/2 products
+    [BEAM-793] - L3 result does not span the globe
+    [BEAM-794] - Binning fails after 135 files
+    [BEAM-846] - Input product truncation
+    [BEAM-933] - Incorrect timing in pixel info display for ATSR-1 and 2 products
+    [BEAM-934] - Calculation of pixel info for AATSR products based on MPH timing information
+    [BEAM-953] - No-Data is disregarded in filtered band
+    [BEAM-1045] - L3 Binning leads to empty result when using different aggregation methods
+    [BEAM-1092] - Time information gets lost when reprojecting
+    [BEAM-1096] - File selection window freezes when saving session
+    [BEAM-1120] - Time to delete a set of selected pins disproportionately grows with the number of pins
+    [BEAM-1176] - L3 Binning repeats data at the right image border
+    [BEAM-1190] - Export button in the mask manager does not export geometry masks
+    [BEAM-1267] - Some operator parameters can not be used on the command line
+    [BEAM-1287] - Default RGB profile of MERIS L1b is Landsat but should be Tristimulus
+    [BEAM-1298] - ENVI reader does not correctly handle projection info
+    [BEAM-1299] - ENVI reader does not correctly handle certain filenames
+    [BEAM-1322] - Reflectance bands of the FUB/WeW output have only two different values
+    [BEAM-1326] - FUB/WEW Water processor failed to populate the input product file
+    [BEAM-1389] - When flipping axes in density plot, image is not re-rendered
+    [BEAM-1396] - Flux conserving resampling has an offset geometric error
+    [BEAM-1398] - SLSTR oblique-view images cannot be opened
+    [BEAM-1402] - Profile plot using correlative data and projected products used wrong pixels
+    [BEAM-1416] - The export of transect pixels from a reprojected data product results in an empty file
+    [BEAM-1418] - The BandMaths Operator cannot handle "division by 0" cases
+    [BEAM-1423] - Negative value used as stroke-width in vector data layer editor leads to Exception
+    [BEAM-1425] - NPE in Landsat GeoTIFF reader
+    [BEAM-1426] - Landsat GeoTIFF reader hides other format readers
+    [BEAM-1441] - want to get rid of a vector data set which I had imported. Deleting is not sufficient.
+    [BEAM-1445] - Pinned spectra barely visible in spectrum view
+    [BEAM-1446] - Label of samples is wrong for index-coded bands
+    [BEAM-1452] - Log-scaling is not correctly applied in scatter plot
+    [BEAM-1455] - Flag-Coding remains when subsetting
+    [BEAM-1460] - Component enablement in Radiometry Processor Dialog is wrong
+    [BEAM-1466] - Inconsitent state possible in Pixel Extraction user interface
+    [BEAM-1468] - Time difference not considered for pixel extraction if defaults are used
+    [BEAM-1469] - No PixEx result if products do not have time information
+    [BEAM-1470] - It is not correctly detected if measurements have been extracted
+    [BEAM-1472] - PixEx parameters are not correctly saved to file
+    [BEAM-1473] - PixEx parameters are not correctly loaded from file
+    [BEAM-1474] - Data type raw symbols in band maths do not consider the raw data type of the raster
+    [BEAM-1475] - Open in VISAT an ESA SST CCI AATSR L2P product causes reproducable VM crash using Java 1.6.0_32 and 1.7.0_11.
+    [BEAM-1483] - Percentil Aggregator shares state
+    [BEAM-1494] - FLH/MCI operator misses parameter description
+    [BEAM-1495] - NaN should be considered in L3-Binning
+    [BEAM-1496] - ApiDoc is generated with wrong version
+    [BEAM-1497] - Command 'Time Series as Google Earth KMZ' misplaced in tools menu
+    [BEAM-1506] - Scalar variables are wrongly written to NetCDF4
+    [BEAM-1507] - mosaic operator aborts with NullPointer exception when one of input products has no geo-coding
+    [BEAM-1508] - No progress indication in VISAT when writing files
+    [BEAM-1509] - Mosaic tool does not initiate the download of the selected DEM
+    [BEAM-1510] - GeoTiff coordinates are wrongly shifted
+    [BEAM-1514] - ProductUtils.getScanLineTime fails for products with height 1
+    [BEAM-1515] - Landsat products in GeoTiff format can not be opened
+    [BEAM-1516] - refer sourceProducts#.bandName not parsed
+    [BEAM-1518] - BandMaths operator does not copy time information to its target product
+    [BEAM-1520] - Scene view not refreshed when moving back and forth in time series
+    [BEAM-1525] - Incorrect Geo-Coding Read from Geo-Tiff
+    [BEAM-1533] - KMZ exports have slightly wrong image envelope coordinates
+    [BEAM-1547] - BEAM Help documentation for "Define Subset" dialog has not been updated
+    [BEAM-1550] - Link in help to general.html does not work
+    [BEAM-1556] - Size of heap space might be wrongly set
+    [BEAM-1557] - Cannot configure SubsetOp to not copy metadata
+    [BEAM-1560] - Profile plot ignores band selection changes
+    [BEAM-1561] - Slider labels of colour manipulation tool are all zero for small value ranges
+    [BEAM-1564] - Binning operator causes NPE with invalid graph XML
+    [BEAM-1568] - Numbers are displayed with too little #places after the comma
+    [BEAM-1569] - Documentation for 'statistical accuracy' missing
+    [BEAM-1572] - Landsat 5 TM in Fast format can have wrong scaling and offset
+    [BEAM-1576] - Running the GPF Operator from the console takes significantly longer as compared to executing the operator using xml file
+    [BEAM-1578] - Sensing start and stop time can be wrong
+    [BEAM-1579] - Opening product with GcpGeocoding two times leads to an exception
+    [BEAM-1582] - Too many tile (stack) computations using GPT with single operator
+    [BEAM-1585] - Creating a subset of a product with pixel based geo-coding fails
+    [BEAM-1586] - Export of placemark not consistent and not intuitive
+    [BEAM-1589] - The path to the parameter file by save and load parameters will be not stored
+    [BEAM-1593] - Harmonise transect + mask pixels outputs
+    [BEAM-1600] - The scanning for products by ProductGrabber is slow
+    [BEAM-1601] - Correlative plot does not reset point data correctly when switching between two products
+    [BEAM-1611] - Exception when loading paramters into Mosaic
+    [BEAM-1612] - PGX reader plugin may take very long to determine decode qualification
+    [BEAM-1613] - FUB/WeW processor suffers from Java bug
+    [BEAM-1631] - Placing a second pin takes a lot of time if many bands are opened
+    [BEAM-1636] - Vector data node is not shown after creating a geometry container
+    [BEAM-1640] - FUB/WeW processor treats source product as a parameter
+    [BEAM-1643] - Improve 'Accuracy' option in Statistics tool window
+    [BEAM-1647] - Detection of reprocessing is wrong for FSG products
 
-[BEAM-1629] PixEx shall output number of pixels
-[BEAM-1605] 'InvalidArgumentException: maxima' error message when trying to open a band
-[BEAM-1616] Geocoding toolview shall display data as table
-[BEAM-1603] Info tool window shall display data as table
-[BEAM-1612] PGX reader plugin may take very long to determine decode qualification
-[BEAM-1610] Move ENVI-Reader from Glob-Box to BEAM
-[BEAM-1609] Convert Cloud Processor to GPF
-[BEAM-1592] Line-Geometries shall be easier selectable
-[BEAM-1588] Show close button on internal frames' tabs
-[BEAM-1587] Allow closing internal frames by click with middle mouse button
-[BEAM-1459] Allow aggregating pixel values even if not all pixels of the window are valid
-[BEAM-1513] BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics
+Improvement
+    [BEAM-601] - Add temporal information to L3 products
+    [BEAM-602] - Copy pins to other products
+    [BEAM-784] - Help should mention that SMAC is intended for land
+    [BEAM-1104] - Support of L1B MODIS data processed by the OBPG.
+    [BEAM-1059] - User-defined band sets shall be saved/restored
+    [BEAM-1060] - make y-axis of spectrum view user defined
+    [BEAM-1285] - Use band grouping for selection of bands in spectrum view
+    [BEAM-1338] - A small proposal: deprecate the old processors that can be used as GPF.
+    [BEAM-1363] - Write NetCDf 4 files using compression
+    [BEAM-1388] - Allow inverting of colours in density plot
+    [BEAM-1404] - Image views shall draw pixel grid at high zoom levels
+    [BEAM-1443] - Spectrum View line thickness too thin
+    [BEAM-1456] - All bands shall use same image pyramid model
+    [BEAM-1457] - Display a spectral band's wavelengths next to its name
+    [BEAM-1459] - Allow aggregating pixel values even if not all pixels of the window are valid
+    [BEAM-1471] - The time extraction from file name should support DAY_OF_YEAR
+    [BEAM-1487] - If expression is used for a variable it shall be possible to define a name for the variable
+    [BEAM-1499] - In L3-Binning No-data should always be represented by NaN
+    [BEAM-1502] - Binning should (optionally) support a postprocessor
+    [BEAM-1504] - Update NetCDF library to latest version
+    [BEAM-1511] - Binning operator shall make use of a 'spatial data-day' definition
+    [BEAM-1512] - Saving time has increased significantly with 5.0 alpha
+    [BEAM-1513] - BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics
+    [BEAM-1523] - GeoTIFF Product Reader performance poor
+    [BEAM-1528] - FLH/MCI operator does not set valid mask of output bands
+    [BEAM-1534] - Landsat TM Reader: Naming is misleading
+    [BEAM-1535] - Check GeoCoding for the implementing class
+    [BEAM-1536] - Use Pins in JSON template generation action
+    [BEAM-1538] - Test that there is only one intended reader per product
+    [BEAM-1539] - Split JSON test file into one file per product
+    [BEAM-1541] - Spectrum view does not remember the selection of bands
+    [BEAM-1542] - Legend in the new spectrum view
+    [BEAM-1545] - Date filter in OPeNDAP-tool shall use European date format
+    [BEAM-1562] - Add version and name of module in metadata
+    [BEAM-1565] - Binning shall use parameter 'region' to subset source products
+    [BEAM-1580] - Binned Level 3 products from the oc-cci project should be readable
+    [BEAM-1584] - Binner should include used source products in metadata
+    [BEAM-1587] - Allow closing internal frames by click with middle mouse button
+    [BEAM-1588] - Show close button on internal frames' tabs
+    [BEAM-1592] - Line-Geometries shall be easier selectable
+    [BEAM-1598] - GPF operators shall be able to prevent GPT automatic writing
+    [BEAM-1602] - Histogram toolview shall remember last computed histograms
+    [BEAM-1603] - Info tool window shall display data as table
+    [BEAM-1607] - PixEx GUI should remember last directory when selecting files (or directories)
+    [BEAM-1609] - Convert Cloud Processor to GPF
+    [BEAM-1610] - Move ENVI-Reader from Glob-Box to BEAM
+    [BEAM-1614] - ENVI Reader shall consider 'Full width at half maximum'
+    [BEAM-1615] - Sort entries in View->ToolViews sub-menu
+    [BEAM-1616] - Geocoding toolview shall display data as table
+    [BEAM-1621] - ENVI reader shall consider "data ignore value"
+    [BEAM-1622] - ENVI reader shall have metadata
+    [BEAM-1623] - ENVI reader shall read data in BIP format
+    [BEAM-1626] - ENVI reader shall consider classification attributs in HDR files
+    [BEAM-1629] - PixEx shall output number of pixels
+    [BEAM-1634] - Use IF,THEN,ELSE in band maths expressions
+    [BEAM-1635] - support .tar.gz format for Landsat 4 products
+    [BEAM-1637] - Improve performance by using Apache commons-math
+    [BEAM-1638] - Envisat/Doris Orbit interpolation not sufficient
+    [BEAM-1641] - Simplify project module structure and versioning
+    [BEAM-1642] - Create geometry from WKT
+    [BEAM-1648] - Add processing time to metadata
 
-Bugs
-
-[BEAM-1601] Correlative plot does not reset point data correctly when switching between two products
-[BEAM-1602] Histogram toolview shall remember last computed histograms
-[BEAM-1604] Wavelength values for Landsat need to be updated
-[BEAM-1593] Harmonise transect + mask pixels outputs
-[BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus
-[BEAM-1452] Log-scaling is not correctly applied in scatter plot
-[BEAM-1496] ApiDoc is generated with wrong version
-[BEAM-1569] Documentation for 'statistical accuracy' missing
-[BEAM-1190] Export button in the mask manager does not export geometry masks
-[BEAM-1497] Command 'Time Series as Google Earth KMZ' misplaced in tools menu
-[BEAM-1561] Slider labels of colour manipulation tool are all zero for small value ranges
-[BEAM-1568] Numbers are displayed with too little #places after the comma
-[BEAM-1508] No progress indication in VISAT when writing files
-[BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1
-[BEAM-1564] Binning operator causes NPE with invalid graph XML
 
 _____________________________________________________________________________
 
