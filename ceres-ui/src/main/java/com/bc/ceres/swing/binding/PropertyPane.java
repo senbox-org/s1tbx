@@ -23,7 +23,9 @@ import com.bc.ceres.swing.TableLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import static com.bc.ceres.swing.TableLayout.cell;
 
@@ -59,7 +61,7 @@ public class PropertyPane {
 
         boolean displayUnitColumn = wantDisplayUnitColumn(properties);
         TableLayout layout = new TableLayout(displayUnitColumn ? 3 : 2);
-        layout.setTableAnchor(TableLayout.Anchor.WEST);
+        layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setTablePadding(3, 3);
         final JPanel panel = new JPanel(layout);
@@ -77,6 +79,10 @@ public class PropertyPane {
                 layout.setCellWeightX(rowIndex, 0, 0.0);
                 panel.add(components[1], cell(rowIndex, 0));
                 layout.setCellWeightX(rowIndex, 1, 1.0);
+                if(components[0] instanceof JScrollPane) {
+                    layout.setRowWeightY(rowIndex, 1.0);
+                    layout.setRowFill(rowIndex, TableLayout.Fill.BOTH);
+                }
                 panel.add(components[0], cell(rowIndex, 1));
             } else {
                 layout.setCellColspan(rowIndex, 0, 2);
@@ -95,7 +101,7 @@ public class PropertyPane {
         }
         layout.setCellColspan(rowIndex, 0, 2);
         layout.setCellWeightX(rowIndex, 0, 1.0);
-        layout.setCellWeightY(rowIndex, 0, 1.0);
+        layout.setCellWeightY(rowIndex, 0, 0.5);
         panel.add(new JPanel());
         return panel;
     }
