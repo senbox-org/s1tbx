@@ -138,7 +138,7 @@ public class OperatorParameterSupport {
                 propertySet.setDefaultValues();
             } else {
                 propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
-                propertySet = PropertyContainer.createMapBacked(this.parameterMap, operatorType, descriptorFactory);
+                propertySet = PropertyContainer.createMapBacked(this.parameterMap, propertySetDescriptor);
                 propertySet.setDefaultValues();
             }
         }
