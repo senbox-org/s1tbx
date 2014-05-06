@@ -36,7 +36,9 @@ import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.util.io.FileUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,10 +130,11 @@ public class BinningDialog extends SingleTargetProductDialog {
             AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfigName);
             String[] sourceVarNames = descriptor.getSourceVarNames(aggregatorConfig);
             for (String sourceVarName : sourceVarNames) {
-                if(!contextProduct.containsBand(sourceVarName)) {
+                if (!contextProduct.containsBand(sourceVarName)) {
                     String msg = String.format(
                             "Source band name '%s' of aggregator '%s' is unknown.\nIt is neither one of the bands of the source products,\n" +
-                            "nor is it defined by an intermediate source band.", sourceVarName, aggregatorConfigName);
+                            "nor is it defined by an intermediate source band.", sourceVarName, aggregatorConfigName
+                    );
                     showErrorDialog(msg);
                     return false;
                 }
@@ -177,10 +180,10 @@ public class BinningDialog extends SingleTargetProductDialog {
             AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
             String[] targetNames = descriptor.getTargetVarNames(aggregatorConfig);
             for (String targetName : targetNames) {
-                if(targetVarNameList.contains(targetName)) {
+                if (targetVarNameList.contains(targetName)) {
                     showErrorDialog(String.format("The target band with the name '%s' is defined twice.", targetName));
                     return false;
-                }else {
+                } else {
                     targetVarNameList.add(targetName);
                 }
             }
@@ -220,6 +223,16 @@ public class BinningDialog extends SingleTargetProductDialog {
             if (property != null) {
                 property.setValue(entry.getValue());
             }
+        }
+
+        if (parameterMap.containsKey("outputFile")) {
+            File outputFile = new File((String) parameterMap.get("outputFile"));
+            File outputDir = outputFile.getParentFile();
+            if (outputDir != null) {
+                getTargetProductSelector().getModel().setProductDir(outputDir);
+            }
+            getTargetProductSelector().getModel().setProductName(FileUtils.getFilenameWithoutExtension(outputFile));
+
         }
 
         BinningConfigurationPanel configurationPanel = form.getBinningConfigurationPanel();

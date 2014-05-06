@@ -129,15 +129,18 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     /**
      * Loads an operator descriptor from an XML document.
      *
-     * @param url The URL pointing to a valid operator descriptor XML document.
+     * @param url         The URL pointing to a valid operator descriptor XML document.
+     * @param classLoader The class loader is used to load classed specified in the xml. For example the
+     *                    class defined by the {@code operatorClass} tag.
+     *
      * @return A new operator descriptor.
      */
-    public static DefaultOperatorDescriptor fromXml(URL url) {
+    public static DefaultOperatorDescriptor fromXml(URL url, ClassLoader classLoader) {
         String resourceName = url.toExternalForm();
         try {
             try (InputStreamReader streamReader = new InputStreamReader(url.openStream())) {
                 DefaultOperatorDescriptor operatorDescriptor;
-                operatorDescriptor = fromXml(streamReader, resourceName);
+                operatorDescriptor = fromXml(streamReader, resourceName, classLoader);
                 return operatorDescriptor;
             }
         } catch (IOException e) {
@@ -148,14 +151,17 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     /**
      * Loads an operator descriptor from an XML document.
      *
-     * @param file The file containing a valid operator descriptor XML document.
+     * @param file        The file containing a valid operator descriptor XML document.
+     * @param classLoader The class loader is used to load classed specified in the xml. For example the
+     *                    class defined by the {@code operatorClass} tag.
+     *
      * @return A new operator descriptor.
      */
-    public static DefaultOperatorDescriptor fromXml(File file) throws OperatorException {
+    public static DefaultOperatorDescriptor fromXml(File file, ClassLoader classLoader) throws OperatorException {
         String resourceName = file.getPath();
         try {
             try (FileReader reader = new FileReader(file)) {
-                return DefaultOperatorDescriptor.fromXml(reader, resourceName);
+                return DefaultOperatorDescriptor.fromXml(reader, resourceName, classLoader);
             }
         } catch (IOException e) {
             throw new OperatorException(formatReadExceptionText(resourceName, e), e);
@@ -167,14 +173,17 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
      *
      * @param reader       The reader providing a valid operator descriptor XML document.
      * @param resourceName Used in error messages
+     * @param classLoader  The class loader is used to load classed specified in the xml. For example the
+     *                     class defined by the {@code operatorClass} tag.
+     *
      * @return A new operator descriptor.
      */
-    public static DefaultOperatorDescriptor fromXml(Reader reader, String resourceName) throws OperatorException {
+    public static DefaultOperatorDescriptor fromXml(Reader reader, String resourceName, ClassLoader classLoader) throws OperatorException {
         Assert.notNull(reader, "reader");
         Assert.notNull(resourceName, "resourceName");
         DefaultOperatorDescriptor descriptor = new DefaultOperatorDescriptor();
         try {
-            createXStream().fromXML(reader, descriptor);
+            createXStream(classLoader).fromXML(reader, descriptor);
             if (StringUtils.isNullOrEmpty(descriptor.getName())) {
                 throw new OperatorException(formatInvalidExceptionMessage(resourceName, "missing 'name' element"));
             }
@@ -190,17 +199,20 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
     /**
      * Converts an operator descriptor to XML.
      *
+     * @param classLoader The class loader is used to load classed specified in the xml. For example the
+     *                    class defined by the {@code operatorClass} tag.
+     *
      * @return A string containing valid operator descriptor XML.
      */
-    public String toXml() {
-        return createXStream().toXML(this);
+    public String toXml(ClassLoader classLoader) {
+        return createXStream(classLoader).toXML(this);
     }
 
 
-    static XStream createXStream() {
+    private static XStream createXStream(ClassLoader classLoader) {
         XStream xStream = new XStream();
 
-        xStream.setClassLoader(DefaultOperatorDescriptor.class.getClassLoader());
+        xStream.setClassLoader(classLoader);
 
         xStream.alias("operator", DefaultOperatorDescriptor.class);
 

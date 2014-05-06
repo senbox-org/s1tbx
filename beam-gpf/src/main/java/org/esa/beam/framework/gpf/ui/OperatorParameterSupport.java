@@ -29,6 +29,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.PropertySetDescriptorFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -126,15 +127,18 @@ public class OperatorParameterSupport {
 
         this.operatorType = opType != null ? opType : operatorDescriptor.getOperatorClass();
 
-        propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
         if (propertySet == null) {
             if (operatorDescriptor != null) {
-                String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
-                propertySet = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(opName, this.parameterMap,
-                                                                                                  descriptorFactory.getSourceProductMap());
+                try {
+                    propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor, descriptorFactory.getSourceProductMap());
+                } catch (ConversionException e) {
+                    throw new IllegalStateException("Not able to init OperatorParameterSupport.", e);
+                }
+                propertySet = PropertyContainer.createMapBacked(this.parameterMap, propertySetDescriptor);
                 propertySet.setDefaultValues();
             } else {
-                propertySet = PropertyContainer.createMapBacked(this.parameterMap, operatorType, descriptorFactory);
+                propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
+                propertySet = PropertyContainer.createMapBacked(this.parameterMap, propertySetDescriptor);
                 propertySet.setDefaultValues();
             }
         }

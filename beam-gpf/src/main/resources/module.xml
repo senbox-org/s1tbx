@@ -31,6 +31,7 @@
     <changelog>
         <![CDATA[
          <b>Changes in 5.0</b><br/>
+            [BEAM-1648] Add processing time to metadata<br/>
             [BEAM-1598] GPF operators shall be able to prevent GPT automatic writing<br/>
             [BEAM-1597] GPT writes product although Operator implements Output<br/>
             [BEAM-1589] The path to the parameter file by save and load parameters will be not stored<br/>

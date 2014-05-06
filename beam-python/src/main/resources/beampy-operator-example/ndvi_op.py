@@ -3,51 +3,43 @@ import numpy
 
 jpy = beampy.jpy
 
-Rectangle = jpy.get_type('java.awt.Rectangle')
-Tile = jpy.get_type('org.esa.beam.framework.gpf.Tile')
 
-class MerisNdviTileComputer:
-
+class NdviComputer:
     def initialize(self, operator):
+        sourceProduct = operator.getSourceProduct('source')
+        print('initialize: source product is', sourceProduct.getFileLocation())
 
-        merisProduct = operator.getSourceProduct('source')
-        print('initialize: source product is', merisProduct.getFileLocation())
+        width = sourceProduct.getSceneRasterWidth()
+        height = sourceProduct.getSceneRasterHeight()
 
-        width = merisProduct.getSceneRasterWidth()
-        height = merisProduct.getSceneRasterHeight()
+        self.lowerFactor = operator.getParameter('lowerFactor')
+        self.lowerBandName = operator.getParameter('lowerName')
+        self.lowerBand = self.getBand(sourceProduct, self.lowerBandName)
 
-        self.parameterA = operator.getParameter('a', 1.0)
-        print('Parameter A is', self.parameterA)
-
-        self.parameterB = operator.getParameter('b', 1.0)
-        print('Parameter B is', self.parameterB)
-
-        self.b7 = self.getBand(merisProduct, 'radiance_7')
-        self.b10 = self.getBand(merisProduct, 'radiance_10')
+        self.upperFactor = operator.getParameter('upperFactor')
+        self.upperBandName = operator.getParameter('upperName')
+        self.upperBand = self.getBand(sourceProduct, self.upperBandName)
 
         ndviProduct = beampy.Product('pyNDVI', 'pyNDVI', width, height)
-        # ndviProduct.setPreferredTileSize(200, 200)
-        # ndviProduct.setPreferredTileSize(width, height)
         self.ndviBand = ndviProduct.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
         self.ndviFlagsBand = ndviProduct.addBand('ndvi_flags', beampy.ProductData.TYPE_UINT8)
 
         operator.setTargetProduct(ndviProduct)
 
     def compute(self, operator, targetTiles, targetRectangle):
-
-        b7Tile = operator.getSourceTile(self.b7, targetRectangle)
-        b10Tile = operator.getSourceTile(self.b10, targetRectangle)
+        lowerTile = operator.getSourceTile(self.lowerBand, targetRectangle)
+        upperTile = operator.getSourceTile(self.upperBand, targetRectangle)
 
         ndviTile = targetTiles.get(self.ndviBand)
         ndviFlagsTile = targetTiles.get(self.ndviFlagsBand)
 
-        b7Data = b7Tile.getSamplesFloat()
-        b10Data = b10Tile.getSamplesFloat()
+        lowerSamples = lowerTile.getSamplesFloat()
+        upperSamples = upperTile.getSamplesFloat()
 
-        r7 = numpy.array(b7Data, dtype=numpy.float32)
-        r10 = numpy.array(b10Data, dtype=numpy.float32)
+        lowerData = numpy.array(lowerSamples, dtype=numpy.float32) * self.lowerFactor
+        upperData = numpy.array(upperSamples, dtype=numpy.float32) * self.upperFactor
 
-        ndvi = (r10 - r7) / (r10 + r7)
+        ndvi = (upperData - lowerData ) / (upperData + lowerData )
 
         ndviLow = ndvi < 0.0
         ndviHigh = ndvi > 0.1

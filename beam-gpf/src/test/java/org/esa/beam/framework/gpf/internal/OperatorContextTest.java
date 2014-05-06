@@ -17,12 +17,14 @@
 package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
@@ -110,15 +112,25 @@ public class OperatorContextTest {
     @Test
     public void testProcessingGraphInMetadata() {
         // using the SubsetOp here, because when using a TestOperator the module.xml is not found
-        final SubsetOp testOp = new SubsetOp();
-        final Product source = new Product("dummy", "T", 10, 10);
-        testOp.setSourceProduct(source);
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        if (operatorSpiRegistry.getOperatorSpi("Subset") == null) {
+            operatorSpiRegistry.addOperatorSpi(new SubsetOp.Spi());
+        }
+
+        final Operator testOp = operatorSpiRegistry.getOperatorSpi("Subset").createOperator();
+
+        testOp.setSourceProduct(new Product("dummy", "T", 10, 10));
 
         Product targetProduct = testOp.getTargetProduct();
 
         MetadataElement metadataRoot = targetProduct.getMetadataRoot();
         MetadataElement elementPG = metadataRoot.getElement(OperatorContext.PROCESSING_GRAPH_ELEMENT_NAME);
         assertNotNull(elementPG);
+
+        MetadataAttribute procTime = elementPG.getAttribute("processingTime");
+        assertNotNull("Attribute 'processingTime' does not exist", procTime);
+        assertNotNull("Attribute 'processingTime' does not have data attached", procTime.getData());
+
         MetadataElement node0Element = elementPG.getElement("node.0");
         assertNotNull(node0Element);
         assertEquals(8, node0Element.getNumAttributes());

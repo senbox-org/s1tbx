@@ -73,10 +73,10 @@ public class SourceProductSelector {
     private ProductFilter productFilter;
     private Product extraProduct;
     private File currentDirectory;
-    private DefaultComboBoxModel productListModel;
+    private DefaultComboBoxModel<Object> productListModel;
     private JLabel productNameLabel;
     private JButton productFileChooserButton;
-    private JComboBox productNameComboBox;
+    private JComboBox<Object> productNameComboBox;
     private final ProductManager.Listener productManagerListener;
     private ComboBoxSelectionContext selectionContext;
 
@@ -86,7 +86,7 @@ public class SourceProductSelector {
 
     public SourceProductSelector(AppContext appContext, String labelText) {
         this.appContext = appContext;
-        productListModel = new DefaultComboBoxModel();
+        productListModel = new DefaultComboBoxModel<>();
 
         productNameLabel = new JLabel(labelText);
         productFileChooserButton = new JButton(new ProductFileChooserAction());
@@ -94,7 +94,7 @@ public class SourceProductSelector {
         productFileChooserButton.setPreferredSize(size);
         productFileChooserButton.setMinimumSize(size);
 
-        productNameComboBox = new JComboBox(productListModel);
+        productNameComboBox = new JComboBox<>(productListModel);
         productNameComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
         productNameComboBox.setRenderer(new ProductListCellRenderer());
         productNameComboBox.addPopupMenuListener(new ProductPopupMenuListener());
@@ -229,7 +229,7 @@ public class SourceProductSelector {
 
     /////////////////////////////////////
 
-    public JComboBox getProductNameComboBox() {
+    public JComboBox<Object> getProductNameComboBox() {
         return productNameComboBox;
     }
 
@@ -281,10 +281,8 @@ public class SourceProductSelector {
             final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
             List<BeamFileFilter> sortedFileFilters = BeamFileFilter.getSortedFileFilters(iterator);
             for (BeamFileFilter fileFilter : sortedFileFilters) {
-                // todo - (mp, 2008/04/22)check if product file filter is applicable
                 chooser.addChoosableFileFilter(fileFilter);
             }
-            // todo - (mp, 2008/04/22)check if product file filter is applicable
             chooser.setAcceptAllFileFilterUsed(true);
             chooser.setFileFilter(chooser.getAcceptAllFileFilter());
         }

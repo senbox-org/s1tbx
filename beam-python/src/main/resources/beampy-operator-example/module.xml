@@ -40,13 +40,13 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>MerisNDVIPythonOperator</id>
-            <helpId>MerisNDVIPythonOperator</helpId>
+            <id>ExampleNDVIPythonOperator</id>
+            <helpId>beamOverview</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>tools</parent>
+            <parent>processing</parent>
             <text>Python NDVI Operator...</text>
             <operatorName>py_ndvi_op</operatorName>
-            <dialogTitle>Python MERIS NDVI operator</dialogTitle>
+            <dialogTitle>Python NDVI Operator</dialogTitle>
             <targetProductNameSuffix>_pyNDVI</targetProductNameSuffix>
         </action>
     </extension>

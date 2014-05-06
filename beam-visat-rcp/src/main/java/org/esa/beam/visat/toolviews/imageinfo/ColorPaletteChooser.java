@@ -3,9 +3,11 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.Range;
 
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,6 +27,7 @@ import java.util.Vector;
 class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrapper> {
 
     private final String DERIVED_FROM = "derived from";
+    private final String UNNAMED = "unnamed";
     private boolean discreteDisplay;
     private boolean log10Display;
 
@@ -35,7 +38,8 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
     }
 
     public void removeUserDefinedPalette() {
-        if (getItemAt(0).name.startsWith(DERIVED_FROM)) {
+        final String name = getItemAt(0).name;
+        if (UNNAMED.equals(name) || name.startsWith(DERIVED_FROM)) {
             removeItemAt(0);
         }
     }
@@ -61,9 +65,20 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
         setUserDefinedPalette(cpd);
     }
 
+    public void reloadPalettes() {
+        setModel(new DefaultComboBoxModel<>(getPalettes()));
+        repaint();
+    }
+
     private void setUserDefinedPalette(ColorPaletteDef userPalette) {
         final String suffix = userPalette.getFirstPoint().getLabel();
-        final ColorPaletteWrapper item = new ColorPaletteWrapper(DERIVED_FROM + " (" + suffix + ")", userPalette);
+        final String name;
+        if (suffix != null && suffix.trim().length() > 0) {
+            name = DERIVED_FROM + " " + suffix.trim();
+        } else {
+            name = UNNAMED;
+        }
+        final ColorPaletteWrapper item = new ColorPaletteWrapper(name, userPalette);
         insertItemAt(item, 0);
         setSelectedIndex(0);
     }
@@ -152,7 +167,10 @@ class ColorPaletteChooser extends JComboBox<ColorPaletteChooser.ColorPaletteWrap
         String name = paletteWrapper.name;
         final ColorPaletteDef cpd;
         if (name.startsWith(DERIVED_FROM)) {
-            name = name.substring(DERIVED_FROM.length() + 2, name.length() - 1).trim();
+            name = name.substring(DERIVED_FROM.length()).trim();
+            if (name.toLowerCase().endsWith(".cpd")) {
+                name = FileUtils.getFilenameWithoutExtension(name);
+            }
             cpd = findColorPalette(name);
         } else {
             cpd = paletteWrapper.cpd;

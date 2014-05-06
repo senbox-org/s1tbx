@@ -77,15 +77,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -550,6 +554,16 @@ public class OperatorContext {
                 nodeElementCount++;
             }
         }
+        final Calendar calendar = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
+        ProductData.UTC procTime = ProductData.UTC.create(calendar.getTime(), 0);
+        if(targetGraphME.containsAttribute("processingTime")) {
+            MetadataAttribute procTimeAttribute = targetGraphME.getAttribute("processingTime");
+            procTimeAttribute.setData(procTime);
+        }else {
+            MetadataAttribute procTimeAttribute = new MetadataAttribute("processingTime", procTime, false);
+            targetGraphME.addAttribute(procTimeAttribute);
+        }
+
         if (contains) {
             return;
         }
@@ -1084,10 +1098,13 @@ public class OperatorContext {
     private void configureOperator(OperatorConfiguration operatorConfiguration)
             throws ValidationException, ConversionException {
 
-        Class<? extends Operator> operatorType = getOperatorSpi().getOperatorDescriptor().getOperatorClass();
+        OperatorDescriptor operatorDescriptor = getOperatorSpi().getOperatorDescriptor();
         ParameterDescriptorFactory descriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        PropertySetDescriptor propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(operatorType, descriptorFactory);
 
+        PropertySetDescriptor propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor,
+                                                                                                     descriptorFactory.getSourceProductMap());
+
+        Class<? extends Operator> operatorType = operatorDescriptor.getOperatorClass();
         DefaultDomConverter domConverter = new DefaultDomConverter(operatorType, descriptorFactory, propertySetDescriptor);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), getParameterSet());
 
