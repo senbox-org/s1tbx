@@ -150,15 +150,16 @@ public class OperatorDoclet extends Doclet {
                     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                     Class<? extends Operator> type = (Class<? extends Operator>) contextClassLoader.loadClass(classDoc.qualifiedTypeName());
                     OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(OperatorSpi.getOperatorAlias(type));
-                    if (operatorSpi == null) {
-                        System.err.printf("No SPI found for operator class '%s'.%n", type.getName());
-                    }
-                    OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-                    if (!operatorDescriptor.isInternal()) {
-                        OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, operatorDescriptor);
-                        operatorHandler.processOperator(operatorDesc);
+                    if (operatorSpi != null) {
+                        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+                        if (!operatorDescriptor.isInternal()) {
+                            OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, operatorDescriptor);
+                            operatorHandler.processOperator(operatorDesc);
+                        } else {
+                            System.err.printf("Warning: Skipping %s because it is internal.%n", classDoc.typeName());
+                        }
                     } else {
-                        System.err.printf("Warning: Skipping %s because it is internal.%n", classDoc.typeName());
+                        System.err.printf("No SPI found for operator class '%s'.%n", type.getName());
                     }
                 } catch (Throwable e) {
                     System.err.println("Error: " + classDoc.typeName() + ": " + e.getMessage());
