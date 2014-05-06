@@ -260,8 +260,7 @@ class CommandLineTool implements GraphProcessingObserver {
         Product targetProduct = operator.getTargetProduct();
 
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        boolean autoWriteDisabled = operator instanceof Output
-                                      || operatorDescriptor.isAutoWriteDisabled();
+        boolean autoWriteDisabled = operator instanceof Output || operatorDescriptor.isAutoWriteDisabled();
         if (autoWriteDisabled) {
             // operator has its own output management, we "execute" by pulling at tiles
             final OperatorExecutor executor = OperatorExecutor.create(operator);
@@ -277,8 +276,8 @@ class CommandLineTool implements GraphProcessingObserver {
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put("operator", operator);
         velocityContext.put("operatorSpi", operatorSpi);
-        velocityContext.put("operatorMetadata", operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class));
-        velocityContext.put("operatorDescriptor", operatorSpi.getOperatorDescriptor());
+        velocityContext.put("operatorMetadata", operatorDescriptor.getOperatorClass().getAnnotation(OperatorMetadata.class));
+        velocityContext.put("operatorDescriptor", operatorDescriptor);
         velocityContext.put("operatorName", operatorName);
         velocityContext.put("parameters", parameters); // Check if we should use parameterMap here (nf)
         velocityContext.put("sourceProduct", sourceProducts.get("sourceProduct"));
