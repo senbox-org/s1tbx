@@ -82,7 +82,7 @@ public class OperatorHandlerConsole implements OperatorHandler {
 
     public  Map<String, String> createElementValueMap(AnnotationDesc annotation) {
         AnnotationDesc.ElementValuePair[] elementValuePairs = annotation.elementValues();
-        Map<String, String> elementValueMap = new HashMap<String, String>();
+        Map<String, String> elementValueMap = new HashMap<>();
         for (AnnotationDesc.ElementValuePair elementValuePair : elementValuePairs) {
             elementValueMap.put(elementValuePair.element().name(), elementValuePair.value().toString());
         }
