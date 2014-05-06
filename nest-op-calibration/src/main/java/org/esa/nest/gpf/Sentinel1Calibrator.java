@@ -315,17 +315,24 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         final String[] targetBandNames = targetProduct.getBandNames();
         final MetadataElement[] children = abs.getElements();
-        for(MetadataElement child : children) {
+        final java.util.List<MetadataElement> childrenList = Arrays.asList(children);
+
+        for(MetadataElement child : childrenList) {
             final String childName = child.getName();
             if(childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
-                final String pol = childName.substring(childName.indexOf("_") + 1);
-                String bandNameArray = "";
-                for (String bandName:targetBandNames) {
-                    if (bandName.contains(pol)) {
-                        bandNameArray += bandName + " ";
+                final String pol = childName.substring(childName.lastIndexOf("_") + 1);
+                final String sw_pol = childName.substring(childName.indexOf("_") + 1);
+                if (selectedPolList.contains(pol)) {
+                    String bandNameArray = "";
+                    for (String bandName:targetBandNames) {
+                        if (bandName.contains(sw_pol)) {
+                            bandNameArray += bandName + " ";
+                        }
                     }
+                    child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
+                } else {
+                    abs.removeElement(child);
                 }
-                child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
             }
         }
     }
