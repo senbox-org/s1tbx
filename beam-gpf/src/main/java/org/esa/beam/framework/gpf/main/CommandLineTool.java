@@ -324,8 +324,7 @@ class CommandLineTool implements GraphProcessingObserver {
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
 
         boolean autoWriteDisabled = false;
-        if (Output.class.isAssignableFrom(operatorSpi.getOperatorClass())
-            || operatorDescriptor != null && operatorDescriptor.isAutoWriteDisabled()) {
+        if (Output.class.isAssignableFrom(operatorDescriptor.getOperatorClass()) || operatorDescriptor.isAutoWriteDisabled()) {
             autoWriteDisabled = true;
         }
 
