@@ -19,7 +19,6 @@ package org.csa.rstb.dat.toolviews;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -32,6 +31,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.toolviews.stat.*;
+import org.esa.nest.dat.utils.Palette;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -48,19 +48,16 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 
 /**
- * The density plot pane within the statistics window.
+ * The H-a Alpha plot pane within the statistics window.
  */
 public class HaAlphaPlotPanel extends ChartPagePanel {
 
-    private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
-            "To create a scatter plot, select bands in both combo boxes.\n" +
+    private static final String NO_DATA_MESSAGE = "This plot requires an H-a Alpha decomposition as input\n" +
             "The plot will be computed when you hit the 'Refresh View' button.\n" +
             HELP_TIP_MESSAGE + "\n" +
             ZOOM_TIP_MESSAGE;
@@ -83,8 +80,6 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     private DataSourceConfig dataSourceConfig;
     private Property xBandProperty;
     private Property yBandProperty;
-    private JComboBox<ListCellRenderer> xBandList;
-    private JComboBox<ListCellRenderer> yBandList;
 
     private static AxisRangeControl[] axisRangeControls = new AxisRangeControl[2];
     private IndexColorModel toggledColorModel;
@@ -145,20 +140,22 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             plot.setImage(null);
             plot.setDataset(null);
             if (isProductChanged()) {
-                plot.getDomainAxis().setLabel("X");
-                plot.getRangeAxis().setLabel("Y");
+                plot.getDomainAxis().setLabel("Entropy");
+                plot.getRangeAxis().setLabel("Alpha");
             }
-            final ValueSet valueSet = new ValueSet(createAvailableBandList());
-            xBandProperty.getDescriptor().setValueSet(valueSet);
-            yBandProperty.getDescriptor().setValueSet(valueSet);
-            toggleColorCheckBox.setEnabled(false);
-            if (valueSet.getItems().length > 0) {
-                RasterDataNode currentRaster = getRaster();
-                try {
-                    xBandProperty.setValue(currentRaster);
-                    yBandProperty.setValue(currentRaster);
-                } catch (ValidationException ignored) {
-                    Debug.trace(ignored);
+            final Product product = getProduct();
+            if(product != null) {
+
+                toggleColorCheckBox.setEnabled(false);
+                Band entropyBand = product.getBand("Entropy");
+                Band alphaBand = product.getBand("Alpha");
+                if(entropyBand != null && alphaBand != null) {
+                    try {
+                        xBandProperty.setValue(entropyBand);
+                        yBandProperty.setValue(alphaBand);
+                    } catch (ValidationException ignored) {
+                        Debug.trace(ignored);
+                    }
                 }
             }
         }
@@ -173,32 +170,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         dataSourceConfig = new DataSourceConfig();
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
 
-        xBandList = new JComboBox<>();
-        xBandList.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value != null) {
-                    this.setText(((RasterDataNode) value).getName());
-                }
-                return this;
-            }
-        });
-        bindingContext.bind(PROPERTY_NAME_X_BAND, xBandList);
         xBandProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_X_BAND);
-
-        yBandList = new JComboBox<>();
-        yBandList.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value != null) {
-                    this.setText(((RasterDataNode) value).getName());
-                }
-                return this;
-            }
-        });
-        bindingContext.bind(PROPERTY_NAME_Y_BAND, yBandList);
         yBandProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_Y_BAND);
     }
 
@@ -213,34 +185,25 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             g[0] = (byte) backgroundColor.getGreen();
             b[0] = (byte) backgroundColor.getBlue();
             a[0] = (byte) backgroundColor.getAlpha();
-            for (int i = 1; i < 128; i++) {
-                if (j == 0) {
-                    r[i] = (byte) (2 * i);
-                    g[i] = (byte) 0;
-                } else {
-                    r[i] = (byte) 255;
-                    g[i] = (byte) (255 - (2 * (i - 128)));
-                }
-                b[i] = (byte) 0;
+
+            final Palette pal = new Palette("Rainbow", new Color[]
+                    {Color.black, Color.blue, Color.cyan, Color.green, Color.yellow, Color.orange, Color.red});
+            for(int i=1; i < 256; ++i) {
+                float value = i/255f;
+                if(j == 0)
+                    value = (255 -i)/255f;
+                Color c = pal.lookupColor(value);
+                r[i] = (byte) c.getRed();
+                g[i] = (byte) c.getGreen();
+                b[i] = (byte) c.getBlue();
                 a[i] = (byte) 255;
             }
-            for (int i = 128; i < 256; i++) {
-                if (j == 0) {
-                    r[i] = (byte) 255;
-                    g[i] = (byte) (2 * (i - 128));
-                } else {
-                    r[i] = (byte) (255 - (2 * i));
-                    g[i] = (byte) 0;
-                }
-                b[i] = (byte) 0;
-                a[i] = (byte) 255;
-            }
+
             if (j == 0) {
                 toggledColorModel = new IndexColorModel(8, palSize, r, g, b, a);
             } else {
                 untoggledColorModel = new IndexColorModel(8, palSize, r, g, b, a);
             }
-
         }
     }
 
@@ -291,12 +254,10 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         final JPanel optionsPanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
         GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
-        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1,insets.left=4,insets.right=2");
         GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2,insets.left=0,insets.right=0");
-        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3,insets.left=4,insets.right=2");
         GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=4");
         GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=5,insets.left=4,insets.right=2");
-        GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6,insets.left=0,insets.right=0");
+        //GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6,insets.left=0,insets.right=0");
         return optionsPanel;
     }
 
@@ -377,16 +338,16 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         }
 
         ProgressMonitorSwingWorker<BufferedImage, Object> swingWorker = new ProgressMonitorSwingWorker<BufferedImage, Object>(
-                this, "Computing scatter plot") {
+                this, "Computing plot") {
 
             @Override
             protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
-                pm.beginTask("Computing scatter plot...", 100);
+                pm.beginTask("Computing plot...", 100);
                 try {
                     checkBandsForRange();
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
-                    final BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
+                    BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
                                                                                                axisRangeControls[X_VAR].getMin().floatValue(),
                                                                                                axisRangeControls[X_VAR].getMax().floatValue(),
                                                                                                rasterY,
@@ -398,6 +359,9 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                                                                                                backgroundColor,
                                                                                                null,
                                                                                                SubProgressMonitor.create(pm, 70));
+
+                    densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
+
                     toggleColorCheckBox.setSelected(false);
                     plotColorsInverted = false;
                     return densityPlotImage;
@@ -417,7 +381,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     double maxY = axisRangeControls[Y_VAR].getMax();
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      "Failed to compute scatter plot.\n" +
+                                                      "Failed to compute plot.\n" +
                                                               "No Pixels considered..",
                                 /*I18N*/
                                 CHART_TITLE, /*I18N*/
@@ -439,13 +403,13 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
                     axisRangeControls[X_VAR].adjustComponents(minX, maxX, NUM_DECIMALS);
                     axisRangeControls[Y_VAR].adjustComponents(minY, maxY, NUM_DECIMALS);
-                    plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "X", false));
-                    plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Y", false));
+                    plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "Entropy", false));
+                    plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Alpha", false));
                     toggleColorCheckBox.setEnabled(true);
                 } catch (InterruptedException | CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
+                                                  "Failed to compute plot.\n" +
                                                           "Calculation canceled.",
                             /*I18N*/
                             CHART_TITLE, /*I18N*/
@@ -453,7 +417,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                 } catch (ExecutionException | IllegalArgumentException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\n" +
+                                                  "Failed to compute plot.\n" +
                                                           "An error occurred:\n" +
                                                           e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
@@ -475,27 +439,6 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             }
             axisRangeControl.adjustComponents(stx.getMinimum(), stx.getMaximum(), NUM_DECIMALS);
         }
-    }
-
-    private RasterDataNode[] createAvailableBandList() {
-        final Product product = getProduct();
-        final List<RasterDataNode> availableBandList = new ArrayList<>(17);
-        if (product != null) {
-            for (int i = 0; i < product.getNumBands(); i++) {
-                availableBandList.add(product.getBandAt(i));
-            }
-            for (int i = 0; i < product.getNumTiePointGrids(); i++) {
-                availableBandList.add(product.getTiePointGridAt(i));
-            }
-        }
-        // if raster is only bound to the product and does not belong to it
-        final RasterDataNode raster = getRaster();
-        if (raster != null && raster.getProduct() == product) {
-            if (!availableBandList.contains(raster)) {
-                availableBandList.add(raster);
-            }
-        }
-        return availableBandList.toArray(new RasterDataNode[availableBandList.size()]);
     }
 
     @Override

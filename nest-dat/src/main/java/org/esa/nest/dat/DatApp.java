@@ -328,20 +328,12 @@ public class DatApp extends VisatApp {
 
     @Override
     protected HashSet<String> getExcludedToolbars() {
-        final HashSet<String> excludedIds = new HashSet<String>(8);
-        // todo - remove bad forward dependencies to tool views (nf - 30.10.2008)
-        excludedIds.add(TileCacheDiagnosisToolView.ID);
-        excludedIds.add(InformationToolView.ID);
-        excludedIds.add(GeoCodingToolView.ID);
-        excludedIds.add(StatisticsToolView.ID);
-        excludedIds.add(HistogramPlotToolView.ID);
-        excludedIds.add(ScatterPlotToolView.ID);
-        excludedIds.add(DensityPlotToolView.ID);
-        excludedIds.add(ProfilePlotToolView.ID);
-        excludedIds.add("org.esa.beam.scripting.visat.ScriptConsoleToolView");
+        final HashSet<String> excludedIds = super.getExcludedToolbars();
+
         excludedIds.add("org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView");
         excludedIds.add("org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView");
+        excludedIds.add("org.csa.rstb.dat.toolviews.HaAlphaPlotToolView");
 
         return excludedIds;
     }
@@ -409,7 +401,8 @@ public class DatApp extends VisatApp {
                 HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
                 DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX));
+                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX));
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
@@ -466,7 +459,7 @@ public class DatApp extends VisatApp {
         final CommandBar toolBar = super.createAnalysisToolBar();
 
         addCommandsToToolBar(toolBar, new String[]{
-                "editMetadata"
+                "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX
         });
         return toolBar;
     }
