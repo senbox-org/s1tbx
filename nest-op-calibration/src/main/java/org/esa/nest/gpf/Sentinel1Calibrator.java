@@ -315,9 +315,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         final String[] targetBandNames = targetProduct.getBandNames();
         final MetadataElement[] children = abs.getElements();
-        final java.util.List<MetadataElement> childrenList = Arrays.asList(children);
-
-        for(MetadataElement child : childrenList) {
+        for(MetadataElement child : children) {
             final String childName = child.getName();
             if(childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
                 final String pol = childName.substring(childName.lastIndexOf("_") + 1);
