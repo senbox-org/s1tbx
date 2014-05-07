@@ -113,20 +113,27 @@ Examples
 
 ### BEAM Java API Usage
 
-The examples for the API usage are simple data processors that compute an output product from an input product.
+The examples for the API usage are simple tools that compute an output product from an input product.
+You can download an Envisat MERIS test files used as input from the
+[BEAM home page](http://www.brockmann-consult.de/cms/web/beam/meris-products)
+and rename it to `MER_RR__1P.N1` and `MER_RR__2P.N1` in order to run the example code.
 
 Computing a Fluorescence Line Height (FLH) product from water-leaving reflectances:
 
-    > python beampy_flh.py `MER_RR__2P.N1`
+    > python beampy_flh.py MER_RR__2P.N1
 
 Computing a Normalized Difference Vegetation Index (NDVI) product from top-of-atmosphere radiances:
 
-    > python beampy_ndvi.py `MER_RR__1P.N1`
-    > python beampy_ndvi_with_masks.py `MER_RR__1P.N1`
+    > python beampy_ndvi.py MER_RR__1P.N1
+    > python beampy_ndvi_with_masks.py MER_RR__1P.N1
 
 Performing arbitrary band maths:
 
-    > python beampy_bmaths.py `MER_RR__1P.N1`
+    > python beampy_bmaths.py MER_RR__1P.N1
+
+Tailoring any input product to a spatial subset:
+
+    > python beampy_subset.py MER_RR__2P.N1 "POLYGON((15.786082 45.30223, 11.798364 46.118263, 10.878688 43.61961, 14.722727 42.85818, 15.786082 45.30223))"
 
 
 There are many more possibilities using the BEAM API. Actually all Java classes of the BEAM API can be used.
