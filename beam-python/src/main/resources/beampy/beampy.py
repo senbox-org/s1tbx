@@ -71,10 +71,12 @@ def _create_classpath(searchpath):
 
 def _get_jvm_options():
     global beam_home, searchpath, classpath, extra_classpath, max_mem, options, extra_options
+
     beam_home = config.get('DEFAULT', 'beam_home',
                            fallback=os.getenv('BEAM_HOME',
                                               os.getenv('BEAM4_HOME',
                                                         os.getenv('BEAM5_HOME'))))
+
     if beam_home is None or not os.path.exists(beam_home):
         raise RuntimeError('environment variable "BEAM_HOME" must be set to a valid BEAM installation directory')
 
@@ -82,16 +84,20 @@ def _get_jvm_options():
     #import pprint
     searchpath = _get_beam_jar_locations()
     #pprint.pprint(searchpath)
+
     classpath = _create_classpath(searchpath)
+
     extra_classpath = config.get('DEFAULT', 'extra_classpath', fallback=None)
     if extra_classpath:
         classpath += extra_classpath.split(sep=os.pathsep)
-
     #pprint.pprint(classpath)
+
     max_mem = config.get('DEFAULT', 'max_mem', fallback='512M')
+
     options = ['-Djava.awt.headless=true',
                '-Djava.class.path=' + os.pathsep.join(classpath), 
                '-Xmx' + max_mem]
+
     extra_options = config.get('DEFAULT', 'extra_options', fallback=None)
     if extra_options:
         options += extra_options.split(sep='|')
@@ -168,11 +174,6 @@ try:
     GPF = jpy.get_type('org.esa.beam.framework.gpf.GPF')
     Operator = jpy.get_type('org.esa.beam.framework.gpf.Operator')
     Tile = jpy.get_type('org.esa.beam.framework.gpf.Tile')
-
-    #SubsetOp = jpy.get_type('org.esa.beam.gpf.operators.standard.SubsetOp')
-    #JtsGeometryConverter = jpy.get_type('org.esa.beam.util.converters.JtsGeometryConverter')
-
-
 
 except Exception:
     jpy.destroy_jvm()

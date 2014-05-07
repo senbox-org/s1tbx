@@ -10,12 +10,12 @@ if len(sys.argv) != 2:
 
 file = sys.argv[1]
 
-product     = ProductIO.readProduct(file)
-width       = product.getSceneRasterWidth()
-height      = product.getSceneRasterHeight()
-name        = product.getName()
+product = ProductIO.readProduct(file)
+width = product.getSceneRasterWidth()
+height = product.getSceneRasterHeight()
+name = product.getName()
 description = product.getDescription()
-band_names  = product.getBandNames()
+band_names = product.getBandNames()
 
 print("Product: %s, %d x %d pixels, %s" % (name, width, height, description))
 print("Bands:   %s" % (band_names))
