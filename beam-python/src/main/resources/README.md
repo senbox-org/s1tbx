@@ -64,7 +64,8 @@ Testing the `beampy` installation
 
 When `beampy` is imported into your Python script or module, it will scan a BEAM installation for the available
 BEAM API components. For this purpose, `beampy` needs to know where the BEAM installation is located. It can either be
-configured via the environment variables `BEAM_HOME` or `BEAM5_HOME` or by using a dedicated *INI file* as described below.
+configured via the environment variables `BEAM_HOME` or `BEAM5_HOME` or by using a dedicated *INI file* as described
+below.
 
 ### Darwin / Linux:
 
@@ -77,6 +78,8 @@ configured via the environment variables `BEAM_HOME` or `BEAM5_HOME` or by using
     > export BEAM_HOME=<path to your BEAM 5 installation>
     > python
     >>> import beampy
+
+If the import is successful (no errors are raised)
 
 
 `beampy` Configuration
