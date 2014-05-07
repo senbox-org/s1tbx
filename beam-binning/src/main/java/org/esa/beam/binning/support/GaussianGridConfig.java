@@ -85,9 +85,10 @@ public class GaussianGridConfig {
     }
 
     static double[] computeLongitudePoints(int columnCount) {
-        double[] longitudePoints = new double[columnCount];
+        final double[] longitudePoints = new double[columnCount];
+        final double delta = 360.0 / columnCount;
         for (int i = 0; i < longitudePoints.length; i++) {
-            longitudePoints[i] = (i + 0.5) * (360.0 / columnCount) - 180.0;
+            longitudePoints[i] = i * delta;
         }
         return longitudePoints;
     }

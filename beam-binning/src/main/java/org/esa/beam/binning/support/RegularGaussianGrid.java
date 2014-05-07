@@ -1,26 +1,25 @@
 package org.esa.beam.binning.support;
 
-import org.esa.beam.binning.PlanetaryGrid;
-
-import java.io.IOException;
-
 /**
- * Implementation of a regular gaussian grid. It is often used in the climate modelling community.
+ * Implementation of a regular gaussian grid.
  * <p/>
- * The grid points of a gaussian grid along each latitude are equally spaced. This means that the distance in degree
- * between two adjacent longitudes is the same.
- * Along the longitudes the grid points are not equally spaced. The distance varies along the meridian.
- * There are two types of the gaussian grid. The regular and the reduced grid.
- * While the regular grid has for each grid row the same number of columns, the number of columns varies in the reduced
- * grid type.
+ * A gaussian grid is a latitude/longitude grid. The spacing of the latitudes is not regular.
+ * However, the spacing of the lines of latitude is symmetrical about the Equator. Note that
+ * there is no latitude at either Pole or at the Equator. A grid is usually referred to by its
+ * 'number' N, which is the number of lines of latitude between a Pole and the Equator.
+ * <p/>
+ * The longitudes of the grid points are defined by giving the number of points along each
+ * line of latitude. The first point is at longitude 0 and the points are equally spaced along
+ * the line of latitude. In a regular gaussian grid, the number of longitude points along a
+ * latitude is 4N. In a reduced gaussian grid, the number of longitude points along a latitude
+ * is specified. Latitudes may have differing numbers of points but the grid is symmetrical
+ * about the Equator.
  *
  * @author Marco Peters
+ * @author Ralf Quast
  * @see ReducedGaussianGrid
  */
-public class RegularGaussianGrid implements PlanetaryGrid {
-
-    private final GaussianGridConfig config;
-    private final int numRows;
+public final class RegularGaussianGrid extends AbstractGaussianGrid {
 
     /**
      * Creates a new regular gaussian grid.
@@ -28,90 +27,32 @@ public class RegularGaussianGrid implements PlanetaryGrid {
      * @param numRows the number of rows of the grid (from pole to pole)
      */
     public RegularGaussianGrid(int numRows) {
-        this.numRows = numRows;
-        try {
-            config = GaussianGridConfig.load(numRows / 2);
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not create gaussian grid: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long getBinIndex(double lat, double lon) {
-        int rowIndex = findClosestInArray(config.getLatitudePoints(), lat);
-        int colIndex = findClosestInArray(config.getRegularLongitudePoints(), lon);
-        return getFirstBinIndex(rowIndex) + colIndex;
+        super(numRows);
     }
 
     @Override
     public int getRowIndex(long binIndex) {
-        return (int) (binIndex / (config.getRegularColumnCount()));
+        return (int) (binIndex / getConfig().getRegularColumnCount());
     }
 
     @Override
     public long getNumBins() {
-        return getNumRows() * config.getRegularColumnCount();
+        return getNumRows() * getConfig().getRegularColumnCount();
     }
 
     @Override
-    public int getNumRows() {
-        return numRows;
-    }
-
-    @Override
-    public int getNumCols(int rowIndex) {
-        validateRowIndex(rowIndex);
-        return config.getRegularColumnCount();
-    }
-
-    @Override
-    public long getFirstBinIndex(int rowIndex) {
-        validateRowIndex(rowIndex);
+    protected long getFirstBinIndexUnchecked(int rowIndex) {
         return rowIndex * getNumCols(rowIndex);
     }
 
     @Override
-    public double getCenterLat(int rowIndex) {
-        validateRowIndex(rowIndex);
-        return config.getLatitude(rowIndex);
+    protected int getNumColsUnchecked(int rowIndex) {
+        return getConfig().getRegularColumnCount();
     }
 
     @Override
-    public double[] getCenterLatLon(long bin) {
-        int row = getRowIndex(bin);
-        int col = getColumnIndex(bin);
-        double latitude = getCenterLat(row);
-        double longitude = config.getRegularLongitudePoints()[col];
-
-        return new double[]{latitude, longitude};
-    }
-
-    private void validateRowIndex(int rowIndex) {
-        int maxRowIndex = getNumRows() - 1;
-        if (rowIndex > maxRowIndex) {
-            String msg = String.format("Invalid row index. Maximum allowed is %d, but was %d.", maxRowIndex, rowIndex);
-            throw new IllegalArgumentException(msg);
-        }
-    }
-
-    static int findClosestInArray(double[] array, double value) {
-        double dist = Double.NaN;
-        for (int i = 0; i < array.length; i++) {
-            double arrayValue = array[i];
-            double currentDist = Math.abs(arrayValue - value);
-            if (currentDist > dist) {
-                return i - 1; // previous in array
-            }
-            dist = currentDist;
-        }
-        // if not yet found it is the last one
-        return array.length - 1;
-    }
-
-    private int getColumnIndex(long bin) {
-        int rowIndex = getRowIndex(bin);
-        long firstBinIndex = getFirstBinIndex(rowIndex);
-        return (int) (bin - firstBinIndex);
+    protected double getCenterLon(int rowIndex, int colIndex) {
+        return getConfig().getRegularLongitudePoints()[colIndex];
     }
 
 }
