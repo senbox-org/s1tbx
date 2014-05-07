@@ -27,7 +27,8 @@ config.read(['./beampy.ini', os.path.join(module_dir, 'beampy.ini')])
 
 debug = config.getboolean('DEFAULT', 'debug', fallback=False)
 
-# todo - determine path to JVM shared library and extend PATH / LD_LIBRARY_PATH env vars so that jpy can load it
+# todo - find a way to determine path to JVM shared library and extend PATH / LD_LIBRARY_PATH env vars so that jpy
+# can load it without any further configuration
 
 import jpy
 
