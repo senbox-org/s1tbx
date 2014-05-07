@@ -36,7 +36,7 @@
         <ceres.version>0.14-SNAPSHOT</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.5.3</jide.version>
-        <jpy.version>0.7-SNAPSHOT</jpy.version>
+        <jpy.version>0.7</jpy.version>
         <jide.version>3.5.3</jide.version>
     </properties>
 
