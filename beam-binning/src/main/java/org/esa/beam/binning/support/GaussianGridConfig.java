@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author Marco Peters
  */
-public class GaussianGridConfig {
+class GaussianGridConfig {
 
     private static final int[] ALLOWED_ROW_COUNTS = new int[]{32, 48, 80, 128, 160, 200, 256, 320, 400, 512, 640};
 
@@ -24,7 +24,7 @@ public class GaussianGridConfig {
     private int regularColumnCount;
     private double[] latitudePoints;
 
-    public static GaussianGridConfig load(int rowCount) throws IOException {
+    static GaussianGridConfig load(int rowCount) throws IOException {
         if (Arrays.binarySearch(ALLOWED_ROW_COUNTS, rowCount) < 0) {
             String msg = String.format("Invalid rowCount. Must be one of {%s}, but is %d",
                                        StringUtils.arrayToCsv(ALLOWED_ROW_COUNTS), rowCount);
@@ -56,31 +56,31 @@ public class GaussianGridConfig {
     private GaussianGridConfig() {
     }
 
-    public int getRegularColumnCount() {
+    int getRegularColumnCount() {
         return regularColumnCount;
     }
 
-    public double[] getRegularLongitudePoints() {
+    double[] getRegularLongitudePoints() {
         return regularLongitudePoints;
     }
 
-    public int getReducedColumnCount(int rowIndex) {
+    int getReducedColumnCount(int rowIndex) {
         return reducedColumnCount[rowIndex];
     }
 
-    public double[] getReducedLongitudePoints(int rowIndex) {
+    double[] getReducedLongitudePoints(int rowIndex) {
         return reducedLongitudePoints.get(rowIndex);
     }
 
-    public int getReducedFirstBinIndex(int rowIndex) {
+    int getReducedFirstBinIndex(int rowIndex) {
         return reducedFirstBinIndexes[rowIndex];
     }
 
-    public double getLatitude(int row) {
+    double getLatitude(int row) {
         return latitudePoints[row];
     }
 
-    public double[] getLatitudePoints() {
+    double[] getLatitudePoints() {
         return latitudePoints;
     }
 
