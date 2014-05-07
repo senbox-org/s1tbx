@@ -133,7 +133,7 @@ public class Band extends AbstractBand {
     /**
      * Gets the sample coding.
      *
-     * @return the sample coding, or {@value null} if not set.
+     * @return the sample coding, or {@code null} if not set.
      */
     public SampleCoding getSampleCoding() {
         return sampleCoding;
