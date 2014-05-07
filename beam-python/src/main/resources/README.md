@@ -13,20 +13,21 @@ example code in
 1. `beampy-examples` for using the BEAM Java API from Python, and
 2. `beampy-operator-example` for extending BEAM by an operator plugin.
 
-The link from Python to the BEAM Java API is established via a Python module named `beampy`. The `beampy` module
+The link from Python to the BEAM Java API is established via a Python module named *beampy*. The beampy module
 depends on a *bi-directional* Java-Python bridge that enables calls from Python into a Java virtual machine
 and, at the same time, the other way round. This bridge is implemented by the [jpy Project](https://github.com/bcdev/jpy)
-and is independent from `beampy` module.
+and is independent from the beampy module.
 
 Before you can start using the BEAM API or developing BEAM operator plugins with Python you need
-to install `jpy` and `beampy`. Unfortunately this has to be done manually, so be prepared to invest half an hour or so
-for setting things up correctly.
+to install jpy and beampy. Unfortunately this has to be done manually, so be prepared to invest at least half an hour
+for setting up things correctly.
 
 
-Set-up
-------
+Installation
+------------
 
 You will need the following software development tools:
+
 * [Python 3.3](http://www.python.org/) or higher
 * [numpy](http://www.numpy.org/), for Python 3.3 (required for the examples)
 * [git](http://git-scm.com/)
@@ -36,11 +37,11 @@ You will need the following software development tools:
 * For Darwin: [Xcode 5](https://itunes.apple.com/de/app/xcode/id497799835?mt=12), or higher
 * For Linux: gcc
 
-Clone or download the `jpy` repository from it's GitHub home
+Clone or download the jpy repository from it's GitHub home
 
     > git clone https://github.com/bcdev/jpy.git
 
-and follow the steps described in the `jpy`'s [`README.md`](https://github.com/bcdev/jpy/blob/master/README.md).
+and follow the steps described in the jpy's [`README.md`](https://github.com/bcdev/jpy/blob/master/README.md).
 
 If you encounter any problems during set-up please do not hesitate to contact the
 [BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
@@ -59,11 +60,11 @@ After successful installation of `jpy`, you will need to install `beampy`.
     > cd %BEAM_HOME%\modules\beam-python\beampy
     > python setup.py install
 
-Testing the `beampy` installation
----------------------------------
+Testing
+-------
 
-When `beampy` is imported into your Python script or module, it will scan a BEAM installation for the available
-BEAM API components. For this purpose, `beampy` needs to know where the BEAM installation is located. It can either be
+When beampy is imported into your Python script or module, it will scan a BEAM installation for the available
+BEAM API components. For this purpose, beampy needs to know where the BEAM installation is located. It can either be
 configured via the environment variables `BEAM_HOME` or `BEAM5_HOME` or by using a dedicated *INI file* as described
 below.
 
@@ -79,11 +80,21 @@ below.
     > python
     >>> import beampy
 
-If the import is successful (no errors are raised)
+If the import is successful (no errors are raised). There are a some test cases in the `beampy` directory.
+They all require an EO data product file as input named `MER_RR__1P.N1`, which is an Envisat MERIS L1b product.
+You can download an Envisat MERIS L1b test file from the
+[BEAM home page](http://www.brockmann-consult.de/cms/web/beam/meris-products)
+and rename it to `MER_RR__1P.N1` in order to run the tests.
 
+    > python beampy_mem_test.py
+    > python beampy_perf_test.py
+    > python beampy_product_test.py
 
-`beampy` Configuration
-----------------------
+Please note that the BEAM API is actually independent of specific data formats, the MERIS file in this case
+is only used as an example and for testing.
+
+Configuration
+-------------
 
 `beampy` can be configured by an *INI file* `beampy.ini`. This file is read from the current working directory
 or from the system-dependent location from which the installed Python `beampy` module is loaded from.
@@ -96,3 +107,55 @@ Given here is an example of its content (Windows):
     max_mem: 8G
     debug: True
 
+Examples
+--------
+
+
+### BEAM Java API Usage
+
+The examples for the API usage are simple data processors that compute an output product from an input product.
+
+Computing a Fluorescence Line Height (FLH) product from water-leaving reflectances:
+
+    > python beampy_flh.py `MER_RR__2P.N1`
+
+Computing a Normalized Difference Vegetation Index (NDVI) product from top-of-atmosphere radiances:
+
+    > python beampy_ndvi.py `MER_RR__1P.N1`
+    > python beampy_ndvi_with_masks.py `MER_RR__1P.N1`
+
+Performing arbitrary band maths:
+
+    > python beampy_bmaths.py `MER_RR__1P.N1`
+
+
+There are many more possibilities using the BEAM API. Actually all Java classes of the BEAM API can be used.
+As the BEAM API can be used from Python in a similar ways as from Java, all of the Java API documentation applies as well.
+Please check:
+
+* [BEAM API Documentation](http://www.brockmann-consult.de/beam/doc/apidocs/index.html)
+* [BEAM Programming Tutorial](http://www.brockmann-consult.de/beam-wiki/display/BEAM/BEAM+4+Programming+Tutorial)
+
+
+### BEAM Operator Plugin
+
+The directory `beampy-operator-example` represents an NDVI operator plugin for BEAM. In order to activate it in BEAM
+copy it to the BEAM `modules` directory and start VISAT. You will find a new entry *Python NDVI Operator...*
+in VISAT's Processing menu. It will also be available from BEAM's `gpt` command-line tool.
+
+Note that running Python operator plugins requires the environment variable `BEAM_HOME` to be accessible by VISAT
+and the `gpt` command-line tool.
+
+You can use the directory `beampy-operator-example` as a template for new Python data processors. You can also
+add new Python code directly to it. In this case
+
+* create a new `beampy-operator-example/<your_operator>.py` (e.g. by copying the existing `ndvi_op.py`),
+* create a new `beampy-operator-example/<your_operator>-info.xml` (e.g. by copying the existing `ndvi_op-info.py`) and
+* register *<your_operator>* in `beampy-operator-example/META-INF/services/beampy-operators`.
+
+Of course you will need to adapt the contents of the files accordingly.
+
+Again, please don't hesitate to contact the
+[BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
+
+*Have fun!*
