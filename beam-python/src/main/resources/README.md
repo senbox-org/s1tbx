@@ -6,7 +6,9 @@ The `beam-python` module enables Python developers to
 1. use the BEAM Java API from Python, and to
 2. extend BEAM by *operator plug-ins* for EO data processing written in the Python programming language.
 
-Before you read further you may have a look at the example code in
+It is worth mentioning that the `beam-python` module works with the standard *CPython*, so that any native
+Python extension modules such as `numpy` and `scipy` can be used. Before you read further you may have a look at the
+example code in
 
 1. `beampy-examples` for using the BEAM Java API from Python, and
 2. `beampy-operator-example` for extending BEAM by an operator plugin.
