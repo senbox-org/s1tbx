@@ -47,14 +47,14 @@ After successful installation of `jpy`, you will need to install `beampy`.
 
 ### Darwin / Linux:
 
-    > cd $BEAM_HOME/modules/beam-python/beampy
     > export BEAM_HOME=<path to your BEAM 5 installation>
+    > cd $BEAM_HOME/modules/beam-python/beampy
     > python3 setup.py install --user
 
 ### Windows:
 
-    > cd %BEAM_HOME%\modules\beam-python\beampy
     > SET BEAM_HOME=<path to your BEAM 5 installation>
+    > cd %BEAM_HOME%\modules\beam-python\beampy
     > python setup.py install
 
 Testing the `beampy` installation
