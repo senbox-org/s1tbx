@@ -1800,25 +1800,6 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="beam_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.7.0_51" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
-      <excludedLaunchers />
-      <excludedBeans />
-      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude>
-        <entry location="bin/beam-cli.sh" fileType="regular" />
-        <entry location="bin/gpt.sh" fileType="regular" />
-        <entry location="bin/pconvert.sh" fileType="regular" />
-        <entry location="bin/visat-d.sh" fileType="regular" />
-        <entry location="bin/detect_java.sh" fileType="regular" />
-      </exclude>
-      <variables />
-      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
-        <commentFiles />
-        <customAttributes />
-      </autoUpdate>
-      <excludedComponents />
-      <includedDownloadableComponents />
-    </windows>
     <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="beam_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.7.0_51" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
@@ -1838,16 +1819,35 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </windows>
-    <macosFolder name="Mac OS X Folder" id="126" customizedId="" mediaFileName="beam_${compiler:sys.version}_mac_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="1" downloadURL="" signLaunchers="false">
+    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="beam_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.7.0_51" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
+        <entry location="bin/beam-cli.sh" fileType="regular" />
+        <entry location="bin/gpt.sh" fileType="regular" />
+        <entry location="bin/pconvert.sh" fileType="regular" />
+        <entry location="bin/visat-d.sh" fileType="regular" />
+        <entry location="bin/detect_java.sh" fileType="regular" />
+      </exclude>
+      <variables />
+      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+        <commentFiles />
+        <customAttributes />
+      </autoUpdate>
+      <excludedComponents />
+      <includedDownloadableComponents />
+    </windows>
+    <macosFolder name="Mac OS X Folder JRE" id="5009" customizedId="" mediaFileName="beam_${compiler:sys.version}_mac_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.7.0_51" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="1" downloadURL="" signLaunchers="false">
+      <excludedLaunchers />
+      <excludedBeans />
+      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
+      <exclude>
+        <entry location="beam-website.url" fileType="regular" />
         <entry location="bin/beam-cli.bat" fileType="regular" />
         <entry location="bin/gpt.bat" fileType="regular" />
         <entry location="bin/pconvert.bat" fileType="regular" />
         <entry location="bin/visat-d.bat" fileType="regular" />
-        <entry location="beam-website.url" fileType="regular" />
       </exclude>
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
@@ -1881,49 +1881,6 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <macosFolder name="Mac OS X Folder JRE" id="5009" customizedId="" mediaFileName="beam_${compiler:sys.version}_mac_jre_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.7.0_51" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="1" downloadURL="" signLaunchers="false">
-      <excludedLaunchers />
-      <excludedBeans />
-      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude>
-        <entry location="beam-website.url" fileType="regular" />
-        <entry location="bin/beam-cli.bat" fileType="regular" />
-        <entry location="bin/gpt.bat" fileType="regular" />
-        <entry location="bin/pconvert.bat" fileType="regular" />
-        <entry location="bin/visat-d.bat" fileType="regular" />
-      </exclude>
-      <variables />
-      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
-        <commentFiles />
-        <customAttributes />
-      </autoUpdate>
-      <excludedComponents />
-      <includedDownloadableComponents />
-    </macosFolder>
-    <macos name="Mac OS X Single Bundle JRE" id="5021" customizedId="" mediaFileName="beam_${compiler:sys.version}_mac_sb_installer" installDir="beam" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.7.0_51" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="1" downloadURL="" signLaunchers="false" launcherId="19">
-      <excludedBeans />
-      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude />
-      <variables />
-      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
-        <commentFiles />
-        <customAttributes />
-      </autoUpdate>
-      <excludedComponents />
-      <includedDownloadableComponents />
-    </macos>
-    <macos name="Mac OS X Single Bundle" id="5024" customizedId="" mediaFileName="beam_${compiler:sys.version}_mac_sb_nojre_installer" installDir="beam" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="1" downloadURL="" signLaunchers="false" launcherId="19">
-      <excludedBeans />
-      <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude />
-      <variables />
-      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
-        <commentFiles />
-        <customAttributes />
-      </autoUpdate>
-      <excludedComponents />
-      <includedDownloadableComponents />
-    </macos>
   </mediaSets>
   <buildIds buildAll="true">
     <mediaSet refId="4707" />
