@@ -68,6 +68,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     private double targetDeltaSlantRangeTime = 0;
 
     private SubSwathInfo[] subSwath = null;
+    private boolean absoluteCalibrationPerformed = false;
+    private boolean inputSigmaBand = false;
+    private boolean inputBetaBand = false;
+    private boolean inputGammaBand = false;
+    private boolean inputDNBand = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -95,7 +100,13 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         try {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
+            getMission();
+
+            getProductType();
+
             getAcquisitionMode();
+
+            getCalibrationFlag();
 
             if(selectedPolarisations == null || selectedPolarisations.length == 0) {
                 selectedPolarisations = getProductPolarizations(absRoot);
@@ -121,6 +132,29 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    /**
+     * Get product mission from abstracted metadata.
+     */
+    private void getMission() {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        if(!mission.equals("SENTINEL-1A")) {
+            throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
+        }
+    }
+
+    /**
+     * Get product type from abstracted metadata.
+     */
+    private void getProductType() {
+        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        if(!productType.equals("SLC")) {
+            throw new OperatorException(productType + " is not a SLC product");
+        }
+    }
+
+    /**
+     * Get acquisition mode from abstracted metadata.
+     */
     private void getAcquisitionMode() {
 
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
@@ -137,6 +171,35 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    /**
+     * Get calibration flag from abstract metadata.
+     */
+    private void getCalibrationFlag() {
+
+        absoluteCalibrationPerformed =
+                absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean();
+
+        if (absoluteCalibrationPerformed) {
+            final String[] sourceBandNames = sourceProduct.getBandNames();
+            for (String bandName:sourceBandNames) {
+                if (bandName.contains("Sigma0")) {
+                    inputSigmaBand = true;
+                } else if (bandName.contains("Gamma0")) {
+                    inputGammaBand = true;
+                } else if (bandName.contains("Beta0")) {
+                    inputBetaBand = true;
+                } else if (bandName.contains("DN")) {
+                    inputDNBand = true;
+                }
+            }
+        }
+    }
+
+    /**
+     * Get source product polarizations.
+     * @param absRoot Root element of the abstracted metadata of the source product.
+     * @return The polarization array.
+     */
     public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
         String swath = absRoot.getAttributeString(AbstractMetadata.SWATH);
@@ -157,6 +220,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         return polarizations.toArray(new String[polarizations.size()]);
     }
 
+    /**
+     * Get parameters needed for deburst for each sub-swath.
+     */
     private void getSubSwathParameters() {
 
         subSwath = new SubSwathInfo[numOfSubSwath];
@@ -168,6 +234,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    /**
+     * Get root metadata element of given sub-swath.
+     * @param subSwathName Sub-swath name string.
+     * @return The root metadata element.
+     */
     private MetadataElement getSubSwathMetadata(final String subSwathName) {
 
         final MetadataElement root = sourceProduct.getMetadataRoot();
@@ -192,6 +263,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         return null;
     }
 
+    /**
+     * Get sub-swath parameters and save them in SubSwathInfo object.
+     * @param subSwathMetadata The root metadata element of a given sub-swath.
+     * @param subSwath The SubSwathInfo object.
+     */
     private static void setParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
 
         final MetadataElement product = subSwathMetadata.getElement("product");
@@ -203,17 +279,18 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
         subSwath.firstLineTime = Sentinel1Utils.getTime(imageInformation, "productFirstLineUtcTime").getMJD();
         subSwath.lastLineTime = Sentinel1Utils.getTime(imageInformation, "productLastLineUtcTime").getMJD();
-        subSwath.numOfSamples = imageInformation.getAttributeInt("numberOfSamples");
-        subSwath.numOfLines = imageInformation.getAttributeInt("numberOfLines");
-        subSwath.azimuthTimeInterval = imageInformation.getAttributeDouble("azimuthTimeInterval")/Constants.secondsInDay; // s to day
-        subSwath.rangePixelSpacing = imageInformation.getAttributeDouble("rangePixelSpacing");
-        subSwath.slrTimeToFirstPixel = imageInformation.getAttributeDouble("slantRangeTime")/2.0; // 2-way to 1-way
+        subSwath.numOfSamples = Integer.parseInt(imageInformation.getAttributeString("numberOfSamples"));
+        subSwath.numOfLines = Integer.parseInt(imageInformation.getAttributeString("numberOfLines"));
+        subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval")) /
+                Constants.secondsInDay; // s to day
+        subSwath.rangePixelSpacing = Double.parseDouble(imageInformation.getAttributeString("rangePixelSpacing"));
+        subSwath.slrTimeToFirstPixel = Double.parseDouble(imageInformation.getAttributeString("slantRangeTime")) / 2.0; // 2-way to 1-way
         subSwath.slrTimeToLastPixel = subSwath.slrTimeToFirstPixel +
                 (subSwath.numOfSamples - 1)*subSwath.rangePixelSpacing/Constants.lightSpeed;
 
-        subSwath.numOfBursts = burstList.getAttributeInt("count");
-        subSwath.linesPerBurst = swathTiming.getAttributeInt("linesPerBurst");
-        subSwath.samplesPerBurst = swathTiming.getAttributeInt("samplesPerBurst");
+        subSwath.numOfBursts = Integer.parseInt(burstList.getAttributeString("count"));
+        subSwath.linesPerBurst = Integer.parseInt(swathTiming.getAttributeString("linesPerBurst"));
+        subSwath.samplesPerBurst = Integer.parseInt(swathTiming.getAttributeString("samplesPerBurst"));
         subSwath.burstFirstLineTime = new double[subSwath.numOfBursts];
         subSwath.burstLastLineTime = new double[subSwath.numOfBursts];
         subSwath.firstValidSample = new int[subSwath.numOfBursts][];
@@ -234,15 +311,15 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         // get geolocation grid points
         final MetadataElement geolocationGrid = product.getElement("geolocationGrid");
         final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");
-        final int numOfGeoLocationGridPoints = geolocationGridPointList.getAttributeInt("count");
+        final int numOfGeoLocationGridPoints = Integer.parseInt(geolocationGridPointList.getAttributeString("count"));
         final MetadataElement[] geolocationGridPointListElem = geolocationGridPointList.getElements();
         int numOfGeoPointsPerLine = 0;
         int line = 0;
         for (MetadataElement listElem : geolocationGridPointListElem) {
             if (numOfGeoPointsPerLine == 0) {
-                line = listElem.getAttributeInt("line");
+                line = Integer.parseInt(listElem.getAttributeString("line"));
                 numOfGeoPointsPerLine++;
-            } else if (line == listElem.getAttributeInt("line")) {
+            } else if (line == Integer.parseInt(listElem.getAttributeString("line"))) {
                 numOfGeoPointsPerLine++;
             } else {
                 break;
@@ -262,14 +339,17 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final int i = k / numOfGeoPointsPerLine;
             final int j = k - i*numOfGeoPointsPerLine;
             subSwath.azimuthTime[i][j] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
-            subSwath.slantRangeTime[i][j] = listElem.getAttributeDouble("slantRangeTime")/2.0;
-            subSwath.latitude[i][j] = listElem.getAttributeDouble("latitude");
-            subSwath.longitude[i][j] = listElem.getAttributeDouble("longitude");
-            subSwath.incidenceAngle[i][j] = listElem.getAttributeDouble("incidenceAngle");
+            subSwath.slantRangeTime[i][j] = Double.parseDouble(listElem.getAttributeString("slantRangeTime"))/2.0;
+            subSwath.latitude[i][j] = Double.parseDouble(listElem.getAttributeString("latitude"));
+            subSwath.longitude[i][j] = Double.parseDouble(listElem.getAttributeString("longitude"));
+            subSwath.incidenceAngle[i][j] = Double.parseDouble(listElem.getAttributeString("incidenceAngle"));
             k++;
         }
     }
 
+    /**
+     * Get noise vectors for all sub-swathes.
+     */
     private void getSubSwathNoiseVectors() {
 
         for (int i = 0; i < numOfSubSwath; i++) {
@@ -283,6 +363,12 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    /**
+     * Get source band for given sub-swath and polarization.
+     * @param subSwathName Sub-swath name string.
+     * @param polarization Polarization string.
+     * @return The band.
+     */
     private Band getSourceBand(final String subSwathName, final String polarization) {
 
         final Band[] sourceBands = sourceProduct.getBands();
@@ -294,6 +380,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         return null;
     }
 
+    /**
+     * Compute azimuth time for the first and last line in the target product.
+     */
     private void computeTargetStartEndTime() {
 
         targetFirstLineTime = subSwath[0].firstLineTime;
@@ -310,6 +399,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
     }
 
+    /**
+     * Compute slant range time to the first and last pixels in the target product.
+     */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
         targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
@@ -317,6 +409,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing/Constants.lightSpeed;
     }
 
+    /**
+     * Compute target product dimension.
+     */
     private void computeTargetWidthAndHeight() {
 
         targetHeight = (int)Math.round((targetLastLineTime - targetFirstLineTime)/subSwath[0].azimuthTimeInterval);
@@ -325,24 +420,65 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                 targetDeltaSlantRangeTime);
     }
 
+    /**
+     * Create target product.
+     */
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(), sourceProduct.getProductType(), targetWidth, targetHeight);
 
         final Band[] sourceBands = sourceProduct.getBands();
-        for (String pol:selectedPolarisations) {
-            final Band srcBand = sourceBands[0];
-            final Band trgI = targetProduct.addBand("i_" + pol, srcBand.getDataType());
-            trgI.setUnit(Unit.REAL);
-            trgI.setNoDataValueUsed(true);
-            trgI.setNoDataValue(srcBand.getNoDataValue());
 
-            final Band trgQ = targetProduct.addBand("q_" + pol, srcBand.getDataType());
-            trgQ.setUnit(Unit.IMAGINARY);
-            trgQ.setNoDataValueUsed(true);
-            trgQ.setNoDataValue(srcBand.getNoDataValue());
+        if (!absoluteCalibrationPerformed) {
 
-            ReaderUtils.createVirtualIntensityBand(targetProduct, trgI, trgQ, '_' + pol);
+            for (String pol:selectedPolarisations) {
+                final Band srcBand = sourceBands[0];
+                final Band trgI = targetProduct.addBand("i_" + pol, srcBand.getDataType());
+                trgI.setUnit(Unit.REAL);
+                trgI.setNoDataValueUsed(true);
+                trgI.setNoDataValue(srcBand.getNoDataValue());
+
+                final Band trgQ = targetProduct.addBand("q_" + pol, srcBand.getDataType());
+                trgQ.setUnit(Unit.IMAGINARY);
+                trgQ.setNoDataValueUsed(true);
+                trgQ.setNoDataValue(srcBand.getNoDataValue());
+
+                ReaderUtils.createVirtualIntensityBand(targetProduct, trgI, trgQ, '_' + pol);
+            }
+
+        } else {
+
+            for (String pol:selectedPolarisations) {
+                final Band srcBand = sourceBands[0];
+
+                if (inputSigmaBand) {
+                    final Band trgSigma = targetProduct.addBand("Sigma0_" + pol, srcBand.getDataType());
+                    trgSigma.setUnit(Unit.INTENSITY);
+                    trgSigma.setNoDataValueUsed(true);
+                    trgSigma.setNoDataValue(srcBand.getNoDataValue());
+                }
+
+                if (inputBetaBand) {
+                    final Band trgBeta = targetProduct.addBand("Beta0_" + pol, srcBand.getDataType());
+                    trgBeta.setUnit(Unit.INTENSITY);
+                    trgBeta.setNoDataValueUsed(true);
+                    trgBeta.setNoDataValue(srcBand.getNoDataValue());
+                }
+
+                if (inputGammaBand) {
+                    final Band trgGamma = targetProduct.addBand("Gamma0_" + pol, srcBand.getDataType());
+                    trgGamma.setUnit(Unit.INTENSITY);
+                    trgGamma.setNoDataValueUsed(true);
+                    trgGamma.setNoDataValue(srcBand.getNoDataValue());
+                }
+
+                if (inputDNBand) {
+                    final Band trgDN = targetProduct.addBand("DN_" + pol, srcBand.getDataType());
+                    trgDN.setUnit(Unit.INTENSITY);
+                    trgDN.setNoDataValueUsed(true);
+                    trgDN.setNoDataValue(srcBand.getNoDataValue());
+                }
+            }
         }
 
         copyMetaData(sourceProduct.getMetadataRoot(), targetProduct.getMetadataRoot());
@@ -356,6 +492,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         targetProduct.setPreferredTileSize(500,50);
     }
 
+    /**
+     * Copy source product metadata to target product.
+     * @param source Source product root metadata element.
+     * @param target Target product root metadata element.
+     */
     private static void copyMetaData(final MetadataElement source, final MetadataElement target) {
 
         for (final MetadataElement element : source.getElements()) {
@@ -367,6 +508,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    /**
+     * Create target product tie point grid.
+     */
     private void createTiePointGrids() {
 
         final int gridWidth = 20;
@@ -422,6 +566,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         targetProduct.addTiePointGrid(incGrid);
     }
 
+    /**
+     * Update target product metadata.
+     */
     private void updateTargetProductMetadata() {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
@@ -566,7 +713,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
      *          if an error occurs during computation of the target rasters.
      */
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
 
         try {
             final int tx0 = targetRectangle.x;
@@ -606,22 +754,81 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
             final BurstInfo burstInfo = new BurstInfo();
             final int lastX = tx0 + tw;
-            final String bandNameI = "i_" + acquisitionMode;
-            final String bandNameQ = "q_" + acquisitionMode;
 
-            for (String pol:selectedPolarisations) {
-                if (pol != null) {
-                    final Tile targetTileI = targetTiles.get(targetProduct.getBand("i_" + pol));
-                    final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
+            if (!absoluteCalibrationPerformed) {
 
-                    if (tileInOneSubSwath) {
-                        computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
-                                sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
+                final String bandNameI = "i_" + acquisitionMode;
+                final String bandNameQ = "q_" + acquisitionMode;
 
-                    } else {
-                        computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex, pol,
-                                sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
+                for (String pol:selectedPolarisations) {
+                    if (pol != null) {
+                        final Tile targetTileI = targetTiles.get(targetProduct.getBand("i_" + pol));
+                        final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
 
+                        if (tileInOneSubSwath) {
+                            computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                    sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
+
+                        } else {
+                            computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex, pol,
+                                    sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
+
+                        }
+                    }
+                }
+
+            } else {
+
+                for (String pol:selectedPolarisations) {
+                    if (pol != null) {
+
+                        if (inputSigmaBand) {
+                            final String bandName = "Sigma0_" + acquisitionMode;
+                            final Tile targetTile = targetTiles.get(targetProduct.getBand("Sigma0_" + pol));
+                            if (tileInOneSubSwath) {
+                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                        sourceRectangle, bandName, targetTile, burstInfo);
+                            } else {
+                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                        pol, sourceRectangle, bandName, targetTile, burstInfo);
+                            }
+                        }
+
+                        if (inputBetaBand) {
+                            final String bandName = "Beta0_" + acquisitionMode;
+                            final Tile targetTile = targetTiles.get(targetProduct.getBand("Beta0_" + pol));
+                            if (tileInOneSubSwath) {
+                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                        sourceRectangle, bandName, targetTile, burstInfo);
+                            } else {
+                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                        pol, sourceRectangle, bandName, targetTile, burstInfo);
+                            }
+                        }
+
+                        if (inputGammaBand) {
+                            final String bandName = "Gamma0_" + acquisitionMode;
+                            final Tile targetTile = targetTiles.get(targetProduct.getBand("Gamma0_" + pol));
+                            if (tileInOneSubSwath) {
+                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                        sourceRectangle, bandName, targetTile, burstInfo);
+                            } else {
+                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                        pol, sourceRectangle, bandName, targetTile, burstInfo);
+                            }
+                        }
+
+                        if (inputDNBand) {
+                            final String bandName = "DN_" + acquisitionMode;
+                            final Tile targetTile = targetTiles.get(targetProduct.getBand("DN_" + pol));
+                            if (tileInOneSubSwath) {
+                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                        sourceRectangle, bandName, targetTile, burstInfo);
+                            } else {
+                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                        pol, sourceRectangle, bandName, targetTile, burstInfo);
+                            }
+                        }
                     }
                 }
             }
@@ -630,6 +837,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    // For original SLC product
     private void computeTileInOneSwath(final int tx0, final int ty0, final int lastX, final int th,
                                        final int firstSubSwathIndex, final String pol,
                                        final Rectangle[] sourceRectangle,
@@ -680,6 +888,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
+    // For original SLC product
     private void computeMultipleSubSwaths(final int tx0, final int ty0, final int lastX, final int th,
                                           final int firstSubSwathIndex, final int lastSubSwathIndex, final String pol,
                                           final Rectangle[] sourceRectangle,
@@ -766,6 +975,131 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                 }
                 tgtArrayI[x-tgtOffset] = iVal;
                 tgtArrayQ[x-tgtOffset] = qVal;
+            }
+        }
+    }
+
+    // For calibrated product
+    private void computeTileInOneSwath(final int tx0, final int ty0, final int lastX, final int th,
+                                       final int firstSubSwathIndex, final String pol,
+                                       final Rectangle[] sourceRectangle,
+                                       final String bandName, final Tile targetTile,
+                                       final BurstInfo burstInfo) {
+
+        final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
+        final int yMax = computeYMax(subSwath[firstSubSwathIndex-1]);
+        final int firstY = Math.max(ty0, yMin);
+        final int lastY = Math.min(ty0 + th, yMax + 1);
+
+        if(firstY >= lastY)
+            return;
+
+        final Band srcBand = sourceProduct.getBand(bandName + firstSubSwathIndex + '_' + pol);
+        final Tile sourceRaster = getSourceTile(srcBand, sourceRectangle[0]);
+        final TileIndex srcTileIndex = new TileIndex(sourceRaster);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
+
+        final float[] srcArray = (float[])sourceRaster.getDataBuffer().getElems();
+        final float[] tgtArray = (float[])targetTile.getDataBuffer().getElems();
+
+        for (int y = firstY; y < lastY; y++) {
+
+            if(!getLineIndicesInSourceProduct(y, subSwath[firstSubSwathIndex-1], burstInfo)) {
+                continue;
+            }
+
+            final int tgtOffset = tgtIndex.calculateStride(y);
+            final SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex-1];
+            int offset;
+            if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
+                offset = srcTileIndex.calculateStride(burstInfo.sy1);
+            } else {
+                offset = srcTileIndex.calculateStride(burstInfo.sy0);
+            }
+
+            final int sx = (int)Math.round(( (targetSlantRangeTimeToFirstPixel + tx0*targetDeltaSlantRangeTime)
+                    - firstSubSwath.slrTimeToFirstPixel)/targetDeltaSlantRangeTime);
+
+            System.arraycopy(srcArray, sx-offset, tgtArray, tx0-tgtOffset, lastX-tx0);
+        }
+    }
+
+    // For calibrated product
+    private void computeMultipleSubSwaths(final int tx0, final int ty0, final int lastX, final int th,
+                                          final int firstSubSwathIndex, final int lastSubSwathIndex, final String pol,
+                                          final Rectangle[] sourceRectangle, final String bandName,
+                                          final Tile targetTile, final BurstInfo burstInfo) {
+
+        final int numOfSourceTiles = lastSubSwathIndex - firstSubSwathIndex + 1;
+        final TileIndex tgtIndex = new TileIndex(targetTile);
+        final Tile[] srcTiles = new Tile[numOfSourceTiles];
+
+        final float[][] srcArray = new float[numOfSourceTiles][];
+        final float[] tgtArray = (float[])targetTile.getDataBuffer().getElems();
+
+        int k = 0;
+        for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
+            final Band srcBand = sourceProduct.getBand(bandName + i + '_' + pol);
+            final Tile sourceRaster = getSourceTile(srcBand, sourceRectangle[k]);
+            srcTiles[k] = sourceRaster;
+            srcArray[k] = (float[])sourceRaster.getDataBuffer().getElems();
+            k++;
+        }
+
+        int sy;
+        for (int y = ty0; y < ty0 + th; y++) {
+            final int tgtOffset = tgtIndex.calculateStride(y);
+
+            for (int x = tx0; x < lastX; x++) {
+
+                int subswathIndex = getSubSwathIndex(x, y, firstSubSwathIndex, lastSubSwathIndex, pol, burstInfo);
+                if (subswathIndex == -1) {
+                    continue;
+                }
+                if(!getLineIndicesInSourceProduct(y, subSwath[subswathIndex-1], burstInfo)) {
+                    continue;
+                }
+
+                float intensity = 0.0f;
+                k = subswathIndex - firstSubSwathIndex;
+
+                int sx = getSampleIndexInSourceProduct(x, subSwath[subswathIndex-1]);
+                if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
+                    sy = burstInfo.sy1;
+                } else {
+                    sy = burstInfo.sy0;
+                }
+                int idx = srcTiles[k].getDataBufferIndex(sx, sy);
+
+                if(idx >= 0) {
+                    intensity = srcArray[k][idx];
+                }
+
+                //if(burstInfo.swath1 != -1 && intensity == 0.0) {
+                if(burstInfo.swath1 != -1 && intensity < 300) {
+                    // edge of swaths found therefore use other swath
+                    if(subswathIndex == burstInfo.swath0) {
+                        subswathIndex = burstInfo.swath1;
+                    } else {
+                        subswathIndex = burstInfo.swath0;
+                    }
+                    getLineIndicesInSourceProduct(y, subSwath[subswathIndex-1], burstInfo);
+
+                    k = subswathIndex - firstSubSwathIndex;
+
+                    sx = getSampleIndexInSourceProduct(x, subSwath[subswathIndex-1]);
+                    if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
+                        sy = burstInfo.sy1;
+                    } else {
+                        sy = burstInfo.sy0;
+                    }
+                    idx = srcTiles[k].getDataBufferIndex(sx, sy);
+
+                    if(idx >=0 && srcArray[k][idx] != 0.0) {
+                        intensity = srcArray[k][idx];
+                    }
+                }
+                tgtArray[x-tgtOffset] = intensity;
             }
         }
     }
@@ -886,7 +1220,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
 
         if(burstInfo.swath1 != -1) {
-            
+
             final double middleTime = (subSwath[burstInfo.swath0-1].slrTimeToLastPixel +
                     subSwath[burstInfo.swath1-1].slrTimeToFirstPixel) / 2.0;
 
