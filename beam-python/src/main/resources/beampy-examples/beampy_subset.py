@@ -23,7 +23,7 @@ geom = wkt2geom(wkt)
 print("Reading...")
 product = ProductIO.readProduct(file)
 
-op = SubsetOp.newSubsetOp()
+op = SubsetOp()
 op.setSourceProduct(product)
 op.setGeoRegion(geom)
 
