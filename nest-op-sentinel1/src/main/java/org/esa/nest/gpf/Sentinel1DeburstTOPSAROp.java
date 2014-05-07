@@ -103,7 +103,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
             getSubSwathParameters();
 
-            getSubSwathNoiseVectors();
+            // commented out because swaths are merged at the middle of the swath overlap
+            //getSubSwathNoiseVectors();
 
             computeTargetStartEndTime();
 
@@ -885,11 +886,21 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
 
         if(burstInfo.swath1 != -1) {
+            
+            final double middleTime = (subSwath[burstInfo.swath0-1].slrTimeToLastPixel +
+                    subSwath[burstInfo.swath1-1].slrTimeToFirstPixel) / 2.0;
+
+            if (targetSampleSlrTime > middleTime) {
+                return burstInfo.swath1;
+            }
+
+            /* commented out because swaths are merged at the middle of the swath overlap
             final double noise0 = getSubSwathNoise(tx, targetLineTime, subSwath[burstInfo.swath0 - 1], pol);
             final double noise1 = getSubSwathNoise(tx, targetLineTime, subSwath[burstInfo.swath1 - 1], pol);
             if (noise0 > noise1) {
                 return burstInfo.swath1;
             }
+            */
         }
         return burstInfo.swath0;
     }
