@@ -10,4 +10,5 @@ jpy.jar
 *.ear
 *.dim
 *.data
+__py_cache__/
 
