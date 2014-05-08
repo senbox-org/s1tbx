@@ -22,7 +22,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0-SNAPSHOT</version>
+        <version>5.0</version>
     </parent>
 
     <artifactId>beam-ndvi</artifactId>
