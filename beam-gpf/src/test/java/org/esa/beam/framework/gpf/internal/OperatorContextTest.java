@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
