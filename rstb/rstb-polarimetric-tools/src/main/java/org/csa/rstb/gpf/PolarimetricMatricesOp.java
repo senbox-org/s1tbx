@@ -157,7 +157,7 @@ public final class PolarimetricMatricesOp extends Operator {
         }
 
         for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
-            final Band[] targetBands = PolBandUtils.addBands(targetProduct, bandNames, bandList.suffix);
+            final Band[] targetBands = OperatorUtils.addBands(targetProduct, bandNames, bandList.suffix);
             bandList.addTargetBands(targetBands);
         }
 

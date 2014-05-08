@@ -444,7 +444,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 }
                 suffix = "";
             }
-            final Band[] targetBands = PolBandUtils.addBands(targetProduct, bandNames, suffix);
+            final Band[] targetBands = OperatorUtils.addBands(targetProduct, bandNames, suffix);
             bandList.addTargetBands(targetBands);
         }
     }

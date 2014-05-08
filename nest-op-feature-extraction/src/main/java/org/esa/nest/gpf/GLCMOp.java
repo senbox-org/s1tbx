@@ -341,7 +341,7 @@ public final class GLCMOp extends Operator {
         targetBand.setSourceImage(sourceProduct.getBand(sourceBandNames[0]).getSourceImage());
 
         final String[] targetBandNames = getTargetBandNames();
-        PolBandUtils.addBands(targetProduct, targetBandNames, "");
+        OperatorUtils.addBands(targetProduct, targetBandNames, "");
     }
 
     private String[] getTargetBandNames() {

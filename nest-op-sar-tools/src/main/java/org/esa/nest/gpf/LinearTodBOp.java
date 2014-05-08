@@ -220,7 +220,7 @@ public final class LinearTodBOp extends Operator {
                     targetBandName += "_" + pol.toUpperCase();
                 }
                 if (isPolsar) {
-                    final String pre = OperatorUtils.getprefixFromBandName(srcBandNames[0]);
+                    final String pre = OperatorUtils.getPrefixFromBandName(srcBandNames[0]);
                     targetBandName = "Intensity_" + pre;
                 }
                 targetBandName += dBStr;
