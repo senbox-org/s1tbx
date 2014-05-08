@@ -2,6 +2,7 @@ import sys
 
 from beampy import ProductIO
 from beampy import GPF
+from beampy import jpy
 
 
 if len(sys.argv) != 2:
@@ -10,6 +11,7 @@ if len(sys.argv) != 2:
 
 file = sys.argv[1]
 
+print("Reading...")
 product = ProductIO.readProduct(file)
 width = product.getSceneRasterWidth()
 height = product.getSceneRasterHeight()
@@ -18,45 +20,55 @@ description = product.getDescription()
 band_names = product.getBandNames()
 
 print("Product: %s, %d x %d pixels, %s" % (name, width, height, description))
-print("Bands:   %s" % (band_names))
+print("Bands:   %s" % (list(band_names)))
 
 GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
 
-parameters = {
-    'targetBands': [
-        {
-            'name': 'band_1',
-            'expression': 'radiance_1 - radiance_2'
-        },
-        {
-            'name': 'band_2',
-            'expression': 'radiance_6 - radiance_7'
-        }
-    ]
-}
+HashMap = jpy.get_type('java.util.HashMap')
+BandDescriptor = jpy.get_type('org.esa.beam.gpf.operators.standard.BandMathsOp$BandDescriptor')
+
+targetBand1 = BandDescriptor()
+targetBand1.name = 'band_1'
+targetBand1.type = 'float32'
+targetBand1.expression = '(radiance_10 - radiance_7) / (radiance_10 + radiance_7)'
+
+targetBand2 = BandDescriptor()
+targetBand2.name = 'band_2'
+targetBand2.type = 'float32'
+targetBand2.expression = '(radiance_9 - radiance_6) / (radiance_9 + radiance_6)'
+
+targetBands = jpy.array('org.esa.beam.gpf.operators.standard.BandMathsOp$BandDescriptor', 2)
+targetBands[0] = targetBand1
+targetBands[1] = targetBand2
+
+parameters = HashMap()
+parameters.put('targetBands', targetBands)
+
+result = GPF.createProduct('BandMaths', parameters, product)
+
+print("Writing...")
+
+ProductIO.writeProduct(result, 'beampy_bmaths_output.dim', 'BEAM-DIMAP')
+
+print("Done.")
 
 
+"""
+   Please note: the next version of beampy/jpy will be more pythonic in the sense that implicite data type
+   conversions are performed. The 'parameters' from above variable could then be given as a Python dict object:
 
-result = GPF.createProductFromSourceProduct('BandMaths', parameters, product)
-
-'''
-The above call currently results in:
-
-Exception in thread "main" org.esa.beam.framework.gpf.OperatorException: Operator 'BandMathsOp': Value for 'Target band descriptors' must be of type 'BandDescriptor[]'.
-        at org.esa.beam.framework.gpf.internal.OperatorContext.injectParameterValues(OperatorContext.java:1043)
-        at org.esa.beam.framework.gpf.internal.OperatorContext.initializeOperator(OperatorContext.java:448)
-        at org.esa.beam.framework.gpf.internal.OperatorContext.getTargetProduct(OperatorContext.java:248)
-        at org.esa.beam.framework.gpf.Operator.getTargetProduct(Operator.java:317)
-        at org.esa.beam.framework.gpf.GPF.createProductNS(GPF.java:311)
-        at org.esa.beam.framework.gpf.GPF.createProduct(GPF.java:246)
-        at org.esa.beam.framework.gpf.GPF.createProduct(GPF.java:178)
-        at org.esa.beam.framework.gpf.GPF.createProduct(GPF.java:157)
-Caused by: com.bc.ceres.binding.ValidationException: Value for 'Target band descriptors' must be of type 'BandDescriptor[]'.
-        at com.bc.ceres.binding.validators.TypeValidator.validateValue(TypeValidator.java:31)
-        at com.bc.ceres.binding.Property.validate(Property.java:207)
-        at com.bc.ceres.binding.Property.setValue(Property.java:164)
-        at org.esa.beam.framework.gpf.internal.OperatorContext.injectParameterValues(OperatorContext.java:1040)
-        ... 7 more
-'''
-
-ProductIO.writeProduct(result, 'output.dim', 'BEAM-DIMAP')
+    parameters = {
+        'targetBands': [
+            {
+                'name': 'band_1',
+                'type': 'float32',
+                'expression': '(radiance_10 - radiance_7) / (radiance_10 + radiance_7)'
+            },
+            {
+                'name': 'band_2',
+                'type': 'float32',
+                'expression': '(radiance_9 - radiance_6) / (radiance_9 + radiance_6)'
+            }
+        ]
+    }
+"""

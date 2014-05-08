@@ -28,6 +28,6 @@ op.setGeoRegion(geom)
 sub_product = op.getTargetProduct()
 
 print("Writing...")
-ProductIO.writeProduct(sub_product, "subset.dim", "BEAM-DIMAP")
+ProductIO.writeProduct(sub_product, "beampy_subset_output.dim", "BEAM-DIMAP")
 
 print("Done.")

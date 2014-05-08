@@ -1,11 +1,12 @@
 import sys
-import numpy
 
+import numpy
 from beampy import Product
 from beampy import ProductData
 from beampy import ProductIO
 from beampy import ProductUtils
 from beampy import FlagCoding
+
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0])
@@ -13,6 +14,7 @@ if len(sys.argv) != 2:
 
 file = sys.argv[1]
 
+print("Reading...")
 product = ProductIO.readProduct(file)
 width = product.getSceneRasterWidth()
 height = product.getSceneRasterHeight()
@@ -46,10 +48,12 @@ group.add(ndviFlagCoding)
 ndviFlagsBand.setSampleCoding(ndviFlagCoding)
 
 ndviProduct.setProductWriter(writer)
-ndviProduct.writeHeader('ndvi.dim')
+ndviProduct.writeHeader('beampy_ndvi_output.dim')
 
 r7 = numpy.zeros(width, dtype=numpy.float32)
 r10 = numpy.zeros(width, dtype=numpy.float32)
+
+print("Writing...")
 
 for y in range(height):
     print("processing line ", y, " of ", height)
@@ -64,3 +68,5 @@ for y in range(height):
     ndviFlagsBand.writePixels(0, y, width, 1, ndviFlags)
 
 ndviProduct.closeIO()
+
+print("Done.")

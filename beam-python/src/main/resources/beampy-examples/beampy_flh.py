@@ -12,6 +12,7 @@ if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0]);
     sys.exit(1)
 
+print("Reading...")
 sourceProduct = ProductIO.readProduct(sys.argv[1])
 b1 = sourceProduct.getBand('reflec_5')
 b2 = sourceProduct.getBand('reflec_7')
@@ -28,11 +29,14 @@ targetProduct = Product('FLH_Product', 'FLH_Type', width, height)
 targetBand = targetProduct.addBand('FLH', ProductData.TYPE_FLOAT32)
 ProductUtils.copyGeoCoding(sourceProduct, targetProduct)
 targetProduct.setProductWriter(ProductIO.getProductWriter('GeoTIFF'))
-targetProduct.writeHeader(String('FLH_Product.tif'))
+
+targetProduct.writeHeader(String('beampy_flh_output.tif'))
 
 r1 = numpy.zeros(width, dtype=numpy.float32)
 r2 = numpy.zeros(width, dtype=numpy.float32)
 r3 = numpy.zeros(width, dtype=numpy.float32)
+
+print("Writing...")
 
 for y in range(height):
     b1.readPixels(0, y, width, 1, r1)
@@ -47,3 +51,5 @@ for y in range(height):
     targetBand.writePixels(0, y, width, 1, FLH)
 
 targetProduct.closeIO()
+
+print("Done.")

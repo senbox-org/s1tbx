@@ -12,6 +12,7 @@ if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0]);
     sys.exit(1)
 
+print("Reading...")
 product = ProductIO.readProduct(sys.argv[1])
 width = product.getSceneRasterWidth()
 height = product.getSceneRasterHeight()
@@ -34,13 +35,15 @@ writer = ProductIO.getProductWriter('BEAM-DIMAP')
 ProductUtils.copyGeoCoding(product, ndviProduct)
 
 ndviProduct.setProductWriter(writer)
-ndviProduct.writeHeader(String('ndvi_mask.dim'))
+ndviProduct.writeHeader(String('beampy_ndvi_with_masks_output.dim'))
 
 r7  = numpy.zeros(width, dtype=numpy.float32)
 r10 = numpy.zeros(width, dtype=numpy.float32)
 
 v7  = numpy.zeros(width, dtype=numpy.uint8)
 v10 = numpy.zeros(width, dtype=numpy.uint8)
+
+print("Writing...")
 
 for y in range(height):
     b7.readPixels(0, y, width, 1, r7)
@@ -60,3 +63,5 @@ for y in range(height):
     ndviBand.writePixels(0, y, width, 1, ndvi.filled(numpy.nan))
 
 ndviProduct.closeIO()
+
+print("Done.")
