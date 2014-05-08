@@ -61,6 +61,9 @@ public final class ReaderUtils {
         virtBand.setNoDataValueUsed(true);
         product.addBand(virtBand);
 
+        if(bandI.getGeoCoding() != product.getGeoCoding()) {
+            virtBand.setGeoCoding(bandI.getGeoCoding());
+        }
         // set as band to use for quicklook
         product.setQuicklookBandName(virtBand.getName());
     }

@@ -18,27 +18,27 @@
 
 # Test Paths
 # Some unit tests open all products within a folder and apply thier processing to verify they don't get any error
-rstb.test.ReadersOnAllProducts = false
-rstb.test.ProcessingOnAllProducts = false
-rstb.test.RunBenchmarks = false
+s1tbx.test.ReadersOnAllProducts = false
+s1tbx.test.ProcessingOnAllProducts = false
+s1tbx.test.RunBenchmarks = false
 # max number of products to test from each root folder. Use -1 to test all.
-rstb.test.maxProductsPerRootFolder = 0
-rstb.test.subsetX = 100
-rstb.test.subsetY = 100
-rstb.test.subsetWidth = 100
-rstb.test.subsetHeight = 100
+s1tbx.test.maxProductsPerRootFolder = 0
+s1tbx.test.subsetX = 100
+s1tbx.test.subsetY = 100
+s1tbx.test.subsetWidth = 100
+s1tbx.test.subsetHeight = 100
 
-rstb.test.rootPathExpectedProducts = 	P:\\nest\\nest\\ESA Data\\test\\
-rstb.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
-rstb.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR
-rstb.test.rootPathRadarsat2 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat2
-rstb.test.rootPathRadarsat1 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat1
-rstb.test.rootPathERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ERS_products
-rstb.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
-rstb.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
-rstb.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
-rstb.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
-#rstb.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\RADAR\\Global Monitoring Mode
+s1tbx.test.rootPathExpectedProducts = 	P:\\nest\\nest\\ESA Data\\test\\
+s1tbx.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
+s1tbx.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR
+s1tbx.test.rootPathRadarsat2 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat2
+s1tbx.test.rootPathRadarsat1 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat1
+s1tbx.test.rootPathERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ERS_products
+s1tbx.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
+s1tbx.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
+s1tbx.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
+s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
+#s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\RADAR\\Global Monitoring Mode
 
 ####################################################################################
 #Automated Graph Processing and Product Comparison of Expected Results
@@ -50,33 +50,33 @@ rstb.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
 ####################################################################################
 
 # max number of products to test from each input folder. Use -1 to process all.
-rstb.test.maxProductsPerInputFolder = 100
+s1tbx.test.maxProductsPerInputFolder = 100
 
-rstb.test.1.skip = true
-rstb.test.1.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Multilook.xml
-rstb.test.1.input_products = 	P:\\nest\\input
-rstb.test.1.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test1
-rstb.test.1.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test1
+s1tbx.test.1.skip = true
+s1tbx.test.1.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Multilook.xml
+s1tbx.test.1.input_products = 	P:\\nest\\input
+s1tbx.test.1.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test1
+s1tbx.test.1.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test1
 
-rstb.test.2.skip = true
-rstb.test.2.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Calibrate.xml
-rstb.test.2.input_products = 	P:\\nest\\input
-rstb.test.2.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test2
-rstb.test.2.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test2
+s1tbx.test.2.skip = true
+s1tbx.test.2.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Calibrate.xml
+s1tbx.test.2.input_products = 	P:\\nest\\input
+s1tbx.test.2.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test2
+s1tbx.test.2.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test2
 
-rstb.test.3.skip = true
-rstb.test.3.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Orthorectify.xml
-rstb.test.3.input_products = 	P:\\nest\\input
-rstb.test.3.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test3
-rstb.test.3.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test3
+s1tbx.test.3.skip = true
+s1tbx.test.3.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Orthorectify.xml
+s1tbx.test.3.input_products = 	P:\\nest\\input
+s1tbx.test.3.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test3
+s1tbx.test.3.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test3
 
 # feature extraction
 
-rstb.test.4.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\FeatureExtraction\\UrbanDetectionArchiveWriter.xml
-rstb.test.4.input_products = 	P:\\pfa\\pfa\\data\\tmp\\IMP
-rstb.test.4.output_products = 	c:\\out\\archive2
+s1tbx.test.4.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\FeatureExtraction\\UrbanDetectionArchiveWriter.xml
+s1tbx.test.4.input_products = 	P:\\pfa\\pfa\\data\\tmp\\IMP
+s1tbx.test.4.output_products = 	c:\\out\\archive2
 
-rstb.test.5.skip = true
-rstb.test.5.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\FeatureExtraction\\UrbanDetectionArchiveWriter.xml
-rstb.test.5.input_products = 	C:\\Temp\\IMP_Italy
-rstb.test.5.output_products = 	c:\\out\\archive3
+s1tbx.test.5.skip = true
+s1tbx.test.5.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\FeatureExtraction\\UrbanDetectionArchiveWriter.xml
+s1tbx.test.5.input_products = 	C:\\Temp\\IMP_Italy
+s1tbx.test.5.output_products = 	c:\\out\\archive3

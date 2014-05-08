@@ -122,6 +122,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                         // add tiepointgrids and geocoding for band
                         addTiePointGrids(band, imgName, tpgPrefix);
+
+                        // reset to null so it doesn't adopt a geocoding from the bands
+                        product.setGeoCoding(null);
                     }
                 } else {
                     for(int b=0; b < img.getNumBands(); ++b) {
@@ -672,9 +675,14 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         if(!tpgPrefix.isEmpty())
             pre = tpgPrefix+'_';
 
-        final TiePointGrid testTPG = product.getTiePointGrid(pre+OperatorUtils.TPG_LATITUDE);
-        if(testTPG != null)
+        final TiePointGrid existingLatTPG = product.getTiePointGrid(pre+OperatorUtils.TPG_LATITUDE);
+        final TiePointGrid existingLonTPG = product.getTiePointGrid(pre+OperatorUtils.TPG_LONGITUDE);
+        if(existingLatTPG != null && existingLonTPG != null) {
+            // reuse geocoding
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(existingLatTPG, existingLonTPG, Datum.WGS_84);
+            band.setGeoCoding(tpGeoCoding);
             return;
+        }
 
         final String annotation = FileUtils.exchangeExtension(imgXMLName, ".xml");
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
@@ -837,9 +845,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         int k = 0;
         for (int r = 0; r < targetGridHeight; r++) {
 
-            if (r == targetGridHeight - 1) {
-                System.out.println();
-            }
             float newY = r*subSamplingY;
             if (newY > sceneRasterHeight - 1) {
                 newY = sceneRasterHeight - 1;
@@ -908,7 +913,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         addGeoCoding(product);
 
         product.setName(getProductName());
-        product.setProductType(getProductType());
+        //product.setProductType(getProductType());
         product.setDescription(getProductDescription());
 
         ReaderUtils.addMetadataProductSize(product);

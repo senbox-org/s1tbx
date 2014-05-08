@@ -362,6 +362,8 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
                     densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
 
+                    drawOverlay(densityPlotImage);
+
                     toggleColorCheckBox.setSelected(false);
                     plotColorsInverted = false;
                     return densityPlotImage;
@@ -426,6 +428,13 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             }
         };
         swingWorker.execute();
+    }
+
+    private void drawOverlay(final BufferedImage image) {
+        Graphics g = image.getGraphics();
+
+       // g.setColor(Color.GREEN);
+       // g.drawLine(0, 0, 100, 100);
     }
 
     private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {

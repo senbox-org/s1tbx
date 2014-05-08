@@ -1,0 +1,79 @@
+####################################################################################
+# Configuration for the Automated Testing Framework
+# All properties described here can also be passed to the VM as system
+# properties using the standard Java
+#   -D<property>=<value>
+# syntax. In addition, it is possible to use macros of the form
+#   ${<property>}
+# within a value. Macros will expand to the value of the referred (system) property.
+####################################################################################
+
+
+####################################################################################
+#Automated Graph Processing and Product Comparison of Expected Results
+#---------------------------------------------------------------------
+#If expected results folder is empty, new products will be generated and output products
+#will be identical to expected results.
+#Processing output is compared against products in expected folder
+#If expected_results is not included, only output will be processed without comparison
+# add test.4.skip = true to disable a test
+####################################################################################
+
+testRoot = C:\\Build\\nest-test
+dataRoot = P:\\nest\\nest\\ESA Data\\test\\AT_release5A\\Dataset
+maxProductsPerInputFolder = 1
+
+## Test standard operators
+
+test.1.graph = ${testRoot}\\graphs\\StandardGraphs\\Subset_ML.xml
+test.1.input_products = 	${dataRoot}
+test.1.expected_results = 	${testRoot}\\expected
+test.1.output_products = 	${testRoot}\\output
+
+test.2.graph = ${testRoot}\\graphs\\StandardGraphs\\Subset_Cal.xml
+test.2.input_products = 	${dataRoot}
+test.2.expected_results = 	${testRoot}\\expected
+test.2.output_products = 	${testRoot}\\output
+
+test.3.graph = ${testRoot}\\graphs\\StandardGraphs\\Subset_TC.xml
+test.3.input_products = 	${dataRoot}
+test.3.expected_results = 	${testRoot}\\expected
+test.3.output_products = 	${testRoot}\\output
+
+## Test Writers
+
+test.4.skip = true
+test.4.graph = ${testRoot}\\graphs\\Writers\\WriteGeoTIFF.xml
+test.4.input_products = 	${dataRoot}
+test.4.expected_results = 	${testRoot}\\expected
+test.4.output_products = 	${testRoot}\\output
+
+test.5.skip = true
+test.5.graph = ${testRoot}\\graphs\\Writers\\WriteHDF5.xml
+test.5.input_products = 	${dataRoot}
+test.5.expected_results = 	${testRoot}\\expected
+test.5.output_products = 	${testRoot}\\output
+
+test.6.skip = true
+test.6.graph = ${testRoot}\\graphs\\Writers\\WriteENVI.xml
+test.6.input_products = 	${dataRoot}
+test.6.expected_results = 	${testRoot}\\expected
+test.6.output_products = 	${testRoot}\\output
+
+test.7.skip = true
+test.7.graph = ${testRoot}\\graphs\\Writers\\WritePolSARPro.xml
+test.7.input_products = 	${dataRoot}
+test.7.expected_results = 	${testRoot}\\expected
+test.7.output_products = 	${testRoot}\\output
+
+test.8.skip = true
+test.8.graph = ${testRoot}\\graphs\\Writers\\WriteNetCDF.xml
+test.8.input_products = 	${dataRoot}
+test.8.expected_results = 	${testRoot}\\expected
+test.8.output_products = 	${testRoot}\\output
+
+test.9.skip = true
+test.9.graph = ${testRoot}\\graphs\\Writers\\WriteJPG.xml
+test.9.input_products = 	${dataRoot}
+test.9.expected_results = 	${testRoot}\\expected
+test.9.output_products = 	${testRoot}\\output
