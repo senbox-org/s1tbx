@@ -36,11 +36,12 @@ public class MultilookOpUI extends BaseOperatorUI {
     private final JTextField nAzLooks = new JTextField("");
     private final JTextField meanGRSqaurePixel = new JTextField("");
 
-    private final JRadioButton grSquarePixel = new JRadioButton("GR Square Pixel");
-    private final JRadioButton independentLooks = new JRadioButton("Independent Looks");
-
+    private final JCheckBox grSquarePixelCheckBox = new JCheckBox("GR Square Pixel");
+    private final JCheckBox independentLooksCheckBox = new JCheckBox("Independent Looks");
     private final JCheckBox outputIntensityCheckBox = new JCheckBox("Output Intensity");
+
     private Boolean outputIntensity = true;
+    private Boolean grSquarePixel = true;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -53,6 +54,29 @@ public class MultilookOpUI extends BaseOperatorUI {
                 public void itemStateChanged(ItemEvent e) {
                     outputIntensity = (e.getStateChange() == ItemEvent.SELECTED);
                 }
+        });
+
+        grSquarePixelCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                grSquarePixel = (e.getStateChange() == ItemEvent.SELECTED);
+                independentLooksCheckBox.setSelected(!grSquarePixel);
+                if (grSquarePixel) {
+                    nAzLooks.setText("");
+                    nAzLooks.setEditable(false);
+                }
+                setAzimuthLooks();
+            }
+        });
+
+        independentLooksCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                grSquarePixel = (e.getStateChange() != ItemEvent.SELECTED);
+                grSquarePixelCheckBox.setSelected(grSquarePixel);
+                if (!grSquarePixel) {
+                    nAzLooks.setEditable(true);
+                }
+                setAzimuthLooks();
+            }
         });
 
         return new JScrollPane(panel);
@@ -71,13 +95,25 @@ public class MultilookOpUI extends BaseOperatorUI {
         }
         outputIntensityCheckBox.setVisible(isComplexSrcProduct());
 
+        grSquarePixel = (Boolean)paramMap.get("grSquarePixel");
+        if(grSquarePixel != null) {
+            grSquarePixelCheckBox.setSelected(grSquarePixel);
+            independentLooksCheckBox.setSelected(!grSquarePixel);
+            if (grSquarePixel) {
+                nAzLooks.setText("");
+                nAzLooks.setEditable(false);
+            } else {
+                nAzLooks.setEditable(true);
+            }
+        }
+
         setAzimuthLooks();
     }
 
     private void setAzimuthLooks() {
         if(sourceProducts != null && sourceProducts.length > 0) {
             try {
-                if (grSquarePixel.isSelected()) {
+                if (grSquarePixelCheckBox.isSelected()) {
                     final MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
                     param.nRgLooks = Integer.parseInt(nRgLooks.getText());
                     MultilookOp.getDerivedParameters(sourceProducts[0], param);
@@ -119,6 +155,7 @@ public class MultilookOpUI extends BaseOperatorUI {
         if(nAzLooksStr != null && !nAzLooksStr.isEmpty())
             paramMap.put("nAzLooks", Integer.parseInt(nAzLooksStr));
         paramMap.put("outputIntensity", outputIntensity);
+        paramMap.put("grSquarePixel", grSquarePixel);
     }
 
     private JComponent createPanel() {
@@ -135,20 +172,10 @@ public class MultilookOpUI extends BaseOperatorUI {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy++;
-        contentPane.add(grSquarePixel, gbc);
+        contentPane.add(grSquarePixelCheckBox, gbc);
 
         gbc.gridx = 1;
-        contentPane.add(independentLooks, gbc);
-
-        grSquarePixel.setSelected(true);
-        grSquarePixel.setActionCommand("GR Square Pixel:");
-        independentLooks.setActionCommand("Independent Looks:");
-        ButtonGroup group = new ButtonGroup();
-    	group.add(grSquarePixel);
-	    group.add(independentLooks);
-        RadioListener myListener = new RadioListener();
-        grSquarePixel.addActionListener(myListener);
-        independentLooks.addActionListener(myListener);
+        contentPane.add(independentLooksCheckBox, gbc);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Number of Range Looks:", nRgLooks);
@@ -188,22 +215,6 @@ public class MultilookOpUI extends BaseOperatorUI {
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
-    }
-
-    private class RadioListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-
-            meanGRSqaurePixel.setText("");
-            meanGRSqaurePixel.setEditable(false);
-            if (e.getActionCommand().contains("GR Square Pixel:")) {
-                nAzLooks.setText("");
-                nAzLooks.setEditable(false);
-                setAzimuthLooks();
-            } else { // independent looks
-                nAzLooks.setEditable(true);
-            }
-        }
     }
 
 }
