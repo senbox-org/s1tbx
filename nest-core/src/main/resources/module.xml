@@ -16,13 +16,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>beam-core</module>
     </dependency>
     <dependency>
         <module>beam-gpf</module>
-    </dependency>
-    <dependency>
-        <module>beam-visat-rcp</module>
     </dependency>
 
     <categories>System</categories>
