@@ -16,7 +16,6 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
