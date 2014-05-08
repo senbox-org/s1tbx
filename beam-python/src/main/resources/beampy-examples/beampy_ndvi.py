@@ -1,12 +1,11 @@
 import sys
-
 import numpy
+
 from beampy import Product
 from beampy import ProductData
 from beampy import ProductIO
 from beampy import ProductUtils
 from beampy import FlagCoding
-
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0])
@@ -54,13 +53,14 @@ r10 = numpy.zeros(width, dtype=numpy.float32)
 
 for y in range(height):
     print("processing line ", y, " of ", height)
-    r7 = b7.readPixelsFloat(0, y, width, 1, r7)
-    r10 = b10.readPixelsFloat(0, y, width, 1, r10)
+    r7 = b7.readPixels(0, y, width, 1, r7)
+    r10 = b10.readPixels(0, y, width, 1, r10)
+
     ndvi = (r10 - r7) / (r10 + r7)
-    ndviBand.writePixelsFloat(0, y, width, 1, ndvi)
+    ndviBand.writePixels(0, y, width, 1, ndvi)
     ndviLow = ndvi < 0.0
     ndviHigh = ndvi > 1.0
     ndviFlags = ndviLow + 2 * ndviHigh
-    ndviFlagsBand.writePixelsInt(0, y, width, 1, ndviFlags)
+    ndviFlagsBand.writePixels(0, y, width, 1, ndviFlags)
 
 ndviProduct.closeIO()

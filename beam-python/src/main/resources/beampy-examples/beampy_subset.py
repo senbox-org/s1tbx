@@ -1,10 +1,8 @@
 import sys
 
-import beampy
 from beampy import ProductIO
-
-SubsetOp = beampy.jpy.get_type('org.esa.beam.gpf.operators.standard.SubsetOp')
-JtsGeometryConverter = beampy.jpy.get_type('org.esa.beam.util.converters.JtsGeometryConverter')
+from beampy import JtsGeometryConverter
+from beampy import SubsetOp
 
 def wkt2geom(wkt):
     return JtsGeometryConverter().parse(wkt)
