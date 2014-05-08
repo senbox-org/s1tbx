@@ -30,15 +30,15 @@ After successful installation of `jpy`, you will need to install `beampy` as fol
 
 On Darwin / Linux type:
 
-    > export BEAM_HOME=<path to your BEAM 5 installation>
-    > cd $BEAM_HOME/modules/beam-python-5.0/beampy
-    > python3 setup.py install --user
+    export BEAM_HOME=<path to your BEAM 5 installation>
+    cd $BEAM_HOME/modules/beam-python-5.0/beampy
+    python3 setup.py install --user
 
 On Windows type:
 
-    > SET BEAM_HOME=<path to your BEAM 5 installation>
-    > cd %BEAM_HOME%\modules\beam-python-5.0\beampy
-    > python setup.py install
+    SET BEAM_HOME=<path to your BEAM 5 installation>
+    cd %BEAM_HOME%\modules\beam-python-5.0\beampy
+    python setup.py install
 
 If you encounter any problems during the `jpy` or `beampy` setup please do not hesitate to contact the
 [BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
@@ -53,25 +53,25 @@ below.
 
 On Darwin / Linux type:
 
-    > set BEAM_HOME=<path to your BEAM 5 installation>
-    > python3
+    set BEAM_HOME=<path to your BEAM 5 installation>
+    python3
     >>> import beampy
 
 On Windows type:
 
-    > export BEAM_HOME=<path to your BEAM 5 installation>
-    > python
+    export BEAM_HOME=<path to your BEAM 5 installation>
+    python
     >>> import beampy
 
-If the import is successful (no errors are raised). There are a some test cases in the `beampy` directory.
+If the import is successful (no errors are raised) you can exit the Python interpreter and perform the test cases in the `beampy` directory.
 They all require an EO data product file as input named `MER_RR__1P.N1`, which is an Envisat MERIS L1b product.
 You can download an Envisat MERIS L1b test file from the
 [BEAM home page](http://www.brockmann-consult.de/cms/web/beam/meris-products)
 and rename it to `MER_RR__1P.N1` in order to run the tests.
 
-    > python beampy_mem_test.py
-    > python beampy_perf_test.py
-    > python beampy_product_test.py
+    python beampy_mem_test.py
+    python beampy_perf_test.py
+    python beampy_product_test.py
 
 Please note that the BEAM API is actually independent of specific data formats, the MERIS file in this case
 is only used as an example and for testing.
@@ -103,20 +103,20 @@ and rename it to `MER_RR__1P.N1` and `MER_RR__2P.N1` in order to run the example
 
 Computing a Fluorescence Line Height (FLH) product from water-leaving reflectances:
 
-    > python beampy_flh.py MER_RR__2P.N1
+    python beampy_flh.py MER_RR__2P.N1
 
 Computing a Normalized Difference Vegetation Index (NDVI) product from top-of-atmosphere radiances:
 
-    > python beampy_ndvi.py MER_RR__1P.N1
-    > python beampy_ndvi_with_masks.py MER_RR__1P.N1
+    python beampy_ndvi.py MER_RR__1P.N1
+    python beampy_ndvi_with_masks.py MER_RR__1P.N1
 
 Performing arbitrary band maths:
 
-    > python beampy_bmaths.py MER_RR__1P.N1
+    python beampy_bmaths.py MER_RR__1P.N1
 
 Tailoring any input product to a spatial subset:
 
-    > python beampy_subset.py MER_RR__2P.N1 "POLYGON((15.786082 45.30223, 11.798364 46.118263, 10.878688 43.61961, 14.722727 42.85818, 15.786082 45.30223))"
+    python beampy_subset.py MER_RR__2P.N1 "POLYGON((15.786082 45.30223, 11.798364 46.118263, 10.878688 43.61961, 14.722727 42.85818, 15.786082 45.30223))"
 
 
 There are many more possibilities using the BEAM API. Actually all Java classes of the BEAM API can be used.
