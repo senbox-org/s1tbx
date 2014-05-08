@@ -120,7 +120,7 @@ Tailoring any input product to a spatial subset:
 
 
 There are many more possibilities using the BEAM API. Actually all Java classes of the BEAM API can be used.
-As the BEAM API can be used from Python in a similar ways as from Java, all of the Java API documentation applies as well.
+As the BEAM API can be used from Python in a similar way as from Java, all of the Java API documentation applies as well.
 Please check:
 
 * [BEAM API Documentation](http://www.brockmann-consult.de/beam/doc/apidocs/index.html)
