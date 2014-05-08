@@ -70,7 +70,7 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
         layout.setCellPadding(2, 0, new Insets(13, 2, 5, 2));
 
         final JPanel editorPanel = new JPanel(layout);
-        editorPanel.add(new JLabel("Colour bar:"));
+        editorPanel.add(new JLabel("Colour ramp:"));
         colorPaletteChooser = new ColorPaletteChooser();
         editorPanel.add(colorPaletteChooser);
         editorPanel.add(new JLabel("Display range"));

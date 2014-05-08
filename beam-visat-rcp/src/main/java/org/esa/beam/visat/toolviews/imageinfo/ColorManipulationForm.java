@@ -323,7 +323,7 @@ class ColorManipulationForm {
 
         importButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-open.png");
         importButton.setName("ImportButton");
-        importButton.setToolTipText("Import colour ramp from text file."); /*I18N*/
+        importButton.setToolTipText("Import colour palette from text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -335,7 +335,7 @@ class ColorManipulationForm {
 
         exportButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-save.png");
         exportButton.setName("ExportButton");
-        exportButton.setToolTipText("Save colour ramp to text file."); /*I18N*/
+        exportButton.setToolTipText("Save colour palette to text file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {

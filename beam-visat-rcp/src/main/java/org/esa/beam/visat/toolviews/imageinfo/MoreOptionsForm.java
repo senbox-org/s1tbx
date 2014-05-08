@@ -24,6 +24,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.combobox.ColorComboBox;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.ColorComboBoxAdapter;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -57,13 +58,14 @@ class MoreOptionsForm {
         if (this.hasHistogramMatching) {
             propertyContainer.addProperty(Property.create(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
             propertyContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setNotNull(true);
-            propertyContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setValueSet(new ValueSet(
-                                                                                                 new ImageInfo.HistogramMatching[]{
-                                                                                                             ImageInfo.HistogramMatching.None,
-                                                                                                             ImageInfo.HistogramMatching.Equalize,
-                                                                                                             ImageInfo.HistogramMatching.Normalize,
-                                                                                                 }
-                                                                                     )
+            propertyContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setValueSet(
+                        new ValueSet(
+                                    new ImageInfo.HistogramMatching[]{
+                                                ImageInfo.HistogramMatching.None,
+                                                ImageInfo.HistogramMatching.Equalize,
+                                                ImageInfo.HistogramMatching.Normalize,
+                                    }
+                        )
             );
         }
 
@@ -81,6 +83,13 @@ class MoreOptionsForm {
         final PropertyChangeListener pcl = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                final ImageInfo.HistogramMatching matching = getHistogramMatching();
+                if (matching != ImageInfo.HistogramMatching.None) {
+                    final String message = "<html>Histogram matching will be applied to the currently displayed image.<br/>" +
+                                           "Sample values of the colour palette will not longer translate into<br/>" +
+                                           "their associated colours.</html>";
+                    VisatApp.getApp().showInfoDialog("Histogramm Matching", message, "warningHistogramMatching");
+                }
                 updateModel();
             }
         };
@@ -94,7 +103,7 @@ class MoreOptionsForm {
         addRow(noDataColorLabel, noDataColorComboBox);
         bindingContext.addPropertyChangeListener(NO_DATA_COLOR_PROPERTY, pcl);
 
-        if (hasHistogramMatching) {
+        if (this.hasHistogramMatching) {
             JLabel histogramMatchingLabel = new JLabel("Histogram matching: ");
             JComboBox histogramMatchingBox = new JComboBox();
             Binding histogramMatchingBinding = bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
