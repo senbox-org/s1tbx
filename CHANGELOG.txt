@@ -2,7 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o 07.05.2014: Version 5.0
+    o 08.05.2014: Version 5.0
     o 28.03.2013: Version 4.11
     o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
@@ -36,37 +36,42 @@ _____________________________________________________________________________
 _____________________________________________________________________________
 
 o Python
-    This release comes with support for Python. You can now use the BEAM API from within your Python code,
-    and you can also write extensions for BEAM. For now only processors are supported. For an introduction
-    on how to use it please refer to .......
+    The new beam-python module enables Python developers to use the BEAM Java API from Python, and to
+    extend BEAM by operator plug-ins for EO data processing written in the Python programming language.
+    For an introduction on how to use it please refer to the README.md file in the beam-python module which
+    you find in the $BEAM_HOME/modules directory.
 
-o Performance & Usability
-    For this release a special goal was the improvement of the performance when reading, writing or processing
-    EO data. Also the overall usability of BEAM has been improved at several location, e.g. pins can now be
-    copied to an other product just by a few clicks. Also the main menu of VISAT has been restructured in order
-    to find processors and tools easier.
+o Performance
+    For this release a special goal was the improvement of the runtime performance. Reading, writing, processing
+    and displaying of EO data has been greatly enhanced in multiple cases.
 
 o Binning GUI
-    The graphical user interface for the binning processor has been totally reworked and greatly improved.
-    The old binning implementation has been removed and now completely replaced by the new implementation
-    introduced in version BEAM 4.11.
+    The graphical user interface for the Level-3 binning processor has been fully reworked and greatly improved.
 
 o Colour Manipulation
-    The Colour Manipulation window has been extended by an other editor panel. Beside the already existing
+    The Colour Manipulation window has been extended by another editor panel. Beside the already existing
     Slider and Table editors there is now also the 'Basic' editor. It allows to easily switch between stored
     colour palettes.
-    Beside this change also the Apply button has been removed. Also changes made to the Colour Manipulation are
-    now applied instantaneous and therefor give immediate user feedback.
+    Beside this change also the Apply button has been removed in order to instantaneously apply colour manipulation
+    changes and therefore provide immediate user feedback.
+
+o Spectrum Tool
+    The spectrum tool window has been extended to display multiple spectra at the same time. Each spectrum can be displayed
+    with its own style. The set of displayed spectra can be stored and reloaded.
 
 o Magic Wand
-    With BEAM 5.0 the new Magic Wand tool is introduced. This tool will be familiar for users how already have
-    worked with Adobe Photoshop. It's also known as Magic Stick tool in other applications. The purpose of this tool
-    is to select pixels by the similarity of their spectra.
+    With BEAM 5.0 the new Magic Wand tool has been introduced. The purpose of this tool is to select masks / regions of
+    interest (ROIs) of similar pixels given a user-defined similarity metric. The tool works on any number of bands or
+    entire spectra.
 
-o Filter operations
-    New predefined morphological filters, like erosion and dilation, are supported. Not only predefined filters
-    are supported but also user defined filters. The graphical user interface has been enhanced to allow the editing
-    of the filter configurations.
+o Image Filters
+    New morphological image filters have been added: erosion, dilation, opening and closing.
+    Users can now create their own convolution and morphological filters.
+
+o Usability
+    Also the overall usability of BEAM has been improved at various places, e.g. pins can now be
+    copied to an other product just by a few clicks. Also the main menu of VISAT has been restructured in order
+    to find processors and tools easier.
 
 
 Complete list of BEAM 5.0 bug fixes and improvements
