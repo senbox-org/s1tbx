@@ -64,19 +64,19 @@ public class CreateLandMaskOp extends Operator {
     private String[] sourceBandNames = null;
 
     @Parameter(label="Mask the Land", defaultValue = "true")
-    private boolean landMask = true;
+    private Boolean landMask = true;
 
     @Parameter(label="Use SRTM 3sec", defaultValue = "true")
-    private boolean useSRTM = true;
+    private Boolean useSRTM = true;
 
     @Parameter(label="Vector", defaultValue = "")
     private String geometry = "";
 
     @Parameter(label="Invert Vector", defaultValue = "false")
-    private boolean invertGeometry = false;
+    private Boolean invertGeometry = false;
 
     @Parameter(label="Bypass", defaultValue = "false")
-    private boolean byPass = false;
+    private Boolean byPass = false;
 
     private ElevationModel dem = null;
     private final static int landThreshold = -10;

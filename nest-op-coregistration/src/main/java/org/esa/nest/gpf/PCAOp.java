@@ -74,10 +74,10 @@ public class PCAOp extends Operator {
     private int numPCA = 1;
 
     @Parameter(description = "Show the eigenvalues", defaultValue = "1", label="Show Eigenvalues")
-    private boolean showEigenvalues = false;
+    private Boolean showEigenvalues = false;
 
     @Parameter(description = "Subtract mean image", defaultValue = "1", label="Subtract Mean Image")
-    private boolean subtractMeanImage = false;
+    private Boolean subtractMeanImage = false;
 
     private boolean statsCalculated = false;
     private int numOfPixels = 0;        // total number of pixel values

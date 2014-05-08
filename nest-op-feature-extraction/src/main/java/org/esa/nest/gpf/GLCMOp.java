@@ -89,45 +89,35 @@ public final class GLCMOp extends Operator {
     @Parameter(description = "Pixel displacement", interval = "[1, 10]", defaultValue = "1", label="Displacement")
     private int displacement = 1;
 
-    @Parameter(description = "Output Contrast", defaultValue = "true",
-            label="Contrast")
-    private boolean outputContrast = true;
+    @Parameter(description = "Output Contrast", defaultValue = "true", label="Contrast")
+    private Boolean outputContrast = true;
 
-    @Parameter(description = "Output Dissimilarity", defaultValue = "true",
-            label="Dissimilarity")
-    private boolean outputDissimilarity = true;
+    @Parameter(description = "Output Dissimilarity", defaultValue = "true", label="Dissimilarity")
+    private Boolean outputDissimilarity = true;
 
-    @Parameter(description = "Output Homogeneity", defaultValue = "true",
-            label="Homogeneity")
-    private boolean outputHomogeneity = true;
+    @Parameter(description = "Output Homogeneity", defaultValue = "true", label="Homogeneity")
+    private Boolean outputHomogeneity = true;
 
-    @Parameter(description = "Output Angular Second Moment", defaultValue = "true",
-            label="Angular Second Moment")
-    private boolean outputASM = true;
+    @Parameter(description = "Output Angular Second Moment", defaultValue = "true", label="Angular Second Moment")
+    private Boolean outputASM = true;
 
-    @Parameter(description = "Output Energy", defaultValue = "true",
-            label="Energy")
-    private boolean outputEnergy = true;
+    @Parameter(description = "Output Energy", defaultValue = "true", label="Energy")
+    private Boolean outputEnergy = true;
 
-    @Parameter(description = "Output Maximum Probability", defaultValue = "true",
-            label="Maximum Probability")
-    private boolean outputMAX = true;
+    @Parameter(description = "Output Maximum Probability", defaultValue = "true", label="Maximum Probability")
+    private Boolean outputMAX = true;
 
-    @Parameter(description = "Output Entropy", defaultValue = "true",
-            label="Entropy")
-    private boolean outputEntropy = true;
+    @Parameter(description = "Output Entropy", defaultValue = "true", label="Entropy")
+    private Boolean outputEntropy = true;
 
-    @Parameter(description = "Output GLCM Mean", defaultValue = "true",
-            label="GLCM Mean")
-    private boolean outputMean = true;
+    @Parameter(description = "Output GLCM Mean", defaultValue = "true", label="GLCM Mean")
+    private Boolean outputMean = true;
 
-    @Parameter(description = "Output GLCM Variance", defaultValue = "true",
-            label="GLCM Variance")
-    private boolean outputVariance = true;
+    @Parameter(description = "Output GLCM Variance", defaultValue = "true", label="GLCM Variance")
+    private Boolean outputVariance = true;
 
-    @Parameter(description = "Output GLCM Correlation", defaultValue = "true",
-            label="GLCM Correlation")
-    private boolean outputCorrelation = true;
+    @Parameter(description = "Output GLCM Correlation", defaultValue = "true", label="GLCM Correlation")
+    private Boolean outputCorrelation = true;
 
     private int windowSize = 0;
     private int halfWindowSize = 0;

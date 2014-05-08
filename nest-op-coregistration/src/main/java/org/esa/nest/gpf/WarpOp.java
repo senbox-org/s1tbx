@@ -98,7 +98,7 @@ public class WarpOp extends Operator {
     private InterpolationTable interpTable = null;
 
     @Parameter(description = "Show the Residuals file in a text viewer", defaultValue = "false", label = "Show Residuals")
-    private boolean openResidualsFile = false;
+    private Boolean openResidualsFile = false;
 
     private Band masterBand = null;
     private Band masterBand2 = null;

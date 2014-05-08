@@ -53,10 +53,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private String[] selectedPolarisations;
 
     @Parameter(description = "Remove thermal noise", defaultValue = "true", label="Remove Thermal Noise")
-    private boolean removeThermalNoise  = true;
+    private Boolean removeThermalNoise  = true;
 
     @Parameter(description = "Re-introduce thermal noise", defaultValue = "false", label="Re-Introduce Thermal Noise")
-    private boolean reIntroduceThermalNoise = false;
+    private Boolean reIntroduceThermalNoise = false;
 
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;

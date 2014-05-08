@@ -113,7 +113,7 @@ public class GCPSelectionOp extends Operator {
     private double coherenceThreshold = 0.6;
     @Parameter(description = "Use sliding window for coherence calculation", defaultValue = "false",
                 label="Compute coherence with sliding window")
-    private boolean useSlidingWindow = false;
+    private Boolean useSlidingWindow = false;
 
     private boolean useAllPolarimetricBands = false;
 

@@ -63,32 +63,32 @@ public class CalibrationOp extends Operator {
     private File externalAuxFile = null;
 
     @Parameter(description = "Output image in complex", defaultValue = "false", label="Save in complex")
-    private boolean outputImageInComplex = false;
+    private Boolean outputImageInComplex = false;
                      
     @Parameter(description = "Output image scale", defaultValue = "false", label="Scale in dB")
-    private boolean outputImageScaleInDb = false;
+    private Boolean outputImageScaleInDb = false;
 
     @Parameter(description = "Create gamma0 virtual band", defaultValue = "false", label="Create gamma0 virtual band")
-    private boolean createGammaBand = false;
+    private Boolean createGammaBand = false;
 
     @Parameter(description = "Create beta0 virtual band", defaultValue = "false", label="Create beta0 virtual band")
-    private boolean createBetaBand = false;
+    private Boolean createBetaBand = false;
 
     // for Sentinel-1 mission only
     @Parameter(description = "The list of polarisations", label="Polarisations")
     private String[] selectedPolarisations;
 
     @Parameter(description = "Output sigma0 band", defaultValue = "true", label="Output sigma0 band")
-    private boolean outputSigmaBand = true;
+    private Boolean outputSigmaBand = true;
 
     @Parameter(description = "Output gamma0 band", defaultValue = "false", label="Output gamma0 band")
-    private boolean outputGammaBand = false;
+    private Boolean outputGammaBand = false;
 
     @Parameter(description = "Output beta0 band", defaultValue = "false", label="Output beta0 band")
-    private boolean outputBetaBand = false;
+    private Boolean outputBetaBand = false;
 
     @Parameter(description = "Output DN band", defaultValue = "false", label="Output DN band")
-    private boolean outputDNBand = false;
+    private Boolean outputDNBand = false;
 
     private Calibrator calibrator = null;
 
