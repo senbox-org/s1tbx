@@ -196,7 +196,11 @@ Improvement
     [BEAM-1457] - Display a spectral band's wavelengths next to its name
     [BEAM-1459] - Allow aggregating pixel values even if not all pixels of the window are valid
     [BEAM-1471] - The time extraction from file name should support DAY_OF_YEAR
+    [BEAM-1486] - Binning operator GUI has no menu
     [BEAM-1487] - If expression is used for a variable it shall be possible to define a name for the variable
+    [BEAM-1488] - The valid expression shall be defined per variable
+    [BEAM-1489] - Parameter target height (numRows) is not self-explanatory
+    [BEAM-1491] - Allow multiple aggregator per variable
     [BEAM-1499] - In L3-Binning No-data should always be represented by NaN
     [BEAM-1502] - Binning should (optionally) support a postprocessor
     [BEAM-1504] - Update NetCDF library to latest version
