@@ -88,6 +88,7 @@ public class MultilookOpUI extends BaseOperatorUI {
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
         nRgLooks.setText(String.valueOf(paramMap.get("nRgLooks")));
+        nAzLooks.setText(String.valueOf(paramMap.get("nAzLooks")));
 
         outputIntensity = (Boolean)paramMap.get("outputIntensity");
         if(outputIntensity != null) {
