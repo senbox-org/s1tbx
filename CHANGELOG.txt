@@ -244,7 +244,6 @@ Improvement
     [BEAM-1638] - Envisat/Doris Orbit interpolation not sufficient
     [BEAM-1641] - Simplify project module structure and versioning
     [BEAM-1642] - Create geometry from WKT
-    [BEAM-1648] - Add processing time to metadata
 
 
 _____________________________________________________________________________
