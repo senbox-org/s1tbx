@@ -19,7 +19,6 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.nest.SingleOperatorBenchmark;
 import org.esa.nest.gpf.filtering.SpeckleFilterOp;
-import org.junit.Ignore;
 
 /**
  * Test operator performance

@@ -33,19 +33,21 @@
     <extension point="beam-ui:actions">
 
         <action>
-            <id>geometry</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Geometric</text>
-            <parent>sar-processing</parent>
-            <placeAfter>Calibration</placeAfter>
-        </action>
-
-        <action>
             <id>insar</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Interferometric</text>
             <parent>sar-processing</parent>
             <placeAfter>geometry</placeAfter>
+        </action>
+
+        <!-- Geometric -->
+
+        <action>
+            <id>geometry</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Geometric</text>
+            <parent>sar-processing</parent>
+            <placeAfter>Calibration</placeAfter>
         </action>
 
         <action>
@@ -184,6 +186,116 @@
             <shortDescr>Radiometric Terrain Flattened Terrain Correction</shortDescr>
             <parent>TerrainFlattening</parent>
             <helpId>TerrainFlattenedTC</helpId>
+        </action>
+
+        <action>
+            <id>SlantRangeGroundRangeOp</id>
+            <helpId>SRGROp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>geometry</parent>
+            <text>Slant Range to Ground Range</text>
+            <operatorName>SRGR</operatorName>
+            <dialogTitle>Converts from slant range to ground range</dialogTitle>
+            <targetProductNameSuffix>_GrdRg</targetProductNameSuffix>
+            <placeAfter>DEMTools</placeAfter>
+        </action>
+
+        <!-- SAR Filtering -->
+
+        <action>
+            <id>SpeckleFiltering</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Speckle Filtering</text>
+            <parent>sar-processing</parent>
+            <placeAfter>Calibration</placeAfter>
+        </action>
+
+        <action>
+            <id>SpeckleFilterOp</id>
+            <helpId>SpeckleFilterOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>SpeckleFiltering</parent>
+            <text>Single Product Speckle Filter</text>
+            <operatorName>Speckle-Filter</operatorName>
+            <dialogTitle>Speckle filtering</dialogTitle>
+            <shortDescr>Invoke the Speckle Filter operator on a single product</shortDescr>
+            <targetProductNameSuffix>_Spk</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>MultiTemporalSpeckleFilterOp</id>
+            <helpId>MultiTemporalSpeckleFilterOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>SpeckleFiltering</parent>
+            <text>Multi-temporal Product Speckle Filter</text>
+            <operatorName>Multi-Temporal-Speckle-Filter</operatorName>
+            <shortDescr>Speckle filter a stack</shortDescr>
+            <dialogTitle>Multi-temporal Speckle filtering</dialogTitle>
+            <targetProductNameSuffix>_Spk</targetProductNameSuffix>
+        </action>
+
+        <!-- SAR Processing -->
+
+        <action>
+            <id>MultilookOp</id>
+            <helpId>MultilookOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>sar-processing</parent>
+            <text>Multilooking</text>
+            <operatorName>Multilook</operatorName>
+            <dialogTitle>Multilook</dialogTitle>
+            <shortDescr>Multilook an image</shortDescr>
+            <targetProductNameSuffix>_ML</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>SLCtoPRI</id>
+            <helpId>SLCtoPRI</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>sar-processing</parent>
+            <text>Complex to Detected GR</text>
+            <shortDescr>Convert a SLC product to a detected ground range product</shortDescr>
+            <dialogTitle>Complex to Detected Ground Range</dialogTitle>
+            <graphFile>SLCtoPRIGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>ASARWSS</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>ASAR WSS</text>
+            <parent>sar-processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
+        </action>
+
+        <action>
+            <id>WSSDeburstOp</id>
+            <helpId>WSSDeburstOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>ASARWSS</parent>
+            <text>ASAR WSS Deburst</text>
+            <operatorName>DeburstWSS</operatorName>
+            <dialogTitle>ASAR WSS Deburst operator</dialogTitle>
+            <shortDescr>Deburst an ASAR WSS product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>WSSMosaicOp</id>
+            <helpId>WSSMosaicOp</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>ASARWSS</parent>
+            <text>WSS Deburst, Calibrate and Detect</text>
+            <shortDescr>Graph to deburst and detect a WSS product. Run Mosaic afterwards to combine</shortDescr>
+            <dialogTitle>WSS Deburst, Calibrate and Detect</dialogTitle>
+            <graphFile>WSSDetectGraph.xml</graphFile>
+            <placeAfter>WSSDeburstOp</placeAfter>
         </action>
 
     </extension>

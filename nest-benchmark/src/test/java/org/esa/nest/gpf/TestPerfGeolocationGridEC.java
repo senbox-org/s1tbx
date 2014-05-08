@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.nest.SingleOperatorBenchmark;
+import org.esa.nest.gpf.geometric.GeolocationGridGeocodingOp;
 import org.junit.Ignore;
 
 /**

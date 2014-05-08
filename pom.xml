@@ -52,7 +52,7 @@
 		<module>rstb</module>
 		<module>nest-benchmark</module>
 		<module>nest-bootstrap</module>
-		<module>nest-cli-bootstrap</module>
+		<module>s1tbx-cli</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
 		<module>nest-graph-builder</module>
