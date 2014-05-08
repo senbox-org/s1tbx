@@ -4,10 +4,7 @@ import beampy
 from beampy import ProductIO
 
 SubsetOp = beampy.jpy.get_type('org.esa.beam.gpf.operators.standard.SubsetOp')
-JtsGeometryConverter = beampy.jpy.get_type('org.esa.beam.util.converters.JtsGeometryConverter')
-
-def wkt2geom(wkt):
-    return JtsGeometryConverter().parse(wkt)
+WKTReader = beampy.jpy.get_type('com.vividsolutions.jts.io.WKTReader')
 
 if len(sys.argv) != 3:
     print("usage: %s <file> <geometry-wkt>" % sys.argv[0])
@@ -18,7 +15,7 @@ if len(sys.argv) != 3:
 file = sys.argv[1]
 wkt = sys.argv[2]
 
-geom = wkt2geom(wkt)
+geom = WKTReader().read(wkt)
 
 print("Reading...")
 product = ProductIO.readProduct(file)
