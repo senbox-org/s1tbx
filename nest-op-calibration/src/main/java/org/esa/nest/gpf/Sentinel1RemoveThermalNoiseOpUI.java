@@ -79,8 +79,8 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
     public void initParameters() {
 
         if (sourceProducts != null && sourceProducts.length > 0) {
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
+            final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProducts[0]);
+            final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
             polList.setListData(polarisations);
 
             OperatorUIUtils.initParamList(polList, polarisations);

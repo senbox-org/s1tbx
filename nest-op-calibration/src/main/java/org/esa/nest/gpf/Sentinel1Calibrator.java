@@ -94,8 +94,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         String[] selectedPols = selectedPolarisations;
         if (selectedPols == null || selectedPols.length == 0) {
-            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
+            //MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
         }
         selectedPolList = Arrays.asList(selectedPols);
 
@@ -220,7 +221,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                                              final boolean outputGammaBand, final boolean outputDNBand,
                                              CalibrationInfo[] calibration) {
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
         final MetadataElement[] calibrationDataSetListElem = calibrationElem.getElements();
@@ -243,7 +243,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             calibration[dataSetIndex].firstLineTime = Sentinel1Utils.getTime(adsHeaderElem, "startTime").getMJD();
             calibration[dataSetIndex].lastLineTime = Sentinel1Utils.getTime(adsHeaderElem, "stopTime").getMJD();
             calibration[dataSetIndex].numOfLines = getNumOfLines(
-                    absRoot, calibration[dataSetIndex].polarization, calibration[dataSetIndex].subSwath);
+                    origProdRoot, calibration[dataSetIndex].polarization, calibration[dataSetIndex].subSwath);
             calibration[dataSetIndex].count = calVecListElem.getAttributeInt("count");
             calibration[dataSetIndex].calibrationVectorList = Sentinel1Utils.getCalibrationVector(
                     calVecListElem, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
@@ -279,20 +279,26 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     /**
      * Get the number of output lines of a given swath.
      *
-     * @param absRoot      Root of the abstracted metadata.
+     * @param origProdRoot Root of the original metadata of the source product.
      * @param polarization Polarization of the given swath.
      * @param swath        Swath name.
      * @return The number of output lines.
      */
-    public static int getNumOfLines(final MetadataElement absRoot, final String polarization, final String swath) {
+    public static int getNumOfLines(final MetadataElement origProdRoot, final String polarization, final String swath) {
 
-        final MetadataElement[] elems = absRoot.getElements();
-        for (MetadataElement elem : elems) {
-            final String elemName = elem.getName();
-            if (elemName.contains(swath) && elemName.contains(polarization)) {
-                return elem.getAttributeInt("num_output_lines");
+        final MetadataElement annotationElem = origProdRoot.getElement("annotation");
+        final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
+
+        for (MetadataElement dataSetListElem : annotationDataSetListElem) {
+            final String elemName = dataSetListElem.getName();
+            if (elemName.contains(swath.toLowerCase()) && elemName.contains(polarization.toLowerCase())) {
+                final MetadataElement productElem = dataSetListElem.getElement("product");
+                final MetadataElement imageAnnotationElem = productElem.getElement("imageAnnotation");
+                final MetadataElement imageInformationElem = imageAnnotationElem.getElement("imageInformation");
+                return imageInformationElem.getAttributeInt("numberOfLines");
             }
         }
+
         return -1;
     }
 

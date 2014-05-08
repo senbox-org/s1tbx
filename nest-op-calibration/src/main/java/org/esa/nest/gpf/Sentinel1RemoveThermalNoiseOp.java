@@ -238,7 +238,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             noise[dataSetIndex].firstLineTime = Sentinel1Utils.getTime(adsHeaderElem, "startTime").getMJD();
             noise[dataSetIndex].lastLineTime = Sentinel1Utils.getTime(adsHeaderElem, "stopTime").getMJD();
             noise[dataSetIndex].numOfLines = Sentinel1Calibrator.getNumOfLines(
-                    absRoot, noise[dataSetIndex].polarization, noise[dataSetIndex].subSwath);
+                    origMetadataRoot, noise[dataSetIndex].polarization, noise[dataSetIndex].subSwath);
             noise[dataSetIndex].count = Integer.parseInt(noiseVectorListElem.getAttributeString("count"));
             noise[dataSetIndex].noiseVectorList = Sentinel1Utils.getNoiseVector(noiseVectorListElem);
 
@@ -293,8 +293,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         String[] selectedPols = selectedPolarisations;
         if (selectedPols == null || selectedPols.length == 0) {
-            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
+            final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
         }
         selectedPolList = Arrays.asList(selectedPols);
     }
