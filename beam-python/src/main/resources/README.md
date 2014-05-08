@@ -14,7 +14,7 @@ example code in
 2. `beampy-operator-example` for extending BEAM by an operator plugin.
 
 The link from Python to the BEAM Java API is established via a Python module named *beampy*. The beampy module
-depends on a *bi-directional* Java-Python bridge that enables calls from Python into a Java virtual machine
+depends on a *bi-directional* Java-Python bridge *jpy* that enables calls from Python into a Java virtual machine
 and, at the same time, the other way round. This bridge is implemented by the [jpy Project](https://github.com/bcdev/jpy)
 and is independent from the beampy module.
 
@@ -22,40 +22,26 @@ Before you can start using the BEAM API or developing BEAM operator plugins with
 to install jpy and beampy. Unfortunately this has to be done manually, so be prepared to invest at least half an hour
 for setting up things correctly.
 
-
 Installation
 ------------
 
-You will need the following software development tools:
-
-* [Python 3.3](http://www.python.org/) or higher
-* [numpy](http://www.numpy.org/), for Python 3.3 (required for the examples)
-* [git](http://git-scm.com/)
-* [Oracle JDK 1.7](http://www.oracle.com/technetwork/java/javase/downloads/) or higher
-* [Maven 3](http://maven.apache.org/), or higher
-* For Windows: [Microsoft Windows SDK 7.1](http://www.microsoft.com/en-us/download/details.aspx?id=8279)
-* For Darwin: [Xcode 5](https://itunes.apple.com/de/app/xcode/id497799835?mt=12), or higher
-* For Linux: gcc
-
-The very first step is to install the jpy. Please follow the setup as described in the 
-[jpy documentation](http://jpy.readthedocs.org/en/latest/install.html).
-
-If you encounter any problems during set-up please do not hesitate to contact the
-[BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
-
-After successful installation of `jpy`, you will need to install `beampy`:
+The first step is to properly install `jpy` as described in the [jpy documentation](http://jpy.readthedocs.org/en/latest/install.html).
+After successful installation of `jpy`, you will need to install `beampy` as follows:
 
 On Darwin / Linux type:
 
     > export BEAM_HOME=<path to your BEAM 5 installation>
-    > cd $BEAM_HOME/modules/beam-python/beampy
+    > cd $BEAM_HOME/modules/beam-python-5.0/beampy
     > python3 setup.py install --user
 
 On Windows type:
 
     > SET BEAM_HOME=<path to your BEAM 5 installation>
-    > cd %BEAM_HOME%\modules\beam-python\beampy
+    > cd %BEAM_HOME%\modules\beam-python-5.0\beampy
     > python setup.py install
+
+If you encounter any problems during the `jpy` or `beampy` setup please do not hesitate to contact the
+[BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
 
 Testing
 -------
