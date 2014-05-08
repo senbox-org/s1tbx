@@ -56,6 +56,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     private String[] selectedPolarisations;
 
     private MetadataElement absRoot = null;
+    private MetadataElement origProdRoot = null;
     private String acquisitionMode = null;
 
     private int numOfSubSwath = 0;
@@ -100,6 +101,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
         try {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
             getMission();
 
@@ -110,7 +112,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             getCalibrationFlag();
 
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-                selectedPolarisations = getProductPolarizations(absRoot);
+                selectedPolarisations = getProductPolarizations(origProdRoot);
             }
 
             getSubSwathParameters();
@@ -199,24 +201,20 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     /**
      * Get source product polarizations.
      *
-     * @param absRoot Root element of the abstracted metadata of the source product.
+     * @param origProdRoot Root element of the original metadata of the source product.
      * @return The polarization array.
      */
-    public static String[] getProductPolarizations(final MetadataElement absRoot) {
+    public static String[] getProductPolarizations(final MetadataElement origProdRoot) {
 
-        String swath = absRoot.getAttributeString(AbstractMetadata.SWATH);
-        if (swath.length() <= 1) {
-            swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-        }
-
-        final MetadataElement[] elems = absRoot.getElements();
+        final MetadataElement annotationElem = origProdRoot.getElement("annotation");
+        final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
         final List<String> polarizations = new ArrayList<String>(4);
-        for (MetadataElement elem : elems) {
-            if (elem.getName().contains(swath)) {
-                final String pol = elem.getAttributeString("polarization");
-                if (!polarizations.contains(pol)) {
-                    polarizations.add(pol);
-                }
+
+        for (MetadataElement dataSetListElem : annotationDataSetListElem) {
+            final String elemName = dataSetListElem.getName();
+            final String pol = elemName.substring(12, 14).toUpperCase();
+            if (!polarizations.contains(pol)) {
+                polarizations.add(pol);
             }
         }
         return polarizations.toArray(new String[polarizations.size()]);
@@ -249,9 +247,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             throw new OperatorException("Root Metadata not found");
         }
 
-        final MetadataElement Original_Product_Metadata = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-
-        MetadataElement annotation = Original_Product_Metadata.getElement("annotation");
+        MetadataElement annotation = origProdRoot.getElement("annotation");
         if (annotation == null) {
             throw new OperatorException("Annotation Metadata not found");
         }
