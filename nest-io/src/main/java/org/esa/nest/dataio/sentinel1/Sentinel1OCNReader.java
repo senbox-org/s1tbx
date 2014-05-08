@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -65,7 +65,7 @@ public class Sentinel1OCNReader {
 
     public void addNetCDFMetadata(final Product product, final MetadataElement annotationElement) {
         final Set<String> files = bandNCFileMap.keySet();
-        for(String file : files) {
+        for (String file : files) {
             final NetcdfFile netcdfFile = bandNCFileMap.get(file);
             final MetadataElement bandElem = NetCDFUtils.addAttributes(annotationElement, file,
                     netcdfFile.getGlobalAttributes());
@@ -82,11 +82,11 @@ public class Sentinel1OCNReader {
             }
             context.setRasterDigest(rasterDigest);
 
-            if(product.getSceneRasterWidth() > 0 && product.getSceneRasterHeight() > 0) {
+            if (product.getSceneRasterWidth() > 0 && product.getSceneRasterHeight() > 0) {
                 CfBandPart bandReader = new CfBandPart();
                 try {
                     bandReader.decode(context, product);
-                } catch(Exception e) {
+                } catch (Exception e) {
 
                 }
             }
@@ -116,12 +116,12 @@ public class Sentinel1OCNReader {
             final int height = variable.getDimension(0).getLength();
             final int width = variable.getDimension(1).getLength();
             String cntStr = "";
-            if(variables.length > 1) {
+            if (variables.length > 1) {
                 final String polStr = "pol";//getPolarization(product, cnt);
-                if(polStr != null) {
-                    cntStr = "_"+polStr;
+                if (polStr != null) {
+                    cntStr = "_" + polStr;
                 } else {
-                    cntStr = "_"+cnt;
+                    cntStr = "_" + cnt;
                 }
                 ++cnt;
             }
@@ -142,13 +142,13 @@ public class Sentinel1OCNReader {
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, cntStr);
                 ReaderUtils.createVirtualPhaseBand(product, bandI, bandQ, cntStr);
             } else { */
-                final Band band = NetCDFUtils.createBand(variable, width, height);
-              //  createUniqueBandName(product, band, "Amplitude"+cntStr);
-                band.setUnit(Unit.AMPLITUDE);
-                product.addBand(band);
-           //     bandMap.put(band, variable);
-                SARReader.createVirtualIntensityBand(product, band, cntStr);
-          //  }
+            final Band band = NetCDFUtils.createBand(variable, width, height);
+            //  createUniqueBandName(product, band, "Amplitude"+cntStr);
+            band.setUnit(Unit.AMPLITUDE);
+            product.addBand(band);
+            //     bandMap.put(band, variable);
+            SARReader.createVirtualIntensityBand(product, band, cntStr);
+            //  }
         }
     }
 }

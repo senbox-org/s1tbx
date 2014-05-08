@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,14 +28,14 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathQuad =      TestUtils.rootPathExpectedProducts+"\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack =       TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack =       TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+    private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
 
-    private final static String expectedBoxCar =     TestUtils.rootPathExpectedProducts+"\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
-    private final static String expectedRefinedLee = TestUtils.rootPathExpectedProducts+"\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
-    private final static String expectedIDAN =       TestUtils.rootPathExpectedProducts+"\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
+    private final static String expectedBoxCar = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
+    private final static String expectedRefinedLee = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
+    private final static String expectedIDAN = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
 
     @Override
     protected void setUp() throws Exception {
@@ -52,7 +52,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
     private static Product runFilter(final PolarimetricSpeckleFilterOp op,
                                      final String filterName, final String path) throws Exception {
         final Product sourceProduct = TestUtils.readSourceProduct(path);
-        
+
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter(filterName);
@@ -65,37 +65,40 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
 
     /**
      * Perform Box Car filtering of a Radarsat-2 product and compares it with processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testBoxCarFilter() throws Exception {
 
-        final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp)spi.createOperator();
+        final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp) spi.createOperator();
         final Product targetProduct = runFilter(op, PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER, inputPathQuad);
-        if(targetProduct != null)
+        if (targetProduct != null)
             TestUtils.compareProducts(targetProduct, expectedBoxCar, null);
     }
 
     /**
      * Perform Refined Lee filtering of a Radarsat-2 product and compares it with processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testRefinedLeeFilter() throws Exception {
 
-        final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp)spi.createOperator();
+        final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp) spi.createOperator();
         final Product targetProduct = runFilter(op, PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER, inputPathQuad);
-        if(targetProduct != null)
+        if (targetProduct != null)
             TestUtils.compareProducts(targetProduct, expectedRefinedLee, null);
     }
 
     /**
      * Perform IDAN filtering of a Radarsat-2 product and compares it with processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testIDANFilter() throws Exception {
 
-        final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp)spi.createOperator();
+        final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp) spi.createOperator();
         final Product targetProduct = runFilter(op, PolarimetricSpeckleFilterOp.IDAN_FILTER, inputPathQuad);
-        if(targetProduct != null)
+        if (targetProduct != null)
             TestUtils.compareProducts(targetProduct, expectedIDAN, null);
     }
 
@@ -103,37 +106,37 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
 
     public void testBoxCarStack() throws Exception {
 
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER, inputPathQuad);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER, inputQuadFullStack);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER, inputC3Stack);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER, inputT3Stack);
     }
 
     public void testRefinedLeeStack() throws Exception {
 
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER, inputPathQuad);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER, inputQuadFullStack);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER, inputC3Stack);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(), 
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER, inputT3Stack);
     }
 
     public void testIDANStack() throws Exception {
 
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.IDAN_FILTER, inputPathQuad);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.IDAN_FILTER, inputQuadFullStack);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.IDAN_FILTER, inputC3Stack);
-        runFilter((PolarimetricSpeckleFilterOp)spi.createOperator(),
+        runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
                 PolarimetricSpeckleFilterOp.IDAN_FILTER, inputT3Stack);
     }
 }

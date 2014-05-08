@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,7 +34,6 @@ import java.util.List;
 
 /**
  * Shows the movement of GCP in a coregistered image
- *
  */
 public class GCPVectorLayer extends Layer {
 
@@ -54,14 +53,14 @@ public class GCPVectorLayer extends Layer {
 
     private void getData() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
+        if (absRoot != null) {
             final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, band.getName(), false);
-            if(bandElem != null) {
+            if (bandElem != null) {
                 final MetadataElement warpDataElem = bandElem.getElement("WarpData");
-                if(warpDataElem != null) {
+                if (warpDataElem != null) {
                     final MetadataElement[] gcpElems = warpDataElem.getElements();
                     gcpList.clear();
-                    for(MetadataElement gcpElem : gcpElems) {
+                    for (MetadataElement gcpElem : gcpElems) {
                         final double mstX = gcpElem.getAttributeDouble("mst_x", 0);
                         final double mstY = gcpElem.getAttributeDouble("mst_y", 0);
 
@@ -77,7 +76,7 @@ public class GCPVectorLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        if(gcpList.isEmpty())
+        if (gcpList.isEmpty())
             return;
 
         final Viewport vp = rendering.getViewport();
@@ -92,16 +91,17 @@ public class GCPVectorLayer extends Layer {
         graphics.setStroke(new BasicStroke(lineThickness));
 
         graphics.setColor(Color.RED);
-        for(GCPData gcp : gcpList) {
+        for (GCPData gcp : gcpList) {
             GraphicsUtils.drawArrow(graphics, screenPixel,
-                    (int)gcp.slvX, (int)gcp.slvY,
-                    (int)gcp.mstX, (int)gcp.mstY);
+                    (int) gcp.slvX, (int) gcp.slvY,
+                    (int) gcp.mstX, (int) gcp.mstY);
         }
     }
 
     private static class GCPData {
         public final double mstX, mstY;
         public final double slvX, slvY;
+
         public GCPData(double mX, double mY, double sX, double sY) {
             this.mstX = mX;
             this.mstY = mY;

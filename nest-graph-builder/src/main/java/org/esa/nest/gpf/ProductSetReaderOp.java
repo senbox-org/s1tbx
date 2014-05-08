@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,7 +28,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
  */
 @OperatorMetadata(alias = "ProductSet-Reader",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Adds a list of sources")
 public class ProductSetReaderOp extends Operator {
 

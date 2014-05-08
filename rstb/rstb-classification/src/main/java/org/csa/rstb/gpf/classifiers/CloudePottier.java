@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,7 @@ import java.awt.*;
 import java.util.Map;
 
 /**
-    Implements CloudePottier Classifier
+ * Implements CloudePottier Classifier
  */
 public class CloudePottier extends PolClassifierBase implements PolClassifier {
 
@@ -51,13 +51,14 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
                          final Map<Band, PolBandUtils.QuadSourceBand> srcbandMap) {
         super(sourceProductType, sourceWidth, sourceHeight, winSize, srcbandMap);
 
-        useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId()+
-                                                             ".useLeeHAlphaPlaneDefinition");
+        useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId() +
+                ".useLeeHAlphaPlaneDefinition");
     }
 
     /**
-        Return the band name for the target product
-        @return band name
+     * Return the band name for the target product
+     *
+     * @return band name
      */
     public String getTargetBandName() {
         return H_ALPHA_CLASS;
@@ -65,6 +66,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
 
     /**
      * returns the number of classes
+     *
      * @return num classes
      */
     public int getNumClasses() {
@@ -73,18 +75,18 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
 
     /**
      * Perform decomposition for given tile.
+     *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op         the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
         final Rectangle targetRectangle = targetTile.getRectangle();
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         final ProductData targetData = targetTile.getDataBuffer();
@@ -101,16 +103,16 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
             dataBuffers[i] = sourceTiles[i].getDataBuffer();
         }
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-        
+
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
         final int noDataValue = 0;
-        for(int y = y0; y < maxY; ++y) {
+        for (int y = y0; y < maxY; ++y) {
             trgIndex.calculateStride(y);
-            for(int x = x0; x < maxX; ++x) {
+            for (int x = x0; x < maxX; ++x) {
 
                 PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
-                                                  sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                        sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
 
@@ -126,8 +128,9 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
 
     /**
      * Compute zone index (1 to 9) for given entropy and alpha
-     * @param entropy The entropy
-     * @param alpha The alpha
+     *
+     * @param entropy                     The entropy
+     * @param alpha                       The alpha
      * @param useLeeHAlphaPlaneDefinition Use Lee's H-Alpha plane definition if true, otherwise use PolSARPro definition
      * @return The zone index
      */

@@ -8,17 +8,17 @@
 
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>Canadian Space Agency</funding>
+    <funding>Canadian Space Agency</funding>
 
     <dependency>
         <module>nest-core</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>nest-dat</module>
     </dependency>
-	
+
     <categories>Application,DAT</categories>
 
     <extension point="beam-ui:toolViews">
@@ -37,7 +37,7 @@
         </toolView>
     </extension>
 
-	<extension point="beam-ui:actions">
+    <extension point="beam-ui:actions">
 
         <action>
             <id>polarimetrictools</id>
@@ -48,26 +48,26 @@
         </action>
 
         <action>
-	        <id>PolarimetricMatricesOp</id>
-	        <helpId>PolarimetricMatricesOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>PolarimetricMatricesOp</id>
+            <helpId>PolarimetricMatricesOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
-	        <text>Polarimetric Matrix Generation</text>
-	        <dialogTitle>Generate Covariance or Coherency Matrix</dialogTitle>
+            <text>Polarimetric Matrix Generation</text>
+            <dialogTitle>Generate Covariance or Coherency Matrix</dialogTitle>
             <shortDescr>Generate Covariance or Coherency Matrix</shortDescr>
             <operatorName>Polarimetric-Matrices</operatorName>
             <targetProductNameSuffix>_mat</targetProductNameSuffix>
-	    </action>
+        </action>
 
         <action>
-	        <id>PolarimetricSpeckleFilterOp</id>
-	        <helpId>PolarimetricSpeckleFilterOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>PolarimetricSpeckleFilterOp</id>
+            <helpId>PolarimetricSpeckleFilterOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
-	        <text>Polarimetric Speckle Filter</text>
-	        <dialogTitle>Polarimetric Speckle Filter</dialogTitle>
+            <text>Polarimetric Speckle Filter</text>
+            <dialogTitle>Polarimetric Speckle Filter</dialogTitle>
             <shortDescr>Polarimetric Speckle Filter</shortDescr>
             <operatorName>Polarimetric-Speckle-Filter</operatorName>
             <targetProductNameSuffix>_Spk</targetProductNameSuffix>
@@ -75,13 +75,13 @@
         </action>
 
         <action>
-	        <id>OrientationAngleCorrectionOp</id>
-	        <helpId>OrientationAngleCorrectionOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>OrientationAngleCorrectionOp</id>
+            <helpId>OrientationAngleCorrectionOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
-	        <text>Orientation Angle Correction</text>
-	        <dialogTitle>Orientation Angle Correction</dialogTitle>
+            <text>Orientation Angle Correction</text>
+            <dialogTitle>Orientation Angle Correction</dialogTitle>
             <shortDescr>Orientation Angle Correction</shortDescr>
             <operatorName>Orientation-Angle-Correction</operatorName>
             <targetProductNameSuffix>_Ori</targetProductNameSuffix>
@@ -89,13 +89,13 @@
         </action>
 
         <action>
-	        <id>PolarimetricDecompositionOp</id>
-	        <helpId>PolarimetricDecompositionOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>PolarimetricDecompositionOp</id>
+            <helpId>PolarimetricDecompositionOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
-	        <text>Polarimetric Decomposition</text>
-	        <dialogTitle>Polarimetric Decomposition</dialogTitle>
+            <text>Polarimetric Decomposition</text>
+            <dialogTitle>Polarimetric Decomposition</dialogTitle>
             <shortDescr>Polarimetric Decomposition</shortDescr>
             <operatorName>Polarimetric-Decomposition</operatorName>
             <targetProductNameSuffix>_Decomp</targetProductNameSuffix>
@@ -103,11 +103,11 @@
         </action>
 
     </extension>
-	
-	<extension point="beam-ui:helpSets">
+
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>polarimetricHelp</id>
+            <id>polarimetricHelp</id>
             <path>doc/help/polarimetric.hs</path>
         </helpSet>
     </extension>

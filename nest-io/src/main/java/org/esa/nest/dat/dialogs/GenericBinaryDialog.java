@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,18 +44,18 @@ public class GenericBinaryDialog extends ModalDialog {
     private final JFormattedTextField numBandsField = DialogUtils.createFormattedTextField(numFormat, numBands, propListener);
     private final JFormattedTextField headerBytesField = DialogUtils.createFormattedTextField(numFormat, headerBytes, propListener);
 
-    private final JComboBox dataTypeBox = new JComboBox(new String[] {  ProductData.TYPESTRING_INT8,
-                                                                        ProductData.TYPESTRING_UINT8,
-                                                                        ProductData.TYPESTRING_INT16,
-                                                                        ProductData.TYPESTRING_UINT16,
-                                                                        ProductData.TYPESTRING_INT32,
-                                                                        ProductData.TYPESTRING_UINT32,
-                                                                        ProductData.TYPESTRING_FLOAT32,
-                                                                        ProductData.TYPESTRING_FLOAT64 } );
+    private final JComboBox dataTypeBox = new JComboBox(new String[]{ProductData.TYPESTRING_INT8,
+            ProductData.TYPESTRING_UINT8,
+            ProductData.TYPESTRING_INT16,
+            ProductData.TYPESTRING_UINT16,
+            ProductData.TYPESTRING_INT32,
+            ProductData.TYPESTRING_UINT32,
+            ProductData.TYPESTRING_FLOAT32,
+            ProductData.TYPESTRING_FLOAT64});
 
-    private final JComboBox byteOrderBox = new JComboBox(new String[] {  "BIG ENDIAN", "LITTLE ENDIAN" } );
+    private final JComboBox byteOrderBox = new JComboBox(new String[]{"BIG ENDIAN", "LITTLE ENDIAN"});
 
-    private final JComboBox interleaveBox = new JComboBox(new String[] {  BSQ } );
+    private final JComboBox interleaveBox = new JComboBox(new String[]{BSQ});
     private final static String BSQ = "BSQ";
     final static String BIP = "BIP";
     final static String BIL = "BIL";
@@ -129,13 +129,13 @@ public class GenericBinaryDialog extends ModalDialog {
     protected void onOK() {
         super.onOK();
 
-        dataType = ProductData.getType((String)dataTypeBox.getSelectedItem());
-        if(byteOrderBox.getSelectedItem().equals("BIG ENDIAN"))
+        dataType = ProductData.getType((String) dataTypeBox.getSelectedItem());
+        if (byteOrderBox.getSelectedItem().equals("BIG ENDIAN"))
             byteOrder = ByteOrder.BIG_ENDIAN;
         else
             byteOrder = ByteOrder.LITTLE_ENDIAN;
-        
-        interleave = (String)interleaveBox.getSelectedItem();
+
+        interleave = (String) interleaveBox.getSelectedItem();
 
         System.setProperty("genericReaderWidth", String.valueOf(rasterWidth));
         System.setProperty("genericReaderHeight", String.valueOf(rasterHeight));
@@ -149,24 +149,26 @@ public class GenericBinaryDialog extends ModalDialog {
         boolean b = super.verifyUserInput();
 
         boolean valid = true;
-        if(rasterWidth <=0 || rasterHeight <= 0 || numBands <= 0)
+        if (rasterWidth <= 0 || rasterHeight <= 0 || numBands <= 0)
             valid = false;
-        
+
         return b && valid;
     }
 
     private class ProteryListener implements PropertyChangeListener {
-        /** Called when a field's "value" property changes. */
+        /**
+         * Called when a field's "value" property changes.
+         */
         public void propertyChange(PropertyChangeEvent e) {
             final Object source = e.getSource();
             if (source == rasterWidthField) {
-                rasterWidth = ((Number)rasterWidthField.getValue()).intValue();
+                rasterWidth = ((Number) rasterWidthField.getValue()).intValue();
             } else if (source == rasterHeightField) {
-                rasterHeight = ((Number)rasterHeightField.getValue()).intValue();
+                rasterHeight = ((Number) rasterHeightField.getValue()).intValue();
             } else if (source == numBandsField) {
-                numBands = ((Number)numBandsField.getValue()).intValue();
+                numBands = ((Number) numBandsField.getValue()).intValue();
             } else if (source == headerBytesField) {
-                headerBytes = ((Number)headerBytesField.getValue()).intValue();
+                headerBytes = ((Number) headerBytesField.getValue()).intValue();
             }
         }
     }

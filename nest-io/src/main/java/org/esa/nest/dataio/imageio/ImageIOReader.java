@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,6 @@ import java.util.Map;
 
 /**
  * The product reader for ImageIO products.
- *
  */
 public class ImageIOReader extends AbstractProductReader {
 
@@ -49,7 +48,7 @@ public class ImageIOReader extends AbstractProductReader {
      *                     implementations
      */
     public ImageIOReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     /**
@@ -69,20 +68,20 @@ public class ImageIOReader extends AbstractProductReader {
         productType = imgIOFile.getReader().getFormatName();
 
         final Product product = new Product(imgIOFile.getName(),
-                                            productType,
-                                            imgIOFile.getSceneWidth(), imgIOFile.getSceneHeight());
+                productType,
+                imgIOFile.getSceneWidth(), imgIOFile.getSceneHeight());
         product.setFileLocation(inputFile);
 
         int bandCnt = 1;
-        for(int i=0; i < imgIOFile.getNumImages(); ++i) {
+        for (int i = 0; i < imgIOFile.getNumImages(); ++i) {
 
-            for(int b=0; b < imgIOFile.getNumBands(); ++b) {
-                final Band band = new Band("band"+ bandCnt++, imgIOFile.getDataType(),
-                                   imgIOFile.getSceneWidth(), imgIOFile.getSceneHeight());
+            for (int b = 0; b < imgIOFile.getNumBands(); ++b) {
+                final Band band = new Band("band" + bandCnt++, imgIOFile.getDataType(),
+                        imgIOFile.getSceneWidth(), imgIOFile.getSceneHeight());
                 product.addBand(band);
                 bandMap.put(band, new ImageIOFile.BandInfo(band, imgIOFile, i, b));
 
-                if(imgIOFile.isIndexed()) {
+                if (imgIOFile.isIndexed()) {
                     band.setImageInfo(imgIOFile.getImageInfo());
                     band.setSampleCoding(imgIOFile.getIndexCoding());
                     product.getIndexCodingGroup().add(imgIOFile.getIndexCoding());
@@ -139,8 +138,8 @@ public class ImageIOReader extends AbstractProductReader {
         ImageIOFile.BandInfo bandInfo = bandMap.get(destBand);
 
         imgIOFile.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                        bandInfo.imageID, bandInfo.bandSampleOffset);
+                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                bandInfo.imageID, bandInfo.bandSampleOffset);
     }
 
 }

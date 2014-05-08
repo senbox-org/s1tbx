@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,30 +42,30 @@ import java.util.StringTokenizer;
 
 /**
  * This operator down samples a real or complex image using sub-sampling method or kernel filtering method.
- *
+ * <p/>
  * With sub-sampling method, the image is down sampled with user specified sub-sampling rates in both range
  * and azimuth directions. For complex image, the i and q bands in the image are down sampled separately,
  * and the down sampled image is still a complex image.
- *
+ * <p/>
  * With kernel filtering method, the image is down sampled with a kernel moving across the image with a
  * step-size determined by the size of the required output image. The kernel can be selected from pre-
  * defined shapes or defined by the user. For complex image, intensity image is computed from the i and
  * q bands before kernel filtering is applied. The down sampled image is always real image. The user can
  * determine the output image size by specifying the output image size, or the pixel spacings, or the
  * down sampling ratios.
- *
+ * <p/>
  * The parameters used by the operator are as the follows:
- *
+ * <p/>
  * Source Band: All bands (real or virtual) of the source product.
  * Under-Sampling Method: Sub-Sampling method or Kernel Filtering method
- *
+ * <p/>
  * For Sub-Sampling method, the following parameters are used:
- *
+ * <p/>
  * Sub-Sampling in X: User provided sub-sampling rate in range.
  * Sub-Sampling in Y: User provided sub-sampling rate in azimuth.
- *
+ * <p/>
  * For Kernel Filtering method, the following parameters are used:
- *
+ * <p/>
  * Filter Type: The kernel filter type.
  * Filter Size: The kernel filter size.
  * Kernel File: The user defined kernel.
@@ -75,60 +75,59 @@ import java.util.StringTokenizer;
  * Height Ratio: The ratio of the down sampled image height and the source image height.
  * Range Spacing: The range pixel spacing of the down sampled image.
  * Azimuth Spacing: The azimuth pixel spacing of the down sampled image.
- *
  */
 
-@OperatorMetadata(alias="Undersample",
+@OperatorMetadata(alias = "Undersample",
         category = "Utilities\\Resampling",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Undersample the datset")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Undersample the datset")
 public class UndersamplingOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(valueSet = {SUB_SAMPLING, KERNEL_FILTERING}, defaultValue = KERNEL_FILTERING, label="Under-Sampling Method")
+    @Parameter(valueSet = {SUB_SAMPLING, KERNEL_FILTERING}, defaultValue = KERNEL_FILTERING, label = "Under-Sampling Method")
     private String method = KERNEL_FILTERING;
 
-//    @Parameter(valueSet = {SUMMARY, EDGE_DETECT, EDGE_ENHANCEMENT, LOW_PASS, HIGH_PASS, HORIZONTAL, VERTICAL, USER_DEFINED},
+    //    @Parameter(valueSet = {SUMMARY, EDGE_DETECT, EDGE_ENHANCEMENT, LOW_PASS, HIGH_PASS, HORIZONTAL, VERTICAL, USER_DEFINED},
 //               defaultValue = LOW_PASS, label="Filter Type")
     private String filterType = LOW_PASS;
 
     @Parameter(valueSet = {FILTER_SIZE_3x3, FILTER_SIZE_5x5, FILTER_SIZE_7x7},
-               defaultValue = FILTER_SIZE_3x3, label="Filter Size")
+            defaultValue = FILTER_SIZE_3x3, label = "Filter Size")
     private String filterSize = FILTER_SIZE_3x3;
 
-//    @Parameter(description = "The kernel file", label="Kernel File")
+    //    @Parameter(description = "The kernel file", label="Kernel File")
     private File kernelFile = null;
 
-    @Parameter(defaultValue = "2", label="Sub-Sampling in X")
+    @Parameter(defaultValue = "2", label = "Sub-Sampling in X")
     private int subSamplingX = 2;
-    @Parameter(defaultValue = "2", label="Sub-Sampling in Y")
+    @Parameter(defaultValue = "2", label = "Sub-Sampling in Y")
     private int subSamplingY = 2;
 
-    @Parameter(valueSet = {IMAGE_SIZE, RATIO, PIXEL_SPACING}, defaultValue = IMAGE_SIZE, label="Output Image By:")
+    @Parameter(valueSet = {IMAGE_SIZE, RATIO, PIXEL_SPACING}, defaultValue = IMAGE_SIZE, label = "Output Image By:")
     private String outputImageBy = RATIO;
 
-    @Parameter(description = "The row dimension of the output image", defaultValue = "1000", label="Output Image Rows")
+    @Parameter(description = "The row dimension of the output image", defaultValue = "1000", label = "Output Image Rows")
     private int targetImageHeight = 1000;
-    @Parameter(description = "The col dimension of the output image", defaultValue = "1000", label="Output Image Columns")
+    @Parameter(description = "The col dimension of the output image", defaultValue = "1000", label = "Output Image Columns")
     private int targetImageWidth = 1000;
 
-    @Parameter(description = "The width ratio of the output/input images", defaultValue = "0.5", label="Width Ratio")
+    @Parameter(description = "The width ratio of the output/input images", defaultValue = "0.5", label = "Width Ratio")
     private float widthRatio = 0.5f;
-    @Parameter(description = "The height ratio of the output/input images", defaultValue = "0.5", label="Height Ratio")
+    @Parameter(description = "The height ratio of the output/input images", defaultValue = "0.5", label = "Height Ratio")
     private float heightRatio = 0.5f;
 
-    @Parameter(description = "The range pixel spacing", defaultValue = "12.5", label="Range Spacing")
+    @Parameter(description = "The range pixel spacing", defaultValue = "12.5", label = "Range Spacing")
     private float rangeSpacing = 12.5f;
-    @Parameter(description = "The azimuth pixel spacing", defaultValue = "12.5", label="Azimuth Spacing")
+    @Parameter(description = "The azimuth pixel spacing", defaultValue = "12.5", label = "Azimuth Spacing")
     private float azimuthSpacing = 12.5f;
 
     private ProductReader subsetReader = null;
@@ -208,8 +207,8 @@ public class UndersamplingOp extends Operator {
             for (int i = 0; i < sourceBandNames.length; i++) {
                 final String unit1 = sourceProduct.getBand(sourceBandNames[i]).getUnit();
                 if (unit1 != null && unit1.contains(Unit.REAL)) {
-                    if (i+1 < sourceBandNames.length &&
-                        sourceProduct.getBand(sourceBandNames[i+1]).getUnit().contains(Unit.IMAGINARY)) {
+                    if (i + 1 < sourceBandNames.length &&
+                            sourceProduct.getBand(sourceBandNames[i + 1]).getUnit().contains(Unit.IMAGINARY)) {
                         i++;
                     } else {
                         throw new OperatorException("Real and imaginary bands should be selected in pairs");
@@ -236,7 +235,7 @@ public class UndersamplingOp extends Operator {
 
             updateTargetProductMetadata(subSamplingX, subSamplingY);
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -257,9 +256,9 @@ public class UndersamplingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
 
-        final float oldLineTimeInterval = (float)absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
+        final float oldLineTimeInterval = (float) absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
         AbstractMetadata.setAttribute(
-                absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval*(float)subSamplingY);
+                absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval * (float) subSamplingY);
     }
 
     /**
@@ -281,7 +280,7 @@ public class UndersamplingOp extends Operator {
             getKernelFile();
 
             createTargetProduct();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e.getMessage());
         }
     }
@@ -304,14 +303,15 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Get the range and azimuth spacings (in meter).
+     *
      * @throws Exception when metadata is missing
      */
     void getSrcImagePixelSpacings() {
 
-        srcRangeSpacing = (float)absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
+        srcRangeSpacing = (float) absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
         //System.out.println("Range spacing is " + srcRangeSpacing);
 
-        srcAzimuthSpacing = (float)absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing);
+        srcAzimuthSpacing = (float) absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing);
         //System.out.println("Azimuth spacing is " + srcAzimuthSpacing);
     }
 
@@ -325,7 +325,7 @@ public class UndersamplingOp extends Operator {
         if (outputImageBy.equals(IMAGE_SIZE)) {
 
             if (targetImageHeight <= 0 || targetImageHeight >= sourceImageHeight ||
-                targetImageWidth <= 0 || targetImageWidth >= sourceImageWidth) {
+                    targetImageWidth <= 0 || targetImageWidth >= sourceImageWidth) {
                 throw new OperatorException("Output image size must be positive and smaller than the source image size");
             }
 
@@ -338,8 +338,8 @@ public class UndersamplingOp extends Operator {
                 throw new OperatorException("The width or height ratio must be within range (0, 1)");
             }
 
-            targetImageHeight = (int)(heightRatio * sourceImageHeight + 0.5f);
-            targetImageWidth = (int)(widthRatio * sourceImageWidth + 0.5f);
+            targetImageHeight = (int) (heightRatio * sourceImageHeight + 0.5f);
+            targetImageWidth = (int) (widthRatio * sourceImageWidth + 0.5f);
 
             rangeSpacing = srcRangeSpacing / widthRatio;
             azimuthSpacing = srcAzimuthSpacing / heightRatio;
@@ -350,8 +350,8 @@ public class UndersamplingOp extends Operator {
                 throw new OperatorException("The azimuth or range spacing must be greater than the source spacing");
             }
 
-            targetImageHeight = (int)(srcRangeSpacing / rangeSpacing * sourceImageHeight + 0.5);
-            targetImageWidth = (int)(srcAzimuthSpacing / azimuthSpacing * sourceImageWidth + 0.5);
+            targetImageHeight = (int) (srcRangeSpacing / rangeSpacing * sourceImageHeight + 0.5);
+            targetImageWidth = (int) (srcAzimuthSpacing / azimuthSpacing * sourceImageWidth + 0.5);
 
         } else {
             throw new OperatorException("Please specify output image size, or row and column ratios, or pixel spacings");
@@ -363,8 +363,8 @@ public class UndersamplingOp extends Operator {
      */
     private void computeRangeAzimuthStepSizes() {
 
-        stepAzimuth = (double)(sourceImageHeight - filterHeight) / (double)(targetImageHeight - 1);
-        stepRange = (double)(sourceImageWidth - filterWidth) / (double)(targetImageWidth - 1);
+        stepAzimuth = (double) (sourceImageHeight - filterHeight) / (double) (targetImageHeight - 1);
+        stepRange = (double) (sourceImageWidth - filterWidth) / (double) (targetImageWidth - 1);
     }
 
     /**
@@ -378,12 +378,12 @@ public class UndersamplingOp extends Operator {
         if (filterType.equals(USER_DEFINED)) { // user defined kernel file
 
             isPreDefinedKernel = false;
-            
+
         } else { // pre-defined kernel file with user specified filter diemnsion
 
             isPreDefinedKernel = true;
 
-            if(filterType.equals(SUMMARY)) {
+            if (filterType.equals(SUMMARY)) {
                 fileName = "sum_" + filterHeight + "_" + filterWidth + ".ker";
             } else if (filterType.equals(EDGE_DETECT)) {
                 fileName = "edd_" + filterHeight + "_" + filterWidth + ".ker";
@@ -420,9 +420,10 @@ public class UndersamplingOp extends Operator {
         final String path = homeUrl + File.separator + "res" + File.separator + "kernels" + File.separator + fileName;
         return new File(path);
     }
-    
+
     /**
      * Read data from kernel file and save them in a 2D array.
+     *
      * @param fileName The kernel file name
      * @return array The 2D array holding kernel data
      */
@@ -432,7 +433,7 @@ public class UndersamplingOp extends Operator {
         FileInputStream stream;
         try {
             stream = new FileInputStream(fileName);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new OperatorException("File not found: " + fileName);
         }
 
@@ -460,7 +461,7 @@ public class UndersamplingOp extends Operator {
             array = new float[numRows][numCols];
 
             // get the rest numRows lines
-            while((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
 
                 st = new StringTokenizer(line);
                 if (st.countTokens() != numCols) {
@@ -492,9 +493,9 @@ public class UndersamplingOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    targetImageWidth,
-                                    targetImageHeight);
+                sourceProduct.getProductType(),
+                targetImageWidth,
+                targetImageHeight);
 
         OperatorUtils.addSelectedBands(
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, true);
@@ -525,15 +526,15 @@ public class UndersamplingOp extends Operator {
         final int gridHeight = 11;
         final float subSamplingX = targetImageWidth / (gridWidth - 1.0f);
         final float subSamplingY = targetImageHeight / (gridHeight - 1.0f);
-        final PixelPos[] newTiePointPos = new PixelPos[gridWidth*gridHeight];
+        final PixelPos[] newTiePointPos = new PixelPos[gridWidth * gridHeight];
 
         int k = 0;
         for (int j = 0; j < gridHeight; j++) {
-            final float ty = Math.min(j*subSamplingY, targetImageHeight - 1);
-            final float y = (int)(ty*stepAzimuth + 0.5) + (int)(filterHeight*0.5);
+            final float ty = Math.min(j * subSamplingY, targetImageHeight - 1);
+            final float y = (int) (ty * stepAzimuth + 0.5) + (int) (filterHeight * 0.5);
             for (int i = 0; i < gridWidth; i++) {
-                final float tx = Math.min(i*subSamplingX, targetImageWidth - 1);
-                final float x = (int)(tx*stepRange + 0.5) + (int)(filterWidth*0.5);
+                final float tx = Math.min(i * subSamplingX, targetImageWidth - 1);
+                final float x = (int) (tx * stepRange + 0.5) + (int) (filterWidth * 0.5);
                 newTiePointPos[k] = new PixelPos();
                 newTiePointPos[k].x = x;
                 newTiePointPos[k].y = y;
@@ -562,17 +563,17 @@ public class UndersamplingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
 
-        final float oldLineTimeInterval = (float)absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval*(float)stepAzimuth);
+        final float oldLineTimeInterval = (float) absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval * (float) stepAzimuth);
 
         final String oldFirstLineTime = absTgt.getAttributeString(AbstractMetadata.first_line_time);
         final int idx = oldFirstLineTime.lastIndexOf(':') + 1;
         final String oldSecondsStr = oldFirstLineTime.substring(idx);
         final double oldSeconds = Double.parseDouble(oldSecondsStr);
-        final double newSeconds = oldSeconds + oldLineTimeInterval*(filterHeight - 1)/2.0;
+        final double newSeconds = oldSeconds + oldLineTimeInterval * (filterHeight - 1) / 2.0;
         final String newFirstLineTime = String.valueOf(oldFirstLineTime.subSequence(0, idx)) + newSeconds + "000000";
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time,
-            AbstractMetadata.parseUTC(newFirstLineTime.substring(0,27)));
+                AbstractMetadata.parseUTC(newFirstLineTime.substring(0, 27)));
 //          AbstractMetadata.parseUTC(newFirstLineTime.substring(0,27), "dd-MMM-yyyy HH:mm:ss"));
     }
 
@@ -587,7 +588,7 @@ public class UndersamplingOp extends Operator {
             } else {
                 throw new OperatorException("Unknown undersampling method: " + method);
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -600,11 +601,11 @@ public class UndersamplingOp extends Operator {
         final Rectangle rectangle = targetTile.getRectangle();
         try {
             subsetReader.readBandRasterData(targetBand,
-                                            rectangle.x,
-                                            rectangle.y,
-                                            rectangle.width,
-                                            rectangle.height,
-                                            destBuffer, pm);
+                    rectangle.x,
+                    rectangle.y,
+                    rectangle.width,
+                    rectangle.height,
+                    destBuffer, pm);
             targetTile.setRawSamples(destBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);
@@ -616,14 +617,14 @@ public class UndersamplingOp extends Operator {
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int tx0 = targetTileRectangle.x;
         final int ty0 = targetTileRectangle.y;
-        final int tw  = targetTileRectangle.width;
-        final int th  = targetTileRectangle.height;
+        final int tw = targetTileRectangle.width;
+        final int th = targetTileRectangle.height;
         //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
-        final int x0 = (int)(tx0 * stepRange + 0.5f);
-        final int y0 = (int)(ty0 * stepAzimuth + 0.5f);
-        final int w = (int)((tx0 + tw - 1)*stepRange + 0.5f) + filterWidth - (int)(tx0*stepRange + 0.5f);
-        final int h = (int)((ty0 + th - 1)*stepAzimuth + 0.5f) + filterHeight - (int)(ty0*stepAzimuth + 0.5f);
+        final int x0 = (int) (tx0 * stepRange + 0.5f);
+        final int y0 = (int) (ty0 * stepAzimuth + 0.5f);
+        final int w = (int) ((tx0 + tw - 1) * stepRange + 0.5f) + filterWidth - (int) (tx0 * stepRange + 0.5f);
+        final int h = (int) ((ty0 + th - 1) * stepAzimuth + 0.5f) + filterHeight - (int) (ty0 * stepAzimuth + 0.5f);
         final Rectangle sourceTileRectangle = new Rectangle(x0, y0, w, h);
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
@@ -645,7 +646,7 @@ public class UndersamplingOp extends Operator {
             sourceRaster2 = getSourceTile(sourceBand2, sourceTileRectangle);
             if (sourceRaster1 == null || sourceRaster2 == null) {
                 throw new OperatorException("Cannot get source tile");
-            }            
+            }
         }
 
         final Unit.UnitType bandUnitType = Unit.getUnitType(sourceBand1);
@@ -665,17 +666,17 @@ public class UndersamplingOp extends Operator {
 
     private double getFilteredValue(int tx, int ty, Tile sourceRaster1, Tile sourceRaster2, Unit.UnitType bandUnitType) {
 
-        final int x0 = (int)(tx * stepRange + 0.5);
-        final int y0 = (int)(ty * stepAzimuth + 0.5);
+        final int x0 = (int) (tx * stepRange + 0.5);
+        final int y0 = (int) (ty * stepAzimuth + 0.5);
         final int maxY = y0 + filterHeight;
         final int maxX = x0 + filterWidth;
 
         final ProductData srcData1 = sourceRaster1.getDataBuffer();
         ProductData srcData2 = null;
-        if(sourceRaster2 != null)
+        if (sourceRaster2 != null)
             srcData2 = sourceRaster2.getDataBuffer();
 
-        float numPixels = filterWidth*filterHeight;
+        float numPixels = filterWidth * filterHeight;
         double filteredValue = 0.0;
         for (int y = y0; y < maxY; y++) {
             for (int x = x0; x < maxX; x++) {
@@ -686,29 +687,30 @@ public class UndersamplingOp extends Operator {
                 if (bandUnitType == Unit.UnitType.INTENSITY_DB || bandUnitType == Unit.UnitType.AMPLITUDE_DB) {
 
                     final double dn = srcData1.getElemDoubleAt(index);
-                    filteredValue += Math.pow(10, dn / 10.0)*weight; // dB to linear
+                    filteredValue += Math.pow(10, dn / 10.0) * weight; // dB to linear
 
                 } else if (sourceRaster2 == null) {
 
-                    filteredValue += srcData1.getElemDoubleAt(index)*weight;
+                    filteredValue += srcData1.getElemDoubleAt(index) * weight;
 
                 } else { // COMPLEX
 
                     final double i = srcData1.getElemDoubleAt(index);
                     final double q = srcData2.getElemDoubleAt(index);
-                    filteredValue += (i*i + q*q)*weight;
+                    filteredValue += (i * i + q * q) * weight;
                 }
             }
         }
 
         if (bandUnitType == Unit.UnitType.INTENSITY_DB || bandUnitType == Unit.UnitType.AMPLITUDE_DB) {
-            filteredValue = 10.0*Math.log10(filteredValue); // linear to dB
+            filteredValue = 10.0 * Math.log10(filteredValue); // linear to dB
         }
         return filteredValue;
     }
 
     /**
      * Set undersampling method. The function is for unit test only.
+     *
      * @param samplingMethod The undersampling method.
      */
     public void setUndersamplingMethod(String samplingMethod) {
@@ -717,6 +719,7 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Set sub-sampling rate for both x and y. The function is for unit test only.
+     *
      * @param subSamplingRateX The sub-sampling rate for x.
      * @param subSamplingRateY The sub-sampling rate for y.
      */
@@ -728,6 +731,7 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Set filter type. The function is for unit test only.
+     *
      * @param type The filter type.
      */
     public void setFilterType(String type) {
@@ -736,6 +740,7 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Set filter size. The function is for unit test only.
+     *
      * @param size The filter size.
      */
     public void setFilterSize(String size) {
@@ -744,6 +749,7 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Set the output image dimension. The function is for unit test only.
+     *
      * @param numRows The number of rows.
      * @param numCols The number of columns.
      */
@@ -754,6 +760,7 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Set the output image method. The function is for unit test only.
+     *
      * @param method The output image method.
      */
     public void setOutputImageBy(String method) {
@@ -765,6 +772,7 @@ public class UndersamplingOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

@@ -4,13 +4,13 @@
     <version>6.0-SNAPSHOT</version>
     <name>NEST Calibration Operator</name>
     <description>NEST Calibration Operator</description>
-	
+
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
         <module>nest-graph-builder</module>
@@ -36,26 +36,26 @@
         </action>
 
         <action>
-	        <id>CalibrationOp</id>
-	        <helpId>CalibrationOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>CalibrationOp</id>
+            <helpId>CalibrationOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
-	        <text>Calibrate</text>
-	        <dialogTitle>Calibration</dialogTitle>
+            <text>Calibrate</text>
+            <dialogTitle>Calibration</dialogTitle>
             <shortDescr>Invoke the Calibration operator</shortDescr>
             <operatorName>Calibration</operatorName>
             <targetProductNameSuffix>_Calib</targetProductNameSuffix>
         </action>
 
         <action>
-	        <id>RemoveAntennaPatternOp</id>
-	        <helpId>RemoveAntennaPatternOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>RemoveAntennaPatternOp</id>
+            <helpId>RemoveAntennaPatternOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
-	        <text>Remove Antenna Pattern</text>
-	        <dialogTitle>Remove Antenna Pattern</dialogTitle>
+            <text>Remove Antenna Pattern</text>
+            <dialogTitle>Remove Antenna Pattern</dialogTitle>
             <shortDescr>Remove the Antenna Pattern for ASAR and ERS products</shortDescr>
             <operatorName>RemoveAntennaPattern</operatorName>
             <targetProductNameSuffix>_-AntPat</targetProductNameSuffix>
@@ -112,11 +112,11 @@
         </action>
 
     </extension>
-	
-	<extension point="beam-ui:helpSets">
+
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>calibrationHelp</id>
+            <id>calibrationHelp</id>
             <path>doc/help/calibration.hs</path>
         </helpSet>
     </extension>

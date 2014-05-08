@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,14 +51,14 @@ import java.util.List;
 @OperatorMetadata(alias = "Mosaic",
         category = "Geometric",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Mosaics two or more products based on their geo-codings.")
 public class MosaicOp extends Operator {
 
     @SourceProducts
     private Product[] sourceProduct;
     @TargetProduct
-    private Product targetProduct =     null;
+    private Product targetProduct = null;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
             rasterDataNodeType = Band.class, label = "Source Bands")
@@ -115,7 +115,7 @@ public class MosaicOp extends Operator {
                     throw new OperatorException(
                             MessageFormat.format("Product ''{0}'' has no geo-coding.", prod.getName()));
                 }
-                if(srcGeocoding == null) {
+                if (srcGeocoding == null) {
                     srcGeocoding = prod.getGeoCoding();
                 }
                 // todo check that all source products have same geocoding
@@ -130,7 +130,7 @@ public class MosaicOp extends Operator {
 
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
 
-                if(pixelSize == 0 && absRoot != null) {
+                if (pixelSize == 0 && absRoot != null) {
                     final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
                     final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
                     pixelSize = Math.min(rangeSpacing, azimuthSpacing);
@@ -139,11 +139,11 @@ public class MosaicOp extends Operator {
 
                 sceneWidth = scnProp.sceneWidth;
                 sceneHeight = scnProp.sceneHeight;
-                final double ratio = sceneWidth / (double)sceneHeight;
+                final double ratio = sceneWidth / (double) sceneHeight;
                 long dim = (long) sceneWidth * (long) sceneHeight;
                 while (sceneWidth > 0 && sceneHeight > 0 && dim > Integer.MAX_VALUE) {
                     sceneWidth -= 1000;
-                    sceneHeight = (int)(sceneWidth / ratio);
+                    sceneHeight = (int) (sceneWidth / ratio);
                     dim = (long) sceneWidth * (long) sceneHeight;
                 }
             }
@@ -152,7 +152,7 @@ public class MosaicOp extends Operator {
             targetProduct.setGeoCoding(createCRSGeoCoding(srcGeocoding));
 
             // add all bands
-            for(Map.Entry<Integer, Band> integerBandEntry : bandIndexSet.entrySet()) {
+            for (Map.Entry<Integer, Band> integerBandEntry : bandIndexSet.entrySet()) {
                 final Band srcBand = integerBandEntry.getValue();
 
                 int targetBandDataType;
@@ -176,13 +176,13 @@ public class MosaicOp extends Operator {
             }
 
             // transfer index coding
-            if(sourceProduct[0].getIndexCodingGroup().getNodeCount() > 0 &&
+            if (sourceProduct[0].getIndexCodingGroup().getNodeCount() > 0 &&
                     sourceProduct[0].getIndexCodingGroup().get(0) != null) {
                 try {
                     ProductUtils.copyIndexCodings(sourceProduct[0], targetProduct);
-                } catch(Exception e) {
-                    if(!resamplingMethod.equals(Resampling.NEAREST_NEIGHBOUR)) {
-                        throw new OperatorException("Use Nearest Neighbour with Classificaitons: "+e.getMessage());
+                } catch (Exception e) {
+                    if (!resamplingMethod.equals(Resampling.NEAREST_NEIGHBOUR)) {
+                        throw new OperatorException("Use Nearest Neighbour with Classificaitons: " + e.getMessage());
                     }
                 }
             }
@@ -230,7 +230,7 @@ public class MosaicOp extends Operator {
      */
     private void updateTargetProductMetadata() {
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        if(absRoot == null) {
+        if (absRoot == null) {
             absRoot = AbstractMetadata.addAbstractedMetadataHeader(targetProduct.getMetadataRoot());
         }
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, pixelSize);
@@ -409,7 +409,7 @@ public class MosaicOp extends Operator {
             final int maxX = targetRectangle.x + targetRectangle.width - 1;
             final int maxY = targetRectangle.y + targetRectangle.height - 1;
 
-            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX-minX+1, maxY-minY+1);
+            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX - minX + 1, maxY - minY + 1);
 
             final List<PixelPos[]> srcPixelCoords = new ArrayList<PixelPos[]>(validProducts.size());
             final int numPixelPos = targetRectangle.width * targetRectangle.height;
@@ -428,8 +428,8 @@ public class MosaicOp extends Operator {
                         srcProduct.getGeoCoding().getPixelPos(geoPos, pixelPos);
 
                         if (pixelPos.x >= feather && pixelPos.y >= feather &&
-                                pixelPos.x < srcProduct.getSceneRasterWidth()-feather &&
-                                pixelPos.y < srcProduct.getSceneRasterHeight()-feather) {
+                                pixelPos.x < srcProduct.getSceneRasterWidth() - feather &&
+                                pixelPos.y < srcProduct.getSceneRasterHeight() - feather) {
 
                             srcPixelCoords.get(prodIndex)[coordIndex] = new PixelPos(pixelPos.x, pixelPos.y);
                         } else {
@@ -449,14 +449,14 @@ public class MosaicOp extends Operator {
             }
 
             final List<SourceData> validSourceData = new ArrayList<SourceData>(validProducts.size());
-            for(final Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {
+            for (final Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {
                 final String trgBandName = bandTileEntry.getKey().getName();
                 validSourceData.clear();
 
                 prodIndex = 0;
                 for (final Product srcProduct : validProducts) {
                     final Band srcBand = srcProduct.getBand(trgBandName);
-                    if(srcBand == null) {
+                    if (srcBand == null) {
                         continue;
                     }
 
@@ -464,12 +464,12 @@ public class MosaicOp extends Operator {
 
                     final Rectangle sourceRectangle = getBoundingBox(
                             pixPos, feather, feather,
-                            srcProduct.getSceneRasterWidth()-feather,
-                            srcProduct.getSceneRasterHeight()-feather, 4);
+                            srcProduct.getSceneRasterWidth() - feather,
+                            srcProduct.getSceneRasterHeight() - feather, 4);
 
                     if (sourceRectangle != null) {
                         double min = 0, max = 0, mean = 0, std = 0;
-                        if(normalizeByMean) {                  // get stat values
+                        if (normalizeByMean) {                  // get stat values
                             try {
                                 final Stx stats = srcBand.getStx(true, ProgressMonitor.NULL);
                                 mean = stats.getMean();
@@ -483,14 +483,14 @@ public class MosaicOp extends Operator {
                         }
 
                         final Tile srcTile = getSourceTile(srcBand, sourceRectangle);
-                        if(srcTile != null) {
+                        if (srcTile != null) {
                             validSourceData.add(new SourceData(srcTile, pixPos, resampling, min, max, mean, std));
                         }
                     }
                     ++prodIndex;
                 }
 
-                if(!validSourceData.isEmpty()) {
+                if (!validSourceData.isEmpty()) {
                     collocateSourceBand(validSourceData, resampling, bandTileEntry.getValue());
                 }
             }
@@ -520,14 +520,14 @@ public class MosaicOp extends Operator {
 
                     double targetVal = 0;
                     int numSamples = 0;
-                    for(final SourceData srcDat : validSourceData) {
+                    for (final SourceData srcDat : validSourceData) {
                         final PixelPos sourcePixelPos = srcDat.srcPixPos[index];
-                        if(sourcePixelPos == null) {
+                        if (sourcePixelPos == null) {
                             continue;
                         }
 
                         resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
-                                srcDat.srcRasterWidth-feather, srcDat.srcRasterHeight-feather, srcDat.resamplingIndex);
+                                srcDat.srcRasterWidth - feather, srcDat.srcRasterHeight - feather, srcDat.resamplingIndex);
 
                         sample = resampling.resample(srcDat.resamplingRaster, srcDat.resamplingIndex);
 
@@ -541,8 +541,8 @@ public class MosaicOp extends Operator {
 
                             if (average) {
                                 sampleList[numSamples] = sample;
-                                sampleDistanceList[numSamples] = (int)(Math.min(sourcePixelPos.x + 1,
-                                        srcDat.srcRasterWidth - sourcePixelPos.x)*
+                                sampleDistanceList[numSamples] = (int) (Math.min(sourcePixelPos.x + 1,
+                                        srcDat.srcRasterWidth - sourcePixelPos.x) *
                                         Math.min(sourcePixelPos.y + 1,
                                                 srcDat.srcRasterHeight - sourcePixelPos.y));
                                 numSamples++;
@@ -550,12 +550,12 @@ public class MosaicOp extends Operator {
                         }
                     }
 
-                    if(targetVal != 0) {
+                    if (targetVal != 0) {
                         if (average && numSamples > 1) {
                             double sum = 0;
                             int totalWeight = 0;
-                            for(int i = 0; i < numSamples; i++) {
-                                sum += sampleList[i]*sampleDistanceList[i];
+                            for (int i = 0; i < numSamples; i++) {
+                                sum += sampleList[i] * sampleDistanceList[i];
                                 totalWeight += sampleDistanceList[i];
                             }
                             targetVal = sum / totalWeight;
@@ -591,7 +591,7 @@ public class MosaicOp extends Operator {
             final List<SourceData> validSourceData = new ArrayList<SourceData>(validProducts.size());
 
             // loop through all target bands
-            for(final Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {
+            for (final Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {
                 final String trgBandName = bandTileEntry.getKey().getName();
                 if (trgBandName.contains("_gradient")) {
                     continue;
@@ -623,7 +623,7 @@ public class MosaicOp extends Operator {
                 for (int y = minY; y <= maxY; y++) {
                     trgIndex.calculateStride(y);
                     for (int x = minX; x <= maxX; x++) {
-                        trgBuffer.setElemDoubleAt(trgIndex.getIndex(x), mosaicedTile[y-minY][x-minX]);
+                        trgBuffer.setElemDoubleAt(trgIndex.getIndex(x), mosaicedTile[y - minY][x - minX]);
                     }
                 }
 
@@ -634,7 +634,7 @@ public class MosaicOp extends Operator {
                     for (int y = minY; y <= maxY; y++) {
                         trgIndex.calculateStride(y);
                         for (int x = minX; x <= maxX; x++) {
-                            gradientBuffer.setElemDoubleAt(trgIndex.getIndex(x), gradientTile[y-minY][x-minX]);
+                            gradientBuffer.setElemDoubleAt(trgIndex.getIndex(x), gradientTile[y - minY][x - minX]);
                         }
                     }
                 }
@@ -654,7 +654,7 @@ public class MosaicOp extends Operator {
             int prodIndex = 0;
             for (final Product srcProduct : validProducts) {
                 final Band srcBand = srcProduct.getBand(trgBandName);
-                if(srcBand == null) {
+                if (srcBand == null) {
                     continue;
                 }
 
@@ -678,7 +678,7 @@ public class MosaicOp extends Operator {
                     }
 
                     final Tile srcTile = getSourceTile(srcBand, sourceRectangle);
-                    if(srcTile != null) {
+                    if (srcTile != null) {
                         validSourceData.add(new SourceData(srcTile, pixPos, resampling, min, max, mean, std));
                     }
                 }
@@ -704,7 +704,7 @@ public class MosaicOp extends Operator {
                     xx = x - minX;
 
                     final PixelPos sourcePixelPos = srcDat.srcPixPos[index];
-                    if(sourcePixelPos == null) {
+                    if (sourcePixelPos == null) {
                         mosaicedTile[yy][xx] = srcDat.nodataValue;
                         mask[yy][xx] = -1;
                         continue;
@@ -729,7 +729,7 @@ public class MosaicOp extends Operator {
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -753,7 +753,7 @@ public class MosaicOp extends Operator {
                     xx = x - minX;
 
                     final PixelPos sourcePixelPos = srcDat.srcPixPos[index];
-                    if(sourcePixelPos == null) {
+                    if (sourcePixelPos == null) {
                         continue;
                     }
 
@@ -778,7 +778,7 @@ public class MosaicOp extends Operator {
                                 mask[yy][xx] = 2;
                                 mosaicedTile[yy][xx] = sample;
                                 //gradientTile[yy][xx] = computeGradient(xx, yy, mosaicedTile, sample, adjacentPixels);
-                                gradientTile[yy][xx] = adjacentPixels[0] + adjacentPixels[1] + adjacentPixels[2] + adjacentPixels[3] - 4*sample;
+                                gradientTile[yy][xx] = adjacentPixels[0] + adjacentPixels[1] + adjacentPixels[2] + adjacentPixels[3] - 4 * sample;
                             } else {
                                 mosaicedTile[yy][xx] = sample;
                             }
@@ -787,7 +787,7 @@ public class MosaicOp extends Operator {
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -801,7 +801,7 @@ public class MosaicOp extends Operator {
             final int indexLeft = index - 1;
             final int indexRight = index + 1;
 
-            if (indexUp >= 0 && indexDown < targetTileWidth*targetTileHeight &&
+            if (indexUp >= 0 && indexDown < targetTileWidth * targetTileHeight &&
                     index % targetTileWidth != 0 && (index + 1) % targetTileWidth != 0 &&
                     srcDat.srcPixPos[indexUp] != null && srcDat.srcPixPos[indexDown] != null &&
                     srcDat.srcPixPos[indexLeft] != null && srcDat.srcPixPos[indexRight] != null) {
@@ -826,8 +826,8 @@ public class MosaicOp extends Operator {
 
                 final double s4 = resampling.resample(srcDat.resamplingRaster, srcDat.resamplingIndex);
 
-                if (isValidSample((float)s1, srcDat.nodataValue) && isValidSample((float)s2, srcDat.nodataValue) &&
-                        isValidSample((float)s3, srcDat.nodataValue) && isValidSample((float)s4, srcDat.nodataValue)) {
+                if (isValidSample((float) s1, srcDat.nodataValue) && isValidSample((float) s2, srcDat.nodataValue) &&
+                        isValidSample((float) s3, srcDat.nodataValue) && isValidSample((float) s4, srcDat.nodataValue)) {
 
                     if (normalizeByMean) {
                         adjacentPixels[0] = (s1 - srcDat.srcMean) / srcDat.srcStd;
@@ -847,7 +847,7 @@ public class MosaicOp extends Operator {
             }
 
             return false;
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
         return false;
@@ -858,10 +858,10 @@ public class MosaicOp extends Operator {
         if (xx == 0 || yy == 0 || xx == mask[0].length - 1 || yy == mask.length - 1) {
             return false;
         } else {
-            return (mask[yy-1][xx] == 0 || mask[yy-1][xx] == 2) &&
-                    (mask[yy+1][xx] == 0 || mask[yy+1][xx] == 2) &&
-                    (mask[yy][xx-1] == 0 || mask[yy][xx-1] == 2) &&
-                    (mask[yy][xx+1] == 0 || mask[yy][xx+1] == 2);
+            return (mask[yy - 1][xx] == 0 || mask[yy - 1][xx] == 2) &&
+                    (mask[yy + 1][xx] == 0 || mask[yy + 1][xx] == 2) &&
+                    (mask[yy][xx - 1] == 0 || mask[yy][xx - 1] == 2) &&
+                    (mask[yy][xx + 1] == 0 || mask[yy][xx + 1] == 2);
         }
     }
 
@@ -872,7 +872,7 @@ public class MosaicOp extends Operator {
     private double computeGradient(final int xx, final int yy, final double[][] mosaicedTile,
                                    final double s0, final double[] adjacentPixels) {
 
-        double g2 = adjacentPixels[0] + adjacentPixels[1] + adjacentPixels[2] + adjacentPixels[3] - 4*s0;
+        double g2 = adjacentPixels[0] + adjacentPixels[1] + adjacentPixels[2] + adjacentPixels[3] - 4 * s0;
 
         /*
         double g1 = mosaicedTile[yy-1][xx] + mosaicedTile[yy+1][xx] + mosaicedTile[yy][xx-1] +
@@ -901,10 +901,10 @@ public class MosaicOp extends Operator {
                 for (int c = 0; c < cols; c++) {
                     if (mask[r][c] == 2) {
 
-                        sigma = gradientTile[r][c] - mosaicedTile[r-1][c] - mosaicedTile[r+1][c] -
-                                mosaicedTile[r][c-1] - mosaicedTile[r][c+1];
+                        sigma = gradientTile[r][c] - mosaicedTile[r - 1][c] - mosaicedTile[r + 1][c] -
+                                mosaicedTile[r][c - 1] - mosaicedTile[r][c + 1];
 
-                        update = (1-w)*mosaicedTile[r][c] - w*sigma/4.0;
+                        update = (1 - w) * mosaicedTile[r][c] - w * sigma / 4.0;
                         error = Math.max(error, Math.abs(mosaicedTile[r][c] - update));
                         mosaicedTile[r][c] = update;
                     }
@@ -971,15 +971,15 @@ public class MosaicOp extends Operator {
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
 
-                    if(x[j] < minX || y[i] < minY || x[j] > maxX || y[i] > maxY) {
-                        samples[i][j] =  Float.NaN;
+                    if (x[j] < minX || y[i] < minY || x[j] > maxX || y[i] > maxY) {
+                        samples[i][j] = Float.NaN;
                         allValid = false;
                     }
 
                     try {
-                    samples[i][j] = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex(x[j], y[i]));
+                        samples[i][j] = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex(x[j], y[i]));
                     } catch (Exception e) {
-                        samples[i][j] =  Float.NaN;
+                        samples[i][j] = Float.NaN;
                         allValid = false;
                     }
                     if (usesNoData) {

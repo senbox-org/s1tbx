@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,11 +28,11 @@ import java.util.Map;
 
 public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
-    private final JComboBox classification = new JComboBox(new String[] {
-                                                          PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION,
-                                                          PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION,
-                                                          PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION,
-    } );
+    private final JComboBox classification = new JComboBox(new String[]{
+            PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION,
+            PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION,
+            PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION,
+    });
 
     private final JLabel windowSizeLabel = new JLabel("Window Size:");
     private final JTextField windowSize = new JTextField("");
@@ -60,7 +60,7 @@ public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
         classification.setSelectedItem(paramMap.get("classification"));
         windowSize.setText(String.valueOf(paramMap.get("windowSize")));
-		maxIterations.setText(String.valueOf(paramMap.get("maxIterations")));
+        maxIterations.setText(String.valueOf(paramMap.get("maxIterations")));
         numInitialClasses.setText(String.valueOf(paramMap.get("numInitialClasses")));
         numFinalClasses.setText(String.valueOf(paramMap.get("numFinalClasses")));
         mixedCategoryThreshold.setText(String.valueOf(paramMap.get("mixedCategoryThreshold")));
@@ -87,7 +87,7 @@ public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
-        
+
         gbc.gridx = 0;
         contentPane.add(new JLabel("Classification:"), gbc);
         gbc.gridx = 1;
@@ -95,7 +95,7 @@ public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
         classification.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-				String item = (String)classification.getSelectedItem();
+                String item = (String) classification.getSelectedItem();
                 if (item.equals(PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION)) {
                     DialogUtils.enableComponents(maxIterationsLabel, maxIterations, true);
                 } else {

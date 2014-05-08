@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -66,7 +66,7 @@ public class MosaicOpUI extends BaseOperatorUI {
     private double pixelSizeHeightRatio = 1;
     private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
 
-    private final static String useGradientDomainStr = System.getProperty(ResourceUtils.getContextID()+".mosaic.allow.gradient.domain");
+    private final static String useGradientDomainStr = System.getProperty(ResourceUtils.getContextID() + ".mosaic.allow.gradient.domain");
     private final static boolean useGradientDomain = useGradientDomainStr != null && useGradientDomainStr.equals("true");
 
     @Override
@@ -130,20 +130,20 @@ public class MosaicOpUI extends BaseOperatorUI {
 
         resamplingMethod.setSelectedItem(paramMap.get("resamplingMethod"));
 
-        Double pixSize = (Double)paramMap.get("pixelSize");
-        if(pixSize == null) pixSize = 0.0;
-        Integer width = (Integer)paramMap.get("sceneWidth");
-        if(width == null) width = 0;
-        Integer height = (Integer)paramMap.get("sceneHeight");
-        if(height == null) height = 0;
-        Integer featherVal = (Integer)paramMap.get("feather");
-        if(featherVal == null) featherVal = 0;
-        Integer maxIterationsVal = (Integer)paramMap.get("maxIterations");
-        if(maxIterationsVal == null) maxIterationsVal = 0;
-        Double convergenceThresholdVal = (Double)paramMap.get("convergenceThreshold");
-        if(convergenceThresholdVal == null) convergenceThresholdVal = 0.0;
+        Double pixSize = (Double) paramMap.get("pixelSize");
+        if (pixSize == null) pixSize = 0.0;
+        Integer width = (Integer) paramMap.get("sceneWidth");
+        if (width == null) width = 0;
+        Integer height = (Integer) paramMap.get("sceneHeight");
+        if (height == null) height = 0;
+        Integer featherVal = (Integer) paramMap.get("feather");
+        if (featherVal == null) featherVal = 0;
+        Integer maxIterationsVal = (Integer) paramMap.get("maxIterations");
+        if (maxIterationsVal == null) maxIterationsVal = 0;
+        Double convergenceThresholdVal = (Double) paramMap.get("convergenceThreshold");
+        if (convergenceThresholdVal == null) convergenceThresholdVal = 0.0;
 
-        if(!changedByUser && sourceProducts != null) {
+        if (!changedByUser && sourceProducts != null) {
             try {
                 OperatorUtils.computeImageGeoBoundary(sourceProducts, scnProp);
 
@@ -157,16 +157,16 @@ public class MosaicOpUI extends BaseOperatorUI {
 
                 width = scnProp.sceneWidth;
                 height = scnProp.sceneHeight;
-                widthHeightRatio = width / (double)height;
+                widthHeightRatio = width / (double) height;
                 pixelSizeHeightRatio = pixSize / (double) height;
 
-                long dim = width*height;
-                while(dim > Integer.MAX_VALUE) {
+                long dim = width * height;
+                while (dim > Integer.MAX_VALUE) {
                     width -= 1000;
-                    height = (int)(width / widthHeightRatio);
-                    dim = width*height;
+                    height = (int) (width / widthHeightRatio);
+                    dim = width * height;
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 width = 0;
                 height = 0;
             }
@@ -179,13 +179,13 @@ public class MosaicOpUI extends BaseOperatorUI {
         maxIterations.setText(String.valueOf(maxIterationsVal));
         convergenceThreshold.setText(String.valueOf(convergenceThresholdVal));
 
-        average = (Boolean)paramMap.get("average");
+        average = (Boolean) paramMap.get("average");
         averageCheckBox.getModel().setSelected(average);
 
-        normalizeByMean = (Boolean)paramMap.get("normalizeByMean");
+        normalizeByMean = (Boolean) paramMap.get("normalizeByMean");
         normalizeByMeanCheckBox.getModel().setSelected(normalizeByMean);
 
-        gradientDomainMosaic = (Boolean)paramMap.get("gradientDomainMosaic");
+        gradientDomainMosaic = (Boolean) paramMap.get("gradientDomainMosaic");
         gradientDomainMosaicCheckBox.getModel().setSelected(gradientDomainMosaic);
 
         maxIterations.setVisible(gradientDomainMosaic);
@@ -251,7 +251,7 @@ public class MosaicOpUI extends BaseOperatorUI {
         gbc.gridy++;
         contentPane.add(normalizeByMeanCheckBox, gbc);
         gbc.gridy++;
-        if(useGradientDomain)
+        if (useGradientDomain)
             contentPane.add(gradientDomainMosaicCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
@@ -262,28 +262,30 @@ public class MosaicOpUI extends BaseOperatorUI {
     private class TextAreaKeyListener implements KeyListener {
         public void keyPressed(KeyEvent e) {
         }
+
         public void keyReleased(KeyEvent e) {
             try {
                 changedByUser = true;
-                if(e.getComponent() == pixelSize) {
+                if (e.getComponent() == pixelSize) {
                     final double pixSize = Double.parseDouble(pixelSize.getText());
                     OperatorUtils.getSceneDimensions(pixSize, scnProp);
 
                     sceneWidth.setText(String.valueOf(scnProp.sceneWidth));
                     sceneHeight.setText(String.valueOf(scnProp.sceneHeight));
-                } else if(e.getComponent() == sceneWidth) {
-                    final int height = (int)(Integer.parseInt(sceneWidth.getText()) / widthHeightRatio);
+                } else if (e.getComponent() == sceneWidth) {
+                    final int height = (int) (Integer.parseInt(sceneWidth.getText()) / widthHeightRatio);
                     sceneHeight.setText(String.valueOf(height));
                     pixelSize.setText(String.valueOf(height * pixelSizeHeightRatio));
-                } else if(e.getComponent() == sceneHeight) {
-                    final int width = (int)(Integer.parseInt(sceneHeight.getText()) / widthHeightRatio);
+                } else if (e.getComponent() == sceneHeight) {
+                    final int width = (int) (Integer.parseInt(sceneHeight.getText()) / widthHeightRatio);
                     sceneWidth.setText(String.valueOf(width));
                     pixelSize.setText(String.valueOf(width * pixelSizeHeightRatio));
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 //
             }
         }
+
         public void keyTyped(KeyEvent e) {
         }
     }

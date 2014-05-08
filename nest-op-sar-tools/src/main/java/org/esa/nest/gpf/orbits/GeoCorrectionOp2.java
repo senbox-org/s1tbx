@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,10 @@
 package org.esa.nest.gpf.orbits;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -29,21 +32,21 @@ import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileIndex;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Map;
 
 /**
  * This operator first fills holes in the latitude and longitude bands of the source product, then creates
  * a pixel geocoding using the latitude and longitude bands for the target product.
  */
 
-@OperatorMetadata(alias="Geo-Correction-2",
-                  category = "Geometric\\Geo Correction",
-                  authors = "Jun Lu, Luis Veci",
-                  copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-                  description="Geo Correction 2")
+@OperatorMetadata(alias = "Geo-Correction-2",
+        category = "Geometric\\Geo Correction",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Geo Correction 2")
 public final class GeoCorrectionOp2 extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -65,8 +68,7 @@ public final class GeoCorrectionOp2 extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -77,7 +79,7 @@ public final class GeoCorrectionOp2 extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -92,26 +94,27 @@ public final class GeoCorrectionOp2 extends Operator {
 
     /**
      * Create target product.
-     * @throws  Exception The exceptions.
+     *
+     * @throws Exception The exceptions.
      */
-    private void createTargetProduct() throws Exception  {
+    private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         addSelectedBands();
     }
 
-    private void addSelectedBands()  throws Exception {
+    private void addSelectedBands() throws Exception {
 
         final Band[] sourceBands = sourceProduct.getBands();
         boolean hasLatBand = false;
         boolean hasLonBand = false;
-        for (Band band:sourceBands) {
+        for (Band band : sourceBands) {
             if (band.getName().equals(GeoCorrectionOp1.LATITUDE_BAND_NAME)) {
                 srcLatBand = band;
                 hasLatBand = true;
@@ -155,8 +158,8 @@ public final class GeoCorrectionOp2 extends Operator {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int ymax = y0 + h;
         final int xmax = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
@@ -183,20 +186,20 @@ public final class GeoCorrectionOp2 extends Operator {
                     final double srcLon = srcLonData.getElemDoubleAt(index);
 
                     if (srcLat == 0.0) {
-                        tgtLatData.setElemFloatAt(index, (float)fillHole(x, y, srcLatBand));
+                        tgtLatData.setElemFloatAt(index, (float) fillHole(x, y, srcLatBand));
                     } else {
-                        tgtLatData.setElemFloatAt(index, (float)srcLat);
+                        tgtLatData.setElemFloatAt(index, (float) srcLat);
                     }
 
                     if (srcLon == 0.0) {
-                        tgtLonData.setElemFloatAt(index, (float)fillHole(x, y, srcLonBand));
+                        tgtLonData.setElemFloatAt(index, (float) fillHole(x, y, srcLonBand));
                     } else {
-                        tgtLonData.setElemFloatAt(index, (float)srcLon);
+                        tgtLonData.setElemFloatAt(index, (float) srcLon);
                     }
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -212,14 +215,14 @@ public final class GeoCorrectionOp2 extends Operator {
                 final int yEd = Math.min(y + i, sourceImageHeight - 1);
                 final int w = xEd - xSt + 1;
                 final int h = yEd - ySt + 1;
-                final int num = w*h;
+                final int num = w * h;
                 final double[] data = new double[num];
 
                 sourceBand.getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, data);
 
                 double v = 0.0;
                 int k = 0;
-                for (double d:data) {
+                for (double d : data) {
                     if (d != 0) {
                         v += d;
                         k++;
@@ -227,10 +230,10 @@ public final class GeoCorrectionOp2 extends Operator {
                 }
 
                 if (k != 0) {
-                    return v/k;
+                    return v / k;
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
 
@@ -242,6 +245,7 @@ public final class GeoCorrectionOp2 extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,26 +26,24 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import java.util.HashMap;
-
 /**
  * Creates a new product with only selected bands
  */
 
-@OperatorMetadata(alias="BandSelect",
+@OperatorMetadata(alias = "BandSelect",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Creates a new product with only selected bands")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Creates a new product with only selected bands")
 public final class BandSelectOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     /**
@@ -57,8 +55,7 @@ public final class BandSelectOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -66,14 +63,14 @@ public final class BandSelectOp extends Operator {
 
         try {
             targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
             addSelectedBands();
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -93,6 +90,7 @@ public final class BandSelectOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

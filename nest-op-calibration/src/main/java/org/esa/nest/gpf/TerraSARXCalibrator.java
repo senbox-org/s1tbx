@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -124,7 +124,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 updateTargetProductMetadata();
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException("TerraSARXCalibrator: " + e);
         }
     }
@@ -134,7 +134,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if(!(mission.contains("TSX") || mission.contains("TDX")))
+        if (!(mission.contains("TSX") || mission.contains("TDX")))
             throw new OperatorException("TerraSARXCalibrator: " + mission +
                     " is not a valid mission for TerraSAT-X Calibration");
     }
@@ -191,7 +191,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         }
         noiseCorrectedFlag = processingFlagsElem.getAttributeString("noiseCorrectedFlag").contains("true");
 
-        if(acquisitionMode.contains("ScanSAR") && !noiseCorrectedFlag) {
+        if (acquisitionMode.contains("ScanSAR") && !noiseCorrectedFlag) {
             throw new OperatorException("Noise correction for ScanSAR is currently not supported.");
         }
     }
@@ -229,12 +229,12 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 record[i].polynomialDegree = Integer.parseInt(noiseEstimate.getAttributeString("polynomialDegree"));
 
                 final MetadataElement[] coefficientElem = noiseEstimate.getElements();
-                if (record[i].polynomialDegree+1 != coefficientElem.length) {
+                if (record[i].polynomialDegree + 1 != coefficientElem.length) {
                     throw new OperatorException(
                             "TerraSARXCalibrator: The number of coefficients does not match the polynomial degree.");
                 }
 
-                record[i].coefficient = new double[record[i].polynomialDegree+1];
+                record[i].coefficient = new double[record[i].polynomialDegree + 1];
                 for (int j = 0; j < coefficientElem.length; ++j) {
                     record[i].coefficient[j] = Double.parseDouble(coefficientElem[j].getAttributeString("coefficient"));
                 }
@@ -255,12 +255,12 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             final NoiseRecord[] record = elem.getValue();
             final int numOfNoiseRecords = record.length;
             double[][] noise = new double[numOfNoiseRecords][sourceImageWidth];
-            int [] index = new int[numOfNoiseRecords];
+            int[] index = new int[numOfNoiseRecords];
 
             for (int i = 0; i < numOfNoiseRecords; ++i) {
-                index[i] = (int)((record[i].timeUTC - firstLineUTC) / lineTimeInterval + 0.5);
+                index[i] = (int) ((record[i].timeUTC - firstLineUTC) / lineTimeInterval + 0.5);
                 for (int j = 0; j < sourceImageWidth; ++j) {
-                    final double slantRgTime = slantRangeTime.getPixelDouble(j, index[i])/1.0e9; // ns to s
+                    final double slantRgTime = slantRangeTime.getPixelDouble(j, index[i]) / 1.0e9; // ns to s
                     if (slantRgTime >= record[i].validityRangeMin && slantRgTime <= record[i].validityRangeMax) {
                         noise[i][j] = org.esa.nest.util.MathUtils.computePolynomialValue(
                                 slantRgTime - record[i].referencePoint, record[i].coefficient);
@@ -296,7 +296,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 useIncidenceAngleFromGIM = false;
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException("TerraSARXCalibrator: " + e);
         }
     }
@@ -318,8 +318,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile,
                             ProgressMonitor pm) throws OperatorException {
@@ -330,7 +329,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
-        
+
         Tile sourceRaster1 = null;
         ProductData srcData1 = null;
         ProductData srcData2 = null;
@@ -361,7 +360,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         final double noDataValue = sourceBand1.getNoDataValue();
 
         // copy band if unit is phase
-        if(bandUnit == Unit.UnitType.PHASE) {
+        if (bandUnit == Unit.UnitType.PHASE) {
             targetTile.setRawSamples(sourceRaster1.getRawSamples());
             return;
         }
@@ -401,7 +400,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                     if (dn == noDataValue) { // skip noDataValue
                         continue;
                     }
-                    sigma = dn*dn;
+                    sigma = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     sigma = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
@@ -415,15 +414,15 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 double inciAng;
                 if (useIncidenceAngleFromGIM) {
                     final int gim = srcGIMData.getElemIntAt(srcIdx);
-                    inciAng = (gim - (gim%10))/100.0*MathUtils.DTOR;
+                    inciAng = (gim - (gim % 10)) / 100.0 * MathUtils.DTOR;
                 } else {
-                    inciAng = incidenceAngle.getPixelDouble(x, y)*MathUtils.DTOR;
+                    inciAng = incidenceAngle.getPixelDouble(x, y) * MathUtils.DTOR;
                 }
 
                 if (noiseCorrectedFlag) {
-                    sigma = Ks*sigma*Math.sin(inciAng);
+                    sigma = Ks * sigma * Math.sin(inciAng);
                 } else {
-                    sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(inciAng);
+                    sigma = Ks * (sigma - tileNoise[y - y0][x - x0]) * Math.sin(inciAng);
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -441,11 +440,12 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Compute noise for each pixel in the tile.
-     * @param pol Polarization string.
-     * @param x0 X coordinate for pixel at the upper left corner of the tile.
-     * @param y0 Y coordinate for pixel at the upper left corner of the tile.
-     * @param w Tile width.
-     * @param h Tile height.
+     *
+     * @param pol       Polarization string.
+     * @param x0        X coordinate for pixel at the upper left corner of the tile.
+     * @param y0        Y coordinate for pixel at the upper left corner of the tile.
+     * @param w         Tile width.
+     * @param h         Tile height.
      * @param tileNoise Array holding noise for the tile.
      */
     private void computeTileNoise(final String pol, final int x0, final int y0, final int w,
@@ -469,7 +469,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 }
             }
 
-            if (y1 == indexArray[indexArray.length-1]) {
+            if (y1 == indexArray[indexArray.length - 1]) {
                 y2 = y1;
                 i2 = i1;
             } else if (y1 > y2) {
@@ -481,31 +481,31 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 final double n2 = noise[i2][x];
                 double mu = 0.0;
                 if (y1 != y2) {
-                    mu = (double)(y - y1) / (double)(y2 - y1);
+                    mu = (double) (y - y1) / (double) (y2 - y1);
                 }
-                tileNoise[y-y0][x-x0] = org.esa.nest.util.MathUtils.interpolationLinear(n1, n2, mu);
+                tileNoise[y - y0][x - x0] = org.esa.nest.util.MathUtils.interpolationLinear(n1, n2, mu);
             }
         }
     }
 
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
-            final double satelliteHeight, final double sceneToEarthCentre,final double localIncidenceAngle,
+            final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            sigma = v*v;
+            sigma = v * v;
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v/10.0); // convert dB to linear scale
+            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("TerraSARXCalibrator: Unknown band unit");
         }
 
         final double Ks = calibrationFactor.get(bandPolar.toUpperCase());
-        sigma *= Ks*Math.sin(localIncidenceAngle*MathUtils.DTOR);
+        sigma *= Ks * Math.sin(localIncidenceAngle * MathUtils.DTOR);
         return sigma;
     }
 

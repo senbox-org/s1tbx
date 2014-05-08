@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,19 +16,16 @@
 package org.esa.nest.dataio.terrasarx;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.generic.GenericReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 
@@ -47,7 +44,6 @@ import java.util.Arrays;
 
 /**
  * The product reader for TerraSarX products.
- *
  */
 public class TerraSarXProductReader extends SARReader {
 
@@ -60,7 +56,7 @@ public class TerraSarXProductReader extends SARReader {
      *                     implementations
      */
     public TerraSarXProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     /**
@@ -130,11 +126,11 @@ public class TerraSarXProductReader extends SARReader {
                                           ProgressMonitor pm) throws IOException {
         try {
             final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
-            if(bandInfo != null && bandInfo.img != null) {
+            if (bandInfo != null && bandInfo.img != null) {
 
                 Product product = destBand.getProduct();
 
-                if(OperatorUtils.isMapProjected(product)) {
+                if (OperatorUtils.isMapProjected(product)) {
 
                     bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                             destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo.imageID,
@@ -146,12 +142,12 @@ public class TerraSarXProductReader extends SARReader {
                     final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
                     if (isAscending) {
                         readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                                0, bandInfo.img, bandInfo.bandSampleOffset);
+                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                0, bandInfo.img, bandInfo.bandSampleOffset);
                     } else {
                         readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                                 0, bandInfo.img, bandInfo.bandSampleOffset);
+                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                0, bandInfo.img, bandInfo.bandSampleOffset);
                     }
                 }
 
@@ -159,12 +155,12 @@ public class TerraSarXProductReader extends SARReader {
 
                 final ImageInputStream iiStream = dataDir.getCosarImageInputStream(destBand);
                 readBandRasterDataSLCShort(sourceOffsetX, sourceOffsetY,
-                                                 sourceWidth, sourceHeight,
-                                                 sourceStepX, sourceStepY,
-                                                 destWidth, destBuffer,
-                                                 !bandInfo.isImaginary, iiStream, pm);
+                        sourceWidth, sourceHeight,
+                        sourceStepX, sourceStepY,
+                        destWidth, destBuffer,
+                        !bandInfo.isImaginary, iiStream, pm);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -179,16 +175,16 @@ public class TerraSarXProductReader extends SARReader {
 
         final Raster data;
 
-        synchronized(dataDir) {
+        synchronized (dataDir) {
             final ImageReader reader = img.getReader();
             final ImageReadParam param = reader.getDefaultReadParam();
             param.setSourceSubsampling(sourceStepX, sourceStepY,
-                                       sourceOffsetX % sourceStepX,
-                                       sourceOffsetY % sourceStepY);
+                    sourceOffsetX % sourceStepX,
+                    sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
             data = image.getData(new Rectangle(destOffsetX, img.getSceneHeight() - destOffsetY - destHeight,
-                                               destWidth, destHeight));
+                    destWidth, destHeight));
         }
 
         final DataBuffer dataBuffer = data.getDataBuffer();
@@ -203,8 +199,8 @@ public class TerraSarXProductReader extends SARReader {
         int is, id;
         for (int r = 0; r < destHeight; r++) {
             for (int c = 0; c < destWidth; c++) {
-                is = r*destWidth + c;
-                id = (destHeight - r - 1)*destWidth + c;
+                is = r * destWidth + c;
+                id = (destHeight - r - 1) * destWidth + c;
                 destBuffer.setElemDoubleAt(id, dArray[is]);
             }
         }
@@ -220,16 +216,16 @@ public class TerraSarXProductReader extends SARReader {
 
         final Raster data;
 
-        synchronized(dataDir) {
+        synchronized (dataDir) {
             final ImageReader reader = img.getReader();
             final ImageReadParam param = reader.getDefaultReadParam();
             param.setSourceSubsampling(sourceStepX, sourceStepY,
-                                       sourceOffsetX % sourceStepX,
-                                       sourceOffsetY % sourceStepY);
+                    sourceOffsetX % sourceStepX,
+                    sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
             data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
-                                               destOffsetY, destWidth, destHeight));
+                    destOffsetY, destWidth, destHeight));
         }
 
         final DataBuffer dataBuffer = data.getDataBuffer();
@@ -244,20 +240,19 @@ public class TerraSarXProductReader extends SARReader {
         int is, id;
         for (int r = 0; r < destHeight; r++) {
             for (int c = 0; c < destWidth; c++) {
-                is = r*destWidth + c;
-                id = r*destWidth + destWidth - c - 1;
+                is = r * destWidth + c;
+                id = r * destWidth + destWidth - c - 1;
                 destBuffer.setElemDoubleAt(id, dArray[is]);
             }
         }
     }
 
     private static synchronized void readBandRasterDataSLCShort(final int sourceOffsetX, final int sourceOffsetY,
-                                      final int sourceWidth, final int sourceHeight,
-                                      final int sourceStepX, final int sourceStepY,
-                                      final int destWidth, final ProductData destBuffer, boolean oneOf2,
-                                      final ImageInputStream iiStream, final ProgressMonitor pm)
-                                        throws IOException
-    {
+                                                                final int sourceWidth, final int sourceHeight,
+                                                                final int sourceStepX, final int sourceStepY,
+                                                                final int destWidth, final ProductData destBuffer, boolean oneOf2,
+                                                                final ImageInputStream iiStream, final ProgressMonitor pm)
+            throws IOException {
         iiStream.seek(0);
         final int bib = iiStream.readInt();
         final int rsri = iiStream.readInt();
@@ -269,7 +264,7 @@ public class TerraSarXProductReader extends SARReader {
         //System.out.print("bib"+bib+" rsri"+rsri+" rs"+rs+" as"+as+" bi"+bi+" rtbn"+rtnb+" tnl"+tnl);
         //System.out.println(" sourceOffsetX="+sourceOffsetX+" sourceOffsetY="+sourceOffsetY);
 
-        final long imageRecordLength = (long)rtnb;
+        final long imageRecordLength = (long) rtnb;
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 4;
         final int filler = 2;
@@ -277,14 +272,14 @@ public class TerraSarXProductReader extends SARReader {
         final int asfv = rs;
         final int aslv = rs;
         //final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler+filler)*4);
-        final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler)*4);
+        final long xpos = rtnb + x + ((filler + asri + filler + asfv + filler + aslv + filler) * 4);
         iiStream.setByteOrder(ByteOrder.BIG_ENDIAN);
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         final short[] destLine = new short[destWidth];
-        int y=0;
+        int y = 0;
         try {
-            final short[] srcLine = new short[sourceWidth*2];
+            final short[] srcLine = new short[sourceWidth * 2];
             for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
                 if (pm.isCanceled()) {
                     break;
@@ -307,13 +302,13 @@ public class TerraSarXProductReader extends SARReader {
 
                 pm.worked(1);
             }
-        } catch(Exception e) {
-            System.out.println(e.toString());  
+        } catch (Exception e) {
+            System.out.println(e.toString());
             final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-            Arrays.fill(destLine, (short)0);
+            Arrays.fill(destLine, (short) 0);
             System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
         } finally {
             pm.done();
         }
-    }   
+    }
 }

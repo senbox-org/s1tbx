@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,7 +41,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Subset",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Create a spatial subset of the source product.")
 public class SubsetOp extends Operator {
 
@@ -51,13 +51,13 @@ public class SubsetOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private
     String[] sourceBandNames;
 
-    @Parameter(label = "X", defaultValue="0")
+    @Parameter(label = "X", defaultValue = "0")
     private int regionX = 0;
-    @Parameter(label = "Y", defaultValue="0")
+    @Parameter(label = "Y", defaultValue = "0")
     private int regionY = 0;
     @Parameter(label = "Width")
     private int width = 1000;
@@ -69,9 +69,9 @@ public class SubsetOp extends Operator {
     private int subSamplingY = 1;
 
     @Parameter(converter = JtsGeometryConverter.class,
-               description = "WKT-format, " +
-                       "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
-                       "(make sure to quote the option due to spaces in <geometry>)")
+            description = "WKT-format, " +
+                    "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
+                    "(make sure to quote the option due to spaces in <geometry>)")
     private Geometry geoRegion;
 
     private ProductReader subsetReader = null;
@@ -79,10 +79,10 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if(width == 0 || regionX+width > sourceProduct.getSceneRasterWidth()) {
+        if (width == 0 || regionX + width > sourceProduct.getSceneRasterWidth()) {
             width = sourceProduct.getSceneRasterWidth() - regionX;
         }
-        if(height == 0 || regionY+height > sourceProduct.getSceneRasterHeight()) {
+        if (height == 0 || regionY + height > sourceProduct.getSceneRasterHeight()) {
             height = sourceProduct.getSceneRasterHeight() - regionY;
         }
 
@@ -101,7 +101,7 @@ public class SubsetOp extends Operator {
             final Rectangle region = computePixelRegion(sourceProduct, geoRegion, 0);
             if (region != null) {
                 if (region.isEmpty()) {
-                    throw new OperatorException("Subset: No intersection with source product boundary "+sourceProduct.getName());
+                    throw new OperatorException("Subset: No intersection with source product boundary " + sourceProduct.getName());
                     //region.setSize(1,1);
                 }
                 subsetDef.setRegion(region);
@@ -115,8 +115,8 @@ public class SubsetOp extends Operator {
             targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
 
             // replace virtual bands with real bands
-            for(Band b : targetProduct.getBands()) {
-                if(b instanceof VirtualBand) {
+            for (Band b : targetProduct.getBands()) {
+                if (b instanceof VirtualBand) {
                     targetProduct.removeBand(b);
                     final Band newBand = targetProduct.addBand(b.getName(), b.getDataType());
                     newBand.setNoDataValue(b.getNoDataValue());
@@ -153,14 +153,14 @@ public class SubsetOp extends Operator {
         try {
             // for virtual bands
             Band tgtBand = bandMap.get(band);
-            if(tgtBand == null)
+            if (tgtBand == null)
                 tgtBand = band;
             subsetReader.readBandRasterData(tgtBand,
-                                            rectangle.x,
-                                            rectangle.y,
-                                            rectangle.width,
-                                            rectangle.height,
-                                            destBuffer, pm);
+                    rectangle.x,
+                    rectangle.y,
+                    rectangle.width,
+                    rectangle.height,
+                    destBuffer, pm);
             targetTile.setRawSamples(destBuffer);
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,10 +31,10 @@ import java.util.Map;
  */
 public class WarpOpUI extends BaseOperatorUI {
 
-    private final JComboBox warpPolynomialOrder = new JComboBox(new String[] { "1","2","3" } );
-    private final JComboBox interpolationMethod = new JComboBox(new String[] {
-           WarpOp.NEAREST_NEIGHBOR, WarpOp.BILINEAR, WarpOp.BICUBIC, WarpOp.BICUBIC2,
-           WarpOp.TRI, WarpOp.CC4P, WarpOp.CC6P, WarpOp.TS6P, WarpOp.TS8P, WarpOp.TS16P} );
+    private final JComboBox warpPolynomialOrder = new JComboBox(new String[]{"1", "2", "3"});
+    private final JComboBox interpolationMethod = new JComboBox(new String[]{
+            WarpOp.NEAREST_NEIGHBOR, WarpOp.BILINEAR, WarpOp.BICUBIC, WarpOp.BICUBIC2,
+            WarpOp.TRI, WarpOp.CC4P, WarpOp.CC6P, WarpOp.TS6P, WarpOp.TS8P, WarpOp.TS16P});
 
     private final JTextField rmsThreshold = new JTextField("");
 
@@ -49,9 +49,9 @@ public class WarpOpUI extends BaseOperatorUI {
         initParameters();
 
         openResidualsFileCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    openResidualsFile = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                openResidualsFile = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return new JScrollPane(panel);
@@ -63,9 +63,9 @@ public class WarpOpUI extends BaseOperatorUI {
         rmsThreshold.setText(String.valueOf(paramMap.get("rmsThreshold")));
         warpPolynomialOrder.setSelectedItem(paramMap.get("warpPolynomialOrder"));
 
-        if(sourceProducts != null && sourceProducts.length > 0) {
+        if (sourceProducts != null && sourceProducts.length > 0) {
             final boolean isComplex = OperatorUtils.isComplex(sourceProducts[0]);
-            if(!isComplex) {
+            if (!isComplex) {
                 interpolationMethod.removeAllItems();
                 interpolationMethod.addItem(WarpOp.NEAREST_NEIGHBOR);
                 interpolationMethod.addItem(WarpOp.BILINEAR);
@@ -88,7 +88,7 @@ public class WarpOpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         paramMap.put("rmsThreshold", Float.parseFloat(rmsThreshold.getText()));
-        paramMap.put("warpPolynomialOrder", Integer.parseInt((String)warpPolynomialOrder.getSelectedItem()));
+        paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
         paramMap.put("openResidualsFile", openResidualsFile);
     }

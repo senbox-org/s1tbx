@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -69,7 +69,7 @@ class ProductPanel extends JPanel {
 
     private void fill(WorldWindow wwd) {
         final String[] productNames = productLayer.getProductNames();
-        for(String name : productNames) {
+        for (String name : productNames) {
             final LayerAction action = new LayerAction(productLayer, wwd, name, productLayer.getOpacity(name) != 0);
             final JCheckBox jcb = new JCheckBox(action);
             jcb.setSelected(action.selected);

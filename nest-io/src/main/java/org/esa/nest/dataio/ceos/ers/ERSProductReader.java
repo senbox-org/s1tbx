@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,6 @@ import java.io.File;
 
 /**
  * The product reader for ERS products.
- *
  */
 public class ERSProductReader extends CEOSProductReader {
 
@@ -35,7 +34,7 @@ public class ERSProductReader extends CEOSProductReader {
      *                     implementations
      */
     public ERSProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     @Override
@@ -48,11 +47,11 @@ public class ERSProductReader extends CEOSProductReader {
         try {
             _dataDir = createProductDirectory(file);
 
-            final ERSProductDirectory ersDataDir = (ERSProductDirectory)_dataDir;
-            if(ersDataDir.isERS())
+            final ERSProductDirectory ersDataDir = (ERSProductDirectory) _dataDir;
+            if (ersDataDir.isERS())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
-            
+
         } catch (Exception e) {
             return DecodeQualification.UNABLE;
         }

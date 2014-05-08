@@ -6,20 +6,20 @@
 
     <tocitem text="Graph Processing">
         <tocitem text="Utility Operators">
-			<tocitem text="Convert Datatype" target="ConvertDatatypeOp"/>
-			<tocitem text="Fill DEM Hole" target="FillHoleOp"/>
-			<tocitem text="Image Filtering" target="FilterOperator"/>
-            <tocitem text="Over Sample" target="OverSampleOp"/>	
-			<tocitem text="Under Sample" target="UnderSampleOp"/>
+            <tocitem text="Convert Datatype" target="ConvertDatatypeOp"/>
+            <tocitem text="Fill DEM Hole" target="FillHoleOp"/>
+            <tocitem text="Image Filtering" target="FilterOperator"/>
+            <tocitem text="Over Sample" target="OverSampleOp"/>
+            <tocitem text="Under Sample" target="UnderSampleOp"/>
         </tocitem>
-		<tocitem text="SAR Operators">
-			<tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>		
-			<tocitem text="Multilook" target="MultilookOp"/>			
-	        <tocitem text="Speckle Filter" target="SpeckleFilterOp"/>			
-	        <tocitem text="Multi-Temporal Speckle Filter" target="MultiTemporalSpeckleFilterOp"/>			
-			<tocitem text="WSS Deburst" target="WSSDeburstOp"/>
-			<tocitem text="WSS Mosaic" target="WSSMosaic"/>
-		</tocitem>	
+        <tocitem text="SAR Operators">
+            <tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>
+            <tocitem text="Multilook" target="MultilookOp"/>
+            <tocitem text="Speckle Filter" target="SpeckleFilterOp"/>
+            <tocitem text="Multi-Temporal Speckle Filter" target="MultiTemporalSpeckleFilterOp"/>
+            <tocitem text="WSS Deburst" target="WSSDeburstOp"/>
+            <tocitem text="WSS Mosaic" target="WSSMosaic"/>
+        </tocitem>
     </tocitem>
-    
+
 </toc>

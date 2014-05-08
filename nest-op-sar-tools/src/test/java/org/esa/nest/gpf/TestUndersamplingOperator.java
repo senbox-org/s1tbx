@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -49,13 +49,14 @@ public class TestUndersamplingOperator extends TestCase {
 
     /**
      * Tests sub-sampling method in undersampling operator with a 6x12 "DETECTED" test product.
+     *
      * @throws Exception general exception
      */
     public void testUndersamplingWithSubSampling() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
-        
-        UndersamplingOp op = (UndersamplingOp)spi.createOperator();
+
+        UndersamplingOp op = (UndersamplingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -65,7 +66,7 @@ public class TestUndersamplingOperator extends TestCase {
         // get targetProduct: execute initialize()
         Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true);
-        
+
         Band band = targetProduct.getBandAt(0);
         assertNotNull(band);
 
@@ -88,13 +89,14 @@ public class TestUndersamplingOperator extends TestCase {
 
     /**
      * Tests low pass kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
+     *
      * @throws Exception general exception
      */
     public void testUndersamplingWithLowPassKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
 
-        UndersamplingOp op = (UndersamplingOp)spi.createOperator();
+        UndersamplingOp op = (UndersamplingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -252,13 +254,14 @@ public class TestUndersamplingOperator extends TestCase {
 
     /**
      * Tests horizontal kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
+     *
      * @throws Exception general exception
      */
     public void testUndersamplingWithHorizontalKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
 
-        UndersamplingOp op = (UndersamplingOp)spi.createOperator();
+        UndersamplingOp op = (UndersamplingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -293,13 +296,14 @@ public class TestUndersamplingOperator extends TestCase {
 
     /**
      * Tests vertical kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
+     *
      * @throws Exception general exception
      */
     public void testUndersamplingWithVerticalKernel() throws Exception {
 
         final Product sourceProduct = createTestProduct(12, 6);
 
-        final UndersamplingOp op = (UndersamplingOp)spi.createOperator();
+        final UndersamplingOp op = (UndersamplingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -334,13 +338,14 @@ public class TestUndersamplingOperator extends TestCase {
 
     /**
      * Tests summary kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
+     *
      * @throws Exception general exception
      */
     public void testUndersamplingWithSummaryKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
 
-        UndersamplingOp op = (UndersamplingOp)spi.createOperator();
+        UndersamplingOp op = (UndersamplingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -376,12 +381,13 @@ public class TestUndersamplingOperator extends TestCase {
 
     /**
      * Creates a 6-by-12 test product as shown below:
-     *  1  2  3  4  5  6  7  8  9 10 11 12
+     * 1  2  3  4  5  6  7  8  9 10 11 12
      * 13 14 15 16 17 18 19 20 21 22 23 24
      * 25 26 27 28 29 30 31 32 33 34 35 36
      * 37 38 39 40 41 42 43 44 45 46 47 48
      * 49 50 51 52 53 54 55 56 57 58 59 60
      * 61 62 63 64 65 66 67 68 69 70 71 72
+     *
      * @param w width
      * @param h height
      * @return the created product
@@ -407,7 +413,7 @@ public class TestUndersamplingOperator extends TestCase {
         AbstractMetadata.setAttribute(abs, AbstractMetadata.line_time_interval, 0.01F);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.first_line_time,
                 AbstractMetadata.parseUTC("10-MAY-2008 20:30:46.890683"));
-        
+
         return testProduct;
     }
 

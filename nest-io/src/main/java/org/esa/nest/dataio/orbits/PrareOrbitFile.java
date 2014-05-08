@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,6 +47,7 @@ public class PrareOrbitFile extends BaseOrbitFile {
 
     /**
      * Get orbit information for given time.
+     *
      * @param utc The UTC in days.
      * @return The orbit information.
      * @throws Exception The exceptions.
@@ -68,6 +69,7 @@ public class PrareOrbitFile extends BaseOrbitFile {
 
     /**
      * Get PRARE orbit file.
+     *
      * @param sourceProduct the input product
      * @throws java.io.IOException The exceptions.
      */
@@ -75,14 +77,14 @@ public class PrareOrbitFile extends BaseOrbitFile {
 
         prareReader = PrareOrbitReader.getInstance();
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        
+
         // construct path to the orbit file folder
         String orbitPath = "";
         String remoteBaseFolder = "";
-        if(mission.equals("ERS1")) {
+        if (mission.equals("ERS1")) {
             orbitPath = Settings.instance().get("OrbitFiles/prareERS1OrbitPath");
             remoteBaseFolder = Settings.instance().get("OrbitFiles/prareFTP_ERS1_remotePath");
-        } else if(mission.equals("ERS2")) {
+        } else if (mission.equals("ERS2")) {
             orbitPath = Settings.instance().get("OrbitFiles/prareERS2OrbitPath");
             remoteBaseFolder = Settings.instance().get("OrbitFiles/prareFTP_ERS2_remotePath");
         }
@@ -92,46 +94,46 @@ public class PrareOrbitFile extends BaseOrbitFile {
         final double startMJD = sourceProduct.getStartTime().getMJD();
         final Calendar startDate = sourceProduct.getStartTime().getAsCalendar();
         final int year = startDate.get(Calendar.YEAR);
-        final int month = startDate.get(Calendar.MONTH) +1;       
+        final int month = startDate.get(Calendar.MONTH) + 1;
         final String folder = String.valueOf(year);
         orbitPath += File.separator + folder;
         final File localPath = new File(orbitPath);
 
         // find orbit file in the folder
         orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
-        if(orbitFile == null) {
-            final String remotePath = remoteBaseFolder +'/'+ folder;
+        if (orbitFile == null) {
+            final String remotePath = remoteBaseFolder + '/' + folder;
             getRemotePrareFiles(remotePath, localPath, getPrefix(year, month));
             // find again in newly downloaded folder
             orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
-            if(orbitFile == null) {
+            if (orbitFile == null) {
                 // check next month
-                getRemotePrareFiles(remotePath, localPath, getPrefix(year, month+1));
+                getRemotePrareFiles(remotePath, localPath, getPrefix(year, month + 1));
                 orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
             }
         }
 
-        if(orbitFile == null) {
-            throw new IOException("Unable to find suitable orbit file \n"+orbitPath+"\nPlease check your firewall settings");
+        if (orbitFile == null) {
+            throw new IOException("Unable to find suitable orbit file \n" + orbitPath + "\nPlease check your firewall settings");
         }
     }
 
     private static String getPrefix(int year, int month) {
-        if(year >=2000)
+        if (year >= 2000)
             year -= 2000;
         else
             year -= 1900;
         String monthStr = String.valueOf(month);
-        if(month < 10)
-            monthStr = '0'+monthStr;
+        if (month < 10)
+            monthStr = '0' + monthStr;
 
-        return "PRC_"+year+monthStr;
+        return "PRC_" + year + monthStr;
     }
 
     private void getRemotePrareFiles(final String remotePath, final File localPath, final String prefix) {
         final String prareFTP = Settings.instance().get("OrbitFiles/prareFTP");
         try {
-            if(ftp == null) {
+            if (ftp == null) {
                 final String user = Settings.instance().get("OrbitFiles/prareFTP_user");
                 final String pass = Settings.instance().get("OrbitFiles/prareFTP_pass");
                 ftp = new ftpUtils(prareFTP, user, pass);
@@ -140,17 +142,17 @@ public class PrareOrbitFile extends BaseOrbitFile {
 
                 // keep only those starting with prefix
                 final Set<String> remoteFileNames = allfileSizeMap.keySet();
-                for(String fileName : remoteFileNames) {
-                    if(fileName.startsWith(prefix)) {
+                for (String fileName : remoteFileNames) {
+                    if (fileName.startsWith(prefix)) {
                         fileSizeMap.put(fileName, allfileSizeMap.get(fileName));
                     }
                 }
             }
 
-            if(!localPath.exists())
+            if (!localPath.exists())
                 localPath.mkdirs();
 
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 final DownloadOrbitWorker worker = new DownloadOrbitWorker(VisatApp.getApp(), "Download Orbit Files",
                         ftp, fileSizeMap, remotePath, localPath);
                 worker.executeWithBlocking();
@@ -159,16 +161,17 @@ public class PrareOrbitFile extends BaseOrbitFile {
                 getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
     /**
      * Find PRARE orbit file.
+     *
      * @param prareReader The PRARE oribit reader.
-     * @param path The path to the orbit file.
-     * @param startMJD The start date of the product.
+     * @param path        The path to the orbit file.
+     * @param startMJD    The start date of the product.
      * @return The orbit file.
      * @throws IOException if can't read file
      */
@@ -176,10 +179,10 @@ public class PrareOrbitFile extends BaseOrbitFile {
                                            final double startMJD) throws IOException {
 
         final File[] list = path.listFiles();
-        if(list == null) return null;
+        if (list == null) return null;
 
         // loop through all orbit files in the given folder
-        for(File f : list) {
+        for (File f : list) {
 
             if (f.isDirectory()) {
                 continue;
@@ -196,8 +199,8 @@ public class PrareOrbitFile extends BaseOrbitFile {
                     // read orbit data records in each orbit file
                     prareReader.readOrbitData(f);
                     return f;
-                } catch(Exception e) {
-                    throw new IOException("Unable to parse file: "+e.toString());    
+                } catch (Exception e) {
+                    throw new IOException("Unable to parse file: " + e.toString());
                 }
             }
         }

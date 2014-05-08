@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -55,19 +55,19 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
         initParameters();
 
         useSRTMCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    useSRTM = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                useSRTM = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         byPassCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    byPass = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                byPass = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         invertGeometryCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    invertGeometry = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                invertGeometry = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         final RadioListener myListener = new RadioListener();
@@ -83,26 +83,26 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        final Boolean doLandMask = (Boolean)paramMap.get("landMask");
-        if(doLandMask != null && doLandMask) {
+        final Boolean doLandMask = (Boolean) paramMap.get("landMask");
+        if (doLandMask != null && doLandMask) {
             landMask.setSelected(true);
         } else {
             seaMask.setSelected(true);
         }
         geometries.removeAllItems();
         final String[] geometryNames = getGeometries();
-        for(String g : geometryNames) {
+        for (String g : geometryNames) {
             geometries.addItem(g);
         }
-        final String selectedGeometry = (String)paramMap.get("geometry");
-        if(selectedGeometry != null) {
+        final String selectedGeometry = (String) paramMap.get("geometry");
+        if (selectedGeometry != null) {
             geometryMask.setSelected(true);
             geometries.setSelectedItem(selectedGeometry);
         }
 
-        useSRTM = (Boolean)paramMap.get("useSRTM");
+        useSRTM = (Boolean) paramMap.get("useSRTM");
         useSRTMCheckBox.setSelected(useSRTM);
-        byPassCheckBox.setSelected((Boolean)paramMap.get("byPass"));
+        byPassCheckBox.setSelected((Boolean) paramMap.get("byPass"));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         paramMap.put("landMask", landMask.isSelected());
-        if(geometryMask.isSelected()) {
+        if (geometryMask.isSelected()) {
             paramMap.put("geometry", geometries.getSelectedItem());
             paramMap.put("invertGeometry", invertGeometry);
         }
@@ -149,8 +149,8 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
         contentPane.add(invertGeometryCheckBox, gbc);
 
         final ButtonGroup group = new ButtonGroup();
-    	group.add(landMask);
-	    group.add(seaMask);
+        group.add(landMask);
+        group.add(seaMask);
         group.add(geometryMask);
 
         geometries.setEnabled(false);

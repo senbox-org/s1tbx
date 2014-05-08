@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,6 @@
 package org.esa.nest.dataio.orbits;
 
 import junit.framework.TestCase;
-import org.esa.nest.dataio.orbits.OrbitalDataRecordReader;
 
 /**
  * OrbitalDataRecordReader Tester.
@@ -52,7 +51,7 @@ public class TestOrbitalDataRecordReader extends TestCase {
 
         OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
-        if(reader.OpenOrbitFile(envisatOrbitFilePath)) {
+        if (reader.OpenOrbitFile(envisatOrbitFilePath)) {
 
             reader.parseHeader1();
             reader.parseHeader2();
@@ -82,7 +81,7 @@ public class TestOrbitalDataRecordReader extends TestCase {
 
         OrbitalDataRecordReader.OrbitDataRecord[] orbits = reader.getDataRecords();
         System.out.print("Num Orbits " + orbits.length);
-        for(int i=0; i < 2; ++i) {
+        for (int i = 0; i < 2; ++i) {
             System.out.print(" Orbit time " + orbits[i].time);
             System.out.print(" lat " + orbits[i].latitude);
             System.out.print(" lng " + orbits[i].longitude);

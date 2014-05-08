@@ -2,12 +2,12 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
 
-	<parent>
+    <parent>
         <groupId>org.esa.nest</groupId>
-		<artifactId>s1tbx</artifactId>
+        <artifactId>s1tbx</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-	
+
     <name>NEST World Wind View</name>
     <groupId>org.esa.nest</groupId>
     <artifactId>nest-world-wind-view</artifactId>
@@ -32,11 +32,11 @@
             <groupId>gov.nasa</groupId>
             <artifactId>nasa-worldwind</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.processing</groupId>
             <artifactId>jogl</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.processing</groupId>
             <artifactId>gluegen-rt</artifactId>
         </dependency>

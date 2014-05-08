@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,59 +38,61 @@ import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
-import org.jlinda.core.*;
+import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 
 import java.awt.*;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This operator computes latitude and longitude bands using DEM, orbit state vectors of the given SAR
  * image, and mathematical modeling of SAR imaging geometry.
- *
+ * <p/>
  * For each (lat, lon) coordinate in the SAR image, elevation for the point is first obtained from the DEM
  * model. Then the image position (x, y) for the point in the SAR image is computed based on the SAR model.
  */
 
-@OperatorMetadata(alias="Geo-Correction-1",
+@OperatorMetadata(alias = "Geo-Correction-1",
         category = "Geometric\\Geo Correction 1",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Geo Correction 1")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Geo Correction 1")
 public final class GeoCorrectionOp1 extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
-               description = "The digital elevation model.",
-               defaultValue="SRTM 3Sec", label="Digital Elevation Model")
+            description = "The digital elevation model.",
+            defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-                           ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-                           ResamplingFactory.CUBIC_CONVOLUTION_NAME,
-                           ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-                           ResamplingFactory.BISINC_INTERPOLATION_NAME},
-               defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-               label="DEM Resampling Method")
+            ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+            ResamplingFactory.CUBIC_CONVOLUTION_NAME,
+            ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+            ResamplingFactory.BISINC_INTERPOLATION_NAME},
+            defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+            label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
-    @Parameter(label="External DEM")
+    @Parameter(label = "External DEM")
     private File externalDEMFile = null;
 
-    @Parameter(label="DEM No Data Value", defaultValue = "0")
+    @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
-    @Parameter(defaultValue="false", label="Re-grid method (slower)")
+    @Parameter(defaultValue = "false", label = "Re-grid method (slower)")
     boolean reGridMethod = false;
 
     boolean orbitMethod = false;
@@ -141,8 +143,7 @@ public final class GeoCorrectionOp1 extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -159,7 +160,7 @@ public final class GeoCorrectionOp1 extends Operator {
 
             createTargetProduct();
 
-            if(externalDEMFile == null) {
+            if (externalDEMFile == null) {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
 
@@ -171,7 +172,7 @@ public final class GeoCorrectionOp1 extends Operator {
                 meta = new SLCImage(absRoot);
                 orbit = new Orbit(absRoot, 3);
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -186,6 +187,7 @@ public final class GeoCorrectionOp1 extends Operator {
 
     /**
      * Retrieve required data from Abstracted Metadata
+     *
      * @throws Exception if metadata not found
      */
     private void getMetadata() throws Exception {
@@ -218,21 +220,22 @@ public final class GeoCorrectionOp1 extends Operator {
 
     /**
      * Get elevation model.
+     *
      * @throws Exception The exceptions.
      */
     private synchronized void getElevationModel() throws Exception {
 
-        if(isElevationModelAvailable) return;
+        if (isElevationModelAvailable) return;
         try {
-            if(externalDEMFile != null) { // if external DEM file is specified by user
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float)externalDEMNoDataValue);
+            if (externalDEMFile != null) { // if external DEM file is specified by user
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
                 demNoDataValue = (float) externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
             } else {
                 dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
                 demNoDataValue = dem.getDescriptor().getNoDataValue();
             }
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             t.printStackTrace();
         }
         isElevationModelAvailable = true;
@@ -263,9 +266,9 @@ public final class GeoCorrectionOp1 extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         addSelectedBands();
 
@@ -273,7 +276,7 @@ public final class GeoCorrectionOp1 extends Operator {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
-        if(externalDEMFile != null) { // if external DEM file is specified by user
+        if (externalDEMFile != null) { // if external DEM file is specified by user
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, externalDEMFile.getPath());
         } else {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, demName);
@@ -281,12 +284,12 @@ public final class GeoCorrectionOp1 extends Operator {
 
         absTgt.setAttributeString("DEM resampling method", demResamplingMethod);
 
-        if(externalDEMFile != null) {
+        if (externalDEMFile != null) {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
 
         targetGeoCoding = targetProduct.getGeoCoding();
-        
+
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
     }
 
@@ -298,7 +301,7 @@ public final class GeoCorrectionOp1 extends Operator {
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 String unit = band.getUnit();
-                if(unit==null || unit.contains(Unit.INTENSITY)) {
+                if (unit == null || unit.contains(Unit.INTENSITY)) {
                     bandNameList.add(band.getName());
                 }
             }
@@ -328,7 +331,7 @@ public final class GeoCorrectionOp1 extends Operator {
     }
 
     private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
-                                              double[] overlapPercentages)throws Exception {
+                                              double[] overlapPercentages) throws Exception {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
@@ -336,9 +339,9 @@ public final class GeoCorrectionOp1 extends Operator {
         final double[] sensorPos = new double[3];
         double tileOverlapPercentageMax = -Double.MAX_VALUE;
         double tileOverlapPercentageMin = Double.MAX_VALUE;
-        for (int y = y0; y < y0 + h; y+=20) {
-            for (int x = x0; x < x0 + w; x+=20) {
-                pixPos.setLocation(x,y);
+        for (int y = y0; y < y0 + h; y += 20) {
+            for (int x = x0; x < x0 + w; x += 20) {
+                pixPos.setLocation(x, y);
                 targetGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
                 GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
@@ -351,13 +354,13 @@ public final class GeoCorrectionOp1 extends Operator {
                 }
 
                 final double slantRange = SARGeocoding.computeSlantRange(
-                        zeroDopplerTime,  timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                        zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
 
                 final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
-                final int azimuthIndex = (int)((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
+                final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
 
-                double tileOverlapPercentage = (float)(azimuthIndex - y)/ (float)tileSize;
+                double tileOverlapPercentage = (float) (azimuthIndex - y) / (float) tileSize;
 
                 if (tileOverlapPercentage > tileOverlapPercentageMax) {
                     tileOverlapPercentageMax = tileOverlapPercentage;
@@ -396,8 +399,8 @@ public final class GeoCorrectionOp1 extends Operator {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         double[] tileOverlapPercentage = {0.0, 0.0};
@@ -409,7 +412,7 @@ public final class GeoCorrectionOp1 extends Operator {
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h +
             //                   ", tileOverlapPercentageMin = " + tileOverlapPercentage[0] +
             //                   ", tileOverlapPercentageMax = " + tileOverlapPercentage[1]);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
 
@@ -418,15 +421,15 @@ public final class GeoCorrectionOp1 extends Operator {
         final ProductData latData = latTile.getDataBuffer();
         final ProductData lonData = lonTile.getDataBuffer();
 
-        final int ymin = Math.max(y0 - (int)(tileSize*tileOverlapPercentage[1]), 0);
-        final int ymax = y0 + h + (int)(tileSize*Math.abs(tileOverlapPercentage[0]));
+        final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
+        final int ymax = y0 + h + (int) (tileSize * Math.abs(tileOverlapPercentage[0]));
         final int xmax = x0 + w;
 
         final PositionData posData = new PositionData();
         final GeoPos geoPos = new GeoPos();
 
         try {
-            if(reGridMethod) {
+            if (reGridMethod) {
                 final double[] latLonMinMax = new double[4];
                 computeImageGeoBoundary(x0, xmax, ymin, ymax, latLonMinMax);
 
@@ -434,34 +437,34 @@ public final class GeoCorrectionOp1 extends Operator {
                 final double latMax = latLonMinMax[1];
                 final double lonMin = latLonMinMax[2];
                 final double lonMax = latLonMinMax[3];
-                final int nLat = (int)((latMax - latMin)/delLat) + 1;
-                final int nLon = (int)((lonMax - lonMin)/delLon) + 1;
+                final int nLat = (int) ((latMax - latMin) / delLat) + 1;
+                final int nLon = (int) ((lonMax - lonMin) / delLon) + 1;
 
-                final double[][] tileDEM = new double[nLat+1][nLon+1];
+                final double[][] tileDEM = new double[nLat + 1][nLon + 1];
                 double alt;
 
                 for (int i = 0; i < nLat; i++) {
-                    final double lat = latMin + i*delLat;
+                    final double lat = latMin + i * delLat;
                     for (int j = 0; j < nLon; j++) {
-                        double lon = lonMin + j*delLon;
+                        double lon = lonMin + j * delLon;
                         if (lon >= 180.0) {
                             lon -= 360.0;
                         }
-                        geoPos.setLocation((float)lat, (float)lon);
+                        geoPos.setLocation((float) lat, (float) lon);
                         alt = dem.getElevation(geoPos);
-                        if(alt == demNoDataValue) {
+                        if (alt == demNoDataValue) {
                             continue;
                         }
 
                         tileDEM[i][j] = alt;
 
-                        if(!getPosition(lat, lon, alt, x0, y0, w, h, posData)) {
+                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData)) {
                             continue;
                         }
 
-                        final int ri = (int)Math.round(posData.rangeIndex);
-                        final int ai = (int)Math.round(posData.azimuthIndex);
-                        if (ri < x0 || ri >= x0+w || ai < y0 || ai >= y0+h) {
+                        final int ri = (int) Math.round(posData.rangeIndex);
+                        final int ai = (int) Math.round(posData.azimuthIndex);
+                        if (ri < x0 || ri >= x0 + w || ai < y0 || ai >= y0 + h) {
                             continue;
                         }
 
@@ -473,13 +476,13 @@ public final class GeoCorrectionOp1 extends Operator {
 
             } else {
 
-                final double[][] localDEM = new double[ymax-ymin+2][w+2];
-                final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, ymin, w, ymax-ymin);
+                final double[][] localDEM = new double[ymax - ymin + 2][w + 2];
+                final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, ymin, w, ymax - ymin);
 
                 final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, demResamplingMethod, tileGeoRef,
-                        x0, ymin, w, ymax-ymin, sourceProduct, true, localDEM);
+                        x0, ymin, w, ymax - ymin, sourceProduct, true, localDEM);
 
-                if(!valid) {
+                if (!valid) {
                     return;
                 }
 
@@ -488,14 +491,14 @@ public final class GeoCorrectionOp1 extends Operator {
 
                     for (int x = x0; x < xmax; x++) {
                         final int xx = x - x0;
-                        double alt = localDEM[yy+1][xx+1];
+                        double alt = localDEM[yy + 1][xx + 1];
 
                         if (alt == demNoDataValue) {
                             continue;
                         }
 
                         tileGeoRef.getGeoPos(x, y, geoPos);
-                        if(!geoPos.isValid()) {
+                        if (!geoPos.isValid()) {
                             continue;
                         }
 
@@ -505,20 +508,20 @@ public final class GeoCorrectionOp1 extends Operator {
                             lon -= 360.0;
                         }
 
-                        if(orbitMethod) {
-                            double[] latlon = orbit.lp2ell(new Point(x+0.5, y+0.5), meta);
+                        if (orbitMethod) {
+                            double[] latlon = orbit.lp2ell(new Point(x + 0.5, y + 0.5), meta);
                             lat = latlon[0] * MathUtils.RTOD;
                             lon = latlon[1] * MathUtils.RTOD;
-                            alt = dem.getElevation(new GeoPos((float)lat, (float)lon));
+                            alt = dem.getElevation(new GeoPos((float) lat, (float) lon));
                         }
 
-                        if(!getPosition(lat, lon, alt, x0, y0, w, h, posData)) {
+                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData)) {
                             continue;
                         }
 
-                        final int ri = (int)Math.round(posData.rangeIndex);
-                        final int ai = (int)Math.round(posData.azimuthIndex);
-                        if (ri < x0 || ri >= x0+w || ai < y0 || ai >= y0+h) {
+                        final int ri = (int) Math.round(posData.rangeIndex);
+                        final int ai = (int) Math.round(posData.azimuthIndex);
+                        if (ri < x0 || ri >= x0 + w || ai < y0 || ai >= y0 + h) {
                             continue;
                         }
 
@@ -529,7 +532,7 @@ public final class GeoCorrectionOp1 extends Operator {
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -564,14 +567,14 @@ public final class GeoCorrectionOp1 extends Operator {
 
         data.azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
 
-        if(!(data.azimuthIndex > y0-1 && data.azimuthIndex <= y0+h)) {
+        if (!(data.azimuthIndex > y0 - 1 && data.azimuthIndex <= y0 + h)) {
             return false;
         }
 
         data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias,
                 timeArray, xPosArray, yPosArray, zPosArray, data.earthPoint, data.sensorPos);
 
-        if(!srgrFlag) {
+        if (!srgrFlag) {
             data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
         } else {
             data.rangeIndex = SARGeocoding.computeRangeIndex(
@@ -596,22 +599,23 @@ public final class GeoCorrectionOp1 extends Operator {
     /**
      * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
      * latitude/longitude.
+     *
      * @throws Exception The exceptions.
      */
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
                                          double[] latLonMinMax) throws Exception {
 
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
-        if(geoCoding == null) {
+        if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }
         final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(xmin, ymin), null);
-        final GeoPos geoPosFirstFar  = geoCoding.getGeoPos(new PixelPos(xmax, ymin), null);
-        final GeoPos geoPosLastNear  = geoCoding.getGeoPos(new PixelPos(xmin, ymax), null);
-        final GeoPos geoPosLastFar   = geoCoding.getGeoPos(new PixelPos(xmax, ymax), null);
+        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(xmax, ymin), null);
+        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(xmin, ymax), null);
+        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(xmax, ymax), null);
 
-        final double[] lats  = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
-        final double[] lons  = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+        final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+        final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
         double latMin = 90.0;
         double latMax = -90.0;
         for (double lat : lats) {
@@ -642,6 +646,7 @@ public final class GeoCorrectionOp1 extends Operator {
 
     /**
      * Compute DEM traversal step sizes (in degree) in latitude and longitude.
+     *
      * @throws Exception The exceptions.
      */
     private void computeDEMTraversalSampleInterval() throws Exception {
@@ -656,13 +661,13 @@ public final class GeoCorrectionOp1 extends Operator {
         final double latMin = latLonMinMax[0];
         final double latMax = latLonMinMax[1];
         double minAbsLat;
-        if (latMin*latMax > 0) {
+        if (latMin * latMax > 0) {
             minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * org.esa.beam.util.math.MathUtils.DTOR;
         } else {
             minAbsLat = 0.0;
         }
         delLat = spacing / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
-        delLon = spacing / (Constants.MeanEarthRadius*Math.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
+        delLon = spacing / (Constants.MeanEarthRadius * Math.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
         delLat = Math.min(delLat, delLon); // (delLat + delLon)/2.0;
         delLon = delLat;
     }
@@ -673,6 +678,7 @@ public final class GeoCorrectionOp1 extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

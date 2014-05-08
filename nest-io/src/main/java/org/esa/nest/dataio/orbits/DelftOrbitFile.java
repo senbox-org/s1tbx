@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,7 +31,7 @@ import java.util.Date;
 public class DelftOrbitFile extends BaseOrbitFile {
 
     private OrbitalDataRecordReader delftReader = null;
-    
+
     public DelftOrbitFile(final String orbitType, final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
         super(orbitType, absRoot);
@@ -41,6 +41,7 @@ public class DelftOrbitFile extends BaseOrbitFile {
 
     /**
      * Get orbit information for given time.
+     *
      * @param utc The UTC in days.
      * @return The orbit information.
      * @throws Exception The exceptions.
@@ -62,6 +63,7 @@ public class DelftOrbitFile extends BaseOrbitFile {
 
     /**
      * Get DELFT orbit file.
+     *
      * @param sourceProduct the input product
      * @throws Exception The exceptions.
      */
@@ -74,7 +76,7 @@ public class DelftOrbitFile extends BaseOrbitFile {
         // find orbit file in the folder
         orbitFile = FindDelftOrbitFile(delftReader, startDate);
 
-        if(orbitFile == null) {
+        if (orbitFile == null) {
             throw new IOException("Unable to find suitable orbit file.\n" +
                     "Please refer to http://www.deos.tudelft.nl/ers/precorbs/orbits/ \n" +
                     "ERS1 orbits are available until 1996\n" +
@@ -85,46 +87,47 @@ public class DelftOrbitFile extends BaseOrbitFile {
 
     /**
      * Find DELFT orbit file.
+     *
      * @param delftReader The DELFT oribit reader.
      * @param productDate The start date of the product.
      * @return The orbit file.
      * @throws Exception The exceptions.
      */
     private File FindDelftOrbitFile(final OrbitalDataRecordReader delftReader, final Date productDate)
-            throws Exception  {
+            throws Exception {
 
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
         // construct path to the orbit file folder
         String orbitPathStr = "";
         String delftFTPPath = "";
-        if(mission.equals("ENVISAT")) {
+        if (mission.equals("ENVISAT")) {
             orbitPathStr = Settings.instance().get("OrbitFiles/delftEnvisatOrbitPath");
             delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ENVISAT_precise_remotePath");
-        } else if(mission.equals("ERS1")) {
+        } else if (mission.equals("ERS1")) {
             orbitPathStr = Settings.instance().get("OrbitFiles/delftERS1OrbitPath");
             delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ERS1_precise_remotePath");
-        } else if(mission.equals("ERS2")) {
+        } else if (mission.equals("ERS2")) {
             orbitPathStr = Settings.instance().get("OrbitFiles/delftERS2OrbitPath");
             delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ERS2_precise_remotePath");
         }
         final File orbitPath = new File(orbitPathStr);
         final String delftFTP = Settings.instance().get("OrbitFiles/delftFTP");
 
-        if(!orbitPath.exists())
+        if (!orbitPath.exists())
             orbitPath.mkdirs();
 
         // find arclist file, then get the arc# of the orbit file
         final File arclistFile = new File(orbitPath, "arclist");
         if (!arclistFile.exists()) {
-            if(!getRemoteFile(delftFTP, delftFTPPath, arclistFile))
+            if (!getRemoteFile(delftFTP, delftFTPPath, arclistFile))
                 return null;
         }
 
         int arcNum = OrbitalDataRecordReader.getArcNumber(arclistFile, productDate);
         if (arcNum == OrbitalDataRecordReader.invalidArcNumber) {
             // force refresh of arclist file
-            if(!getRemoteFile(delftFTP, delftFTPPath, arclistFile))
+            if (!getRemoteFile(delftFTP, delftFTPPath, arclistFile))
                 return null;
             arcNum = OrbitalDataRecordReader.getArcNumber(arclistFile, productDate);
             if (arcNum == OrbitalDataRecordReader.invalidArcNumber)
@@ -142,7 +145,7 @@ public class DelftOrbitFile extends BaseOrbitFile {
 
         final File orbitFile = new File(orbitFileName);
         if (!orbitFile.exists()) {
-            if(!getRemoteFile(delftFTP, delftFTPPath, orbitFile))
+            if (!getRemoteFile(delftFTP, delftFTPPath, orbitFile))
                 return null;
         }
 

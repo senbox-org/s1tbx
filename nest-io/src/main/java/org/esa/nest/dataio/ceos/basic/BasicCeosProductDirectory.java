@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,10 +31,10 @@ import org.esa.nest.dataio.ceos.CeosHelper;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Orbits;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.gpf.OperatorUtils;
+import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +46,6 @@ import java.util.Map;
 
 /**
  * This class represents a product directory.
- *
  */
 class BasicCeosProductDirectory extends CEOSProductDirectory {
 
@@ -70,12 +69,12 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         leaderFile = new BasicCeosLeaderFile(
                 createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
         final File trlFile = CeosHelper.getCEOSFile(baseDir, constants.getTrailerFilePrefix());
-        if(trlFile != null) {
+        if (trlFile != null) {
             trailerFile = new BasicCeosTrailerFile(createInputStream(trlFile));
         }
 
         BinaryRecord histogramRec = leaderFile.getHistogramRecord();
-        if(histogramRec == null)
+        if (histogramRec == null)
             histogramRec = trailerFile.getHistogramRecord();
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
@@ -98,19 +97,19 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     @Override
     public Product createProduct() throws IOException {
-        assert(productType != null);
+        assert (productType != null);
         productType = extractProductType(productType);
 
         final Product product = new Product(getProductName(), productType, sceneWidth, sceneHeight);
 
-        if(imageFiles.length > 1) {
+        if (imageFiles.length > 1) {
             int index = 1;
             for (final BasicCeosImageFile imageFile : imageFiles) {
 
-                if(isProductSLC) {
+                if (isProductSLC) {
                     final Band bandI = createBand(product, "i_" + index, Unit.REAL, imageFile);
                     final Band bandQ = createBand(product, "q_" + index, Unit.IMAGINARY, imageFile);
-                    ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_"+index);
+                    ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_" + index);
                 } else {
                     final Band band = createBand(product, "Amplitude_" + index, Unit.AMPLITUDE, imageFile);
                     SARReader.createVirtualIntensityBand(product, band, "_" + index);
@@ -119,7 +118,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             }
         } else {
             final BasicCeosImageFile imageFile = imageFiles[0];
-            if(isProductSLC) {
+            if (isProductSLC) {
                 final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "");
@@ -130,16 +129,16 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         }
 
         BinaryRecord facilityRec = leaderFile.getFacilityRecord();
-        if(facilityRec == null)
+        if (facilityRec == null)
             facilityRec = trailerFile.getFacilityRecord();
         BinaryRecord sceneRec = leaderFile.getSceneRecord();
-        if(sceneRec == null)
+        if (sceneRec == null)
             sceneRec = trailerFile.getSceneRecord();
         BinaryRecord detProcRec = leaderFile.getDetailedProcessingRecord();
-        if(detProcRec == null)
+        if (detProcRec == null)
             detProcRec = trailerFile.getDetailedProcessingRecord();
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
-        if(mapProjRec == null)
+        if (mapProjRec == null)
             mapProjRec = trailerFile.getMapProjRecord();
 
         product.setStartTime(getUTCScanStartTime(sceneRec, detProcRec));
@@ -151,36 +150,36 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         // set slant_range_to_first_pixel in metadata
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final TiePointGrid slantRangeTimeTPG = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
-        if(slantRangeTimeTPG != null) {
+        if (slantRangeTimeTPG != null) {
             final int numOutputLines = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-            final double slantRangeTime = slantRangeTimeTPG.getPixelFloat(numOutputLines/2, 0) / Constants.oneBillion; //s
+            final double slantRangeTime = slantRangeTimeTPG.getPixelFloat(numOutputLines / 2, 0) / Constants.oneBillion; //s
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                    slantRangeTime*Constants.halfLightSpeed);
+                    slantRangeTime * Constants.halfLightSpeed);
         }
 
         float[] latCorners = leaderFile.getLatCorners(leaderFile.getMapProjRecord());
         float[] lonCorners = leaderFile.getLonCorners(leaderFile.getMapProjRecord());
-        if(latCorners == null || lonCorners == null) {
+        if (latCorners == null || lonCorners == null) {
             latCorners = imageFiles[0].getLatCorners();
             lonCorners = imageFiles[0].getLonCorners();
         }
-        if(latCorners != null && lonCorners != null) {
+        if (latCorners != null && lonCorners != null) {
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
         }
 
-        if(product.getGeoCoding() == null) {
+        if (product.getGeoCoding() == null) {
             addGeoCodingFromSceneLabel(product);
         }
 
-        if(product.getGeoCoding() == null) {
+        if (product.getGeoCoding() == null) {
             addTPGGeoCoding(product, sceneRec);
         }
 
-        if(mapProjRec == null) {
+        if (mapProjRec == null) {
             setLatLonMetadata(product, absRoot);
         }
 
-        if(VisatApp.getApp() != null) {
+        if (VisatApp.getApp() != null) {
             VisatApp.getApp().showWarningDialog("This product is for an unknown mission in CEOS format.\n" +
                     "Some functionality may not be supported.\n" +
                     "Please contact nest_pr@array.ca for further support.");
@@ -191,19 +190,19 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private static String extractProductType(final String productType) {
 
-        if(productType.contains("SLC"))
+        if (productType.contains("SLC"))
             return "SLC";
-        else if(productType.contains("SGF"))
+        else if (productType.contains("SGF"))
             return "SGF";
-        else if(productType.contains("SGX"))
+        else if (productType.contains("SGX"))
             return "SGX";
-        else if(productType.contains("SSG"))
+        else if (productType.contains("SSG"))
             return "SSG";
-        else if(productType.contains("SCN"))
+        else if (productType.contains("SCN"))
             return "SCN";
-        else if(productType.contains("SCW"))
+        else if (productType.contains("SCW"))
             return "SCW";
-        else if(productType.trim().isEmpty())
+        else if (productType.trim().isEmpty())
             return "unknown";
         return productType;
     }
@@ -273,17 +272,17 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
-        if(mapProjRec == null)
+        if (mapProjRec == null)
             mapProjRec = trailerFile.getMapProjRecord();
         BinaryRecord sceneRec = leaderFile.getSceneRecord();
-        if(sceneRec == null)
+        if (sceneRec == null)
             sceneRec = trailerFile.getSceneRecord();
         final BinaryRecord radiometricRec = leaderFile.getRadiometricRecord();
         BinaryRecord facilityRec = leaderFile.getFacilityRecord();
-        if(facilityRec == null)
+        if (facilityRec == null)
             facilityRec = trailerFile.getFacilityRecord();
         BinaryRecord detProcRec = leaderFile.getDetailedProcessingRecord();
-        if(detProcRec == null)
+        if (detProcRec == null)
             detProcRec = trailerFile.getDetailedProcessingRecord();
 
         //mph
@@ -301,7 +300,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
 
-        if(mapProjRec != null) {
+        if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
                     mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
@@ -323,32 +322,33 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                mapProjRec.getAttributeString("Name of reference ellipsoid"));
+                    mapProjRec.getAttributeString("Name of reference ellipsoid"));
 
-        } else if(sceneRec != null) {
+        } else if (sceneRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                sceneRec.getAttributeDouble("Pixel spacing"));
+                    sceneRec.getAttributeDouble("Pixel spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                sceneRec.getAttributeDouble("Line spacing"));
+                    sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
         }
 
         //sph
-        if(sceneRec != null) {
+        if (sceneRec != null) {
             final String absOrbit = sceneRec.getAttributeString("Orbit number").trim();
-            if(absOrbit != null && !absOrbit.isEmpty()){
+            if (absOrbit != null && !absOrbit.isEmpty()) {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, Integer.parseInt(absOrbit));
             }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
                     SARReader.findPolarizationInBandName(
-                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel")));
+                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel"))
+            );
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                     sceneRec.getAttributeString("Processing algorithm identifier"));
@@ -368,7 +368,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radarFreq);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                sceneRec.getAttributeDouble("Range sampling rate"));
+                    sceneRec.getAttributeDouble("Range sampling rate"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = sceneRec.getAttributeDouble("Total processor bandwidth in range"); // Hz
@@ -387,9 +387,9 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                 product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
-        if(facilityRec != null) {
+        if (facilityRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.parseUTC(
-                facilityRec.getAttributeString("Time of input state vector used to processed the image")));
+                    facilityRec.getAttributeString("Time of input state vector used to processed the image")));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
                     facilityRec.getAttributeInt("Antenna pattern correction flag"));
@@ -402,23 +402,23 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                     facilityRec.getAttributeDouble("Absolute calibration constant K"));
         }
 
-        if(radiometricRec != null) {
+        if (radiometricRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
-                radiometricRec.getAttributeDouble("Calibration constant"));
+                    radiometricRec.getAttributeDouble("Calibration constant"));
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.replica_power_corr_flag, 0);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 0);
 
         addOrbitStateVectors(absRoot, leaderFile.getPlatformPositionRecord());
-        if(facilityRec != null)
+        if (facilityRec != null)
             addSRGRCoefficients(absRoot, facilityRec);
         else
             addSRGRCoefficients(absRoot, detProcRec);
     }
 
     private String getMapProjection(final BinaryRecord mapProjRec) {
-        if(productType.contains("IMG") || productType.contains("GEC") || productType.contains("SSG")) {
+        if (productType.contains("IMG") || productType.contains("GEC") || productType.contains("SSG")) {
             return mapProjRec.getAttributeString("Map projection descriptor");
         }
         return " ";
@@ -430,11 +430,11 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private String getProductDescription() {
         BinaryRecord sceneRecord = leaderFile.getSceneRecord();
-        if(sceneRecord == null)
+        if (sceneRecord == null)
             sceneRecord = trailerFile.getSceneRecord();
 
         String level = "";
-        if(sceneRecord != null) {
+        if (sceneRecord != null) {
             level = sceneRecord.getAttributeString("Scene reference number").trim();
         }
         return BasicCeosConstants.PRODUCT_DESCRIPTION_PREFIX + level;
@@ -457,10 +457,10 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                 final float latLR = Float.parseFloat(lrLatLon.substring(0, lrLatLon.indexOf(',')));
                 final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
 
-                final float lonUL = Float.parseFloat(ulLatLon.substring(ulLatLon.indexOf(',')+1, ulLatLon.length()-1));
-                final float lonUR = Float.parseFloat(urLatLon.substring(urLatLon.indexOf(',')+1, urLatLon.length()-1));
-                final float lonLL = Float.parseFloat(llLatLon.substring(llLatLon.indexOf(',')+1, llLatLon.length()-1));
-                final float lonLR = Float.parseFloat(lrLatLon.substring(lrLatLon.indexOf(',')+1, lrLatLon.length()-1));
+                final float lonUL = Float.parseFloat(ulLatLon.substring(ulLatLon.indexOf(',') + 1, ulLatLon.length() - 1));
+                final float lonUR = Float.parseFloat(urLatLon.substring(urLatLon.indexOf(',') + 1, urLatLon.length() - 1));
+                final float lonLL = Float.parseFloat(llLatLon.substring(llLatLon.indexOf(',') + 1, llLatLon.length() - 1));
+                final float lonLR = Float.parseFloat(lrLatLon.substring(lrLatLon.indexOf(',') + 1, lrLatLon.length() - 1));
                 final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
 
                 ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
@@ -471,7 +471,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
     }
 
     protected static void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
-        if(platformPosRec == null) return;
+        if (platformPosRec == null) return;
 
         try {
             final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
@@ -495,17 +495,17 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             startIdx = Math.max(startIdx - 1, 1);
             endIdx = Math.min(endIdx+1, numPoints);
             */
-            for(int i = 1; i <= numPoints; ++i) {
+            for (int i = 1; i <= numPoints; ++i) {
                 addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, platformPosRec, theta, i);
             }
 
-            if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+            if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
                     equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    getOrbitTime(platformPosRec, 1));
+                        getOrbitTime(platformPosRec, 1));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             // continue without state vectors
         }
     }
@@ -519,26 +519,26 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final double yPosECI = platformPosRec.getAttributeDouble("Position vector Y " + num);
         final double zPosECI = platformPosRec.getAttributeDouble("Position vector Z " + num);
 
-        final double xVelECI = platformPosRec.getAttributeDouble("Velocity vector X' " + num)/1000.0; // mm to m
-        final double yVelECI = platformPosRec.getAttributeDouble("Velocity vector Y' " + num)/1000.0;
-        final double zVelECI = platformPosRec.getAttributeDouble("Velocity vector Z' " + num)/1000.0;
+        final double xVelECI = platformPosRec.getAttributeDouble("Velocity vector X' " + num) / 1000.0; // mm to m
+        final double yVelECI = platformPosRec.getAttributeDouble("Velocity vector Y' " + num) / 1000.0;
+        final double zVelECI = platformPosRec.getAttributeDouble("Velocity vector Z' " + num) / 1000.0;
 
-        final double thetaInRd = theta*MathUtils.DTOR;
+        final double thetaInRd = theta * MathUtils.DTOR;
         final double cosTheta = Math.cos(thetaInRd);
         final double sinTheta = Math.sin(thetaInRd);
 
-        final double xPosECEF =  cosTheta*xPosECI + sinTheta*yPosECI;
-        final double yPosECEF = -sinTheta*xPosECI + cosTheta*yPosECI;
+        final double xPosECEF = cosTheta * xPosECI + sinTheta * yPosECI;
+        final double yPosECEF = -sinTheta * xPosECI + cosTheta * yPosECI;
         final double zPosECEF = zPosECI;
 
         double t = getOrbitTime(platformPosRec, num).getMJD() / 36525.0; // Julian centuries
-        double a1 = 876600.0*3600.0 + 8640184.812866;
+        double a1 = 876600.0 * 3600.0 + 8640184.812866;
         double a2 = 0.093104;
         double a3 = -6.2e-6;
-        double thp = ((a1 + 2.0*a2*t + 3.0*a3*t*t)/240.0*Constants.PI/180.0)/(36525.0*Constants.secondsInDay);
+        double thp = ((a1 + 2.0 * a2 * t + 3.0 * a3 * t * t) / 240.0 * Constants.PI / 180.0) / (36525.0 * Constants.secondsInDay);
 
-        final double xVelECEF = -sinTheta*thp*xPosECI + cosTheta*thp*yPosECI + cosTheta*xVelECI + sinTheta*yVelECI;
-        final double yVelECEF = -cosTheta*thp*xPosECI - sinTheta*thp*yPosECI - sinTheta*xVelECI + cosTheta*yVelECI;
+        final double xVelECEF = -sinTheta * thp * xPosECI + cosTheta * thp * yPosECI + cosTheta * xVelECI + sinTheta * yVelECI;
+        final double yVelECEF = -cosTheta * thp * xPosECI - sinTheta * thp * yPosECI - sinTheta * xVelECI + cosTheta * yVelECI;
         final double zVelECEF = zVelECI;
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time, getOrbitTime(platformPosRec, num));
@@ -553,32 +553,32 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
     }
 
     protected static void addSRGRCoefficients(final MetadataElement absRoot, final BinaryRecord detailedProcRec) {
-        if(detailedProcRec == null) return;
+        if (detailedProcRec == null) return;
 
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
         final Integer numSRGRCoefSets = detailedProcRec.getAttributeInt("Number of SRGR coefficient sets");
-        if(numSRGRCoefSets == null) return;
+        if (numSRGRCoefSets == null) return;
 
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-DDD-HH:mm:ss");
 
-        for(int i=1; i <= numSRGRCoefSets; ++i) {
+        for (int i = 1; i <= numSRGRCoefSets; ++i) {
 
-            final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list+"."+i);
+            final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list + "." + i);
             srgrCoefficientsElem.addElement(srgrListElem);
 
-            final String updateTimeStr = detailedProcRec.getAttributeString("SRGR update date/time "+i);
+            final String updateTimeStr = detailedProcRec.getAttributeString("SRGR update date/time " + i);
             final ProductData.UTC utcTime = AbstractMetadata.parseUTC(updateTimeStr, dateFormat);
             srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
             AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                     ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
             AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
-            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients1 "+i, 1);
-            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients2 "+i, 2);
-            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients3 "+i, 3);
-            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients4 "+i, 4);
-            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients5 "+i, 5);
-            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients6 "+i, 6);
+            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients1 " + i, 1);
+            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients2 " + i, 2);
+            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients3 " + i, 3);
+            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients4 " + i, 4);
+            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients5 " + i, 5);
+            addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients6 " + i, 6);
         }
     }
 
@@ -590,12 +590,12 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final int sceneHeight = product.getSceneRasterHeight();
         final int subSamplingX = sceneWidth / (gridWidth - 1);
         final int subSamplingY = sceneHeight / (gridHeight - 1);
-        final float[] rangeDist = new float[gridWidth*gridHeight];
-        final float[] rangeTime = new float[gridWidth*gridHeight];
+        final float[] rangeDist = new float[gridWidth * gridHeight];
+        final float[] rangeTime = new float[gridWidth * gridHeight];
 
         int k = 0;
         for (int j = 0; j < gridHeight; j++) {
-            final int y = Math.min(j*subSamplingY, sceneHeight-1);
+            final int y = Math.min(j * subSamplingY, sceneHeight - 1);
             final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(y); // meters
             final double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(y);
             final double slantRangeToLastPixel = imageFiles[0].getSlantRangeToLastPixel(y);
@@ -604,15 +604,15 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                     slantRangeToLastPixel,
                     sceneWidth);
 
-            for(int i = 0; i < gridWidth; i++) {
-                final int x = i*subSamplingX;
-                rangeDist[k++] = (float)(polyCoef[0] + polyCoef[1]*x + polyCoef[2]*x*x);
+            for (int i = 0; i < gridWidth; i++) {
+                final int x = i * subSamplingX;
+                rangeDist[k++] = (float) (polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
             }
         }
 
         // get slant range time in nanoseconds from range distance in meters
-        for(k = 0; k < rangeDist.length; k++) {
-            rangeTime[k] = (float)((rangeDist[k] / Constants.halfLightSpeed)*Constants.oneBillion);// in ns
+        for (k = 0; k < rangeDist.length; k++) {
+            rangeTime[k] = (float) ((rangeDist[k] / Constants.halfLightSpeed) * Constants.oneBillion);// in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
@@ -621,7 +621,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
 
-        if(detProcRec == null)
+        if (detProcRec == null)
             return;
 
         final double r = calculateEarthRadius(sceneRec);    // earth radius
@@ -629,14 +629,14 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final double h = eph_orb_data - r;                  // orbital altitude
 
         // incidence angle
-        final float[] angles = new float[gridWidth*gridHeight];
+        final float[] angles = new float[gridWidth * gridHeight];
 
         k = 0;
-        for(int j = 0; j < gridHeight; j++) {
+        for (int j = 0; j < gridHeight; j++) {
             for (int i = 0; i < gridWidth; i++) {
                 final double RS = rangeDist[k];
-                final double a = ( (h*h) - (RS*RS) + (2.0*r*h) ) / (2.0*RS*r);
-                angles[k] = (float)(Math.acos( a ) * MathUtils.RTOD);
+                final double a = ((h * h) - (RS * RS) + (2.0 * r * h)) / (2.0 * RS * r);
+                angles[k] = (float) (Math.acos(a) * MathUtils.RTOD);
                 k++;
             }
         }
@@ -649,10 +649,10 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
     }
 
     private static double[] computePolynomialCoefficients(
-                    double slantRangeToFirstPixel, double slantRangeToMidPixel, double slantRangeToLastPixel, int imageWidth) {
+            double slantRangeToFirstPixel, double slantRangeToMidPixel, double slantRangeToLastPixel, int imageWidth) {
 
         final int firstPixel = 0;
-        final int midPixel = imageWidth/2;
+        final int midPixel = imageWidth / 2;
         final int lastPixel = imageWidth - 1;
         final double[] idxArray = {firstPixel, midPixel, lastPixel};
         final double[] rangeArray = {slantRangeToFirstPixel, slantRangeToMidPixel, slantRangeToLastPixel};
@@ -666,18 +666,19 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
         final double platLat = sceneRec.getAttributeDouble("Sensor platform geodetic latitude at nadir");
         final double a = Math.tan(platLat * MathUtils.DTOR);
-        final double a2 = a*a;
+        final double a2 = a * a;
         final double ellipmin = Constants.semiMinorAxis;
         final double ellipmin2 = ellipmin * ellipmin;
         final double ellipmaj = Constants.semiMajorAxis;
         final double ellipmaj2 = ellipmaj * ellipmaj;
 
-        return Constants.semiMinorAxis * (Math.sqrt(1+a2) / Math.sqrt((ellipmin2/ellipmaj2) + a2));
+        return Constants.semiMinorAxis * (Math.sqrt(1 + a2) / Math.sqrt((ellipmin2 / ellipmaj2) + a2));
     }
 
     /**
      * Update target product GEOCoding. A new tie point grid is generated.
-     * @param product The product.
+     *
+     * @param product  The product.
      * @param sceneRec The scene record.
      * @throws java.io.IOException The exceptions.
      */
@@ -685,13 +686,13 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final float[] targetLatTiePoints = new float[gridWidth*gridHeight];
-        final float[] targetLonTiePoints = new float[gridWidth*gridHeight];
+        final float[] targetLatTiePoints = new float[gridWidth * gridHeight];
+        final float[] targetLonTiePoints = new float[gridWidth * gridHeight];
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
-        final float subSamplingX = sourceImageWidth / (float)(gridWidth - 1);
-        final float subSamplingY = sourceImageHeight / (float)(gridHeight - 1);
+        final float subSamplingX = sourceImageWidth / (float) (gridWidth - 1);
+        final float subSamplingY = sourceImageHeight / (float) (gridHeight - 1);
 
         final TiePointGrid slantRangeTime = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -709,7 +710,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             throw new IOException(e.getMessage());
         }
 
-        if(!checkStateVectorValidity(orbitStateVectors))
+        if (!checkStateVectorValidity(orbitStateVectors))
             return;
 
         final int numVectors = orbitStateVectors.length;
@@ -760,27 +761,27 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             if (r == gridHeight - 1) { // last row
                 y = sourceImageHeight - 1;
             } else { // other rows
-                y = (int)(r * subSamplingY);
+                y = (int) (r * subSamplingY);
             }
-            final double curLineUTC = firstLineUTC + y*lineTimeInterval;
+            final double curLineUTC = firstLineUTC + y * lineTimeInterval;
             //System.out.println((new ProductData.UTC(curLineUTC)).toString());
 
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
             final Orbits.OrbitData data = getOrbitData(curLineUTC, timeArray, xPosArray, yPosArray, zPosArray,
-                                                xVelArray, yVelArray, zVelArray);
+                    xVelArray, yVelArray, zVelArray);
 
             for (int c = 0; c < gridWidth; c++) {
                 int x;
                 if (c == gridWidth - 1) { // last column
                     x = sourceImageWidth - 1;
                 } else { // other columns
-                    x = (int)(c * subSamplingX);
+                    x = (int) (c * subSamplingX);
                 }
 
-                final double slrgTime = slantRangeTime.getPixelFloat((float)x, (float)y) / Constants.oneBillion; // ns to s;
+                final double slrgTime = slantRangeTime.getPixelFloat((float) x, (float) y) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(latMid, lonMid, slrgTime, data);
                 targetLatTiePoints[k] = geoPos.lat;
-                targetLonTiePoints[k] = geoPos.lon; 
+                targetLonTiePoints[k] = geoPos.lon;
                 ++k;
             }
         }
@@ -800,10 +801,10 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private static boolean checkStateVectorValidity(AbstractMetadata.OrbitStateVector[] orbitStateVectors) {
 
-        if(orbitStateVectors == null) {
+        if (orbitStateVectors == null) {
             return false;
         }
-        if(orbitStateVectors.length <= 1) {
+        if (orbitStateVectors.length <= 1) {
             return false;
         }
 
@@ -818,15 +819,15 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private static void setLatLonMetadata(final Product product, final MetadataElement absRoot) {
         final GeoCoding geoCoding = product.getGeoCoding();
-        if(geoCoding == null) return;
+        if (geoCoding == null) return;
 
         final GeoPos geoPosFirstNear = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
-        final GeoPos geoPosFirstFar = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth()-1,
-                                                                                   0), null);
+        final GeoPos geoPosFirstFar = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+                0), null);
         final GeoPos geoPosLastNear = product.getGeoCoding().getGeoPos(new PixelPos(0,
-                                                                                   product.getSceneRasterHeight()-1), null);
-        final GeoPos geoPosLastFar = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth()-1,
-                                                                                   product.getSceneRasterHeight()-1), null);
+                product.getSceneRasterHeight() - 1), null);
+        final GeoPos geoPosLastFar = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+                product.getSceneRasterHeight() - 1), null);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPosFirstNear.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geoPosFirstNear.getLon());
@@ -840,16 +841,17 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     /**
      * Compute accurate target geo position.
-     * @param latMid The scene latitude.
-     * @param lonMid The scene longitude.
+     *
+     * @param latMid   The scene latitude.
+     * @param lonMid   The scene longitude.
      * @param slrgTime The slant range time of the given pixel.
-     * @param data The orbit data.
+     * @param data     The orbit data.
      * @return The geo position of the target.
      */
     private static GeoPos computeLatLon(final double latMid, final double lonMid, double slrgTime, Orbits.OrbitData data) {
 
         final double[] xyz = new double[3];
-        final GeoPos geoPos = new GeoPos((float)latMid, (float)lonMid);
+        final GeoPos geoPos = new GeoPos((float) latMid, (float) lonMid);
 
         // compute initial (x,y,z) coordinate from lat/lon
         GeoUtils.geo2xyz(geoPos, xyz);
@@ -865,7 +867,8 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     /**
      * Get orbit information for given time.
-     * @param utc The UTC in days.
+     *
+     * @param utc       The UTC in days.
      * @param timeArray Array holding zeros Doppler times for all state vectors.
      * @param xPosArray Array holding x coordinates for sensor positions in all state vectors.
      * @param yPosArray Array holding y coordinates for sensor positions in all state vectors.
@@ -876,8 +879,8 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
      * @return The orbit information.
      */
     private static Orbits.OrbitData getOrbitData(final double utc, final double[] timeArray,
-                                         final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
-                                         final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
+                                                 final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
+                                                 final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
 
         // Lagrange polynomial interpolation
         final Orbits.OrbitData orbitData = new Orbits.OrbitData();

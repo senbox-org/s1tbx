@@ -45,7 +45,7 @@ public class Collocator {
         final int maxY = targetRectangle.y + targetRectangle.height;
 
         Tile sourceTile = null;
-        if(sourceRectangle!=null)
+        if (sourceRectangle != null)
             sourceTile = operator.getSourceTile(sourceBand, sourceRectangle);
 
         if (sourceTile != null) {
@@ -179,7 +179,7 @@ public class Collocator {
                     samples[i][j] = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex(x[j], y[i]));
 
                     if (usesNoData) {
-                        if(scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
+                        if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
                             samples[i][j] = Double.NaN;
                             allValid = false;
                         }

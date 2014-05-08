@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -35,21 +35,21 @@ import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.util.ResourceUtils;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 
 /**
  * The operator performs principle component analysis for user selected master/slave pairs.
  */
 
-@OperatorMetadata(alias="PCA", description="Principle Component Analysis", internal = false,
-        category="Classification\\Primitive Features")
+@OperatorMetadata(alias = "PCA", description = "Principle Component Analysis", internal = false,
+        category = "Classification\\Primitive Features")
 public class PCAOp extends Operator {
 
     @SourceProduct
@@ -58,25 +58,25 @@ public class PCAOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(valueSet = {EIGENVALUE_THRESHOLD, NUMBER_EIGENVALUES},
-            defaultValue = EIGENVALUE_THRESHOLD, label="Select Eigenvalues By:")
+            defaultValue = EIGENVALUE_THRESHOLD, label = "Select Eigenvalues By:")
     private String selectEigenvaluesBy = EIGENVALUE_THRESHOLD;
 
     @Parameter(description = "The threshold for selecting eigenvalues", interval = "(0, 100]", defaultValue = "100",
-                label="Eigenvalue Threshold (%)")
+            label = "Eigenvalue Threshold (%)")
     private double eigenvalueThreshold = 100.0;
 
     @Parameter(description = "The number of PCA images output", interval = "(0, 100]", defaultValue = "1",
-                label="Number Of PCA Images")
+            label = "Number Of PCA Images")
     private int numPCA = 1;
 
-    @Parameter(description = "Show the eigenvalues", defaultValue = "1", label="Show Eigenvalues")
+    @Parameter(description = "Show the eigenvalues", defaultValue = "1", label = "Show Eigenvalues")
     private Boolean showEigenvalues = false;
 
-    @Parameter(description = "Subtract mean image", defaultValue = "1", label="Subtract Mean Image")
+    @Parameter(description = "Subtract mean image", defaultValue = "1", label = "Subtract Mean Image")
     private Boolean subtractMeanImage = false;
 
     private boolean statsCalculated = false;
@@ -114,8 +114,7 @@ public class PCAOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -131,7 +130,7 @@ public class PCAOp extends Operator {
             addSelectedBands();
 
             setInitialValues();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             throw new OperatorException(e);
         }
     }
@@ -163,9 +162,9 @@ public class PCAOp extends Operator {
     void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
@@ -206,7 +205,7 @@ public class PCAOp extends Operator {
         }
 
         if (selectEigenvaluesBy.equals(EIGENVALUE_THRESHOLD)) {
-            numPCA = numOfSourceBands; 
+            numPCA = numOfSourceBands;
         }
 
         final int imageWidth = sourcerBand.getRasterWidth();
@@ -227,12 +226,13 @@ public class PCAOp extends Operator {
 
     /**
      * Create mean image as a virtual band from user selected bands.
-     * @param sourceProduct The source product.
-     * @param sourceBandNames The user selected band names.
+     *
+     * @param sourceProduct     The source product.
+     * @param sourceBandNames   The user selected band names.
      * @param meanImageBandName The mean image band name.
      */
     private static void createMeanImageVirtualBand(final Product sourceProduct,
-                  final String[] sourceBandNames, final String meanImageBandName) {
+                                                   final String[] sourceBandNames, final String meanImageBandName) {
 
         if (sourceProduct.getBand(meanImageBandName) != null) {
             return;
@@ -253,10 +253,10 @@ public class PCAOp extends Operator {
         expression += " ) / " + sourceBandNames.length;
 
         final VirtualBand band = new VirtualBand(meanImageBandName,
-                                                 ProductData.TYPE_FLOAT32,
-                                                 sourceProduct.getSceneRasterWidth(),
-                                                 sourceProduct.getSceneRasterHeight(),
-                                                 expression);
+                ProductData.TYPE_FLOAT32,
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight(),
+                expression);
         band.setUnit(unit);
         band.setDescription("Mean image");
         sourceProduct.addBand(band);
@@ -266,15 +266,14 @@ public class PCAOp extends Operator {
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetTileMap The target tiles associated with all target bands to be computed.
+     * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
-                                throws OperatorException {
+            throws OperatorException {
 
         try {
             final int x0 = targetRectangle.x;
@@ -283,7 +282,7 @@ public class PCAOp extends Operator {
             final int h = targetRectangle.height;
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            if(!statsCalculated) {
+            if (!statsCalculated) {
                 calculateStatistics();
             }
 
@@ -301,13 +300,13 @@ public class PCAOp extends Operator {
                 final TileIndex targetIndex = new TileIndex(targetTile);
                 int index;
                 int k = 0;
-                for (int y = y0; y < y0+h; y++) {
+                for (int y = y0; y < y0 + h; y++) {
                     targetIndex.calculateStride(y);
-                    for (int x = x0; x < x0+w; x++) {
+                    for (int x = x0; x < x0 + w; x++) {
                         index = targetIndex.getIndex(x);
                         double vPCA = 0.0;
                         for (int j = 0; j < numOfSourceBands; j++) {
-                            vPCA += bandsRawSamples[j].getElemDoubleAt(k)*eigenVectorMatrices[j][i];
+                            vPCA += bandsRawSamples[j].getElemDoubleAt(k) * eigenVectorMatrices[j][i];
                         }
                         k++;
                         trgData.setElemDoubleAt(index, vPCA - minPCA[i]);
@@ -315,7 +314,7 @@ public class PCAOp extends Operator {
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             throw new OperatorException(e);
         } finally {
             pm.done();
@@ -342,8 +341,9 @@ public class PCAOp extends Operator {
 
     /**
      * Get an array of rectangles for all source tiles of the image
+     *
      * @param sourceProduct the input product
-     * @param tileSize the rect sizes
+     * @param tileSize      the rect sizes
      * @return Array of rectangles
      */
     private static Rectangle[] getAllTileRectangles(final Product sourceProduct, final Dimension tileSize) {
@@ -361,9 +361,9 @@ public class PCAOp extends Operator {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
                 final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
-                                                              tileY * tileSize.height,
-                                                              tileSize.width,
-                                                              tileSize.height);
+                        tileY * tileSize.height,
+                        tileSize.width,
+                        tileSize.height);
                 final Rectangle intersection = boundary.intersection(tileRectangle);
                 rectangles[index] = intersection;
                 index++;
@@ -408,7 +408,7 @@ public class PCAOp extends Operator {
                                     bandsRawSamples, tileSum, tileSumCross);
                         }
 
-                        synchronized(sum) {
+                        synchronized (sum) {
                             computeImageStatistics(tileSum, tileSumCross);
                         }
                     }
@@ -421,7 +421,7 @@ public class PCAOp extends Operator {
 
             completeStatistics();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             throw new OperatorException(e);
         } finally {
             status.done();
@@ -438,7 +438,7 @@ public class PCAOp extends Operator {
         try {
             initializeMin();
 
-            for(final Rectangle rectangle : tileRectangles) {
+            for (final Rectangle rectangle : tileRectangles) {
                 Thread worker = new Thread() {
                     final double[] tileMinPCA = new double[numOfSourceBands];
                     final ProductData[] bandsRawSamples = new ProductData[numOfSourceBands];
@@ -457,9 +457,9 @@ public class PCAOp extends Operator {
                             for (int k = 0; k < n; k++) {
                                 double vPCA = 0.0;
                                 for (int j = 0; j < numOfSourceBands; j++) {
-                                    vPCA += bandsRawSamples[j].getElemDoubleAt(k)*eigenVectorMatrices[j][i];
+                                    vPCA += bandsRawSamples[j].getElemDoubleAt(k) * eigenVectorMatrices[j][i];
                                 }
-                                if(vPCA < tileMinPCA[i])
+                                if (vPCA < tileMinPCA[i])
                                     tileMinPCA[i] = vPCA;
                             }
                         }
@@ -476,7 +476,7 @@ public class PCAOp extends Operator {
 
             threadManager.finish();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             throw new OperatorException(e);
         } finally {
             status.done();
@@ -485,13 +485,14 @@ public class PCAOp extends Operator {
 
     /**
      * Compute summation and cross-summation for all bands for a given tile.
+     *
      * @param numOfSourceBands numnber of bands
-     * @param bandsRawSamples The raw data for all bands for the given tile.
-     * @param tileSum The summation for all bands for the given tile.
-     * @param tileSumCross The cross-summation for all bands for the given tile.
+     * @param bandsRawSamples  The raw data for all bands for the given tile.
+     * @param tileSum          The summation for all bands for the given tile.
+     * @param tileSumCross     The cross-summation for all bands for the given tile.
      */
-    private static void computeTileStatisticsWithoutMeanImageSubstract (final int numOfSourceBands,
-            final ProductData[] bandsRawSamples, final double[] tileSum, final double[][] tileSumCross) {
+    private static void computeTileStatisticsWithoutMeanImageSubstract(final int numOfSourceBands,
+                                                                       final ProductData[] bandsRawSamples, final double[] tileSum, final double[][] tileSumCross) {
 
         Arrays.fill(tileSum, 0.0);
         final int n = bandsRawSamples[0].getNumElems();
@@ -508,7 +509,7 @@ public class PCAOp extends Operator {
                     for (int k = 0; k < n; k++) {
                         vi = bandsRawSamples[i].getElemDoubleAt(k);
                         vj = bandsRawSamples[j].getElemDoubleAt(k);
-                        tileSumCross[i][j] += vi*vj;
+                        tileSumCross[i][j] += vi * vj;
                     }
 
                 } else { // j == i
@@ -516,7 +517,7 @@ public class PCAOp extends Operator {
                     for (int k = 0; k < n; k++) {
                         vi = bandsRawSamples[i].getElemDoubleAt(k);
                         tileSum[i] += vi;
-                        tileSumCross[i][j] += vi*vi;
+                        tileSumCross[i][j] += vi * vi;
                     }
                 }
             }
@@ -525,13 +526,14 @@ public class PCAOp extends Operator {
 
     /**
      * Compute summation and cross-summation for all bands for a given tile with mean image substracted.
-     * @param numOfSourceBands numnber of bands
-     * @param bandsRawSamples The raw data for all bands for the given tile.
+     *
+     * @param numOfSourceBands   numnber of bands
+     * @param bandsRawSamples    The raw data for all bands for the given tile.
      * @param meanBandRawSamples The raw data for the band of mean image for the given tile.
-     * @param tileSum The summation for all bands for the given tile.
-     * @param tileSumCross The cross-summation for all bands for the given tile.
+     * @param tileSum            The summation for all bands for the given tile.
+     * @param tileSumCross       The cross-summation for all bands for the given tile.
      */
-    private static void computeTileStatisticsWithMeanImageSubstract (
+    private static void computeTileStatisticsWithMeanImageSubstract(
             final int numOfSourceBands,
             final ProductData[] bandsRawSamples, final ProductData meanBandRawSamples,
             final double[] tileSum, final double[][] tileSumCross) {
@@ -552,7 +554,7 @@ public class PCAOp extends Operator {
                         vm = meanBandRawSamples.getElemDoubleAt(k);
                         vi = bandsRawSamples[i].getElemDoubleAt(k) - vm;
                         vj = bandsRawSamples[j].getElemDoubleAt(k) - vm;
-                        tileSumCross[i][j] += vi*vj;
+                        tileSumCross[i][j] += vi * vj;
                     }
 
                 } else { // j == i
@@ -561,7 +563,7 @@ public class PCAOp extends Operator {
                         vm = meanBandRawSamples.getElemDoubleAt(k);
                         vi = bandsRawSamples[i].getElemDoubleAt(k) - vm;
                         tileSum[i] += vi;
-                        tileSumCross[i][j] += vi*vi;
+                        tileSumCross[i][j] += vi * vi;
                     }
                 }
             }
@@ -570,10 +572,11 @@ public class PCAOp extends Operator {
 
     /**
      * Compute summation and cross-summation for the whole image.
-     * @param tileSum The summation computed for each tile.
+     *
+     * @param tileSum      The summation computed for each tile.
      * @param tileSumCross The cross-summation computed for each tile.
      */
-    private void computeImageStatistics (final double[] tileSum, final double[][] tileSumCross) {
+    private void computeImageStatistics(final double[] tileSum, final double[][] tileSumCross) {
 
         for (int i = 0; i < numOfSourceBands; i++) {
             for (int j = 0; j <= i; j++) {
@@ -588,7 +591,7 @@ public class PCAOp extends Operator {
     }
 
     private void completeStatistics() {
-        for (int i = 0; i < numOfSourceBands; i++)  {
+        for (int i = 0; i < numOfSourceBands; i++) {
             mean[i] = sum[i] / numOfPixels;
             for (int j = 0; j <= i; j++) {
                 meanCross[i][j] = sumCross[i][j] / numOfPixels;
@@ -617,6 +620,7 @@ public class PCAOp extends Operator {
 
     /**
      * Compute minimum values for all PCA images.
+     *
      * @param tileMinPCA The minimum values for all PCA images for a given tile.
      */
     private void computePCAMin(final double[] tileMinPCA) {
@@ -638,7 +642,7 @@ public class PCAOp extends Operator {
         final double[][] cov = new double[numOfSourceBands][numOfSourceBands];
         for (int i = 0; i < numOfSourceBands; i++) {
             for (int j = 0; j < numOfSourceBands; j++) {
-                cov[i][j] = meanCross[i][j] - mean[i]*mean[j];
+                cov[i][j] = meanCross[i][j] - mean[i] * mean[j];
             }
         }
 
@@ -650,10 +654,10 @@ public class PCAOp extends Operator {
 
         totalEigenvalues = 0.0;
         for (int i = 0; i < numOfSourceBands; i++) {
-            eigenValues[i] = S.get(i,i);
+            eigenValues[i] = S.get(i, i);
             totalEigenvalues += eigenValues[i];
             for (int j = 0; j < numOfSourceBands; j++) {
-                eigenVectorMatrices[i][j] = U.get(i,j);
+                eigenVectorMatrices[i][j] = U.get(i, j);
             }
         }
 
@@ -684,7 +688,7 @@ public class PCAOp extends Operator {
     private void createReportFile() {
 
         final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if(!appUserDir.exists()) {
+        if (!appUserDir.exists()) {
             appUserDir.mkdirs();
         }
 
@@ -708,16 +712,16 @@ public class PCAOp extends Operator {
             p.println("Number of PCA Images Output: " + numPCA);
             p.println();
             p.println("Normalized Eigenvalues: ");
-            for (int i = 0; i < numOfSourceBands; i++)  {
+            for (int i = 0; i < numOfSourceBands; i++) {
                 p.println("    " + eigenValues[i]);
             }
             p.println();
             p.close();
 
-            if(showEigenvalues) {
+            if (showEigenvalues) {
                 Desktop.getDesktop().edit(reportFile);
             }
-        } catch(IOException exc) {
+        } catch (IOException exc) {
             throw new OperatorException(exc);
         }
     }
@@ -727,6 +731,7 @@ public class PCAOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

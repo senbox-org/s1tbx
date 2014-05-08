@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,34 +51,34 @@ class AlosPalsarImageFile extends CEOSImageFile {
 
         _imageRecordLength = _imageRecords[0].getRecordLength();
         _startPosImageRecords = _imageRecords[0].getStartPos();
-       _imageHeaderLength = _imageFDR.getAttributeInt("Number of bytes of prefix data per record");         
+        _imageHeaderLength = _imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line*_imageRecordLength);
-        if(productLevel == AlosPalsarConstants.LEVEL1_5)
+        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
+        if (productLevel == AlosPalsarConstants.LEVEL1_5)
             return new BinaryRecord(binaryReader, pos, procDataXML, processedData_recordDefinition);
         else
             return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 
     public String getPolarization() {
-        if(imageFileName.startsWith("IMG-") && imageFileName.length() > 6) {
+        if (imageFileName.startsWith("IMG-") && imageFileName.length() > 6) {
             String pol = imageFileName.substring(4, 6);
-            if(pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
+            if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
                 return pol;
-            } else if(_imageRecords[0] != null) {
+            } else if (_imageRecords[0] != null) {
                 try {
                     final int tx = _imageRecords[0].getAttributeInt("Transmitted polarization");
                     final int rx = _imageRecords[0].getAttributeInt("Received polarization");
-                    if(tx == 1) pol = "V";
+                    if (tx == 1) pol = "V";
                     else pol = "H";
 
-                    if(rx == 1) pol += "V";
+                    if (rx == 1) pol += "V";
                     else pol += "H";
-    
+
                     return pol;
-                } catch(Exception e) {
+                } catch (Exception e) {
                     return "";
                 }
             }

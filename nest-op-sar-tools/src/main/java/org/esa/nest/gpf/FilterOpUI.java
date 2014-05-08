@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -72,20 +72,20 @@ public class FilterOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        final String filterName = (String)paramMap.get("selectedFilterName");
-        if(filterName != null) {
-            setSelectedFilter(filterName);    
+        final String filterName = (String) paramMap.get("selectedFilterName");
+        if (filterName != null) {
+            setSelectedFilter(filterName);
         }
 
-        final File kFile = (File)paramMap.get("userDefinedKernelFile");
-        if(kFile != null) {
+        final File kFile = (File) paramMap.get("userDefinedKernelFile");
+        if (kFile != null) {
             kernelFile.setText(kFile.getAbsolutePath());
         }
     }
 
     public UIValidation validateParameters() {
         if (sourceProducts != null) {
-            if(getSelectedFilter(tree) == null && kernelFile.getText().equals(""))
+            if (getSelectedFilter(tree) == null && kernelFile.getText().equals(""))
                 return new UIValidation(UIValidation.State.ERROR, "Filter not selected");
         }
         return new UIValidation(UIValidation.State.OK, "");
@@ -96,18 +96,18 @@ public class FilterOpUI extends BaseOperatorUI {
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         final FilterOperator.Filter filter = getSelectedFilter(tree);
-        if(filter != null) {
+        if (filter != null) {
             paramMap.put("selectedFilterName", filter.toString());
         }
-        
+
         final String kernelFileStr = kernelFile.getText();
-        if(!kernelFileStr.isEmpty()) {
+        if (!kernelFileStr.isEmpty()) {
             paramMap.put("userDefinedKernelFile", new File(kernelFileStr));
         }
     }
 
     private static DefaultMutableTreeNode findItem(DefaultMutableTreeNode parentItem, String filterName) {
-        if(!parentItem.isLeaf()) {
+        if (!parentItem.isLeaf()) {
             final Enumeration enumeration = parentItem.children();
             while (enumeration.hasMoreElements()) {
                 final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) enumeration.nextElement();
@@ -117,8 +117,8 @@ public class FilterOpUI extends BaseOperatorUI {
             }
         }
 
-        if(parentItem.toString().equals(filterName))
-                return parentItem;
+        if (parentItem.toString().equals(filterName))
+            return parentItem;
         return null;
     }
 
@@ -178,7 +178,7 @@ public class FilterOpUI extends BaseOperatorUI {
 
     protected void setSelectedFilter(String filterName) {
         final DefaultMutableTreeNode item = findItem(root, filterName);
-        if(item != null) {
+        if (item != null) {
             tree.setSelectionPath(new TreePath(item.getPath()));
         }
     }
@@ -234,7 +234,7 @@ public class FilterOpUI extends BaseOperatorUI {
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
                                                       boolean leaf, int row, boolean hasFocus) {
             final JLabel c = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row,
-                                                                         hasFocus);
+                    hasFocus);
             if (_plainFont == null) {
                 _plainFont = c.getFont().deriveFont(Font.PLAIN);
                 _boldFont = c.getFont().deriveFont(Font.BOLD);

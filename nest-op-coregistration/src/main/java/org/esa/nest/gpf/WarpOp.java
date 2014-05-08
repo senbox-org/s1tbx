@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -73,7 +73,7 @@ import java.util.List;
 @OperatorMetadata(alias = "Warp",
         category = "SAR Tools\\Coregistration",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Create Warp Function And Get Co-registrated Images")
 public class WarpOp extends Operator {
 
@@ -142,8 +142,7 @@ public class WarpOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -198,7 +197,7 @@ public class WarpOp extends Operator {
         } catch (Throwable e) {
             openResidualsFile = true;
             OperatorUtils.catchOperatorException(getId(), e);
-        } 
+        }
     }
 
     private void constructInterpolationTable(String interpolationMethod) {
@@ -288,7 +287,7 @@ public class WarpOp extends Operator {
                 sourceRasterMap.put(targetBandQ, srcBandQ);
 
                 complexSrcMap.put(srcBandQ, srcBand);
-                final String suffix = '_'+OperatorUtils.getSuffixFromBandName(srcBand.getName());
+                final String suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBand.getName());
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetBand, targetBandQ, suffix);
                 ReaderUtils.createVirtualPhaseBand(targetProduct, targetBand, targetBandQ, suffix);
             }
@@ -329,17 +328,17 @@ public class WarpOp extends Operator {
 
             final Band srcBand = sourceProduct.getBandAt(i);
             if (srcBand == masterBand || srcBand == masterBand2 ||
-                StringUtils.contains(masterBandNames, srcBand.getName()))
+                    StringUtils.contains(masterBandNames, srcBand.getName()))
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = sourceProduct.getGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
-                for(Band band : sourceProduct.getBands()) {
-                    if(band != srcBand) {
+                for (Band band : sourceProduct.getBands()) {
+                    if (band != srcBand) {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
-                        if(slvProductName != null && slvProductName.equals(productName)) {
+                        if (slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = sourceProduct.getGcpGroup(band);
                             if (slaveGCPGroup.getNodeCount() >= 3)
                                 break;
@@ -358,9 +357,9 @@ public class WarpOp extends Operator {
             final ProductNodeGroup<Placemark> masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
 
             computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup, maxIterations,
-                                          rmsThreshold, appendFlag, warpData);
+                    rmsThreshold, appendFlag, warpData);
 
-            if(warpData.notEnoughGCPs) {
+            if (warpData.notEnoughGCPs) {
                 continue;
             }
 
@@ -379,7 +378,7 @@ public class WarpOp extends Operator {
                 try {
                     Desktop.getDesktop().open(residualsFile);
                 } catch (Exception e) {
-                    System.out.println("Error opening residuals file "+e.getMessage());
+                    System.out.println("Error opening residuals file " + e.getMessage());
                     // do nothing
                 }
             }
@@ -406,7 +405,7 @@ public class WarpOp extends Operator {
                 append = true;
 
                 if (iter < maxIterations - 1 && warpData.rmsMean > rmsThreshold) {
-                    threshold = (float)(warpData.rmsMean + warpData.rmsStd);
+                    threshold = (float) (warpData.rmsMean + warpData.rmsStd);
                 } else {
                     threshold = rmsThreshold;
                 }
@@ -431,25 +430,25 @@ public class WarpOp extends Operator {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         final Set<Band> bandSet = warpDataMap.keySet();
 
-        for(Band band : bandSet) {
+        for (Band band : bandSet) {
             final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, band.getName(), true);
 
             MetadataElement warpDataElem = bandElem.getElement("WarpData");
-            if(warpDataElem == null) {
+            if (warpDataElem == null) {
                 warpDataElem = new MetadataElement("WarpData");
                 bandElem.addElement(warpDataElem);
             } else {
                 // empty out element
                 final MetadataAttribute[] attribList = warpDataElem.getAttributes();
-                for(MetadataAttribute attrib : attribList) {
+                for (MetadataAttribute attrib : attribList) {
                     warpDataElem.removeAttribute(attrib);
                 }
             }
 
             final WarpData warpData = warpDataMap.get(band);
-            if(warpData.numValidGCPs > 0) {
+            if (warpData.numValidGCPs > 0) {
                 for (int i = 0; i < warpData.numValidGCPs; i++) {
-                    final MetadataElement gcpElem = new MetadataElement("GCP"+i);
+                    final MetadataElement gcpElem = new MetadataElement("GCP" + i);
                     warpDataElem.addElement(gcpElem);
 
                     gcpElem.setAttributeDouble("mst_x", warpData.masterGCPCoords[2 * i]);
@@ -464,7 +463,7 @@ public class WarpOp extends Operator {
                 }
             }
         }
-    }     
+    }
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -477,8 +476,9 @@ public class WarpOp extends Operator {
      *          If an error occurs during computation of the target raster.
      */
     //@Override
-   // public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
-   //         throws OperatorException {
+    // public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+    //         throws OperatorException {
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -486,8 +486,7 @@ public class WarpOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -499,36 +498,36 @@ public class WarpOp extends Operator {
         //System.out.println("WARPOperator: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
-            if(!warpDataAvailable) {
+            if (!warpDataAvailable) {
                 getWarpData(targetRectangle);
             }
 
-                final Band srcBand = sourceRasterMap.get(targetBand);
-                if (srcBand == null)
-                    return;
-                Band realSrcBand = complexSrcMap.get(srcBand);
-                if (realSrcBand == null)
-                    realSrcBand = srcBand;
+            final Band srcBand = sourceRasterMap.get(targetBand);
+            if (srcBand == null)
+                return;
+            Band realSrcBand = complexSrcMap.get(srcBand);
+            if (realSrcBand == null)
+                realSrcBand = srcBand;
 
-                // create source image
-                final Tile sourceRaster = getSourceTile(srcBand, targetRectangle);
+            // create source image
+            final Tile sourceRaster = getSourceTile(srcBand, targetRectangle);
 
-                if(pm.isCanceled())
-                    return;
+            if (pm.isCanceled())
+                return;
 
-                final WarpData warpData = warpDataMap.get(realSrcBand);
-                if(warpData.notEnoughGCPs)
-                    return;
+            final WarpData warpData = warpDataMap.get(realSrcBand);
+            if (warpData.notEnoughGCPs)
+                return;
 
-                final RenderedImage srcImage = sourceRaster.getRasterDataNode().getSourceImage();
+            final RenderedImage srcImage = sourceRaster.getRasterDataNode().getSourceImage();
 
-                // get warped image
-                final RenderedOp warpedImage = createWarpImage(warpData.jaiWarp, srcImage);
+            // get warped image
+            final RenderedOp warpedImage = createWarpImage(warpData.jaiWarp, srcImage);
 
-                // copy warped image data to target
-                final float[] dataArray = warpedImage.getData(targetRectangle).getSamples(x0, y0, w, h, 0, (float[]) null);
+            // copy warped image data to target
+            final float[] dataArray = warpedImage.getData(targetRectangle).getSamples(x0, y0, w, h, 0, (float[]) null);
 
-                targetTile.setRawSamples(ProductData.createInstance(dataArray));
+            targetTile.setRawSamples(ProductData.createInstance(dataArray));
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -550,7 +549,7 @@ public class WarpOp extends Operator {
         getNumOfValidGCPs(warpData, warpPolynomialOrder);
 
         getMasterAndSlaveGCPCoordinates(warpData, masterGCPGroup);
-        if(warpData.notEnoughGCPs) return;
+        if (warpData.notEnoughGCPs) return;
 
         warpData.computeWARP(warpPolynomialOrder);
 
@@ -671,7 +670,7 @@ public class WarpOp extends Operator {
     public static boolean eliminateGCPsBasedOnRMS(final WarpData warpData, final float threshold) {
 
         final List<Placemark> pinList = new ArrayList<Placemark>();
-        if(warpData.slaveGCPList.size() < warpData.rms.length) {
+        if (warpData.slaveGCPList.size() < warpData.rms.length) {
             warpData.notEnoughGCPs = true;
             return true;
         }
@@ -715,9 +714,9 @@ public class WarpOp extends Operator {
                 if (numOfCoeffs != 3) {
                     throw new OperatorException("Number of WARP coefficients do not match WARP degree");
                 }
-                slavePos.x = (float)(xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY);
+                slavePos.x = (float) (xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY);
 
-                slavePos.y = (float)(yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY);
+                slavePos.y = (float) (yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY);
                 break;
             }
             case 2: {
@@ -728,10 +727,10 @@ public class WarpOp extends Operator {
                 final double mXmY = mX * mY;
                 final double mYmY = mY * mY;
 
-                slavePos.x = (float)(xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
+                slavePos.x = (float) (xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
                         xCoeffs[3] * mXmX + xCoeffs[4] * mXmY + xCoeffs[5] * mYmY);
 
-                slavePos.y = (float)(yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
+                slavePos.y = (float) (yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
                         yCoeffs[3] * mXmX + yCoeffs[4] * mXmY + yCoeffs[5] * mYmY);
                 break;
             }
@@ -743,11 +742,11 @@ public class WarpOp extends Operator {
                 final double mXmY = mX * mY;
                 final double mYmY = mY * mY;
 
-                slavePos.x = (float)(xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
+                slavePos.x = (float) (xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
                         xCoeffs[3] * mXmX + xCoeffs[4] * mXmY + xCoeffs[5] * mYmY +
                         xCoeffs[6] * mXmX * mX + xCoeffs[7] * mX * mXmY + xCoeffs[8] * mXmY * mY + xCoeffs[9] * mYmY * mY);
 
-                slavePos.y = (float)(yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
+                slavePos.y = (float) (yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
                         yCoeffs[3] * mXmX + yCoeffs[4] * mXmY + yCoeffs[5] * mYmY +
                         yCoeffs[6] * mXmX * mX + yCoeffs[7] * mX * mXmY + yCoeffs[8] * mXmY * mY + yCoeffs[9] * mYmY * mY);
                 break;
@@ -770,8 +769,8 @@ public class WarpOp extends Operator {
      * @throws OperatorException The exceptions.
      */
     public static void outputCoRegistrationInfo(final Product sourceProduct, final int warpPolynomialOrder,
-                                                 final WarpData warpData, final boolean appendFlag,
-                                                 final float threshold, final int parseIndex, final String bandName)
+                                                final WarpData warpData, final boolean appendFlag,
+                                                final float threshold, final int parseIndex, final String bandName)
             throws OperatorException {
         /*
         float[] xCoeffs = null;
@@ -807,12 +806,12 @@ public class WarpOp extends Operator {
                 p.println();
                 p.println("WARP coefficients:");
                 for (double xCoeff : warpData.xCoef) {
-                    p.print((float)xCoeff + ", ");
+                    p.print((float) xCoeff + ", ");
                 }
 
                 p.println();
                 for (double yCoeff : warpData.yCoef) {
-                    p.print((float)yCoeff + ", ");
+                    p.print((float) yCoeff + ", ");
                 }
                 p.println();
             }
@@ -969,24 +968,54 @@ public class WarpOp extends Operator {
                     case 1: {
                         xCoef = new double[3];
                         yCoef = new double[3];
-                        xCoef[0] = 0; xCoef[1] = 1; xCoef[2] = 0;
-                        yCoef[0] = 0; yCoef[1] = 0; yCoef[2] = 1;
+                        xCoef[0] = 0;
+                        xCoef[1] = 1;
+                        xCoef[2] = 0;
+                        yCoef[0] = 0;
+                        yCoef[1] = 0;
+                        yCoef[2] = 1;
                         break;
                     }
                     case 2: {
                         xCoef = new double[6];
                         yCoef = new double[6];
-                        xCoef[0] = 0; xCoef[1] = 1; xCoef[2] = 0; xCoef[3] = 0; xCoef[4] = 0; xCoef[5] = 0;
-                        yCoef[0] = 0; yCoef[1] = 0; yCoef[2] = 1; yCoef[3] = 0; yCoef[4] = 0; yCoef[5] = 0;
+                        xCoef[0] = 0;
+                        xCoef[1] = 1;
+                        xCoef[2] = 0;
+                        xCoef[3] = 0;
+                        xCoef[4] = 0;
+                        xCoef[5] = 0;
+                        yCoef[0] = 0;
+                        yCoef[1] = 0;
+                        yCoef[2] = 1;
+                        yCoef[3] = 0;
+                        yCoef[4] = 0;
+                        yCoef[5] = 0;
                         break;
                     }
                     case 3: {
                         xCoef = new double[10];
                         yCoef = new double[10];
-                        xCoef[0] = 0; xCoef[1] = 1; xCoef[2] = 0; xCoef[3] = 0; xCoef[4] = 0;
-                        xCoef[5] = 0; xCoef[6] = 0; xCoef[7] = 0; xCoef[8] = 0; xCoef[9] = 0;
-                        yCoef[0] = 0; yCoef[1] = 0; yCoef[2] = 1; yCoef[3] = 0; yCoef[4] = 0;
-                        yCoef[5] = 0; yCoef[6] = 0; yCoef[7] = 0; yCoef[8] = 0; yCoef[9] = 0;
+                        xCoef[0] = 0;
+                        xCoef[1] = 1;
+                        xCoef[2] = 0;
+                        xCoef[3] = 0;
+                        xCoef[4] = 0;
+                        xCoef[5] = 0;
+                        xCoef[6] = 0;
+                        xCoef[7] = 0;
+                        xCoef[8] = 0;
+                        xCoef[9] = 0;
+                        yCoef[0] = 0;
+                        yCoef[1] = 0;
+                        yCoef[2] = 1;
+                        yCoef[3] = 0;
+                        yCoef[4] = 0;
+                        yCoef[5] = 0;
+                        yCoef[6] = 0;
+                        yCoef[7] = 0;
+                        yCoef[8] = 0;
+                        yCoef[9] = 0;
                         break;
                     }
                     default:
@@ -1012,7 +1041,7 @@ public class WarpOp extends Operator {
             final int size = jaiXCoefs.length;
             xCoef = new double[size];
             yCoef = new double[size];
-            for(int i=0; i < size; ++i) {
+            for (int i = 0; i < size; ++i) {
                 xCoef[i] = jaiXCoefs[i];
                 yCoef[i] = jaiYCoefs[i];
             }
@@ -1021,16 +1050,16 @@ public class WarpOp extends Operator {
 
     private void announceGCPWarning() {
         String msg = "";
-        for(Band srcBand : sourceProduct.getBands()) {
+        for (Band srcBand : sourceProduct.getBands()) {
             final WarpData warpData = warpDataMap.get(srcBand);
-            if(warpData != null && warpData.notEnoughGCPs) {
-                msg += srcBand.getName() +" does not have enough valid GCPs for the warp\n";
+            if (warpData != null && warpData.notEnoughGCPs) {
+                msg += srcBand.getName() + " does not have enough valid GCPs for the warp\n";
                 openResidualsFile = true;
             }
         }
-        if(!msg.isEmpty()) {
+        if (!msg.isEmpty()) {
             System.out.println(msg);
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 AutoCloseOptionPane.showWarningDialog("Some bands did not coregister", msg);
             }
         }

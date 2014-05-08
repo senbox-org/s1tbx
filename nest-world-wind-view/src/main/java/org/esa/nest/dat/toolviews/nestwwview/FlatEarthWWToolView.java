@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,7 +46,6 @@ import java.awt.*;
 
 /**
  * The window displaying the world map.
- *
  */
 public class FlatEarthWWToolView extends AbstractToolView implements WWView {
 
@@ -60,7 +59,7 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     private ObservedViewportHandler observedViewportHandler;
 
     private static final boolean includeStatusBar = true;
-    private final static String useflatWorld = System.getProperty(ResourceUtils.getContextID()+".use.flat.worldmap");
+    private final static String useflatWorld = System.getProperty(ResourceUtils.getContextID() + ".use.flat.worldmap");
     private final static boolean flatWorld = !(useflatWorld != null && useflatWorld.equals("false"));
 
     public FlatEarthWWToolView() {
@@ -70,13 +69,13 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     public JComponent createControl() {
 
         final Window windowPane = getPaneWindow();
-        if(windowPane != null)
-            windowPane.setSize(300,300);
+        if (windowPane != null)
+            windowPane.setSize(300, 300);
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setSize(new Dimension(300, 300));
 
         // world wind canvas
-        initialize(mainPane);       
+        initialize(mainPane);
 
         observedViewportHandler = new ObservedViewportHandler();
 
@@ -84,7 +83,7 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     }
 
     WorldWindowGLCanvas getWwd() {
-        if(wwjPanel == null)
+        if (wwjPanel == null)
             return null;
         return wwjPanel.getWwd();
     }
@@ -124,8 +123,8 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
                     datApp.addProductTreeListener(new WWProductTreeListener(toolView));
                     setProducts(datApp.getProductManager().getProducts());
                     setSelectedProduct(datApp.getSelectedProduct());
-                } catch(Throwable e) {
-                    System.out.println("Can't load openGL "+e.getMessage());
+                } catch (Throwable e) {
+                    System.out.println("Can't load openGL " + e.getMessage());
                 }
                 return null;
             }
@@ -134,14 +133,14 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     }
 
     private void gotoProduct(Product product) {
-        if(product == null) return;
-        
-        final View theView = getWwd().getView();     
+        if (product == null) return;
+
+        final View theView = getWwd().getView();
         final Position origPos = theView.getEyePosition();
         final GeoCoding geoCoding = product.getGeoCoding();
-        if(geoCoding != null) {
-            final GeoPos centre = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth()/2,
-                                                                   product.getSceneRasterHeight()/2), null);
+        if (geoCoding != null) {
+            final GeoPos centre = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() / 2,
+                    product.getSceneRasterHeight() / 2), null);
             centre.normalize();
             theView.setEyePosition(Position.fromDegrees(centre.getLat(), centre.getLon(), origPos.getElevation()));
         }
@@ -154,12 +153,12 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
 
             if (oldView != null) {
                 final Viewport observedViewport = oldView.getLayerCanvas().getViewport();
-                if(observedViewport != null)
+                if (observedViewport != null)
                     observedViewport.removeListener(observedViewportHandler);
             }
             if (newView != null) {
                 final Viewport observedViewport = newView.getLayerCanvas().getViewport();
-                if(observedViewport != null)
+                if (observedViewport != null)
                     observedViewport.addListener(observedViewportHandler);
             }
             //updateState();
@@ -167,12 +166,12 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     }
 
     public void setSelectedProduct(final Product product) {
-        if(product == getSelectedProduct() && eyePosition == getWwd().getView().getEyePosition())
+        if (product == getSelectedProduct() && eyePosition == getWwd().getView().getEyePosition())
             return;
-        if(productLayer != null)
+        if (productLayer != null)
             productLayer.setSelectedProduct(product);
 
-        if(isVisible()) {
+        if (isVisible()) {
             gotoProduct(product);
             getWwd().redrawNow();
             eyePosition = getWwd().getView().getEyePosition();
@@ -180,33 +179,33 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     }
 
     public Product getSelectedProduct() {
-        if(productLayer != null)
+        if (productLayer != null)
             return productLayer.getSelectedProduct();
         return null;
     }
 
     public void setProducts(Product[] products) {
-        if(productLayer != null) {
+        if (productLayer != null) {
             for (Product prod : products) {
                 try {
                     productLayer.addProduct(prod);
-                } catch(Exception e) {
-                    datApp.showErrorDialog("WorldWind unable to add product " + prod.getName()+'\n'+e.getMessage());
+                } catch (Exception e) {
+                    datApp.showErrorDialog("WorldWind unable to add product " + prod.getName() + '\n' + e.getMessage());
                 }
             }
         }
-        if(isVisible()) {
+        if (isVisible()) {
             getWwd().redrawNow();
         }
     }
 
     public void removeProduct(Product product) {
-        if(getSelectedProduct() == product)
+        if (getSelectedProduct() == product)
             setSelectedProduct(null);
-        if(productLayer != null)
+        if (productLayer != null)
             productLayer.removeProduct(product);
 
-        if(isVisible()) {
+        if (isVisible()) {
             getWwd().redrawNow();
         }
     }
@@ -224,15 +223,15 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
             // Create the default model as described in the current worldwind properties.            
             final Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
             this.wwd.setModel(m);
-            if(flatWorld) {
+            if (flatWorld) {
                 m.setGlobe(new EarthFlat());
                 this.wwd.setView(new FlatOrbitView());
             }
 
             final LayerList layerList = m.getLayers();
-            for(Layer layer : layerList) {
-                if(layer instanceof CompassLayer || layer instanceof WorldMapLayer ||
-                   layer instanceof LandsatI3WMSLayer || layer instanceof SkyGradientLayer)
+            for (Layer layer : layerList) {
+                if (layer instanceof CompassLayer || layer instanceof WorldMapLayer ||
+                        layer instanceof LandsatI3WMSLayer || layer instanceof SkyGradientLayer)
                     layerList.remove(layer);
             }
 
@@ -264,7 +263,7 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
             Product product = null;
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                    setCurrentView(view);
+                setCurrentView(view);
                 product = view.getProduct();
             }
             setSelectedProduct(product);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -72,82 +72,82 @@ public class CEOSLeaderFile {
         _leaderFDR = new BinaryRecord(reader, -1, leaderXML, defnFile);
         reader.seek(_leaderFDR.getRecordEndPosition());
 
-        if(sceneXML == null)
+        if (sceneXML == null)
             sceneXML = BinaryDBReader.loadDefinitionFile(mission, scene_recordDefinitionFile);
         int num = _leaderFDR.getAttributeInt("Number of data set summary records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _sceneHeaderRecord = new BinaryRecord(reader, -1, sceneXML, scene_recordDefinitionFile);
             reader.seek(_sceneHeaderRecord.getRecordEndPosition());
         }
 
-        if(mapProjXML == null)
+        if (mapProjXML == null)
             mapProjXML = BinaryDBReader.loadDefinitionFile(mission, mapproj_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of map projection data records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
             reader.seek(_mapProjRecord.getRecordEndPosition());
         }
 
-        if(platformXML == null)
+        if (platformXML == null)
             platformXML = BinaryDBReader.loadDefinitionFile(mission, platformPosition_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of platform pos. data records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
             reader.seek(_platformPositionRecord.getRecordEndPosition());
         }
 
-        if(attitudeXML == null)
+        if (attitudeXML == null)
             attitudeXML = BinaryDBReader.loadDefinitionFile(mission, attitude_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of attitude data records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
             reader.seek(_attitudeRecord.getRecordEndPosition());
         }
 
-        if(radiometricXML == null)
+        if (radiometricXML == null)
             radiometricXML = BinaryDBReader.loadDefinitionFile(mission, radiometric_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of radiometric data records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
             reader.seek(_radiometricRecord.getRecordEndPosition());
         }
 
-        if(radiometricCompXML == null)
+        if (radiometricCompXML == null)
             radiometricCompXML = BinaryDBReader.loadDefinitionFile(mission, radiometric_comp_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of rad. compensation records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _radiometricCompRecord = new BinaryRecord(reader, -1, radiometricCompXML, radiometric_comp_recordDefinitionFile);
             reader.seek(_radiometricCompRecord.getRecordEndPosition());
         }
 
-        if(dataQualityXML == null)
+        if (dataQualityXML == null)
             dataQualityXML = BinaryDBReader.loadDefinitionFile(mission, dataQuality_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of data quality summary records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
             reader.seek(_dataQualityRecord.getRecordEndPosition());
         }
 
-        if(histogramXML == null)
+        if (histogramXML == null)
             histogramXML = BinaryDBReader.loadDefinitionFile(mission, histogram_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of data histograms records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _histogramRecord = new BinaryRecord(reader, -1, histogramXML, histogram_recordDefinitionFile);
             reader.seek(_histogramRecord.getRecordEndPosition());
         }
 
-        if(detailProcXML == null)
+        if (detailProcXML == null)
             detailProcXML = BinaryDBReader.loadDefinitionFile(mission, detailedProcessing_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of det. processing records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _detailedProcessingRecord = new BinaryRecord(reader, -1, detailProcXML, detailedProcessing_recordDefinitionFile);
             reader.seek(_detailedProcessingRecord.getRecordEndPosition());
         }
 
-        if(facilityXML == null)
+        if (facilityXML == null)
             facilityXML = BinaryDBReader.loadDefinitionFile(mission, facility_recordDefinitionFile);
         num = _leaderFDR.getAttributeInt("Number of facility data records");
-        for(int i=0; i < num; ++i) {
+        for (int i = 0; i < num; ++i) {
             _facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
             reader.seek(_facilityRecord.getRecordEndPosition());
         }
@@ -184,25 +184,25 @@ public class CEOSLeaderFile {
     }
 
     public static float[] getLatCorners(final BinaryRecord mapProjRec) {
-        if(mapProjRec == null) return null;
+        if (mapProjRec == null) return null;
 
         final Double latUL = mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude");
         final Double latUR = mapProjRec.getAttributeDouble("1st line last valid pixel geodetic latitude");
         final Double latLL = mapProjRec.getAttributeDouble("Last line 1st pixel geodetic latitude");
         final Double latLR = mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude");
-        if(latUL == null || latUR == null || latLL == null || latLR == null)
+        if (latUL == null || latUR == null || latLL == null || latLR == null)
             return null;
         return new float[]{latUL.floatValue(), latUR.floatValue(), latLL.floatValue(), latLR.floatValue()};
     }
 
     public static float[] getLonCorners(final BinaryRecord mapProjRec) {
-        if(mapProjRec == null) return null;
+        if (mapProjRec == null) return null;
 
         final Double lonUL = mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude");
         final Double lonUR = mapProjRec.getAttributeDouble("1st line last valid pixel geodetic longitude");
         final Double lonLL = mapProjRec.getAttributeDouble("Last line 1st pixel geodetic longitude");
         final Double lonLR = mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude");
-        if(lonUL == null || lonUR == null || lonLL == null || lonLR == null)
+        if (lonUL == null || lonUR == null || lonLL == null || lonLR == null)
             return null;
         return new float[]{lonUL.floatValue(), lonUR.floatValue(), lonLL.floatValue(), lonLR.floatValue()};
     }

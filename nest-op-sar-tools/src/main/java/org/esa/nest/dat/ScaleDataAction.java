@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,6 @@ import org.esa.nest.datamodel.Unit;
 
 /**
  * ScaleData action.
- *
  */
 public class ScaleDataAction extends AbstractVisatAction {
 
@@ -35,7 +34,7 @@ public class ScaleDataAction extends AbstractVisatAction {
         final VisatApp visatApp = VisatApp.getApp();
 
         final ProductNode node = visatApp.getSelectedProductNode();
-        if(node instanceof Band) {
+        if (node instanceof Band) {
             final Product product = visatApp.getSelectedProduct();
             final Band band = (Band) node;
 
@@ -47,10 +46,10 @@ public class ScaleDataAction extends AbstractVisatAction {
     @Override
     public void updateState(CommandEvent event) {
         final ProductNode node = VisatApp.getApp().getSelectedProductNode();
-        if(node instanceof Band) {
+        if (node instanceof Band) {
             final Band band = (Band) node;
             final String unit = band.getUnit();
-            if(unit != null && !unit.contains(Unit.PHASE)) {
+            if (unit != null && !unit.contains(Unit.PHASE)) {
                 event.getCommand().setEnabled(true);
                 return;
             }

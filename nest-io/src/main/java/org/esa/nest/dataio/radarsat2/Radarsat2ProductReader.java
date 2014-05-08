@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,6 @@
 package org.esa.nest.dataio.radarsat2;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
@@ -42,7 +41,6 @@ import java.io.IOException;
 
 /**
  * The product reader for Radarsat2 products.
- *
  */
 public class Radarsat2ProductReader extends SARReader {
 
@@ -55,7 +53,7 @@ public class Radarsat2ProductReader extends SARReader {
     private boolean isAscending;
     private boolean isAntennaPointingRight;
 
-    private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId()+
+    private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
 
     /**
@@ -65,7 +63,7 @@ public class Radarsat2ProductReader extends SARReader {
      *                     implementations
      */
     public Radarsat2ProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     /**
@@ -131,8 +129,9 @@ public class Radarsat2ProductReader extends SARReader {
 
     /**
      * Read the LUT for use in calibration
+     *
      * @param product the target product
-     * @param folder the folder containing the input
+     * @param folder  the folder containing the input
      * @throws IOException if can't read lut
      */
     private static void addCalibrationLUT(final Product product, final File folder) throws IOException {
@@ -142,9 +141,9 @@ public class Radarsat2ProductReader extends SARReader {
         final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
         final boolean flipLUT = flipToSARGeometry && ((isAscending && !isAntennaPointingRight) || (!isAscending && isAntennaPointingRight));
 
-        final File sigmaLUT = new File(folder, lutsigma+".xml");
-        final File gammaLUT = new File(folder, lutgamma+".xml");
-        final File betaLUT = new File(folder, lutbeta+".xml");
+        final File sigmaLUT = new File(folder, lutsigma + ".xml");
+        final File gammaLUT = new File(folder, lutgamma + ".xml");
+        final File betaLUT = new File(folder, lutbeta + ".xml");
 
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
 
@@ -155,7 +154,7 @@ public class Radarsat2ProductReader extends SARReader {
 
     private static void readCalibrationLUT(final File file, final String lutName, final MetadataElement root,
                                            final boolean flipLUT) throws IOException {
-        if(!file.exists())
+        if (!file.exists())
             return;
         final Document xmlDoc = XMLSupport.LoadXML(file.getAbsolutePath());
         final Element rootElement = xmlDoc.getRootElement();
@@ -168,7 +167,7 @@ public class Radarsat2ProductReader extends SARReader {
         final double[] gainsArray = StringUtils.toDoubleArray(gainsValue, " ");
         if (flipLUT) {
             double tmp;
-            for (int i = 0; i < gainsArray.length/2; i++) {
+            for (int i = 0; i < gainsArray.length / 2; i++) {
                 tmp = gainsArray[i];
                 gainsArray[i] = gainsArray[gainsArray.length - i - 1];
                 gainsArray[gainsArray.length - i - 1] = tmp;
@@ -197,15 +196,15 @@ public class Radarsat2ProductReader extends SARReader {
                                           ProgressMonitor pm) throws IOException {
 
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
-        if(bandInfo != null && bandInfo.img != null) {
+        if (bandInfo != null && bandInfo.img != null) {
             if (isAscending) {
                 readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                        0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
+                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                        0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
             } else {
                 readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                         0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
+                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                        0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
             }
         }
     }
@@ -221,26 +220,26 @@ public class Radarsat2ProductReader extends SARReader {
 
         final Raster data;
 
-        synchronized(dataDir) {
+        synchronized (dataDir) {
             final ImageReader reader = img.getReader();
             final ImageReadParam param = reader.getDefaultReadParam();
             param.setSourceSubsampling(sourceStepX, sourceStepY,
-                                       sourceOffsetX % sourceStepX,
-                                       sourceOffsetY % sourceStepY);
+                    sourceOffsetX % sourceStepX,
+                    sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
             if (flipToSARGeometry) {
                 if (isAntennaPointingRight) { // flip the image up side down
                     data = image.getData(new Rectangle(destOffsetX,
-                                                       img.getSceneHeight() - destOffsetY - destHeight,
-                                                       destWidth, destHeight));
+                            img.getSceneHeight() - destOffsetY - destHeight,
+                            destWidth, destHeight));
                 } else { // flip the image upside down, then flip it left to right
                     data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
-                                                       img.getSceneHeight() - destOffsetY - destHeight,
-                                                       destWidth, destHeight));
+                            img.getSceneHeight() - destOffsetY - destHeight,
+                            destWidth, destHeight));
                 }
             } else {
-                data = image.getData(new Rectangle(destOffsetX,	destOffsetY, destWidth, destHeight));
+                data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
             }
         }
 
@@ -255,23 +254,23 @@ public class Radarsat2ProductReader extends SARReader {
             int srcStride, destStride;
             if (isAntennaPointingRight) { // flip the image upside down
                 for (int r = 0; r < destHeight; r++) {
-                    srcStride = r*destWidth;
-                    destStride = (destHeight - r - 1)*destWidth;
+                    srcStride = r * destWidth;
+                    destStride = (destHeight - r - 1) * destWidth;
                     for (int c = 0; c < destWidth; c++) {
                         destBuffer.setElemIntAt(destStride + c, dArray[srcStride + c]);
                     }
                 }
             } else { // flip the image upside down, then flip it left to right
                 for (int r = 0; r < destHeight; r++) {
-                    srcStride = r*destWidth;
-                    destStride = (destHeight - r)*destWidth;
+                    srcStride = r * destWidth;
+                    destStride = (destHeight - r) * destWidth;
                     for (int c = 0; c < destWidth; c++) {
                         destBuffer.setElemIntAt(destStride - c - 1, dArray[srcStride + c]);
                     }
                 }
             }
         } else { // no flipping is needed
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[]) destBuffer.getElems(), dataBuffer);
         }
     }
 
@@ -286,20 +285,20 @@ public class Radarsat2ProductReader extends SARReader {
 
         final Raster data;
 
-        synchronized(dataDir) {
+        synchronized (dataDir) {
             final ImageReader reader = img.getReader();
             final ImageReadParam param = reader.getDefaultReadParam();
             param.setSourceSubsampling(sourceStepX, sourceStepY,
-                                       sourceOffsetX % sourceStepX,
-                                       sourceOffsetY % sourceStepY);
+                    sourceOffsetX % sourceStepX,
+                    sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-			if (flipToSARGeometry && isAntennaPointingRight) {  // flip the image left to right
-				data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
-												   destOffsetY, destWidth, destHeight));
-			} else {
-				data = image.getData(new Rectangle(destOffsetX,	destOffsetY, destWidth, destHeight));
-			}
+            if (flipToSARGeometry && isAntennaPointingRight) {  // flip the image left to right
+                data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
+                        destOffsetY, destWidth, destHeight));
+            } else {
+                data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+            }
         }
 
         final DataBuffer dataBuffer = data.getDataBuffer();
@@ -312,14 +311,14 @@ public class Radarsat2ProductReader extends SARReader {
 
             int srcStride, destStride;
             for (int r = 0; r < destHeight; r++) {
-                srcStride = r*destWidth;
-                destStride = r*destWidth + destWidth;
+                srcStride = r * destWidth;
+                destStride = r * destWidth + destWidth;
                 for (int c = 0; c < destWidth; c++) {
                     destBuffer.setElemIntAt(destStride - c - 1, dArray[srcStride + c]);
                 }
             }
         } else { // no flipping is needed
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[]) destBuffer.getElems(), dataBuffer);
         }
     }
 

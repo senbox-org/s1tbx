@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,9 +39,9 @@ public class NetCDFUtils {
     public static Band createBand(final Variable variable, final int rasterWidth, final int rasterHeight) {
         final NcAttributeMap attMap = NcAttributeMap.create(variable);
         final Band band = new Band(variable.getShortName(),
-                                   getRasterDataType(variable),
-                                   rasterWidth,
-                                   rasterHeight);
+                getRasterDataType(variable),
+                rasterWidth,
+                rasterHeight);
         band.setDescription(getDescription(variable, attMap));
         band.setUnit(getUnit(variable, attMap));
         band.setScalingFactor(getScalingFactor(attMap));
@@ -59,15 +59,15 @@ public class NetCDFUtils {
                                                   final int sceneWidth, final int sceneHeight) throws IOException {
         final NcAttributeMap attMap = NcAttributeMap.create(variable);
 
-        final float subSamplingX = (float)sceneWidth / (float)(gridWidth - 1);
-        final float subSamplingY = (float)sceneHeight / (float)(gridHeight - 1);
+        final float subSamplingX = (float) sceneWidth / (float) (gridWidth - 1);
+        final float subSamplingY = (float) sceneHeight / (float) (gridHeight - 1);
 
         final Array data = variable.read();
-        final float[] dataArray = new float[(int)data.getSize()]; //(float[])data.copyTo1DJavaArray();
-        for(int i = 0; i < data.getSize(); ++i) {
+        final float[] dataArray = new float[(int) data.getSize()]; //(float[])data.copyTo1DJavaArray();
+        for (int i = 0; i < data.getSize(); ++i) {
             dataArray[i] = data.getFloat(i);
         }
-        
+
         final TiePointGrid tpg = new TiePointGrid(variable.getShortName(), gridWidth, gridHeight, 0, 0,
                 subSamplingX, subSamplingY, dataArray);
 
@@ -86,7 +86,7 @@ public class NetCDFUtils {
 
     private static String getDescription(final Variable variable, final NcAttributeMap attMap) {
         String desc = variable.getDescription();
-        if(desc == null || desc.isEmpty()) {
+        if (desc == null || desc.isEmpty()) {
             desc = attMap.getStringValue(NetcdfConstants.DESCRIPTION);
         }
         return desc;
@@ -94,7 +94,7 @@ public class NetCDFUtils {
 
     private static String getUnit(final Variable variable, final NcAttributeMap attMap) {
         String unit = variable.getUnitsString();
-        if(unit == null || unit.isEmpty()) {
+        if (unit == null || unit.isEmpty()) {
             unit = attMap.getStringValue(NetcdfConstants.UNIT);
         }
         return unit;
@@ -190,10 +190,10 @@ public class NetCDFUtils {
 
         final MapProjection projection = MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME);
         final MapInfo mapInfo = new MapInfo(projection,
-                                            pixelX, pixelY,
-                                            easting, northing,
-                                            pixelSizeX, pixelSizeY,
-                                            Datum.WGS_84);
+                pixelX, pixelY,
+                easting, northing,
+                pixelSizeX, pixelSizeY,
+                Datum.WGS_84);
         mapInfo.setSceneWidth(sceneRasterWidth);
         mapInfo.setSceneHeight(sceneRasterHeight);
         return new MapInfoX(mapInfo, yFlipped);
@@ -238,7 +238,7 @@ public class NetCDFUtils {
 
     public static void addGroups(final MetadataElement parentElem, final Group parentGroup) {
         final List<Group> groupList = parentGroup.getGroups();
-        for(Group grp : groupList) {
+        for (Group grp : groupList) {
             final MetadataElement newElem = new MetadataElement(grp.getShortName());
             parentElem.addElement(newElem);
             // recurse
@@ -249,10 +249,10 @@ public class NetCDFUtils {
     }
 
     public static MetadataElement addAttributes(final MetadataElement parentElem, final String elemName,
-                                           final List<Attribute> attribList) {
+                                                final List<Attribute> attribList) {
         final MetadataElement globalElem = new MetadataElement(elemName);
         parentElem.addElement(globalElem);
-        for(Attribute at : attribList) {
+        for (Attribute at : attribList) {
             createMetadataAttributes(globalElem, at, at.getName());
         }
         return globalElem;
@@ -260,21 +260,21 @@ public class NetCDFUtils {
 
     private static void addAttributes(final MetadataElement parentElem, final Group parentGroup) {
         final List<Attribute> attribList = parentGroup.getAttributes();
-        for(Attribute at : attribList) {
+        for (Attribute at : attribList) {
             createMetadataAttributes(parentElem, at, at.getName());
         }
     }
 
     private static void createMetadataAttributes(final MetadataElement parentElem, final Attribute attribute,
-                                                final String name) {
+                                                 final String name) {
         // todo - note that we still do not support NetCDF data type 'char' here!
 
         final int i = name.indexOf('/');
-        if(i > 0) {
+        if (i > 0) {
             final String elemName = name.substring(0, i);
-            final String attName = name.substring(i+1, name.length());
+            final String attName = name.substring(i + 1, name.length());
             MetadataElement newElem = parentElem.getElement(elemName);
-            if(newElem == null) {
+            if (newElem == null) {
                 newElem = new MetadataElement(elemName);
                 parentElem.addElement(newElem);
             }
@@ -285,7 +285,7 @@ public class NetCDFUtils {
                 ProductData productData;
                 if (attribute.isString()) {
                     String strValue = attribute.getStringValue();
-                    if(strValue.startsWith(NetcdfConstants.UTC_TYPE)) {
+                    if (strValue.startsWith(NetcdfConstants.UTC_TYPE)) {
                         strValue = strValue.substring(NetcdfConstants.UTC_TYPE.length(), strValue.length());
                         productData = AbstractMetadata.parseUTC(strValue);
                     } else {
@@ -328,19 +328,19 @@ public class NetCDFUtils {
 
     public static ProductData.UTC getSceneRasterStartTime(NcAttributeMap globalAttributes) {
         return getSceneRasterTime(globalAttributes,
-                                  NetcdfConstants.START_DATE_ATT_NAME,
-                                  NetcdfConstants.START_TIME_ATT_NAME);
+                NetcdfConstants.START_DATE_ATT_NAME,
+                NetcdfConstants.START_TIME_ATT_NAME);
     }
 
     public static ProductData.UTC getSceneRasterStopTime(NcAttributeMap globalAttributes) {
         return getSceneRasterTime(globalAttributes,
-                                  NetcdfConstants.STOP_DATE_ATT_NAME,
-                                  NetcdfConstants.STOP_TIME_ATT_NAME);
+                NetcdfConstants.STOP_DATE_ATT_NAME,
+                NetcdfConstants.STOP_TIME_ATT_NAME);
     }
 
     private static ProductData.UTC getSceneRasterTime(NcAttributeMap globalAttributes,
-                                                     final String dateAttName,
-                                                     final String timeAttName) {
+                                                      final String dateAttName,
+                                                      final String timeAttName) {
         final String dateStr = globalAttributes.getStringValue(dateAttName);
         final String timeStr = globalAttributes.getStringValue(timeAttName);
         final String dateTimeStr = getDateTimeString(dateStr, timeStr);
@@ -384,26 +384,26 @@ public class NetCDFUtils {
     }
 
     public static Variable[] getRasterVariables(Map<NcRasterDim, List<Variable>> variableLists,
-                                                 NcRasterDim rasterDim) {
+                                                NcRasterDim rasterDim) {
         final List<Variable> list = variableLists.get(rasterDim);
         return list.toArray(new Variable[list.size()]);
     }
 
     public static Variable[] getTiePointGridVariables(Map<NcRasterDim, List<Variable>> variableLists,
-                                               Variable[] rasterVariables) {
+                                                      Variable[] rasterVariables) {
         final List<Variable> tpgList = new ArrayList<Variable>();
         final Set<NcRasterDim> keySet = variableLists.keySet();
-        for(NcRasterDim o : keySet) {
+        for (NcRasterDim o : keySet) {
             final List<Variable> varList = variableLists.get(o);
-            for(Variable var : varList) {
+            for (Variable var : varList) {
                 boolean found = false;
-                for(Variable raster : rasterVariables) {
-                    if(var == raster) {
+                for (Variable raster : rasterVariables) {
+                    if (var == raster) {
                         found = true;
                         break;
                     }
                 }
-                if(!found) {
+                if (!found) {
                     tpgList.add(var);
                 }
             }
@@ -417,7 +417,7 @@ public class NetCDFUtils {
         if (keys.length == 0) {
             return null;
         }
-        final String[] bandNames = { "amplitude", "intensity", "phase", "band", "proc_data" };
+        final String[] bandNames = {"amplitude", "intensity", "phase", "band", "proc_data"};
 
         NcRasterDim bestRasterDim = null;
         for (final NcRasterDim rasterDim : keys) {
@@ -426,24 +426,24 @@ public class NetCDFUtils {
                 return rasterDim;
             }
             final List<Variable> varList = variableListMap.get(rasterDim);
-            if(contains(varList, bandNames)) {
+            if (contains(varList, bandNames)) {
                 return rasterDim;
             }
-            for(Variable v : varList) {
+            for (Variable v : varList) {
                 final String vUnit = v.getUnitsString();
-                if(vUnit != null) {
-                    for(String unit : bandNames) {
-                        if(vUnit.equalsIgnoreCase(unit))
+                if (vUnit != null) {
+                    for (String unit : bandNames) {
+                        if (vUnit.equalsIgnoreCase(unit))
                             return rasterDim;
                     }
                 }
             }
-            
+
             // otherwise go by the largest size
-            if(bestRasterDim == null ||
-               (bestRasterDim.getDimX().getLength() * bestRasterDim.getDimY().getLength()) <
-               (rasterDim.getDimX().getLength()*rasterDim.getDimY().getLength())) {
-                    bestRasterDim = rasterDim;
+            if (bestRasterDim == null ||
+                    (bestRasterDim.getDimX().getLength() * bestRasterDim.getDimY().getLength()) <
+                            (rasterDim.getDimX().getLength() * rasterDim.getDimY().getLength())) {
+                bestRasterDim = rasterDim;
             }
             // Otherwise, the best is the one which holds the most variables
             //if (bestVarList == null || varList.size() > bestVarList.size()) {
@@ -456,10 +456,10 @@ public class NetCDFUtils {
     }
 
     private static boolean contains(List<Variable> varList, String[] nameList) {
-        for(Variable v : varList) {
+        for (Variable v : varList) {
             final String vName = v.getName().toLowerCase();
-            for(String str : nameList) {
-                if(vName.contains(str))
+            for (String str : nameList) {
+                if (vName.contains(str))
                     return true;
             }
         }
@@ -479,7 +479,7 @@ public class NetCDFUtils {
             if (rank >= 2 && isValidRasterDataType(variable.getDataType())) {
                 Dimension dimY = variable.getDimension(0);
                 Dimension dimX = variable.getDimension(1);
-                if(rank >= 3 && dimY.getLength() <= 32) {
+                if (rank >= 3 && dimY.getLength() <= 32) {
                     final Dimension dim3 = variable.getDimension(2);
                     dimY = dimX;
                     dimX = dim3;

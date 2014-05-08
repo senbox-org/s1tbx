@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,29 +37,29 @@ import java.awt.*;
  * Fill hole pixels in source product with linear interpolations in both x and y directions.
  */
 
-@OperatorMetadata(alias="Fill-Hole",
+@OperatorMetadata(alias = "Fill-Hole",
         category = "Geometric\\DEM Tools",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Fill holes in given product")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Fill holes in given product")
 public final class FillHoleOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(label="No Data Value", defaultValue = "0.0")
+    @Parameter(label = "No Data Value", defaultValue = "0.0")
     private double NoDataValue = 0.0;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
 
-    private enum Direction { UP, DOWN, LEFT, RIGHT }
+    private enum Direction {UP, DOWN, LEFT, RIGHT}
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -70,8 +70,7 @@ public final class FillHoleOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -82,7 +81,7 @@ public final class FillHoleOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -101,9 +100,9 @@ public final class FillHoleOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         addSelectedBands();
 
@@ -112,6 +111,7 @@ public final class FillHoleOp extends Operator {
 
     /**
      * Add user select bands to the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void addSelectedBands() throws OperatorException {
@@ -121,9 +121,9 @@ public final class FillHoleOp extends Operator {
         for (Band sourceBand : sourceBands) {
 
             final Band targetBand = new Band(sourceBand.getName(),
-                                             ProductData.TYPE_FLOAT32,
-                                             sourceImageWidth,
-                                             sourceImageHeight);
+                    ProductData.TYPE_FLOAT32,
+                    sourceImageWidth,
+                    sourceImageHeight);
 
             targetBand.setUnit(sourceBand.getUnit());
             targetProduct.addBand(targetBand);
@@ -137,8 +137,7 @@ public final class FillHoleOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -147,8 +146,8 @@ public final class FillHoleOp extends Operator {
             final Rectangle targetTileRectangle = targetTile.getRectangle();
             final int x0 = targetTileRectangle.x;
             final int y0 = targetTileRectangle.y;
-            final int w  = targetTileRectangle.width;
-            final int h  = targetTileRectangle.height;
+            final int w = targetTileRectangle.width;
+            final int h = targetTileRectangle.height;
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             final Rectangle sourceTileRectangle = getSourceRectangle(x0, y0, w, h);
@@ -169,7 +168,7 @@ public final class FillHoleOp extends Operator {
                     trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), v);
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -178,18 +177,19 @@ public final class FillHoleOp extends Operator {
 
     /**
      * Get source tile rectangle.
+     *
      * @param tx0 X coordinate for the upper left corner pixel in the target tile.
      * @param ty0 Y coordinate for the upper left corner pixel in the target tile.
-     * @param tw The target tile width.
-     * @param th The target tile height.
+     * @param tw  The target tile width.
+     * @param th  The target tile height.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
         // extend target rectangle by 20% to all directions
-        final int x0 = Math.max(0, tx0 - tw/5);
-        final int y0 = Math.max(0, ty0 - th/5);
-        final int xMax = Math.min(tx0 + tw - 1 + tw/5, sourceImageWidth);
-        final int yMax = Math.min(ty0 + th - 1 + th/5, sourceImageHeight);
+        final int x0 = Math.max(0, tx0 - tw / 5);
+        final int y0 = Math.max(0, ty0 - th / 5);
+        final int xMax = Math.min(tx0 + tw - 1 + tw / 5, sourceImageWidth);
+        final int yMax = Math.min(ty0 + th - 1 + th / 5, sourceImageHeight);
         final int w = xMax - x0 + 1;
         final int h = yMax - y0 + 1;
         return new Rectangle(x0, y0, w, h);
@@ -197,8 +197,9 @@ public final class FillHoleOp extends Operator {
 
     /**
      * Compute pixel value using linear interpolations in both x and y direction.
-     * @param x The X coordinate of the given pixel.
-     * @param y The Y coordinate of the given pixel.
+     *
+     * @param x       The X coordinate of the given pixel.
+     * @param y       The Y coordinate of the given pixel.
      * @param srcData The source data.
      * @param srcTile The source tile.
      * @return The interpolated pixel value.
@@ -229,7 +230,7 @@ public final class FillHoleOp extends Operator {
         }
 
         if (v1 != NoDataValue && v2 != NoDataValue) {
-            return(v1 + v2)/2.0;
+            return (v1 + v2) / 2.0;
         } else if (v1 != NoDataValue) {
             return v1;
         } else if (v2 != NoDataValue) {
@@ -241,12 +242,13 @@ public final class FillHoleOp extends Operator {
 
     /**
      * Get the position and value for the nearest non-hole pixel in a given direction.
-     * @param x The X coordinate of the given pixel.
-     * @param y The Y coordinate of the given pixel.
+     *
+     * @param x       The X coordinate of the given pixel.
+     * @param y       The Y coordinate of the given pixel.
      * @param srcData The source data.
      * @param srcTile The source tile.
-     * @param pixel The pixel position.
-     * @param dir The direction enum which can be "up", "down", "left" and "right".
+     * @param pixel   The pixel position.
+     * @param dir     The direction enum which can be "up", "down", "left" and "right".
      * @return The pixel value.
      */
     private double getNearestNonHolePixelPosition(final int x, final int y, final ProductData srcData,
@@ -255,8 +257,8 @@ public final class FillHoleOp extends Operator {
         final Rectangle srcTileRectangle = srcTile.getRectangle();
         final int x0 = srcTileRectangle.x;
         final int y0 = srcTileRectangle.y;
-        final int w  = srcTileRectangle.width;
-        final int h  = srcTileRectangle.height;
+        final int w = srcTileRectangle.width;
+        final int h = srcTileRectangle.height;
 
         double v = 0.0;
         if (dir == Direction.UP) {
@@ -312,6 +314,7 @@ public final class FillHoleOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

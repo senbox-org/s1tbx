@@ -8,15 +8,15 @@
 
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>nest-io</module>
     </dependency>
     <dependency>
@@ -80,7 +80,7 @@
             <helpId>importACEProduct</helpId>
         </action>
 
-		<action>
+        <action>
             <id>importGETASSE30Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>GETASSE30</formatName>
@@ -90,7 +90,7 @@
             <description>Import a GETASSE30 DEM tile or tile subset.</description>
             <helpId>importGETASSE30Product</helpId>
         </action>
-		
+
         <action>
             <id>importSRTMGeoTIFFDEMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

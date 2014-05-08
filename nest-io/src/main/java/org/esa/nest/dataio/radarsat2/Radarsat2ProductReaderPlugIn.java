@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,18 +16,12 @@
 package org.esa.nest.dataio.radarsat2;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.ZipUtils;
 
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -35,7 +29,6 @@ import java.util.zip.ZipFile;
 
 /**
  * The ReaderPlugIn for Radarsat2 products.
- *
  */
 public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
 
@@ -44,7 +37,6 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      *
      * @param input any input object
-     *
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
@@ -54,11 +46,11 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         }
         final String filename = file.getName().toLowerCase();
         if (filename.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-            filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
+                filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
 
             final File[] files = file.getParentFile().listFiles();
-            for(File f : files) {
-                if(f.getName().toLowerCase().endsWith("ntf")) {
+            for (File f : files) {
+                if (f.getName().toLowerCase().endsWith("ntf")) {
                     return DecodeQualification.SUITABLE;
                 }
             }
@@ -77,13 +69,13 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
             final Enumeration<? extends ZipEntry> entries = productZip.entries();
 
-            while(entries.hasMoreElements()) {
+            while (entries.hasMoreElements()) {
                 final ZipEntry zipEntry = entries.nextElement();
                 if (zipEntry.getName().endsWith("product.xml")) {
                     return true;
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             //
         }
         return false;
@@ -143,7 +135,6 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
@@ -165,13 +156,12 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
          * if no extension are defined, the method always returns <code>true</code>
          *
          * @param file the file to be or not be accepted.
-         *
          * @return <code>true</code> if given file is accepted by this filter
          */
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 if (file.isDirectory() || (file.getName().toUpperCase().startsWith(Radarsat2Constants.PRODUCT_HEADER_PREFIX) &&
-                                           file.getName().toUpperCase().endsWith(Radarsat2Constants.getIndicationKey())) ) {
+                        file.getName().toUpperCase().endsWith(Radarsat2Constants.getIndicationKey()))) {
                     return true;
                 }
             }

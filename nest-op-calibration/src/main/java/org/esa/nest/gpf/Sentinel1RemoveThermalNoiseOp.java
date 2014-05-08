@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,10 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -30,7 +33,6 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -41,7 +43,7 @@ import java.util.HashMap;
         category = "SAR Tools\\Radiometric Correction",
         authors = "Cecilia Wong, Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description="Removes thermal noise from Sentinel-1 products")
+        description = "Removes thermal noise from Sentinel-1 products")
 public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     @SourceProduct
@@ -49,13 +51,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of polarisations", label="Polarisations")
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
-    @Parameter(description = "Remove thermal noise", defaultValue = "true", label="Remove Thermal Noise")
-    private Boolean removeThermalNoise  = true;
+    @Parameter(description = "Remove thermal noise", defaultValue = "true", label = "Remove Thermal Noise")
+    private Boolean removeThermalNoise = true;
 
-    @Parameter(description = "Re-introduce thermal noise", defaultValue = "false", label="Re-Introduce Thermal Noise")
+    @Parameter(description = "Re-introduce thermal noise", defaultValue = "false", label = "Re-Introduce Thermal Noise")
     private Boolean reIntroduceThermalNoise = false;
 
     private MetadataElement absRoot = null;
@@ -90,8 +92,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -135,7 +136,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if(!mission.equals("SENTINEL-1A")) {
+        if (!mission.equals("SENTINEL-1A")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }
@@ -145,7 +146,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getProductType() {
         productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if(!productType.equals("SLC") && !productType.equals("GRD")) {
+        if (!productType.equals("SLC") && !productType.equals("GRD")) {
             throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
         }
 
@@ -174,12 +175,12 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private void getProductPolarization() {
 
         final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
-        final String level = productName.substring(12,14);
+        final String level = productName.substring(12, 14);
         if (!level.equals("1S")) {
             throw new OperatorException("Invalid source product");
         }
 
-        final String polarization = productName.substring(14,16);
+        final String polarization = productName.substring(14, 16);
         if (!polarization.equals("SH") && !polarization.equals("SV") && !polarization.equals("DH") &&
                 !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
                 !polarization.equals("VV") && !polarization.equals("VH")) {
@@ -201,7 +202,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         thermalNoiseCorrectionPerformed = Boolean.parseBoolean(
                 processingInformationElem.getAttribute("thermalNoiseCorrectionPerformed").getData().getElemString());
 
-        if(removeThermalNoise && thermalNoiseCorrectionPerformed) {
+        if (removeThermalNoise && thermalNoiseCorrectionPerformed) {
             throw new OperatorException("Thermal noise correction has already been performed for the product");
         }
 
@@ -215,7 +216,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getThermalNoiseVectors() {
 
-        noise = new ThermalNoiseInfo[numOfSubSwath*selectedPolList.size()];
+        noise = new ThermalNoiseInfo[numOfSubSwath * selectedPolList.size()];
         final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
         final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
 
@@ -254,7 +255,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         if (absoluteCalibrationPerformed) {
             final String[] sourceBandNames = sourceProduct.getBandNames();
-            for (String bandName:sourceBandNames) {
+            for (String bandName : sourceBandNames) {
                 if (bandName.contains("Sigma0")) {
                     inputSigmaBand = true;
                 } else if (bandName.contains("Gamma0")) {
@@ -273,7 +274,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getCalibrationVectors() {
 
-        calibration = new Sentinel1Calibrator.CalibrationInfo[numOfSubSwath*selectedPolList.size()];
+        calibration = new Sentinel1Calibrator.CalibrationInfo[numOfSubSwath * selectedPolList.size()];
 
         Sentinel1Calibrator.getCalibrationVectors(
                 sourceProduct,
@@ -291,7 +292,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private void setSelectedPolarisations() {
 
         String[] selectedPols = selectedPolarisations;
-        if(selectedPols == null || selectedPols.length == 0) {
+        if (selectedPols == null || selectedPols.length == 0) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
         }
@@ -323,29 +324,29 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final Band srcBand = sourceBands[i];
             final String unit = srcBand.getUnit();
-            if(unit == null) {
-                throw new OperatorException("band "+srcBand.getName()+" requires a unit");
+            if (unit == null) {
+                throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
-            if(!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE) && !unit.contains(Unit.INTENSITY)) {
+            if (!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE) && !unit.contains(Unit.INTENSITY)) {
                 continue;
             }
 
             String[] srcBandNames;
             if (unit.contains(Unit.REAL)) { // SLC
 
-                if(i+1 >= sourceBands.length) {
+                if (i + 1 >= sourceBands.length) {
                     throw new OperatorException("Real and imaginary bands are not in pairs");
                 }
 
-                final String nextUnit = sourceBands[i+1].getUnit();
+                final String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
                     throw new OperatorException("Real and imaginary bands are not in pairs");
                 }
 
                 srcBandNames = new String[2];
                 srcBandNames[0] = srcBand.getName();
-                srcBandNames[1] = sourceBands[i+1].getName();
+                srcBandNames[1] = sourceBands[i + 1].getName();
                 ++i;
 
             } else { // GRD
@@ -360,7 +361,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             final String targetBandName = createTargetBandName(srcBandNames[0]);
-            if(targetProduct.getBand(targetBandName) == null) {
+            if (targetProduct.getBand(targetBandName) == null) {
 
                 targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
 
@@ -378,6 +379,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     /**
      * Create target band name for given source bane name.
+     *
      * @param sourceBandName Source band name string.
      * @return Target band name string.
      */
@@ -399,7 +401,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final MetadataElement origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
-        for (MetadataElement elem:annotationDataSetListElem) {
+        for (MetadataElement elem : annotationDataSetListElem) {
             final MetadataElement productElem = elem.getElement("product");
             final MetadataElement imageAnnotationElem = productElem.getElement("imageAnnotation");
             final MetadataElement processingInformationElem = imageAnnotationElem.getElement("processingInformation");
@@ -420,8 +422,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -498,12 +499,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     /**
      * Get thermal noise information for given target band.
+     *
      * @param targetBandName Target band name.
      * @return The ThermalNoiseInfo object.
      */
     private ThermalNoiseInfo getNoiseInfo(final String targetBandName) {
 
-        for (ThermalNoiseInfo noiseInfo:noise) {
+        for (ThermalNoiseInfo noiseInfo : noise) {
             final String pol = noiseInfo.polarization;
             final String ss = noiseInfo.subSwath;
             if (isSLC) {
@@ -521,12 +523,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     /**
      * Get calibration information for given target band.
+     *
      * @param targetBandName Target band name.
      * @return The CalibrationInfo object.
      */
     private Sentinel1Calibrator.CalibrationInfo getCalInfo(final String targetBandName) {
 
-        for (Sentinel1Calibrator.CalibrationInfo cal:calibration) {
+        for (Sentinel1Calibrator.CalibrationInfo cal : calibration) {
             final String pol = cal.polarization;
             final String ss = cal.subSwath;
             if (isSLC) {
@@ -544,14 +547,15 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     /**
      * Compute scaled noise LUTs for the given range line.
-     * @param y Index of the given range line.
-     * @param x0 X coordinate of the upper left corner pixel of the given tile.
-     * @param y0 Y coordinate of the upper left corner pixel of the given tile.
-     * @param w Tile width.
-     * @param noiseInfo Object of ThermalNoiseInfo class.
-     * @param calInfo Object of CalibrationInfo class.
+     *
+     * @param y              Index of the given range line.
+     * @param x0             X coordinate of the upper left corner pixel of the given tile.
+     * @param y0             Y coordinate of the upper left corner pixel of the given tile.
+     * @param w              Tile width.
+     * @param noiseInfo      Object of ThermalNoiseInfo class.
+     * @param calInfo        Object of CalibrationInfo class.
      * @param targetBandName Target band name.
-     * @param lut The scaled noise LUT.
+     * @param lut            The scaled noise LUT.
      */
     private void computeTileScaledNoiseLUT(final int y, final int x0, final int y0, final int w,
                                            final ThermalNoiseInfo noiseInfo,
@@ -585,12 +589,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     /**
      * Compute noise LUTs for the given range line.
-     * @param y Index of the given range line.
-     * @param x0 X coordinate of the upper left corner pixel of the given tile.
-     * @param y0 Y coordinate of the upper left corner pixel of the given tile.
-     * @param w Tile width.
+     *
+     * @param y         Index of the given range line.
+     * @param x0        X coordinate of the upper left corner pixel of the given tile.
+     * @param y0        Y coordinate of the upper left corner pixel of the given tile.
+     * @param w         Tile width.
      * @param noiseInfo Object of ThermalNoiseInfo class.
-     * @param lut The noise LUT.
+     * @param lut       The noise LUT.
      */
     private void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
@@ -601,7 +606,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
         int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
 
-        final double azTime = noiseInfo.firstLineTime + y*lineTimeInterval;
+        final double azTime = noiseInfo.firstLineTime + y * lineTimeInterval;
         final double azT0 = noiseInfo.noiseVectorList[noiseVecIdx].timeMJD;
         final double azT1 = noiseInfo.noiseVectorList[noiseVecIdx + 1].timeMJD;
         muY = (azTime - azT0) / (azT1 - azT0);
@@ -614,20 +619,21 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final int xx0 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx];
             final int xx1 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1];
-            muX = (double)(x - xx0) / (double)(xx1 - xx0);
+            muX = (double) (x - xx0) / (double) (xx1 - xx0);
 
             v00 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx];
             v01 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx + 1];
             v10 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx];
             v11 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx + 1];
 
-            lut[x-x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
         }
     }
 
     /**
      * Get index of the noise vector in the list for a given line.
-     * @param y Line coordinate.
+     *
+     * @param y         Line coordinate.
      * @param noiseInfo Object of ThermalNoiseInfo class.
      * @return The noise vector index.
      */
@@ -643,9 +649,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     /**
      * Get pixel index in a given noise vector for a given pixel.
-     * @param x Pixel coordinate.
+     *
+     * @param x           Pixel coordinate.
      * @param noiseVecIdx Noise vector index.
-     * @param noiseInfo Object of ThermalNoiseInfo class.
+     * @param noiseInfo   Object of ThermalNoiseInfo class.
      * @return The pixel index.
      */
     private static int getPixelIndex(final int x, final int noiseVecIdx, final ThermalNoiseInfo noiseInfo) {

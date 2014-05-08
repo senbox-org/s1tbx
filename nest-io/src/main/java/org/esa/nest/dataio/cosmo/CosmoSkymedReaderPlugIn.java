@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,12 +23,11 @@ import java.io.File;
 
 /**
  * The ReaderPlugIn for CosmoSkymed products.
- *
  */
-public class  CosmoSkymedReaderPlugIn extends NetCDFReaderPlugIn {
+public class CosmoSkymedReaderPlugIn extends NetCDFReaderPlugIn {
 
-	private final static String[] COSMO_FORMAT_NAMES = { "CosmoSkymed" };
-	private final static String[] COSMO_FORMAT_FILE_EXTENSIONS = { "h5"};
+    private final static String[] COSMO_FORMAT_NAMES = {"CosmoSkymed"};
+    private final static String[] COSMO_FORMAT_FILE_EXTENSIONS = {"h5"};
     private final static String COSMO_PLUGIN_DESCRIPTION = "Cosmo-Skymed Products";
     private final static String COSMO_FILE_PREFIX = "cs";
 
@@ -41,8 +40,8 @@ public class  CosmoSkymedReaderPlugIn extends NetCDFReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
-        for(String ext : FORMAT_FILE_EXTENSIONS) {
-            if(!ext.isEmpty() && fileName.endsWith(ext) && fileName.startsWith(COSMO_FILE_PREFIX))
+        for (String ext : FORMAT_FILE_EXTENSIONS) {
+            if (!ext.isEmpty() && fileName.endsWith(ext) && fileName.startsWith(COSMO_FILE_PREFIX))
                 return DecodeQualification.INTENDED;
         }
 

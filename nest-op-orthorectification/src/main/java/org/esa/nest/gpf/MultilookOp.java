@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,51 +37,51 @@ import java.util.HashMap;
 /**
  * Original SAR images generally appears with inherent speckle noise. Multi-look integration is one category
  * of methods to reduce this inherent speckle noise. The frequency-domain method consis of
- *
+ * <p/>
  * (1) dividing the bandwidth of the azimuth spectrum of the image into L segments (called looks),
  * (2) forming L independent images from these spectra, and
  * (3) incoherently averaing them.
- *
+ * <p/>
  * There is also a time-domain method which produce the multi-looked image by averaging the single look image
  * with a small sliding window.
- *
+ * <p/>
  * This operator implements the simple time-domain method. The multi-looked image is produced according to a
  * user specified factor and a default factor determined by range and azimuth spacings of the original image.
  * As a result, image with equal pixel spacing is produced.
  */
 
-@OperatorMetadata(alias="Multilook",
+@OperatorMetadata(alias = "Multilook",
         category = "SAR Tools",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Averages the power across a number of lines in both the azimuth and range directions")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Averages the power across a number of lines in both the azimuth and range directions")
 public final class MultilookOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(description = "The user defined number of range looks", interval = "[1, *)", defaultValue = "1",
-                label="Number of Range Looks")
+            label = "Number of Range Looks")
     private int nRgLooks = 1;
 
     @Parameter(description = "The user defined number of azimuth looks", interval = "[1, *)", defaultValue = "1",
-                label="Number of Azimuth Looks")
+            label = "Number of Azimuth Looks")
     private int nAzLooks = 1;
 
     @Parameter(description = "For complex product output intensity or i and q", defaultValue = "true",
-                label="Output Intensity")
+            label = "Output Intensity")
     private Boolean outputIntensity = true;
 
-    @Parameter(description = "Use ground square pixel", defaultValue = "true", label="GR Square Pixel")
+    @Parameter(description = "Use ground square pixel", defaultValue = "true", label = "GR Square Pixel")
     private Boolean grSquarePixel = true;
 
-    @Parameter(defaultValue="Currently, detection for complex data is performed without any resampling", label="Note")
+    @Parameter(defaultValue = "Currently, detection for complex data is performed without any resampling", label = "Note")
     String note;
 
     private MetadataElement absRoot = null;
@@ -107,8 +107,7 @@ public final class MultilookOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -130,7 +129,7 @@ public final class MultilookOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -142,8 +141,7 @@ public final class MultilookOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -151,13 +149,13 @@ public final class MultilookOp extends Operator {
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int tx0 = targetTileRectangle.x;
         final int ty0 = targetTileRectangle.y;
-        final int tw  = targetTileRectangle.width;
-        final int th  = targetTileRectangle.height;
+        final int tw = targetTileRectangle.width;
+        final int th = targetTileRectangle.height;
 
         final int x0 = tx0 * nRgLooks;
         final int y0 = ty0 * nAzLooks;
-        final int w  = tw * nRgLooks;
-        final int h  = th * nAzLooks;
+        final int w = tw * nRgLooks;
+        final int h = th * nAzLooks;
         final Rectangle sourceTileRectangle = new Rectangle(x0, y0, w, h);
 
         //System.out.println(targetBand.getName()+ " tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
@@ -199,9 +197,9 @@ public final class MultilookOp extends Operator {
             double meanValue;
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
-            if(nRgLooks == 1 && nAzLooks == 1) {
+            if (nRgLooks == 1 && nAzLooks == 1) {
                 //no mean
-                if(!isComplex && targetTile.getDataBuffer().getType() == sourceRaster1.getDataBuffer().getType()) {
+                if (!isComplex && targetTile.getDataBuffer().getType() == sourceRaster1.getDataBuffer().getType()) {
                     targetTile.setRawSamples(sourceRaster1.getRawSamples());
                 } else {
                     for (int ty = ty0; ty < maxy; ty++) {
@@ -210,9 +208,9 @@ public final class MultilookOp extends Operator {
                         for (int tx = tx0; tx < maxx; tx++) {
                             final int index = srcIndex.getIndex(tx);
                             final double i = srcData1.getElemDoubleAt(index);
-                            if(srcData2 != null) {
+                            if (srcData2 != null) {
                                 final double q = srcData2.getElemDoubleAt(index);
-                                trgData.setElemDoubleAt(trgIndex.getIndex(tx), i*i + q*q);
+                                trgData.setElemDoubleAt(trgIndex.getIndex(tx), i * i + q * q);
                             } else {
                                 trgData.setElemDoubleAt(trgIndex.getIndex(tx), i);
                             }
@@ -228,7 +226,7 @@ public final class MultilookOp extends Operator {
                     }
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -276,9 +274,9 @@ public final class MultilookOp extends Operator {
         targetImageHeight = sourceImageHeight / nAzLooks;
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    targetImageWidth,
-                                    targetImageHeight);
+                sourceProduct.getProductType(),
+                targetImageWidth,
+                targetImageHeight);
 
         OperatorUtils.addSelectedBands(
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, outputIntensity, false);
@@ -315,13 +313,13 @@ public final class MultilookOp extends Operator {
         final int gridHeight = 11;
         final float subSamplingX = targetImageWidth / (gridWidth - 1.0f);
         final float subSamplingY = targetImageHeight / (gridHeight - 1.0f);
-        final PixelPos[] newTiePointPos = new PixelPos[gridWidth*gridHeight];
+        final PixelPos[] newTiePointPos = new PixelPos[gridWidth * gridHeight];
 
         int k = 0;
         for (int j = 0; j < gridHeight; j++) {
-            final float y = (nAzLooks - 1)/2 + Math.min(j*subSamplingY, targetImageHeight - 1)*nAzLooks;
+            final float y = (nAzLooks - 1) / 2 + Math.min(j * subSamplingY, targetImageHeight - 1) * nAzLooks;
             for (int i = 0; i < gridWidth; i++) {
-                final float x = (nRgLooks - 1)/2 + Math.min(i*subSamplingX, targetImageWidth - 1)*nRgLooks;
+                final float x = (nRgLooks - 1) / 2 + Math.min(i * subSamplingX, targetImageWidth - 1) * nRgLooks;
                 newTiePointPos[k] = new PixelPos();
                 newTiePointPos[k].x = x;
                 newTiePointPos[k].y = y;
@@ -346,29 +344,30 @@ public final class MultilookOp extends Operator {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.multilook_flag, 1);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_looks, azimuthLooks*nAzLooks);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_looks, rangeLooks*nRgLooks);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, azimuthSpacing*nAzLooks);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, rangeSpacing*nRgLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_looks, azimuthLooks * nAzLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_looks, rangeLooks * nRgLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, azimuthSpacing * nAzLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, rangeSpacing * nRgLooks);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
 
-        final float oldLineTimeInterval = (float)absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval*nAzLooks);
+        final float oldLineTimeInterval = (float) absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval * nAzLooks);
 
         final double oldNearEdgeSlantRange = absTgt.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
-        final double newNearEdgeSlantRange = oldNearEdgeSlantRange + rangeSpacing*(nRgLooks - 1)/2.0;
+        final double newNearEdgeSlantRange = oldNearEdgeSlantRange + rangeSpacing * (nRgLooks - 1) / 2.0;
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.slant_range_to_first_pixel, newNearEdgeSlantRange);
 
         double oldFirstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
-        double newFirstLineUTC = oldFirstLineUTC + oldLineTimeInterval*((nAzLooks - 1)/2.0) / Constants.secondsInDay;
+        double newFirstLineUTC = oldFirstLineUTC + oldLineTimeInterval * ((nAzLooks - 1) / 2.0) / Constants.secondsInDay;
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time, new ProductData.UTC(newFirstLineUTC));
     }
 
     /**
      * Compute the mean value of pixels of the source image in the sliding window.
-     * @param tx The x coordinate of a pixel in the current target tile.
-     * @param ty The y coordinate of a pixel in the current target tile.
+     *
+     * @param tx       The x coordinate of a pixel in the current target tile.
+     * @param ty       The y coordinate of a pixel in the current target tile.
      * @param srcData1 The product data for i band in case of complex product.
      * @param srcData2 The product data for q band in case of complex product.
      * @param nRgLooks number of range looks
@@ -392,29 +391,29 @@ public final class MultilookOp extends Operator {
             for (int y = yStart; y < yEnd; y++) {
                 offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    meanValue += Math.pow(10, srcData1.getElemDoubleAt(x-offset) / 10.0); // dB to linear
+                    meanValue += Math.pow(10, srcData1.getElemDoubleAt(x - offset) / 10.0); // dB to linear
                 }
             }
 
             meanValue /= (nRgLooks * nAzLooks);
-            return 10.0*Math.log10(meanValue); // linear to dB
+            return 10.0 * Math.log10(meanValue); // linear to dB
         } else if (isComplex) { // COMPLEX
             double i, q;
             int index;
             for (int y = yStart; y < yEnd; y++) {
                 offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    index = x-offset;
+                    index = x - offset;
                     i = srcData1.getElemDoubleAt(index);
                     q = srcData2.getElemDoubleAt(index);
-                    meanValue += i*i + q*q;
+                    meanValue += i * i + q * q;
                 }
             }
         } else {
             for (int y = yStart; y < yEnd; y++) {
                 offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    meanValue += srcData1.getElemDoubleAt(x-offset);
+                    meanValue += srcData1.getElemDoubleAt(x - offset);
                 }
             }
         }
@@ -424,8 +423,9 @@ public final class MultilookOp extends Operator {
 
     /**
      * Compute number of azimuth looks and the mean ground pixel spacings for given number of range looks.
+     *
      * @param srcProduct The source product.
-     * @param param The computed parameters.
+     * @param param      The computed parameters.
      * @throws Exception The exception.
      */
     public static void getDerivedParameters(Product srcProduct, DerivedParams param) throws Exception {
@@ -436,35 +436,36 @@ public final class MultilookOp extends Operator {
         double azimuthSpacing = abs.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
 
         double groundRangeSpacing = rangeSpacing;
-        if(rangeSpacing == AbstractMetadata.NO_METADATA) {
+        if (rangeSpacing == AbstractMetadata.NO_METADATA) {
             azimuthSpacing = 1;
             groundRangeSpacing = 1;
         } else if (!srgrFlag) {
             final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(srcProduct);
-            if(incidenceAngle != null) {
+            if (incidenceAngle != null) {
                 final double incidenceAngleAtCentreRangePixel = getIncidenceAngleAtCentreRangePixel(srcProduct,
-                                                                                                    incidenceAngle);
-                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel*MathUtils.DTOR);
+                        incidenceAngle);
+                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
             }
         }
 
         //final int nAzLooks = Math.max(1, (int)((double)nRgLooks * groundRangeSpacing / azimuthSpacing + 0.5));
-        final double nAzLooks = param.nRgLooks*groundRangeSpacing/azimuthSpacing;
+        final double nAzLooks = param.nRgLooks * groundRangeSpacing / azimuthSpacing;
         if (nAzLooks < 1.0) {
             param.nAzLooks = 1;
-            param.nRgLooks = (int)Math.round(azimuthSpacing/groundRangeSpacing);
+            param.nRgLooks = (int) Math.round(azimuthSpacing / groundRangeSpacing);
         } else {
-            param.nAzLooks = (int)Math.round(nAzLooks);
+            param.nAzLooks = (int) Math.round(nAzLooks);
         }
-        param.meanGRSqaurePixel = (float)((param.nRgLooks*groundRangeSpacing + param.nAzLooks*azimuthSpacing)*0.5);
+        param.meanGRSqaurePixel = (float) ((param.nRgLooks * groundRangeSpacing + param.nAzLooks * azimuthSpacing) * 0.5);
     }
 
     /**
      * Get incidence angle at centre range pixel (in degree).
-     * @param srcProduct the source product
+     *
+     * @param srcProduct     the source product
      * @param incidenceAngle The incidenceAngle tie point grid.
-     * @throws OperatorException if incidenceAngle is null
      * @return The incidence angle.
+     * @throws OperatorException if incidenceAngle is null
      */
     private static double getIncidenceAngleAtCentreRangePixel(final Product srcProduct,
                                                               final TiePointGrid incidenceAngle) throws OperatorException {
@@ -473,7 +474,7 @@ public final class MultilookOp extends Operator {
         final int sourceImageHeight = srcProduct.getSceneRasterHeight();
         final int x = sourceImageWidth / 2;
         final int y = sourceImageHeight / 2;
-        return incidenceAngle.getPixelFloat((float)x, (float)y);
+        return incidenceAngle.getPixelFloat((float) x, (float) y);
     }
 
     static class DerivedParams {
@@ -484,6 +485,7 @@ public final class MultilookOp extends Operator {
 
     /**
      * Set the number of range looks. This method is for unit test only.
+     *
      * @param numRangelooks The number of range looks.
      */
     public void setNumRangeLooks(int numRangelooks) {
@@ -492,6 +494,7 @@ public final class MultilookOp extends Operator {
 
     /**
      * Set the number of azimuth looks. This method is for unit test only.
+     *
      * @param numAzimuthlooks The number of azimuth looks.
      */
     public void setNumAzimuthLooks(int numAzimuthlooks) {
@@ -503,6 +506,7 @@ public final class MultilookOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,13 +47,14 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
         super(srcProductType, srcWidth, srcHeight, windowSize, bandMap);
         this.maxIterations = maxIterations;
 
-        useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId()+
-                                                             ".useLeeHAlphaPlaneDefinition");
+        useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId() +
+                ".useLeeHAlphaPlaneDefinition");
     }
 
-     /**
-        Return the band name for the target product
-        @return band name
+    /**
+     * Return the band name for the target product
+     *
+     * @return band name
      */
     public String getTargetBandName() {
         return UNSUPERVISED_WISHART_CLASS;
@@ -61,6 +62,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * returns the number of classes
+     *
      * @return num classes
      */
     public int getNumClasses() {
@@ -69,11 +71,11 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * Perform decomposition for given tile.
+     *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op         the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
 
@@ -88,8 +90,8 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
         final Rectangle targetRectangle = targetTile.getRectangle();
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
@@ -115,11 +117,11 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
             srcIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
                 final int index = trgIndex.getIndex(x);
-                if(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue) {
-                    targetData.setElemIntAt(index, NODATACLASS);    
+                if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue) {
+                    targetData.setElemIntAt(index, NODATACLASS);
                 } else {
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
-                                                  sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                            sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     targetData.setElemIntAt(index, findZoneIndex(Tr, Ti, clusterCenters[targetBandIndex]));
                 }
@@ -129,8 +131,9 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * Compute cluster centers for all 9 zones
+     *
      * @param srcBandList the input bands
-     * @param op the operator
+     * @param op          the operator
      */
     private synchronized void computeClusterCenters(final int numTargetBands,
                                                     final int targetBandIndex,
@@ -160,8 +163,9 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * Compute initial cluster centers for all 9 zones using H-Alpha
-     * @param srcBandList the input bands
-     * @param op the operator
+     *
+     * @param srcBandList    the input bands
+     * @param op             the operator
      * @param tileRectangles Array of rectangles for all source tiles of the image
      */
     private void computeInitialClusterCenters(final int targetBandIndex,
@@ -213,7 +217,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                         for (int y = y0; y < yMax; ++y) {
                             srcIndex.calculateStride(y);
                             for (int x = x0; x < xMax; ++x) {
-                                if(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
+                                if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
                                     continue;
 
                                 PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
@@ -223,8 +227,8 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                 if (!Double.isNaN(data.entropy) && !Double.isNaN(data.anisotropy) && !Double.isNaN(data.alpha)) {
                                     synchronized (counter) {
                                         final int zoneIndex = CloudePottier.getZoneIndex(data.entropy, data.alpha,
-                                                                                        useLeeHAlphaPlaneDefinition);
-                                        counter[zoneIndex-1] += 1;
+                                                useLeeHAlphaPlaneDefinition);
+                                        counter[zoneIndex - 1] += 1;
                                         computeSummationOfT3(zoneIndex, Tr, Ti, sumRe, sumIm);
                                     }
                                 }
@@ -250,12 +254,12 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                         }
                     }
                     clusterCenters[targetBandIndex][z] = new ClusterInfo();
-                    clusterCenters[targetBandIndex][z].setClusterCenter(z+1, centerRe[z], centerIm[z], counter[z]);
+                    clusterCenters[targetBandIndex][z].setClusterCenter(z + 1, centerRe[z], centerIm[z], counter[z]);
                 }
             }
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " computeInitialClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(op.getId() + " computeInitialClusterCenters ", e);
         } finally {
             status.done();
         }
@@ -263,8 +267,9 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * Compute final cluster centers for all 9 zones using K-mean clustering method
-     * @param srcBandList the input bands
-     * @param op the operator
+     *
+     * @param srcBandList    the input bands
+     * @param op             the operator
      * @param tileRectangles Array of rectangles for all source tiles of the image
      */
     private void computeFinalClusterCenters(final int targetBandIndex,
@@ -276,8 +281,8 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
         final double[][][] centerIm = new double[9][3][3];
         boolean endIteration = false;
         final double noDataValue = srcBandList.srcBands[0].getNoDataValue();
-        
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length*maxIterations,
+
+        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length * maxIterations,
                 "Computing Final Cluster Centres... ");
         int tileCnt = 0;
 
@@ -318,11 +323,11 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
                             }
                             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-                            
+
                             for (int y = y0; y < yMax; ++y) {
                                 srcIndex.calculateStride(y);
                                 for (int x = x0; x < xMax; ++x) {
-                                    if(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
+                                    if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
                                         continue;
 
                                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
@@ -330,7 +335,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
                                     synchronized (counter) {
                                         final int zoneIdx = findZoneIndex(Tr, Ti, clusterCenters[targetBandIndex]);
-                                        counter[zoneIdx-1]++;
+                                        counter[zoneIdx - 1]++;
                                         computeSummationOfT3(zoneIdx, Tr, Ti, sumRe, sumIm);
                                     }
                                 }
@@ -354,10 +359,10 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                 diff += (clusterCenters[targetBandIndex][z].centerRe[i][j] - centerRe[z][i][j]) *
                                         (clusterCenters[targetBandIndex][z].centerRe[i][j] - centerRe[z][i][j]) +
                                         (clusterCenters[targetBandIndex][z].centerIm[i][j] - centerIm[z][i][j]) *
-                                        (clusterCenters[targetBandIndex][z].centerIm[i][j] - centerIm[z][i][j]);
+                                                (clusterCenters[targetBandIndex][z].centerIm[i][j] - centerIm[z][i][j]);
                             }
                         }
-                        clusterCenters[targetBandIndex][z].setClusterCenter(z+1, centerRe[z], centerIm[z], counter[z]);
+                        clusterCenters[targetBandIndex][z].setClusterCenter(z + 1, centerRe[z], centerIm[z], counter[z]);
                     }
                 }
 
@@ -366,8 +371,8 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                 }
             }
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " computeFinalClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(op.getId() + " computeFinalClusterCenters ", e);
         } finally {
             status.done();
         }
@@ -375,8 +380,9 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * Find the nearest cluster for a given T3 matrix using Wishart distance
-     * @param Tr Real part of the T3 matrix
-     * @param Ti Imaginary part of the T3 matrix
+     *
+     * @param Tr             Real part of the T3 matrix
+     * @param Ti             Imaginary part of the T3 matrix
      * @param clusterCenters The cluster centers
      * @return The zone index for the nearest cluster
      */
@@ -398,18 +404,19 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     /**
      * Compute Wishart distance for given coherency matrix and given cluster
-     * @param Tr Real part of the coherency matrix
-     * @param Ti Imaginary part of the coherency matrix
+     *
+     * @param Tr      Real part of the coherency matrix
+     * @param Ti      Imaginary part of the coherency matrix
      * @param cluster The cluster object
      * @return The Wishart distance
      */
     static double computeWishartDistance(final double[][] Tr, final double[][] Ti, final ClusterInfo cluster) {
 
-        return cluster.invCenterRe[0][0]*Tr[0][0] - cluster.invCenterIm[0][0]*Ti[0][0] +
-               cluster.invCenterRe[1][1]*Tr[1][1] - cluster.invCenterIm[1][1]*Ti[1][1] +
-               cluster.invCenterRe[2][2]*Tr[2][2] - cluster.invCenterIm[2][2]*Ti[2][2] +
-               2*(cluster.invCenterRe[0][1]*Tr[0][1] + cluster.invCenterIm[0][1]*Ti[0][1]) +
-               2*(cluster.invCenterRe[0][2]*Tr[0][2] + cluster.invCenterIm[0][2]*Ti[0][2]) +
-               2*(cluster.invCenterRe[1][2]*Tr[1][2] + cluster.invCenterIm[1][2]*Ti[1][2]) + cluster.logDet;
+        return cluster.invCenterRe[0][0] * Tr[0][0] - cluster.invCenterIm[0][0] * Ti[0][0] +
+                cluster.invCenterRe[1][1] * Tr[1][1] - cluster.invCenterIm[1][1] * Ti[1][1] +
+                cluster.invCenterRe[2][2] * Tr[2][2] - cluster.invCenterIm[2][2] * Ti[2][2] +
+                2 * (cluster.invCenterRe[0][1] * Tr[0][1] + cluster.invCenterIm[0][1] * Ti[0][1]) +
+                2 * (cluster.invCenterRe[0][2] * Tr[0][2] + cluster.invCenterIm[0][2] * Ti[0][2]) +
+                2 * (cluster.invCenterRe[1][2] * Tr[1][2] + cluster.invCenterIm[1][2] * Ti[1][2]) + cluster.logDet;
     }
 }

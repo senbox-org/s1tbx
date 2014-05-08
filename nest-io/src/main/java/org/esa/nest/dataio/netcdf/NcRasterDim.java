@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,19 +42,19 @@ public class NcRasterDim {
     }
 
     public boolean isTypicalRasterDim() {
-        if(dimX.getName() == null || dimY.getName() == null)
+        if (dimX.getName() == null || dimY.getName() == null)
             return false;
         return (dimX.getName().equalsIgnoreCase("lon") && dimY.getName().equalsIgnoreCase("lat")) ||
-               (dimX.getName().equalsIgnoreCase("longitude") && dimY.getName().equalsIgnoreCase("latitude")) ||
-               (dimX.getName().equalsIgnoreCase("ni") && dimY.getName().equalsIgnoreCase("nj")) ||
-               (dimX.getName().equalsIgnoreCase("x") && dimY.getName().equalsIgnoreCase("y"));
+                (dimX.getName().equalsIgnoreCase("longitude") && dimY.getName().equalsIgnoreCase("latitude")) ||
+                (dimX.getName().equalsIgnoreCase("ni") && dimY.getName().equalsIgnoreCase("nj")) ||
+                (dimX.getName().equalsIgnoreCase("x") && dimY.getName().equalsIgnoreCase("y"));
     }
 
     public boolean fitsTo(final Variable varX, final Variable varY) {
         return varX.getRank() == 1 &&
-               varY.getRank() == 1 &&
-               varX.getDimension(0).getLength() == dimX.getLength() &&
-               varY.getDimension(0).getLength() == dimY.getLength();
+                varY.getRank() == 1 &&
+                varX.getDimension(0).getLength() == dimX.getLength() &&
+                varY.getDimension(0).getLength() == dimY.getLength();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class NcRasterDim {
         if (obj instanceof NcRasterDim) {
             final NcRasterDim other = (NcRasterDim) obj;
             return dimX.equals(other.dimX) &&
-                   dimY.equals(other.dimY);
+                    dimY.equals(other.dimY);
         }
         return false;
     }
@@ -73,6 +73,6 @@ public class NcRasterDim {
     @Override
     public int hashCode() {
         return dimX.hashCode() +
-               dimY.hashCode();
+                dimY.hashCode();
     }
 }

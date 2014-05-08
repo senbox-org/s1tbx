@@ -135,7 +135,7 @@ public class GETASSE30Reader extends AbstractProductReader {
         try {
             final short[] elems = (short[]) destBuffer.getElems();
             readRasterDataImpl(elems, sourceOffsetY, sourceOffsetX, sourceStepX, sourceStepY, destWidth, destHeight,
-                               SubProgressMonitor.create(pm, 1));
+                    SubProgressMonitor.create(pm, 1));
             maskInt32Extrema(elems);
         } finally {
             pm.done();
@@ -198,12 +198,12 @@ public class GETASSE30Reader extends AbstractProductReader {
         final int height = _fileInfo.getHeight();
         _product = new Product(productName, GETASSE30ReaderPlugIn.FORMAT_NAME, width, height, this);
         final MapInfo mapInfo = new MapInfo(MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME),
-                                            0.5F, 0.5F,
-                                            _fileInfo.getEasting(),
-                                            _fileInfo.getNorthing() + height * _fileInfo.getPixelSizeY(),
-                                            _fileInfo.getPixelSizeX(),
-                                            _fileInfo.getPixelSizeY(),
-                                            Datum.WGS_84);
+                0.5F, 0.5F,
+                _fileInfo.getEasting(),
+                _fileInfo.getNorthing() + height * _fileInfo.getPixelSizeY(),
+                _fileInfo.getPixelSizeX(),
+                _fileInfo.getPixelSizeY(),
+                Datum.WGS_84);
         mapInfo.setSceneWidth(width);
         mapInfo.setSceneHeight(height);
         _product.setGeoCoding(new MapGeoCoding(mapInfo));

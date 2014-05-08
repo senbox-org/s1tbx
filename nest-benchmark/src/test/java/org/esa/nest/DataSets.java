@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,19 +30,19 @@ public class DataSets {
 
     public final static String perfRoot = TestUtils.rootPathExpectedProducts + "largeFiles\\";
 
-    public final static String tiffFile1 = perfRoot+"Tiff\\imagery_HV.tif";
-    public final static String tiffFile2 = perfRoot+"Tiff\\srtm_39_04.tif";
+    public final static String tiffFile1 = perfRoot + "Tiff\\imagery_HV.tif";
+    public final static String tiffFile2 = perfRoot + "Tiff\\srtm_39_04.tif";
 
     //RS2
-    public final static String vancouverRS2Quad = perfRoot+"Radarsat2\\Quad\\Vancouver_R2_FineQuad15_Frame1_SLC\\product.xml";
+    public final static String vancouverRS2Quad = perfRoot + "Radarsat2\\Quad\\Vancouver_R2_FineQuad15_Frame1_SLC\\product.xml";
     public final Product RS2_quad_product;
 
     //ASAR
-    public final static String ASAR_IMS = perfRoot+"ASAR\\IMS\\Thun_Switzerland\\ASA_IMS_1PNUPA20080423_094914_000000162068_00022_32140_2544.N1";
-    public final static String ASAR_IMP = perfRoot+"ASAR\\IMP\\ASA_IMP_1PNDPA20040402_092740_000000152025_00351_10926_0004.N1";
-    public final static String ASAR_APP = perfRoot+"ASAR\\APP\\ASA_APP_1PNIPA20030327_091854_000000162015_00036_05601_5420.N1";
-    public final static String ASAR_APS = perfRoot+"ASAR\\APS\\ASA_APS_1PNIPA20030327_091854_000000162015_00036_05601_5421.N1";
-    public final static String ASAR_WSM = perfRoot+"ASAR\\WSM\\ASA_WSM_1PNPDK20080119_093145_000002252065_00165_30780_3244.N1";
+    public final static String ASAR_IMS = perfRoot + "ASAR\\IMS\\Thun_Switzerland\\ASA_IMS_1PNUPA20080423_094914_000000162068_00022_32140_2544.N1";
+    public final static String ASAR_IMP = perfRoot + "ASAR\\IMP\\ASA_IMP_1PNDPA20040402_092740_000000152025_00351_10926_0004.N1";
+    public final static String ASAR_APP = perfRoot + "ASAR\\APP\\ASA_APP_1PNIPA20030327_091854_000000162015_00036_05601_5420.N1";
+    public final static String ASAR_APS = perfRoot + "ASAR\\APS\\ASA_APS_1PNIPA20030327_091854_000000162015_00036_05601_5421.N1";
+    public final static String ASAR_WSM = perfRoot + "ASAR\\WSM\\ASA_WSM_1PNPDK20080119_093145_000002252065_00165_30780_3244.N1";
     public final Product ASAR_IMS_product;
     public final Product ASAR_IMP_product;
     public final Product ASAR_APP_product;
@@ -50,32 +50,32 @@ public class DataSets {
     public final Product ASAR_WSM_product;
 
     //ERS-2 CEOS
-    public final static String ERS2_PRI = perfRoot+"ERS2\\PRI\\ERS2_PRI_VMP_CEOS_12032000_orbit 25592 frame 0747_ASI IPAF\\SCENE1\\VDF_DAT.001";
-    public final static String ERS2_SLC = perfRoot+"ERS2\\SLC\\ERS2_SLCI_VMP_CEOS_13052000_orbit 26472 frame 2727_UKPAF\\SCENE1\\VDF_DAT.001";
+    public final static String ERS2_PRI = perfRoot + "ERS2\\PRI\\ERS2_PRI_VMP_CEOS_12032000_orbit 25592 frame 0747_ASI IPAF\\SCENE1\\VDF_DAT.001";
+    public final static String ERS2_SLC = perfRoot + "ERS2\\SLC\\ERS2_SLCI_VMP_CEOS_13052000_orbit 26472 frame 2727_UKPAF\\SCENE1\\VDF_DAT.001";
     public final Product ERS2_PRI_product;
     public final Product ERS2_SLC_product;
 
     //ERS-2
-    public final static String ERS2_IMP = perfRoot+"ERS2\\IMP\\Vietnam\\SAR_IMP_1PXESA19960521_031648_00000017A011_00304_05669_1166.E2";
-    public final static String ERS2_IMS = perfRoot+"ERS2\\IMS\\Vietnam\\SAR_IMS_1PXESA19960521_031648_00000017A011_00304_05669_0767.E2";
+    public final static String ERS2_IMP = perfRoot + "ERS2\\IMP\\Vietnam\\SAR_IMP_1PXESA19960521_031648_00000017A011_00304_05669_1166.E2";
+    public final static String ERS2_IMS = perfRoot + "ERS2\\IMS\\Vietnam\\SAR_IMS_1PXESA19960521_031648_00000017A011_00304_05669_0767.E2";
     public final Product ERS2_IMP_product;
     public final Product ERS2_IMS_product;
 
     //ALOS
-    public final static String ALOS_L11 = perfRoot+"ALOS\\L1.1\\volcanoes_Tanzania\\450001\\VOL-ALPSRP072533680-H1.1__D";
+    public final static String ALOS_L11 = perfRoot + "ALOS\\L1.1\\volcanoes_Tanzania\\450001\\VOL-ALPSRP072533680-H1.1__D";
     public final Product ALOS_L11_product;
 
     //Cosmo-Skymed
 
     //TerraSAR-X
-    public final static String TSX_SSC = perfRoot+"TerraSARX\\SSC\\grand.canyon\\TSX1_SAR__SSC______SM_S_SRA_20080310T133220_20080310T133228\\TSX1_SAR__SSC______SM_S_SRA_20080310T133220_20080310T133228.xml";
-    public final static String TSX_SSC_Quad = perfRoot+"TerraSARX\\SSC\\quad\\dims_op_oc_dfd2_369759996_1\\TSX-1.SAR.L1B\\TSX1_SAR__SSC______SM_Q_DRA_20100411T141511_20100411T141519\\TSX1_SAR__SSC______SM_Q_DRA_20100411T141511_20100411T141519.xml";
+    public final static String TSX_SSC = perfRoot + "TerraSARX\\SSC\\grand.canyon\\TSX1_SAR__SSC______SM_S_SRA_20080310T133220_20080310T133228\\TSX1_SAR__SSC______SM_S_SRA_20080310T133220_20080310T133228.xml";
+    public final static String TSX_SSC_Quad = perfRoot + "TerraSARX\\SSC\\quad\\dims_op_oc_dfd2_369759996_1\\TSX-1.SAR.L1B\\TSX1_SAR__SSC______SM_Q_DRA_20100411T141511_20100411T141519\\TSX1_SAR__SSC______SM_Q_DRA_20100411T141511_20100411T141519.xml";
     public final Product TSX_SSC_product;
     public final Product TSX_SSC_Quad_product;
 
     //S-1
-    public final static String S1_IW_SLC = perfRoot+"S1\\IW_SLC\\S1A_IW_SLC__1SDH_20120101T043302_20120101T043312_001771_000001_9B7B.SAFE\\manifest.safe";
-    public final static String S1_IW_GRD = perfRoot+"S1\\IW_GRD\\S1A_IW_GRDH_1SDH_20120101T043302_20120101T043312_001771_000001_5854.SAFE\\manifest.safe";
+    public final static String S1_IW_SLC = perfRoot + "S1\\IW_SLC\\S1A_IW_SLC__1SDH_20120101T043302_20120101T043312_001771_000001_9B7B.SAFE\\manifest.safe";
+    public final static String S1_IW_GRD = perfRoot + "S1\\IW_GRD\\S1A_IW_GRDH_1SDH_20120101T043302_20120101T043312_001771_000001_5854.SAFE\\manifest.safe";
     public final Product S1_SLC_product;
     public final Product S1_GRD_product;
 
@@ -108,22 +108,22 @@ public class DataSets {
     private static Product readProduct(final String path) {
         try {
             final File inputFile = new File(path);
-            if(!inputFile.exists()) {
+            if (!inputFile.exists()) {
                 throw new IOException(path + " not found");
             }
 
             final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
-            if(reader == null)
-                throw new IOException("No reader found for "+inputFile);
+            if (reader == null)
+                throw new IOException("No reader found for " + inputFile);
             return reader.readProductNodes(inputFile, null);
-        } catch(IOException e) {
-            System.out.println("Error reading "+path);
+        } catch (IOException e) {
+            System.out.println("Error reading " + path);
         }
         return null;
     }
 
     public static DataSets instance() throws IOException {
-        if(theInstance == null) {
+        if (theInstance == null) {
             theInstance = new DataSets();
         }
         return theInstance;

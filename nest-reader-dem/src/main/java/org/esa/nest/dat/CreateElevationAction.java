@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,7 +22,9 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.dem.*;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -69,7 +71,7 @@ public class CreateElevationAction extends ExecCommand {
         }
         if (demDescriptor.isInstallingDem()) {
             VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
-                                              "The DEM '" + demName + "' is currently being installed.");
+                    "The DEM '" + demName + "' is currently being installed.");
             return;
         }
         if (!demDescriptor.isDemInstalled()) {
@@ -78,14 +80,14 @@ public class CreateElevationAction extends ExecCommand {
         }
 
         Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
-        if(dialogData.resamplingMethod != null) {
+        if (dialogData.resamplingMethod != null) {
             resampling = ResamplingFactory.createResampling(dialogData.resamplingMethod);
         }
 
         computeBands(product,
-                     demDescriptor,
-                     dialogData.outputElevationBand ? dialogData.elevationBandName : null,
-                     resampling);
+                demDescriptor,
+                dialogData.outputElevationBand ? dialogData.elevationBandName : null,
+                resampling);
     }
 
     @Override
@@ -95,9 +97,9 @@ public class CreateElevationAction extends ExecCommand {
     }
 
     private static void computeBands(final Product product,
-                              final ElevationModelDescriptor demDescriptor,
-                              final String elevationBandName,
-                              final Resampling resampling) {
+                                     final ElevationModelDescriptor demDescriptor,
+                                     final String elevationBandName,
+                                     final Resampling resampling) {
 
         final ElevationModel dem = demDescriptor.createDem(resampling);
         if (elevationBandName != null) {
@@ -145,7 +147,7 @@ public class CreateElevationAction extends ExecCommand {
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
         configureDemNameProperty(propertySet, "demName", demNames, "SRTM 3sec (Auto Download)");
         configureDemNameProperty(propertySet, "resamplingMethod", ResamplingFactory.resamplingNames,
-                                 ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
+                ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
         configureBandNameProperty(propertySet, "elevationBandName", product);
         configureBandNameProperty(propertySet, "latitudeBandName", product);
         configureBandNameProperty(propertySet, "longitudeBandName", product);
@@ -201,7 +203,7 @@ public class CreateElevationAction extends ExecCommand {
 
         parameterPanel.add(new JLabel("Elevation band name:"));
         parameterPanel.add(elevationBandNameField);
-        if(ortorectifiable) {
+        if (ortorectifiable) {
             /*row 2*/
             parameterPanel.add(outputDemCorrectedBandsChecker);
             /*row 3*/
@@ -342,12 +344,14 @@ public class CreateElevationAction extends ExecCommand {
             final String bandName = value.toString().trim();
             if (!ProductNode.isValidNodeName(bandName)) {
                 throw new ValidationException(MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
-                                                                           "Please choose another one.",
-                                                                   bandName));
+                                "Please choose another one.",
+                        bandName
+                ));
             } else if (product.containsBand(bandName)) {
                 throw new ValidationException(MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
-                                                                           "Please choose another one.",
-                                                                   bandName));
+                                "Please choose another one.",
+                        bandName
+                ));
             }
 
         }

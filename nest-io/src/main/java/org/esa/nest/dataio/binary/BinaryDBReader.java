@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,8 +21,8 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
 import org.jdom2.Attribute;
-import org.jdom2.Element;
 import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.util.HashMap;
@@ -66,13 +66,13 @@ public final class BinaryDBReader {
             final Object value = metaMap.get(key);                   // Get the value for that key.
             if (value == null || key.isEmpty()) continue;
 
-            if(value instanceof String) {
+            if (value instanceof String) {
                 elem.setAttributeString(key, value.toString());
-            } else if(value instanceof Integer) {
-                elem.setAttributeInt(key, (Integer)value);
-            } else if(value instanceof Double) {
+            } else if (value instanceof Integer) {
+                elem.setAttributeInt(key, (Integer) value);
+            } else if (value instanceof Double) {
                 MetadataAttribute attrib = new MetadataAttribute(key, ProductData.TYPE_FLOAT64, 1);
-                attrib.getData().setElemDouble((Double)value);
+                attrib.getData().setElemDouble((Double) value);
                 elem.addAttribute(attrib);
             } else {
                 elem.setAttributeString(key, String.valueOf(value));
@@ -83,33 +83,33 @@ public final class BinaryDBReader {
     public void readRecord(final BinaryFileReader reader) {
         final Element root = xmlDoc.getRootElement();
 
-        if(DEBUG_MODE)
-            System.out.print("\nReading "+recName+"\n\n");
+        if (DEBUG_MODE)
+            System.out.print("\nReading " + recName + "\n\n");
 
         final List children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
 
-                if(child.getName().equals("struct")) {
+                if (child.getName().equals("struct")) {
                     final Attribute loopAttrib = child.getAttribute("loop");
                     int loop;
-                    if(loopAttrib != null) {
+                    if (loopAttrib != null) {
                         final String loopName = loopAttrib.getValue();
                         loop = getAttributeInt(loopName);
                     } else {
                         final Attribute nloopAttrib = child.getAttribute("nloop");
                         loop = Integer.parseInt(nloopAttrib.getValue());
-                    }                                                                      
+                    }
 
                     final List structChildren = child.getChildren();
-                    for(int l=1; l <= loop; ++l) {
+                    for (int l = 1; l <= loop; ++l) {
 
                         final String suffix = " " + l;
                         for (Object aStructChild : structChildren) {
                             if (aStructChild instanceof Element) {
 
-                                if(DEBUG_MODE) {
+                                if (DEBUG_MODE) {
                                     DecodeElementDebug(reader, metaMap, (Element) aStructChild, suffix);
                                 } else {
                                     DecodeElement(reader, metaMap, (Element) aStructChild, suffix);
@@ -119,7 +119,7 @@ public final class BinaryDBReader {
                     }
                 }
 
-                if(DEBUG_MODE) {
+                if (DEBUG_MODE) {
                     DecodeElementDebug(reader, metaMap, child, null);
                 } else {
                     DecodeElement(reader, metaMap, child, null);
@@ -132,15 +132,15 @@ public final class BinaryDBReader {
     private static void DecodeElement(final BinaryFileReader reader, final Map metaMap,
                                       final Element child, final String suffix) {
 
-        String name="";
+        String name = "";
         try {
             final Attribute nameAttrib = child.getAttribute("name");
             final Attribute typeAttrib = child.getAttribute("type");
             final Attribute numAttrib = child.getAttribute("num");
-            if(nameAttrib != null && typeAttrib != null && numAttrib != null) {
+            if (nameAttrib != null && typeAttrib != null && numAttrib != null) {
 
                 name = nameAttrib.getValue();
-                if(suffix != null)
+                if (suffix != null)
                     name += suffix;
                 final int type = Integer.parseInt(typeAttrib.getValue());
                 final int num = Integer.parseInt(numAttrib.getValue());
@@ -149,154 +149,174 @@ public final class BinaryDBReader {
                     case Skip: {
                         reader.skipBytes(num); // blank
                         break;
-                    } case An: {
+                    }
+                    case An: {
                         metaMap.put(name, reader.readAn(num));
                         break;
-                    } case In: {
-                        metaMap.put(name, (int)reader.readIn(num));
+                    }
+                    case In: {
+                        metaMap.put(name, (int) reader.readIn(num));
                         break;
-                    } case B1: {
+                    }
+                    case B1: {
                         metaMap.put(name, reader.readB1());
                         break;
-                    } case B2: {
+                    }
+                    case B2: {
                         metaMap.put(name, reader.readB2());
                         break;
-                    } case B4: {
+                    }
+                    case B4: {
                         metaMap.put(name, reader.readB4());
                         break;
-                    } case B8: {
+                    }
+                    case B8: {
                         metaMap.put(name, reader.readB8());
                         break;
-                    } case Fn: {
+                    }
+                    case Fn: {
                         metaMap.put(name, reader.readFn(num));
                         break;
-                    } case En: {
+                    }
+                    case En: {
                         metaMap.put(name, reader.readEn(num));
                         break;
-                    } case Debug: {
+                    }
+                    case Debug: {
                         System.out.print(" = ");
-                        for(int i=0; i < num; ++i) {
+                        for (int i = 0; i < num; ++i) {
                             final String tmp = reader.readAn(1);
-                            if(!tmp.isEmpty() && !tmp.equals(" "))
+                            if (!tmp.isEmpty() && !tmp.equals(" "))
                                 System.out.print(tmp);
                         }
                         System.out.println();
                         break;
-                    } default: {
+                    }
+                    default: {
                         throw new IllegalBinaryFormatException("Unknown type " + type, reader.getCurrentPos());
                     }
                 }
             }
 
-        } catch(Exception e) {
-            if(e.getCause() != null)
-                System.out.println(' ' +e.toString() + ':' +e.getCause().toString() + " for "+ name);
+        } catch (Exception e) {
+            if (e.getCause() != null)
+                System.out.println(' ' + e.toString() + ':' + e.getCause().toString() + " for " + name);
             else
-                System.out.println(' ' +e.toString() + ':' + " for "+ name);
+                System.out.println(' ' + e.toString() + ':' + " for " + name);
         }
     }
 
     private void DecodeElementDebug(final BinaryFileReader reader, final Map metaMap,
-                                      final Element child, final String suffix) {
+                                    final Element child, final String suffix) {
 
-        String name="";
+        String name = "";
         try {
             final Attribute nameAttrib = child.getAttribute("name");
             final Attribute typeAttrib = child.getAttribute("type");
             final Attribute numAttrib = child.getAttribute("num");
-            if(nameAttrib != null && typeAttrib != null && numAttrib != null) {
+            if (nameAttrib != null && typeAttrib != null && numAttrib != null) {
 
                 name = nameAttrib.getValue();
-                if(suffix != null)
+                if (suffix != null)
                     name += suffix;
                 final int type = Integer.parseInt(typeAttrib.getValue());
                 final int num = Integer.parseInt(numAttrib.getValue());
 
-                System.out.print(" " + reader.getCurrentPos() + ' ' + (reader.getCurrentPos()-startPos+1) +
-                                 ' ' + name + ' ' + type + ' ' + num);
+                System.out.print(" " + reader.getCurrentPos() + ' ' + (reader.getCurrentPos() - startPos + 1) +
+                        ' ' + name + ' ' + type + ' ' + num);
 
                 switch (type) {
                     case Skip: {
                         reader.skipBytes(num); // blank
                         break;
-                    } case An: {
+                    }
+                    case An: {
 
                         final String tmp = reader.readAn(num);
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case In: {
+                    }
+                    case In: {
 
-                        final int tmp = (int)reader.readIn(num);
+                        final int tmp = (int) reader.readIn(num);
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case B1: {
+                    }
+                    case B1: {
 
                         final int tmp = reader.readB1();
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case B2: {
+                    }
+                    case B2: {
 
                         final int tmp = reader.readB2();
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case B4: {
+                    }
+                    case B4: {
 
                         final int tmp = reader.readB4();
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case B8: {
+                    }
+                    case B8: {
 
                         final long tmp = reader.readB8();
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case Fn: {
+                    }
+                    case Fn: {
 
                         double tmp = reader.readFn(num);
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case En: {
+                    }
+                    case En: {
 
                         double tmp = reader.readEn(num);
                         System.out.print(" = " + tmp);
                         metaMap.put(name, tmp);
                         break;
-                    } case Debug: {
+                    }
+                    case Debug: {
 
                         System.out.print(" = ");
-                        for(int i=0; i < num; ++i) {
+                        for (int i = 0; i < num; ++i) {
                             final String tmp = reader.readAn(1);
-                            if(!tmp.isEmpty() && !tmp.equals(" "))
+                            if (!tmp.isEmpty() && !tmp.equals(" "))
                                 System.out.print(tmp);
                         }
                         System.out.println();
                         break;
-                    } default: {
+                    }
+                    default: {
                         throw new IllegalBinaryFormatException("Unknown type " + type, reader.getCurrentPos());
                     }
                 }
                 System.out.println();
             }
 
-        } catch(Exception e) {
-            if(e.getCause() != null)
-                System.out.println(' ' +e.toString() + ':' +e.getCause().toString() + " for "+ name);
+        } catch (Exception e) {
+            if (e.getCause() != null)
+                System.out.println(' ' + e.toString() + ':' + e.getCause().toString() + " for " + name);
             else
-                System.out.println(' ' +e.toString() + ':' + " for "+ name);
+                System.out.println(' ' + e.toString() + ':' + " for " + name);
             //throw new IllegalBinaryFormatException(e.toString(), reader.getCurrentPos());
         }
     }
 
     private Object get(final String name) {
         final Object obj = metaMap.get(name);
-        if(obj == null && DEBUG_MODE) {
-            System.out.println("metadata "+name+" is null");
+        if (obj == null && DEBUG_MODE) {
+            System.out.println("metadata " + name + " is null");
         }
         return obj;
     }
@@ -304,7 +324,7 @@ public final class BinaryDBReader {
     public final String getAttributeString(final String name) {
         return (String) get(name);
     }
-    
+
     public final Integer getAttributeInt(final String name) {
         return (Integer) get(name);
     }
@@ -319,7 +339,8 @@ public final class BinaryDBReader {
 
     /**
      * Read in the definition file
-     * @param mission sub folder
+     *
+     * @param mission  sub folder
      * @param fileName definition file
      * @return xml document
      */
@@ -327,7 +348,7 @@ public final class BinaryDBReader {
         try {
             final File defFile = getResFile(mission, fileName);
             return XMLSupport.LoadXML(defFile.getAbsolutePath());
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
         return null;

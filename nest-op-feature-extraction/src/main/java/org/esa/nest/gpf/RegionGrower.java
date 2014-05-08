@@ -55,11 +55,11 @@ public class RegionGrower {
                     if (val > threshold) {
                         numSamples++;
 
-                        if(pixelsScaned[ty-ty0][tx-tx0] == 0) {
+                        if (pixelsScaned[ty - ty0][tx - tx0] == 0) {
                             clusterPixels.clear();
                             clustering(tx, ty, tx0, ty0, tw, th, srcData, srcTile, threshold, pixelsScaned, clusterPixels);
 
-                            if(clusterPixels.size() > maxClusterSize) {
+                            if (clusterPixels.size() > maxClusterSize) {
                                 maxClusterSize = clusterPixels.size();
                             }
 
@@ -79,15 +79,16 @@ public class RegionGrower {
 
     /**
      * Find pixels detected as target in a 3x3 window centered at a given point.
-     * @param xc The x coordinate of the given point.
-     * @param yc The y coordinate of the given point.
-     * @param x0 The x coordinate for the upper left corner point of the source rectangle.
-     * @param y0 The y coordinate for the upper left corner point of the source rectangle.
-     * @param w The width of the source rectangle.
-     * @param h The height of the source rectangle.
-     * @param data The bit maks band data.
-     * @param tile The bit mask band tile.
-     * @param pixelsScaned The binary array indicating which pixel in the tile has been scaned.
+     *
+     * @param xc            The x coordinate of the given point.
+     * @param yc            The y coordinate of the given point.
+     * @param x0            The x coordinate for the upper left corner point of the source rectangle.
+     * @param y0            The y coordinate for the upper left corner point of the source rectangle.
+     * @param w             The width of the source rectangle.
+     * @param h             The height of the source rectangle.
+     * @param data          The bit maks band data.
+     * @param tile          The bit mask band tile.
+     * @param pixelsScaned  The binary array indicating which pixel in the tile has been scaned.
      * @param clusterPixels The list of pixels in the cluster.
      */
     private static void clustering(final int xc, final int yc, final int x0, final int y0, final int w, final int h,
@@ -114,10 +115,10 @@ public class RegionGrower {
                                             final int[][] pixelsScaned, final List<PixelPos> clusterPixels,
                                             final List<PixelPos> newSeeds) {
 
-        final int xc = (int)pixel.x;
-        final int yc = (int)pixel.y;
-        final int[] x = {xc-1,   xc, xc+1, xc-1, xc+1, xc-1,   xc, xc+1};
-        final int[] y = {yc-1, yc-1, yc-1,   yc,   yc, yc+1, yc+1, yc+1};
+        final int xc = (int) pixel.x;
+        final int yc = (int) pixel.y;
+        final int[] x = {xc - 1, xc, xc + 1, xc - 1, xc + 1, xc - 1, xc, xc + 1};
+        final int[] y = {yc - 1, yc - 1, yc - 1, yc, yc, yc + 1, yc + 1, yc + 1};
 
         for (int i = 0; i < 8; i++) {
             if (x[i] >= x0 && x[i] < x0 + w && y[i] >= y0 && y[i] < y0 + h &&

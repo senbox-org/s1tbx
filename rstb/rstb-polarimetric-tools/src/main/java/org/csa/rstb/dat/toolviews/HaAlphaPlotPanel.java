@@ -105,10 +105,10 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
     private void initActionEnablers() {
         RefreshActionEnabler roiMaskActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_USE_ROI_MASK,
-                                                                             PROPERTY_NAME_ROI_MASK, PROPERTY_NAME_X_BAND, PROPERTY_NAME_Y_BAND);
+                PROPERTY_NAME_ROI_MASK, PROPERTY_NAME_X_BAND, PROPERTY_NAME_Y_BAND);
         bindingContext.addPropertyChangeListener(roiMaskActionEnabler);
         RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_MIN, PROPERTY_NAME_AUTO_MIN_MAX,
-                                                                                  PROPERTY_NAME_MAX);
+                PROPERTY_NAME_MAX);
         axisRangeControls[X_VAR].getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
         axisRangeControls[Y_VAR].getBindingContext().addPropertyChangeListener(rangeControlActionEnabler);
     }
@@ -144,12 +144,12 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                 plot.getRangeAxis().setLabel("Alpha");
             }
             final Product product = getProduct();
-            if(product != null) {
+            if (product != null) {
 
                 toggleColorCheckBox.setEnabled(false);
                 Band entropyBand = product.getBand("Entropy");
                 Band alphaBand = product.getBand("Alpha");
-                if(entropyBand != null && alphaBand != null) {
+                if (entropyBand != null && alphaBand != null) {
                     try {
                         xBandProperty.setValue(entropyBand);
                         yBandProperty.setValue(alphaBand);
@@ -188,10 +188,10 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
             final Palette pal = new Palette("Rainbow", new Color[]
                     {Color.black, Color.blue, Color.cyan, Color.green, Color.yellow, Color.orange, Color.red});
-            for(int i=1; i < 256; ++i) {
-                float value = i/255f;
-                if(j == 0)
-                    value = (255 -i)/255f;
+            for (int i = 1; i < 256; ++i) {
+                float value = i / 255f;
+                if (j == 0)
+                    value = (255 - i) / 255f;
                 Color c = pal.lookupColor(value);
                 r[i] = (byte) c.getRed();
                 g[i] = (byte) c.getGreen();
@@ -265,11 +265,11 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         densityPlotDisplay = new ChartPanel(chart);
 
         MaskSelectionToolSupport maskSelectionToolSupport = new MaskSelectionToolSupport(this,
-                                                                                         densityPlotDisplay,
-                                                                                         "scatter_plot_area",
-                                                                                         "Mask generated from selected scatter plot area",
-                                                                                         Color.RED,
-                                                                                         PlotAreaSelectionTool.AreaType.ELLIPSE) {
+                densityPlotDisplay,
+                "scatter_plot_area",
+                "Mask generated from selected scatter plot area",
+                Color.RED,
+                PlotAreaSelectionTool.AreaType.ELLIPSE) {
             @Override
             protected String createMaskExpression(PlotAreaSelectionTool.AreaType areaType, Shape shape) {
                 Rectangle2D bounds = shape.getBounds2D();
@@ -278,12 +278,12 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
             protected String createMaskExpression(double x0, double y0, double dx, double dy) {
                 return String.format("sqrt(sqr((%s - %s)/%s) + sqr((%s - %s)/%s)) < 1.0",
-                                     BandArithmetic.createExternalName(dataSourceConfig.xBand.getName()),
-                                     x0,
-                                     dx,
-                                     BandArithmetic.createExternalName(dataSourceConfig.yBand.getName()),
-                                     y0,
-                                     dy);
+                        BandArithmetic.createExternalName(dataSourceConfig.xBand.getName()),
+                        x0,
+                        dx,
+                        BandArithmetic.createExternalName(dataSourceConfig.yBand.getName()),
+                        y0,
+                        dy);
             }
         };
 
@@ -348,17 +348,17 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
-                                                                                               axisRangeControls[X_VAR].getMin().floatValue(),
-                                                                                               axisRangeControls[X_VAR].getMax().floatValue(),
-                                                                                               rasterY,
-                                                                                               axisRangeControls[Y_VAR].getMin().floatValue(),
-                                                                                               axisRangeControls[Y_VAR].getMax().floatValue(),
-                                                                                               dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
-                                                                                               512,
-                                                                                               512,
-                                                                                               backgroundColor,
-                                                                                               null,
-                                                                                               SubProgressMonitor.create(pm, 70));
+                            axisRangeControls[X_VAR].getMin().floatValue(),
+                            axisRangeControls[X_VAR].getMax().floatValue(),
+                            rasterY,
+                            axisRangeControls[Y_VAR].getMin().floatValue(),
+                            axisRangeControls[Y_VAR].getMax().floatValue(),
+                            dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
+                            512,
+                            512,
+                            backgroundColor,
+                            null,
+                            SubProgressMonitor.create(pm, 70));
 
                     densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
 
@@ -383,11 +383,12 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     double maxY = axisRangeControls[Y_VAR].getMax();
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      "Failed to compute plot.\n" +
-                                                              "No Pixels considered..",
+                                "Failed to compute plot.\n" +
+                                        "No Pixels considered..",
                                 /*I18N*/
                                 CHART_TITLE, /*I18N*/
-                                JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.ERROR_MESSAGE
+                        );
                         plot.setDataset(null);
                         return;
 
@@ -411,19 +412,21 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                 } catch (InterruptedException | CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute plot.\n" +
-                                                          "Calculation canceled.",
+                            "Failed to compute plot.\n" +
+                                    "Calculation canceled.",
                             /*I18N*/
                             CHART_TITLE, /*I18N*/
-                            JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 } catch (ExecutionException | IllegalArgumentException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute plot.\n" +
-                                                          "An error occurred:\n" +
-                                                          e.getCause().getMessage(),
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
+                            "Failed to compute plot.\n" +
+                                    "An error occurred:\n" +
+                                    e.getCause().getMessage(),
+                            CHART_TITLE, /*I18N*/
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
             }
         };
@@ -433,8 +436,8 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     private void drawOverlay(final BufferedImage image) {
         Graphics g = image.getGraphics();
 
-       // g.setColor(Color.GREEN);
-       // g.drawLine(0, 0, 100, 100);
+        // g.setColor(Color.GREEN);
+        // g.drawLine(0, 0, 100, 100);
     }
 
     private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
@@ -465,12 +468,13 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     "This scatter plot contains {0} non-empty bins.\n" +
                             "For each bin, a text data row containing an x, y and z value will be created.\n" +
                             "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
-                    numNonEmptyBins, excelNote);
+                    numNonEmptyBins, excelNote
+            );
             final int status = JOptionPane.showConfirmDialog(this,
-                                                             message, /*I18N*/
-                                                             "Copy Data to Clipboard", /*I18N*/
-                                                             JOptionPane.YES_NO_OPTION,
-                                                             JOptionPane.WARNING_MESSAGE);
+                    message, /*I18N*/
+                    "Copy Data to Clipboard", /*I18N*/
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
             if (status != JOptionPane.YES_OPTION) {
                 return false;
             }

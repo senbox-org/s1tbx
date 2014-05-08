@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -66,7 +66,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
         demName.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                if(((String)demName.getSelectedItem()).startsWith(externalDEMStr)) {
+                if (((String) demName.getSelectedItem()).startsWith(externalDEMStr)) {
                     enableExternalDEM(true);
                 } else {
                     externalDEMFile.setText("");
@@ -75,7 +75,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(30);
-        enableExternalDEM(((String)demName.getSelectedItem()).startsWith(externalDEMStr));
+        enableExternalDEM(((String) demName.getSelectedItem()).startsWith(externalDEMStr));
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -96,16 +96,16 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        final String demNameParam = (String)paramMap.get("demName");
-        if(demNameParam != null)
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null)
             demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
         demResamplingMethod.setSelectedItem(paramMap.get("demResamplingMethod"));
 
-        final File extFile = (File)paramMap.get("externalDEMFile");
-        if(extFile != null) {
+        final File extFile = (File) paramMap.get("externalDEMFile");
+        if (extFile != null) {
             externalDEMFile.setText(extFile.getAbsolutePath());
-            extNoDataValue =  (Double)paramMap.get("externalDEMNoDataValue");
-            if(extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
+            extNoDataValue = (Double) paramMap.get("externalDEMNoDataValue");
+            if (extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
             }
         }
@@ -122,11 +122,11 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
-        paramMap.put("demName", (DEMFactory.getProperDEMName((String)demName.getSelectedItem())));
+        paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
         paramMap.put("demResamplingMethod", demResamplingMethod.getSelectedItem());
 
         final String extFileStr = externalDEMFile.getText();
-        if(!extFileStr.isEmpty()) {
+        if (!extFileStr.isEmpty()) {
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }

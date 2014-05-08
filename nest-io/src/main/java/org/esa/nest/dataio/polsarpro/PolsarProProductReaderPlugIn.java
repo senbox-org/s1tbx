@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,14 +15,11 @@
  */
 package org.esa.nest.dataio.polsarpro;
 
-import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.esa.beam.dataio.envi.EnviConstants;
 import org.esa.beam.dataio.envi.EnviProductReaderPlugIn;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Locale;
 
 public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
@@ -36,7 +33,7 @@ public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
 
     @Override
     public String[] getFormatNames() {
-        return new String[]{ FORMAT_NAME };
+        return new String[]{FORMAT_NAME};
     }
 
     @Override
@@ -49,21 +46,21 @@ public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
         if (input instanceof File) {
             final File selectedFile = (File) input;
             final String fname = selectedFile.getName().toLowerCase();
-            if(fname.equals("config.txt") || fname.endsWith("bin.hdr")) {
+            if (fname.equals("config.txt") || fname.endsWith("bin.hdr")) {
                 return DecodeQualification.INTENDED;
             }
 
             final File folder = selectedFile.getParentFile();
             final File[] files = folder.listFiles();
-            if(files != null) {
-                for(File file : files) {
+            if (files != null) {
+                for (File file : files) {
                     final String name = file.getName().toLowerCase();
-                    if(name.equals("config.txt") || name.endsWith("bin.hdr")) {
+                    if (name.equals("config.txt") || name.endsWith("bin.hdr")) {
                         return DecodeQualification.INTENDED;
                     }
                 }
             }
-        } 
+        }
 
         return DecodeQualification.UNABLE;
     }

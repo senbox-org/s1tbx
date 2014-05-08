@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -36,8 +36,8 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox selectEigenvaluesBy = new JComboBox(new String[] { PCAOp.EIGENVALUE_THRESHOLD,
-                                                                         PCAOp.NUMBER_EIGENVALUES } );
+    private final JComboBox selectEigenvaluesBy = new JComboBox(new String[]{PCAOp.EIGENVALUE_THRESHOLD,
+            PCAOp.NUMBER_EIGENVALUES});
 
     private final JTextField eigenvalueThreshold = new JTextField("");
     private final JTextField numberOfEigenvalues = new JTextField("");
@@ -55,23 +55,23 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
-        
+
         bandList.addListSelectionListener(new ListSelectionListener() {
-                public void valueChanged(final ListSelectionEvent e) {
-                    setNumberOfEigenvalues();
-                }
+            public void valueChanged(final ListSelectionEvent e) {
+                setNumberOfEigenvalues();
+            }
         });
 
         showEigenvalues.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    showEigenvaluesFlag = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                showEigenvaluesFlag = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         subtractMeanImage.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    subtractMeanImageFlag = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                subtractMeanImageFlag = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         initParameters();
@@ -89,7 +89,7 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
     }
 
     private void setNumberOfEigenvalues() {
-        if(sourceProducts != null && sourceProducts.length > 0) {
+        if (sourceProducts != null && sourceProducts.length > 0) {
             if (bandList.getSelectedValues().length > 0) {
                 numberOfEigenvalues.setText(String.valueOf(bandList.getSelectedValues().length));
             } else {
@@ -160,7 +160,7 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, _gbc, numberOfEigenvaluesLabel, numberOfEigenvalues);
 
         _gbc.gridy++;
-        _gbc.gridx = 0;        
+        _gbc.gridx = 0;
         contentPane.add(showEigenvalues, _gbc);
 
         _gbc.gridy++;
@@ -183,12 +183,12 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
     }
 
     private void updateSelectEigenvaluesBy(boolean show) {
-        if(show) {
+        if (show) {
             selectEigenvaluesBy.setVisible(true);
             selectEigenvaluesByLabel.setVisible(true);
 
-            String item = (String)selectEigenvaluesBy.getSelectedItem();
-            if(item.equals(PCAOp.EIGENVALUE_THRESHOLD)) {
+            String item = (String) selectEigenvaluesBy.getSelectedItem();
+            if (item.equals(PCAOp.EIGENVALUE_THRESHOLD)) {
                 enableEigenvalueThreshold(true);
                 enableNumberOfEigenvalues(false);
             } else {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -53,7 +53,7 @@ public final class AsterElevationModel extends BaseElevationModel {
     public GeoPos getGeoPos(final PixelPos pixelPos) {
         final double pixelLat = (RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 83.0;
         final double pixelLon = pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0;
-        return new GeoPos((float)pixelLat, (float)pixelLon);
+        return new GeoPos((float) pixelLat, (float) pixelLon);
     }
 
     @Override
@@ -72,18 +72,18 @@ public final class AsterElevationModel extends BaseElevationModel {
         final File[] files = parentFolder.listFiles();
 
         try {
-            for(File f : files) {
+            for (File f : files) {
                 final String name = f.getName().toLowerCase();
-                if(name.startsWith("tiles_") && name.endsWith(".zip")) {
+                if (name.startsWith("tiles_") && name.endsWith(".zip")) {
                     Component component = null;
-                    if(VisatApp.getApp() != null) {
+                    if (VisatApp.getApp() != null) {
                         component = VisatApp.getApp().getApplicationWindow();
                     }
                     FileUnpacker.unpackZip(f, parentFolder, component);
                     f.delete();
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

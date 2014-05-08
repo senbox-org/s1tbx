@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,14 +50,14 @@ public class PolsarProProductReader extends NestEnviProductReader {
 
         ResourceUtils.sortFileList(fileList);
 
-        for(File file : fileList) {
-            if(file.isDirectory())
+        for (File file : fileList) {
+            if (file.isDirectory())
                 continue;
-            if(file.getName().toLowerCase().endsWith("hdr")) {
+            if (file.getName().toLowerCase().endsWith("hdr")) {
                 final File imgFile = getEnviImageFile(file);
-                if(!imgFile.exists())
+                if (!imgFile.exists())
                     continue;
-                
+
                 final BufferedReader headerReader = getHeaderReader(file);
                 try {
 
@@ -66,7 +66,7 @@ public class PolsarProProductReader extends NestEnviProductReader {
                         headerList.add(header);
                         headerFileMap.put(header, file);
 
-                        if(header.getNumBands() > 0 && header.getBandNames() != null) {
+                        if (header.getNumBands() > 0 && header.getBandNames() != null) {
                             mainHeader = header;
                             mainHeaderFile = file;
                         }
@@ -80,15 +80,15 @@ public class PolsarProProductReader extends NestEnviProductReader {
             }
         }
 
-        if(mainHeader == null)
+        if (mainHeader == null)
             throw new IOException("Unable to read files");
 
         String productName;
-        if(inputFile.isDirectory()) {
+        if (inputFile.isDirectory()) {
             productName = inputFile.getName();
-            if(productName.equalsIgnoreCase("T3") || productName.equalsIgnoreCase("C3") ||
-               productName.equalsIgnoreCase("T4") || productName.equalsIgnoreCase("C4")) {
-                productName = inputFile.getParentFile().getName() + "_"+productName;
+            if (productName.equalsIgnoreCase("T3") || productName.equalsIgnoreCase("C3") ||
+                    productName.equalsIgnoreCase("T4") || productName.equalsIgnoreCase("C4")) {
+                productName = inputFile.getParentFile().getName() + "_" + productName;
             }
         } else {
             final String headerFileName = mainHeaderFile.getName();
@@ -102,7 +102,7 @@ public class PolsarProProductReader extends NestEnviProductReader {
 
         initGeoCoding(product, mainHeader);
 
-        for(Header header : headerList) {
+        for (Header header : headerList) {
             initBands(headerFileMap.get(header), product, header);
         }
 
@@ -110,7 +110,7 @@ public class PolsarProProductReader extends NestEnviProductReader {
 
         initMetadata(product, mainHeaderFile);
         product.setFileLocation(mainHeaderFile);
-        
+
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
         // polsarpro data automatically calibrated for Radarsat2 only

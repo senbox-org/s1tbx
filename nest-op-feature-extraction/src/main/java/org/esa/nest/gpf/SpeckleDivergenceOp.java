@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -36,23 +36,23 @@ import java.util.List;
 
 /**
  * The urban area detection operator.
- *
+ * <p/>
  * The operator implements the algorithm given in [1].
- *
+ * <p/>
  * [1] T. Esch, M. Thiel, A. Schenk, A. Roth, A. Müller, and S. Dech,
- *     "Delineation of Urban Footprints From TerraSAR-X Data by Analyzing
- *     Speckle Characteristics and Intensity Information," IEEE Transactions
- *     on Geoscience and Remote Sensing, vol. 48, no. 2, pp. 905-916, 2010.
+ * "Delineation of Urban Footprints From TerraSAR-X Data by Analyzing
+ * Speckle Characteristics and Intensity Information," IEEE Transactions
+ * on Geoscience and Remote Sensing, vol. 48, no. 2, pp. 905-916, 2010.
  */
 
 @OperatorMetadata(alias = "Speckle-Divergence",
         category = "Classification\\Primitive Features",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Detect urban area.")
 public class SpeckleDivergenceOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
@@ -62,7 +62,7 @@ public class SpeckleDivergenceOp extends Operator {
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13,
-            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label="Window Size")
+            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label = "Window Size")
     private String windowSizeStr = WINDOW_SIZE_15x15;
 
     private MetadataElement absRoot = null;
@@ -135,7 +135,7 @@ public class SpeckleDivergenceOp extends Operator {
                 throw new OperatorException("Unknown window size: " + windowSize);
         }
 
-        halfWindowSize = windowSize/2;
+        halfWindowSize = windowSize / 2;
     }
 
     /**
@@ -150,14 +150,15 @@ public class SpeckleDivergenceOp extends Operator {
 
     /**
      * Create target product.
+     *
      * @throws Exception The exception.
      */
     private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -166,6 +167,7 @@ public class SpeckleDivergenceOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
@@ -174,7 +176,7 @@ public class SpeckleDivergenceOp extends Operator {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if(band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
+                if (band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
                     bandNameList.add(band.getName());
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
@@ -193,7 +195,7 @@ public class SpeckleDivergenceOp extends Operator {
         for (Band srcBand : sourceBands) {
             final String srcBandNames = srcBand.getName();
             final String unit = srcBand.getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 throw new OperatorException("band " + srcBandNames + " requires a unit");
             }
 
@@ -208,9 +210,9 @@ public class SpeckleDivergenceOp extends Operator {
             targetBand.setSourceImage(srcBand.getSourceImage());
 
             final Band targetBandMask = new Band(targetBandName,
-                                                 ProductData.TYPE_FLOAT32,
-                                                 sourceImageWidth,
-                                                 sourceImageHeight);
+                    ProductData.TYPE_FLOAT32,
+                    sourceImageWidth,
+                    sourceImageHeight);
 
             targetBandMask.setNoDataValue(srcBand.getNoDataValue());
             targetBandMask.setNoDataValueUsed(true);
@@ -220,7 +222,7 @@ public class SpeckleDivergenceOp extends Operator {
 
             final String expression = targetBandMask.getName() + " > 0.2";
 
-            final Mask mask = new Mask(targetBandMask.getName()+"_mask",
+            final Mask mask = new Mask(targetBandMask.getName() + "_mask",
                     targetProduct.getSceneRasterWidth(),
                     targetProduct.getSceneRasterHeight(),
                     Mask.BandMathsType.INSTANCE);
@@ -242,8 +244,7 @@ public class SpeckleDivergenceOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -252,8 +253,8 @@ public class SpeckleDivergenceOp extends Operator {
             final Rectangle targetTileRectangle = targetTile.getRectangle();
             final int tx0 = targetTileRectangle.x;
             final int ty0 = targetTileRectangle.y;
-            final int tw  = targetTileRectangle.width;
-            final int th  = targetTileRectangle.height;
+            final int tw = targetTileRectangle.width;
+            final int th = targetTileRectangle.height;
             final ProductData trgData = targetTile.getDataBuffer();
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
@@ -287,13 +288,13 @@ public class SpeckleDivergenceOp extends Operator {
 
                     final double v = srcData.getElemDoubleAt(srcIndex.getIndex(tx));
                     if (v == noDataValue || (maskBand != null && maskData.getElemIntAt(idx) == 1)) {
-                        trgData.setElemFloatAt(idx, (float)noDataValue);
+                        trgData.setElemFloatAt(idx, (float) noDataValue);
                         continue;
                     }
 
                     final double cv = computeCoefficientOfVariance(tx, ty, sourceTile, srcData, bandUnit, noDataValue);
                     final double speckleDivergence = cv - c;
-                    trgData.setElemFloatAt(idx, (float)speckleDivergence);
+                    trgData.setElemFloatAt(idx, (float) speckleDivergence);
                 }
             }
 
@@ -304,10 +305,11 @@ public class SpeckleDivergenceOp extends Operator {
 
     /**
      * Get source tile rectangle.
+     *
      * @param x0 X coordinate of pixel at the upper left corner of the target tile.
      * @param y0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param w The width of the target tile.
-     * @param h The height of the target tile.
+     * @param w  The width of the target tile.
+     * @param h  The height of the target tile.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceTileRectangle(int x0, int y0, int w, int h) {
@@ -340,11 +342,12 @@ public class SpeckleDivergenceOp extends Operator {
 
     /**
      * Compute local coefficient of variance.
-     * @param tx The x coordinate of the central pixel of the sliding window.
-     * @param ty The y coordinate of the central pixel of the sliding window.
-     * @param sourceTile The source image tile.
-     * @param srcData The source image data.
-     * @param bandUnit The source band unit.
+     *
+     * @param tx          The x coordinate of the central pixel of the sliding window.
+     * @param ty          The y coordinate of the central pixel of the sliding window.
+     * @param sourceTile  The source image tile.
+     * @param srcData     The source image data.
+     * @param bandUnit    The source band unit.
      * @param noDataValue the place holder for no data
      * @return The local coefficient of variance.
      */
@@ -352,7 +355,7 @@ public class SpeckleDivergenceOp extends Operator {
                                                 final Tile sourceTile, final ProductData srcData,
                                                 final Unit.UnitType bandUnit, final double noDataValue) {
 
-        final double[] samples = new double[windowSize*windowSize];
+        final double[] samples = new double[windowSize * windowSize];
 
         final int numSamples = getSamples(tx, ty, bandUnit, noDataValue, sourceTile, srcData, samples);
 
@@ -364,18 +367,19 @@ public class SpeckleDivergenceOp extends Operator {
 
         final double variance = getVarianceValue(samples, numSamples, mean);
 
-        return Math.sqrt(variance)/mean;
+        return Math.sqrt(variance) / mean;
     }
 
     /**
      * Get source samples in the sliding window.
-     * @param tx The x coordinate of the central pixel of the sliding window.
-     * @param ty The y coordinate of the central pixel of the sliding window.
-     * @param bandUnit The source band unit.
+     *
+     * @param tx          The x coordinate of the central pixel of the sliding window.
+     * @param ty          The y coordinate of the central pixel of the sliding window.
+     * @param bandUnit    The source band unit.
      * @param noDataValue the place holder for no data
-     * @param sourceTile The source image tile.
-     * @param srcData The source image data.
-     * @param samples The sample array.
+     * @param sourceTile  The source image tile.
+     * @param srcData     The source image data.
+     * @param samples     The sample array.
      * @return The number of samples.
      */
     private int getSamples(final int tx, final int ty, final Unit.UnitType bandUnit, final double noDataValue,
@@ -384,8 +388,8 @@ public class SpeckleDivergenceOp extends Operator {
 
         final int x0 = Math.max(tx - halfWindowSize, 0);
         final int y0 = Math.max(ty - halfWindowSize, 0);
-        final int w  = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
-        final int h  = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
+        final int w = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
+        final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
 
         final TileIndex tileIndex = new TileIndex(sourceTile);
 
@@ -411,8 +415,8 @@ public class SpeckleDivergenceOp extends Operator {
                 tileIndex.calculateStride(y);
                 for (int x = x0; x < maxx; x++) {
                     final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
-                    if (v != noDataValue & v*v > 0.4) {
-                        samples[numSamples++] = v*v;
+                    if (v != noDataValue & v * v > 0.4) {
+                        samples[numSamples++] = v * v;
                     }
                 }
             }
@@ -423,7 +427,8 @@ public class SpeckleDivergenceOp extends Operator {
 
     /**
      * Get the mean value of the samples.
-     * @param samples The sample array.
+     *
+     * @param samples    The sample array.
      * @param numSamples The number of samples.
      * @return mean The mean value.
      */
@@ -440,9 +445,10 @@ public class SpeckleDivergenceOp extends Operator {
 
     /**
      * Get the variance of samples.
-     * @param samples The sample array.
+     *
+     * @param samples    The sample array.
      * @param numSamples The number of samples.
-     * @param mean the mean of samples.
+     * @param mean       the mean of samples.
      * @return var The variance.
      */
     private static double getVarianceValue(final double[] samples, final int numSamples, final double mean) {

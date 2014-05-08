@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,17 +38,19 @@ public class Cloude extends DecompositionBase implements Decomposition {
     }
 
     /**
-        Return the list of band names for the target product
-        @return list of band names
+     * Return the list of band names for the target product
+     *
+     * @return list of band names
      */
     public String[] getTargetBandNames() {
-        return new String[] { "Cloude_dbl_r", "Cloude_vol_g", "Cloude_surf_b" };
+        return new String[]{"Cloude_dbl_r", "Cloude_vol_g", "Cloude_surf_b"};
     }
 
     /**
      * Sets the unit for the new target band
+     *
      * @param targetBandName the band name
-     * @param targetBand the new target band
+     * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
@@ -56,24 +58,24 @@ public class Cloude extends DecompositionBase implements Decomposition {
 
     /**
      * Perform decomposition for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op              the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
- 
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
             for (Band targetBand : bandList.targetBands) {
@@ -100,26 +102,26 @@ public class Cloude extends DecompositionBase implements Decomposition {
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
             }
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-            
+
             final double[][] EigenVectRe = new double[3][3];
             final double[][] EigenVectIm = new double[3][3];
             final double[] EigenVal = new double[3];
 
             double v = 0.0;
-            for(int y = y0; y < maxY; ++y) {
+            for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
-                for(int x = x0; x < maxX; ++x) {
+                for (int x = x0; x < maxX; ++x) {
 
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
 
-                    final double t11 = EigenVal[0]*(EigenVectRe[0][0]*EigenVectRe[0][0] + EigenVectIm[0][0]*EigenVectIm[0][0]);
-                    final double t22 = EigenVal[0]*(EigenVectRe[1][0]*EigenVectRe[1][0] + EigenVectIm[1][0]*EigenVectIm[1][0]);
-                    final double t33 = EigenVal[0]*(EigenVectRe[2][0]*EigenVectRe[2][0] + EigenVectIm[2][0]*EigenVectIm[2][0]);
+                    final double t11 = EigenVal[0] * (EigenVectRe[0][0] * EigenVectRe[0][0] + EigenVectIm[0][0] * EigenVectIm[0][0]);
+                    final double t22 = EigenVal[0] * (EigenVectRe[1][0] * EigenVectRe[1][0] + EigenVectIm[1][0] * EigenVectIm[1][0]);
+                    final double t33 = EigenVal[0] * (EigenVectRe[2][0] * EigenVectRe[2][0] + EigenVectIm[2][0] * EigenVectIm[2][0]);
 
-                    for (TargetInfo target : targetInfo){
+                    for (TargetInfo target : targetInfo) {
 
                         if (target.colour == TargetBandColour.R) {
                             v = t22;
@@ -132,8 +134,8 @@ public class Cloude extends DecompositionBase implements Decomposition {
                         if (v < PolOpUtils.EPS) {
                             v = PolOpUtils.EPS;
                         }
-                        v = 10.0*Math.log10(v);
-                        target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)v);
+                        v = 10.0 * Math.log10(v);
+                        target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                     }
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,7 @@ public final class ACEFile extends ElevationFile {
     private static final String remoteHTTP = "http://nest.s3.amazonaws.com/data/ACE30/";
 
     public ACEFile(final ACEElevationModel model, final File localFile, final ProductReader reader) {
-        super(localFile,  reader);
+        super(localFile, reader);
         this.demModel = model;
     }
 
@@ -51,7 +51,7 @@ public final class ACEFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException{
+    protected boolean getRemoteFile() throws IOException {
         return getRemoteHttpFile(remoteHTTP);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -40,47 +40,47 @@ import java.util.List;
 /**
  * Applies a Polarimetric Speckle Filter to the data (covariance/coherency matrix data)
  */
-@OperatorMetadata(alias="Polarimetric-Speckle-Filter",
+@OperatorMetadata(alias = "Polarimetric-Speckle-Filter",
         category = "Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Polarimetric Speckle Reduction")
 public class PolarimetricSpeckleFilterOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct = null;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER},
-               defaultValue = REFINED_LEE_FILTER, label = "Filter")
+            defaultValue = REFINED_LEE_FILTER, label = "Filter")
     private String filter;
 
-    @Parameter(description = "The boxcar filter size", interval = "(1, 100]", defaultValue = "5", label="Filter Size")
+    @Parameter(description = "The boxcar filter size", interval = "(1, 100]", defaultValue = "5", label = "Filter Size")
     private int filterSize = 5;
 
     @Parameter(valueSet = {NUM_LOOKS_1, NUM_LOOKS_2, NUM_LOOKS_3, NUM_LOOKS_4},
-               defaultValue = NUM_LOOKS_1, label = "Window Size")
+            defaultValue = NUM_LOOKS_1, label = "Window Size")
     private String numLooksStr = NUM_LOOKS_1;
-    
+
     @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-               defaultValue = WINDOW_SIZE_7x7, label = "Window Size")
+            defaultValue = WINDOW_SIZE_7x7, label = "Window Size")
     private String windowSize = WINDOW_SIZE_7x7; // window size for all filters except Lee Sigma filter
 
     @Parameter(valueSet = {WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-               defaultValue = WINDOW_SIZE_9x9, label = "Filter Window Size")
+            defaultValue = WINDOW_SIZE_9x9, label = "Filter Window Size")
     private String filterWindowSizeStr = WINDOW_SIZE_9x9; // filter window size for Lee Sigma filter
 
     @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5}, defaultValue = WINDOW_SIZE_3x3,
-               label = "Point target window Size")
+            label = "Point target window Size")
     private String targetWindowSizeStr = WINDOW_SIZE_3x3; // window size for point target determination in Lee sigma
 
     @Parameter(description = "The Adaptive Neighbourhood size", interval = "(1, 200]", defaultValue = "50",
-                label = "Adaptive Neighbourhood Size")
+            label = "Adaptive Neighbourhood Size")
     private int anSize = 50;
 
     @Parameter(valueSet = {SIGMA_50_PERCENT, SIGMA_60_PERCENT, SIGMA_70_PERCENT, SIGMA_80_PERCENT, SIGMA_90_PERCENT},
-               defaultValue = SIGMA_90_PERCENT, label = "Point target window Size")
+            defaultValue = SIGMA_90_PERCENT, label = "Point target window Size")
     private String sigmaStr = SIGMA_90_PERCENT; // sigma value in Lee sigma
 
     private PolBandUtils.QuadSourceBand[] srcBandList;
@@ -144,12 +144,13 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Set speckle filter. This function is used by unit test only.
+     *
      * @param s The filter name.
      */
     public void SetFilter(final String s) {
 
         if (s.equals(BOXCAR_SPECKLE_FILTER) || s.equals(IDAN_FILTER) ||
-            s.equals(REFINED_LEE_FILTER) || s.equals(LEE_SIGMA_FILTER)) {
+                s.equals(REFINED_LEE_FILTER) || s.equals(LEE_SIGMA_FILTER)) {
             filter = s;
         } else {
             throw new OperatorException(s + " is an invalid filter name.");
@@ -165,8 +166,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -183,7 +183,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -202,7 +202,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     private void setParameters() {
         if (filter.equals(BOXCAR_SPECKLE_FILTER)) {
             setBoxcarParameters();
-        } else if(filter.equals(REFINED_LEE_FILTER)) {
+        } else if (filter.equals(REFINED_LEE_FILTER)) {
             setRefinedLeeParameters();
         } else if (filter.equals(IDAN_FILTER)) {
             setIDANParameters();
@@ -212,7 +212,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     }
 
     private void setBoxcarParameters() {
-        halfFilterSize = filterSize/2;
+        halfFilterSize = filterSize / 2;
     }
 
     private void setRefinedLeeParameters() {
@@ -239,20 +239,20 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             throw new OperatorException("Unknown window size: " + windowSize);
         }
 
-        halfFilterSize = filterSize/2;
-        convSize = filterSize*(halfFilterSize + 1);
+        halfFilterSize = filterSize / 2;
+        convSize = filterSize * (halfFilterSize + 1);
         sigmaV = 1.0 / Math.sqrt(numLooks);
-        sigmaVSqr = sigmaV*sigmaV;
+        sigmaVSqr = sigmaV * sigmaV;
     }
 
     private void setIDANParameters() {
 
         setNumLooks();
         // fileterSize in this case is used only in generating source rectangle
-        filterSize = anSize*2;
-        halfFilterSize = filterSize/2;
+        filterSize = anSize * 2;
+        halfFilterSize = filterSize / 2;
         sigmaV = 1.0 / Math.sqrt(numLooks);
-        sigmaVSqr = sigmaV*sigmaV;
+        sigmaVSqr = sigmaV * sigmaV;
     }
 
     private void setLeeSigmaParameters() {
@@ -291,10 +291,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             throw new OperatorException("Unknown target window size: " + targetWindowSizeStr);
         }
 
-        halfFilterSize = filterWindowSize/2;
-        halfTargetWindowSize = targetWindowSize/2;
-        sigmaV = 1.0/Math.sqrt(numLooks);
-        sigmaVSqr = sigmaV*sigmaV;
+        halfFilterSize = filterWindowSize / 2;
+        halfTargetWindowSize = targetWindowSize / 2;
+        sigmaV = 1.0 / Math.sqrt(numLooks);
+        sigmaVSqr = sigmaV * sigmaV;
 
         setSigmaRange();
     }
@@ -307,102 +307,102 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         if (numLooks == 1) {
 
-			if (sigma == 5) {
-				I1 = 0.436;
-				I2 = 1.920;
-				sigmaVP = 0.4057;
-			} else if (sigma == 6) {
-				I1 = 0.343;
-				I2 = 2.210;
-				sigmaVP = 0.4954;
-			} else if (sigma == 7) {
-				I1 = 0.254;
-				I2 = 2.582;
-				sigmaVP = 0.5911;
-			} else if (sigma == 8) {
-				I1 = 0.168;
-				I2 = 3.094;
-				sigmaVP = 0.6966;
-			} else if (sigma == 9) {
-				I1 = 0.084;
-				I2 = 3.941;
-				sigmaVP = 0.8191;
-			}
+            if (sigma == 5) {
+                I1 = 0.436;
+                I2 = 1.920;
+                sigmaVP = 0.4057;
+            } else if (sigma == 6) {
+                I1 = 0.343;
+                I2 = 2.210;
+                sigmaVP = 0.4954;
+            } else if (sigma == 7) {
+                I1 = 0.254;
+                I2 = 2.582;
+                sigmaVP = 0.5911;
+            } else if (sigma == 8) {
+                I1 = 0.168;
+                I2 = 3.094;
+                sigmaVP = 0.6966;
+            } else if (sigma == 9) {
+                I1 = 0.084;
+                I2 = 3.941;
+                sigmaVP = 0.8191;
+            }
 
-		} else if (numLooks == 2) {
+        } else if (numLooks == 2) {
 
-			if (sigma == 5) {
-				I1 = 0.582;
-				I2 = 1.584;
-				sigmaVP = 0.2763;
-			} else if (sigma == 6) {
-				I1 = 0.501;
-				I2 = 1.755;
-				sigmaVP = 0.3388;
-			} else if (sigma == 7) {
-				I1 = 0.418;
-				I2 = 1.972;
-				sigmaVP = 0.4062;
-			} else if (sigma == 8) {
-				I1 = 0.327;
-				I2 = 2.260;
-				sigmaVP = 0.4810;
-			} else if (sigma == 9) {
-				I1 = 0.221;
-				I2 = 2.744;
-				sigmaVP = 0.5699;
-			}
+            if (sigma == 5) {
+                I1 = 0.582;
+                I2 = 1.584;
+                sigmaVP = 0.2763;
+            } else if (sigma == 6) {
+                I1 = 0.501;
+                I2 = 1.755;
+                sigmaVP = 0.3388;
+            } else if (sigma == 7) {
+                I1 = 0.418;
+                I2 = 1.972;
+                sigmaVP = 0.4062;
+            } else if (sigma == 8) {
+                I1 = 0.327;
+                I2 = 2.260;
+                sigmaVP = 0.4810;
+            } else if (sigma == 9) {
+                I1 = 0.221;
+                I2 = 2.744;
+                sigmaVP = 0.5699;
+            }
 
-		} else if (numLooks == 3) {
+        } else if (numLooks == 3) {
 
-			if (sigma == 5) {
-				I1 = 0.652;
-				I2 = 1.458;
-				sigmaVP = 0.2222;
-			} else if (sigma == 6) {
-				I1 = 0.580;
-				I2 = 1.586;
-				sigmaVP = 0.2736;
-			} else if (sigma == 7) {
-				I1 = 0.505;
-				I2 = 1.751;
-				sigmaVP = 0.3280;
-			} else if (sigma == 8) {
-				I1 = 0.419;
-				I2 = 1.965;
-				sigmaVP = 0.3892;
-			} else if (sigma == 9) {
-				I1 = 0.313;
-				I2 = 2.320;
-				sigmaVP = 0.4624;
-			}
+            if (sigma == 5) {
+                I1 = 0.652;
+                I2 = 1.458;
+                sigmaVP = 0.2222;
+            } else if (sigma == 6) {
+                I1 = 0.580;
+                I2 = 1.586;
+                sigmaVP = 0.2736;
+            } else if (sigma == 7) {
+                I1 = 0.505;
+                I2 = 1.751;
+                sigmaVP = 0.3280;
+            } else if (sigma == 8) {
+                I1 = 0.419;
+                I2 = 1.965;
+                sigmaVP = 0.3892;
+            } else if (sigma == 9) {
+                I1 = 0.313;
+                I2 = 2.320;
+                sigmaVP = 0.4624;
+            }
 
-		} else if (numLooks == 4) {
+        } else if (numLooks == 4) {
 
-			if (sigma == 5) {
-				I1 = 0.694;
-				I2 = 1.385;
-				sigmaVP = 0.1921;
-			} else if (sigma == 6) {
-				I1 = 0.630;
-				I2 = 1.495;
-				sigmaVP = 0.2348;
-			} else if (sigma == 7) {
-				I1 = 0.560;
-				I2 = 1.627;
-				sigmaVP = 0.2825;
-			} else if (sigma == 8) {
-				I1 = 0.480;
-				I2 = 1.804;
-				sigmaVP = 0.3354;
-			} else if (sigma == 9) {
-				I1 = 0.378;
-				I2 = 2.094;
-				sigmaVP = 0.3991;
-			}
+            if (sigma == 5) {
+                I1 = 0.694;
+                I2 = 1.385;
+                sigmaVP = 0.1921;
+            } else if (sigma == 6) {
+                I1 = 0.630;
+                I2 = 1.495;
+                sigmaVP = 0.2348;
+            } else if (sigma == 7) {
+                I1 = 0.560;
+                I2 = 1.627;
+                sigmaVP = 0.2825;
+            } else if (sigma == 8) {
+                I1 = 0.480;
+                I2 = 1.804;
+                sigmaVP = 0.3354;
+            } else if (sigma == 9) {
+                I1 = 0.378;
+                I2 = 2.094;
+                sigmaVP = 0.3991;
+            }
         }
 
-        sigmaVPSqr = sigmaVP*sigmaVP;
+        sigmaVPSqr = sigmaVP * sigmaVP;
     }
 
 
@@ -412,9 +412,9 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -434,12 +434,12 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             copyInputBands = true;
         }
 
-        for(PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
             String suffix = bandList.suffix;
-            if(copyInputBands) {
+            if (copyInputBands) {
                 bandNames = new String[bandList.srcBands.length];
-                int i=0;
-                for(Band band : bandList.srcBands) {
+                int i = 0;
+                for (Band band : bandList.srcBands) {
                     bandNames[i++] = band.getName();
                 }
                 suffix = "";
@@ -456,41 +456,40 @@ public class PolarimetricSpeckleFilterOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          if an error occurs during computation of the target rasters.
+     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
         try {
-            if(filter.equals(BOXCAR_SPECKLE_FILTER)) {
+            if (filter.equals(BOXCAR_SPECKLE_FILTER)) {
 
                 if (sourceProductType == PolBandUtils.MATRIX.FULL) {
                     boxcarFilterFullPol(targetTiles, targetRectangle);
-                } else if(sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
-                          sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
+                } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
+                        sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
                     boxcarFilterC3T3C4T4(targetTiles, targetRectangle);
                 } else {
                     throw new OperatorException("For Boxcar filter, only C3, T3, C4 and T4 are supported currently");
                 }
 
-            } else if(filter.equals(REFINED_LEE_FILTER)) {
+            } else if (filter.equals(REFINED_LEE_FILTER)) {
 
                 if (sourceProductType == PolBandUtils.MATRIX.FULL) {
                     refinedLeeFilterFullPol(targetTiles, targetRectangle);
-                } else if(sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
-                          sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
+                } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
+                        sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
                     refinedLeeFilterC3T3C4T4(targetTiles, targetRectangle);
                 } else {
                     throw new OperatorException("For Refined Lee filter, only C3, T3, C4 and T4 are supported currently");
                 }
 
-            } else if(filter.equals(IDAN_FILTER)) {
+            } else if (filter.equals(IDAN_FILTER)) {
 
                 if (sourceProductType == PolBandUtils.MATRIX.FULL ||
-                    sourceProductType == PolBandUtils.MATRIX.C3 ||
-                    sourceProductType == PolBandUtils.MATRIX.T3) {
+                        sourceProductType == PolBandUtils.MATRIX.C3 ||
+                        sourceProductType == PolBandUtils.MATRIX.T3) {
                     idanFilter(targetTiles, targetRectangle);
                 } else {
                     throw new OperatorException("For IDAN filter, only C3 and T3 are supported currently");
@@ -499,15 +498,15 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             } else if (filter.equals(LEE_SIGMA_FILTER)) {
 
                 if (sourceProductType == PolBandUtils.MATRIX.FULL ||
-                    sourceProductType == PolBandUtils.MATRIX.C3 ||
-                    sourceProductType == PolBandUtils.MATRIX.T3) {
+                        sourceProductType == PolBandUtils.MATRIX.C3 ||
+                        sourceProductType == PolBandUtils.MATRIX.T3) {
                     leeSigmaFilter(targetTiles, targetRectangle);
                 } else {
                     throw new OperatorException("For Lee Sigma filter, only C3 and T3 are supported currently");
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -516,10 +515,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Filter full polarimetric data with Box Car filter for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     private void boxcarFilterFullPol(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
@@ -533,7 +532,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceTileRectangle(x0, y0, w, h);
@@ -553,29 +552,29 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
                     // todo: Here for every pixel T3 is computed 5 times if the filter size is 5, should save some result
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfFilterSize, sourceImageWidth, sourceImageHeight,
-                                                      sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                            sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
-                    for(Band targetBand : bandList.targetBands) {
+                    for (Band targetBand : bandList.targetBands) {
                         final String targetBandName = targetBand.getName();
                         final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
-                        if(targetBandName.equals("T11") || targetBandName.contains("T11_"))
-                            dataBuffer.setElemFloatAt(idx, (float)Tr[0][0]);
-                        else if(targetBandName.contains("T12_real"))
-                            dataBuffer.setElemFloatAt(idx, (float)Tr[0][1]);
-                        else if(targetBandName.contains("T12_imag"))
-                            dataBuffer.setElemFloatAt(idx, (float)Ti[0][1]);
-                        else if(targetBandName.contains("T13_real"))
-                            dataBuffer.setElemFloatAt(idx, (float)Tr[0][2]);
-                        else if(targetBandName.contains("T13_imag"))
-                            dataBuffer.setElemFloatAt(idx, (float)Ti[0][2]);
-                        else if(targetBandName.equals("T22") || targetBandName.contains("T22_"))
-                            dataBuffer.setElemFloatAt(idx, (float)Tr[1][1]);
-                        else if(targetBandName.contains("T23_real"))
-                            dataBuffer.setElemFloatAt(idx, (float)Tr[1][2]);
-                        else if(targetBandName.contains("T23_imag"))
-                            dataBuffer.setElemFloatAt(idx, (float)Ti[1][2]);
-                        else if(targetBandName.equals("T33") || targetBandName.contains("T33_"))
-                            dataBuffer.setElemFloatAt(idx, (float)Tr[2][2]);
+                        if (targetBandName.equals("T11") || targetBandName.contains("T11_"))
+                            dataBuffer.setElemFloatAt(idx, (float) Tr[0][0]);
+                        else if (targetBandName.contains("T12_real"))
+                            dataBuffer.setElemFloatAt(idx, (float) Tr[0][1]);
+                        else if (targetBandName.contains("T12_imag"))
+                            dataBuffer.setElemFloatAt(idx, (float) Ti[0][1]);
+                        else if (targetBandName.contains("T13_real"))
+                            dataBuffer.setElemFloatAt(idx, (float) Tr[0][2]);
+                        else if (targetBandName.contains("T13_imag"))
+                            dataBuffer.setElemFloatAt(idx, (float) Ti[0][2]);
+                        else if (targetBandName.equals("T22") || targetBandName.contains("T22_"))
+                            dataBuffer.setElemFloatAt(idx, (float) Tr[1][1]);
+                        else if (targetBandName.contains("T23_real"))
+                            dataBuffer.setElemFloatAt(idx, (float) Tr[1][2]);
+                        else if (targetBandName.contains("T23_imag"))
+                            dataBuffer.setElemFloatAt(idx, (float) Ti[1][2]);
+                        else if (targetBandName.equals("T33") || targetBandName.contains("T33_"))
+                            dataBuffer.setElemFloatAt(idx, (float) Tr[2][2]);
                     }
 
                 }
@@ -585,10 +584,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Filter C3, T3, C4 or T4 data with Box Car filter for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     private void boxcarFilterC3T3C4T4(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
@@ -606,11 +605,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int sw = sourceTileRectangle.width;
         final int sh = sourceTileRectangle.height;
 
-        final double[] neighborValues = new double[filterSize*filterSize];
+        final double[] neighborValues = new double[filterSize * filterSize];
         Tile targetTile, sourceTile;
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
-            for(final Band targetBand : bandList.targetBands) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+            for (final Band targetBand : bandList.targetBands) {
                 targetTile = targetTiles.get(targetBand);
                 final ProductData dataBuffer = targetTile.getDataBuffer();
                 sourceTile = getSourceTile(sourceProduct.getBand(targetBand.getName()), sourceTileRectangle);
@@ -622,7 +621,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
                         getNeighborValues(x, y, sx0, sy0, sw, sh, sourceTile, neighborValues);
 
-                        dataBuffer.setElemFloatAt(idx, (float)getMeanValue(neighborValues));
+                        dataBuffer.setElemFloatAt(idx, (float) getMeanValue(neighborValues));
                     }
                 }
             }
@@ -631,7 +630,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Filter the given tile of image with refined Lee filter.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      */
     private void refinedLeeFilterFullPol(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
@@ -660,9 +660,9 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final double[][] span = new double[sh][sw];
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
-        final int filterSize2 = filterSize*filterSize;
+        final int filterSize2 = filterSize * filterSize;
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             for (int i = 0; i < bandList.srcBands.length; ++i) {
@@ -671,33 +671,33 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             }
 
             createT3SpanImage(bandList.srcBands[0], sourceRectangle, dataBuffers, data11Real, data12Real, data12Imag,
-                              data13Real, data13Imag, data22Real, data23Real, data23Imag, data33Real, span);
+                    data13Real, data13Imag, data22Real, data23Real, data23Imag, data33Real, span);
 
             final double[][] neighborSpanValues = new double[filterSize][filterSize];
             final double[][] neighborPixelValues = new double[filterSize][filterSize];
 
             final ProductData[] targetDataBuffers = new ProductData[9];
 
-            for(final Band targetBand : bandList.targetBands) {
+            for (final Band targetBand : bandList.targetBands) {
                 final String trgBandName = targetBand.getName();
                 final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
-                if(targetDataBuffers[0] == null && (trgBandName.equals("T11") || trgBandName.contains("T11_")))
+                if (targetDataBuffers[0] == null && (trgBandName.equals("T11") || trgBandName.contains("T11_")))
                     targetDataBuffers[0] = dataBuffer;
-                else if(targetDataBuffers[1] == null && trgBandName.contains("T12_real"))
+                else if (targetDataBuffers[1] == null && trgBandName.contains("T12_real"))
                     targetDataBuffers[1] = dataBuffer;
-                else if(targetDataBuffers[2] == null && trgBandName.contains("T12_imag"))
+                else if (targetDataBuffers[2] == null && trgBandName.contains("T12_imag"))
                     targetDataBuffers[2] = dataBuffer;
-                else if(targetDataBuffers[3] == null && trgBandName.contains("T13_real"))
+                else if (targetDataBuffers[3] == null && trgBandName.contains("T13_real"))
                     targetDataBuffers[3] = dataBuffer;
-                else if(targetDataBuffers[4] == null && trgBandName.contains("T13_imag"))
+                else if (targetDataBuffers[4] == null && trgBandName.contains("T13_imag"))
                     targetDataBuffers[4] = dataBuffer;
-                else if(targetDataBuffers[5] == null && (trgBandName.equals("T22") || trgBandName.contains("T22_")))
+                else if (targetDataBuffers[5] == null && (trgBandName.equals("T22") || trgBandName.contains("T22_")))
                     targetDataBuffers[5] = dataBuffer;
-                else if(targetDataBuffers[6] == null && trgBandName.contains("T23_real"))
+                else if (targetDataBuffers[6] == null && trgBandName.contains("T23_real"))
                     targetDataBuffers[6] = dataBuffer;
-                else if(targetDataBuffers[7] == null && trgBandName.contains("T23_imag"))
+                else if (targetDataBuffers[7] == null && trgBandName.contains("T23_imag"))
                     targetDataBuffers[7] = dataBuffer;
-                else if(targetDataBuffers[8] == null && (trgBandName.equals("T33") || trgBandName.contains("T33_")))
+                else if (targetDataBuffers[8] == null && (trgBandName.equals("T33") || trgBandName.contains("T33_")))
                     targetDataBuffers[8] = dataBuffer;
             }
 
@@ -761,10 +761,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
                         if (n < filterSize2) {
                             targetDataBuffers[i].setElemFloatAt(
-                                    idx, (float)computePixelValueUsingLocalStatistics(neighborPixelValues));
+                                    idx, (float) computePixelValueUsingLocalStatistics(neighborPixelValues));
                         } else {
                             targetDataBuffers[i].setElemFloatAt(
-                                    idx, (float)computePixelValueUsingEdgeDetection(neighborPixelValues, neighborSpanValues));
+                                    idx, (float) computePixelValueUsingEdgeDetection(neighborPixelValues, neighborSpanValues));
                         }
                     }
                 }
@@ -774,7 +774,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Filter C3, T3, C4 or T4 data for the given tile with refined Lee filter.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      */
     private void refinedLeeFilterC3T3C4T4(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
@@ -792,20 +793,20 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int sy0 = sourceTileRectangle.y;
         final int sw = sourceTileRectangle.width;
         final int sh = sourceTileRectangle.height;
-        final int filterSize2 = filterSize*filterSize;
-        
+        final int filterSize2 = filterSize * filterSize;
+
         final double[][] neighborSpanValues = new double[filterSize][filterSize];
         final double[][] neighborPixelValues = new double[filterSize][filterSize];
 
         final int syMax = sy0 + sh;
         final int sxMax = sx0 + sw;
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
             final double[][] span = new double[sh][sw];
             createSpanImage(bandList.srcBands, sourceTileRectangle, span);
 
-            for (Band targetBand : bandList.targetBands){
+            for (Band targetBand : bandList.targetBands) {
                 final Tile targetTile = targetTiles.get(targetBand);
                 final Tile sourceTile = getSourceTile(sourceProduct.getBand(targetBand.getName()), sourceTileRectangle);
                 final TileIndex trgIndex = new TileIndex(targetTile);
@@ -823,7 +824,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
                         final int n = getNeighborValuesWithoutBorderExt
                                 (xhalf, yhalf, sx0, sy0, syMax, sxMax, neighborPixelValues, span, neighborSpanValues,
-                                 srcIndex, srcData);
+                                        srcIndex, srcData);
 
                         double v;
                         if (n < filterSize2) {
@@ -831,7 +832,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                         } else {
                             v = computePixelValueUsingEdgeDetection(neighborPixelValues, neighborSpanValues);
                         }
-                        dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)v);
+                        dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
 
                     }
                 }
@@ -841,10 +842,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Get source tile rectangle.
+     *
      * @param x0 X coordinate of the upper left corner point of the target tile rectangle.
      * @param y0 Y coordinate of the upper left corner point of the target tile rectangle.
-     * @param w The width of the target tile rectangle.
-     * @param h The height of the target tile rectangle.
+     * @param w  The width of the target tile rectangle.
+     * @param h  The height of the target tile rectangle.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceTileRectangle(final int x0, final int y0, final int w, final int h) {
@@ -877,16 +879,16 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Get pixel values in a filter size rectanglar region centered at the given pixel.
-     * @param x X coordinate of a given pixel.
-     * @param y Y coordinate of a given pixel.
-     * @param sx0 X coordinate of pixel at upper left corner of source tile.
-     * @param sy0 Y coordinate of pixel at upper left corner of source tile.
-     * @param sw Source tile width.
-     * @param sh Source tile height.
-     * @param sourceTile The source tile.
+     *
+     * @param x              X coordinate of a given pixel.
+     * @param y              Y coordinate of a given pixel.
+     * @param sx0            X coordinate of pixel at upper left corner of source tile.
+     * @param sy0            Y coordinate of pixel at upper left corner of source tile.
+     * @param sw             Source tile width.
+     * @param sh             Source tile height.
+     * @param sourceTile     The source tile.
      * @param neighborValues Array holding the pixel values.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs in obtaining the pixel values.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
      */
     private void getNeighborValues(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
                                    final Tile sourceTile, final double[] neighborValues) {
@@ -902,7 +904,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 xi = sx0 + sw - 1;
             }
 
-            final int stride = i*filterSize;
+            final int stride = i * filterSize;
             for (int j = 0; j < filterSize; ++j) {
 
                 int yj = y - halfFilterSize + j;
@@ -919,10 +921,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Get the mean value of pixel intensities in a given rectanglar region.
+     *
      * @param neighborValues The pixel values in the given rectanglar region.
      * @return mean The mean value.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs in computation of the mean value.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in computation of the mean value.
      */
     private static double getMeanValue(final double[] neighborValues) {
 
@@ -937,11 +939,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Get the variance of pixel intensities in a given rectanglar region.
+     *
      * @param neighborValues The pixel values in the given rectanglar region.
-     * @param mean of neighbourhood
+     * @param mean           of neighbourhood
      * @return var The variance value.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs in computation of the variance.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in computation of the variance.
      */
     private static double getVarianceValue(final double[] neighborValues, final double mean) {
 
@@ -960,9 +962,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Create Span image.
-     * @param sourceBands the input bands
+     *
+     * @param sourceBands         the input bands
      * @param sourceTileRectangle The source tile rectangle.
-     * @param span The span image.
+     * @param span                The span image.
      */
     private void createSpanImage(final Band[] sourceBands, final Rectangle sourceTileRectangle, final double[][] span) {
 
@@ -1000,31 +1003,31 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         for (int y = sy0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
-            final int spanY = y-sy0;
+            final int spanY = y - sy0;
             for (int x = sx0; x < maxX; ++x) {
                 final int index = srcIndex.getIndex(x);
 
                 double sum = 0.0;
-                for (Tile srcTile:sourceTiles) {
+                for (Tile srcTile : sourceTiles) {
                     sum += srcTile.getDataBuffer().getElemDoubleAt(index);
                 }
-                span[spanY][x-sx0] = sum/4;
+                span[spanY][x - sx0] = sum / 4;
             }
         }
     }
 
     /**
      * Get span image pixel values in a filter size rectanglar region centered at the given pixel.
-     * @param xhalf X coordinate of the given pixel.
-     * @param yhalf Y coordinate of the given pixel.
-     * @param sx0 X coordinate of pixel at upper left corner of source tile.
-     * @param sy0 Y coordinate of pixel at upper left corner of source tile.
+     *
+     * @param xhalf               X coordinate of the given pixel.
+     * @param yhalf               Y coordinate of the given pixel.
+     * @param sx0                 X coordinate of pixel at upper left corner of source tile.
+     * @param sy0                 Y coordinate of pixel at upper left corner of source tile.
      * @param neighborPixelValues 2-D array holding the pixel valuse
-     * @param span The span image.
-     * @param neighborSpanValues 2-D array holding the span image pixel valuse.
+     * @param span                The span image.
+     * @param neighborSpanValues  2-D array holding the span image pixel valuse.
      * @return The number of valid pixels.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs in obtaining the pixel values.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValuesWithoutBorderExt(
             final int xhalf, final int yhalf, final int sx0, final int sy0, final int syMax, final int sxMax,
@@ -1035,7 +1038,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         for (int j = 0; j < filterSize; ++j) {
             final int yj = yhalf + j;
 
-            if(yj < sy0 || yj >= syMax) {
+            if (yj < sy0 || yj >= syMax) {
                 for (int i = 0; i < filterSize; ++i) {
                     neighborPixelValues[j][i] = NonValidPixelValue;
                     neighborSpanValues[j][i] = NonValidPixelValue;
@@ -1043,7 +1046,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 continue;
             }
 
-            final int spanY = yj-sy0;
+            final int spanY = yj - sy0;
             srcIndex.calculateStride(yj);
             for (int i = 0; i < filterSize; ++i) {
                 final int xi = xhalf + i;
@@ -1053,7 +1056,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     neighborSpanValues[j][i] = NonValidPixelValue;
                 } else {
                     neighborPixelValues[j][i] = srcData[srcIndex.getIndex(xi)];
-                    neighborSpanValues[j][i] = span[spanY][xi-sx0];
+                    neighborSpanValues[j][i] = span[spanY][xi - sx0];
                     k++;
                 }
             }
@@ -1064,6 +1067,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Compute filtered pixel value using Local Statistics filter.
+     *
      * @param neighborPixelValues The pixel values in the neighborhood.
      * @return The filtered pixel value.
      */
@@ -1076,18 +1080,19 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             return 0.0;
         }
 
-        double varX = (varY - meanY*meanY*sigmaVSqr) / (1 + sigmaVSqr);
+        double varX = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
         if (varX < 0.0) {
             varX = 0.0;
         }
         final double b = varX / varY;
-        return meanY + b*(neighborPixelValues[halfFilterSize][halfFilterSize] - meanY);
+        return meanY + b * (neighborPixelValues[halfFilterSize][halfFilterSize] - meanY);
     }
 
     /**
      * Compute filtered pixel value using refined Lee filter.
+     *
      * @param neighborPixelValues The pixel values in the neighborhood.
-     * @param neighborSpanValues The span image pixel values in the neighborhood.
+     * @param neighborSpanValues  The span image pixel values in the neighborhood.
      * @return The filtered pixel value.
      */
     private double computePixelValueUsingEdgeDetection(final double[][] neighborPixelValues,
@@ -1107,7 +1112,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             return 0.0;
         }
 
-        double varX = (varY - meanY*meanY*sigmaVSqr) / (1 + sigmaVSqr);
+        double varX = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
         if (varX < 0.0) {
             varX = 0.0;
         }
@@ -1117,11 +1122,12 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         getNonEdgeAreaPixelValues(neighborPixelValues, d, covElemPixels);
         final double meanZ = getMeanValue(covElemPixels);
 
-        return meanZ + b*(neighborPixelValues[halfFilterSize][halfFilterSize] - meanZ);
+        return meanZ + b * (neighborPixelValues[halfFilterSize][halfFilterSize] - meanZ);
     }
 
     /**
      * Comppute local mean for pixels in the neighborhood.
+     *
      * @param neighborPixelValues The pixel values in the neighborhood.
      * @return The local mean.
      */
@@ -1136,12 +1142,13 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 }
             }
         }
-        return mean/k;
+        return mean / k;
     }
 
     /**
      * Comppute local variance for pixels in the neighborhood.
-     * @param mean The mean value for pixels in the neighborhood.
+     *
+     * @param mean                The mean value for pixels in the neighborhood.
      * @param neighborPixelValues The pixel values in the neighborhood.
      * @return The local variance.
      */
@@ -1157,24 +1164,25 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 }
             }
         }
-        return var/(k-1);
+        return var / (k - 1);
     }
 
     /**
      * Compute mean values for the 3x3 sub-areas in the sliding window.
-     * @param stride Stride for shifting sub-window within the sliding window.
-     * @param subWindowSize Size of sub-area.
+     *
+     * @param stride              Stride for shifting sub-window within the sliding window.
+     * @param subWindowSize       Size of sub-area.
      * @param neighborPixelValues The pixel values in the sliding window.
-     * @param subAreaMeans The 9 mean values.
+     * @param subAreaMeans        The 9 mean values.
      */
     private static void computeSubAreaMeans(final int stride, final int subWindowSize,
                                             final double[][] neighborPixelValues, double[][] subAreaMeans) {
 
-        final double subWindowSizeSqr = subWindowSize*subWindowSize;
+        final double subWindowSizeSqr = subWindowSize * subWindowSize;
         for (int j = 0; j < 3; j++) {
-            final int y0 = j*stride;
+            final int y0 = j * stride;
             for (int i = 0; i < 3; i++) {
-                final int x0 = i*stride;
+                final int x0 = i * stride;
 
                 double mean = 0.0;
                 for (int y = y0; y < y0 + subWindowSize; y++) {
@@ -1189,6 +1197,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Get gradient direction.
+     *
      * @param subAreaMeans The mean values for the 3x3 sub-areas in the sliding window.
      * @return The direction.
      */
@@ -1196,16 +1205,16 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final double[] gradient = new double[4];
         gradient[0] = subAreaMeans[0][2] + subAreaMeans[1][2] + subAreaMeans[2][2] -
-                      subAreaMeans[0][0] - subAreaMeans[1][0] - subAreaMeans[2][0];
+                subAreaMeans[0][0] - subAreaMeans[1][0] - subAreaMeans[2][0];
 
         gradient[1] = subAreaMeans[0][1] + subAreaMeans[0][2] + subAreaMeans[1][2] -
-                      subAreaMeans[1][0] - subAreaMeans[2][0] - subAreaMeans[2][1];
+                subAreaMeans[1][0] - subAreaMeans[2][0] - subAreaMeans[2][1];
 
         gradient[2] = subAreaMeans[0][0] + subAreaMeans[0][1] + subAreaMeans[0][2] -
-                      subAreaMeans[2][0] - subAreaMeans[2][1] - subAreaMeans[2][2];
+                subAreaMeans[2][0] - subAreaMeans[2][1] - subAreaMeans[2][2];
 
         gradient[3] = subAreaMeans[0][0] + subAreaMeans[0][1] + subAreaMeans[1][0] -
-                      subAreaMeans[1][2] - subAreaMeans[2][1] - subAreaMeans[2][2];
+                subAreaMeans[1][2] - subAreaMeans[2][1] - subAreaMeans[2][2];
 
         int direction = 0;
         double maxGradient = -1.0;
@@ -1220,100 +1229,108 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         if (gradient[direction] > 0.0) {
             direction += 4;
         }
-        
+
         return direction;
     }
 
     /**
      * Get pixel values from the non-edge area indicated by the given direction.
+     *
      * @param neighborPixelValues The pixel values in the filterSize by filterSize neighborhood.
-     * @param d The direction index.
-     * @param pixels The array of pixels.
+     * @param d                   The direction index.
+     * @param pixels              The array of pixels.
      */
     private void getNonEdgeAreaPixelValues(final double[][] neighborPixelValues, final int d, double[] pixels) {
 
         switch (d) {
-        case 0: {
+            case 0: {
 
-            int k = 0;
-            for (int y = 0; y < filterSize; y++) {
-                for (int x = halfFilterSize; x < filterSize; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y < filterSize; y++) {
+                    for (int x = halfFilterSize; x < filterSize; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 1: {
+            case 1: {
 
-            int k = 0;
-            for (int y = 0; y < filterSize; y++) {
-                for (int x = y; x < filterSize; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y < filterSize; y++) {
+                    for (int x = y; x < filterSize; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 2: {
+            case 2: {
 
-            int k = 0;
-            for (int y = 0; y <= halfFilterSize; y++) {
-                for (int x = 0; x < filterSize; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y <= halfFilterSize; y++) {
+                    for (int x = 0; x < filterSize; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 3: {
+            case 3: {
 
-            int k = 0;
-            for (int y = 0; y < filterSize; y++) {
-                for (int x = 0; x < filterSize - y; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y < filterSize; y++) {
+                    for (int x = 0; x < filterSize - y; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 4: {
+            case 4: {
 
-            int k = 0;
-            for (int y = 0; y < filterSize; y++) {
-                for (int x = 0; x <= halfFilterSize; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y < filterSize; y++) {
+                    for (int x = 0; x <= halfFilterSize; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 5: {
+            case 5: {
 
-            int k = 0;
-            for (int y = 0; y < filterSize; y++) {
-                for (int x = 0; x < y + 1; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y < filterSize; y++) {
+                    for (int x = 0; x < y + 1; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 6: {
+            case 6: {
 
-            int k = 0;
-            for (int y = halfFilterSize; y < filterSize; y++) {
-                for (int x = 0; x < filterSize; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = halfFilterSize; y < filterSize; y++) {
+                    for (int x = 0; x < filterSize; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        } case 7: {
+            case 7: {
 
-            int k = 0;
-            for (int y = 0; y < filterSize; y++) {
-                for (int x = filterSize - 1 - y; x < filterSize; x++) {
-                    pixels[k] = neighborPixelValues[y][x];
-                    k++;
+                int k = 0;
+                for (int y = 0; y < filterSize; y++) {
+                    for (int x = filterSize - 1 - y; x < filterSize; x++) {
+                        pixels[k] = neighborPixelValues[y][x];
+                        k++;
+                    }
                 }
+                break;
             }
-            break;
-        }
         }
     }
 
@@ -1333,7 +1350,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         for (int j = 0; j < filterSize; ++j) {
             final int yj = yhalf + j;
 
-            if(yj < sy0 || yj >= syMax) {
+            if (yj < sy0 || yj >= syMax) {
                 for (int i = 0; i < filterSize; ++i) {
                     neighborPixelValues[j][i] = NonValidPixelValue;
                     neighborSpanValues[j][i] = NonValidPixelValue;
@@ -1341,7 +1358,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 continue;
             }
 
-            final int spanY = yj-sy0;
+            final int spanY = yj - sy0;
             for (int i = 0; i < filterSize; ++i) {
                 final int xi = xhalf + i;
 
@@ -1349,8 +1366,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     neighborPixelValues[j][i] = NonValidPixelValue;
                     neighborSpanValues[j][i] = NonValidPixelValue;
                 } else {
-                    neighborPixelValues[j][i] = data[spanY][xi-sx0];
-                    neighborSpanValues[j][i] = span[spanY][xi-sx0];
+                    neighborPixelValues[j][i] = data[spanY][xi - sx0];
+                    neighborSpanValues[j][i] = span[spanY][xi - sx0];
                     k++;
                 }
             }
@@ -1361,14 +1378,15 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Create Span image.
+     *
      * @param sourceRectangle The source tile rectangle.
-     * @param span The span image.
+     * @param span            The span image.
      */
     private void createT3SpanImage(final Band srcBand0,
-            final Rectangle sourceRectangle, final ProductData[] dataBuffers, final double[][] data11Real,
-            final double[][] data12Real, final double[][] data12Imag, final double[][] data13Real,
-            final double[][] data13Imag, final double[][] data22Real, final double[][] data23Real,
-            final double[][] data23Imag, final double[][] data33Real, final double[][] span) {
+                                   final Rectangle sourceRectangle, final ProductData[] dataBuffers, final double[][] data11Real,
+                                   final double[][] data12Real, final double[][] data12Imag, final double[][] data13Real,
+                                   final double[][] data13Imag, final double[][] data22Real, final double[][] data23Real,
+                                   final double[][] data23Imag, final double[][] data33Real, final double[][] span) {
 
         // The pixel value of the span image is given by the trace of the covariance or coherence matrix for the pixel.
         final int sx0 = sourceRectangle.x;
@@ -1407,7 +1425,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     data23Real[j][i] = Mr[1][2];
                     data23Imag[j][i] = Mi[1][2];
                     data33Real[j][i] = Mr[2][2];
-                    span[j][i] = (Mr[0][0] + Mr[1][1] + Mr[2][2])/4.0;
+                    span[j][i] = (Mr[0][0] + Mr[1][1] + Mr[2][2]) / 4.0;
                 }
             }
 
@@ -1431,7 +1449,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     data23Real[j][i] = Mr[1][2];
                     data23Imag[j][i] = Mi[1][2];
                     data33Real[j][i] = Mr[2][2];
-                    span[j][i] = (Mr[0][0] + Mr[1][1] + Mr[2][2])/4.0;
+                    span[j][i] = (Mr[0][0] + Mr[1][1] + Mr[2][2]) / 4.0;
                 }
             }
 
@@ -1455,7 +1473,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     data23Real[j][i] = Mr[1][2];
                     data23Imag[j][i] = Mi[1][2];
                     data33Real[j][i] = Mr[2][2];
-                    span[j][i] = (Mr[0][0] + Mr[1][1] + Mr[2][2])/4.0;
+                    span[j][i] = (Mr[0][0] + Mr[1][1] + Mr[2][2]) / 4.0;
                 }
             }
 
@@ -1467,10 +1485,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Filter full polarimetric data with IDAN filter for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     private void idanFilter(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
@@ -1501,7 +1519,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             for (int i = 0; i < bandList.srcBands.length; ++i) {
@@ -1510,31 +1528,31 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             }
 
             createT3SpanImage(bandList.srcBands[0], sourceRectangle, dataBuffers,
-                              data11Real, data12Real, data12Imag, data13Real, data13Imag,
-                              data22Real, data23Real, data23Imag, data33Real, span);
+                    data11Real, data12Real, data12Imag, data13Real, data13Imag,
+                    data22Real, data23Real, data23Imag, data33Real, span);
 
             final ProductData[] targetDataBuffers = new ProductData[9];
 
-            for(final Band targetBand : bandList.targetBands) {
+            for (final Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
                 final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
-                if(targetBandName.contains("11") || targetBandName.contains("11_"))
+                if (targetBandName.contains("11") || targetBandName.contains("11_"))
                     targetDataBuffers[0] = dataBuffer;
-                else if(targetBandName.contains("12_real"))
+                else if (targetBandName.contains("12_real"))
                     targetDataBuffers[1] = dataBuffer;
-                else if(targetBandName.contains("12_imag"))
+                else if (targetBandName.contains("12_imag"))
                     targetDataBuffers[2] = dataBuffer;
-                else if(targetBandName.contains("13_real"))
+                else if (targetBandName.contains("13_real"))
                     targetDataBuffers[3] = dataBuffer;
-                else if(targetBandName.contains("13_imag"))
+                else if (targetBandName.contains("13_imag"))
                     targetDataBuffers[4] = dataBuffer;
-                else if(targetBandName.contains("22") || targetBandName.contains("22_"))
+                else if (targetBandName.contains("22") || targetBandName.contains("22_"))
                     targetDataBuffers[5] = dataBuffer;
-                else if(targetBandName.contains("23_real"))
+                else if (targetBandName.contains("23_real"))
                     targetDataBuffers[6] = dataBuffer;
-                else if(targetBandName.contains("23_imag"))
+                else if (targetBandName.contains("23_imag"))
                     targetDataBuffers[7] = dataBuffer;
-                else if(targetBandName.contains("33") || targetBandName.contains("33_"))
+                else if (targetBandName.contains("33") || targetBandName.contains("33_"))
                     targetDataBuffers[8] = dataBuffer;
             }
 
@@ -1546,7 +1564,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     final Seed seed = getInitialSeed(x, y, sx0, sy0, sw, sh, data11Real, data22Real, data33Real);
 
                     final Pix[] anPixelList = getIDANPixels(x, y, sx0, sy0, sw, sh,
-                                                            data11Real, data22Real, data33Real, seed);
+                            data11Real, data22Real, data33Real, seed);
 
                     final double b = computeFilterScaleParam(sx0, sy0, anPixelList, span);
 
@@ -1603,7 +1621,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                                 break;
                         }
 
-                        targetDataBuffers[i].setElemFloatAt(idx, (float)value);
+                        targetDataBuffers[i].setElemFloatAt(idx, (float) value);
                     }
                 }
             }
@@ -1613,19 +1631,20 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     /**
      * Compute the initial seed value for given pixel. The marginal median in a 3x3 neighborhood of the given pixel
      * is computed and used as the seed value.
-     * @param xc X coordinate of the given pixel
-     * @param yc Y coordinate of the given pixel
-     * @param sx0 X coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sy0 Y coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sw Width of the source rectangle
-     * @param sh Height of the source rectangle
+     *
+     * @param xc         X coordinate of the given pixel
+     * @param yc         Y coordinate of the given pixel
+     * @param sx0        X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0        Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sw         Width of the source rectangle
+     * @param sh         Height of the source rectangle
      * @param data11Real Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
      * @param data22Real Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
      * @param data33Real Data of the 3rd diagonal element in coherency matrix for all pixels in source rectangle
      * @return seed The computed initial seed value
      */
     private static Seed getInitialSeed(final int xc, final int yc, final int sx0, final int sy0, final int sw, final int sh,
-                                final double[][] data11Real, final double[][] data22Real, final double[][] data33Real) {
+                                       final double[][] data11Real, final double[][] data22Real, final double[][] data33Real) {
 
         // define vector p = [d11 d22 d33], then the seed is the marginal median of all vectors in the 3x3 window
         final double[] d11 = new double[9];
@@ -1651,7 +1670,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         Arrays.sort(d22, 0, k);
         Arrays.sort(d33, 0, k);
 
-        final int med = k/2;
+        final int med = k / 2;
         final Seed seed = new Seed();
         seed.value[0] = d11[med];
         seed.value[1] = d22[med];
@@ -1662,28 +1681,29 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Find all pixels in the adaptive neighbourhood of a given pixel.
-     * @param xc X coordinate of the given pixel
-     * @param yc Y coordinate of the given pixel
-     * @param sx0 X coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sy0 Y coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sw Width of the source rectangle
-     * @param sh Height of the source rectangle
+     *
+     * @param xc         X coordinate of the given pixel
+     * @param yc         Y coordinate of the given pixel
+     * @param sx0        X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0        Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sw         Width of the source rectangle
+     * @param sh         Height of the source rectangle
      * @param data11Real Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
      * @param data22Real Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
      * @param data33Real Data of the 3rd diagonal element in coherency matrix for all pixels in source rectangle
-     * @param seed The initial seed value
+     * @param seed       The initial seed value
      * @return anPixelList List of pixels in the adaptive neighbourhood
      */
     private Pix[] getIDANPixels(final int xc, final int yc, final int sx0, final int sy0, final int sw, final int sh,
-                               final double[][] data11Real, final double[][] data22Real, final double[][] data33Real,
-                               final Seed seed) {
+                                final double[][] data11Real, final double[][] data22Real, final double[][] data33Real,
+                                final Seed seed) {
 
         // 1st run of region growing with IDAN50 threshold and initial seed, qualified pixel goes to anPixelList,
         // non-qualified pixel goes to "background pixels" list
-        final double threshold50 = 2*sigmaV;
+        final double threshold50 = 2 * sigmaV;
         final List<Pix> anPixelList = new ArrayList<Pix>(anSize);
         final Pix[] bgPixelList = regionGrowing(xc, yc, sx0, sy0, sw, sh, data11Real, data22Real, data33Real,
-                                                seed, threshold50, anPixelList);
+                seed, threshold50, anPixelList);
 
         // update seed with the pixels in AN
         final Seed newSeed = new Seed();
@@ -1705,43 +1725,44 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         // 2nd run of region growing with IDAN95 threshold, the new seed and "background pixels" i.e. pixels rejected
         // in the 1st run of region growing are checked and added to AN
-        final double threshold95 = 6*sigmaV;
+        final double threshold95 = 6 * sigmaV;
         reExamBackgroundPixels(sx0, sy0, data11Real, data22Real, data33Real, newSeed, threshold95,
-                               anPixelList, bgPixelList);
+                anPixelList, bgPixelList);
 
         if (anPixelList.isEmpty()) {
-            return new Pix[] { new Pix(xc, yc) };
+            return new Pix[]{new Pix(xc, yc)};
         }
         return anPixelList.toArray(new Pix[anPixelList.size()]);
     }
 
     /**
      * Find pixels in the adaptive neighbourhood (AN) of a given pixel using region growing method.
-     * @param xc X coordinate of the given pixel
-     * @param yc Y coordinate of the given pixel
-     * @param sx0 X coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sy0 Y coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sw Width of the source rectangle
-     * @param sh Height of the source rectangle
-     * @param data11Real Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
-     * @param data22Real Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
-     * @param data33Real Data of the 3rd diagonal element in coherency matrix for all pixels in source rectangle
-     * @param seed The initial seed value for AN
-     * @param threshold Threshold used in searching for pixels in AN
+     *
+     * @param xc          X coordinate of the given pixel
+     * @param yc          Y coordinate of the given pixel
+     * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sw          Width of the source rectangle
+     * @param sh          Height of the source rectangle
+     * @param data11Real  Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data22Real  Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data33Real  Data of the 3rd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param seed        The initial seed value for AN
+     * @param threshold   Threshold used in searching for pixels in AN
      * @param anPixelList List of pixels in AN
      * @return bgPixelList List of pixels rejected in searching for AN pixels
      */
     private Pix[] regionGrowing(final int xc, final int yc, final int sx0, final int sy0, final int sw, final int sh,
-                               final double[][] data11Real, final double[][] data22Real, final double[][] data33Real,
-                               final Seed seed, final double threshold, final List<Pix> anPixelList) {
+                                final double[][] data11Real, final double[][] data22Real, final double[][] data33Real,
+                                final Seed seed, final double threshold, final List<Pix> anPixelList) {
 
         final int rc = yc - sy0;
         final int cc = xc - sx0;
-        final Map<Integer, Boolean> visited = new HashMap<Integer, Boolean>(anSize+8);
+        final Map<Integer, Boolean> visited = new HashMap<Integer, Boolean>(anSize + 8);
         final List<Pix> bgPixelList = new ArrayList<Pix>(anSize);
 
         if (distance(data11Real[rc][cc], data22Real[rc][cc], data33Real[rc][cc], seed) < threshold) {
-            visited.put(rc*sw + cc, true);
+            visited.put(rc * sw + cc, true);
             anPixelList.add(new Pix(xc, yc));
         } else {
             bgPixelList.add(new Pix(xc, yc));
@@ -1761,16 +1782,16 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
             for (final Pix p : front) {
 
-                final int[] x = {p.x-1,   p.x, p.x+1, p.x-1, p.x+1, p.x-1,   p.x, p.x+1};
-                final int[] y = {p.y-1, p.y-1, p.y-1,   p.y,   p.y, p.y+1, p.y+1, p.y+1};
+                final int[] x = {p.x - 1, p.x, p.x + 1, p.x - 1, p.x + 1, p.x - 1, p.x, p.x + 1};
+                final int[] y = {p.y - 1, p.y - 1, p.y - 1, p.y, p.y, p.y + 1, p.y + 1, p.y + 1};
 
                 for (int i = 0; i < 8; i++) {
 
                     if (x[i] >= sx0 && x[i] < width && y[i] >= sy0 && y[i] < height) {
                         r = y[i] - sy0;
                         c = x[i] - sx0;
-                        index = r*sw+c;
-                        if(visited.get(index) == null) {
+                        index = r * sw + c;
+                        if (visited.get(index) == null) {
                             final Pix newPos = new Pix(x[i], y[i]);
                             if (distance(data11Real[r][c], data22Real[r][c], data33Real[r][c], seed) < threshold) {
                                 visited.put(index, true);
@@ -1782,7 +1803,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                         }
                     }
                 }
-                if(anPixelList.size() > anSize) {
+                if (anPixelList.size() > anSize) {
                     break;
                 }
             }
@@ -1794,6 +1815,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     private final static class Pix {
         final int x, y;
+
         public Pix(final int xx, final int yy) {
             x = xx;
             y = yy;
@@ -1802,34 +1824,36 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Cmpute distance between vector p and a given seed vector.
-     * @param p0 Vector
-     * @param p1 Vector
-     * @param p2 Vector
+     *
+     * @param p0   Vector
+     * @param p1   Vector
+     * @param p2   Vector
      * @param seed Vector
      * @return Distance
      */
     private static double distance(final double p0, final double p1, final double p2, final Seed seed) {
-        return Math.abs(p0 - seed.value[0])/seed.absValue[0] +
-               Math.abs(p1 - seed.value[1])/seed.absValue[1] +
-               Math.abs(p2 - seed.value[2])/seed.absValue[2];
+        return Math.abs(p0 - seed.value[0]) / seed.absValue[0] +
+                Math.abs(p1 - seed.value[1]) / seed.absValue[1] +
+                Math.abs(p2 - seed.value[2]) / seed.absValue[2];
     }
 
     /**
      * Re-exam the pixels that are rejected in the region growing process and add them to AN if qualified.
-     * @param sx0 X coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sy0 Y coordinate of the pixel at the upper left corner of the source rectangle
-     * @param data11Real Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
-     * @param data22Real Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
-     * @param data33Real Data of the 3rd diagonal element in coherency matrix for all pixels in source rectangle
-     * @param seed The seed value for AN
-     * @param threshold Threshold used in searching for pixels in AN
+     *
+     * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param data11Real  Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data22Real  Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data33Real  Data of the 3rd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param seed        The seed value for AN
+     * @param threshold   Threshold used in searching for pixels in AN
      * @param anPixelList List of pixels in AN
      * @param bgPixelList List of pixels rejected in searching for AN pixels
      */
     private static void reExamBackgroundPixels(final int sx0, final int sy0, final double[][] data11Real,
-                                        final double[][] data22Real,  final double[][] data33Real,
-                                        final Seed seed, final double threshold,
-                                        final List<Pix> anPixelList, final Pix[] bgPixelList) {
+                                               final double[][] data22Real, final double[][] data33Real,
+                                               final Seed seed, final double threshold,
+                                               final List<Pix> anPixelList, final Pix[] bgPixelList) {
         int r, c;
         for (final Pix pixel : bgPixelList) {
             r = pixel.y - sy0;
@@ -1842,10 +1866,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Compute scale parameter b for MMSE filter.
-     * @param sx0 X coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sy0 Y coordinate of the pixel at the upper left corner of the source rectangle
+     *
+     * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
      * @param anPixelList List of pixels in AN
-     * @param span Span image in source rectangle
+     * @param span        Span image in source rectangle
      * @return The scale parameter b
      */
     private double computeFilterScaleParam(
@@ -1862,13 +1887,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Compute MMSE filtered value for given pixel.
-     * @param x X coordinate of the given pixel
-     * @param y Y  coordinate of the given pixel
-     * @param sx0 X coordinate of the pixel at the upper left corner of the source rectangle
-     * @param sy0 Y coordinate of the pixel at the upper left corner of the source rectangle
+     *
+     * @param x           X coordinate of the given pixel
+     * @param y           Y  coordinate of the given pixel
+     * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
      * @param anPixelList List of pixels in AN
-     * @param data Data in source rectangle
-     * @param b The scale parameter
+     * @param data        Data in source rectangle
+     * @param b           The scale parameter
      * @return The filtered value
      */
     private static double getIDANFilteredValue(final int x, final int y, final int sx0, final int sy0,
@@ -1880,7 +1906,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         }
         mean /= anPixelList.length;
 
-        return mean + b*(data[y - sy0][x - sx0] - mean);
+        return mean + b * (data[y - sy0][x - sx0] - mean);
     }
 
     private static class Seed {
@@ -1912,7 +1938,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int sh = sourceRectangle.height;
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] sourceDataBuffers = new ProductData[bandList.srcBands.length];
@@ -1924,26 +1950,26 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             final ProductData[] targetDataBuffers = new ProductData[9];
-            for(final Band targetBand : bandList.targetBands) {
+            for (final Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
                 final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
-                if(targetBandName.contains("11") || targetBandName.contains("11_"))
+                if (targetBandName.contains("11") || targetBandName.contains("11_"))
                     targetDataBuffers[0] = dataBuffer;
-                else if(targetBandName.contains("12_real"))
+                else if (targetBandName.contains("12_real"))
                     targetDataBuffers[1] = dataBuffer;
-                else if(targetBandName.contains("12_imag"))
+                else if (targetBandName.contains("12_imag"))
                     targetDataBuffers[2] = dataBuffer;
-                else if(targetBandName.contains("13_real"))
+                else if (targetBandName.contains("13_real"))
                     targetDataBuffers[3] = dataBuffer;
-                else if(targetBandName.contains("13_imag"))
+                else if (targetBandName.contains("13_imag"))
                     targetDataBuffers[4] = dataBuffer;
-                else if(targetBandName.contains("22") || targetBandName.contains("22_"))
+                else if (targetBandName.contains("22") || targetBandName.contains("22_"))
                     targetDataBuffers[5] = dataBuffer;
-                else if(targetBandName.contains("23_real"))
+                else if (targetBandName.contains("23_real"))
                     targetDataBuffers[6] = dataBuffer;
-                else if(targetBandName.contains("23_imag"))
+                else if (targetBandName.contains("23_imag"))
                     targetDataBuffers[7] = dataBuffer;
-                else if(targetBandName.contains("33") || targetBandName.contains("33_"))
+                else if (targetBandName.contains("33") || targetBandName.contains("33_"))
                     targetDataBuffers[8] = dataBuffer;
             }
 
@@ -1971,7 +1997,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     PolOpUtils.getT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
 
                     if (y - halfFilterSize < sy0 || y + halfFilterSize > sy0 + sh - 1 ||
-                        x - halfFilterSize < sx0 || x + halfFilterSize > sx0 + sw - 1) {
+                            x - halfFilterSize < sx0 || x + halfFilterSize > sx0 + sw - 1) {
 
                         filterWindowT3 = new T3[filterWindowSize][filterWindowSize];
                         getWindowPixelT3s(x, y, sourceDataBuffers, sx0, sy0, sw, sh, sourceTiles[0], filterWindowT3);
@@ -1986,13 +2012,13 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                         continue;
                     }
 
-					targetWindowT3 = new T3[targetWindowSize][targetWindowSize];
+                    targetWindowT3 = new T3[targetWindowSize][targetWindowSize];
                     getWindowPixelT3s(x, y, sourceDataBuffers, sx0, sy0, sw, sh, sourceTiles[0], targetWindowT3);
 
-					if(checkPointTarget(z98, targetWindowT3, isPointTarget, x0, y0, w, h)) {
+                    if (checkPointTarget(z98, targetWindowT3, isPointTarget, x0, y0, w, h)) {
                         saveT3(Tr, Ti, trgIdx, targetDataBuffers);
                         continue;
-					}
+                    }
 
                     double[] sigmaRangeT11 = new double[2];
                     double[] sigmaRangeT22 = new double[2];
@@ -2001,7 +2027,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     computeSigmaRange(targetWindowT3, 1, sigmaRangeT22);
                     computeSigmaRange(targetWindowT3, 2, sigmaRangeT33);
 
-					filterWindowT3 = new T3[filterWindowSize][filterWindowSize];
+                    filterWindowT3 = new T3[filterWindowSize][filterWindowSize];
                     getWindowPixelT3s(x, y, sourceDataBuffers, sx0, sy0, sw, sh, sourceTiles[0], filterWindowT3);
 
                     final int n = selectPixelsInSigmaRange(sigmaRangeT11, sigmaRangeT22, sigmaRangeT33, filterWindowT3);
@@ -2027,11 +2053,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int sh = sourceRectangle.height;
         final int maxY = sy0 + sh;
         final int maxX = sx0 + sw;
-        final int z98Index = (int)(sw*sh*0.98);
+        final int z98Index = (int) (sw * sh * 0.98);
 
-        double[] t11 = new double[sw*sh];
-        double[] t22 = new double[sw*sh];
-        double[] t33 = new double[sw*sh];
+        double[] t11 = new double[sw * sh];
+        double[] t22 = new double[sw * sh];
+        double[] t33 = new double[sw * sh];
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
@@ -2061,14 +2087,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     private static void saveT3(final double[][] Tr, final double[][] Ti,
                                final int idx, final ProductData[] targetDataBuffers) {
 
-        targetDataBuffers[0].setElemFloatAt(idx, (float)Tr[0][0]); // T11
-        targetDataBuffers[1].setElemFloatAt(idx, (float)Tr[0][1]); // T12_real
-        targetDataBuffers[2].setElemFloatAt(idx, (float)Ti[0][1]); // T12_imag
-        targetDataBuffers[3].setElemFloatAt(idx, (float)Tr[0][2]); // T13_real
-        targetDataBuffers[4].setElemFloatAt(idx, (float)Ti[0][2]); // T13_imag
-        targetDataBuffers[5].setElemFloatAt(idx, (float)Tr[1][1]); // T22
-        targetDataBuffers[6].setElemFloatAt(idx, (float)Tr[1][2]); // T23_real
-        targetDataBuffers[7].setElemFloatAt(idx, (float)Ti[1][2]); // T23_imag
+        targetDataBuffers[0].setElemFloatAt(idx, (float) Tr[0][0]); // T11
+        targetDataBuffers[1].setElemFloatAt(idx, (float) Tr[0][1]); // T12_real
+        targetDataBuffers[2].setElemFloatAt(idx, (float) Ti[0][1]); // T12_imag
+        targetDataBuffers[3].setElemFloatAt(idx, (float) Tr[0][2]); // T13_real
+        targetDataBuffers[4].setElemFloatAt(idx, (float) Ti[0][2]); // T13_imag
+        targetDataBuffers[5].setElemFloatAt(idx, (float) Tr[1][1]); // T22
+        targetDataBuffers[6].setElemFloatAt(idx, (float) Tr[1][2]); // T23_real
+        targetDataBuffers[7].setElemFloatAt(idx, (float) Ti[1][2]); // T23_imag
         targetDataBuffers[8].setElemFloatAt(idx, (float) Tr[2][2]); // T33
     }
 
@@ -2078,17 +2104,17 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final TileIndex srcIndex = new TileIndex(sourceTile);
         final int windowSize = windowPixelT3.length;
-        final int halfWindowSize = windowSize/2;
+        final int halfWindowSize = windowSize / 2;
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
 
         int yy, xx;
         for (int j = 0; j < windowSize; j++) {
-			yy = y - halfWindowSize + j;
+            yy = y - halfWindowSize + j;
             srcIndex.calculateStride(yy);
             for (int i = 0; i < windowSize; i++) {
-				xx = x - halfWindowSize + i;
+                xx = x - halfWindowSize + i;
                 if (yy >= sy0 && yy <= sy0 + sh - 1 && xx >= sx0 && xx <= sx0 + sw - 1) {
                     final int srcIdx = srcIndex.getIndex(xx);
                     PolOpUtils.getT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
@@ -2098,32 +2124,32 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         }
     }
 
-	private boolean checkPointTarget(final Z98 z98, final T3[][] targetWindowT3, boolean[][] isPointTarget,
+    private boolean checkPointTarget(final Z98 z98, final T3[][] targetWindowT3, boolean[][] isPointTarget,
                                      final int x0, final int y0, final int w, final int h) {
-	
-		if (targetWindowT3[halfTargetWindowSize][halfTargetWindowSize].Tr[0][0] > z98.t11) {
+
+        if (targetWindowT3[halfTargetWindowSize][halfTargetWindowSize].Tr[0][0] > z98.t11) {
             if (getClusterSize(z98.t11, targetWindowT3, 0) > targetSize) {
                 markClusterPixels(isPointTarget, z98.t11, targetWindowT3, x0, y0, w, h, 0);
                 return true;
             }
-		}
+        }
 
-		if (targetWindowT3[halfTargetWindowSize][halfTargetWindowSize].Tr[1][1] > z98.t22) {
+        if (targetWindowT3[halfTargetWindowSize][halfTargetWindowSize].Tr[1][1] > z98.t22) {
             if (getClusterSize(z98.t22, targetWindowT3, 1) > targetSize) {
                 markClusterPixels(isPointTarget, z98.t22, targetWindowT3, x0, y0, w, h, 1);
                 return true;
             }
-		}
+        }
 
-		if (targetWindowT3[halfTargetWindowSize][halfTargetWindowSize].Tr[2][2] > z98.t33) {
+        if (targetWindowT3[halfTargetWindowSize][halfTargetWindowSize].Tr[2][2] > z98.t33) {
             if (getClusterSize(z98.t33, targetWindowT3, 2) > targetSize) {
                 markClusterPixels(isPointTarget, z98.t33, targetWindowT3, x0, y0, w, h, 2);
                 return true;
             }
-		}
+        }
 
         return false;
-	}
+    }
 
     private int getClusterSize(final double threshold, final T3[][] targetWindowT3, final int elemIdx) {
 
@@ -2145,8 +2171,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         for (int j = 0; j < targetWindowSize; j++) {
             for (int i = 0; i < targetWindowSize; i++) {
                 if (targetWindowT3[j][i].Tr[elemIdx][elemIdx] > threshold &&
-                    targetWindowT3[j][i].y >= y0 && targetWindowT3[j][i].y < y0 + h &&
-                    targetWindowT3[j][i].x >= x0 && targetWindowT3[j][i].x < x0 + w) {
+                        targetWindowT3[j][i].y >= y0 && targetWindowT3[j][i].y < y0 + h &&
+                        targetWindowT3[j][i].x >= x0 && targetWindowT3[j][i].x < x0 + w) {
 
                     isPointTarget[targetWindowT3[j][i].y - y0][targetWindowT3[j][i].x - x0] = true;
                 }
@@ -2156,7 +2182,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     private void computeSigmaRange(T3[][] targetWindowT3, final int elemIdx, double[] sigmaRange) {
 
-        final double[] data = new double[targetWindowSize*targetWindowSize];
+        final double[] data = new double[targetWindowSize * targetWindowSize];
         int k = 0;
         double mean = 0.0;
         for (int j = 0; j < targetWindowSize; j++) {
@@ -2169,10 +2195,10 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         mean /= k;
 
         final double b = computeMMSEWeight(data, sigmaVSqr);
-        final double filtered = mean + b*(data[k/2] - mean);
+        final double filtered = mean + b * (data[k / 2] - mean);
 
-        sigmaRange[0] = filtered*I1;
-        sigmaRange[1] = filtered*I2;
+        sigmaRange[0] = filtered * I1;
+        sigmaRange[1] = filtered * I2;
     }
 
     private static double computeMMSEWeight(final double[] dataArray, final double sigmaVSqr) {
@@ -2183,7 +2209,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             return 0.0;
         }
 
-        double varX = (varY - meanY*meanY*sigmaVSqr) / (1 + sigmaVSqr);
+        double varX = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
         if (varX < 0.0) {
             varX = 0.0;
         }
@@ -2210,12 +2236,12 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         for (int j = 0; j < filterWindowSize; j++) {
             for (int i = 0; i < filterWindowSize; i++) {
                 if (filterWindowT3[j][i] != null &&
-                    filterWindowT3[j][i].Tr[0][0] >= sigmaRangeT11[0] &&
-                    filterWindowT3[j][i].Tr[0][0] <= sigmaRangeT11[1] &&
-                    filterWindowT3[j][i].Tr[1][1] >= sigmaRangeT22[0] &&
-                    filterWindowT3[j][i].Tr[1][1] <= sigmaRangeT22[1] &&
-                    filterWindowT3[j][i].Tr[2][2] >= sigmaRangeT33[0] &&
-                    filterWindowT3[j][i].Tr[2][2] <= sigmaRangeT33[1]) {
+                        filterWindowT3[j][i].Tr[0][0] >= sigmaRangeT11[0] &&
+                        filterWindowT3[j][i].Tr[0][0] <= sigmaRangeT11[1] &&
+                        filterWindowT3[j][i].Tr[1][1] >= sigmaRangeT22[0] &&
+                        filterWindowT3[j][i].Tr[1][1] <= sigmaRangeT22[1] &&
+                        filterWindowT3[j][i].Tr[2][2] >= sigmaRangeT33[0] &&
+                        filterWindowT3[j][i].Tr[2][2] <= sigmaRangeT33[1]) {
 
                     filterWindowT3[j][i].inSigmaRange = true;
                     numPixelsInSigmaRange++;
@@ -2241,15 +2267,15 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             for (int i = 0; i < filterWindowSize; i++) {
                 if (filterWindowT3[j][i] != null && filterWindowT3[j][i].inSigmaRange) {
                     span[k++] = filterWindowT3[j][i].Tr[0][0] +
-                                filterWindowT3[j][i].Tr[1][1] +
-                                filterWindowT3[j][i].Tr[2][2];
+                            filterWindowT3[j][i].Tr[1][1] +
+                            filterWindowT3[j][i].Tr[2][2];
                 }
             }
         }
     }
 
     private void filterT3(final T3[][] filterWindowT3, final double b, final int numPixelsInSigmaRange,
-                                   double[][] filteredTr, double[][] filteredTi) {
+                          double[][] filteredTr, double[][] filteredTi) {
 
         final double[][] meanTr = new double[3][3];
         final double[][] meanTi = new double[3][3];
@@ -2277,12 +2303,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         for (int m = 0; m < 3; m++) {
             for (int n = 0; n < 3; n++) {
-                filteredTr[m][n] = (1-b)*meanTr[m][n] + b*filterWindowT3[halfFilterSize][halfFilterSize].Tr[m][n];
-                filteredTi[m][n] = (1-b)*meanTi[m][n] + b*filterWindowT3[halfFilterSize][halfFilterSize].Ti[m][n];
+                filteredTr[m][n] = (1 - b) * meanTr[m][n] + b * filterWindowT3[halfFilterSize][halfFilterSize].Tr[m][n];
+                filteredTi[m][n] = (1 - b) * meanTi[m][n] + b * filterWindowT3[halfFilterSize][halfFilterSize].Ti[m][n];
             }
         }
     }
-
 
 
     public final static class Z98 {
@@ -2291,25 +2316,25 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         public double t33;
     }
 
-	public final static class T3 {
-		public int x = -1;
-		public int y = -1;
-		public final double[][] Tr = new double[3][3];
-		public final double[][] Ti = new double[3][3];
+    public final static class T3 {
+        public int x = -1;
+        public int y = -1;
+        public final double[][] Tr = new double[3][3];
+        public final double[][] Ti = new double[3][3];
         public boolean inSigmaRange = false;
 
-		public T3(final int x, final int y, final double[][] Tr, final double[][] Ti) {
-			this.x = x;
-			this.y = y;
-            for (int a=0;a<Tr.length;a++) {
-                System.arraycopy(Tr[a],0,this.Tr[a],0,Tr[a].length);
-                System.arraycopy(Ti[a],0,this.Ti[a],0,Ti[a].length);
+        public T3(final int x, final int y, final double[][] Tr, final double[][] Ti) {
+            this.x = x;
+            this.y = y;
+            for (int a = 0; a < Tr.length; a++) {
+                System.arraycopy(Tr[a], 0, this.Tr[a], 0, Tr[a].length);
+                System.arraycopy(Ti[a], 0, this.Ti[a], 0, Ti[a].length);
             }
-		}
-		
-		public T3() {
-		}
-	}
+        }
+
+        public T3() {
+        }
+    }
 
 
     /**
@@ -2317,6 +2342,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see OperatorSpi#createOperator()
      * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

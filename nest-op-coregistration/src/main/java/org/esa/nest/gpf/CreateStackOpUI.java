@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -48,9 +48,9 @@ public class CreateStackOpUI extends BaseOperatorUI {
 
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
-    private final JComboBox extent = new JComboBox(new String[] {   CreateStackOp.MASTER_EXTENT,
-                                                                    CreateStackOp.MIN_EXTENT,
-                                                                    CreateStackOp.MAX_EXTENT });
+    private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
+            CreateStackOp.MIN_EXTENT,
+            CreateStackOp.MAX_EXTENT});
     private final JButton optimalMasterButton = new JButton("Find Optimal Master");
     private Product masterProduct = null;
 
@@ -77,14 +77,14 @@ public class CreateStackOpUI extends BaseOperatorUI {
     }
 
     private static List<Integer> getSelectedIndices(final String[] allBandNames,
-                                                         final String[] selBandNames,
-                                                         final List<Integer> defaultIndices) {
+                                                    final String[] selBandNames,
+                                                    final List<Integer> defaultIndices) {
         final List<Integer> bandIndices = new ArrayList<Integer>(2);
-        if(selBandNames != null && selBandNames.length > 0) {
-            int i=0;
-            for(String bandName : allBandNames) {
-                for(String selName : selBandNames) {
-                    if(bandName.equals(selName)) {
+        if (selBandNames != null && selBandNames.length > 0) {
+            int i = 0;
+            for (String bandName : allBandNames) {
+                for (String selName : selBandNames) {
+                    if (bandName.equals(selName)) {
                         bandIndices.add(i);
                     }
                 }
@@ -92,7 +92,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
             }
         }
 
-        if(bandIndices.isEmpty())
+        if (bandIndices.isEmpty())
             return defaultIndices;
         return bandIndices;
     }
@@ -100,12 +100,12 @@ public class CreateStackOpUI extends BaseOperatorUI {
     @Override
     public UIValidation validateParameters() {
 
-        if(resamplingType.getSelectedItem().equals("NONE") && sourceProducts != null) {
+        if (resamplingType.getSelectedItem().equals("NONE") && sourceProducts != null) {
             try {
                 CreateStackOp.checkPixelSpacing(sourceProducts);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 return new UIValidation(UIValidation.State.WARNING, "Resampling type cannot be NONE" +
-                                " because pixel spacings are different for master and slave products");
+                        " because pixel spacings are different for master and slave products");
             }
         }
         return new UIValidation(UIValidation.State.OK, "");
@@ -151,7 +151,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
 
         optimalMasterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(sourceProducts != null) {
+                if (sourceProducts != null) {
                     masterProduct = MasterSelection.findOptimalMasterProduct(sourceProducts);
                 }
                 updateMasterSlaveSelections();
@@ -167,10 +167,10 @@ public class CreateStackOpUI extends BaseOperatorUI {
     }
 
     private void enableOptimalMasterButton() {
-        if(sourceProducts == null) return;
+        if (sourceProducts == null) return;
 
-        for(Product prod : sourceProducts) {
-            if(!OperatorUtils.isComplex(prod)) {
+        for (Product prod : sourceProducts) {
+            if (!OperatorUtils.isComplex(prod)) {
                 optimalMasterButton.setEnabled(false);
                 return;
             }
@@ -183,54 +183,54 @@ public class CreateStackOpUI extends BaseOperatorUI {
         OperatorUIUtils.initParamList(slvBandList, bandNames);
 
         OperatorUIUtils.setSelectedListIndices(mstBandList, getSelectedIndices(bandNames,
-                                                                new String[] {}, //String[])paramMap.get("masterBandNames"),
-                                                                defaultMasterBandIndices));
+                new String[]{}, //String[])paramMap.get("masterBandNames"),
+                defaultMasterBandIndices));
         OperatorUIUtils.setSelectedListIndices(slvBandList, getSelectedIndices(bandNames,
-                                                                new String[] {}, //(String[])paramMap.get("slaveBandNames"),
-                                                                defaultSlaveBandIndices));
+                new String[]{}, //(String[])paramMap.get("slaveBandNames"),
+                defaultSlaveBandIndices));
     }
 
     @Override
     protected String[] getBandNames() {
-        if(sourceProducts == null) {
-            return new String[] {};
+        if (sourceProducts == null) {
+            return new String[]{};
         }
-        if(masterProduct == null && sourceProducts.length > 0) {
+        if (masterProduct == null && sourceProducts.length > 0) {
             masterProduct = sourceProducts[0];
         }
         defaultMasterBandIndices.clear();
         defaultSlaveBandIndices.clear();
 
-        if(sourceProducts.length > 1) {
-            for(int i=1; i < sourceProducts.length; ++i) {
-                if(sourceProducts[i].getDisplayName().equals(masterProduct.getDisplayName())) {
+        if (sourceProducts.length > 1) {
+            for (int i = 1; i < sourceProducts.length; ++i) {
+                if (sourceProducts[i].getDisplayName().equals(masterProduct.getDisplayName())) {
                     masterProduct = null;
-                    return new String[] {};
+                    return new String[]{};
                 }
             }
         }
 
         final List<String> bandNames = new ArrayList<String>(5);
         boolean masterBandsSelected = false;
-        for(Product prod : sourceProducts) {
-            if(sourceProducts.length > 1) {
+        for (Product prod : sourceProducts) {
+            if (sourceProducts.length > 1) {
 
                 final Band[] bands = prod.getBands();
-                for(int i=0; i < bands.length; ++i) {
+                for (int i = 0; i < bands.length; ++i) {
                     final Band band = bands[i];
-                    bandNames.add(band.getName()+"::"+prod.getName());
-                    final int index = bandNames.size()-1;
+                    bandNames.add(band.getName() + "::" + prod.getName());
+                    final int index = bandNames.size() - 1;
 
-                    if(!(band instanceof VirtualBand)) {
+                    if (!(band instanceof VirtualBand)) {
 
-                        if(prod == masterProduct && !masterBandsSelected) {
+                        if (prod == masterProduct && !masterBandsSelected) {
                             defaultMasterBandIndices.add(index);
-                            if(band.getUnit() != null && band.getUnit().equals(Unit.REAL)) {
-                                if(i+1 < bands.length) {
-                                    final Band qBand = bands[i+1];
-                                    if(qBand.getUnit() != null && qBand.getUnit().equals(Unit.IMAGINARY)) {
-                                        defaultMasterBandIndices.add(index+1);
-                                        bandNames.add(qBand.getName()+"::"+prod.getName());
+                            if (band.getUnit() != null && band.getUnit().equals(Unit.REAL)) {
+                                if (i + 1 < bands.length) {
+                                    final Band qBand = bands[i + 1];
+                                    if (qBand.getUnit() != null && qBand.getUnit().equals(Unit.IMAGINARY)) {
+                                        defaultMasterBandIndices.add(index + 1);
+                                        bandNames.add(qBand.getName() + "::" + prod.getName());
                                         ++i;
                                     }
                                 }

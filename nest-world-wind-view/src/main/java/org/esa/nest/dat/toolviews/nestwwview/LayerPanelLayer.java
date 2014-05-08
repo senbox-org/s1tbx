@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,32 +28,29 @@ import java.awt.*;
 
 /**
  * Displays the layer list in a viewport corner.
- *
  */
-public class LayerPanelLayer extends LayerManagerLayer
-{
+public class LayerPanelLayer extends LayerManagerLayer {
     private Layer virtualEarthAerialLayer = null;
     private Layer virtualEarthRoadsLayer = null;
     private Layer virtualEarthHybridLayer = null;
 
-    public LayerPanelLayer(WorldWindow wwd)
-    {
+    public LayerPanelLayer(WorldWindow wwd) {
         super(wwd);
     }
 
     private LayerList getValidLayers() {
         final LayerList validLayers = new LayerList();
         final LayerList allLayers = wwd.getModel().getLayers();
-        for(Layer l : allLayers) {
-            if(l.getName().equalsIgnoreCase("Atmosphere") || l.getName().equalsIgnoreCase("World Map") ||
-               l.getName().equalsIgnoreCase("Scale bar") || l.getName().equalsIgnoreCase("Compass") ||
-               l.getName().equalsIgnoreCase("NASA Blue Marble Image"))
+        for (Layer l : allLayers) {
+            if (l.getName().equalsIgnoreCase("Atmosphere") || l.getName().equalsIgnoreCase("World Map") ||
+                    l.getName().equalsIgnoreCase("Scale bar") || l.getName().equalsIgnoreCase("Compass") ||
+                    l.getName().equalsIgnoreCase("NASA Blue Marble Image"))
                 continue;
-            if(l.getName().equalsIgnoreCase("MS Bing Aerial"))
+            if (l.getName().equalsIgnoreCase("MS Bing Aerial"))
                 virtualEarthAerialLayer = l;
-            else if(l.getName().equalsIgnoreCase("MS Bing Roads"))
+            else if (l.getName().equalsIgnoreCase("MS Bing Roads"))
                 virtualEarthRoadsLayer = l;
-            else if(l.getName().equalsIgnoreCase("MS Bing Hybrid"))
+            else if (l.getName().equalsIgnoreCase("MS Bing Hybrid"))
                 virtualEarthHybridLayer = l;
 
             validLayers.add(l);
@@ -67,40 +64,32 @@ public class LayerPanelLayer extends LayerManagerLayer
      * @param event the current <code>SelectEvent</code>
      */
     @Override
-    public void selected(SelectEvent event)
-    {
+    public void selected(SelectEvent event) {
         final ScreenAnnotation annotation = getAnnotation();
-        if (event.hasObjects() && event.getTopObject() == annotation)
-        {
+        if (event.hasObjects() && event.getTopObject() == annotation) {
             boolean update = false;
             if (event.getEventAction().equals(SelectEvent.ROLLOVER)
-                || event.getEventAction().equals(SelectEvent.LEFT_CLICK))
-            {
+                    || event.getEventAction().equals(SelectEvent.LEFT_CLICK)) {
                 // Highlight annotation
-                if (!annotation.getAttributes().isHighlighted())
-                {
+                if (!annotation.getAttributes().isHighlighted()) {
                     annotation.getAttributes().setHighlighted(true);
                     update = true;
                 }
                 // Check for text or url
                 final PickedObject po = event.getTopPickedObject();
-                if(po.getValue(AVKey.URL) != null)
-                {
+                if (po.getValue(AVKey.URL) != null) {
                     // Set cursor hand on hyperlinks
-                    ((Component)this.wwd).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                    int i = Integer.parseInt((String)po.getValue(AVKey.URL));
+                    ((Component) this.wwd).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    int i = Integer.parseInt((String) po.getValue(AVKey.URL));
                     // Select current hyperlink
-                    if (getSelectedIndex() != i)
-                    {
+                    if (getSelectedIndex() != i) {
                         setSelectedIndex(i);
                         update = true;
                     }
                     // Enable/disable layer on left click
-                    if (event.getEventAction().equals(SelectEvent.LEFT_CLICK))
-                    {
+                    if (event.getEventAction().equals(SelectEvent.LEFT_CLICK)) {
                         final LayerList layers = getValidLayers();
-                        if (i >= 0 && i < layers.size())
-                        {
+                        if (i >= 0 && i < layers.size()) {
                             final Layer layer = layers.get(i);
                             final boolean enable = !layer.isEnabled();
                             layer.setEnabled(enable);
@@ -110,28 +99,25 @@ public class LayerPanelLayer extends LayerManagerLayer
                     }
                 } else {
                     // Unselect if not on an hyperlink
-                    if (getSelectedIndex() != -1)
-                    {
+                    if (getSelectedIndex() != -1) {
                         setSelectedIndex(-1);
                         update = true;
                     }
                     // Set cursor
                     if (this.isComponentDragEnabled())
-                        ((Component)this.wwd).setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+                        ((Component) this.wwd).setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
                     else
-                        ((Component)this.wwd).setCursor(Cursor.getDefaultCursor());
+                        ((Component) this.wwd).setCursor(Cursor.getDefaultCursor());
                 }
             }
             if (event.getEventAction().equals(SelectEvent.DRAG)
-                || event.getEventAction().equals(SelectEvent.DRAG_END))
-            {
+                    || event.getEventAction().equals(SelectEvent.DRAG_END)) {
                 // Handle dragging
-                if (this.isComponentDragEnabled() || this.isLayerDragEnabled())
-                {
+                if (this.isComponentDragEnabled() || this.isLayerDragEnabled()) {
                     final boolean wasDraggingLayer = this.draggingLayer;
                     this.drag(event);
                     // Update list if dragging a layer, otherwise just redraw the world window
-                    if(this.draggingLayer || wasDraggingLayer)
+                    if (this.draggingLayer || wasDraggingLayer)
                         update = true;
                     else
                         this.wwd.redraw();
@@ -140,19 +126,18 @@ public class LayerPanelLayer extends LayerManagerLayer
             // Redraw annotation if needed
             if (update)
                 this.update();
-        } else if (event.getEventAction().equals(SelectEvent.ROLLOVER) && annotation.getAttributes().isHighlighted())
-        {
+        } else if (event.getEventAction().equals(SelectEvent.ROLLOVER) && annotation.getAttributes().isHighlighted()) {
             // de-highlight annotation
             annotation.getAttributes().setHighlighted(false);
-            ((Component)this.wwd).setCursor(Cursor.getDefaultCursor());
+            ((Component) this.wwd).setCursor(Cursor.getDefaultCursor());
             this.update();
         }
     }
 
     private void updateVirtualEarthLayers(Layer layer, boolean enable) {
         if (enable && (layer == virtualEarthAerialLayer ||
-                       layer == virtualEarthRoadsLayer ||
-                       layer == virtualEarthHybridLayer)) {
+                layer == virtualEarthRoadsLayer ||
+                layer == virtualEarthHybridLayer)) {
             virtualEarthAerialLayer.setEnabled(layer == virtualEarthAerialLayer);
             virtualEarthRoadsLayer.setEnabled(layer == virtualEarthRoadsLayer);
             virtualEarthHybridLayer.setEnabled(layer == virtualEarthHybridLayer);
@@ -160,40 +145,34 @@ public class LayerPanelLayer extends LayerManagerLayer
     }
 
     @Override
-    protected void drag(SelectEvent event)
-    {
-        if (event.getEventAction().equals(SelectEvent.DRAG))
-        {
+    protected void drag(SelectEvent event) {
+        if (event.getEventAction().equals(SelectEvent.DRAG)) {
             if ((this.isComponentDragEnabled() && getSelectedIndex() == -1 && this.dragRefIndex == -1)
-                || this.draggingComponent)
-            {
+                    || this.draggingComponent) {
                 // Dragging the whole list
-                if (!this.draggingComponent)
-                {
+                if (!this.draggingComponent) {
                     this.dragRefCursorPoint = event.getMouseEvent().getPoint();
                     this.dragRefPoint = getAnnotation().getScreenPoint();
                     this.draggingComponent = true;
                 }
                 final Point cursorOffset = new Point(event.getMouseEvent().getPoint().x - this.dragRefCursorPoint.x,
-                    event.getMouseEvent().getPoint().y - this.dragRefCursorPoint.y);
+                        event.getMouseEvent().getPoint().y - this.dragRefCursorPoint.y);
                 final Point targetPoint = new Point(this.dragRefPoint.x + cursorOffset.x,
-                    this.dragRefPoint.y - cursorOffset.y);
+                        this.dragRefPoint.y - cursorOffset.y);
                 this.moveTo(targetPoint);
             } else if (this.isLayerDragEnabled()) {
                 // Dragging a layer inside the list
-                if (!this.draggingLayer)
-                {
+                if (!this.draggingLayer) {
                     this.dragRefIndex = getSelectedIndex();
                     this.draggingLayer = true;
                 }
-                if (getSelectedIndex() != -1 && this.dragRefIndex != -1 && this.dragRefIndex != getSelectedIndex())
-                {
+                if (getSelectedIndex() != -1 && this.dragRefIndex != -1 && this.dragRefIndex != getSelectedIndex()) {
                     // Move dragged layer
                     final LayerList layers = getValidLayers();
                     final int insertIndex = this.dragRefIndex > getSelectedIndex() ?
-                        getSelectedIndex() : getSelectedIndex() + 1;
+                            getSelectedIndex() : getSelectedIndex() + 1;
                     final int removeIndex = this.dragRefIndex > getSelectedIndex() ?
-                        this.dragRefIndex + 1 : this.dragRefIndex;
+                            this.dragRefIndex + 1 : this.dragRefIndex;
                     layers.add(insertIndex, layers.get(this.dragRefIndex));
                     layers.remove(removeIndex);
                     this.dragRefIndex = getSelectedIndex();
@@ -213,17 +192,14 @@ public class LayerPanelLayer extends LayerManagerLayer
      * @return the annotation text to be displayed.
      */
     @Override
-    protected String makeAnnotationText(LayerList layers)
-    {
+    protected String makeAnnotationText(LayerList layers) {
         // Compose html text
         final StringBuilder text = new StringBuilder(255);
         Color color;
         int i = 0;
         final LayerList validLayers = getValidLayers();
-        for (Layer layer : validLayers)
-        {
-            if (!this.isMinimized() || layer == this)
-            {
+        for (Layer layer : validLayers) {
+            if (!this.isMinimized() || layer == this) {
                 color = (i == getSelectedIndex()) ? getHighlightColor() : getColor();
                 color = (i == this.dragRefIndex) ? dragColor : color;
                 text.append("<a href=\"");
@@ -237,7 +213,7 @@ public class LayerPanelLayer extends LayerManagerLayer
                 text.append(layer.getName());
                 text.append((layer.isEnabled() ? "</b>" : "</i>"));
                 text.append((layer.isMultiResolution() && layer.isAtMaxResolution() ? "*" : ""));
-                text .append("</a><br />");
+                text.append("</a><br />");
             }
             i++;
         }

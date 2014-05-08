@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,22 +16,20 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.util.MathUtils;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,8 +38,8 @@ import java.util.Map;
 @OperatorMetadata(alias = "MergeSlices",
         category = "SAR Tools\\SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Merges Sentinel-1 slice products")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Merges Sentinel-1 slice products")
 public final class MergeSlicesOp extends Operator {
 
     @SourceProducts
@@ -69,8 +67,7 @@ public final class MergeSlicesOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -92,8 +89,8 @@ public final class MergeSlicesOp extends Operator {
 
 
     private void computeTargetWidthAndHeight() {
-        for(Product srcProduct : sourceProducts) {
-            if(targetWidth < srcProduct.getSceneRasterWidth())
+        for (Product srcProduct : sourceProducts) {
+            if (targetWidth < srcProduct.getSceneRasterWidth())
                 targetWidth = srcProduct.getSceneRasterWidth();
             targetHeight += srcProduct.getSceneRasterHeight();
         }
@@ -128,8 +125,7 @@ public final class MergeSlicesOp extends Operator {
      *
      * @param targetTiles The current tiles to be computed for each target band.
      * @param pm          A progress monitor which should be used to determine computation cancellation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          if an error occurs during computation of the target rasters.
+     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
@@ -187,7 +183,7 @@ public final class MergeSlicesOp extends Operator {
                     }
                 }
             }     */
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
         }
     }

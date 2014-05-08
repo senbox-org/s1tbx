@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,7 +31,7 @@ import java.util.Arrays;
  */
 public class TestLinearTodB extends TestCase {
 
-    private static final String dBStr = "_"+Unit.DB;
+    private static final String dBStr = "_" + Unit.DB;
 
     @Override
     protected void setUp() throws Exception {
@@ -60,8 +60,8 @@ public class TestLinearTodB extends TestCase {
 
         final Product product = createTestProduct(16, 4);
         final Band band1 = product.getBandAt(0);
-        band1.setName(band1.getName()+dBStr);
-        band1.setUnit(band1.getUnit()+dBStr);
+        band1.setName(band1.getName() + dBStr);
+        band1.setUnit(band1.getUnit() + dBStr);
 
         LinearTodBOpAction.convert(product, band1, false);
         assertTrue(product.getNumBands() == 2);

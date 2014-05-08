@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,25 +50,25 @@ public class NetCDFWriter extends AbstractProductWriter {
     private static float[] getLonData(final Product product, final String lonGridName) {
         final int size = product.getSceneRasterWidth();
         final TiePointGrid lonGrid = product.getTiePointGrid(lonGridName);
-        if(lonGrid != null)
-            return lonGrid.getPixels(0, 0, size, 1, (float[])null);
+        if (lonGrid != null)
+            return lonGrid.getPixels(0, 0, size, 1, (float[]) null);
         return null;
     }
 
     private static float[] getLatData(final Product product, final String latGridName) {
         final int size = product.getSceneRasterHeight();
         final TiePointGrid latGrid = product.getTiePointGrid(latGridName);
-        if(latGrid != null)
-            return latGrid.getPixels(0, 0, 1, size, (float[])null);
+        if (latGrid != null)
+            return latGrid.getPixels(0, 0, 1, size, (float[]) null);
         return null;
     }
 
     private static float[][] getTiePointGridData(final TiePointGrid tpg) {
         final float[][] data = new float[tpg.getRasterHeight()][tpg.getRasterWidth()];
         final ProductData productData = tpg.getData();
-        for(int y=0; y < tpg.getRasterHeight(); ++y) {
+        for (int y = 0; y < tpg.getRasterHeight(); ++y) {
             final int stride = y * tpg.getRasterWidth();
-            for(int x=0; x < tpg.getRasterWidth(); ++x) {
+            for (int x = 0; x < tpg.getRasterWidth(); ++x) {
                 data[y][x] = productData.getElemFloatAt(stride + x);
             }
         }
@@ -112,26 +112,27 @@ public class NetCDFWriter extends AbstractProductWriter {
                 new Dimension[]{rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])});
         netCDFWriteable.addVariableAttribute(NetcdfConstants.LON_VAR_NAMES[0], "units", "degrees_east (+E/-W)");
 
-        for(Band band : product.getBands()) {
+        for (Band band : product.getBands()) {
             final String name = StringUtils.createValidName(band.getName(), new char[]{'_'}, '_');
             netCDFWriteable.addVariable(name, DataType.DOUBLE,
                     new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0]),
-                                    rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])});
-            if(band.getDescription() != null)
+                            rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])}
+            );
+            if (band.getDescription() != null)
                 netCDFWriteable.addVariableAttribute(name, "description", band.getDescription());
-            if(band.getUnit() != null)
+            if (band.getUnit() != null)
                 netCDFWriteable.addVariableAttribute(name, "unit", band.getUnit());
         }
 
-        for(TiePointGrid tpg : product.getTiePointGrids()) {
+        for (TiePointGrid tpg : product.getTiePointGrids()) {
             final String name = tpg.getName();
-            netCDFWriteable.addDimension(name+'x', tpg.getRasterWidth());
-            netCDFWriteable.addDimension(name+'y', tpg.getRasterHeight());
+            netCDFWriteable.addDimension(name + 'x', tpg.getRasterWidth());
+            netCDFWriteable.addDimension(name + 'y', tpg.getRasterHeight());
             netCDFWriteable.addVariable(name, DataType.FLOAT,
-                    new Dimension[]{rootGroup.findDimension(name+'y'), rootGroup.findDimension(name+'x')});
-            if(tpg.getDescription() != null)
+                    new Dimension[]{rootGroup.findDimension(name + 'y'), rootGroup.findDimension(name + 'x')});
+            if (tpg.getDescription() != null)
                 netCDFWriteable.addVariableAttribute(name, "description", tpg.getDescription());
-            if(tpg.getUnit() != null)
+            if (tpg.getUnit() != null)
                 netCDFWriteable.addVariableAttribute(name, "unit", tpg.getUnit());
         }
 
@@ -151,7 +152,7 @@ public class NetCDFWriter extends AbstractProductWriter {
 
         final float[] latData = getLatData(product, latGridName);
         final float[] lonData = getLonData(product, lonGridName);
-        if(latData != null && lonData != null) {
+        if (latData != null && lonData != null) {
             final Array latNcArray = Array.factory(latData);
             final Array lonNcArray = Array.factory(lonData);
 
@@ -159,7 +160,7 @@ public class NetCDFWriter extends AbstractProductWriter {
                 netCDFWriteable.write(NetcdfConstants.LAT_VAR_NAMES[0], latNcArray);
                 netCDFWriteable.write(NetcdfConstants.LON_VAR_NAMES[0], lonNcArray);
 
-                for(TiePointGrid tpg : product.getTiePointGrids()) {
+                for (TiePointGrid tpg : product.getTiePointGrids()) {
                     final Array tpgArray = Array.factory(getTiePointGridData(tpg));
                     netCDFWriteable.write(tpg.getName(), tpgArray);
                 }
@@ -189,9 +190,9 @@ public class NetCDFWriter extends AbstractProductWriter {
             final ArrayDouble dataTemp = new ArrayDouble.D2(regionHeight, regionWidth);
             final Index index = dataTemp.getIndex();
 
-            int i=0;
-            for(int y=0; y < regionHeight; ++y) {
-                for(int x=0; x < regionWidth; ++x) {
+            int i = 0;
+            for (int y = 0; y < regionHeight; ++y) {
+                for (int x = 0; x < regionWidth; ++x) {
                     index.set(y, x);
                     dataTemp.set(index, regionData.getElemDoubleAt(i));
                     ++i;
@@ -202,7 +203,7 @@ public class NetCDFWriter extends AbstractProductWriter {
 
             pm.worked(1);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -241,7 +242,6 @@ public class NetCDFWriter extends AbstractProductWriter {
      * Returns wether the given product node is to be written.
      *
      * @param node the product node
-     *
      * @return <code>true</code> if so
      */
     @Override
@@ -265,11 +265,11 @@ public class NetCDFWriter extends AbstractProductWriter {
             final MetadataElement subElement = parentElem.getElementAt(i);
             final String name = subElement.getName();
             boolean lastDupe = true;
-            for (int j = i+1; j < parentElem.getNumElements(); j++) {
+            for (int j = i + 1; j < parentElem.getNumElements(); j++) {
                 final MetadataElement dupeElement = parentElem.getElementAt(j);
-                if(dupeElement.getName().equals(name)) {
+                if (dupeElement.getName().equals(name)) {
                     Integer cnt = dupeCntElem.get(name);
-                    if(cnt == null)
+                    if (cnt == null)
                         dupeCntElem.put(name, 1);
                     else {
                         ++cnt;
@@ -279,11 +279,11 @@ public class NetCDFWriter extends AbstractProductWriter {
                     break;
                 }
             }
-            if(dupeCntElem.get(name) != null) {
+            if (dupeCntElem.get(name) != null) {
                 int cnt = dupeCntElem.get(name);
-                if(lastDupe)
+                if (lastDupe)
                     ++cnt;
-                subElement.setName(subElement.getName()+"."+cnt);
+                subElement.setName(subElement.getName() + "." + cnt);
             }
 
             final Group newGroup = new Group(netCDFWriteable, parentGroup, subElement.getName());
@@ -302,11 +302,11 @@ public class NetCDFWriter extends AbstractProductWriter {
             final MetadataAttribute attrib = elem.getAttributeAt(i);
             final String name = attrib.getName();
             boolean lastDupe = true;
-            for (int j = i+1; j < elem.getNumAttributes(); j++) {
+            for (int j = i + 1; j < elem.getNumAttributes(); j++) {
                 final MetadataAttribute dupeAtrib = elem.getAttributeAt(j);
-                if(dupeAtrib.getName().equals(name)) {
+                if (dupeAtrib.getName().equals(name)) {
                     Integer cnt = dupeCntAtrib.get(name);
-                    if(cnt == null)
+                    if (cnt == null)
                         dupeCntAtrib.put(name, 1);
                     else {
                         ++cnt;
@@ -316,19 +316,19 @@ public class NetCDFWriter extends AbstractProductWriter {
                     break;
                 }
             }
-            if(dupeCntAtrib.get(name) != null) {
+            if (dupeCntAtrib.get(name) != null) {
                 int cnt = dupeCntAtrib.get(name);
-                if(lastDupe)
+                if (lastDupe)
                     ++cnt;
-                attrib.setName(attrib.getName()+"."+cnt);
+                attrib.setName(attrib.getName() + "." + cnt);
             }
 
             final int dataType = attrib.getDataType();
-            if(dataType == ProductData.TYPE_FLOAT32 || dataType == ProductData.TYPE_FLOAT64) {
+            if (dataType == ProductData.TYPE_FLOAT32 || dataType == ProductData.TYPE_FLOAT64) {
                 newGroup.addAttribute(new Attribute(attrib.getName(), elem.getAttributeDouble(attrib.getName(), 0)));
-            } else if(dataType == ProductData.TYPE_UTC || attrib.getData() instanceof ProductData.UTC) {
-                newGroup.addAttribute(new Attribute(attrib.getName(), NetcdfConstants.UTC_TYPE+elem.getAttributeString(attrib.getName(), " ")));
-            } else if(dataType > ProductData.TYPE_INT8 && dataType < ProductData.TYPE_FLOAT32) {
+            } else if (dataType == ProductData.TYPE_UTC || attrib.getData() instanceof ProductData.UTC) {
+                newGroup.addAttribute(new Attribute(attrib.getName(), NetcdfConstants.UTC_TYPE + elem.getAttributeString(attrib.getName(), " ")));
+            } else if (dataType > ProductData.TYPE_INT8 && dataType < ProductData.TYPE_FLOAT32) {
                 newGroup.addAttribute(new Attribute(attrib.getName(), elem.getAttributeInt(attrib.getName(), 0)));
             } else {
                 newGroup.addAttribute(new Attribute(attrib.getName(), elem.getAttributeString(attrib.getName(), " ")));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -58,11 +58,11 @@ import java.util.Arrays;
 @OperatorMetadata(alias = "Import-Vector",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Imports a shape file into a product")
 public class ImportVectorOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
@@ -82,11 +82,11 @@ public class ImportVectorOp extends Operator {
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-            for(String bandName : sourceProduct.getBandNames()) {
+            for (String bandName : sourceProduct.getBandNames()) {
                 ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
             }
 
-            if(vectorFile != null) {
+            if (vectorFile != null) {
                 importGeometry(targetProduct, vectorFile);
             }
         } catch (Throwable e) {

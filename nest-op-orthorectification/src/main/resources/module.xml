@@ -4,27 +4,27 @@
     <version>6.0-SNAPSHOT</version>
     <name>NEST Orthorectification</name>
     <description>NEST Orthorectification</description>
-	
+
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
     <dependency>
-      <module>nest-op-calibration</module>
+        <module>nest-op-calibration</module>
     </dependency>
     <dependency>
-      <module>nest-op-coregistration</module>
+        <module>nest-op-coregistration</module>
     </dependency>
-	<dependency>
-      <module>nest-reader-dem</module>
+    <dependency>
+        <module>nest-reader-dem</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>jlinda-core</module>
     </dependency>
 
@@ -58,44 +58,44 @@
         </action>
 
         <action>
-	        <id>RangeDopplerGeocodingOp</id>
-	        <helpId>RangeDopplerGeocodingOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>RangeDopplerGeocodingOp</id>
+            <helpId>RangeDopplerGeocodingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TerrainCorrection</parent>
-	        <text>Range-Doppler Terrain Correction</text>
-	        <operatorName>Terrain-Correction</operatorName>
-	        <dialogTitle>Range Doppler Terrain Correction</dialogTitle>
+            <text>Range-Doppler Terrain Correction</text>
+            <operatorName>Terrain-Correction</operatorName>
+            <dialogTitle>Range Doppler Terrain Correction</dialogTitle>
             <shortDescr>Terrain Correction Range-Doppler Method</shortDescr>
             <targetProductNameSuffix>_TC</targetProductNameSuffix>
             <separatorAfter>true</separatorAfter>
         </action>
 
         <action>
-	        <id>SARSimGeocodingOp</id>
-	        <helpId>SARSimGeocodingOp</helpId>
-	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <id>SARSimGeocodingOp</id>
+            <helpId>SARSimGeocodingOp</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>TerrainCorrection</parent>
-	        <text>SAR-Simulation Terrain Correction</text>
+            <text>SAR-Simulation Terrain Correction</text>
             <shortDescr>Perform Orthorectification using a simulated SAR image</shortDescr>
-	        <dialogTitle>SAR-Simulation Terrain Correction</dialogTitle>
-            <graphFile>SARSimTCGraph.xml</graphFile>             
+            <dialogTitle>SAR-Simulation Terrain Correction</dialogTitle>
+            <graphFile>SARSimTCGraph.xml</graphFile>
             <placeAfter>RangeDopplerGeocodingOp</placeAfter>
         </action>
 
         <action>
-	        <id>SARSimulationOp</id>
-	        <helpId>SARSimOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>SARSimulationOp</id>
+            <helpId>SARSimOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TerrainCorrection</parent>
-	        <text>SAR Simulation</text>
-	        <operatorName>SAR-Simulation</operatorName>
-	        <dialogTitle>Simulate a SAR image</dialogTitle>
+            <text>SAR Simulation</text>
+            <operatorName>SAR-Simulation</operatorName>
+            <dialogTitle>Simulate a SAR image</dialogTitle>
             <shortDescr>Simulate a SAR image based on a DEM</shortDescr>
             <targetProductNameSuffix>_Sim</targetProductNameSuffix>
-			<placeAfter>RangeDopplerGeocodingOp</placeAfter>
+            <placeAfter>RangeDopplerGeocodingOp</placeAfter>
         </action>
 
         <action>
@@ -107,40 +107,40 @@
         </action>
 
         <action>
-	        <id>GeolocationGridGeocodingOp</id>
-	        <helpId>GeolocationGridGeocodingOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>GeolocationGridGeocodingOp</id>
+            <helpId>GeolocationGridGeocodingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>EllipsoidCorrection</parent>
-	        <text>Geolocation-Grid</text>
-	        <operatorName>Ellipsoid-Correction-GG</operatorName>
-	        <dialogTitle>Ellipsoid Correction - Geolocation Grid</dialogTitle>
+            <text>Geolocation-Grid</text>
+            <operatorName>Ellipsoid-Correction-GG</operatorName>
+            <dialogTitle>Ellipsoid Correction - Geolocation Grid</dialogTitle>
             <shortDescr>Ellipsoid Correction Geolocation-Grid Method</shortDescr>
             <targetProductNameSuffix>_EC</targetProductNameSuffix>
         </action>
 
         <action>
-	        <id>EllipsoidCorrectionRDOp</id>
-	        <helpId>EllipsoidCorrectionRDOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>EllipsoidCorrectionRDOp</id>
+            <helpId>EllipsoidCorrectionRDOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>EllipsoidCorrection</parent>
-	        <text>Average Height Range-Doppler</text>
-	        <operatorName>Ellipsoid-Correction-RD</operatorName>
-	        <dialogTitle>Ellipsoid Correction - Range Doppler</dialogTitle>
+            <text>Average Height Range-Doppler</text>
+            <operatorName>Ellipsoid-Correction-RD</operatorName>
+            <dialogTitle>Ellipsoid Correction - Range Doppler</dialogTitle>
             <shortDescr>Ellipsoid Correction Range-Doppler Method Assuming Average Height</shortDescr>
             <targetProductNameSuffix>_EC</targetProductNameSuffix>
         </action>
 
         <action>
-	        <id>MosaicOp</id>
-	        <helpId>MosaicOp</helpId>
-	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <id>MosaicOp</id>
+            <helpId>MosaicOp</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
-	        <text>Mosaic</text>
+            <text>Mosaic</text>
             <shortDescr>Mosaic various images together</shortDescr>
-	        <dialogTitle>Mosaic</dialogTitle>
+            <dialogTitle>Mosaic</dialogTitle>
             <graphFile>MosaicGraph.xml</graphFile>
         </action>
 
@@ -300,10 +300,10 @@
 
     </extension>
 
-	<extension point="beam-ui:helpSets">
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>orthorectificationHelp</id>
+            <id>orthorectificationHelp</id>
             <path>doc/help/orthorectification.hs</path>
         </helpSet>
     </extension>

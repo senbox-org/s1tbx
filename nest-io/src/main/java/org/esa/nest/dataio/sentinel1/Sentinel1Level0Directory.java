@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,24 +23,18 @@ import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.XMLSupport;
-import org.jdom2.Document;
-import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * This class represents a product directory.
- *
  */
 public class Sentinel1Level0Directory extends XMLProductDirectory implements Sentinel1Directory {
 
@@ -79,24 +73,24 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
             String tpgPrefix = "";
             String suffix = pol;
-            if(isSLC() && isTOPSAR()) {
-                suffix = swath +'_'+ pol;
+            if (isSLC() && isTOPSAR()) {
+                suffix = swath + '_' + pol;
                 tpgPrefix = swath;
             }
 
             int numImages = img.getNumImages();
-            if(isSLC()) {
+            if (isSLC()) {
                 numImages *= 2; // real + imaginary
             }
-            for(int i=0; i < numImages; ++i) {
+            for (int i = 0; i < numImages; ++i) {
 
-                if(isSLC()) {
-                    for(int b=0; b < img.getNumBands(); ++b) {
-                        if(real) {
-                            bandName = "i" + '_'+suffix;
+                if (isSLC()) {
+                    for (int b = 0; b < img.getNumBands(); ++b) {
+                        if (real) {
+                            bandName = "i" + '_' + suffix;
                             unit = Unit.REAL;
                         } else {
-                            bandName = "q" + '_'+suffix;
+                            bandName = "q" + '_' + suffix;
                             unit = Unit.IMAGINARY;
                         }
 
@@ -107,10 +101,10 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
-                        if(real) {
+                        if (real) {
                             lastRealBand = band;
                         } else {
-                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_'+suffix);
+                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_' + suffix);
                         }
                         real = !real;
 
@@ -118,8 +112,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                         addTiePointGrids(band, imgName, tpgPrefix);
                     }
                 } else {
-                    for(int b=0; b < img.getNumBands(); ++b) {
-                        bandName = "Amplitude" +'_'+suffix;
+                    for (int b = 0; b < img.getNumBands(); ++b) {
+                        bandName = "Amplitude" + '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
 
@@ -152,30 +146,30 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
         final String descriptor = contentUnit.getAttributeString("textInfo", defStr);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,  descriptor);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
         product.setDescription(descriptor);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,  "right");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         final MetadataElement metadataSection = XFDU.getElement("metadataSection");
         final MetadataElement[] metadataObjectList = metadataSection.getElements();
 
-        for(MetadataElement metadataObject : metadataObjectList) {
+        for (MetadataElement metadataObject : metadataObjectList) {
             final String id = metadataObject.getAttributeString("ID", defStr);
-            if(id.endsWith("Annotation") || id.endsWith("Schema")) {
+            if (id.endsWith("Annotation") || id.endsWith("Schema")) {
                 // continue;
-            } else if(id.equals("processing")) {
+            } else if (id.equals("processing")) {
                 final MetadataElement processing = findElement(metadataObject, "processing");
                 final MetadataElement facility = processing.getElement("facility");
-                if(facility != null) {
+                if (facility != null) {
                     final MetadataElement software = facility.getElement("software");
                     final String org = facility.getAttributeString("organisation");
                     final String name = software.getAttributeString("name");
                     final String version = software.getAttributeString("version");
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org+' '+name+' '+version);
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org + ' ' + name + ' ' + version);
                 }
                 final ProductData.UTC start = getTime(processing, "start");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, start);
-            } else if(id.equals("acquisitionPeriod")) {
+            } else if (id.equals("acquisitionPeriod")) {
                 final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
                 final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime");
                 final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime");
@@ -184,27 +178,27 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
-            } else if(id.equals("platform")) {
+            } else if (id.equals("platform")) {
                 final MetadataElement platform = findElement(metadataObject, "platform");
                 String missionName = platform.getAttributeString("familyName", "Sentinel-1");
                 final String number = platform.getAttributeString("number", defStr);
-                if(!missionName.equals("ENVISAT"))
+                if (!missionName.equals("ENVISAT"))
                     missionName += number;
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, missionName);
 
                 final MetadataElement instrument = platform.getElement("instrument");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, instrument.getAttributeString("swath", defStr));
                 acqMode = instrument.getAttributeString("mode", defStr);
-                if(acqMode == null || acqMode.equals(defStr)) {
+                if (acqMode == null || acqMode.equals(defStr)) {
                     final MetadataElement extensionElem = instrument.getElement("extension");
-                    if(extensionElem != null)  {
+                    if (extensionElem != null) {
                         final MetadataElement instrumentModeElem = extensionElem.getElement("instrumentMode");
-                        if(instrumentModeElem != null)
+                        if (instrumentModeElem != null)
                             acqMode = instrumentModeElem.getAttributeString("mode", defStr);
                     }
                 }
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, acqMode);
-            } else if(id.equals("measurementOrbitReference")) {
+            } else if (id.equals("measurementOrbitReference")) {
                 final MetadataElement orbitReference = findElement(metadataObject, "orbitReference");
                 final MetadataElement orbitNumber = findElementContaining(orbitReference, "OrbitNumber", "type", "start");
                 final MetadataElement relativeOrbitNumber = findElementContaining(orbitReference, "relativeOrbitNumber", "type", "start");
@@ -212,20 +206,20 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, relativeOrbitNumber.getAttributeInt("relativeOrbitNumber", defInt));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, orbitReference.getAttributeString("pass", defStr));
-            } else if(id.equals("measurementFrameSet")) {
+            } else if (id.equals("measurementFrameSet")) {
 
-            } else if(id.equals("generalProductInformation")) {
+            } else if (id.equals("generalProductInformation")) {
                 MetadataElement generalProductInformation = findElement(metadataObject, "generalProductInformation");
-                if(generalProductInformation == null)
+                if (generalProductInformation == null)
                     generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
 
                 String productType = "unknown";
-                    if(generalProductInformation != null)
-                        productType = generalProductInformation.getAttributeString("productType", defStr);
+                if (generalProductInformation != null)
+                    productType = generalProductInformation.getAttributeString("productType", defStr);
 
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-                if(productType.contains("SLC")) {
+                if (productType.contains("SLC")) {
                     setSLC(true);
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "COMPLEX");
                 } else {
@@ -243,12 +237,12 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     }
 
     private static MetadataElement findElementContaining(final MetadataElement parent, final String elemName,
-                                                  final String attribName, final String attValue) {
+                                                         final String attribName, final String attValue) {
         final MetadataElement[] elems = parent.getElements();
-        for(MetadataElement elem : elems) {
-            if(elem.getName().equalsIgnoreCase(elemName) && elem.containsAttribute(attribName)) {
+        for (MetadataElement elem : elems) {
+            if (elem.getName().equalsIgnoreCase(elemName) && elem.containsAttribute(attribName)) {
                 String value = elem.getAttributeString(attribName);
-                if(value != null && value.equalsIgnoreCase(attValue))
+                if (value != null && value.equalsIgnoreCase(attValue))
                     return elem;
             }
         }
@@ -282,7 +276,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         String[] bandNames = product.getBandNames();
         Band firstSWBand = null, lastSWBand = null;
         boolean firstSWBandFound = false, lastSWBandFound = false;
-        for (String bandName:bandNames) {
+        for (String bandName : bandNames) {
             if (!firstSWBandFound && bandName.contains(acquisitionMode + 1)) {
                 firstSWBand = product.getBand(bandName);
                 firstSWBandFound = true;
@@ -293,7 +287,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 lastSWBandFound = true;
             }
         }
-        if(firstSWBand == null && lastSWBand == null)
+        if (firstSWBand == null && lastSWBand == null)
             return;
 
         final GeoCoding firstSWBandGeoCoding = firstSWBand.getGeoCoding();
@@ -342,11 +336,11 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         final Product product = band.getProduct();
         String pre = "";
-        if(!tpgPrefix.isEmpty())
-            pre = tpgPrefix+'_';
+        if (!tpgPrefix.isEmpty())
+            pre = tpgPrefix + '_';
 
-        final TiePointGrid testTPG = product.getTiePointGrid(pre+OperatorUtils.TPG_LATITUDE);
-        if(testTPG != null)
+        final TiePointGrid testTPG = product.getTiePointGrid(pre + OperatorUtils.TPG_LATITUDE);
+        if (testTPG != null)
             return;
 
         final String annotation = FileUtils.exchangeExtension(imgXMLName, ".xml");
@@ -368,18 +362,18 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         final int[] y = new int[geoGrid.length];
 
         int gridWidth = 0, gridHeight = 0;
-        int i=0;
-        for(MetadataElement ggPoint : geoGrid) {
-            latList[i] = (float)ggPoint.getAttributeDouble("latitude", 0);
-            lngList[i] = (float)ggPoint.getAttributeDouble("longitude", 0);
-            incidenceAngleList[i] = (float)ggPoint.getAttributeDouble("incidenceAngle", 0);
-            elevAngleList[i] = (float)ggPoint.getAttributeDouble("elevationAngle", 0);
-            rangeTimeList[i] = (float)(ggPoint.getAttributeDouble("slantRangeTime", 0)*Constants.oneBillion); // s to ns
+        int i = 0;
+        for (MetadataElement ggPoint : geoGrid) {
+            latList[i] = (float) ggPoint.getAttributeDouble("latitude", 0);
+            lngList[i] = (float) ggPoint.getAttributeDouble("longitude", 0);
+            incidenceAngleList[i] = (float) ggPoint.getAttributeDouble("incidenceAngle", 0);
+            elevAngleList[i] = (float) ggPoint.getAttributeDouble("elevationAngle", 0);
+            rangeTimeList[i] = (float) (ggPoint.getAttributeDouble("slantRangeTime", 0) * Constants.oneBillion); // s to ns
 
-            x[i] = (int)ggPoint.getAttributeDouble("pixel", 0);
-            y[i] = (int)ggPoint.getAttributeDouble("line", 0);
-            if(x[i] == 0) {
-                if(gridWidth == 0)
+            x[i] = (int) ggPoint.getAttributeDouble("pixel", 0);
+            y[i] = (int) ggPoint.getAttributeDouble("line", 0);
+            if (x[i] == 0) {
+                if (gridWidth == 0)
                     gridWidth = i;
                 ++gridHeight;
             }
@@ -388,15 +382,15 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        final float[] newLatList = new float[newGridWidth*newGridHeight];
-        final float[] newLonList = new float[newGridWidth*newGridHeight];
-        final float[] newIncList = new float[newGridWidth*newGridHeight];
-        final float[] newElevList = new float[newGridWidth*newGridHeight];
-        final float[] newslrtList = new float[newGridWidth*newGridHeight];
+        final float[] newLatList = new float[newGridWidth * newGridHeight];
+        final float[] newLonList = new float[newGridWidth * newGridHeight];
+        final float[] newIncList = new float[newGridWidth * newGridHeight];
+        final float[] newElevList = new float[newGridWidth * newGridHeight];
+        final float[] newslrtList = new float[newGridWidth * newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
-        final float subSamplingX = (float)sceneRasterWidth / (newGridWidth - 1);
-        final float subSamplingY = (float)sceneRasterHeight / (newGridHeight - 1);
+        final float subSamplingX = (float) sceneRasterWidth / (newGridWidth - 1);
+        final float subSamplingY = (float) sceneRasterHeight / (newGridHeight - 1);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, latList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
@@ -413,39 +407,39 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, rangeTimeList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
 
-        TiePointGrid latGrid = product.getTiePointGrid(pre+OperatorUtils.TPG_LATITUDE);
-        if(latGrid == null) {
-            latGrid = new TiePointGrid(pre+OperatorUtils.TPG_LATITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
+        TiePointGrid latGrid = product.getTiePointGrid(pre + OperatorUtils.TPG_LATITUDE);
+        if (latGrid == null) {
+            latGrid = new TiePointGrid(pre + OperatorUtils.TPG_LATITUDE,
+                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
             latGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(latGrid);
         }
 
-        TiePointGrid lonGrid = product.getTiePointGrid(pre+OperatorUtils.TPG_LONGITUDE);
-        if(lonGrid == null) {
-            lonGrid = new TiePointGrid(pre+OperatorUtils.TPG_LONGITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+        TiePointGrid lonGrid = product.getTiePointGrid(pre + OperatorUtils.TPG_LONGITUDE);
+        if (lonGrid == null) {
+            lonGrid = new TiePointGrid(pre + OperatorUtils.TPG_LONGITUDE,
+                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(lonGrid);
         }
 
-        if(product.getTiePointGrid(pre+OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
-            final TiePointGrid incidentAngleGrid = new TiePointGrid(pre+OperatorUtils.TPG_INCIDENT_ANGLE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
+        if (product.getTiePointGrid(pre + OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(pre + OperatorUtils.TPG_INCIDENT_ANGLE,
+                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
         }
 
-        if(product.getTiePointGrid(pre+OperatorUtils.TPG_ELEVATION_ANGLE) == null) {
-            final TiePointGrid elevAngleGrid = new TiePointGrid(pre+OperatorUtils.TPG_ELEVATION_ANGLE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
+        if (product.getTiePointGrid(pre + OperatorUtils.TPG_ELEVATION_ANGLE) == null) {
+            final TiePointGrid elevAngleGrid = new TiePointGrid(pre + OperatorUtils.TPG_ELEVATION_ANGLE,
+                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
             elevAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(elevAngleGrid);
         }
 
-        if(product.getTiePointGrid(pre+OperatorUtils.TPG_SLANT_RANGE_TIME) == null) {
-            final TiePointGrid slantRangeGrid = new TiePointGrid(pre+OperatorUtils.TPG_SLANT_RANGE_TIME,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
+        if (product.getTiePointGrid(pre + OperatorUtils.TPG_SLANT_RANGE_TIME) == null) {
+            final TiePointGrid slantRangeGrid = new TiePointGrid(pre + OperatorUtils.TPG_SLANT_RANGE_TIME,
+                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
             slantRangeGrid.setUnit(Unit.NANOSECONDS);
             product.addTiePointGrid(slantRangeGrid);
         }
@@ -480,8 +474,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     @Override
     protected String getProductName() {
         String name = getBaseDir().getName();
-        if(name.toUpperCase().endsWith(".SAFE"))
-            return name.substring(0, name.length()-5);
+        if (name.toUpperCase().endsWith(".SAFE"))
+            return name.substring(0, name.length() - 5);
         return name;
     }
 
@@ -491,16 +485,16 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
     private static void getListInEvenlySpacedGrid(
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
-            final int sourceGridHeight, final int [] x, final int [] y, final float[] sourcePointList,
+            final int sourceGridHeight, final int[] x, final int[] y, final float[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final float subSamplingX, final float subSamplingY,
             final float[] targetPointList) {
 
-        if (sourcePointList.length != sourceGridWidth*sourceGridHeight) {
+        if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
                     "Original tie point array size does not match 'sourceGridWidth' x 'sourceGridHeight'");
         }
 
-        if (targetPointList.length != targetGridWidth*targetGridHeight) {
+        if (targetPointList.length != targetGridWidth * targetGridHeight) {
             throw new IllegalArgumentException(
                     "Target tie point array size does not match 'targetGridWidth' x 'targetGridHeight'");
         }
@@ -511,7 +505,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
             if (r == targetGridHeight - 1) {
                 System.out.println();
             }
-            float newY = r*subSamplingY;
+            float newY = r * subSamplingY;
             if (newY > sceneRasterHeight - 1) {
                 newY = sceneRasterHeight - 1;
             }
@@ -520,18 +514,18 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
             for (int rr = 1; rr < sourceGridHeight; rr++) {
                 j0 = rr - 1;
                 j1 = rr;
-                oldY0 = y[j0*sourceGridWidth];
-                oldY1 = y[j1*sourceGridWidth];
+                oldY0 = y[j0 * sourceGridWidth];
+                oldY1 = y[j1 * sourceGridWidth];
                 if (oldY1 > newY) {
                     break;
                 }
             }
 
-            final float wj = (newY - oldY0)/(oldY1 - oldY0);
+            final float wj = (newY - oldY0) / (oldY1 - oldY0);
 
             for (int c = 0; c < targetGridWidth; c++) {
 
-                float newX = c*subSamplingX;
+                float newX = c * subSamplingX;
                 if (newX > sceneRasterWidth - 1) {
                     newX = sceneRasterWidth - 1;
                 }
@@ -546,7 +540,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                         break;
                     }
                 }
-                final float wi = (newX - oldX0)/(oldX1 - oldX0);
+                final float wi = (newX - oldX0) / (oldX1 - oldX0);
 
                 targetPointList[k++] = MathUtils.interpolate2D(wi, wj,
                         sourcePointList[i0 + j0 * sourceGridWidth],
@@ -556,8 +550,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
             }
         }
     }
-	
-	public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
+
+    public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
 
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
@@ -569,8 +563,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     public Product createProduct() throws IOException {
 
         final Product product = new Product(getProductName(),
-                                            getProductType(),
-                                            sceneWidth, sceneHeight);
+                getProductType(),
+                sceneWidth, sceneHeight);
 
         addMetaData(product);
         addTiePointGrids(product); // empty

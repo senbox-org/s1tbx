@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,12 +47,11 @@ import java.util.Map;
 
 /**
  * The CreateStack operator.
- *
  */
 @OperatorMetadata(alias = "CreateStack",
         category = "SAR Tools\\Coregistration",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Collocates two or more products based on their geo-codings.")
 public class CreateStackOp extends Operator {
 
@@ -60,11 +59,11 @@ public class CreateStackOp extends Operator {
     private Product[] sourceProduct;
 
     @Parameter(description = "The list of source bands.", alias = "masterBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Master Band")
+            rasterDataNodeType = Band.class, label = "Master Band")
     private String[] masterBandNames = null;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Slave Bands")
+            rasterDataNodeType = Band.class, label = "Slave Bands")
     private String[] slaveBandNames = null;
 
     private Product masterProduct = null;
@@ -74,17 +73,17 @@ public class CreateStackOp extends Operator {
     private Product targetProduct = null;
 
     @Parameter(valueSet = {"NONE", ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-                           ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-               defaultValue = "NONE",
-               description = "The method to be used when resampling the slave grid onto the master grid.",
-               label="Resampling Type")
+            ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
+            defaultValue = "NONE",
+            description = "The method to be used when resampling the slave grid onto the master grid.",
+            label = "Resampling Type")
     private String resamplingType = "NONE";
     private Resampling selectedResampling = null;
 
-    @Parameter(valueSet = {MASTER_EXTENT, MIN_EXTENT, MAX_EXTENT },
-               defaultValue = MASTER_EXTENT,
-               description = "The output image extents.",
-               label="Output Extents")
+    @Parameter(valueSet = {MASTER_EXTENT, MIN_EXTENT, MAX_EXTENT},
+            defaultValue = MASTER_EXTENT,
+            description = "The output image extents.",
+            label = "Output Extents")
     private String extent = MASTER_EXTENT;
 
     final static String MASTER_EXTENT = "Master";
@@ -101,41 +100,41 @@ public class CreateStackOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if(sourceProduct == null) {
+            if (sourceProduct == null) {
                 return;
             }
 
-            if(sourceProduct.length < 2) {
+            if (sourceProduct.length < 2) {
                 throw new OperatorException("Please select at least two source products");
             }
 
-            for(final Product prod : sourceProduct) {
+            for (final Product prod : sourceProduct) {
                 if (prod.getGeoCoding() == null) {
                     throw new OperatorException(
                             MessageFormat.format("Product ''{0}'' has no geo-coding.", prod.getName()));
                 }
             }
 
-            if(masterBandNames == null || masterBandNames.length == 0 || getMasterProduct(masterBandNames[0]) == null) {
+            if (masterBandNames == null || masterBandNames.length == 0 || getMasterProduct(masterBandNames[0]) == null) {
                 final Product defaultProd = sourceProduct[0];
-                if(defaultProd != null) {
+                if (defaultProd != null) {
                     final Band defaultBand = defaultProd.getBandAt(0);
-                    if(defaultBand != null) {
-                        if(defaultBand.getUnit() != null && defaultBand.getUnit().equals(Unit.REAL))
-                            masterBandNames = new String[] { defaultProd.getBandAt(0).getName(),
-                                                             defaultProd.getBandAt(1).getName() };
+                    if (defaultBand != null) {
+                        if (defaultBand.getUnit() != null && defaultBand.getUnit().equals(Unit.REAL))
+                            masterBandNames = new String[]{defaultProd.getBandAt(0).getName(),
+                                    defaultProd.getBandAt(1).getName()};
                         else
-                            masterBandNames = new String[] { defaultBand.getName() };
+                            masterBandNames = new String[]{defaultBand.getName()};
                     }
                 }
-                if(masterBandNames.length == 0) {
+                if (masterBandNames.length == 0) {
                     targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
                     return;
                 }
             }
 
             masterProduct = getMasterProduct(masterBandNames[0]);
-            if(masterProduct == null) {
+            if (masterProduct == null) {
                 targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
                 return;
             }
@@ -145,7 +144,7 @@ public class CreateStackOp extends Operator {
             final List<String> masterProductBands = new ArrayList<String>(masterProduct.getNumBands());
 
             final Band[] slaveBandList = getSlaveBands();
-            if(masterProduct == null || slaveBandList.length == 0 || slaveBandList[0] == null) {
+            if (masterProduct == null || slaveBandList.length == 0 || slaveBandList[0] == null) {
                 targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
                 return;
             }
@@ -154,11 +153,11 @@ public class CreateStackOp extends Operator {
                 throw new OperatorException("Please select only Master extents when resampling type is None");
             }
 
-            if(appendToMaster) {
+            if (appendToMaster) {
                 extent = MASTER_EXTENT;
             }
 
-            if(extent.equals(MASTER_EXTENT)) {
+            if (extent.equals(MASTER_EXTENT)) {
 
                 targetProduct = new Product(masterProduct.getName(),
                         masterProduct.getProductType(),
@@ -166,20 +165,20 @@ public class CreateStackOp extends Operator {
                         masterProduct.getSceneRasterHeight());
 
                 ProductUtils.copyProductNodes(masterProduct, targetProduct);
-            } else if(extent.equals(MIN_EXTENT)) {
+            } else if (extent.equals(MIN_EXTENT)) {
                 determinMinExtents();
             } else {
                 determinMaxExtents();
             }
 
-            if(appendToMaster) {
+            if (appendToMaster) {
                 // add all master bands
-                for(Band b : masterProduct.getBands()) {
-                    if(!(b instanceof VirtualBand)) {
+                for (Band b : masterProduct.getBands()) {
+                    if (!(b instanceof VirtualBand)) {
                         final Band targetBand = new Band(b.getName(),
-                            b.getDataType(),
-                            targetProduct.getSceneRasterWidth(),
-                            targetProduct.getSceneRasterHeight());
+                                b.getDataType(),
+                                targetProduct.getSceneRasterWidth(),
+                                targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(b, targetBand);
                         targetBand.setSourceImage(b.getSourceImage());
 
@@ -192,9 +191,9 @@ public class CreateStackOp extends Operator {
 
             String suffix = "_mst";
             // add master bands first
-            if(!appendToMaster) {
+            if (!appendToMaster) {
                 for (final Band srcBand : slaveBandList) {
-                    if(srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1])) {
+                    if (srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1])) {
                         suffix = "_mst" + StackUtils.getBandTimeStamp(srcBand.getProduct());
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
@@ -202,7 +201,7 @@ public class CreateStackOp extends Operator {
                                 targetProduct.getSceneRasterWidth(),
                                 targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
-                        if(extent.equals(MASTER_EXTENT)) {
+                        if (extent.equals(MASTER_EXTENT)) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
                         }
 
@@ -214,22 +213,22 @@ public class CreateStackOp extends Operator {
             }
             // then add slave bands
             int cnt = 1;
-            if(appendToMaster) {
-                for(Band trgBand : targetProduct.getBands()) {
+            if (appendToMaster) {
+                for (Band trgBand : targetProduct.getBands()) {
                     final String name = trgBand.getName();
-                    if(name.contains("slv"+cnt))
+                    if (name.contains("slv" + cnt))
                         ++cnt;
                 }
             }
             for (final Band srcBand : slaveBandList) {
-                if(!(srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1]))) {
-                    if(srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
+                if (!(srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1]))) {
+                    if (srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
                     } else {
                         suffix = "_slv" + cnt++ + StackUtils.getBandTimeStamp(srcBand.getProduct());
                     }
                     final String tgtBandName = srcBand.getName() + suffix;
 
-                    if(targetProduct.getBand(tgtBandName) == null) {
+                    if (targetProduct.getBand(tgtBandName) == null) {
                         final Product srcProduct = srcBand.getProduct();
                         final Band targetBand = new Band(tgtBandName,
                                 srcBand.getDataType(),
@@ -237,11 +236,11 @@ public class CreateStackOp extends Operator {
                                 targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT) &&
-                            (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
+                                (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
                         }
 
-                        if(srcBand.getProduct() == masterProduct) {
+                        if (srcBand.getProduct() == masterProduct) {
                             masterProductBands.add(tgtBandName);
                         }
 
@@ -264,7 +263,7 @@ public class CreateStackOp extends Operator {
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
             if (masterGCPgroup.getNodeCount() > 0) {
                 OperatorUtils.copyGCPsToTarget(masterGCPgroup, targetProduct.getGcpGroup(targetProduct.getBandAt(0)),
-                                               targetProduct.getGeoCoding());
+                        targetProduct.getGeoCoding());
             }
 
             if (!resamplingType.contains("NONE")) {
@@ -273,7 +272,7 @@ public class CreateStackOp extends Operator {
                 computeTargetSlaveCoordinateOffsets();
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -284,13 +283,13 @@ public class CreateStackOp extends Operator {
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
 
-        for(Product srcProduct : sourceProduct) {
-            if(srcProduct == masterProduct)
+        for (Product srcProduct : sourceProduct) {
+            if (srcProduct == masterProduct)
                 continue;
 
             final MetadataElement slvInputElem = ProductInformation.getInputProducts(srcProduct);
             final MetadataAttribute[] slvInputProductAttrbList = slvInputElem.getAttributes();
-            for(MetadataAttribute attrib : slvInputProductAttrbList) {
+            for (MetadataAttribute attrib : slvInputProductAttrbList) {
                 final MetadataAttribute inputAttrb = AbstractMetadata.addAbstractedAttribute(inputElem, "InputProduct", ProductData.TYPE_ASCII, "", "");
                 inputAttrb.getData().setElems(attrib.getData().getElemString());
             }
@@ -299,12 +298,12 @@ public class CreateStackOp extends Operator {
 
     private void copySlaveMetadata() {
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
-        for(Product prod : sourceProduct) {
-            if(prod != masterProduct) {
+        for (Product prod : sourceProduct) {
+            if (prod != masterProduct) {
                 final MetadataElement slvAbsMetadata = AbstractMetadata.getAbstractedMetadata(prod);
-                if(slvAbsMetadata != null) {
+                if (slvAbsMetadata != null) {
                     final String timeStamp = StackUtils.getBandTimeStamp(prod);
-                    final MetadataElement targetSlaveMetadata = new MetadataElement(prod.getName()+timeStamp);
+                    final MetadataElement targetSlaveMetadata = new MetadataElement(prod.getName() + timeStamp);
                     targetSlaveMetadataRoot.addElement(targetSlaveMetadata);
                     ProductUtils.copyMetadata(slvAbsMetadata, targetSlaveMetadata);
                 }
@@ -314,14 +313,14 @@ public class CreateStackOp extends Operator {
 
     private void saveSlaveProductNames(final Product targetProduct, final Map<Band, Band> sourceRasterMap) {
 
-        for(Product prod : sourceProduct) {
-            if(prod != masterProduct) {
+        for (Product prod : sourceProduct) {
+            if (prod != masterProduct) {
                 final String suffix = StackUtils.getBandTimeStamp(prod);
                 final List<String> bandNames = new ArrayList<String>(10);
-                for(Band tgtBand : sourceRasterMap.keySet()) {
+                for (Band tgtBand : sourceRasterMap.keySet()) {
                     final Band srcBand = sourceRasterMap.get(tgtBand);
                     final Product srcProduct = srcBand.getProduct();
-                    if(srcProduct == prod) {
+                    if (srcProduct == prod) {
                         bandNames.add(tgtBand.getName());
                     }
                 }
@@ -333,8 +332,8 @@ public class CreateStackOp extends Operator {
 
     private Product getMasterProduct(final String name) {
         final String masterName = getProductName(name);
-        for(Product prod : sourceProduct) {
-            if(prod.getName().equals(masterName)) {
+        for (Product prod : sourceProduct) {
+            if (prod.getName().equals(masterName)) {
                 return prod;
             }
         }
@@ -345,57 +344,57 @@ public class CreateStackOp extends Operator {
         final List<Band> bandList = new ArrayList<Band>(5);
 
         // add master band
-        if(masterProduct == null) {
+        if (masterProduct == null) {
             throw new OperatorException("masterProduct is null");
         }
-        if(masterBandNames.length > 2) {
+        if (masterBandNames.length > 2) {
             throw new OperatorException("Master band should be one real band or a real and imaginary band");
         }
         masterBands[0] = masterProduct.getBand(getBandName(masterBandNames[0]));
-        if(!appendToMaster)
+        if (!appendToMaster)
             bandList.add(masterBands[0]);
 
         final String unit = masterBands[0].getUnit();
-        if(unit != null) {
+        if (unit != null) {
             if (unit.contains(Unit.PHASE)) {
                 throw new OperatorException("Phase band should not be selected for co-registration");
             } else if (unit.contains(Unit.IMAGINARY)) {
                 throw new OperatorException("Real and imaginary master bands should be selected in pairs");
             } else if (unit.contains(Unit.REAL)) {
-                if(masterBandNames.length < 2) {
+                if (masterBandNames.length < 2) {
                     if (!contains(masterBandNames, slaveBandNames[0])) {
                         throw new OperatorException("Real and imaginary master bands should be selected in pairs");
                     } else {
                         final int iBandIdx = masterProduct.getBandIndex(getBandName(masterBandNames[0]));
-                        masterBands[1] = masterProduct.getBandAt(iBandIdx+1);
-                        if(!masterBands[1].getUnit().equals(Unit.IMAGINARY))
+                        masterBands[1] = masterProduct.getBandAt(iBandIdx + 1);
+                        if (!masterBands[1].getUnit().equals(Unit.IMAGINARY))
                             throw new OperatorException("For complex products select a real and an imaginary band");
-                        if(!appendToMaster)
+                        if (!appendToMaster)
                             bandList.add(masterBands[1]);
                     }
                 } else {
                     final Product prod = getMasterProduct(masterBandNames[1]);
-                    if(prod != masterProduct) {
+                    if (prod != masterProduct) {
                         //throw new OperatorException("Please select master bands from the same product");
                     }
                     masterBands[1] = masterProduct.getBand(getBandName(masterBandNames[1]));
-                    if(!masterBands[1].getUnit().equals(Unit.IMAGINARY))
+                    if (!masterBands[1].getUnit().equals(Unit.IMAGINARY))
                         throw new OperatorException("For complex products select a real and an imaginary band");
-                    if(!appendToMaster)
+                    if (!appendToMaster)
                         bandList.add(masterBands[1]);
                 }
             }
         }
 
         // add slave bands
-        if(slaveBandNames == null || slaveBandNames.length == 0 || contains(masterBandNames, slaveBandNames[0])) {
-            for(Product slvProduct : sourceProduct) {
-                for(Band band : slvProduct.getBands()) {
-                    if(band.getUnit() != null && band.getUnit().equals(Unit.PHASE))
+        if (slaveBandNames == null || slaveBandNames.length == 0 || contains(masterBandNames, slaveBandNames[0])) {
+            for (Product slvProduct : sourceProduct) {
+                for (Band band : slvProduct.getBands()) {
+                    if (band.getUnit() != null && band.getUnit().equals(Unit.PHASE))
                         continue;
-                    if(band instanceof VirtualBand)
+                    if (band instanceof VirtualBand)
                         continue;
-                    if(slvProduct == masterProduct && (band == masterBands[0] || band == masterBands[1] || appendToMaster))
+                    if (slvProduct == masterProduct && (band == masterBands[0] || band == masterBands[1] || appendToMaster))
                         continue;
 
                     bandList.add(band);
@@ -403,34 +402,34 @@ public class CreateStackOp extends Operator {
             }
         } else {
 
-            for(int i = 0; i < slaveBandNames.length; i++) {
+            for (int i = 0; i < slaveBandNames.length; i++) {
                 final String name = slaveBandNames[i];
-                if(contains(masterBandNames, name)) {
+                if (contains(masterBandNames, name)) {
                     throw new OperatorException("Please do not select the same band as master and slave");
                 }
                 final String bandName = getBandName(name);
                 final String productName = getProductName(name);
 
                 final Product prod = getProduct(productName, bandName);
-                if(prod == null) continue;
+                if (prod == null) continue;
 
                 final Band band = prod.getBand(bandName);
                 final String bandUnit = band.getUnit();
-                if(bandUnit != null) {
+                if (bandUnit != null) {
                     if (bandUnit.contains(Unit.PHASE)) {
                         throw new OperatorException("Phase band should not be selected for co-registration");
                     } else if (bandUnit.contains(Unit.REAL) || bandUnit.contains(Unit.IMAGINARY)) {
                         if (slaveBandNames.length < 2) {
                             throw new OperatorException("Real and imaginary slave bands should be selected in pairs");
                         }
-                        final String nextBandName = getBandName(slaveBandNames[i+1]);
-                        final String nextBandProdName = getProductName(slaveBandNames[i+1]);
-                        if (!nextBandProdName.contains(productName)){
+                        final String nextBandName = getBandName(slaveBandNames[i + 1]);
+                        final String nextBandProdName = getProductName(slaveBandNames[i + 1]);
+                        if (!nextBandProdName.contains(productName)) {
                             throw new OperatorException("Real and imaginary slave bands should be selected from the same product in pairs");
                         }
                         final Band nextBand = prod.getBand(nextBandName);
                         if ((bandUnit.contains(Unit.REAL) && !nextBand.getUnit().contains(Unit.IMAGINARY) ||
-                            (bandUnit.contains(Unit.IMAGINARY) && !nextBand.getUnit().contains(Unit.REAL)))) {
+                                (bandUnit.contains(Unit.IMAGINARY) && !nextBand.getUnit().contains(Unit.REAL)))) {
                             throw new OperatorException("Real and imaginary slave bands should be selected in pairs");
                         }
                         bandList.add(band);
@@ -448,9 +447,9 @@ public class CreateStackOp extends Operator {
     }
 
     private Product getProduct(final String productName, final String bandName) {
-        for(Product prod : sourceProduct) {
-            if(prod.getName().equals(productName)) {
-                if(prod.getBand(bandName) != null)
+        for (Product prod : sourceProduct) {
+            if (prod.getName().equals(productName)) {
+                if (prod.getBand(bandName) != null)
                     return prod;
             }
         }
@@ -458,22 +457,22 @@ public class CreateStackOp extends Operator {
     }
 
     private static boolean contains(final String[] nameList, final String name) {
-        for(String nameInList : nameList) {
-            if(name.equals(nameInList))
+        for (String nameInList : nameList) {
+            if (name.equals(nameInList))
                 return true;
         }
         return false;
     }
 
     private static String getBandName(final String name) {
-        if(name.contains("::"))
+        if (name.contains("::"))
             return name.substring(0, name.indexOf("::"));
         return name;
     }
 
     private String getProductName(final String name) {
-        if(name.contains("::"))
-            return name.substring(name.indexOf("::")+2, name.length());
+        if (name.contains("::"))
+            return name.substring(name.indexOf("::") + 2, name.length());
         return sourceProduct[0].getName();
     }
 
@@ -484,8 +483,8 @@ public class CreateStackOp extends Operator {
 
         Geometry tgtGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(masterProduct);
 
-        for(final Product slvProd : sourceProduct) {
-            if(slvProd == masterProduct) continue;
+        for (final Product slvProd : sourceProduct) {
+            if (slvProd == masterProduct) continue;
 
             final Geometry slvGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(slvProd);
             tgtGeometry = tgtGeometry.intersection(slvGeometry);
@@ -497,25 +496,25 @@ public class CreateStackOp extends Operator {
         final float mstWidth = masterProduct.getSceneRasterWidth();
         final float mstHeight = masterProduct.getSceneRasterHeight();
 
-        float maxX=0, maxY=0;
+        float maxX = 0, maxY = 0;
         float minX = mstWidth;
         float minY = mstHeight;
-        for(Coordinate c : tgtGeometry.getCoordinates()) {
+        for (Coordinate c : tgtGeometry.getCoordinates()) {
             //System.out.println("geo "+c.x +", "+ c.y);
-            geoPos.setLocation((float)c.y, (float)c.x);
+            geoPos.setLocation((float) c.y, (float) c.x);
             mstGeoCoding.getPixelPos(geoPos, pixPos);
             //System.out.println("pix "+pixPos.x +", "+ pixPos.y);
-            if(pixPos.isValid() && pixPos.x != -1 && pixPos.y != -1) {
-                if(pixPos.x < minX) {
+            if (pixPos.isValid() && pixPos.x != -1 && pixPos.y != -1) {
+                if (pixPos.x < minX) {
                     minX = Math.max(0, pixPos.x);
                 }
-                if(pixPos.y < minY) {
+                if (pixPos.y < minY) {
                     minY = Math.max(0, pixPos.y);
                 }
-                if(pixPos.x > maxX) {
+                if (pixPos.x > maxX) {
                     maxX = Math.min(mstWidth, pixPos.x);
                 }
-                if(pixPos.y > maxY) {
+                if (pixPos.y > maxY) {
                     maxY = Math.min(mstHeight, pixPos.y);
                 }
             }
@@ -525,14 +524,14 @@ public class CreateStackOp extends Operator {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.addNodeNames(masterProduct.getTiePointGridNames());
 
-        subsetDef.setRegion((int)minX, (int)minY, (int)(maxX-minX), (int)(maxY-minY));
+        subsetDef.setRegion((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
         subsetDef.setSubSampling(1, 1);
         subsetDef.setIgnoreMetadata(false);
 
         try {
             targetProduct = subsetReader.readProductNodes(masterProduct, subsetDef);
             final Band[] bands = targetProduct.getBands();
-            for(Band b : bands) {
+            for (Band b : bands) {
                 targetProduct.removeBand(b);
             }
         } catch (Throwable t) {
@@ -592,7 +591,7 @@ public class CreateStackOp extends Operator {
             GeoPos geoPosLR = new GeoPos();
 
             for (final Product slvProd : sourceProduct) {
-                if(slvProd != masterProduct) {
+                if (slvProd != masterProduct) {
                     final GeoCoding slaveGeoCoding = slvProd.getGeoCoding();
 
                     final GeoPos geoPosFirstNear = slaveGeoCoding.getGeoPos(
@@ -603,7 +602,8 @@ public class CreateStackOp extends Operator {
                             new PixelPos(0, slvProd.getSceneRasterHeight() - 1), null);
                     final GeoPos geoPosLastFar = slaveGeoCoding.getGeoPos(
                             new PixelPos(slvProd.getSceneRasterWidth() - 1,
-                            slvProd.getSceneRasterHeight() - 1), null);
+                                    slvProd.getSceneRasterHeight() - 1), null
+                    );
 
                     masterGeoCoding.getPixelPos(geoPosFirstNear, pixelPosUL);
                     masterGeoCoding.getPixelPos(geoPosFirstFar, pixelPosUR);
@@ -622,8 +622,8 @@ public class CreateStackOp extends Operator {
                 }
             }
 
-            final int sceneWidth = (int)(xMax - xMin) + 1;
-            final int sceneHeight = (int)(yMax - yMin) + 1;
+            final int sceneWidth = (int) (xMax - xMin) + 1;
+            final int sceneHeight = (int) (yMax - yMin) + 1;
 
             targetProduct = new Product(masterProduct.getName(), masterProduct.getProductType(), sceneWidth, sceneHeight);
 
@@ -636,17 +636,17 @@ public class CreateStackOp extends Operator {
             final float[] lonTiePoints = {geoPosUL.lon, geoPosUR.lon, geoPosLL.lon, geoPosLR.lon};
 
             final TiePointGrid latGrid = new TiePointGrid("latitude", 2, 2, 0.5f, 0.5f,
-                    sceneWidth-1, sceneHeight-1, latTiePoints);
+                    sceneWidth - 1, sceneHeight - 1, latTiePoints);
             latGrid.setUnit(Unit.DEGREES);
 
             final TiePointGrid lonGrid = new TiePointGrid("longitude", 2, 2, 0.5f, 0.5f,
-                    sceneWidth-1, sceneHeight-1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
+                    sceneWidth - 1, sceneHeight - 1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
 
             targetProduct.addTiePointGrid(latGrid);
             targetProduct.addTiePointGrid(lonGrid);
             targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -664,8 +664,8 @@ public class CreateStackOp extends Operator {
         final GeoPos slvGeoPos = new GeoPos();
 
         for (final Product slvProd : sourceProduct) {
-            if(slvProd == masterProduct && extent.equals(MASTER_EXTENT)) {
-                slaveOffsettMap.put(slvProd, new int[] {0,0});
+            if (slvProd == masterProduct && extent.equals(MASTER_EXTENT)) {
+                slaveOffsettMap.put(slvProd, new int[]{0, 0});
                 continue;
             }
 
@@ -677,16 +677,16 @@ public class CreateStackOp extends Operator {
 
             // test corners
             slvGeoCoding.getGeoPos(new PixelPos(10, 10), slvGeoPos);
-            if(false) {// (pixelPosValid(targGeoCoding, slvGeoPos, tgtPixelPos, targImageWidth, targImageHeight)) {
+            if (false) {// (pixelPosValid(targGeoCoding, slvGeoPos, tgtPixelPos, targImageWidth, targImageHeight)) {
 
-                addOffset(slvProd, 0 - (int)tgtPixelPos.x, 0 - (int)tgtPixelPos.y);
+                addOffset(slvProd, 0 - (int) tgtPixelPos.x, 0 - (int) tgtPixelPos.y);
                 foundOverlapPoint = true;
             }
             if (false) {//!foundOverlapPoint) {
-                slvGeoCoding.getGeoPos(new PixelPos(slvImageWidth-10, slvImageHeight-10), slvGeoPos);
+                slvGeoCoding.getGeoPos(new PixelPos(slvImageWidth - 10, slvImageHeight - 10), slvGeoPos);
                 if (pixelPosValid(targGeoCoding, slvGeoPos, tgtPixelPos, targImageWidth, targImageHeight)) {
 
-                    addOffset(slvProd, 0 - slvImageWidth - (int)tgtPixelPos.x, slvImageHeight - (int)tgtPixelPos.y);
+                    addOffset(slvProd, 0 - slvImageWidth - (int) tgtPixelPos.x, slvImageHeight - (int) tgtPixelPos.y);
                     foundOverlapPoint = true;
                 }
             }
@@ -695,17 +695,17 @@ public class CreateStackOp extends Operator {
                 final Geometry slvGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(slvProd);
                 final Geometry intersect = tgtGeometry.intersection(slvGeometry);
 
-                for(Coordinate c : intersect.getCoordinates()) {
-                    getPixelPos((float)c.y, (float)c.x, slvGeoCoding, slvPixelPos);
+                for (Coordinate c : intersect.getCoordinates()) {
+                    getPixelPos((float) c.y, (float) c.x, slvGeoCoding, slvPixelPos);
 
                     if (slvPixelPos.isValid() && slvPixelPos.x >= 0 && slvPixelPos.x < slvImageWidth &&
-                        slvPixelPos.y >= 0 && slvPixelPos.y < slvImageHeight) {
+                            slvPixelPos.y >= 0 && slvPixelPos.y < slvImageHeight) {
 
-                        getPixelPos((float)c.y, (float)c.x, targGeoCoding, tgtPixelPos);
+                        getPixelPos((float) c.y, (float) c.x, targGeoCoding, tgtPixelPos);
                         if (tgtPixelPos.isValid() && tgtPixelPos.x >= 0 && tgtPixelPos.x < targImageWidth &&
-                            tgtPixelPos.y >= 0 && tgtPixelPos.y < targImageHeight) {
+                                tgtPixelPos.y >= 0 && tgtPixelPos.y < targImageHeight) {
 
-                            addOffset(slvProd, (int)slvPixelPos.x - (int)tgtPixelPos.x, (int)slvPixelPos.y - (int)tgtPixelPos.y);
+                            addOffset(slvProd, (int) slvPixelPos.x - (int) tgtPixelPos.x, (int) slvPixelPos.y - (int) tgtPixelPos.y);
                             foundOverlapPoint = true;
                             break;
                         }
@@ -718,8 +718,8 @@ public class CreateStackOp extends Operator {
             //    System.out.println("offset x="+offset[0]+" y="+offset[1]);
             //}
 
-            if (!foundOverlapPoint)  {
-               throw new OperatorException("Product " + slvProd.getName() + " has no overlap with master product.");
+            if (!foundOverlapPoint) {
+                throw new OperatorException("Product " + slvProd.getName() + " has no overlap with master product.");
             }
         }
     }
@@ -728,7 +728,7 @@ public class CreateStackOp extends Operator {
                                          final int width, final int height) {
         geoCoding.getPixelPos(geoPos, pixelPos);
         return (pixelPos.isValid() && pixelPos.x >= 0 && pixelPos.x < width &&
-                    pixelPos.y >= 0 && pixelPos.y < height);
+                pixelPos.y >= 0 && pixelPos.y < height);
     }
 
     private static void getPixelPos(final float lat, final float lon, final GeoCoding srcGeoCoding, final PixelPos pixelPos) {
@@ -736,7 +736,7 @@ public class CreateStackOp extends Operator {
     }
 
     private void addOffset(final Product slvProd, final int offsetX, final int offsetY) {
-        slaveOffsettMap.put(slvProd, new int[] {offsetX, offsetY});
+        slaveOffsettMap.put(slvProd, new int[]{offsetX, offsetY});
     }
 
     @Override
@@ -777,15 +777,15 @@ public class CreateStackOp extends Operator {
 
                 boolean isInt = false;
                 final int trgDataType = trgData.getType();
-                if(trgDataType == srcData.getType() &&
-                  (trgDataType == ProductData.TYPE_INT16 || trgDataType == ProductData.TYPE_INT32)) {
+                if (trgDataType == srcData.getType() &&
+                        (trgDataType == ProductData.TYPE_INT16 || trgDataType == ProductData.TYPE_INT32)) {
                     isInt = true;
                 }
 
                 for (int ty = ty0; ty < maxY; ++ty) {
                     final int sy = ty + offset[1];
                     final int trgOffset = trgIndex.calculateStride(ty);
-                    if(sy < 0 || sy >= srcImageHeight) {
+                    if (sy < 0 || sy >= srcImageHeight) {
                         for (int tx = tx0; tx < maxX; ++tx) {
                             trgData.setElemDoubleAt(tx - trgOffset, noDataValue);
                         }
@@ -798,7 +798,7 @@ public class CreateStackOp extends Operator {
                         if (sx < 0 || sx >= srcImageWidth) {
                             trgData.setElemDoubleAt(tx - trgOffset, noDataValue);
                         } else {
-                            if(isInt)
+                            if (isInt)
                                 trgData.setElemIntAt(tx - trgOffset, srcData.getElemIntAt(sx - srcOffset));
                             else
                                 trgData.setElemDoubleAt(tx - trgOffset, srcData.getElemDoubleAt(sx - srcOffset));
@@ -811,7 +811,7 @@ public class CreateStackOp extends Operator {
                 final Collocator col = new Collocator(this, srcProduct, targetProduct, targetTile.getRectangle());
                 col.collocateSourceBand(sourceRaster, targetTile, selectedResampling);
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -823,7 +823,7 @@ public class CreateStackOp extends Operator {
         }
         try {
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
         }
 
@@ -833,7 +833,7 @@ public class CreateStackOp extends Operator {
     public static void checkPixelSpacing(final Product[] sourceProducts) throws Exception {
         double savedRangeSpacing = 0.0;
         double savedAzimuthSpacing = 0.0;
-        for(final Product prod : sourceProducts) {
+        for (final Product prod : sourceProducts) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(prod);
             if (absRoot == null) {
                 throw new OperatorException(
@@ -844,9 +844,9 @@ public class CreateStackOp extends Operator {
             final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
             double a = Math.abs(rangeSpacing - savedRangeSpacing);
             double b = Math.abs(azimuthSpacing - savedAzimuthSpacing);
-            if(savedRangeSpacing > 0.0 && savedAzimuthSpacing > 0.0 &&
+            if (savedRangeSpacing > 0.0 && savedAzimuthSpacing > 0.0 &&
                     (Math.abs(rangeSpacing - savedRangeSpacing) > 0.05 ||
-                     Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.05)) {
+                            Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.05)) {
                 throw new OperatorException("Resampling type cannot be NONE because pixel spacings" +
                         " are different for master and slave products");
             } else {

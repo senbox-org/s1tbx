@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,6 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.util.DialogUtils;
-import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.Settings;
 
 import javax.swing.*;
@@ -66,10 +65,10 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
         geometries.setFixedCellWidth(200);
         geometries.setMinimumSize(new Dimension(50, 4));
         geometries.setVisibleRowCount(6);
-        
+
         // set default selection to selected product
         final Product selectedProduct = app.getSelectedProduct();
-        if(selectedProduct != null) {
+        if (selectedProduct != null) {
             productList.setSelectedItem(selectedProduct.getDisplayName());
             roiProductList.setSelectedItem(selectedProduct.getDisplayName());
             updateGeometryList();
@@ -94,7 +93,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     }
 
     private void updateGeometryList() {
-        final String name = (String)roiProductList.getSelectedItem();
+        final String name = (String) roiProductList.getSelectedItem();
         final Product product = VisatApp.getApp().getProductManager().getProductByDisplayName(name);
         final String[] geometryNames = product.getMaskGroup().getNodeNames();
         geometries.removeAll();
@@ -135,12 +134,12 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
     public Product getProduct() {
         return VisatApp.getApp().getProductManager().getProductByDisplayName(
-                (String)productList.getSelectedItem());
+                (String) productList.getSelectedItem());
     }
 
     public Product getRoiProduct() {
         return VisatApp.getApp().getProductManager().getProductByDisplayName(
-                (String)roiProductList.getSelectedItem());
+                (String) roiProductList.getSelectedItem());
     }
 
     public String[] getSelectedGeometries() {
@@ -155,7 +154,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
         File folder;
         try {
             folder = new File(Settings.getAuxDataFolder(), "SupervisedTraining");
-        } catch(Exception e) {
+        } catch (Exception e) {
             folder = FileSystemView.getFileSystemView().getRoots()[0];
         }
         return new File(folder, "training_cluster_centers.txt");
@@ -163,23 +162,23 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
     private boolean validate() {
         final String[] geometries = getSelectedGeometries();
-        if(geometries == null || geometries.length < 1) {
+        if (geometries == null || geometries.length < 1) {
             VisatApp.getApp().showErrorDialog("Please select the product geometries to use");
             return false;
         }
 
         final File file = getSaveFile();
-        if(file.exists()) {
-            return VisatApp.getApp().showQuestionDialog("File exists", "File "+file.getAbsolutePath()+
+        if (file.exists()) {
+            return VisatApp.getApp().showQuestionDialog("File exists", "File " + file.getAbsolutePath() +
                     "\nalready exists. Would you like to overwrite it?", false, null) == 0;
         }
-        if(!file.getParentFile().exists())
+        if (!file.getParentFile().exists())
             file.getParentFile().mkdirs();
         return true;
     }
 
     protected void onOK() {
-        if(validate()) {
+        if (validate()) {
             ok = true;
             hide();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -54,6 +54,7 @@ public class BaseRecordTest extends TestCase {
         assertEquals(_prefix.length(), record.getStartPos());
         assertEquals(_prefix.length() + 12, _ios.getStreamPosition());  */
     }
+
     /*
     public void testAssignMetadataTo() throws IOException,
                                               IllegalBinaryFormatException {
@@ -90,7 +91,7 @@ public class BaseRecordTest extends TestCase {
         assertEquals(ProductData.TYPESTRING_ASCII, attribute.getData().getTypeString());
         assertEquals(expectedValue, attribute.getData().getElemString());
     }
-    
+
     public static void assertRecord(final BinaryRecord record) {
         assertNotNull(record);
    /*     assertEquals(1, record.getAttributeInt("Record Number"));
@@ -100,7 +101,7 @@ public class BaseRecordTest extends TestCase {
         assertEquals(021, record.getAttributeInt("Third Record Subtype"));   */
         assertEquals(RECORD_LENGTH, record.getRecordLength());
     }
-     
+
     public static void writeRecordData(final ImageOutputStream ios) throws IOException {
         ios.writeInt(1); // recordNumber = 1
         ios.write(077); // firstRecordSubtype = 77 octal

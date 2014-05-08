@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,7 +27,6 @@ import java.io.IOException;
 
 /**
  * This class represents a leader file of a product.
- *
  */
 class AlosPalsarLeaderFile extends CEOSLeaderFile {
 
@@ -60,64 +59,64 @@ class AlosPalsarLeaderFile extends CEOSLeaderFile {
         _leaderFDR = new BinaryRecord(reader, -1, fdrXML, leader_recordDefinitionFile);
         header.seekToEnd();
 
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of data set summary records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of data set summary records"); ++i) {
             header = new CeosRecordHeader(reader);
             _sceneHeaderRecord = new BinaryRecord(reader, -1, sceneXML, scene_recordDefinitionFile);
             header.seekToEnd();
         }
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of map projection data records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of map projection data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
                 _mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
                 header.seekToEnd();
-             } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("unable to read projection");
             }
         }
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of platform pos. data records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of platform pos. data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
                 _platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
                 header.seekToEnd();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("unable to read platform pos");
             }
         }
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of attitude data records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of attitude data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
                 _attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
                 header.seekToEnd();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("unable to read attitude");
             }
         }
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of radiometric data records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of radiometric data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
                 _radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
                 header.seekToEnd();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("unable to read radiometric");
             }
         }
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of data quality summary records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of data quality summary records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
                 _dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
                 header.seekToEnd();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("unable to read quality");
             }
         }
-        for(int i=0; i < _leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
+        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
                 int level = getProductLevel();
-                if(level == AlosPalsarConstants.LEVEL1_0 || level == AlosPalsarConstants.LEVEL1_1) {
+                if (level == AlosPalsarConstants.LEVEL1_0 || level == AlosPalsarConstants.LEVEL1_1) {
                     int facilityRecordNum = 17;
 
-                    while(header.getRecordNum() < facilityRecordNum && header.getRecordLength() > 0) {
+                    while (header.getRecordNum() < facilityRecordNum && header.getRecordLength() > 0) {
                         header.seekToEnd();
                         header = new CeosRecordHeader(reader);
                     }
@@ -128,32 +127,32 @@ class AlosPalsarLeaderFile extends CEOSLeaderFile {
                     _facilityRecord = new BinaryRecord(reader, -1, facility1_5XML, facility_record1_5DefinitionFile);
                     header.seekToEnd();
                 }
-            } catch(Exception e) {
-                System.out.println("Unable to read ALOS facility record: "+e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unable to read ALOS facility record: " + e.getMessage());
             }
         }
         reader.close();
 
-        if(getProductLevel() == AlosPalsarConstants.LEVEL1_0)
+        if (getProductLevel() == AlosPalsarConstants.LEVEL1_0)
             throw new IOException("ALOS L0 products are not supported");
     }
 
     public final int getProductLevel() {
-        if(productLevel < 0) {
+        if (productLevel < 0) {
             String level = null;
-            if(_sceneHeaderRecord != null) {
+            if (_sceneHeaderRecord != null) {
                 level = _sceneHeaderRecord.getAttributeString("Product level code");
             }
-            if(level != null) {
-                if(level.contains("1.5"))
+            if (level != null) {
+                if (level.contains("1.5"))
                     productLevel = AlosPalsarConstants.LEVEL1_5;
-                else if(level.contains("1.1"))
+                else if (level.contains("1.1"))
                     productLevel = AlosPalsarConstants.LEVEL1_1;
-                else if(level.contains("1.0"))
+                else if (level.contains("1.0"))
                     productLevel = AlosPalsarConstants.LEVEL1_0;
-                else if(level.contains("4.1"))
+                else if (level.contains("4.1"))
                     productLevel = AlosPalsarConstants.LEVEL4_1;
-                else if(level.contains("4.2"))
+                else if (level.contains("4.2"))
                     productLevel = AlosPalsarConstants.LEVEL4_2;
             }
         }

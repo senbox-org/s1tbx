@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,7 +28,6 @@ import org.esa.nest.datamodel.Unit;
 
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
 
 /**
  * Calibration for ALOS PALSAR data products.
@@ -64,7 +63,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
     @Override
     public void setAuxFileFlag(String file) {
     }
-    
+
     /**
 
      */
@@ -79,7 +78,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-            if(!mission.equals("ALOS"))
+            if (!mission.equals("ALOS"))
                 throw new OperatorException(mission + " is not a valid mission for ALOS Calibration");
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
@@ -96,7 +95,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                 updateTargetProductMetadata();
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
     }
@@ -112,12 +111,13 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
             calibrationFactor -= 32.0; // calibration factor offset is 32 dB
         }
 
-        calibrationFactor = Math.pow(10.0, calibrationFactor/10.0); // dB to linear scale
+        calibrationFactor = Math.pow(10.0, calibrationFactor / 10.0); // dB to linear scale
         //System.out.println("Calibration factor is " + calibrationFactor);
     }
 
     /**
      * Get incidence angle and slant range time tie point grids.
+     *
      * @param sourceProduct the source
      */
     private void getTiePointGridData(Product sourceProduct) {
@@ -141,8 +141,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile,
                             ProgressMonitor pm) throws OperatorException {
@@ -175,7 +174,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
 
         // copy band if unit is phase
-        if(bandUnit == Unit.UnitType.PHASE) {
+        if (bandUnit == Unit.UnitType.PHASE) {
             targetTile.setRawSamples(sourceRaster1.getRawSamples());
             return;
         }
@@ -200,7 +199,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    sigma = dn*dn;
+                    sigma = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     sigma = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
@@ -233,19 +232,19 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            sigma = v*v;
+            sigma = v * v;
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v/10.0); // convert dB to linear scale
+            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }
 
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma*calibrationFactor*Math.sin(localIncidenceAngle * MathUtils.DTOR);
+            return sigma * calibrationFactor * Math.sin(localIncidenceAngle * MathUtils.DTOR);
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
-            return sigma*calibrationFactor;
+            return sigma * calibrationFactor;
         }
     }
 

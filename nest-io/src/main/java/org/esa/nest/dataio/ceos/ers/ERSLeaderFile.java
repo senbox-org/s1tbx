@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,7 +27,6 @@ import java.io.IOException;
 
 /**
  * This class represents a leader file of a product.
- *
  */
 class ERSLeaderFile {
 
@@ -67,7 +66,7 @@ class ERSLeaderFile {
         reader.seek(_platformPositionRecord.getRecordEndPosition());
         _facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
         reader.seek(_facilityRecord.getRecordEndPosition());
-        if(reader.getCurrentPos() + 4000 < reader.getLength()) {
+        if (reader.getCurrentPos() + 4000 < reader.getLength()) {
             _facilityRelatedPCSRecord = new BinaryRecord(reader, -1, facilityRelXML, facilityRelatedPCS_recordDefinitionFile);
             reader.seek(_facilityRelatedPCSRecord.getRecordEndPosition());
         } else {

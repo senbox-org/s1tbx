@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,6 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.nest.datamodel.Unit;
-
 
 import java.awt.*;
 import java.io.File;
@@ -94,7 +93,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         this.outputDNBand = outputDNBand;
 
         String[] selectedPols = selectedPolarisations;
-        if(selectedPols == null || selectedPols.length == 0) {
+        if (selectedPols == null || selectedPols.length == 0) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
         }
@@ -132,7 +131,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             getSubsetOffset();
 
-            calibration = new CalibrationInfo[numOfSubSwath*selectedPolList.size()];
+            calibration = new CalibrationInfo[numOfSubSwath * selectedPolList.size()];
             getCalibrationVectors(sourceProduct, selectedPolList, outputSigmaBand, outputBetaBand, outputGammaBand,
                     outputDNBand, calibration);
 
@@ -144,7 +143,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 updateTargetProductMetadata();
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
     }
@@ -154,7 +153,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if(!mission.equals("SENTINEL-1A")) {
+        if (!mission.equals("SENTINEL-1A")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }
@@ -164,7 +163,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      */
     private void getProductType() {
         productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if(!productType.equals("SLC") && !productType.equals("GRD")) {
+        if (!productType.equals("SLC") && !productType.equals("GRD")) {
             throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
         }
         isGRD = productType.equals("GRD");
@@ -192,15 +191,15 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private void getProductPolarization() {
 
         final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
-        final String level = productName.substring(12,14);
+        final String level = productName.substring(12, 14);
         if (!level.equals("1S")) {
             throw new OperatorException("Invalid source product");
         }
 
-        polarization = productName.substring(14,16);
+        polarization = productName.substring(14, 16);
         if (!polarization.equals("SH") && !polarization.equals("SV") && !polarization.equals("DH") &&
-            !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
-            !polarization.equals("VV") && !polarization.equals("VH")) {
+                !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
+                !polarization.equals("VV") && !polarization.equals("VH")) {
             throw new OperatorException("Invalid source product");
         }
     }
@@ -259,10 +258,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private void createTargetBandToCalInfoMap() {
 
         final String[] targetBandNames = targetProduct.getBandNames();
-        for (CalibrationInfo cal:calibration) {
+        for (CalibrationInfo cal : calibration) {
             final String pol = cal.polarization;
             final String ss = cal.subSwath;
-            for (String bandName:targetBandNames) {
+            for (String bandName : targetBandNames) {
                 if (!isGRD) {
                     if (bandName.contains(pol) && bandName.contains(ss)) {
                         targetBandToCalInfo.put(bandName, cal);
@@ -279,17 +278,18 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Get the number of output lines of a given swath.
-     * @param absRoot Root of the abstracted metadata.
+     *
+     * @param absRoot      Root of the abstracted metadata.
      * @param polarization Polarization of the given swath.
-     * @param swath Swath name.
+     * @param swath        Swath name.
      * @return The number of output lines.
      */
     public static int getNumOfLines(final MetadataElement absRoot, final String polarization, final String swath) {
 
         final MetadataElement[] elems = absRoot.getElements();
-        for(MetadataElement elem : elems) {
+        for (MetadataElement elem : elems) {
             final String elemName = elem.getName();
-            if(elemName.contains(swath) && elemName.contains(polarization)) {
+            if (elemName.contains(swath) && elemName.contains(polarization)) {
                 return elem.getAttributeInt("num_output_lines");
             }
         }
@@ -299,6 +299,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Get incidence angle and slant range time tie point grids.
+     *
      * @param sourceProduct the source
      */
     private void getTiePointGridData(Product sourceProduct) {
@@ -315,14 +316,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         final String[] targetBandNames = targetProduct.getBandNames();
         final MetadataElement[] children = abs.getElements();
-        for(MetadataElement child : children) {
+        for (MetadataElement child : children) {
             final String childName = child.getName();
-            if(childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
+            if (childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
                 final String pol = childName.substring(childName.lastIndexOf("_") + 1);
                 final String sw_pol = childName.substring(childName.indexOf("_") + 1);
                 if (selectedPolList.contains(pol)) {
                     String bandNameArray = "";
-                    for (String bandName:targetBandNames) {
+                    for (String bandName : targetBandNames) {
                         if (bandName.contains(sw_pol)) {
                             bandNameArray += bandName + " ";
                         }
@@ -342,9 +343,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames) {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         addSelectedBands(sourceProduct, sourceBandNames);
 
@@ -361,29 +362,29 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             final Band srcBand = sourceBands[i];
             final String unit = srcBand.getUnit();
-            if(unit == null) {
-                throw new OperatorException("band "+srcBand.getName()+" requires a unit");
+            if (unit == null) {
+                throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
-            if(!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE)) {
+            if (!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE)) {
                 continue;
             }
 
             String[] srcBandNames;
             if (unit.contains(Unit.REAL)) { // SLC
 
-                if(i+1 >= sourceBands.length) {
+                if (i + 1 >= sourceBands.length) {
                     throw new OperatorException("Real and imaginary bands are not in pairs");
                 }
 
-                final String nextUnit = sourceBands[i+1].getUnit();
+                final String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
                     throw new OperatorException("Real and imaginary bands are not in pairs");
                 }
 
                 srcBandNames = new String[2];
                 srcBandNames[0] = srcBand.getName();
-                srcBandNames[1] = sourceBands[i+1].getName();
+                srcBandNames[1] = sourceBands[i + 1].getName();
                 ++i;
 
             } else { // GRD
@@ -398,8 +399,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             }
 
             final String[] targetBandNames = createTargetBandNames(srcBandNames[0]);
-            for (String tgtBandName:targetBandNames) {
-                if(targetProduct.getBand(tgtBandName) == null) {
+            for (String tgtBandName : targetBandNames) {
+                if (targetProduct.getBand(tgtBandName) == null) {
 
                     targetBandNameToSourceBandName.put(tgtBandName, srcBandNames);
 
@@ -417,12 +418,13 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Create target band names for given source band name.
+     *
      * @param srcBandName The given source band name.
      * @return The target band name array.
      */
     private String[] createTargetBandNames(final String srcBandName) {
 
-        final int cnt = (outputSigmaBand?1:0) + (outputGammaBand?1:0) + (outputBetaBand?1:0) + (outputDNBand?1:0);
+        final int cnt = (outputSigmaBand ? 1 : 0) + (outputGammaBand ? 1 : 0) + (outputBetaBand ? 1 : 0) + (outputDNBand ? 1 : 0);
         String[] targetBandNames = new String[cnt];
 
         final String pol = srcBandName.substring(srcBandName.indexOf("_"));
@@ -453,8 +455,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
@@ -492,7 +493,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
-		final TileIndex tgtIndex = new TileIndex(targetTile);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
@@ -526,13 +527,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Compute calibration LUTs for the given tile.
-     * @param x0 X coordinate of the upper left corner pixel of the given tile.
-     * @param y0 Y coordinate of the upper left corner pixel of the given tile.
-     * @param w Tile width.
-     * @param h Tile height.
-     * @param calInfo Object of CalibrationInfo class.
+     *
+     * @param x0             X coordinate of the upper left corner pixel of the given tile.
+     * @param y0             Y coordinate of the upper left corner pixel of the given tile.
+     * @param w              Tile width.
+     * @param h              Tile height.
+     * @param calInfo        Object of CalibrationInfo class.
      * @param targetBandName Target band name.
-     * @param lut LUT for calibration.
+     * @param lut            LUT for calibration.
      */
     private void computeTileCalibrationLUTs(final int x0, final int y0, final int w, final int h,
                                             final CalibrationInfo calInfo, final String targetBandName,
@@ -546,7 +548,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         for (int y = y0; y < y0 + h; y++) {
 
             final int yy = y - y0;
-            final double azTime = calInfo.firstLineTime + y*lineTimeInterval;
+            final double azTime = calInfo.firstLineTime + y * lineTimeInterval;
             if (azTime > calInfo.calibrationVectorList[calVecIdx + 1].timeMJD) {
                 calVecIdx++;
             }
@@ -564,7 +566,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
                 final int i0 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx];
                 final int i1 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx + 1];
-                muX = (double)(x - i0) / (double)(i1 - i0);
+                muX = (double) (x - i0) / (double) (i1 - i0);
 
                 if (targetBandName.contains("Sigma")) {
                     v00 = calInfo.calibrationVectorList[calVecIdx].sigmaNought[pixelIdx];
@@ -595,13 +597,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Compute calibration LUTs for the given range line.
-     * @param y Index of the given range line.
-     * @param x0 X coordinate of the upper left corner pixel of the given tile.
-     * @param y0 Y coordinate of the upper left corner pixel of the given tile.
-     * @param w Tile width.
-     * @param calInfo Object of CalibrationInfo class.
+     *
+     * @param y              Index of the given range line.
+     * @param x0             X coordinate of the upper left corner pixel of the given tile.
+     * @param y0             Y coordinate of the upper left corner pixel of the given tile.
+     * @param w              Tile width.
+     * @param calInfo        Object of CalibrationInfo class.
      * @param targetBandName Target band name.
-     * @param lut LUT for calibration.
+     * @param lut            LUT for calibration.
      */
     public static void computeTileCalibrationLUTs(final int y, final int x0, final int y0, final int w,
                                                   final CalibrationInfo calInfo, final String targetBandName,
@@ -613,7 +616,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         int calVecIdx = getCalibrationVectorIndex(y0, calInfo);
         int pixelIdx = getPixelIndex(x0, calVecIdx, calInfo);
 
-        final double azTime = calInfo.firstLineTime + y*lineTimeInterval;
+        final double azTime = calInfo.firstLineTime + y * lineTimeInterval;
         final double azT0 = calInfo.calibrationVectorList[calVecIdx].timeMJD;
         final double azT1 = calInfo.calibrationVectorList[calVecIdx + 1].timeMJD;
         muY = (azTime - azT0) / (azT1 - azT0);
@@ -626,7 +629,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             final int xx0 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx];
             final int xx1 = calInfo.calibrationVectorList[calVecIdx].pixels[pixelIdx + 1];
-            muX = (double)(x - xx0) / (double)(xx1 - xx0);
+            muX = (double) (x - xx0) / (double) (xx1 - xx0);
 
             if (targetBandName.contains("Sigma")) {
                 v00 = calInfo.calibrationVectorList[calVecIdx].sigmaNought[pixelIdx];
@@ -650,13 +653,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 v11 = calInfo.calibrationVectorList[calVecIdx + 1].dn[pixelIdx + 1];
             }
 
-            lut[x-x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
         }
     }
 
     /**
      * Get index of the calibration vector in the list for a given line.
-     * @param y Line coordinate.
+     *
+     * @param y       Line coordinate.
      * @param calInfo Object of CalibrationInfo class.
      * @return The calibration vector index.
      */
@@ -672,9 +676,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     /**
      * Get pixel index in a given calibration vector for a given pixel.
-     * @param x Pixel coordinate.
+     *
+     * @param x         Pixel coordinate.
      * @param calVecIdx Calibration vector index.
-     * @param calInfo Object of CalibrationInfo class.
+     * @param calInfo   Object of CalibrationInfo class.
      * @return The pixel index.
      */
     private static int getPixelIndex(final int x, final int calVecIdx, final CalibrationInfo calInfo) {
@@ -690,7 +695,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
-            final double satelliteHeight, final double sceneToEarthCentre,final double localIncidenceAngle,
+            final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
         return 0.0;

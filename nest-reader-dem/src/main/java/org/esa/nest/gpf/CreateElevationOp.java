@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,10 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
@@ -38,35 +41,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-    CreateElevationBandOp adds an elevation band to a product
+ * CreateElevationBandOp adds an elevation band to a product
  */
 
-@OperatorMetadata(alias="AddElevation",
+@OperatorMetadata(alias = "AddElevation",
         category = "Geometric\\DEM Tools",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Creates a DEM band")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Creates a DEM band")
 public final class CreateElevationOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
-            description = "The digital elevation model.", defaultValue="SRTM 3Sec", label="Digital Elevation Model")
+            description = "The digital elevation model.", defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
-    @Parameter(description = "The elevation band name.", defaultValue="elevation", label="Elevation Band Name")
+    @Parameter(description = "The elevation band name.", defaultValue = "elevation", label = "Elevation Band Name")
     private String elevationBandName = "elevation";
 
-    @Parameter(description = "The external DEM file.", defaultValue=" ", label="External DEM")
+    @Parameter(description = "The external DEM file.", defaultValue = " ", label = "External DEM")
     private String externalDEM = " ";
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             ResamplingFactory.CUBIC_CONVOLUTION_NAME, ResamplingFactory.BISINC_INTERPOLATION_NAME,
             ResamplingFactory.BICUBIC_INTERPOLATION_NAME}, defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-                label="Resampling Method")
+            label = "Resampling Method")
     private String resamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
     private FileElevationModel fileElevationModel = null;
@@ -85,8 +88,7 @@ public final class CreateElevationOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -94,7 +96,7 @@ public final class CreateElevationOp extends Operator {
 
         try {
 
-            if(externalDEM != null && !externalDEM.trim().isEmpty()) {
+            if (externalDEM != null && !externalDEM.trim().isEmpty()) {
 
                 fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod);
                 noDataValue = fileElevationModel.getNoDataValue();
@@ -103,10 +105,10 @@ public final class CreateElevationOp extends Operator {
                 dem = DEMFactory.createElevationModel(demName, resamplingMethod);
                 noDataValue = dem.getDescriptor().getNoDataValue();
             }
-            
+
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -117,21 +119,21 @@ public final class CreateElevationOp extends Operator {
     void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for(Band band : sourceProduct.getBands()) {
-            if(band.getName().equalsIgnoreCase(elevationBandName))
-                throw new OperatorException("Band "+elevationBandName+" already exists. Try another name.");
-            if(band instanceof VirtualBand) {
+        for (Band band : sourceProduct.getBands()) {
+            if (band.getName().equalsIgnoreCase(elevationBandName))
+                throw new OperatorException("Band " + elevationBandName + " already exists. Try another name.");
+            if (band instanceof VirtualBand) {
                 final VirtualBand sourceBand = (VirtualBand) band;
                 final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                                   sourceBand.getDataType(),
-                                   sourceBand.getRasterWidth(),
-                                   sourceBand.getRasterHeight(),
-                                   sourceBand.getExpression());
+                        sourceBand.getDataType(),
+                        sourceBand.getRasterWidth(),
+                        sourceBand.getRasterHeight(),
+                        sourceBand.getExpression());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                 targetProduct.addBand(targetBand);
                 sourceRasterMap.put(targetBand, band);
@@ -148,21 +150,20 @@ public final class CreateElevationOp extends Operator {
         elevationBand.setDescription(dem.getDescriptor().getName());
     }
 
-     /**
+    /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         try {
-            if(targetBand == elevationBand) {
+            if (targetBand == elevationBand) {
                 final Rectangle targetRectangle = targetTile.getRectangle();
                 final int x0 = targetRectangle.x;
                 final int y0 = targetRectangle.y;
@@ -173,7 +174,7 @@ public final class CreateElevationOp extends Operator {
                 final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
 
                 final float demNoDataValue = dem.getDescriptor().getNoDataValue();
-                final double[][] localDEM = new double[h+2][w+2];
+                final double[][] localDEM = new double[h + 2][w + 2];
                 DEMFactory.getLocalDEM(
                         dem, demNoDataValue, resamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);
 
@@ -182,15 +183,15 @@ public final class CreateElevationOp extends Operator {
                 final int maxX = x0 + w;
                 final int maxY = y0 + h;
                 for (int y = y0; y < maxY; ++y) {
-                    final int yy = y-y0+1;
+                    final int yy = y - y0 + 1;
                     trgIndex.calculateStride(y);
                     for (int x = x0; x < maxX; ++x) {
 
-                        trgData.setElemDoubleAt(trgIndex.getIndex(x), localDEM[yy][x-x0+1]);
+                        trgData.setElemDoubleAt(trgIndex.getIndex(x), localDEM[yy][x - x0 + 1]);
                     }
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -200,6 +201,7 @@ public final class CreateElevationOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

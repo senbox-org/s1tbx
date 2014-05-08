@@ -8,10 +8,10 @@
 
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>Canadian Space Agency</funding>
-	
+    <funding>Canadian Space Agency</funding>
+
     <dependency>
         <module>beam-visat-rcp</module>
     </dependency>
@@ -36,13 +36,13 @@
     <extension point="beam-ui:actions">
 
         <action>
-	        <id>PolarimetricClassificationOp</id>
-	        <helpId>PolarimetricClassificationOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>PolarimetricClassificationOp</id>
+            <helpId>PolarimetricClassificationOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
-	        <text>Unsupervised Polarimetric Classification</text>
-	        <dialogTitle>Polarimetric Classification</dialogTitle>
+            <text>Unsupervised Polarimetric Classification</text>
+            <dialogTitle>Polarimetric Classification</dialogTitle>
             <shortDescr>Polarimetric Classification</shortDescr>
             <operatorName>Polarimetric-Classification</operatorName>
             <targetProductNameSuffix>_Class</targetProductNameSuffix>
@@ -61,13 +61,13 @@
         </action>
 
         <action>
-	        <id>SupervisedWishartClassificationOp</id>
-	        <helpId>SupervisedWishartClassificationOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>SupervisedWishartClassificationOp</id>
+            <helpId>SupervisedWishartClassificationOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
-	        <text>Supervised Wishart Classification</text>
-	        <dialogTitle>Supervised Wishart Classification</dialogTitle>
+            <text>Supervised Wishart Classification</text>
+            <dialogTitle>Supervised Wishart Classification</dialogTitle>
             <shortDescr>Supervised Wishart Classification</shortDescr>
             <operatorName>Supervised-Wishart-Classification</operatorName>
             <targetProductNameSuffix>_Class</targetProductNameSuffix>
@@ -85,7 +85,8 @@
         </action>
         <action>
             <id>TerrainFlattenedClassificationWizard</id>
-            <class>org.csa.rstb.dat.wizards.TerrainFlattenedClassification.TerrainFlattenedClassificationWizardAction</class>
+            <class>org.csa.rstb.dat.wizards.TerrainFlattenedClassification.TerrainFlattenedClassificationWizardAction
+            </class>
             <parent>Wizards</parent>
             <text>Terrain Flattened Classification Wizard</text>
             <shortDescr>Wizard for Polarimetric Terrain Flattened Classification</shortDescr>
@@ -94,11 +95,11 @@
             <placeAfter>PolsarWizard</placeAfter>
         </action>
     </extension>
-    
+
     <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>classificationHelp</id>
+            <id>classificationHelp</id>
             <path>doc/help/classification.hs</path>
         </helpSet>
     </extension>

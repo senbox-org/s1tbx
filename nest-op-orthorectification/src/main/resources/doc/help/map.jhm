@@ -6,15 +6,15 @@
 <map version="2.0">
 
     <!--Geometry Operators-->
-	<mapID target="CreateElevationOp" url="operators/CreateElevationOp.html"/>
-	<mapID target="RangeDopplerGeocodingOp" url="operators/RangeDopplerGeocodingOp.html"/>
-	<mapID target="SARSimGeocodingOp" url="operators/SARSimTerrainCorrectionOp.html"/>
-	<mapID target="SARSimOp" url="operators/SARSimulationOp.html"/>
-	<mapID target="GeolocationGridGeocodingOp" url="operators/GeolocationGridGeocodingOp.html"/>
-	<mapID target="EllipsoidCorrectionRDOp" url="operators/EllipsoidCorrectionRDOp.html"/>
-	<mapID target="MapProjectionOp" url="operators/MapProjectionOp.html"/>
-	<mapID target="SRGROp" url="operators/SRGROp.html"/>
-	<mapID target="MosaicOp" url="operators/MosaicOp.html"/>
-	<mapID target="ALOSDeskewingOp" url="operators/ALOSDeskewingOp.html"/>
-	<mapID target="TerrainFlatteningOp" url="operators/TerrainFlatteningOp.html"/>
+    <mapID target="CreateElevationOp" url="operators/CreateElevationOp.html"/>
+    <mapID target="RangeDopplerGeocodingOp" url="operators/RangeDopplerGeocodingOp.html"/>
+    <mapID target="SARSimGeocodingOp" url="operators/SARSimTerrainCorrectionOp.html"/>
+    <mapID target="SARSimOp" url="operators/SARSimulationOp.html"/>
+    <mapID target="GeolocationGridGeocodingOp" url="operators/GeolocationGridGeocodingOp.html"/>
+    <mapID target="EllipsoidCorrectionRDOp" url="operators/EllipsoidCorrectionRDOp.html"/>
+    <mapID target="MapProjectionOp" url="operators/MapProjectionOp.html"/>
+    <mapID target="SRGROp" url="operators/SRGROp.html"/>
+    <mapID target="MosaicOp" url="operators/MosaicOp.html"/>
+    <mapID target="ALOSDeskewingOp" url="operators/ALOSDeskewingOp.html"/>
+    <mapID target="TerrainFlatteningOp" url="operators/TerrainFlatteningOp.html"/>
 </map>

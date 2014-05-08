@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,6 @@
 package org.esa.nest.dataio.cosmo;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
@@ -155,11 +154,11 @@ public class CosmoSkymedReader extends SARReader {
     }
 
     private static Variable[] getRasterVariables(Map<NcRasterDim, List<Variable>> variableLists,
-                                                NcRasterDim rasterDim) {
+                                                 NcRasterDim rasterDim) {
         final List<Variable> varList = variableLists.get(rasterDim);
         final List<Variable> list = new ArrayList<>(5);
-        for(Variable var : varList) {
-            if(!var.getShortName().equals("GIM")) {
+        for (Variable var : varList) {
+            if (!var.getShortName().equals("GIM")) {
                 list.add(var);
             }
         }

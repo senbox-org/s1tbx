@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,9 +23,6 @@ import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.SurfaceImage;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -37,10 +34,11 @@ import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -127,7 +125,7 @@ public class ProductLayer extends RenderableLayer {
             }
         } else {
             // add image
-            if(enableSurfaceImages)
+            if (enableSurfaceImages)
                 addSurfaceImage(product);
 
             // add outline
@@ -146,18 +144,19 @@ public class ProductLayer extends RenderableLayer {
 
                 final Band band = newProduct.getBandAt(0);
                 final BufferedImage image = ProductUtils.createRgbImage(new RasterDataNode[]{band},
-                                           band.getImageInfo(com.bc.ceres.core.ProgressMonitor.NULL),
-                                           com.bc.ceres.core.ProgressMonitor.NULL);
+                        band.getImageInfo(com.bc.ceres.core.ProgressMonitor.NULL),
+                        com.bc.ceres.core.ProgressMonitor.NULL);
 
                 final GeoPos geoPos1 = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
-                final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth()-1,
-                                                                                        product.getSceneRasterHeight()-1),
-                                                                           null);
+                final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+                                product.getSceneRasterHeight() - 1),
+                        null
+                );
 
                 final Sector sector = new Sector(Angle.fromDegreesLatitude(geoPos1.getLat()),
-                                                 Angle.fromDegreesLatitude(geoPos2.getLat()),
-                                                 Angle.fromDegreesLongitude(geoPos1.getLon()),
-                                                 Angle.fromDegreesLongitude(geoPos2.getLon()));
+                        Angle.fromDegreesLatitude(geoPos2.getLat()),
+                        Angle.fromDegreesLongitude(geoPos1.getLon()),
+                        Angle.fromDegreesLongitude(geoPos2.getLon()));
 
                 final SurfaceImage si = new SurfaceImage(image, sector);
                 si.setOpacity(getOpacity());
@@ -194,14 +193,14 @@ public class ProductLayer extends RenderableLayer {
 
             it.currentSegment(floats);
             final Position firstPosition = new Position(Angle.fromDegreesLatitude(floats[1]),
-                                                        Angle.fromDegreesLongitude(floats[0]), 0.0);
+                    Angle.fromDegreesLongitude(floats[0]), 0.0);
             positions.add(firstPosition);
             it.next();
 
-            while(!it.isDone()) {
+            while (!it.isDone()) {
                 it.currentSegment(floats);
                 positions.add(new Position(Angle.fromDegreesLatitude(floats[1]),
-                                   Angle.fromDegreesLongitude(floats[0]), 0.0));
+                        Angle.fromDegreesLongitude(floats[0]), 0.0));
                 it.next();
             }
             // close the loop
@@ -279,7 +278,7 @@ public class ProductLayer extends RenderableLayer {
     }
 
     private static boolean isMapProjected(Product product) {
-        if(product.getGeoCoding() instanceof MapGeoCoding)
+        if (product.getGeoCoding() instanceof MapGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         return absRoot != null && !absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim().isEmpty();
@@ -295,17 +294,17 @@ public class ProductLayer extends RenderableLayer {
         }
         productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
         productSubsetDef.setTreatVirtualBandsAsRealBands(true);
-        productSubsetDef.setNodeNames(new String[] {quicklookBandName} );
+        productSubsetDef.setNodeNames(new String[]{quicklookBandName});
         Product productSubset = product.createSubset(productSubsetDef, quicklookBandName, null);
 
-        if(!isMapProjected(product)) {
+        if (!isMapProjected(product)) {
             try {
                 final Map<String, Object> projParameters = new HashMap<String, Object>();
                 Map<String, Product> projProducts = new HashMap<String, Product>();
                 projProducts.put("source", productSubset);
                 projParameters.put("crs", "WGS84(DD)");
                 productSubset = GPF.createProduct("Reproject", projParameters, projProducts);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

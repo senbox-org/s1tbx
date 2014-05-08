@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -36,39 +36,39 @@ import org.esa.beam.util.math.Range;
  * Format-Change
  */
 
-@OperatorMetadata(alias="Convert-Datatype",
+@OperatorMetadata(alias = "Convert-Datatype",
         category = "Utilities\\Data Conversion",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Convert product data type")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Convert product data type")
 public class ConvertDataTypeOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private
     String[] sourceBandNames;
 
-    @Parameter(valueSet = { ProductData.TYPESTRING_INT8,
-                            ProductData.TYPESTRING_INT16,
-                            ProductData.TYPESTRING_INT32,
-                            ProductData.TYPESTRING_UINT8,
-                            ProductData.TYPESTRING_UINT16,
-                            ProductData.TYPESTRING_UINT32,
-                            ProductData.TYPESTRING_FLOAT32,
-                            ProductData.TYPESTRING_FLOAT64
-            }, defaultValue = ProductData.TYPESTRING_UINT8 , label="Target Data Type")
+    @Parameter(valueSet = {ProductData.TYPESTRING_INT8,
+            ProductData.TYPESTRING_INT16,
+            ProductData.TYPESTRING_INT32,
+            ProductData.TYPESTRING_UINT8,
+            ProductData.TYPESTRING_UINT16,
+            ProductData.TYPESTRING_UINT32,
+            ProductData.TYPESTRING_FLOAT32,
+            ProductData.TYPESTRING_FLOAT64
+    }, defaultValue = ProductData.TYPESTRING_UINT8, label = "Target Data Type")
     private String targetDataType = ProductData.TYPESTRING_UINT8;
     private int dataType = ProductData.TYPE_UINT8;
 
-    @Parameter(valueSet = { SCALING_TRUNCATE, SCALING_LINEAR,
-                            SCALING_LINEAR_CLIPPED, SCALING_LINEAR_PEAK_CLIPPED,
-                            SCALING_LOGARITHMIC },
-                            defaultValue = SCALING_LINEAR_CLIPPED, label="Scaling")
+    @Parameter(valueSet = {SCALING_TRUNCATE, SCALING_LINEAR,
+            SCALING_LINEAR_CLIPPED, SCALING_LINEAR_PEAK_CLIPPED,
+            SCALING_LOGARITHMIC},
+            defaultValue = SCALING_LINEAR_CLIPPED, label = "Scaling")
     private String targetScalingStr = SCALING_LINEAR_CLIPPED;
 
     protected final static String SCALING_TRUNCATE = "Truncate";
@@ -77,7 +77,8 @@ public class ConvertDataTypeOp extends Operator {
     protected final static String SCALING_LINEAR_PEAK_CLIPPED = "Linear (peak clipped histogram)";
     protected final static String SCALING_LOGARITHMIC = "Logarithmic";
 
-    private enum ScalingType { NONE, TRUNC, LINEAR, LINEAR_CLIPPED, LINEAR_PEAK_CLIPPED, LOGARITHMIC }
+    private enum ScalingType {NONE, TRUNC, LINEAR, LINEAR_CLIPPED, LINEAR_PEAK_CLIPPED, LOGARITHMIC}
+
     private ScalingType targetScaling = ScalingType.LINEAR_CLIPPED;
 
     /**
@@ -89,8 +90,7 @@ public class ConvertDataTypeOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -98,9 +98,9 @@ public class ConvertDataTypeOp extends Operator {
 
         try {
             targetProduct = new Product(sourceProduct.getName(),
-                                        sourceProduct.getProductType(),
-                                        sourceProduct.getSceneRasterWidth(),
-                                        sourceProduct.getSceneRasterHeight());
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -109,21 +109,21 @@ public class ConvertDataTypeOp extends Operator {
 
             addSelectedBands();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     private static ScalingType getScaling(final String scalingStr) {
-        if(scalingStr.equals(SCALING_LINEAR))
+        if (scalingStr.equals(SCALING_LINEAR))
             return ScalingType.LINEAR;
-        else if(scalingStr.equals(SCALING_LINEAR_CLIPPED))
+        else if (scalingStr.equals(SCALING_LINEAR_CLIPPED))
             return ScalingType.LINEAR_CLIPPED;
-        else if(scalingStr.equals(SCALING_LINEAR_PEAK_CLIPPED))
+        else if (scalingStr.equals(SCALING_LINEAR_PEAK_CLIPPED))
             return ScalingType.LINEAR_PEAK_CLIPPED;
-        else if(scalingStr.equals(SCALING_LOGARITHMIC))
+        else if (scalingStr.equals(SCALING_LOGARITHMIC))
             return ScalingType.LOGARITHMIC;
-        else if(scalingStr.equals(SCALING_TRUNCATE))
+        else if (scalingStr.equals(SCALING_TRUNCATE))
             return ScalingType.TRUNC;
         else
             return ScalingType.NONE;
@@ -132,7 +132,7 @@ public class ConvertDataTypeOp extends Operator {
     private void addSelectedBands() {
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
 
-        for(Band srcBand : sourceBands) {
+        for (Band srcBand : sourceBands) {
             final Band targetBand = new Band(srcBand.getName(), dataType,
                     sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             targetBand.setUnit(srcBand.getUnit());
@@ -148,8 +148,7 @@ public class ConvertDataTypeOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -167,29 +166,29 @@ public class ConvertDataTypeOp extends Operator {
             final double newMax = getMax(dataType);
             final double newRange = newMax - newMin;
 
-            if(origMax <= newMax && origMin >= newMin && sourceBand.getDataType() < ProductData.TYPE_FLOAT32)
+            if (origMax <= newMax && origMin >= newMin && sourceBand.getDataType() < ProductData.TYPE_FLOAT32)
                 scaling = ScalingType.NONE;
-            
+
             final ProductData srcData = srcTile.getRawSamples();
             final ProductData dstData = targetTile.getRawSamples();
 
             final double srcNoDataValue = sourceBand.getNoDataValue();
             final double destNoDataValue = targetBand.getNoDataValue();
 
-            if(scaling == ScalingType.LINEAR_PEAK_CLIPPED) {
+            if (scaling == ScalingType.LINEAR_PEAK_CLIPPED) {
                 final Histogram histogram = new Histogram(stx.getHistogramBins(), origMin, origMax);
                 final int[] bitCounts = histogram.getBinCounts();
                 double rightPct = 0.025;
-                for(int i=bitCounts.length-1; i > 0; --i) {
-                    if(bitCounts[i] > 10) {
-                        rightPct = i / (double)bitCounts.length;
+                for (int i = bitCounts.length - 1; i > 0; --i) {
+                    if (bitCounts[i] > 10) {
+                        rightPct = i / (double) bitCounts.length;
                         break;
                     }
                 }
                 final Range autoStretchRange = histogram.findRange(0.025, rightPct);
                 origMin = autoStretchRange.getMin();
                 origMax = autoStretchRange.getMax();
-            } else if(scaling == ScalingType.LINEAR_CLIPPED) {
+            } else if (scaling == ScalingType.LINEAR_CLIPPED) {
                 final Histogram histogram = new Histogram(stx.getHistogramBins(), origMin, origMax);
                 final Range autoStretchRange = histogram.findRangeFor95Percent();
                 origMin = autoStretchRange.getMin();
@@ -199,21 +198,21 @@ public class ConvertDataTypeOp extends Operator {
 
             final int numElem = dstData.getNumElems();
             double srcValue;
-            for(int i=0; i < numElem; ++i) {
+            for (int i = 0; i < numElem; ++i) {
                 srcValue = srcData.getElemDoubleAt(i);
-                if(srcValue == srcNoDataValue) {
+                if (srcValue == srcNoDataValue) {
                     dstData.setElemDoubleAt(i, destNoDataValue);
                 } else {
-                    if(scaling == ScalingType.NONE)
+                    if (scaling == ScalingType.NONE)
                         dstData.setElemDoubleAt(i, srcValue);
-                    else if(scaling == ScalingType.TRUNC)
+                    else if (scaling == ScalingType.TRUNC)
                         dstData.setElemDoubleAt(i, truncate(srcValue, newMin, newMax));
-                    else if(scaling == ScalingType.LOGARITHMIC)
+                    else if (scaling == ScalingType.LOGARITHMIC)
                         dstData.setElemDoubleAt(i, logScale(srcValue, origMin, newMin, origRange, newRange));
                     else {
-                        if(srcValue > origMax)
+                        if (srcValue > origMax)
                             srcValue = origMax;
-                        if(srcValue < origMin)
+                        if (srcValue < origMin)
                             srcValue = origMin;
                         dstData.setElemDoubleAt(i, scale(srcValue, origMin, newMin, origRange, newRange));
                     }
@@ -221,13 +220,13 @@ public class ConvertDataTypeOp extends Operator {
             }
 
             targetTile.setRawSamples(dstData);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e.getMessage());
         }
     }
 
     private static double getMin(final int dataType) {
-        switch(dataType) {
+        switch (dataType) {
             case ProductData.TYPE_INT8:
                 return Byte.MIN_VALUE;
             case ProductData.TYPE_INT16:
@@ -248,7 +247,7 @@ public class ConvertDataTypeOp extends Operator {
     }
 
     private static double getMax(final int dataType) {
-        switch(dataType) {
+        switch (dataType) {
             case ProductData.TYPE_INT8:
                 return Byte.MAX_VALUE;
             case ProductData.TYPE_INT16:
@@ -256,9 +255,9 @@ public class ConvertDataTypeOp extends Operator {
             case ProductData.TYPE_INT32:
                 return Integer.MAX_VALUE;
             case ProductData.TYPE_UINT8:
-                return Byte.MAX_VALUE + Byte.MAX_VALUE +1;
+                return Byte.MAX_VALUE + Byte.MAX_VALUE + 1;
             case ProductData.TYPE_UINT16:
-                return Short.MAX_VALUE + Short.MAX_VALUE +1;
+                return Short.MAX_VALUE + Short.MAX_VALUE + 1;
             case ProductData.TYPE_UINT32:
                 return Long.MAX_VALUE;
             case ProductData.TYPE_FLOAT32:
@@ -270,16 +269,16 @@ public class ConvertDataTypeOp extends Operator {
 
     private static ScalingType verifyScaling(final ScalingType targetScaling, final int targetDataType) {
         // if converting up don't scale
-        if(targetDataType == ProductData.TYPE_FLOAT32 || targetDataType == ProductData.TYPE_FLOAT64 ||
-           targetDataType == ProductData.TYPE_INT32)
+        if (targetDataType == ProductData.TYPE_FLOAT32 || targetDataType == ProductData.TYPE_FLOAT64 ||
+                targetDataType == ProductData.TYPE_INT32)
             return ScalingType.NONE;
         return targetScaling;
     }
 
     private static double truncate(final double origValue, final double newMin, final double newMax) {
-        if(origValue > newMax)
+        if (origValue > newMax)
             return newMax;
-        else if(origValue < newMin)
+        else if (origValue < newMin)
             return newMin;
         return origValue;
     }
@@ -290,8 +289,8 @@ public class ConvertDataTypeOp extends Operator {
     }
 
     private static double logScale(final double origValue, final double origMin, final double newMin,
-                                final double origRange, final double newRange) {
-        return 10*Math.log10(((origValue - origMin) / origRange) * newRange + newMin);
+                                   final double origRange, final double newRange) {
+        return 10 * Math.log10(((origValue - origMin) / origRange) * newRange + newMin);
     }
 
     // for unit tests
@@ -308,6 +307,7 @@ public class ConvertDataTypeOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

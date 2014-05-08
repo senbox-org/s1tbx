@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,6 @@ package org.esa.nest.gpf.geometric;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.gpf.geometric.EllipsoidCorrectionRDOp;
 import org.esa.nest.util.TestUtils;
 
 /**
@@ -28,8 +27,8 @@ public class TestEllipsoidCorrectionRDOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "GeoTIFF", "DOR_VOR_AX" };
-    private String[] exceptionExemptions = { "not supported", "already map projected" };
+    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "GeoTIFF", "DOR_VOR_AX"};
+    private String[] exceptionExemptions = {"not supported", "already map projected"};
 
     @Override
     protected void setUp() throws Exception {
@@ -43,13 +42,11 @@ public class TestEllipsoidCorrectionRDOp extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
     }
 
-    public void testProcessAllASAR() throws Exception
-    {
+    public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
-    public void testProcessAllERS() throws Exception
-    {
+    public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
@@ -58,23 +55,19 @@ public class TestEllipsoidCorrectionRDOp extends TestCase {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
     }    */
 
-    public void testProcessAllRadarsat2() throws Exception
-    {
+    public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
-    public void testProcessAllTerraSARX() throws Exception
-    {
+    public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
     }
 
-    public void testProcessAllCosmo() throws Exception
-    {
+    public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
-    public void testProcessAllNestBox() throws Exception
-    {
+    public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

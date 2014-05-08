@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,19 +37,19 @@ import java.awt.*;
 
  */
 
-@OperatorMetadata(alias="Reprojection",
+@OperatorMetadata(alias = "Reprojection",
         category = "Geometric",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Applies a map projection")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Applies a map projection")
 public final class MapReProjectionOp extends ReprojectionOp {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            label="Source Bands")
+            label = "Source Bands")
     private String[] sourceBandNames = null;
 
     @Parameter(description = "Whether to keep original or use custom resolution.",
-               defaultValue = "true")
+            defaultValue = "true")
     protected boolean preserveResolution;
 
     /**
@@ -61,15 +61,14 @@ public final class MapReProjectionOp extends ReprojectionOp {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            if(crs == null) {
+            if (crs == null) {
                 targetProduct = OperatorUtils.createDummyTargetProduct(new Product[]{sourceProduct});
                 return;
             }
@@ -131,7 +130,7 @@ public final class MapReProjectionOp extends ReprojectionOp {
 
             updateMetadata(targetProduct);
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -146,6 +145,7 @@ public final class MapReProjectionOp extends ReprojectionOp {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

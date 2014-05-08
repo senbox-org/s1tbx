@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,7 +41,7 @@ public final class AsterFile extends ElevationFile {
     }
 
     protected String getRemotePath() {
-        return null;    
+        return null;
     }
 
     protected boolean getRemoteFile() throws IOException {
@@ -62,19 +62,19 @@ public final class AsterFile extends ElevationFile {
             final String name = FileUtils.getFilenameWithoutExtension(localFile.getName());
             // check for version 2
             final String v2Name = name.replace("ASTGTM", "ASTGTM2");
-            final File v2File = new File(localFile.getParentFile(), v2Name+".zip");
-            if(v2File.exists()) {
-                localFile = new File(localFile.getParentFile(), v2Name+"_dem.tif");
+            final File v2File = new File(localFile.getParentFile(), v2Name + ".zip");
+            if (v2File.exists()) {
+                localFile = new File(localFile.getParentFile(), v2Name + "_dem.tif");
                 return true;
             } else {
                 // check if unzipped
-                final File unzipFile = new File(localFile.getParentFile(), name+"_dem.tif");
-                if(unzipFile.exists()) {
+                final File unzipFile = new File(localFile.getParentFile(), name + "_dem.tif");
+                if (unzipFile.exists()) {
                     localFile = unzipFile;
                     return true;
                 } else {
-                    final File v2UnzipFile = new File(localFile.getParentFile(), v2Name+"_dem.tif");
-                    if(v2UnzipFile.exists()) {
+                    final File v2UnzipFile = new File(localFile.getParentFile(), v2Name + "_dem.tif");
+                    if (v2UnzipFile.exists()) {
                         localFile = v2UnzipFile;
                         return true;
                     }
@@ -85,7 +85,7 @@ public final class AsterFile extends ElevationFile {
     }
 
     protected File getFileFromZip(File dataFile) throws IOException {
-        if(!dataFile.exists())  {
+        if (!dataFile.exists()) {
             final String v2Name = dataFile.getName().replace("ASTGTM", "ASTGTM2");
             dataFile = new File(dataFile.getParentFile(), v2Name);
         }

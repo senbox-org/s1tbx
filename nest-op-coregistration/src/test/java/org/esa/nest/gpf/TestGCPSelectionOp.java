@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,15 +42,15 @@ public class TestGCPSelectionOp extends TestCase {
     }
 
     public void testOperator() throws Exception {
-        if(TestUtils.skipTest(this))
+        if (TestUtils.skipTest(this))
             return;
 
-        final Product product = createTestMasterProduct(40,40);
+        final Product product = createTestMasterProduct(40, 40);
 
         final ProductNodeGroup<Placemark> masterGcpGroup = product.getGcpGroup(product.getBandAt(0));
         assertTrue(masterGcpGroup.getNodeCount() == 1);
 
-        final GCPSelectionOp op = (GCPSelectionOp)spi.createOperator();
+        final GCPSelectionOp op = (GCPSelectionOp) spi.createOperator();
         assertNotNull(op);
 
         op.setSourceProduct(product);
@@ -87,8 +87,8 @@ public class TestGCPSelectionOp extends TestCase {
         int i;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                i = y*w + x;
-                floatValues[i] = sinc((float)(x - w/2 + 1) / 4.0f)*sinc((float)(y - h/2 + 1) / 4.0f);
+                i = y * w + x;
+                floatValues[i] = sinc((float) (x - w / 2 + 1) / 4.0f) * sinc((float) (y - h / 2 + 1) / 4.0f);
             }
         }
         band.setData(ProductData.createInstance(floatValues));
@@ -97,11 +97,11 @@ public class TestGCPSelectionOp extends TestCase {
         product.addBand(slvBand);
 
         // create lat/lon tie point grids
-        final float[] lat = new float[w*h];
-        final float[] lon = new float[w*h];
+        final float[] lat = new float[w * h];
+        final float[] lon = new float[w * h];
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                i = y*w + x;
+                i = y * w + x;
                 lon[i] = 13.20f;
                 lat[i] = 51.60f;
             }
@@ -117,13 +117,13 @@ public class TestGCPSelectionOp extends TestCase {
         // create GCP
         final ProductNodeGroup<Placemark> masterGcpGroup = product.getGcpGroup(band);
         final Placemark pin1 = Placemark.createPointPlacemark(
-                           GcpDescriptor.getInstance(),
-                           "gcp_1",
-                           "GCP 1",
-                           "",
-                           new PixelPos(19.0f, 19.0f),
-                           new GeoPos(lat[w*h/2], lon[w*h/2]),
-                           product.getGeoCoding());
+                GcpDescriptor.getInstance(),
+                "gcp_1",
+                "GCP 1",
+                "",
+                new PixelPos(19.0f, 19.0f),
+                new GeoPos(lat[w * h / 2], lon[w * h / 2]),
+                product.getGeoCoding());
 
         masterGcpGroup.add(pin1);
 
@@ -139,8 +139,8 @@ public class TestGCPSelectionOp extends TestCase {
         int i;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                i = y*w + x;
-                floatValues[i] = sinc((float)(x - w/2 + 4) / 4.0f)*sinc((float)(y - h/2 - 1) / 4.0f);
+                i = y * w + x;
+                floatValues[i] = sinc((float) (x - w / 2 + 4) / 4.0f) * sinc((float) (y - h / 2 - 1) / 4.0f);
             }
         }
         band.setData(ProductData.createInstance(floatValues));
@@ -153,7 +153,7 @@ public class TestGCPSelectionOp extends TestCase {
         if (Float.compare(x, 0.0f) == 0) {
             return 0.0f;
         } else {
-            return (float)(Math.sin(x*Math.PI) / (x*Math.PI));
+            return (float) (Math.sin(x * Math.PI) / (x * Math.PI));
         }
     }
 }

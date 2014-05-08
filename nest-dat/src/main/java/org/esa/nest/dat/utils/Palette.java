@@ -43,7 +43,7 @@ public class Palette {
      * <code>val</code> is less than 0 or greater than 1, the start or
      * end colors will be returned, respectively.
      *
-     * @param  percent the value
+     * @param percent the value
      * @return the corresponding color
      */
     public Color lookupColor(final float percent) {

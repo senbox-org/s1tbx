@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,26 +28,28 @@ import java.util.Map;
 public interface Decomposition {
 
     /**
-        Return the list of band names for the target product
-        @return list of band names
+     * Return the list of band names for the target product
+     *
+     * @return list of band names
      */
     public String[] getTargetBandNames();
 
     /**
      * Sets the unit for the new target band
+     *
      * @param targetBandName the band name
-     * @param targetBand the new target band
+     * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand);
 
     /**
      * Perform decomposition for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op              the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                                    final Operator op);
+                            final Operator op);
 }

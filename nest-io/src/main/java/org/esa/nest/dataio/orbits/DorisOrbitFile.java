@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -48,6 +48,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
 
     /**
      * Get orbit information for given time.
+     *
      * @param utc The UTC in days.
      * @return The orbit information.
      * @throws Exception The exceptions.
@@ -69,6 +70,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
 
     /**
      * Get DORIS orbit file.
+     *
      * @param sourceProduct the input product
      * @throws java.io.IOException The exception.
      */
@@ -80,19 +82,19 @@ public class DorisOrbitFile extends BaseOrbitFile {
         // construct path to the orbit file folder
         String orbitPath = "";
         String remoteBaseFolder = "";
-        if(orbitType.contains(DORIS_VOR)) {
+        if (orbitType.contains(DORIS_VOR)) {
             orbitPath = Settings.instance().get("OrbitFiles/dorisVOROrbitPath");
             remoteBaseFolder = Settings.instance().get("OrbitFiles/dorisFTP_vor_remotePath");
-        } else if(orbitType.contains(DORIS_POR)) {
+        } else if (orbitType.contains(DORIS_POR)) {
             orbitPath = Settings.instance().get("OrbitFiles/dorisPOROrbitPath");
             remoteBaseFolder = Settings.instance().get("OrbitFiles/dorisFTP_por_remotePath");
         }
 
         final Date startDate = sourceProduct.getStartTime().getAsDate();
-        final int month = startDate.getMonth()+1;
+        final int month = startDate.getMonth() + 1;
         String folder = String.valueOf(startDate.getYear() + 1900);
-        if(month < 10) {
-            folder +='0';
+        if (month < 10) {
+            folder += '0';
         }
         folder += month;
         orbitPath += File.separator + folder;
@@ -100,24 +102,25 @@ public class DorisOrbitFile extends BaseOrbitFile {
 
         // find orbit file in the folder
         orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
-        if(orbitFile == null) {
-            final String remotePath = remoteBaseFolder +'/'+ folder;
+        if (orbitFile == null) {
+            final String remotePath = remoteBaseFolder + '/' + folder;
             getRemoteDorisFiles(remotePath, localPath);
             // find again in newly downloaded folder
             orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
         }
 
-        if(orbitFile == null) {
-            throw new IOException("Unable to find suitable DORIS orbit file in\n"+orbitPath);
+        if (orbitFile == null) {
+            throw new IOException("Unable to find suitable DORIS orbit file in\n" + orbitPath);
         }
     }
 
     /**
      * Find DORIS orbit file.
+     *
      * @param dorisReader The ENVISAT oribit reader.
-     * @param path The path to the orbit file.
+     * @param path        The path to the orbit file.
      * @param productDate The start date of the product.
-     * @param absOrbit The absolute orbit number.
+     * @param absOrbit    The absolute orbit number.
      * @return The orbit file.
      * @throws IOException
      */
@@ -125,14 +128,14 @@ public class DorisOrbitFile extends BaseOrbitFile {
             throws IOException {
 
         final File[] list = path.listFiles();
-        if(list == null) return null;
+        if (list == null) return null;
 
         // loop through all orbit files in the given folder
-        for(File f : list) {
+        for (File f : list) {
 
-            if(f.isDirectory()) {
+            if (f.isDirectory()) {
                 final File foundFile = FindDorisOrbitFile(dorisReader, f, productDate, absOrbit);
-                if(foundFile != null) {
+                if (foundFile != null) {
                     return foundFile;
                 }
             }
@@ -150,10 +153,10 @@ public class DorisOrbitFile extends BaseOrbitFile {
                     dorisReader.readOrbitData();
                     //EnvisatOrbitReader.OrbitVector orb = dorisReader.getOrbitVector(0);
                     //if (absOrbit == orb.absOrbit) {
-                        return f;
+                    return f;
                     //}
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
                 // continue
             }
@@ -165,17 +168,17 @@ public class DorisOrbitFile extends BaseOrbitFile {
     private void getRemoteDorisFiles(final String remotePath, final File localPath) {
         final String dorisFTP = Settings.instance().get("OrbitFiles/dorisFTP");
         try {
-            if(ftp == null) {
+            if (ftp == null) {
                 final String user = Settings.instance().get("OrbitFiles/dorisFTP_user");
                 final String pass = Settings.instance().get("OrbitFiles/dorisFTP_pass");
                 ftp = new ftpUtils(dorisFTP, user, pass);
                 fileSizeMap = ftpUtils.readRemoteFileList(ftp, dorisFTP, remotePath);
             }
 
-            if(!localPath.exists())
+            if (!localPath.exists())
                 localPath.mkdirs();
 
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 final DownloadOrbitWorker worker = new DownloadOrbitWorker(VisatApp.getApp(), "Download Orbit Files",
                         ftp, fileSizeMap, remotePath, localPath);
                 worker.executeWithBlocking();
@@ -184,7 +187,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
                 getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }

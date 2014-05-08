@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,6 @@
 package org.esa.nest.dataio.ceos;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -31,7 +30,6 @@ import java.io.IOException;
 
 /**
  * The product reader for Radarsat products.
- *
  */
 public abstract class CEOSProductReader extends SARReader {
 
@@ -44,9 +42,9 @@ public abstract class CEOSProductReader extends SARReader {
      *                     implementations
      */
     protected CEOSProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
- 
+
     protected abstract CEOSProductDirectory createProductDirectory(File inputFile);
 
     /**
@@ -111,41 +109,41 @@ public abstract class CEOSProductReader extends SARReader {
         try {
             final CEOSImageFile imageFile = _dataDir.getImageFile(destBand);
             final int bitsPerSample = imageFile.getBitsPerSample();
-            if(bitsPerSample == 8) {
-                if(_dataDir.isSLC()) {
+            if (bitsPerSample == 8) {
+                if (_dataDir.isSLC()) {
                     boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
 
                     imageFile.readBandRasterDataSLCByte(sourceOffsetX, sourceOffsetY,
-                                             sourceWidth, sourceHeight,
-                                             sourceStepX, sourceStepY,
-                                             destWidth,
-                                             destBuffer, oneOf2, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, oneOf2, pm);
 
                 } else {
                     imageFile.readBandRasterDataByte(sourceOffsetX, sourceOffsetY,
-                                             sourceWidth, sourceHeight,
-                                             sourceStepX, sourceStepY,
-                                             destWidth,
-                                             destBuffer, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, pm);
                 }
             } else {
-                if(_dataDir.isSLC()) {
+                if (_dataDir.isSLC()) {
                     final boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
                     final int samplesPerGroup = imageFile.getSamplesPerDataGroup();
                     final int elemSize = (samplesPerGroup * ProductData.getElemSize(destBuffer.getType()));
 
                     imageFile.readBandRasterDataSLC(sourceOffsetX, sourceOffsetY,
-                                                    sourceWidth, sourceHeight,
-                                                    sourceStepX, sourceStepY,
-                                                    destWidth,
-                                                    destBuffer, oneOf2, elemSize);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, oneOf2, elemSize);
 
                 } else {
                     imageFile.readBandRasterDataShort(sourceOffsetX, sourceOffsetY,
-                                                    sourceWidth, sourceHeight,
-                                                    sourceStepX, sourceStepY,
-                                                    destWidth,
-                                                    destBuffer, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, pm);
                 }
             }
 

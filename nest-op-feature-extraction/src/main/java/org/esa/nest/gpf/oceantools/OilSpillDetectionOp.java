@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -40,12 +40,12 @@ import java.util.List;
 
 /**
  * The oil spill detection operator.
- *
+ * <p/>
  * The algorithm for detecting dark spots is based on adaptive thresholding. The thresholding is based on
  * an estimate of the typical backscatter level in a large window, and the threshold is set to k decibel
  * below the estimated local mean backscatter level. Calibrated images are used, and simple speckle filtering
  * is applied prior to thresholding.
- *
+ * <p/>
  * [1] A. S. Solberg, C. Brekke and R. Solberg, "Algorithms for oil spill detection in Radarsat and ENVISAT
  * SAR images", Geoscience and Remote Sensing Symposium, 2004. IGARSS '04. Proceedings. 2004 IEEE International,
  * 20-24 Sept. 2004, page 4909-4912, vol.7.
@@ -54,11 +54,11 @@ import java.util.List;
 @OperatorMetadata(alias = "Oil-Spill-Detection",
         category = "Ocean Tools\\Oil Spill Detection",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Detect oil spill.")
 public class OilSpillDetectionOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
@@ -67,10 +67,10 @@ public class OilSpillDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Background window size", defaultValue = "13", label="Background Window Size")
+    @Parameter(description = "Background window size", defaultValue = "13", label = "Background Window Size")
     private int backgroundWindowSize = 61;
 
-    @Parameter(description = "Threshold shift from background mean", defaultValue = "2.0", label="Threshold Shift (dB)")
+    @Parameter(description = "Threshold shift from background mean", defaultValue = "2.0", label = "Threshold Shift (dB)")
     private double k = 2.0;
 
     private int sourceImageWidth = 0;
@@ -95,13 +95,13 @@ public class OilSpillDetectionOp extends Operator {
             if (k < 0) {
                 throw new OperatorException("Threshold Shift cannot be negative");
             } else {
-                kInLinearScale = Math.pow(10.0, k/10.0);
+                kInLinearScale = Math.pow(10.0, k / 10.0);
             }
 
             targetProduct = new Product(sourceProduct.getName(),
-                                        sourceProduct.getProductType(),
-                                        sourceImageWidth,
-                                        sourceImageHeight);
+                    sourceProduct.getProductType(),
+                    sourceImageWidth,
+                    sourceImageHeight);
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -115,17 +115,17 @@ public class OilSpillDetectionOp extends Operator {
     }
 
     public static void addBitmasks(final Product product) {
-        for(Band band : product.getBands()) {
-            if(band.getName().contains(OILSPILLMASK_NAME)) {
+        for (Band band : product.getBands()) {
+            if (band.getName().contains(OILSPILLMASK_NAME)) {
                 final String expression = band.getName() + " > 0";
-              //  final BitmaskDef mask = new BitmaskDef(band.getName()+"_detection",
-              //      "Oil Spill Detection", expression, Color.RED, 0.5f);
-              //  product.addBitmaskDef(mask);
+                //  final BitmaskDef mask = new BitmaskDef(band.getName()+"_detection",
+                //      "Oil Spill Detection", expression, Color.RED, 0.5f);
+                //  product.addBitmaskDef(mask);
 
-                final Mask mask = new Mask(band.getName()+"_detection",
-                             product.getSceneRasterWidth(),
-                             product.getSceneRasterHeight(),
-                             Mask.BandMathsType.INSTANCE);
+                final Mask mask = new Mask(band.getName() + "_detection",
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight(),
+                        Mask.BandMathsType.INSTANCE);
                 mask.setDescription("Oil Spill Detection");
                 mask.getImageConfig().setValue("color", Color.RED);
                 mask.getImageConfig().setValue("transparency", 0.5);
@@ -159,6 +159,7 @@ public class OilSpillDetectionOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
@@ -167,7 +168,7 @@ public class OilSpillDetectionOp extends Operator {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if(band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
+                if (band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
                     bandNameList.add(band.getName());
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
@@ -185,7 +186,7 @@ public class OilSpillDetectionOp extends Operator {
 
         for (Band srcBand : sourceBands) {
             final String unit = srcBand.getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
@@ -214,8 +215,7 @@ public class OilSpillDetectionOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -224,15 +224,15 @@ public class OilSpillDetectionOp extends Operator {
             final Rectangle targetTileRectangle = targetTile.getRectangle();
             final int tx0 = targetTileRectangle.x;
             final int ty0 = targetTileRectangle.y;
-            final int tw  = targetTileRectangle.width;
-            final int th  = targetTileRectangle.height;
+            final int tw = targetTileRectangle.width;
+            final int th = targetTileRectangle.height;
             final ProductData trgData = targetTile.getDataBuffer();
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             final int x0 = Math.max(tx0 - halfBackgroundWindowSize, 0);
             final int y0 = Math.max(ty0 - halfBackgroundWindowSize, 0);
-            final int w  = Math.min(tx0 + tw - 1 + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
-            final int h  = Math.min(ty0 + th - 1 + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
+            final int w = Math.min(tx0 + tw - 1 + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
+            final int h = Math.min(ty0 + th - 1 + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
             final Rectangle sourceTileRectangle = new Rectangle(x0, y0, w, h);
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
@@ -273,9 +273,10 @@ public class OilSpillDetectionOp extends Operator {
 
     /**
      * Compute the mean value for pixels in a given sliding window.
-     * @param tx The x coordinate of the central point of the sliding window.
-     * @param ty The y coordinate of the central point of the sliding window.
-     * @param sourceTile The source image tile.
+     *
+     * @param tx          The x coordinate of the central point of the sliding window.
+     * @param ty          The y coordinate of the central point of the sliding window.
+     * @param sourceTile  The source image tile.
      * @param noDataValue the place holder for no data
      * @return The mena value.
      */
@@ -283,8 +284,8 @@ public class OilSpillDetectionOp extends Operator {
 
         final int x0 = Math.max(tx - halfBackgroundWindowSize, 0);
         final int y0 = Math.max(ty - halfBackgroundWindowSize, 0);
-        final int w  = Math.min(tx + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
-        final int h  = Math.min(ty + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
+        final int w = Math.min(tx + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
+        final int h = Math.min(ty + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
         final ProductData srcData = sourceTile.getDataBuffer();
         final TileIndex tileIndex = new TileIndex(sourceTile);
 
@@ -302,7 +303,7 @@ public class OilSpillDetectionOp extends Operator {
                 }
             }
         }
-        return mean/numPixels;
+        return mean / numPixels;
     }
 
     /**

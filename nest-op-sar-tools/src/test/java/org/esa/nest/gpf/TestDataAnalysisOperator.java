@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -40,11 +40,11 @@ public class TestDataAnalysisOperator extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
     }
 
-    public void testSampleOperator()  throws Exception {
+    public void testSampleOperator() throws Exception {
 
         Product sourceProduct = createTestProduct(4, 4);
 
-        DataAnalysisOp op = (DataAnalysisOp)spi.createOperator();
+        DataAnalysisOp op = (DataAnalysisOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -60,7 +60,7 @@ public class TestDataAnalysisOperator extends TestCase {
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
 
         op.dispose();
-        
+
         // get statistics from metadata
         System.out.println();
         System.out.println("# of bands = " + op.getNumOfBands());

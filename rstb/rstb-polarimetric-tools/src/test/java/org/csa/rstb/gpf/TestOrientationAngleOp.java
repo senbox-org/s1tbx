@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,10 +28,10 @@ public class TestOrientationAngleOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathQuad =          TestUtils.rootPathExpectedProducts+"\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack =     TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack =           TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack =           TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+    private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
 
     @Override
     protected void setUp() throws Exception {
@@ -59,9 +59,9 @@ public class TestOrientationAngleOp extends TestCase {
 
     public void testOrientationAngle() throws Exception {
 
-        runOrientation((OrientationAngleCorrectionOp)spi.createOperator(), inputPathQuad);
-        runOrientation((OrientationAngleCorrectionOp)spi.createOperator(), inputQuadFullStack);
-        runOrientation((OrientationAngleCorrectionOp)spi.createOperator(), inputC3Stack);
-        runOrientation((OrientationAngleCorrectionOp)spi.createOperator(), inputT3Stack);
+        runOrientation((OrientationAngleCorrectionOp) spi.createOperator(), inputPathQuad);
+        runOrientation((OrientationAngleCorrectionOp) spi.createOperator(), inputQuadFullStack);
+        runOrientation((OrientationAngleCorrectionOp) spi.createOperator(), inputC3Stack);
+        runOrientation((OrientationAngleCorrectionOp) spi.createOperator(), inputT3Stack);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,13 +25,20 @@ public interface CEOSConstants {
     Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
 
     public String[] getVolumeFilePrefix();
+
     public String[] getLeaderFilePrefix();
+
     public String[] getImageFilePrefix();
+
     public String[] getTrailerFilePrefix();
 
     public int getMinimumNumFiles();
+
     public String getPluginDescription();
+
     public String[] getFormatNames();
+
     public String[] getForamtFileExtensions();
+
     public String getMission();
 }

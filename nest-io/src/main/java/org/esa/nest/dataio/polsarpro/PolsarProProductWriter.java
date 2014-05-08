@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,7 +34,6 @@ import java.nio.ByteOrder;
 
 /**
  * The product writer for PolSARPro products.
- *
  */
 public class PolsarProProductWriter extends EnviProductWriter {
 
@@ -92,16 +91,16 @@ public class PolsarProProductWriter extends EnviProductWriter {
 
         final PolBandUtils.MATRIX matrixType = PolBandUtils.getSourceProductType(getSourceProduct());
         String folder = "";
-        if(matrixType.equals(PolBandUtils.MATRIX.C3)) {
+        if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
             folder = "C3";
-        } else if(matrixType.equals(PolBandUtils.MATRIX.T3)) {
+        } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
             folder = "T3";
-        } else if(matrixType.equals(PolBandUtils.MATRIX.C4)) {
+        } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
             folder = "C4";
-        } else if(matrixType.equals(PolBandUtils.MATRIX.T4)) {
+        } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
             folder = "T4";
         }
-        if(!folder.isEmpty()) {
+        if (!folder.isEmpty()) {
             _outputDir = new File(_outputDir, folder);
             _outputDir.mkdirs();
             _outputFile = new File(_outputDir, outputFile.getName());
@@ -142,17 +141,17 @@ public class PolsarProProductWriter extends EnviProductWriter {
             p.println(PolBandUtils.getPolarType(srcProduct));
             p.println("---------");
 
-        } catch(Exception e) {
-            System.out.println("PolsarProWriter unable to write config.txt "+e.getMessage());
+        } catch (Exception e) {
+            System.out.println("PolsarProWriter unable to write config.txt " + e.getMessage());
         } finally {
-            if(p != null)
+            if (p != null)
                 p.close();
         }
     }
 
     private static String getPolarCase(final Product srcProduct) {
         final PolBandUtils.MATRIX matrixType = PolBandUtils.getSourceProductType(srcProduct);
-        if(matrixType.equals(PolBandUtils.MATRIX.C4) || matrixType.equals(PolBandUtils.MATRIX.T4)) {
+        if (matrixType.equals(PolBandUtils.MATRIX.C4) || matrixType.equals(PolBandUtils.MATRIX.T4)) {
             return "bistatic";
         }
         return "monostatic";

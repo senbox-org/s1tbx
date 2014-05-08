@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,8 +28,8 @@ import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.eo.Constants;
+import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,6 @@ import java.util.Map;
 
 /**
  * This class represents a product directory.
- *
  */
 class ERSProductDirectory extends CEOSProductDirectory {
 
@@ -85,9 +84,9 @@ class ERSProductDirectory extends CEOSProductDirectory {
         final String logicalVolumeId = getLogicalVolumeId().toUpperCase();
         boolean isERS = ((volumeId.contains("ERS") && !volumeId.contains("JERS")) ||
                 (logicalVolumeId.contains("ERS") && !logicalVolumeId.contains("JERS")));
-        if(isERS) return true;
+        if (isERS) return true;
 
-        if(productType == null) {
+        if (productType == null) {
             readVolumeDirectoryFile();
         }
         return productType.contains("ERS") && !productType.contains("JERS");
@@ -104,9 +103,9 @@ class ERSProductDirectory extends CEOSProductDirectory {
     }
 
     String getMission() {
-        if(isERS1())
+        if (isERS1())
             return "ERS1";
-        else if(isERS2())
+        else if (isERS2())
             return "ERS2";
         return "";
     }
@@ -114,26 +113,26 @@ class ERSProductDirectory extends CEOSProductDirectory {
     @Override
     public Product createProduct() throws IOException {
         final Product product = new Product(getProductName(),
-                                            productType,
-                                            sceneWidth, sceneHeight);
+                productType,
+                sceneWidth, sceneHeight);
 
-        if(imageFiles.length > 1) {
+        if (imageFiles.length > 1) {
             int index = 1;
             for (final ERSImageFile imageFile : imageFiles) {
 
-                if(isProductSLC) {
+                if (isProductSLC) {
                     final Band bandI = createBand(product, "i_" + index, Unit.REAL, imageFile);
                     final Band bandQ = createBand(product, "q_" + index, Unit.IMAGINARY, imageFile);
-                    ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_"+index);
+                    ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_" + index);
                 } else {
                     Band band = createBand(product, "Amplitude_" + index, Unit.AMPLITUDE, imageFile);
-                    SARReader.createVirtualIntensityBand(product, band, "_"+index);
+                    SARReader.createVirtualIntensityBand(product, band, "_" + index);
                 }
                 ++index;
             }
         } else {
             final ERSImageFile imageFile = imageFiles[0];
-            if(isProductSLC) {
+            if (isProductSLC) {
                 final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "");
@@ -148,7 +147,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
         product.setDescription(getProductDescription());
 
         ReaderUtils.addGeoCoding(product, CEOSLeaderFile.getLatCorners(leaderFile.getMapProjRecord()),
-                                          CEOSLeaderFile.getLonCorners(leaderFile.getMapProjRecord()));
+                CEOSLeaderFile.getLonCorners(leaderFile.getMapProjRecord()));
         addTiePointGrids(product, leaderFile.getFacilityRecord(), leaderFile.getSceneRecord());
         addMetaData(product);
 
@@ -170,7 +169,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
     }
 
     private Band createBand(final Product product, final String name, final String unit, final ERSImageFile imageFile) {
-        
+
         final Band band = createBand(product, name, unit, imageFile.getBitsPerSample());
         bandImageFileMap.put(name, imageFile);
 
@@ -222,7 +221,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
 
-        if(mapProjRec != null) {
+        if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
                     mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
@@ -244,25 +243,25 @@ class ERSProductDirectory extends CEOSProductDirectory {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                mapProjRec.getAttributeString("Name of reference ellipsoid"));
-        } else if(sceneRec != null) {
+                    mapProjRec.getAttributeString("Name of reference ellipsoid"));
+        } else if (sceneRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                sceneRec.getAttributeDouble("Pixel spacing"));
+                    sceneRec.getAttributeDouble("Pixel spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                sceneRec.getAttributeDouble("Line spacing"));
+                    sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
         }
 
         //sph
         String psID = "VMP";
-        if(sceneRec != null) {
+        if (sceneRec != null) {
             psID = sceneRec.getAttributeString("Processing system identifier").trim();
             if (psID.contains("PGS")) {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, "PGS");
@@ -277,7 +276,8 @@ class ERSProductDirectory extends CEOSProductDirectory {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
                     SARReader.findPolarizationInBandName(
-                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel")));
+                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel"))
+            );
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                     sceneRec.getAttributeString("Processing algorithm identifier"));
@@ -290,13 +290,13 @@ class ERSProductDirectory extends CEOSProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
                     sceneRec.getAttributeDouble("Radar frequency") * 1000.0);
             final double slantRangeTimeToFirstPixel = sceneRec.getAttributeDouble("Zero-doppler range time of first range pixel");
-            final double slantRangeTimeToLastPixel  = sceneRec.getAttributeDouble("Zero-doppler range time of last range pixel");
-            final double slantRangeTime = Math.min(slantRangeTimeToFirstPixel, slantRangeTimeToLastPixel)*0.001; //s
+            final double slantRangeTimeToLastPixel = sceneRec.getAttributeDouble("Zero-doppler range time of last range pixel");
+            final double slantRangeTime = Math.min(slantRangeTimeToFirstPixel, slantRangeTimeToLastPixel) * 0.001; //s
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                slantRangeTime* Constants.halfLightSpeed);
+                    slantRangeTime * Constants.halfLightSpeed);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                sceneRec.getAttributeDouble("Range sampling rate"));
+                    sceneRec.getAttributeDouble("Range sampling rate"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = sceneRec.getAttributeDouble("Total processor bandwidth in range"); // MHz
@@ -315,10 +315,10 @@ class ERSProductDirectory extends CEOSProductDirectory {
                 product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
-        if(facilityRec != null) {
+        if (facilityRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.parseUTC(
-                facilityRec.getAttributeString("Time of input state vector used to processed the image")));
-            
+                    facilityRec.getAttributeString("Time of input state vector used to processed the image")));
+
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
                     facilityRec.getAttributeInt("Antenna pattern correction flag"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
@@ -336,7 +336,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
         // convert srgr coefficients that are used to compute slant range time to new coefficients that are used to compute slant range
         if (!psID.contains("PGS")) { // VMP
 
-            final double Fr = sceneRec.getAttributeDouble("Range sampling rate")*Constants.oneMillion; // MHz to Hz
+            final double Fr = sceneRec.getAttributeDouble("Range sampling rate") * Constants.oneMillion; // MHz to Hz
             final double R0 = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
 
             final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
@@ -344,22 +344,22 @@ class ERSProductDirectory extends CEOSProductDirectory {
 
             MetadataElement coefElem = srgrListElem.getElementAt(0);
             double c0 = coefElem.getAttributeDouble(AbstractMetadata.srgr_coef);
-            c0 = c0/Fr*Constants.halfLightSpeed + R0;
+            c0 = c0 / Fr * Constants.halfLightSpeed + R0;
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, c0);
 
             coefElem = srgrListElem.getElementAt(1);
             double c1 = coefElem.getAttributeDouble(AbstractMetadata.srgr_coef);
-            c1 = c1/Fr*Constants.halfLightSpeed;
+            c1 = c1 / Fr * Constants.halfLightSpeed;
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, c1);
 
             coefElem = srgrListElem.getElementAt(2);
             double c2 = coefElem.getAttributeDouble(AbstractMetadata.srgr_coef);
-            c2 = c2/Fr*Constants.halfLightSpeed;
+            c2 = c2 / Fr * Constants.halfLightSpeed;
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, c2);
 
             coefElem = srgrListElem.getElementAt(3);
             double c3 = coefElem.getAttributeDouble(AbstractMetadata.srgr_coef);
-            c3 = c3/Fr*Constants.halfLightSpeed;
+            c3 = c3 / Fr * Constants.halfLightSpeed;
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, c3);
         }
 
@@ -367,57 +367,57 @@ class ERSProductDirectory extends CEOSProductDirectory {
     }
 
     private String getMapProjection(BinaryRecord mapProjRec) {
-        if(productType.contains("IMG") || productType.contains("GEC")) {
+        if (productType.contains("IMG") || productType.contains("GEC")) {
             return mapProjRec.getAttributeString("Map projection descriptor");
         }
         return " ";
     }
 
     private int getCycle(final int absOrbit) {
-        if(isERS1()) {
-            if(absOrbit < 12754) {              // phase C
+        if (isERS1()) {
+            if (absOrbit < 12754) {              // phase C
                 final int orbitsPerCycle = 501;
-                return (absOrbit + 37930)/orbitsPerCycle;
-            } else if(absOrbit < 14302) {       // phase D
+                return (absOrbit + 37930) / orbitsPerCycle;
+            } else if (absOrbit < 14302) {       // phase D
                 final int orbitsPerCycle = 43;
-                return (absOrbit - 8342)/orbitsPerCycle;
-            } else if(absOrbit < 16747) {       // phase E
+                return (absOrbit - 8342) / orbitsPerCycle;
+            } else if (absOrbit < 16747) {       // phase E
                 final int orbitsPerCycle = 2411;
-                return ((absOrbit-12511)/orbitsPerCycle) + 139;
-            } else if(absOrbit < 19248) {       // phase F
+                return ((absOrbit - 12511) / orbitsPerCycle) + 139;
+            } else if (absOrbit < 19248) {       // phase F
                 final int orbitsPerCycle = 2411;
-                return ((absOrbit - 14391)/orbitsPerCycle) + 141;
+                return ((absOrbit - 14391) / orbitsPerCycle) + 141;
             } else {                            // phase G
                 final int orbitsPerCycle = 501;
-                return ((absOrbit - 19027)/orbitsPerCycle) + 144;
+                return ((absOrbit - 19027) / orbitsPerCycle) + 144;
             }
         } else {
             final int orbitsPerCycle = 501;
-            return (absOrbit + 145)/orbitsPerCycle;
+            return (absOrbit + 145) / orbitsPerCycle;
         }
     }
 
     private int getRelOrbit(final int absOrbit) {
-        if(isERS1()) {
-            if(absOrbit < 12754) {               // phase C
+        if (isERS1()) {
+            if (absOrbit < 12754) {               // phase C
                 final int orbitsPerCycle = 501;
                 return absOrbit + 37931 - getCycle(absOrbit) * orbitsPerCycle;
-            } else if(absOrbit < 14302) {        // phase D
+            } else if (absOrbit < 14302) {        // phase D
                 final int orbitsPerCycle = 43;
                 return absOrbit - 8341 - getCycle(absOrbit) * orbitsPerCycle;
-            } else if(absOrbit < 16747) {        // phase E
+            } else if (absOrbit < 16747) {        // phase E
                 final int orbitsPerCycle = 2411;
-                return absOrbit - 12510 -(getCycle(absOrbit)-139) * orbitsPerCycle;
-            } else if(absOrbit < 19248) {        // phase F
+                return absOrbit - 12510 - (getCycle(absOrbit) - 139) * orbitsPerCycle;
+            } else if (absOrbit < 19248) {        // phase F
                 final int orbitsPerCycle = 2411;
-                return absOrbit - 14390 -(getCycle(absOrbit)-141) * orbitsPerCycle;
+                return absOrbit - 14390 - (getCycle(absOrbit) - 141) * orbitsPerCycle;
             } else {                             // phase G
                 final int orbitsPerCycle = 501;
-                return absOrbit - 19026 - (getCycle(absOrbit)-144)*orbitsPerCycle;
+                return absOrbit - 19026 - (getCycle(absOrbit) - 144) * orbitsPerCycle;
             }
         } else {
             final int orbitsPerCycle = 501;
-            return absOrbit + 146 - getCycle(absOrbit)*orbitsPerCycle; 
+            return absOrbit + 146 - getCycle(absOrbit) * orbitsPerCycle;
         }
     }
 

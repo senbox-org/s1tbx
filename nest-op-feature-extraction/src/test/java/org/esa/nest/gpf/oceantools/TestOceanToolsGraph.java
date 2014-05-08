@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -40,10 +40,10 @@ public class TestOceanToolsGraph extends TestCase {
 
     }
 
-   public void testProcessGraph() throws Exception {
+    public void testProcessGraph() throws Exception {
         final File inputFile = new File(TestUtils.rootPathExpectedProducts, ASAR_IMM);
         final File outputFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmpOut.dim");
-        if(!inputFile.exists()) {
+        if (!inputFile.exists()) {
             TestUtils.skipTest(this);
             return;
         }

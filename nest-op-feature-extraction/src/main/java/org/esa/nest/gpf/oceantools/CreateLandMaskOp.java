@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,11 +50,11 @@ import java.util.Set;
 @OperatorMetadata(alias = "Land-Sea-Mask",
         category = "Classification\\Masks",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Creates a bitmask defining land vs ocean.")
 public class CreateLandMaskOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
@@ -63,19 +63,19 @@ public class CreateLandMaskOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(label="Mask the Land", defaultValue = "true")
+    @Parameter(label = "Mask the Land", defaultValue = "true")
     private Boolean landMask = true;
 
-    @Parameter(label="Use SRTM 3sec", defaultValue = "true")
+    @Parameter(label = "Use SRTM 3sec", defaultValue = "true")
     private Boolean useSRTM = true;
 
-    @Parameter(label="Vector", defaultValue = "")
+    @Parameter(label = "Vector", defaultValue = "")
     private String geometry = "";
 
-    @Parameter(label="Invert Vector", defaultValue = "false")
+    @Parameter(label = "Invert Vector", defaultValue = "false")
     private Boolean invertGeometry = false;
 
-    @Parameter(label="Bypass", defaultValue = "false")
+    @Parameter(label = "Bypass", defaultValue = "false")
     private Boolean byPass = false;
 
     private ElevationModel dem = null;
@@ -102,6 +102,7 @@ public class CreateLandMaskOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
@@ -109,10 +110,10 @@ public class CreateLandMaskOp extends Operator {
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
         for (Band srcBand : sourceBands) {
 
-            if(geometry != null && !geometry.isEmpty() && !byPass) {
-                String expression = geometry+" ? "+srcBand.getName()+" : "+srcBand.getNoDataValue();
-                if(invertGeometry) {
-                    expression = "!"+expression;
+            if (geometry != null && !geometry.isEmpty() && !byPass) {
+                String expression = geometry + " ? " + srcBand.getName() + " : " + srcBand.getNoDataValue();
+                if (invertGeometry) {
+                    expression = "!" + expression;
                 }
                 final VirtualBand virtBand = new VirtualBand(srcBand.getName() + tmpVirtBandName,
                         srcBand.getDataType(),
@@ -127,7 +128,7 @@ public class CreateLandMaskOp extends Operator {
                 targetBand.setSourceImage(virtBand.getSourceImage());
             } else {
                 final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                if(byPass) {
+                if (byPass) {
                     targetBand.setSourceImage(srcBand.getSourceImage());
                 }
             }
@@ -135,10 +136,10 @@ public class CreateLandMaskOp extends Operator {
     }
 
     public void dispose() {
-        if(geometry != null && !geometry.isEmpty() && !byPass) {
+        if (geometry != null && !geometry.isEmpty() && !byPass) {
             final Band[] sourceBands = sourceProduct.getBands();
             for (Band srcBand : sourceBands) {
-                if(srcBand.getName().contains(tmpVirtBandName)) {
+                if (srcBand.getName().contains(tmpVirtBandName)) {
                     sourceProduct.removeBand(srcBand);
                 }
             }
@@ -158,7 +159,7 @@ public class CreateLandMaskOp extends Operator {
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         try {
-            if(dem == null) {
+            if (dem == null) {
                 createDEM();
             }
 
@@ -171,40 +172,40 @@ public class CreateLandMaskOp extends Operator {
             boolean valid;
 
             final TileIndex tileIndex = new TileIndex(trgTiles[0].srcTile);
-            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX-minX, maxY-minY);
+            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX - minX, maxY - minY);
 
             final float demNoDataValue = dem.getDescriptor().getNoDataValue();
-            final double[][] localDEM = new double[maxY-minY+2][maxX-minX+2];
+            final double[][] localDEM = new double[maxY - minY + 2][maxX - minX + 2];
             DEMFactory.getLocalDEM(
-                    dem, demNoDataValue, null, tileGeoRef, minX, minY, maxX-minX, maxY-minY, null, true, localDEM);
+                    dem, demNoDataValue, null, tileGeoRef, minX, minY, maxX - minX, maxY - minY, null, true, localDEM);
 
             for (int y = minY; y < maxY; ++y) {
                 tileIndex.calculateStride(y);
-                final int yy = y-minY;
+                final int yy = y - minY;
                 for (int x = minX; x < maxX; ++x) {
 
                     final int index = tileIndex.getIndex(x);
-                    final double elev = localDEM[yy][x-minX];
+                    final double elev = localDEM[yy][x - minX];
 
-                    if(landMask) {
-                        if(useSRTM)
+                    if (landMask) {
+                        if (useSRTM)
                             valid = elev == demNoDataValue;
                         else
                             valid = elev < seaThreshold;
                     } else {
-                        if(useSRTM)
+                        if (useSRTM)
                             valid = elev != demNoDataValue;
                         else
                             valid = elev > landThreshold;
                     }
 
-                    if(valid) {
-                        for(TileData tileData : trgTiles) {
+                    if (valid) {
+                        for (TileData tileData : trgTiles) {
                             tileData.tileDataBuffer.setElemDoubleAt(index,
                                     tileData.srcDataBuffer.getElemDoubleAt(index));
                         }
                     } else {
-                        for(TileData tileData : trgTiles) {
+                        for (TileData tileData : trgTiles) {
                             tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
                         }
                     }
@@ -212,29 +213,29 @@ public class CreateLandMaskOp extends Operator {
             }
 
         } catch (Throwable e) {
-                OperatorUtils.catchOperatorException(getId(), e);
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     private synchronized void createDEM() {
-        if(dem != null) return;
+        if (dem != null) return;
 
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
         ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("ACE2_5Min");
-        if(useSRTM) {
+        if (useSRTM) {
             demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
         }
         if (demDescriptor.isInstallingDem()) {
-              throw new OperatorException("The DEM is currently being installed.");
+            throw new OperatorException("The DEM is currently being installed.");
         }
         dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.NEAREST_NEIGHBOUR_NAME));
     }
 
     private TileData[] getTargetTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                                             final Product srcProduct) {
+                                      final Product srcProduct) {
         final List<TileData> trgTileList = new ArrayList<TileData>();
         final Set<Band> keySet = targetTiles.keySet();
-        for(Band targetBand : keySet) {
+        for (Band targetBand : keySet) {
 
             final TileData td = new TileData();
             td.targetTile = targetTiles.get(targetBand);

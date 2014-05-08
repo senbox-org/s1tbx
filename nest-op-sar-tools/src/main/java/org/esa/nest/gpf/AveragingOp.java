@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,10 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -25,15 +28,15 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Averaging multi-temporal images
  */
-@OperatorMetadata(alias="Averaging",
+@OperatorMetadata(alias = "Averaging",
         category = "Image Processing",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Averaging multi-temporal images")
 public class AveragingOp extends Operator {
 
@@ -46,7 +49,7 @@ public class AveragingOp extends Operator {
     private boolean allbands = true;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(defaultValue = "true")
@@ -62,8 +65,7 @@ public class AveragingOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -71,25 +73,25 @@ public class AveragingOp extends Operator {
 
         try {
             targetProduct = new Product(sourceProduct.getName(),
-                                        sourceProduct.getProductType(),
-                                        sourceProduct.getSceneRasterWidth(),
-                                        sourceProduct.getSceneRasterHeight());
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             final Band[] sourceBands;
-            if(allbands) {
+            if (allbands) {
                 sourceBands = getAllBands();
             } else {
                 sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
             }
 
-            if(average) {
+            if (average) {
 
                 final StringBuilder expression = new StringBuilder("( ");
                 int cnt = 0;
-                for(Band band : sourceBands) {
-                    if(cnt > 0)
+                for (Band band : sourceBands) {
+                    if (cnt > 0)
                         expression.append(" + ");
                     expression.append(band.getName());
                     ++cnt;
@@ -103,12 +105,12 @@ public class AveragingOp extends Operator {
                         sourceProduct.getSceneRasterHeight(),
                         expression.toString());
                 virtBand.setUnit(sourceBands[0].getUnit());
-                virtBand.setDescription("Averaged "+sourceBands[0].getUnit());
+                virtBand.setDescription("Averaged " + sourceBands[0].getUnit());
                 virtBand.setNoDataValueUsed(true);
                 virtBand.setNoDataValue(sourceBands[0].getNoDataValue());
 
                 final Band srcBand = sourceProduct.getBand(virtBand.getName());
-                if(srcBand != null) {
+                if (srcBand != null) {
                     sourceProduct.removeBand(srcBand);
                 }
                 sourceProduct.addBand(virtBand);
@@ -116,7 +118,7 @@ public class AveragingOp extends Operator {
                 ProductUtils.copyBand("Averaged", sourceProduct, targetProduct, true);
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -126,7 +128,7 @@ public class AveragingOp extends Operator {
         final Band[] bands = sourceProduct.getBands();
         final java.util.List<Band> bandList = new ArrayList<Band>(sourceProduct.getNumBands());
         for (Band band : bands) {
-            if(!(band instanceof VirtualBand))
+            if (!(band instanceof VirtualBand))
                 bandList.add(band);
         }
         return bandList.toArray(new Band[bandList.size()]);
@@ -137,6 +139,7 @@ public class AveragingOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

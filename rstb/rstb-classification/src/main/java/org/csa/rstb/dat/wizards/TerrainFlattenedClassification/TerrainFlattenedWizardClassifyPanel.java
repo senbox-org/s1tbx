@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,7 @@ import java.awt.*;
 import java.io.File;
 
 /**
-    Processing
+ * Processing
  */
 public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
 
@@ -38,14 +38,14 @@ public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
 
         graphDialog = new GraphBuilderDialog(VisatApp.getApp(), "Classification", "Classification", false);
 
-        final File graphFile =  new File(GraphBuilderDialog.getStandardGraphFolder(), wishartGraph);
+        final File graphFile = new File(GraphBuilderDialog.getStandardGraphFolder(), wishartGraph);
 
         graphDialog.LoadGraph(graphFile);
 
         Product inputProduct = null;
         try {
             inputProduct = ProductIO.readProduct(productFileList[0]);
-        } catch(Exception e) {
+        } catch (Exception e) {
 
         }
 
@@ -87,8 +87,9 @@ public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
     private void createPanel() {
 
         final JPanel textPanel = createTextPanel("Instructions",
-                "In the Polarimetric Classification tab, select Wishart Classification.\n"+
-                "Press finish to complete the processing.");
+                "In the Polarimetric Classification tab, select Wishart Classification.\n" +
+                        "Press finish to complete the processing."
+        );
         this.add(textPanel, BorderLayout.NORTH);
 
         this.add(graphDialog.getContent(), BorderLayout.CENTER);

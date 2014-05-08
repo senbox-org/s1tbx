@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -68,8 +68,8 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         RASTER_HEIGHT = product.getBandAt(0).getSceneRasterHeight();
         fileElevationTile = new FileElevationTile(product);
         tileGeocoding = product.getGeoCoding();
-        if(demNoDataValue == null)
-            noDataValue = (float)product.getBandAt(0).getNoDataValue();
+        if (demNoDataValue == null)
+            noDataValue = (float) product.getBandAt(0).getNoDataValue();
         else
             noDataValue = demNoDataValue;
 
@@ -97,8 +97,8 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
     public synchronized double getElevation(final GeoPos geoPos) throws Exception {
         try {
             final PixelPos pix = tileGeocoding.getPixelPos(geoPos, null);
-            if(!pix.isValid() || pix.x < 0 || pix.y < 0 || pix.x >= RASTER_WIDTH || pix.y >= RASTER_HEIGHT)
-               return noDataValue;
+            if (!pix.isValid() || pix.x < 0 || pix.y < 0 || pix.x >= RASTER_WIDTH || pix.y >= RASTER_HEIGHT)
+                return noDataValue;
 
             resampling.computeIndex(pix.x, pix.y, RASTER_WIDTH, RASTER_HEIGHT, resamplingIndex);
 
@@ -107,8 +107,8 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
                 return noDataValue;
             }
             return elevation;
-        } catch(Exception e) {
-            throw new Exception("Problem reading DEM: "+e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Problem reading DEM: " + e.getMessage());
         }
     }
 
@@ -122,7 +122,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     public float getSample(double pixelX, double pixelY) throws IOException {
 
-        final float sample = fileElevationTile.getSample((int)pixelX, (int)pixelY);
+        final float sample = fileElevationTile.getSample((int) pixelX, (int) pixelY);
         if (sample == noDataValue) {
             return Float.NaN;
         }

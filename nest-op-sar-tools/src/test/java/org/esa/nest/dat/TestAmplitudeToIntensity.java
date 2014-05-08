@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,7 +43,7 @@ public class TestAmplitudeToIntensity extends TestCase {
 
     public void testAmplitudeToIntensity() {
 
-        final Product product = createTestProduct("Amplitude", Unit.AMPLITUDE,16, 4);
+        final Product product = createTestProduct("Amplitude", Unit.AMPLITUDE, 16, 4);
         final Band band1 = product.getBandAt(0);
 
         AmplitudeToIntensityOpAction.convert(product, band1, false);
@@ -64,7 +64,7 @@ public class TestAmplitudeToIntensity extends TestCase {
 
         final Band band2 = product.getBandAt(1);
         assertTrue(band2.getUnit().equals(Unit.AMPLITUDE));
-        assertTrue(band2.getName().equals("Amplitude"));     
+        assertTrue(band2.getName().equals("Amplitude"));
     }
 
     /**

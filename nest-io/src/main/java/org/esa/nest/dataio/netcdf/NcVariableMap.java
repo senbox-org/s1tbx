@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -60,7 +60,6 @@ public class NcVariableMap {
      * Gets a variable from this map.
      *
      * @param name The absolute path name. Use the dot character '.' to separate groups.
-     *
      * @return The variable or null.
      */
     public Variable get(final String name) {
@@ -85,6 +84,7 @@ public class NcVariableMap {
 
     /**
      * Tests if this map is empty.
+     *
      * @return true if empty
      */
     public boolean isEmpty() {
@@ -95,7 +95,7 @@ public class NcVariableMap {
         final Set<String> keySet = map.keySet();
         final Variable[] variables = new Variable[keySet.size()];
         int i = 0;
-        for(String key : keySet) {
+        for (String key : keySet) {
             variables[i++] = map.get(key);
         }
         return variables;
@@ -103,6 +103,7 @@ public class NcVariableMap {
 
     /**
      * Gets a variable's absolute path name. The dot character '.' is used to separate groups.
+     *
      * @param variable the entry to get the name from
      * @return The absolute path name.
      */

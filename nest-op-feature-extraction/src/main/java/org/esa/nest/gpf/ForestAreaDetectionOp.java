@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,44 +37,44 @@ import java.util.Map;
 
 /**
  * The forest area detection operator.
- *
+ * <p/>
  * The operator implements the algorithm given in [1]. It is assumed that the input source
  * product has already been calibrated, speckle filtered, multilooked and terrain corrected.
- *
+ * <p/>
  * [1] F. Ling, R. Leiterer, Y. Huang, J. Reiche and Z. Li, "Forest Change Mapping in
- *     Northeast China Using SAR and InSAR Data", ISRSE 34, Sydney, Australia, 2011.
+ * Northeast China Using SAR and InSAR Data", ISRSE 34, Sydney, Australia, 2011.
  */
 
 @OperatorMetadata(alias = "Forest-Area-Detection",
-                  category = "Classification\\Feature Extraction",
-                  authors = "Jun Lu, Luis Veci",
-                  copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-                  description = "Detect forest area.")
+        category = "Classification\\Feature Extraction",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Detect forest area.")
 public class ForestAreaDetectionOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-               rasterDataNodeType = Band.class, label = "Nominator Band")
+            rasterDataNodeType = Band.class, label = "Nominator Band")
     private String nominatorBandName = null;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-               rasterDataNodeType = Band.class, label = "Denominator Band")
+            rasterDataNodeType = Band.class, label = "Denominator Band")
     private String denominatorBandName = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9},
-            defaultValue = WINDOW_SIZE_3x3, label="Window Size")
+            defaultValue = WINDOW_SIZE_3x3, label = "Window Size")
     private String windowSizeStr = WINDOW_SIZE_3x3;
 
     @Parameter(description = "The lower bound for ratio image", interval = "(0, *)", defaultValue = "3.76",
-                label="Ratio lower bound (dB)")
+            label = "Ratio lower bound (dB)")
     private double T_Ratio_Low = 3.76;
 
     @Parameter(description = "The upper bound for ratio image", interval = "(0, *)", defaultValue = "6.55",
-                label="Ratio upper bound (dB)")
+            label = "Ratio upper bound (dB)")
     private double T_Ratio_High = 6.55;
 
     //@Parameter(description = "The lower bound for HV image", interval = "(-30, *)", defaultValue = "-13.85",
@@ -141,19 +141,20 @@ public class ForestAreaDetectionOp extends Operator {
                 throw new OperatorException("Unknown window size: " + windowSize);
         }
 
-        halfWindowSize = windowSize/2;
+        halfWindowSize = windowSize / 2;
     }
 
     /**
      * Create target product.
+     *
      * @throws Exception The exception.
      */
     private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -162,6 +163,7 @@ public class ForestAreaDetectionOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
@@ -172,7 +174,7 @@ public class ForestAreaDetectionOp extends Operator {
             final String bandUnit = sourceProduct.getBand(bandName).getUnit();
 
             if (!bandUnit.equals(Unit.AMPLITUDE) && !bandUnit.equals(Unit.INTENSITY) &&
-                !bandUnit.equals(Unit.AMPLITUDE_DB) && !bandUnit.equals(Unit.INTENSITY_DB)) {
+                    !bandUnit.equals(Unit.AMPLITUDE_DB) && !bandUnit.equals(Unit.INTENSITY_DB)) {
                 throw new OperatorException("Please select amplitude or intensity band");
             }
 
@@ -180,9 +182,9 @@ public class ForestAreaDetectionOp extends Operator {
         }
 
         final Band targetRatioBand = new Band(RATIO_BAND_NAME,
-                                              ProductData.TYPE_FLOAT32,
-                                              sourceImageWidth,
-                                              sourceImageHeight);
+                ProductData.TYPE_FLOAT32,
+                sourceImageWidth,
+                sourceImageHeight);
 
         targetRatioBand.setNoDataValue(0);
         targetRatioBand.setNoDataValueUsed(true);
@@ -190,12 +192,12 @@ public class ForestAreaDetectionOp extends Operator {
         targetProduct.addBand(targetRatioBand);
 
         final String expression = RATIO_BAND_NAME + " > " + String.valueOf(T_Ratio_Low) + " && " +
-                                  RATIO_BAND_NAME + " < " + String.valueOf(T_Ratio_High);
+                RATIO_BAND_NAME + " < " + String.valueOf(T_Ratio_High);
 
         final Mask mask = new Mask(FOREST_MASK_NAME,
-                                   targetProduct.getSceneRasterWidth(),
-                                   targetProduct.getSceneRasterHeight(),
-                                   Mask.BandMathsType.INSTANCE);
+                targetProduct.getSceneRasterWidth(),
+                targetProduct.getSceneRasterHeight(),
+                Mask.BandMathsType.INSTANCE);
 
         mask.setDescription("Forest Area");
         mask.getImageConfig().setValue("color", Color.MAGENTA);
@@ -224,8 +226,7 @@ public class ForestAreaDetectionOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          if an error occurs during computation of the target rasters.
+     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
@@ -233,8 +234,8 @@ public class ForestAreaDetectionOp extends Operator {
         try {
             final int tx0 = targetRectangle.x;
             final int ty0 = targetRectangle.y;
-            final int tw  = targetRectangle.width;
-            final int th  = targetRectangle.height;
+            final int tw = targetRectangle.width;
+            final int th = targetRectangle.height;
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             final Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th);
@@ -287,8 +288,8 @@ public class ForestAreaDetectionOp extends Operator {
                         continue;
                     }
 
-                    vRatioDB = 10.0*Math.log10(Math.max(vRatio, Constants.EPS));
-                    vDDB = 10.0*Math.log10(Math.max(vD, Constants.EPS));
+                    vRatioDB = 10.0 * Math.log10(Math.max(vRatio, Constants.EPS));
+                    vDDB = 10.0 * Math.log10(Math.max(vD, Constants.EPS));
 
                     //int maskBit = 0;
                     //if (vRatioDB > T_Ratio_Low && vRatioDB < T_Ratio_High && vDDB > T_HV_Low) {
@@ -296,7 +297,7 @@ public class ForestAreaDetectionOp extends Operator {
                     //}
 
                     //maskData.setElemIntAt(trgIdx, maskBit);
-                    ratioData.setElemFloatAt(trgIdx, (float)vRatioDB);
+                    ratioData.setElemFloatAt(trgIdx, (float) vRatioDB);
                 }
             }
 
@@ -307,10 +308,11 @@ public class ForestAreaDetectionOp extends Operator {
 
     /**
      * Get source tile rectangle.
+     *
      * @param x0 X coordinate of pixel at the upper left corner of the target tile.
      * @param y0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param w The width of the target tile.
-     * @param h The height of the target tile.
+     * @param w  The width of the target tile.
+     * @param h  The height of the target tile.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceTileRectangle(int x0, int y0, int w, int h) {
@@ -343,16 +345,17 @@ public class ForestAreaDetectionOp extends Operator {
 
     /**
      * Compute pixel value for ratio band.
-     * @param tx The x coordinate of the central pixel of the sliding window.
-     * @param ty The y coordinate of the central pixel of the sliding window.
-     * @param nominatorTile The source image tile for nominator band.
-     * @param nominatorData The source image data for nominator band.
+     *
+     * @param tx              The x coordinate of the central pixel of the sliding window.
+     * @param ty              The y coordinate of the central pixel of the sliding window.
+     * @param nominatorTile   The source image tile for nominator band.
+     * @param nominatorData   The source image data for nominator band.
      * @param denominatorTile The source image tile for denominator band.
      * @param denominatorData The source image data for denominator band.
-     * @param bandUnitN Unit for nominator band.
-     * @param bandUnitD Unit for denominator band.
-     * @param noDataValueN The place holder for no data for nominator band.
-     * @param noDataValueD The place holder for no data for denominator band.
+     * @param bandUnitN       Unit for nominator band.
+     * @param bandUnitD       Unit for denominator band.
+     * @param noDataValueN    The place holder for no data for nominator band.
+     * @param noDataValueD    The place holder for no data for denominator band.
      * @return The local coefficient of variance.
      */
     private double computeRatio(final int tx, final int ty, final Tile nominatorTile, final ProductData nominatorData,
@@ -360,8 +363,8 @@ public class ForestAreaDetectionOp extends Operator {
                                 final String bandUnitN, final String bandUnitD,
                                 final double noDataValueN, final double noDataValueD) {
 
-        final double[] samplesN = new double[windowSize*windowSize];
-        final double[] samplesD = new double[windowSize*windowSize];
+        final double[] samplesN = new double[windowSize * windowSize];
+        final double[] samplesD = new double[windowSize * windowSize];
 
         final int numSamplesN = getSamples(tx, ty, bandUnitN, noDataValueN, nominatorTile, nominatorData, samplesN);
         if (numSamplesN == 0) {
@@ -381,18 +384,19 @@ public class ForestAreaDetectionOp extends Operator {
             return noDataValueD;
         }
 
-        return meanN/meanD;
+        return meanN / meanD;
     }
 
     /**
      * Get source samples in the sliding window.
-     * @param tx The x coordinate of the central pixel of the sliding window.
-     * @param ty The y coordinate of the central pixel of the sliding window.
-     * @param bandUnit Band unit.
+     *
+     * @param tx          The x coordinate of the central pixel of the sliding window.
+     * @param ty          The y coordinate of the central pixel of the sliding window.
+     * @param bandUnit    Band unit.
      * @param noDataValue the place holder for no data
-     * @param sourceTile The source image tile.
-     * @param srcData The source image data.
-     * @param samples The sample array.
+     * @param sourceTile  The source image tile.
+     * @param srcData     The source image data.
+     * @param samples     The sample array.
      * @return The number of samples.
      */
     private int getSamples(final int tx, final int ty, final String bandUnit, final double noDataValue,
@@ -401,8 +405,8 @@ public class ForestAreaDetectionOp extends Operator {
 
         final int x0 = Math.max(tx - halfWindowSize, 0);
         final int y0 = Math.max(ty - halfWindowSize, 0);
-        final int w  = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
-        final int h  = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
+        final int w = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
+        final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
 
         final TileIndex tileIndex = new TileIndex(sourceTile);
 
@@ -418,7 +422,7 @@ public class ForestAreaDetectionOp extends Operator {
                     for (int x = x0; x < maxx; x++) {
                         final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
                         if (v != noDataValue) {
-                            samples[numSamples++] = v*v;
+                            samples[numSamples++] = v * v;
                         }
                     }
                 }
@@ -444,8 +448,8 @@ public class ForestAreaDetectionOp extends Operator {
                     for (int x = x0; x < maxx; x++) {
                         final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
                         if (v != noDataValue) {
-                            double vv = Math.pow(10.0, v/10.0);
-                            samples[numSamples++] = vv*vv;
+                            double vv = Math.pow(10.0, v / 10.0);
+                            samples[numSamples++] = vv * vv;
                         }
                     }
                 }
@@ -458,7 +462,7 @@ public class ForestAreaDetectionOp extends Operator {
                     for (int x = x0; x < maxx; x++) {
                         final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
                         if (v != noDataValue) {
-                            samples[numSamples++] = Math.pow(10.0, v/10.0);
+                            samples[numSamples++] = Math.pow(10.0, v / 10.0);
                         }
                     }
                 }
@@ -473,7 +477,8 @@ public class ForestAreaDetectionOp extends Operator {
 
     /**
      * Get the mean value of the samples.
-     * @param samples The sample array.
+     *
+     * @param samples    The sample array.
      * @param numSamples The number of samples.
      * @return mean The mean value.
      */

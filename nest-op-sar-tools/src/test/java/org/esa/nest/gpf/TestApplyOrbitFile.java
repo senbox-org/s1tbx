@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,10 +26,10 @@ import java.io.File;
  * Date: Sep 4, 2008
  * To change this template use File | Settings | File Templates.
  */
-public class TestApplyOrbitFile  extends TestCase {
+public class TestApplyOrbitFile extends TestCase {
 
     File vorPath = new File("P:\\nest\\nest\\ESA Data\\Orbits\\Doris\\vor");
-    
+
     public TestApplyOrbitFile(String name) {
         super(name);
     }

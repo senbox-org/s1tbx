@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,6 @@ import java.io.IOException;
 
 /**
  * The product reader for AlosPalsar products.
- *
  */
 public class AlosPalsarProductReader extends CEOSProductReader {
 
@@ -40,7 +39,7 @@ public class AlosPalsarProductReader extends CEOSProductReader {
      *                     implementations
      */
     public AlosPalsarProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     @Override
@@ -53,8 +52,8 @@ public class AlosPalsarProductReader extends CEOSProductReader {
         try {
             _dataDir = createProductDirectory(file);
 
-            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory)_dataDir;
-            if(dataDir.isALOS())
+            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) _dataDir;
+            if (dataDir.isALOS())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
 
@@ -73,29 +72,29 @@ public class AlosPalsarProductReader extends CEOSProductReader {
                                           ProgressMonitor pm) throws IOException {
         try {
             final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) _dataDir;
-            final AlosPalsarImageFile imageFile = (AlosPalsarImageFile)dataDir.getImageFile(destBand);
-            if(dataDir.isSLC()) {
+            final AlosPalsarImageFile imageFile = (AlosPalsarImageFile) dataDir.getImageFile(destBand);
+            if (dataDir.isSLC()) {
                 boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
 
-                if(dataDir.getProductLevel() == AlosPalsarConstants.LEVEL1_0) {
+                if (dataDir.getProductLevel() == AlosPalsarConstants.LEVEL1_0) {
                     imageFile.readBandRasterDataSLCByte(sourceOffsetX, sourceOffsetY,
-                                         sourceWidth, sourceHeight,
-                                         sourceStepX, sourceStepY,
-                                         destWidth,
-                                         destBuffer, oneOf2, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, oneOf2, pm);
                 } else {
                     imageFile.readBandRasterDataSLCFloat(sourceOffsetX, sourceOffsetY,
-                                         sourceWidth, sourceHeight,
-                                         sourceStepX, sourceStepY,
-                                         destWidth,
-                                         destBuffer, oneOf2, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, oneOf2, pm);
                 }
             } else {
                 imageFile.readBandRasterDataShort(sourceOffsetX, sourceOffsetY,
-                                         sourceWidth, sourceHeight,
-                                         sourceStepX, sourceStepY,
-                                         destWidth,
-                                         destBuffer, pm);
+                        sourceWidth, sourceHeight,
+                        sourceStepX, sourceStepY,
+                        destWidth,
+                        destBuffer, pm);
             }
 
         } catch (Exception e) {

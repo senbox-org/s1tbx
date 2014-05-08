@@ -6,13 +6,13 @@
     <version>6.0-SNAPSHOT</version>
     <packaging>dir</packaging>
 
-	<vendor>Array Systems Computing Inc</vendor>
+    <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2012 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
-	
+    <funding>European Space Agency</funding>
+
     <description>Provides the software user manual.</description>
 
     <categories>System,Help</categories>

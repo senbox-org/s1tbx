@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,33 +21,33 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.*;
 
 /**
-* The abstract base class for all calibration operators intended to be extended by clients.
+ * The abstract base class for all calibration operators intended to be extended by clients.
  * The following methods are intended to be implemented or overidden:
  */
 public class CalibrationFactory {
 
     public static Calibrator createCalibrator(Product sourceProduct)
-                                            throws OperatorException, IllegalArgumentException {
+            throws OperatorException, IllegalArgumentException {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        if(absRoot == null) {
+        if (absRoot == null) {
             throw new OperatorException("AbstractMetadata is null");
         }
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
-        if(mission.equals("ENVISAT")) {
+        if (mission.equals("ENVISAT")) {
             return new ASARCalibrator();
-        } else if(mission.contains("ERS1") || mission.contains("ERS2")) {
+        } else if (mission.contains("ERS1") || mission.contains("ERS2")) {
             return new ERSCalibrator();
-        } else if(mission.equals("ALOS")) {
+        } else if (mission.equals("ALOS")) {
             return new ALOSCalibrator();
-        } else if(mission.equals("RS2")) {
+        } else if (mission.equals("RS2")) {
             return new Radarsat2Calibrator();
-        } else if(mission.contains("TSX") || mission.contains("TDX")) {
+        } else if (mission.contains("TSX") || mission.contains("TDX")) {
             return new TerraSARXCalibrator();
-        } else if(mission.contains("CSK")) {
-        	return new CosmoSkymedCalibrator();
-        } else if(mission.contains("SENTINEL-1A")) {
+        } else if (mission.contains("CSK")) {
+            return new CosmoSkymedCalibrator();
+        } else if (mission.contains("SENTINEL-1A")) {
             return new Sentinel1Calibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
@@ -66,7 +66,7 @@ public class CalibrationFactory {
         }
 
         final Band[] bands = targetProduct.getBands();
-        for(Band trgBand : bands) {
+        for (Band trgBand : bands) {
 
             final String trgBandName = trgBand.getName();
             if (trgBand instanceof VirtualBand || !trgBandName.contains("Sigma0")) {
@@ -118,7 +118,7 @@ public class CalibrationFactory {
     public static void createGammaNoughtVirtualBand(Product targetProduct, String incidenceAngleForGamma0) {
 
         final Band[] bands = targetProduct.getBands();
-        for(Band trgBand : bands) {
+        for (Band trgBand : bands) {
 
             final String trgBandName = trgBand.getName();
             if (trgBand instanceof VirtualBand || !trgBandName.contains("Sigma0")) {
@@ -152,13 +152,13 @@ public class CalibrationFactory {
                 description = "Gamma0 image created using projected local incidence angle from dem";
             }
 
-            if(trgBandName.contains("_HH")) {
+            if (trgBandName.contains("_HH")) {
                 gammaNoughtVirtualBandName = "Gamma0_HH" + gammaNoughtVirtualBandName;
-            } else if(trgBandName.contains("_VV")) {
+            } else if (trgBandName.contains("_VV")) {
                 gammaNoughtVirtualBandName = "Gamma0_VV" + gammaNoughtVirtualBandName;
-            } else if(trgBandName.contains("_HV")) {
+            } else if (trgBandName.contains("_HV")) {
                 gammaNoughtVirtualBandName = "Gamma0_HV" + gammaNoughtVirtualBandName;
-            } else if(trgBandName.contains("_VH")) {
+            } else if (trgBandName.contains("_VH")) {
                 gammaNoughtVirtualBandName = "Gamma0_VH" + gammaNoughtVirtualBandName;
             } else {
                 gammaNoughtVirtualBandName = "Gamma0" + gammaNoughtVirtualBandName;
@@ -182,7 +182,7 @@ public class CalibrationFactory {
     public static void createBetaNoughtVirtualBand(final Product targetProduct) {
 
         final Band[] bands = targetProduct.getBands();
-        for(Band trgBand : bands) {
+        for (Band trgBand : bands) {
 
             final String trgBandName = trgBand.getName();
             if (trgBand instanceof VirtualBand || !trgBandName.contains("Sigma0")) {

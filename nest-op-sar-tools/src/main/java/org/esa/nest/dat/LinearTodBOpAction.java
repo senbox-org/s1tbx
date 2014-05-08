@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,11 +23,10 @@ import org.esa.nest.datamodel.Unit;
 
 /**
  * LinearTodB action.
- *
  */
 public class LinearTodBOpAction extends AbstractVisatAction {
 
-    private static final String dBStr = "_"+Unit.DB;
+    private static final String dBStr = "_" + Unit.DB;
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -35,20 +34,20 @@ public class LinearTodBOpAction extends AbstractVisatAction {
         final VisatApp visatApp = VisatApp.getApp();
 
         final ProductNode node = visatApp.getSelectedProductNode();
-        if(node instanceof Band) {
+        if (node instanceof Band) {
             final Product product = visatApp.getSelectedProduct();
             final Band band = (Band) node;
             final String unit = band.getUnit();
 
-            if(!unit.contains(Unit.DB)) {
+            if (!unit.contains(Unit.DB)) {
 
-                if(visatApp.showQuestionDialog("Convert to dB", "Would you like to convert band "
+                if (visatApp.showQuestionDialog("Convert to dB", "Would you like to convert band "
                         + band.getName() + " into dB in a new virtual band?", true, null) == 0) {
                     convert(product, band, true);
                 }
             } else {
 
-                if(visatApp.showQuestionDialog("Convert to linear", "Would you like to convert band "
+                if (visatApp.showQuestionDialog("Convert to linear", "Would you like to convert band "
                         + band.getName() + " into linear in a new virtual band?", true, null) == 0) {
                     convert(product, band, false);
                 }
@@ -59,10 +58,10 @@ public class LinearTodBOpAction extends AbstractVisatAction {
     @Override
     public void updateState(CommandEvent event) {
         final ProductNode node = VisatApp.getApp().getSelectedProductNode();
-        if(node instanceof Band) {
+        if (node instanceof Band) {
             final Band band = (Band) node;
             final String unit = band.getUnit();
-            if(unit != null && !unit.contains(Unit.PHASE)) {
+            if (unit != null && !unit.contains(Unit.PHASE)) {
                 event.getCommand().setEnabled(true);
                 return;
             }
@@ -77,21 +76,21 @@ public class LinearTodBOpAction extends AbstractVisatAction {
         String expression;
         String newBandName;
 
-        if(todB) {
-            expression = bandName + "==0 ? 0 : 10 * log10(abs("+bandName+"))";
+        if (todB) {
+            expression = bandName + "==0 ? 0 : 10 * log10(abs(" + bandName + "))";
             bandName += dBStr;
             unit += dBStr;
         } else {
             expression = "pow(10," + bandName + "/10.0)";
-            if(bandName.contains(dBStr))
+            if (bandName.contains(dBStr))
                 bandName = bandName.substring(0, bandName.indexOf(dBStr));
-            if(unit.contains(dBStr))
+            if (unit.contains(dBStr))
                 unit = unit.substring(0, unit.indexOf(dBStr));
         }
 
         newBandName = bandName;
         int i = 2;
-        while(product.getBand(newBandName) != null) {
+        while (product.getBand(newBandName) != null) {
             newBandName = bandName + i;
             ++i;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,7 @@ import java.awt.*;
 import java.io.File;
 
 /**
-    Processing
+ * Processing
  */
 public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
 
@@ -36,7 +36,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
 
         graphDialog = new GraphBuilderDialog(VisatApp.getApp(), "TerrainFlatten", "Terrain Flattened Terrain Correction", false);
 
-        final File graphFile =  new File(wizardGraphPath, "TerrainFlattenedT3.xml");
+        final File graphFile = new File(wizardGraphPath, "TerrainFlattenedT3.xml");
 
         graphDialog.LoadGraph(graphFile);
         graphDialog.setInputFile(srcProduct);
@@ -53,7 +53,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
     }
 
     public boolean hasNextPanel() {
-        if(graphDialog != null) {
+        if (graphDialog != null) {
             return !graphDialog.isProcessing();
         }
         return true;
@@ -68,7 +68,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
     }
 
     public boolean validateInput() {
-        if(getTargetFileList().length == 0) {
+        if (getTargetFileList().length == 0) {
             graphDialog.DoProcessing();
             getOwner().updateState();
         }
@@ -78,9 +78,10 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
     private void createPanel() {
 
         final JPanel textPanel = createTextPanel("Instructions",
-                "In the Terrain Flatten tab, select a DEM to use.\n"+
-                "In the Terrain Correction tab, select the DEM and the output pixel spacing.\n"+
-                "Press finish to complete the processing.");
+                "In the Terrain Flatten tab, select a DEM to use.\n" +
+                        "In the Terrain Correction tab, select the DEM and the output pixel spacing.\n" +
+                        "Press finish to complete the processing."
+        );
         this.add(textPanel, BorderLayout.NORTH);
 
         this.add(graphDialog.getContent(), BorderLayout.CENTER);

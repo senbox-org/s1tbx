@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,10 +33,10 @@ import java.util.Arrays;
 public class SpeckleFilterOperatorTest extends TestCase {
 
     private OperatorSpi spi;
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Spk.dim";
+    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Spk.dim";
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
+    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
 
     @Override
     protected void setUp() throws Exception {
@@ -52,12 +52,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Tests Mean speckle filter with a 4-by-4 test product.
+     *
      * @throws Exception The exception.
      */
     public void testMeanFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter("Mean");
@@ -82,12 +83,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Tests Median speckle filter with a 4-by-4 test product.
+     *
      * @throws Exception anything
      */
     public void testMedianFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter("Median");
@@ -111,12 +113,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Tests Frost speckle filter with a 4-by-4 test product.
+     *
      * @throws Exception anything
      */
     public void testFrostFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter("Frost");
@@ -140,12 +143,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Tests Gamma speckle filter with a 4-by-4 test product.
+     *
      * @throws Exception anything
      */
     public void testGammaFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter("Gamma Map");
@@ -169,12 +173,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Tests Lee speckle filter with a 4-by-4 test product.
+     *
      * @throws Exception anything
      */
     public void testLeeFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter("Lee");
@@ -199,12 +204,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Tests refined Lee speckle filter with a 7-by-7 test product.
+     *
      * @throws Exception anything
      */
     public void testRefinedLeeFilter() throws Exception {
         final Product sourceProduct = createRefinedLeeTestProduct();
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetFilter("Refined Lee");
@@ -236,10 +242,11 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Creates a 4-by-4 test product as shown below for speckle filter tests:
-     *  1  2  3  4
-     *  5  6  7  8
-     *  9 10 11 12
+     * 1  2  3  4
+     * 5  6  7  8
+     * 9 10 11 12
      * 13 14 15 16
+     *
      * @param w width
      * @param h height
      * @return the new test product
@@ -261,13 +268,13 @@ public class SpeckleFilterOperatorTest extends TestCase {
         int h = 7;
         final Product testProduct = TestUtils.createProduct("type", w, h);
         final Band band1 = testProduct.addBand("band1", ProductData.TYPE_INT32);
-        final int[] intValues = { 99, 105, 124, 138, 128, 34, 62,
-                                 105,  91, 140,  98, 114, 63, 31,
-                                 107,  94, 128, 138,  96, 61, 82,
-                                 137, 129, 136, 105, 100, 55, 85,
-                                 144, 145, 113, 132, 119, 39, 50,
-                                 102,  97, 102, 110, 103, 34, 53,
-                                 107, 146, 115, 123, 101, 76, 56};
+        final int[] intValues = {99, 105, 124, 138, 128, 34, 62,
+                105, 91, 140, 98, 114, 63, 31,
+                107, 94, 128, 138, 96, 61, 82,
+                137, 129, 136, 105, 100, 55, 85,
+                144, 145, 113, 132, 119, 39, 50,
+                102, 97, 102, 110, 103, 34, 53,
+                107, 146, 115, 123, 101, 76, 56};
 
         band1.setData(ProductData.createInstance(intValues));
         band1.setUnit(Unit.AMPLITUDE);
@@ -276,13 +283,14 @@ public class SpeckleFilterOperatorTest extends TestCase {
 
     /**
      * Processes a product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testProcessing() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
 
-        final SpeckleFilterOp op = (SpeckleFilterOp)spi.createOperator();
+        final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -292,38 +300,31 @@ public class SpeckleFilterOperatorTest extends TestCase {
         TestUtils.compareProducts(targetProduct, expectedPathWSM, null);
     }
 
-    public void testProcessAllASAR() throws Exception
-    {
+    public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
     }
 
-    public void testProcessAllERS() throws Exception
-    {
+    public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, null, null);
     }
 
-    public void testProcessAllALOS() throws Exception
-    {
+    public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, null);
     }
 
-    public void testProcessAllRadarsat2() throws Exception
-    {
+    public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, null);
     }
 
-    public void testProcessAllTerraSARX() throws Exception
-    {
+    public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, null);
     }
 
-    public void testProcessAllCosmo() throws Exception
-    {
+    public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, null);
     }
 
-    public void testProcessAllNestBox() throws Exception
-    {
+    public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, null);
     }
 }

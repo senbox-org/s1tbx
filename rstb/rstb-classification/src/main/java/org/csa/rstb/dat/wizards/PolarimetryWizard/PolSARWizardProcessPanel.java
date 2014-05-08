@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,7 @@ import java.awt.*;
 import java.io.File;
 
 /**
-    Processing
+ * Processing
  */
 public class PolSARWizardProcessPanel extends WizardPanel {
 
@@ -37,7 +37,7 @@ public class PolSARWizardProcessPanel extends WizardPanel {
 
         graphDialog = new GraphBuilderDialog(VisatApp.getApp(), "Classification", "Classification", false);
 
-        final File graphFile =  new File(wizardGraphPath, wishartGraph);
+        final File graphFile = new File(wizardGraphPath, wishartGraph);
 
         graphDialog.LoadGraph(graphFile);
         graphDialog.setInputFile(srcProduct);
@@ -79,10 +79,11 @@ public class PolSARWizardProcessPanel extends WizardPanel {
     private void createPanel() {
 
         final JPanel textPanel = createTextPanel("Instructions",
-                "In the Polarimetric Matrices tab, select a Coherency T3 or Covariance C3 matrix.\n"+
-                "Speckle filter using the Refined Lee filter.\n"+
-                "Classify with the Wishart Classifier"+
-                "Press finish to complete the processing.");
+                "In the Polarimetric Matrices tab, select a Coherency T3 or Covariance C3 matrix.\n" +
+                        "Speckle filter using the Refined Lee filter.\n" +
+                        "Classify with the Wishart Classifier" +
+                        "Press finish to complete the processing."
+        );
         this.add(textPanel, BorderLayout.NORTH);
 
         this.add(graphDialog.getContent(), BorderLayout.CENTER);

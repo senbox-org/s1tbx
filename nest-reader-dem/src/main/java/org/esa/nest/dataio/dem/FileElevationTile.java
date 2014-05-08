@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -72,8 +72,8 @@ class FileElevationTile {
         };
     }
 
-     private void updateCache(int index) {
-        indexList.remove((Object)index);
+    private void updateCache(int index) {
+        indexList.remove((Object) index);
         indexList.add(0, index);
         if (indexList.size() > maxLines) {
             final int i = indexList.size() - 1;

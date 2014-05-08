@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,9 +27,9 @@ import java.io.File;
 /**
  * Test performance of tie point grid geocoding
  */
-public class TestTiePoints  extends TestCase {
+public class TestTiePoints extends TestCase {
 
-    final File inputFile = new File(TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
+    final File inputFile = new File(TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private Product product1 = null;
     private Product product2 = null;
@@ -38,7 +38,7 @@ public class TestTiePoints  extends TestCase {
     protected void setUp() throws Exception {
         TestUtils.initTestEnvironment();
 
-        if(inputFile.exists()) {
+        if (inputFile.exists()) {
             product1 = ProductIO.readProduct(inputFile);
             product2 = ProductIO.readProduct(inputFile);
         }
@@ -50,7 +50,7 @@ public class TestTiePoints  extends TestCase {
     }
 
     public void testGetPixelFloat() throws Exception {
-        if(product1 == null) {
+        if (product1 == null) {
             TestUtils.skipTest(this);
             return;
         }
@@ -58,18 +58,18 @@ public class TestTiePoints  extends TestCase {
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
 
-        float[] floats1 = new float[w*h];
-        int i=0;
-        for(int x=0; x < w; ++x) {
-            for(int y=0; y < h; ++y) {
-                floats1[i++] = tpg.getPixelFloat(x,y);
+        float[] floats1 = new float[w * h];
+        int i = 0;
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                floats1[i++] = tpg.getPixelFloat(x, y);
             }
         }
 
     }
 
     public void testGetPixelFloats() throws Exception {
-        if(product2 == null) {
+        if (product2 == null) {
             TestUtils.skipTest(this);
             return;
         }
@@ -77,15 +77,15 @@ public class TestTiePoints  extends TestCase {
         int w = product2.getSceneRasterWidth();
         int h = product2.getSceneRasterHeight();
 
-        float[] floats = new float[w*h];
-        tpg.getPixels(0,0, w,h, floats, ProgressMonitor.NULL);
+        float[] floats = new float[w * h];
+        tpg.getPixels(0, 0, w, h, floats, ProgressMonitor.NULL);
     }
 
     public void testCompareFloats() throws Exception {
-        if(TestUtils.skipTest(this))
+        if (TestUtils.skipTest(this))
             return;
 
-        if(product1 == null) {
+        if (product1 == null) {
             TestUtils.skipTest(this);
             return;
         }
@@ -93,15 +93,15 @@ public class TestTiePoints  extends TestCase {
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
 
-        final float[] floats = new float[w*h];
-        tpg.getPixels(0,0, w,h, floats, ProgressMonitor.NULL);
+        final float[] floats = new float[w * h];
+        tpg.getPixels(0, 0, w, h, floats, ProgressMonitor.NULL);
 
-        for(int y=0; y < h; ++y) {
-            for(int x=0; x < w; ++x) {
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
                 final float f = tpg.getPixelFloat(x, y);
 
-                System.out.println(x+','+y+' '+f+"    "+ floats[y*w+x]);
-                assertEquals(f, floats[y*w+x]);
+                System.out.println(x + ',' + y + ' ' + f + "    " + floats[y * w + x]);
+                assertEquals(f, floats[y * w + x]);
             }
         }
     }

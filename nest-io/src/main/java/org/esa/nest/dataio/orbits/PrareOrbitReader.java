@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -53,12 +53,13 @@ public final class PrareOrbitReader {
     private static final double millimeterToMeter = 0.001;
     private static final double microMeterToMeter = 0.000001;
     private static final double microSecondToSecond = 0.000001;
-    private static final double secondToDay = 1.0 / (24*3600);
+    private static final double secondToDay = 1.0 / (24 * 3600);
 
     private static final int interpolationOrder = 8; // this is minima with which we can get required interp smoothness
 
     /**
      * Read Data Set Identification Record and Data Header Record from the orbit file.
+     *
      * @param file The orbit file.
      * @throws IOException The exceptions.
      */
@@ -75,6 +76,7 @@ public final class PrareOrbitReader {
 
     /**
      * Get buffered reader for given file ASCII.
+     *
      * @param file The file.
      * @return The reader.
      * @throws IOException if can't be read
@@ -82,27 +84,27 @@ public final class PrareOrbitReader {
     private static BufferedReader getBufferedReader(final File file) throws IOException {
 
         String filePath = file.getAbsolutePath();
-        if(ZipUtils.isZipped(file))  {
+        if (ZipUtils.isZipped(file)) {
             try {
                 // check if previously unzipped
                 final File tempFolder = ResourceUtils.getApplicationUserTempDataDir();
                 final File prevFile = new File(tempFolder, FileUtils.getFilenameWithoutExtension(file));
-                if(prevFile.exists()) {
-                    filePath = prevFile.getAbsolutePath();   
+                if (prevFile.exists()) {
+                    filePath = prevFile.getAbsolutePath();
                 } else {
                     // open zip
                     final File[] files = ZipUtils.unzipToFolder(file, tempFolder);
                     filePath = files[0].getAbsolutePath();
                 }
-            } catch(Exception e) {
-                throw new IOException(e.getMessage() +": "+ file.getAbsolutePath());
+            } catch (Exception e) {
+                throw new IOException(e.getMessage() + ": " + file.getAbsolutePath());
             }
         }
 
         FileInputStream stream;
         try {
             stream = new FileInputStream(filePath);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new OperatorException("File not found: " + filePath);
         }
 
@@ -111,6 +113,7 @@ public final class PrareOrbitReader {
 
     /**
      * Read Data Set Identification Record.
+     *
      * @param reader The buffered reeader.
      * @throws IOException The exceptions.
      */
@@ -133,6 +136,7 @@ public final class PrareOrbitReader {
 
     /**
      * Read Data Header Record.
+     *
      * @param reader The buffered reeader.
      * @throws IOException The exceptions.
      */
@@ -185,6 +189,7 @@ public final class PrareOrbitReader {
 
     /**
      * Read complete CTS orbit data records from the orbit file.
+     *
      * @param file The PRARE orbit file.
      * @throws IOException The exceptions.
      */
@@ -197,11 +202,11 @@ public final class PrareOrbitReader {
         recordTimes = new double[numOfTrajectoryRecords];
 
         final int numCharactersSkip = sizeOfDataSetIdentificationRecord + sizeOfDataHeaderRecord +
-                                      numOfTrajectoryRecords * sizeOfTrajectoryRecord;
+                numOfTrajectoryRecords * sizeOfTrajectoryRecord;
 
         final BufferedReader reader = getBufferedReader(file);
 
-        reader.skip((long)numCharactersSkip);
+        reader.skip((long) numCharactersSkip);
 
         for (int i = 0; i < numOfTrajectoryRecords; i++) {
 
@@ -209,19 +214,19 @@ public final class PrareOrbitReader {
 
             orbitVectors[i] = new OrbitVector();
             // convert TDT time to UTC time
-            orbitVectors[i].utcTime = TDT2UTC((double)dataRecord.tTagD*0.1 +  0.5 +
-                                              (double)dataRecord.tTagMs * microSecondToSecond * secondToDay);
-            orbitVectors[i].xPos = (double)dataRecord.xSat * millimeterToMeter;
-            orbitVectors[i].yPos = (double)dataRecord.ySat * millimeterToMeter;
-            orbitVectors[i].zPos = (double)dataRecord.zSat * millimeterToMeter;
-            orbitVectors[i].xVel = (double)dataRecord.xDSat * microMeterToMeter;
-            orbitVectors[i].yVel = (double)dataRecord.yDSat * microMeterToMeter;
-            orbitVectors[i].zVel = (double)dataRecord.zDSat * microMeterToMeter;
+            orbitVectors[i].utcTime = TDT2UTC((double) dataRecord.tTagD * 0.1 + 0.5 +
+                    (double) dataRecord.tTagMs * microSecondToSecond * secondToDay);
+            orbitVectors[i].xPos = (double) dataRecord.xSat * millimeterToMeter;
+            orbitVectors[i].yPos = (double) dataRecord.ySat * millimeterToMeter;
+            orbitVectors[i].zPos = (double) dataRecord.zSat * millimeterToMeter;
+            orbitVectors[i].xVel = (double) dataRecord.xDSat * microMeterToMeter;
+            orbitVectors[i].yVel = (double) dataRecord.yDSat * microMeterToMeter;
+            orbitVectors[i].zVel = (double) dataRecord.zDSat * microMeterToMeter;
 
             recordTimes[i] = orbitVectors[i].utcTime;
         }
 
-        if(numOfQualityParameterRecords > 0) {
+        if (numOfQualityParameterRecords > 0) {
             qualityParameterRecords = new QualityParameterRecord[numOfQualityParameterRecords];
             for (int j = 0; j < numOfQualityParameterRecords; j++) {
                 qualityParameterRecords[j] = readQualityParameterRecord(reader);
@@ -233,22 +238,23 @@ public final class PrareOrbitReader {
 
     /**
      * Compute the number of Trajectory Records in the orbit file.
+     *
      * @param file The orbit file.
      * @throws IOException The exceptions.
      */
     private void computeNumberOfRecords(File file) throws IOException {
 
-        final int fileSize = (int)file.length();
+        final int fileSize = (int) file.length();
 
         final int numRecordsApprox = (fileSize - sizeOfDataSetIdentificationRecord - sizeOfDataHeaderRecord -
-                maxNumOfQualityParameterRecords*sizeOfQualityParameterRecord) / (2*sizeOfTrajectoryRecord);
+                maxNumOfQualityParameterRecords * sizeOfQualityParameterRecord) / (2 * sizeOfTrajectoryRecord);
 
         final int numCharactersSkip = sizeOfDataSetIdentificationRecord + sizeOfDataHeaderRecord +
-                                numRecordsApprox * sizeOfTrajectoryRecord;
+                numRecordsApprox * sizeOfTrajectoryRecord;
 
         final BufferedReader reader = getBufferedReader(file);
 
-        reader.skip((long)numCharactersSkip);
+        reader.skip((long) numCharactersSkip);
 
         final char[] dataRecord = new char[sizeOfTrajectoryRecord];
 
@@ -256,7 +262,7 @@ public final class PrareOrbitReader {
         while (true) {
             reader.read(dataRecord, 0, sizeOfTrajectoryRecord);
             if (dataRecord[0] == 'S' && dataRecord[1] == 'T' && dataRecord[2] == 'T' &&
-                dataRecord[3] == 'E' && dataRecord[4] == 'R' && dataRecord[5] == 'R') {
+                    dataRecord[3] == 'E' && dataRecord[4] == 'R' && dataRecord[5] == 'R') {
                 break;
             }
             k++;
@@ -265,11 +271,12 @@ public final class PrareOrbitReader {
 
         numOfTrajectoryRecords = numRecordsApprox + k;
 
-        numOfQualityParameterRecords = maxNumOfQualityParameterRecords - 2*k;
+        numOfQualityParameterRecords = maxNumOfQualityParameterRecords - 2 * k;
     }
 
     /**
      * Read one Trajectory Record from the orbit file.
+     *
      * @param reader The buffered reeader.
      * @return The Trajectory Record.
      * @throws IOException The exceptions.
@@ -340,6 +347,7 @@ public final class PrareOrbitReader {
 
     /**
      * Read one Quality Parameter Record from the orbit file.
+     *
      * @param reader The buffered reeader.
      * @return The Quality Parameter Record.
      * @throws IOException The exceptions.
@@ -372,6 +380,7 @@ public final class PrareOrbitReader {
 
     /**
      * Get the start time of the Arc in MJD (in days).
+     *
      * @return The start time.
      * @throws IOException The exception.
      */
@@ -379,11 +388,12 @@ public final class PrareOrbitReader {
         // The start time is given as Julian days since 1.1.2000 12h in TDT.
         // Add 0.5 days to make it as Julian days since 1.1.2000 0h in TDT. 
         // convert TDT time to UTC time
-        return (float)TDT2UTC(dataHeaderRecord.start*0.1f + 0.5f); // 0.1 days to days
+        return (float) TDT2UTC(dataHeaderRecord.start * 0.1f + 0.5f); // 0.1 days to days
     }
 
     /**
      * Get the end time of the Arc in MJD (in days).
+     *
      * @return The end time.
      * @throws IOException The exception.
      */
@@ -391,36 +401,37 @@ public final class PrareOrbitReader {
         // The end time is given as Julian days since 1.1.2000 12h in TDT.
         // Add 0.5 days to make it as Julian days since 1.1.2000 0h in TDT.
         // convert TDT time to UTC time
-        return (float)TDT2UTC(dataHeaderRecord.end*0.1f + 0.5f); // 0.1 days to days
+        return (float) TDT2UTC(dataHeaderRecord.end * 0.1f + 0.5f); // 0.1 days to days
     }
 
     /**
      * Convert TDT time to UTC time
+     *
      * @param tdt TDT time in days.
      * @return The UTC time.
      * @throws IOException The exception.
      */
     private static double TDT2UTC(double tdt) throws IOException {
-        double tai = tdt - 32.184*secondToDay;
+        double tai = tdt - 32.184 * secondToDay;
 
-        if (tai >= ProductData.UTC.create(new Date(109,1,1), 0).getMJD()) {                 /* 2009 Jan 1 */
-            return tai - 34.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(106,1,1), 0).getMJD()) {          /* 2006 Jan 1 */
-            return tai - 33.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(99,1,1), 0).getMJD()) {          /* 1999 Jan 1 */
-            return tai - 32.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(97,7,1), 0).getMJD()) {          /* 1997 Jul 1 */
-            return tai - 31.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(96,1,1), 0).getMJD()) {          /* 1996 Jan 1 */
-            return tai - 30.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(94,7,1), 0).getMJD()) {          /* 1994 July 1 */
-            return tai - 29.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(93,7,1), 0).getMJD()) {          /* 1993 July 1 */
-            return tai - 28.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(92,7,1), 0).getMJD()) {          /* 1992 July 1 */
-            return tai - 27.0*secondToDay;
-        } else if (tai >= ProductData.UTC.create(new Date(91,1,1), 0).getMJD()) {          /* 1991 Jan 1 */
-            return tai - 26.0*secondToDay;
+        if (tai >= ProductData.UTC.create(new Date(109, 1, 1), 0).getMJD()) {                 /* 2009 Jan 1 */
+            return tai - 34.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(106, 1, 1), 0).getMJD()) {          /* 2006 Jan 1 */
+            return tai - 33.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(99, 1, 1), 0).getMJD()) {          /* 1999 Jan 1 */
+            return tai - 32.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(97, 7, 1), 0).getMJD()) {          /* 1997 Jul 1 */
+            return tai - 31.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(96, 1, 1), 0).getMJD()) {          /* 1996 Jan 1 */
+            return tai - 30.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(94, 7, 1), 0).getMJD()) {          /* 1994 July 1 */
+            return tai - 29.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(93, 7, 1), 0).getMJD()) {          /* 1993 July 1 */
+            return tai - 28.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(92, 7, 1), 0).getMJD()) {          /* 1992 July 1 */
+            return tai - 27.0 * secondToDay;
+        } else if (tai >= ProductData.UTC.create(new Date(91, 1, 1), 0).getMJD()) {          /* 1991 Jan 1 */
+            return tai - 26.0 * secondToDay;
         } else {
             throw new IOException("Incorrect UTC time");
         }
@@ -428,6 +439,7 @@ public final class PrareOrbitReader {
 
     /**
      * Get Data Set Identification Record.
+     *
      * @return The record.
      */
     public DataSetIdentificationRecord getDataSetIdentificationRecord() {
@@ -436,6 +448,7 @@ public final class PrareOrbitReader {
 
     /**
      * Get Data Header Record.
+     *
      * @return The record.
      */
     public DataHeaderRecord getDataHeaderRecord() {
@@ -444,6 +457,7 @@ public final class PrareOrbitReader {
 
     /**
      * Get Quality Parameter Record.
+     *
      * @param n The record index.
      * @return The record.
      */
@@ -453,6 +467,7 @@ public final class PrareOrbitReader {
 
     /**
      * Get orbit vector.
+     *
      * @param n The vector index.
      * @return The orbit vector.
      */
@@ -462,9 +477,10 @@ public final class PrareOrbitReader {
 
     /**
      * Get orbit vector for given UTC time.
+     *
      * @param utc The UTC time.
-     * @throws Exception for incorrect time.
      * @return The orbit vector.
+     * @throws Exception for incorrect time.
      */
     public OrbitVector getOrbitVector(double utc) throws Exception {
 
@@ -497,28 +513,28 @@ public final class PrareOrbitReader {
 
         //        final double[] timeArray = {recordTimes[n0], recordTimes[n1], recordTimes[n2], recordTimes[n3]};
         final double[] xPosArray = {orbitVectors[n0].xPos, orbitVectors[n1].xPos, orbitVectors[n2].xPos, orbitVectors[n3].xPos,
-                                    orbitVectors[n4].xPos,
-                                    orbitVectors[n5].xPos, orbitVectors[n6].xPos, orbitVectors[n7].xPos, orbitVectors[n8].xPos};
+                orbitVectors[n4].xPos,
+                orbitVectors[n5].xPos, orbitVectors[n6].xPos, orbitVectors[n7].xPos, orbitVectors[n8].xPos};
 
         final double[] yPosArray = {orbitVectors[n0].yPos, orbitVectors[n1].yPos, orbitVectors[n2].yPos, orbitVectors[n3].yPos,
-                                    orbitVectors[n4].yPos,
-                                    orbitVectors[n5].yPos, orbitVectors[n6].yPos, orbitVectors[n7].yPos, orbitVectors[n8].yPos};
+                orbitVectors[n4].yPos,
+                orbitVectors[n5].yPos, orbitVectors[n6].yPos, orbitVectors[n7].yPos, orbitVectors[n8].yPos};
 
         final double[] zPosArray = {orbitVectors[n0].zPos, orbitVectors[n1].zPos, orbitVectors[n2].zPos, orbitVectors[n3].zPos,
-                                    orbitVectors[n4].zPos,
-                                    orbitVectors[n5].zPos, orbitVectors[n6].zPos, orbitVectors[n7].zPos, orbitVectors[n8].zPos};
+                orbitVectors[n4].zPos,
+                orbitVectors[n5].zPos, orbitVectors[n6].zPos, orbitVectors[n7].zPos, orbitVectors[n8].zPos};
 
         final double[] xVelArray = {orbitVectors[n0].xVel, orbitVectors[n1].xVel, orbitVectors[n2].xVel, orbitVectors[n3].xVel,
-                                    orbitVectors[n4].xVel,
-                                    orbitVectors[n5].xVel, orbitVectors[n6].xVel, orbitVectors[n7].xVel, orbitVectors[n8].xVel};
+                orbitVectors[n4].xVel,
+                orbitVectors[n5].xVel, orbitVectors[n6].xVel, orbitVectors[n7].xVel, orbitVectors[n8].xVel};
 
         final double[] yVelArray = {orbitVectors[n0].yVel, orbitVectors[n1].yVel, orbitVectors[n2].yVel, orbitVectors[n3].yVel,
-                                    orbitVectors[n4].yVel,
-                                    orbitVectors[n5].yVel, orbitVectors[n6].yVel, orbitVectors[n7].yVel, orbitVectors[n8].yVel};
+                orbitVectors[n4].yVel,
+                orbitVectors[n5].yVel, orbitVectors[n6].yVel, orbitVectors[n7].yVel, orbitVectors[n8].yVel};
 
         final double[] zVelArray = {orbitVectors[n0].zVel, orbitVectors[n1].zVel, orbitVectors[n2].zVel, orbitVectors[n3].zVel,
-                                    orbitVectors[n4].zVel,
-                                    orbitVectors[n5].zVel, orbitVectors[n6].zVel, orbitVectors[n7].zVel, orbitVectors[n8].zVel};
+                orbitVectors[n4].zVel,
+                orbitVectors[n5].zVel, orbitVectors[n6].zVel, orbitVectors[n7].zVel, orbitVectors[n8].zVel};
 
         final OrbitVector orb = new OrbitVector();
 
@@ -586,7 +602,7 @@ public final class PrareOrbitReader {
     }
 
     // PRC Trajectory Record (Inertial Frame or Terrestrial Frame)
-   public final static class TrajectoryRecord {
+    public final static class TrajectoryRecord {
         String recKey;
         int satID;
         String orbTyp;
@@ -628,13 +644,15 @@ public final class PrareOrbitReader {
 
     /**
      * Gets the singleton instance of this class.
+     *
      * @return the singlton instance
      */
     public static PrareOrbitReader getInstance() {
         return Holder.instance;
     }
 
-    /** Initialization on demand holder idiom
+    /**
+     * Initialization on demand holder idiom
      */
     private static class Holder {
         private static final PrareOrbitReader instance = new PrareOrbitReader();

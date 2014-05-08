@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -52,7 +52,7 @@ public class GeoTiffXMLProductWriterPlugIn implements ProductWriterPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return new String[]{ ".tif" };
+        return new String[]{".tif"};
     }
 
     /**
@@ -63,7 +63,6 @@ public class GeoTiffXMLProductWriterPlugIn implements ProductWriterPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid output types, never <code>null</code>
-     *
      * @see org.esa.beam.framework.dataio.AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
@@ -77,7 +76,6 @@ public class GeoTiffXMLProductWriterPlugIn implements ProductWriterPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the locale name for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {

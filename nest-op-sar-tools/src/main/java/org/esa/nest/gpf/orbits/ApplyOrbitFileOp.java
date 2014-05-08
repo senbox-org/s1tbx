@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,52 +44,52 @@ import java.io.File;
 
 /**
  * This operator applies orbit file to a given product.
- *
+ * <p/>
  * The following major processing steps are implemented:
- *
+ * <p/>
  * 1. Get orbit file with valid time period and user specified orbit file type.
  * 2. Get the old tie point grid of the source image: latitude, longitude, slant range time and incidence angle.
  * 3. Repeat the following steps for each new tie point in the new tie point grid:
- *    1)  Get the range line index y for the tie point;
- *    2)  Get zero Doppler time t for the range line.
- *    3)  Compute satellite position and velocity for the zero Doppler time t using cubic interpolation. (dorisReader)
- *    4)  Get sample number x (index in the range line).
- *    5)  Get slant range time for pixel (x, y) from the old slant range time tie point grid.
- *    6)  Get incidence angle for pixel (x, y) from the old incidence angle tie point grid.
- *    7)  Get latitude for pixel (x, y) from the old latitude tie point grid.
- *    8)  Get longitude for pixel (x, y) from the old longitude tie point grid.
- *    9)  Convert (latitude, longitude, h = 0) to global Cartesian coordinate (x0, y0, z0).
- *    10) Solve Range equation, Doppler equation and Earth equation system for accurate (x, y, z) using Newton's
- *        method with (x0, y0, z0) as initial point.
- *    11) Convert (x, y, z) back to (latitude, longitude, h).
- *    12) Save the new latitude and longitude for current tie point.
+ * 1)  Get the range line index y for the tie point;
+ * 2)  Get zero Doppler time t for the range line.
+ * 3)  Compute satellite position and velocity for the zero Doppler time t using cubic interpolation. (dorisReader)
+ * 4)  Get sample number x (index in the range line).
+ * 5)  Get slant range time for pixel (x, y) from the old slant range time tie point grid.
+ * 6)  Get incidence angle for pixel (x, y) from the old incidence angle tie point grid.
+ * 7)  Get latitude for pixel (x, y) from the old latitude tie point grid.
+ * 8)  Get longitude for pixel (x, y) from the old longitude tie point grid.
+ * 9)  Convert (latitude, longitude, h = 0) to global Cartesian coordinate (x0, y0, z0).
+ * 10) Solve Range equation, Doppler equation and Earth equation system for accurate (x, y, z) using Newton's
+ * method with (x0, y0, z0) as initial point.
+ * 11) Convert (x, y, z) back to (latitude, longitude, h).
+ * 12) Save the new latitude and longitude for current tie point.
  * 4. Create new geocoding with the newly computed latitude and longitude tie points.
  * 5. Update orbit state vectors in the metadata:
- *    1) Get zero Doppler time for each orbit state vector in the metadata of the source image.
- *    2) Compute new orbit state vector for the zero Doppler time using cubic interpolation.
- *    3) Save the new orbit state vector in the target product.
+ * 1) Get zero Doppler time for each orbit state vector in the metadata of the source image.
+ * 2) Compute new orbit state vector for the zero Doppler time using cubic interpolation.
+ * 3) Save the new orbit state vector in the target product.
  */
 
-@OperatorMetadata(alias="Apply-Orbit-File",
+@OperatorMetadata(alias = "Apply-Orbit-File",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Apply orbit file")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Apply orbit file")
 public final class ApplyOrbitFileOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {DorisOrbitFile.DORIS_POR+" (ENVISAT)", DorisOrbitFile.DORIS_VOR+" (ENVISAT)",
-            DELFT_PRECISE+" (ENVISAT, ERS1&2)", PRARE_PRECISE+" (ERS1&2)" },
-            defaultValue = DorisOrbitFile.DORIS_VOR+" (ENVISAT)", label="Orbit State Vectors")
+    @Parameter(valueSet = {DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)",
+            DELFT_PRECISE + " (ENVISAT, ERS1&2)", PRARE_PRECISE + " (ERS1&2)"},
+            defaultValue = DorisOrbitFile.DORIS_VOR + " (ENVISAT)", label = "Orbit State Vectors")
     private String orbitType = null;
 
     private MetadataElement absRoot = null;
     private MetadataElement tgtAbsRoot = null;
-    
+
     private int sourceImageWidth;
     private int sourceImageHeight;
     private int targetTiePointGridHeight;
@@ -126,8 +126,7 @@ public final class ApplyOrbitFileOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -136,26 +135,26 @@ public final class ApplyOrbitFileOp extends Operator {
         try {
             getSourceMetadata();
 
-            if(orbitType == null) {
-                if(mission.equals("ENVISAT")) {
+            if (orbitType == null) {
+                if (mission.equals("ENVISAT")) {
                     orbitType = DorisOrbitFile.DORIS_VOR;
-                } else if(mission.equals("ERS1") || mission.equals("ERS2")) {
+                } else if (mission.equals("ERS1") || mission.equals("ERS2")) {
                     orbitType = PRARE_PRECISE;
                 }
             }
-            if(mission.equals("ENVISAT")) {
-                if(!orbitType.startsWith(DELFT_PRECISE) && !orbitType.startsWith(DorisOrbitFile.DORIS_POR) &&
-                   !orbitType.startsWith(DorisOrbitFile.DORIS_VOR)) {
+            if (mission.equals("ENVISAT")) {
+                if (!orbitType.startsWith(DELFT_PRECISE) && !orbitType.startsWith(DorisOrbitFile.DORIS_POR) &&
+                        !orbitType.startsWith(DorisOrbitFile.DORIS_VOR)) {
                     //throw new OperatorException(orbitType + " is not suitable for an ENVISAT product");
                     orbitType = DorisOrbitFile.DORIS_VOR;
                 }
-            } else if(mission.equals("ERS1") || mission.equals("ERS2")) {
-                if(!orbitType.startsWith(DELFT_PRECISE) && !orbitType.startsWith(PRARE_PRECISE)) {
+            } else if (mission.equals("ERS1") || mission.equals("ERS2")) {
+                if (!orbitType.startsWith(DELFT_PRECISE) && !orbitType.startsWith(PRARE_PRECISE)) {
                     //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
                     orbitType = PRARE_PRECISE;
                 }
             } else {
-                throw new OperatorException(orbitType + " is not suitable for a "+mission+" product");
+                throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");
             }
 
             if (orbitType.contains("DORIS")) {
@@ -178,8 +177,8 @@ public final class ApplyOrbitFileOp extends Operator {
 
             updateTargetProductGEOCodingJLinda();
 
-  
-        } catch(Throwable e) {
+
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -221,22 +220,22 @@ public final class ApplyOrbitFileOp extends Operator {
     private void setTargetMetadata() {
         tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
     }
-    
+
     /**
      * Create target product.
      */
     void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for(Band srcBand : sourceProduct.getBands()) {
-            if(srcBand instanceof VirtualBand) {
-                OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand)srcBand, srcBand.getName());
+        for (Band srcBand : sourceProduct.getBands()) {
+            if (srcBand instanceof VirtualBand) {
+                OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
                 final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
@@ -246,14 +245,15 @@ public final class ApplyOrbitFileOp extends Operator {
 
     /**
      * Update target product GEOCoding. A new tie point grid is generated.
+     *
      * @throws Exception The exceptions.
      */
     private void updateTargetProductGEOCoding() throws Exception {
 
-        final float[] targetLatTiePoints = new float[targetTiePointGridHeight*targetTiePointGridWidth];
-        final float[] targetLonTiePoints = new float[targetTiePointGridHeight*targetTiePointGridWidth];
-        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight*targetTiePointGridWidth];
-        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight*targetTiePointGridWidth];
+        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
@@ -272,15 +272,15 @@ public final class ApplyOrbitFileOp extends Operator {
 
             final double curLineUTC = computeCurrentLineUTC(y);
             //System.out.println((new ProductData.UTC(curLineUTC)).toString());
-            
+
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
             final Orbits.OrbitData data = orbitProvider.getOrbitData(curLineUTC);
 
             for (int c = 0; c < targetTiePointGridWidth; c++) {
 
                 final int x = getSampleIndex(c, subSamplingX);
-                targetIncidenceAngleTiePoints[k] = incidenceAngle.getPixelFloat((float)x, (float)y);
-                targetSlantRangeTimeTiePoints[k] = slantRangeTime.getPixelFloat((float)x, (float)y);
+                targetIncidenceAngleTiePoints[k] = incidenceAngle.getPixelFloat((float) x, (float) y);
+                targetSlantRangeTimeTiePoints[k] = slantRangeTime.getPixelFloat((float) x, (float) y);
 
                 final double slrgTime = targetSlantRangeTimeTiePoints[k] / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(x, y, slrgTime, data);
@@ -291,24 +291,24 @@ public final class ApplyOrbitFileOp extends Operator {
         }
 
         final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float)subSamplingX, (float)subSamplingY, targetIncidenceAngleTiePoints);
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetIncidenceAngleTiePoints);
         angleGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float)subSamplingX, (float)subSamplingY, targetSlantRangeTimeTiePoints);
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetSlantRangeTimeTiePoints);
         slrgtGrid.setUnit(Unit.NANOSECONDS);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float)subSamplingX, (float)subSamplingY, targetLatTiePoints);
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float)subSamplingX, (float)subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
 
-        for(TiePointGrid tpg : targetProduct.getTiePointGrids()) {
+        for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
             targetProduct.removeTiePointGrid(tpg);
         }
 
@@ -321,7 +321,8 @@ public final class ApplyOrbitFileOp extends Operator {
 
     /**
      * Get corresponding sample index for a given column index in the new tie point grid.
-     * @param colIdx The column index in the new tie point grid.
+     *
+     * @param colIdx       The column index in the new tie point grid.
      * @param subSamplingX the x sub sampling
      * @return The sample index.
      */
@@ -336,26 +337,28 @@ public final class ApplyOrbitFileOp extends Operator {
 
     /**
      * Compute UTC for a given range line.
+     *
      * @param y The range line index.
      * @return The UTC in days.
      */
     private double computeCurrentLineUTC(final int y) {
-        return firstLineUTC + y*lineTimeInterval;
+        return firstLineUTC + y * lineTimeInterval;
     }
 
     /**
      * Compute accurate target geo position.
-     * @param x The x coordinate of the given pixel.
-     * @param y The y coordinate of the given pixel.
+     *
+     * @param x        The x coordinate of the given pixel.
+     * @param y        The y coordinate of the given pixel.
      * @param slrgTime The slant range time of the given pixel.
-     * @param data The orbit data.
+     * @param data     The orbit data.
      * @return The geo position of the target.
      */
     private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitData data) {
 
         final double[] xyz = new double[3];
-        final float lat = latitude.getPixelFloat((float)x, (float)y);
-        final float lon = longitude.getPixelFloat((float)x, (float)y);
+        final float lat = latitude.getPixelFloat((float) x, (float) y);
+        final float lon = longitude.getPixelFloat((float) x, (float) y);
         final GeoPos geoPos = new GeoPos(lat, lon);
 
         // compute initial (x,y,z) coordinate from lat/lon
@@ -377,6 +380,7 @@ public final class ApplyOrbitFileOp extends Operator {
 
     /**
      * Update orbit state vectors using data from the orbit file.
+     *
      * @throws Exception The exceptions.
      */
     private void updateOrbitStateVectors() throws Exception {
@@ -401,14 +405,14 @@ public final class ApplyOrbitFileOp extends Operator {
 
         // save orbit file name
         String orbType = orbitType;
-        if(orbType.contains("("))
+        if (orbType.contains("("))
             orbType = orbitType.substring(0, orbitType.indexOf('('));
         final File orbitFile = orbitProvider.getOrbitFile();
-        tgtAbsRoot.setAttributeString(AbstractMetadata.orbit_state_vector_file, orbType+' '+orbitFile.getName());
+        tgtAbsRoot.setAttributeString(AbstractMetadata.orbit_state_vector_file, orbType + ' ' + orbitFile.getName());
     }
 
     /**
-     * Update target product GEOCoding using jLinda core classes. A new tie point grid for latitude, longitude, slant range 
+     * Update target product GEOCoding using jLinda core classes. A new tie point grid for latitude, longitude, slant range
      * time and incidence angle is generated.
      *
      * @throws Exception The exceptions.
@@ -503,12 +507,13 @@ public final class ApplyOrbitFileOp extends Operator {
         targetProduct.addTiePointGrid(lonGrid);
         targetProduct.setGeoCoding(tpGeoCoding);
     }
-    
+
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

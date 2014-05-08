@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,11 +43,11 @@ import java.util.List;
 @OperatorMetadata(alias = "RemoveAntennaPattern",
         category = "SAR Tools\\Radiometric Correction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Remove Antenna Pattern")
 public class RemoveAntennaPatternOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -67,8 +67,7 @@ public class RemoveAntennaPatternOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -85,13 +84,14 @@ public class RemoveAntennaPatternOp extends Operator {
 
             calibrator.initialize(this, sourceProduct, targetProduct, true, false);
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     /**
      * Get product type.
+     *
      * @throws OperatorException The exceptions.
      */
     private void getProductType() throws OperatorException {
@@ -104,6 +104,7 @@ public class RemoveAntennaPatternOp extends Operator {
 
     /**
      * Get multilook flag from the abstracted metadata.
+     *
      * @throws Exception The exceptions.
      */
     private void getMultilookFlag() throws Exception {
@@ -165,7 +166,7 @@ public class RemoveAntennaPatternOp extends Operator {
 
             final String unit = srcBand.getUnit();
             String srcBandName = srcBand.getName();
-            if(unit == null) {
+            if (unit == null) {
                 throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
@@ -173,11 +174,11 @@ public class RemoveAntennaPatternOp extends Operator {
                 throw new OperatorException("Please select amplitude or intensity band.");
             }
 
-            if(targetProduct.getBand(srcBandName) == null) {
+            if (targetProduct.getBand(srcBandName) == null) {
                 final Band targetBand = new Band(srcBandName,
-                                                 ProductData.TYPE_FLOAT32,
-                                                 sourceProduct.getSceneRasterWidth(),
-                                                 sourceProduct.getSceneRasterHeight());
+                        ProductData.TYPE_FLOAT32,
+                        sourceProduct.getSceneRasterWidth(),
+                        sourceProduct.getSceneRasterHeight());
 
                 targetBand.setUnit(unit);
                 targetProduct.addBand(targetBand);
@@ -193,15 +194,14 @@ public class RemoveAntennaPatternOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
             final String srcBandName = targetBand.getName();
             calibrator.removeFactorsForCurrentTile(targetBand, targetTile, srcBandName);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -212,13 +212,14 @@ public class RemoveAntennaPatternOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(RemoveAntennaPatternOp.class);
-            super.setOperatorUI(RemoveAntennaPatternOpUI.class);            
+            super.setOperatorUI(RemoveAntennaPatternOpUI.class);
         }
     }
 }

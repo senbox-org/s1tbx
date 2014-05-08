@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -83,31 +83,31 @@ class ScaleDataDialog extends ModelessDialog {
 
             applyScaling(_product, _band, gain, bias, exp, isLog);
             hide();
-        } catch(Exception e) {
+        } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }
 
     private static void applyScaling(final Product product, final Band band,
-                              final double gain, final double bias, final double exp, final boolean isLog) {
+                                     final double gain, final double bias, final double exp, final boolean isLog) {
         final String bandName = band.getName();
         final String unit = band.getUnit();
 
-        String expression = gain + " * " +bandName+ " + " +bias;
+        String expression = gain + " * " + bandName + " + " + bias;
 
         String targetName = bandName + "_Scaled";
         int cnt = 0;
-        while(product.getBand(targetName) != null) {
+        while (product.getBand(targetName) != null) {
             ++cnt;
             targetName = bandName + "_Scaled" + cnt;
         }
 
-        if(exp != 1) {
-            expression = "pow( " +expression+ ", " +exp+ " )";
+        if (exp != 1) {
+            expression = "pow( " + expression + ", " + exp + " )";
         }
 
-        if(isLog) {
-            expression = bandName+"==0 ? 0 : "+"log10( "+expression+" )";
+        if (isLog) {
+            expression = bandName + "==0 ? 0 : " + "log10( " + expression + " )";
         }
 
         final VirtualBand virtBand = new VirtualBand(targetName,

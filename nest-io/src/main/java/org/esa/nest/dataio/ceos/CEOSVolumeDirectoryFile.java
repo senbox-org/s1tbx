@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,6 @@ import java.io.IOException;
 
 /**
  * This class represents a volume directory file of a product.
- *
  */
 public class CEOSVolumeDirectoryFile {
 
@@ -43,26 +42,26 @@ public class CEOSVolumeDirectoryFile {
     private static Document textRecXML;
 
     public CEOSVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
-        if(volDescXML == null)
+        if (volDescXML == null)
             volDescXML = BinaryDBReader.loadDefinitionFile(mission, volume_desc_recordDefinitionFile);
         volumeDescriptorRecord = new BinaryRecord(binaryReader, -1, volDescXML, volume_desc_recordDefinitionFile);
     }
 
     public void readFilePointersAndTextRecords(final BinaryFileReader binaryReader, final String mission) throws IOException {
         try {
-            if(filePointerXML == null)
+            if (filePointerXML == null)
                 filePointerXML = BinaryDBReader.loadDefinitionFile(mission, filePointerDefinitionFile);
             filePointerRecords = CeosHelper.readFilePointers(volumeDescriptorRecord, filePointerXML, filePointerDefinitionFile);
-        } catch(Exception e) {
-            System.out.println("Error reading file pointer record: "+e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error reading file pointer record: " + e.getMessage());
         }
 
         try {
-            if(textRecXML == null)
+            if (textRecXML == null)
                 textRecXML = BinaryDBReader.loadDefinitionFile(mission, text_recordDefinitionFile);
             textRecord = new BinaryRecord(binaryReader, -1, textRecXML, text_recordDefinitionFile);
-        } catch(Exception e) {
-            System.out.println("Error reading text record: "+e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error reading text record: " + e.getMessage());
         }
     }
 
@@ -87,7 +86,7 @@ public class CEOSVolumeDirectoryFile {
         CeosHelper.addMetadata(rootElem, textRecord, "Text Record");
 
         int i = 1;
-        for(FilePointerRecord fp : filePointerRecords) {
+        for (FilePointerRecord fp : filePointerRecords) {
             CeosHelper.addMetadata(rootElem, fp, "File Pointer Record " + i++);
         }
     }

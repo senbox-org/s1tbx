@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,11 +28,11 @@ public class TestPolarimetricMatricesOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String quadInputPath =        TestUtils.rootPathExpectedProducts+"\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack =   TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    
-    private final static String expectedPathC3 =  TestUtils.rootPathExpectedProducts+"\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
-    private final static String expectedPathT3 =  TestUtils.rootPathExpectedProducts+"\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
+    private final static String quadInputPath = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+
+    private final static String expectedPathC3 = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
+    private final static String expectedPathT3 = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
 
     @Override
     protected void setUp() throws Exception {
@@ -47,9 +47,9 @@ public class TestPolarimetricMatricesOp extends TestCase {
     }
 
     private static Product runMatrix(final PolarimetricMatricesOp op,
-                                            final String decompositionName, final String path) throws Exception {
+                                     final String decompositionName, final String path) throws Exception {
         final Product sourceProduct = TestUtils.readSourceProduct(path);
-        
+
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.SetMatrixType(decompositionName);
@@ -62,57 +62,62 @@ public class TestPolarimetricMatricesOp extends TestCase {
 
     /**
      * Compute covariance matrix C3 from a Radarsat-2 product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testComputeC3() throws Exception {
 
-        final PolarimetricMatricesOp op = (PolarimetricMatricesOp)spi.createOperator();
+        final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
         final Product targetProduct = runMatrix(op, PolarimetricMatricesOp.C3, quadInputPath);
-        if(targetProduct != null)
+        if (targetProduct != null)
             TestUtils.compareProducts(targetProduct, expectedPathC3, null);
     }
 
     /**
      * Compute coherency matrix T3 from a Radarsat-2 product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testComputeT3() throws Exception {
 
-        final PolarimetricMatricesOp op = (PolarimetricMatricesOp)spi.createOperator();
+        final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
         final Product targetProduct = runMatrix(op, PolarimetricMatricesOp.T3, quadInputPath);
-        if(targetProduct != null)
+        if (targetProduct != null)
             TestUtils.compareProducts(targetProduct, expectedPathT3, null);
     }
 
     /**
      * Compute covariance matrix C4 from a Radarsat-2 product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testComputeC4() throws Exception {
 
-        final PolarimetricMatricesOp op = (PolarimetricMatricesOp)spi.createOperator();
+        final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
         final Product targetProduct = runMatrix(op, PolarimetricMatricesOp.C4, quadInputPath);
     }
 
     /**
      * Compute coherency matrix T4 from a Radarsat-2 product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testComputeT4() throws Exception {
 
-        final PolarimetricMatricesOp op = (PolarimetricMatricesOp)spi.createOperator();
+        final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
         final Product targetProduct = runMatrix(op, PolarimetricMatricesOp.T4, quadInputPath);
     }
 
     /**
      * Compute coherency matrix T3 from a stack of Quad Pol Radarsat-2 products
+     *
      * @throws Exception general exception
      */
     public void testQuadPolStack() throws Exception {
 
-        runMatrix((PolarimetricMatricesOp)spi.createOperator(), PolarimetricMatricesOp.T3, inputQuadFullStack);
-        runMatrix((PolarimetricMatricesOp)spi.createOperator(), PolarimetricMatricesOp.C3, inputQuadFullStack);
-        runMatrix((PolarimetricMatricesOp)spi.createOperator(), PolarimetricMatricesOp.T4, inputQuadFullStack);
-        runMatrix((PolarimetricMatricesOp)spi.createOperator(), PolarimetricMatricesOp.C4, inputQuadFullStack);
+        runMatrix((PolarimetricMatricesOp) spi.createOperator(), PolarimetricMatricesOp.T3, inputQuadFullStack);
+        runMatrix((PolarimetricMatricesOp) spi.createOperator(), PolarimetricMatricesOp.C3, inputQuadFullStack);
+        runMatrix((PolarimetricMatricesOp) spi.createOperator(), PolarimetricMatricesOp.T4, inputQuadFullStack);
+        runMatrix((PolarimetricMatricesOp) spi.createOperator(), PolarimetricMatricesOp.C4, inputQuadFullStack);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,9 +41,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
     private final int maxIterations;
     private final int numFinalClasses;
 
-    private enum Categories { vol, dbl, suf, mix }
+    private enum Categories {vol, dbl, suf, mix}
+
     private byte[][] mask = null; // record for each pixel the category and cluster in the category it belongs to
-                                  // VOL: -128:-63, DBL: -64:-1, SURF: 0:63, MIXED: 64:127
+    // VOL: -128:-63, DBL: -64:-1, SURF: 0:63, MIXED: 64:127
 
     private final double mixedCategoryThreshold;
     private int maxClusterSize = 0;
@@ -60,7 +61,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         super(srcProductType, srcWidth, srcHeight, windowSize, bandMap);
         this.maxIterations = maxIterations;
         this.numFinalClasses = numClasses;
-        this.numInitialClusters = numInitialClasses/3;
+        this.numInitialClusters = numInitialClasses / 3;
         this.mixedCategoryThreshold = mixedCategoryThreshold;
     }
 
@@ -70,8 +71,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
     }
 
     /**
-        Return the band name for the target product
-        @return band name
+     * Return the band name for the target product
+     *
+     * @return band name
      */
     public String getTargetBandName() {
         return TERRAIN_CLASS;
@@ -79,6 +81,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * returns the number of classes
+     *
      * @return num classes
      */
     public int getNumClasses() {
@@ -93,10 +96,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         for (int i = 1; i <= numInitialClusters; i++) {
             indexCoding.addIndex("surf_" + i, i, "Surface " + i);
         }
-        for (int i = numInitialClusters + 1; i <= 2*numInitialClusters; i++) {
+        for (int i = numInitialClusters + 1; i <= 2 * numInitialClusters; i++) {
             indexCoding.addIndex("vol_" + i, i, "Volume " + i);
         }
-        for (int i = 2*numInitialClusters + 1; i <= 3*numInitialClusters; i++) {
+        for (int i = 2 * numInitialClusters + 1; i <= 3 * numInitialClusters; i++) {
             indexCoding.addIndex("dbl_" + i, i, "Double " + i);
         }
         return indexCoding;
@@ -104,11 +107,11 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Perform decomposition for given tile.
+     *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op         the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
         PolBandUtils.QuadSourceBand srcBandList = bandMap.get(targetBand);
@@ -120,8 +123,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         final Rectangle targetRectangle = targetTile.getRectangle();
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         final ProductData targetData = targetTile.getDataBuffer();
@@ -138,8 +141,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Compute centers for all numClasses clusters
+     *
      * @param srcBandList the input bands
-     * @param op the operator
+     * @param op          the operator
      */
     private synchronized void computeTerrainClusterCenters(final PolBandUtils.QuadSourceBand srcBandList,
                                                            final PolarimetricClassificationOp op) {
@@ -154,7 +158,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         final java.util.List<ClusterInfo> pdCenterList = new ArrayList<ClusterInfo>(numInitialClusters);
         final java.util.List<ClusterInfo> psCenterList = new ArrayList<ClusterInfo>(numInitialClusters);
 
-        maxClusterSize = 2*srcHeight*srcWidth/numFinalClasses;
+        maxClusterSize = 2 * srcHeight * srcWidth / numFinalClasses;
 
         final Dimension tileSize = new Dimension(256, 256);
         final Rectangle[] tileRectangles = OperatorUtils.getAllTileRectangles(op.getSourceProduct(), tileSize, 0);
@@ -170,9 +174,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Compute initial cluster centers for clusters in all 3 categories: vol, dbl, suf.
-     * @param srcBandList the input bands
+     *
+     * @param srcBandList    the input bands
      * @param tileRectangles Array of rectangles for all source tiles of the image
-     * @param op the operator
+     * @param op             the operator
      */
     private void computeInitialTerrainClusterCenters(final double[][] fdd,
                                                      final java.util.List<ClusterInfo> pvCenterList,
@@ -195,8 +200,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             //System.out.println("Step 3");
             mergeInitialClusters(pvCenterList, pdCenterList, psCenterList);
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " computeInitialClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(op.getId() + " computeInitialClusterCenters ", e);
         }
     }
 
@@ -205,9 +210,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
      * The pixels are first classified into 4 categories (vol, dbl, urf and mixed) based on its Freeman-Durder
      * decomposition result. Then pixels in each category (not include mixed) are grouped into 30 clusters based
      * on their power values.
-     * @param srcBandList the input bands
+     *
+     * @param srcBandList    the input bands
      * @param tileRectangles Array of rectangles for all source tiles of the image
-     * @param op the operator
+     * @param op             the operator
      */
     private void createInitialClusters(final double[][] fdd,
                                        final PolBandUtils.QuadSourceBand srcBandList,
@@ -230,9 +236,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
         final ThreadManager threadManager = new ThreadManager();
 
-        final double[] pv = new double[srcHeight*srcWidth];
-        final double[] pd = new double[srcHeight*srcWidth];
-        final double[] ps = new double[srcHeight*srcWidth];
+        final double[] pv = new double[srcHeight * srcWidth];
+        final double[] pd = new double[srcHeight * srcWidth];
+        final double[] ps = new double[srcHeight * srcWidth];
 
         try {
             for (final Rectangle rectangle : tileRectangles) {
@@ -272,7 +278,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
                                 synchronized (counter) {
 
-                                    if (!Double.isNaN(data.pv) && !Double.isNaN(data.pd) && !Double.isNaN(data.ps)){
+                                    if (!Double.isNaN(data.pv) && !Double.isNaN(data.pd) && !Double.isNaN(data.ps)) {
                                         Categories cat = getCategory(data.pv, data.pd, data.ps, mixedCategoryThreshold);
                                         if (cat == Categories.vol) {
                                             mask[y][x] = -128;
@@ -291,7 +297,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                             counter[2] += 1;
                                         } else { // cat == Categories.mix
                                             mask[y][x] = 64;
-                                            fdd[y][x] = (data.pv + data.pd + data.ps)/3.0;
+                                            fdd[y][x] = (data.pv + data.pd + data.ps) / 3.0;
                                             counter[3] += 1;
                                         }
                                     }
@@ -306,35 +312,35 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             }
             threadManager.finish();
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " createInitialClusters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(op.getId() + " createInitialClusters ", e);
         } finally {
             status.done();
         }
 
         // for each category, compute 29 thresholds which will be used later in dividing each category into 30 small
         // clusters with roughly equal number of pixels based on the pixel values.
-        final int pvClusterSize = counter[0]/numInitialClusters;
-        final int pdClusterSize = counter[1]/numInitialClusters;
-        final int psClusterSize = counter[2]/numInitialClusters;
+        final int pvClusterSize = counter[0] / numInitialClusters;
+        final int pdClusterSize = counter[1] / numInitialClusters;
+        final int psClusterSize = counter[2] / numInitialClusters;
 
         if (pvClusterSize > 0) {
-            Arrays.sort(pv, 0, counter[0]-1);
+            Arrays.sort(pv, 0, counter[0] - 1);
         }
         if (pdClusterSize > 0) {
-            Arrays.sort(pd, 0, counter[1]-1);
+            Arrays.sort(pd, 0, counter[1] - 1);
         }
         if (psClusterSize > 0) {
-            Arrays.sort(ps, 0, counter[2]-1);
+            Arrays.sort(ps, 0, counter[2] - 1);
         }
 
-        final double[] pvThreshold = new double[numInitialClusters-1];
-        final double[] pdThreshold = new double[numInitialClusters-1];
-        final double[] psThreshold = new double[numInitialClusters-1];
-        for (int i = 0; i < numInitialClusters-1; i++) {
-            pvThreshold[i] = pv[(i+1)*pvClusterSize];
-            pdThreshold[i] = pd[(i+1)*pdClusterSize];
-            psThreshold[i] = ps[(i+1)*psClusterSize];
+        final double[] pvThreshold = new double[numInitialClusters - 1];
+        final double[] pdThreshold = new double[numInitialClusters - 1];
+        final double[] psThreshold = new double[numInitialClusters - 1];
+        for (int i = 0; i < numInitialClusters - 1; i++) {
+            pvThreshold[i] = pv[(i + 1) * pvClusterSize];
+            pdThreshold[i] = pd[(i + 1) * pdClusterSize];
+            psThreshold[i] = ps[(i + 1) * psClusterSize];
         }
 
         // classify pixels into 30 clusters within each category, record number of pixels in each cluster
@@ -357,9 +363,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Compute the centers of the 90 clusters in the 3 categories.
-     * @param srcBandList the input bands
+     *
+     * @param srcBandList    the input bands
      * @param tileRectangles Array of rectangles for all source tiles of the image
-     * @param op the operator
+     * @param op             the operator
      */
     private void getClusterCenters(final java.util.List<ClusterInfo> pvCenterList,
                                    final java.util.List<ClusterInfo> pdCenterList,
@@ -424,15 +431,15 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                     int clusterIdx;
                                     if (mask[y][x] < -64) { // pv
                                         clusterIdx = mask[y][x] + 128;
-                                        computeSummationOfT3(clusterIdx+1, Tr, Ti, pvSumRe, pvSumIm);
+                                        computeSummationOfT3(clusterIdx + 1, Tr, Ti, pvSumRe, pvSumIm);
                                         clusterCounter[0][clusterIdx]++;
                                     } else if (mask[y][x] < 0) { // pd
                                         clusterIdx = mask[y][x] + 64;
-                                        computeSummationOfT3(clusterIdx+1, Tr, Ti, pdSumRe, pdSumIm);
+                                        computeSummationOfT3(clusterIdx + 1, Tr, Ti, pdSumRe, pdSumIm);
                                         clusterCounter[1][clusterIdx]++;
                                     } else if (mask[y][x] < 64) { // ps
                                         clusterIdx = mask[y][x];
-                                        computeSummationOfT3(clusterIdx+1, Tr, Ti, psSumRe, psSumIm);
+                                        computeSummationOfT3(clusterIdx + 1, Tr, Ti, psSumRe, psSumIm);
                                         clusterCounter[2][clusterIdx]++;
                                     }
                                 }
@@ -446,8 +453,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             }
             threadManager.finish();
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " getClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(op.getId() + " getClusterCenters ", e);
         } finally {
             status.done();
         }
@@ -603,6 +610,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Get the dominant category for given pixel based on its Freeman-Durden decomposition result.
+     *
      * @param pv The power of volume.
      * @param pd The power of double-bounce.
      * @param ps The power of surface.
@@ -639,13 +647,14 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Classify a pixel with a given power to one of the clusters defined by an array of thresholds.
-     * @param value The power value.
+     *
+     * @param value     The power value.
      * @param threshold Array of thresholds.
      * @return Index of the cluster that the pixel is classified into.
      */
     private static int computePixelClusterIdx(
             final double value, final double[] threshold, final int numInitialClusters) {
-        for (int i = 0; i < numInitialClusters-1; i++) {
+        for (int i = 0; i < numInitialClusters - 1; i++) {
             if (value < threshold[i]) {
                 return i;
             }
@@ -655,8 +664,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Find the two clusters with the shortest Wishart distance among all clusters in the given cluster list.
+     *
      * @param clusterCenterList The cluster list.
-     * @param clusterPair The indices of the two clusters with the shortest Wishart distance.
+     * @param clusterPair       The indices of the two clusters with the shortest Wishart distance.
      * @return The shortest Wishart distance.
      */
     private double computeShortestDistance(final java.util.List<ClusterInfo> clusterCenterList, final int[] clusterPair) {
@@ -668,12 +678,12 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         }
 
         double d;
-        for (int i = 0; i < numClusters-1; i++) {
+        for (int i = 0; i < numClusters - 1; i++) {
             if (clusterCenterList.get(i).size >= maxClusterSize) {
                 continue;
             }
 
-            for (int j = i+1; j < numClusters; j++) {
+            for (int j = i + 1; j < numClusters; j++) {
                 if (clusterCenterList.get(j).size >= maxClusterSize) {
                     continue;
                 }
@@ -693,8 +703,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Merge two clusters in the cluster list for given cluster indices.
+     *
      * @param clusterCenterList The list of cluster centers.
-     * @param clusterPair Indices of the two clusters to merge.
+     * @param clusterPair       Indices of the two clusters to merge.
      */
     private static void mergeClusters(final java.util.List<ClusterInfo> clusterCenterList, final int[] clusterPair) {
 
@@ -708,11 +719,11 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         final double[][] newCenterIm = new double[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                newCenterRe[i][j] = (size1*clusterCenterList.get(idx1).centerRe[i][j] +
-                        size2*clusterCenterList.get(idx2).centerRe[i][j]) / newClusterSize;
+                newCenterRe[i][j] = (size1 * clusterCenterList.get(idx1).centerRe[i][j] +
+                        size2 * clusterCenterList.get(idx2).centerRe[i][j]) / newClusterSize;
 
-                newCenterIm[i][j] = (size1*clusterCenterList.get(idx1).centerIm[i][j] +
-                        size2*clusterCenterList.get(idx2).centerIm[i][j]) / newClusterSize;
+                newCenterIm[i][j] = (size1 * clusterCenterList.get(idx1).centerIm[i][j] +
+                        size2 * clusterCenterList.get(idx2).centerIm[i][j]) / newClusterSize;
             }
         }
 
@@ -731,9 +742,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Compute final cluster centers for all clusters using K-mean clustering method
-     * @param srcBandList the input bands
+     *
+     * @param srcBandList    the input bands
      * @param tileRectangles Array of rectangles for all source tiles of the image
-     * @param op the operator
+     * @param op             the operator
      */
     private void computeFinalTerrainClusterCenters(final double[][] fdd,
                                                    final java.util.List<ClusterInfo> pvCenterList,
@@ -745,7 +757,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
         boolean endIteration = false;
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length*maxIterations,
+        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length * maxIterations,
                 "Computing Final Cluster Centres... ");
         int tileCnt = 0;
 
@@ -802,7 +814,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
                             }
                             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-                            
+
                             for (int y = y0; y < yMax; ++y) {
                                 for (int x = x0; x < xMax; ++x) {
 
@@ -815,21 +827,21 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
                                         if (mask[y][x] < -64) { // pv
                                             clusterIdx = findClosestCluster(Tr, Ti, pvCenterList);
-                                            computeSummationOfT3(clusterIdx+1, Tr, Ti, pvSumRe, pvSumIm);
+                                            computeSummationOfT3(clusterIdx + 1, Tr, Ti, pvSumRe, pvSumIm);
                                             clusterCounter[0][clusterIdx] += 1;
-                                            mask[y][x] = (byte)(-128 + clusterIdx);
+                                            mask[y][x] = (byte) (-128 + clusterIdx);
 
                                         } else if (mask[y][x] < 0) { // pd
                                             clusterIdx = findClosestCluster(Tr, Ti, pdCenterList);
-                                            computeSummationOfT3(clusterIdx+1, Tr, Ti, pdSumRe, pdSumIm);
+                                            computeSummationOfT3(clusterIdx + 1, Tr, Ti, pdSumRe, pdSumIm);
                                             clusterCounter[1][clusterIdx] += 1;
-                                            mask[y][x] = (byte)(-64 + clusterIdx);
+                                            mask[y][x] = (byte) (-64 + clusterIdx);
 
                                         } else if (mask[y][x] < 64) { // ps
                                             clusterIdx = findClosestCluster(Tr, Ti, psCenterList);
-                                            computeSummationOfT3(clusterIdx+1, Tr, Ti, psSumRe, psSumIm);
+                                            computeSummationOfT3(clusterIdx + 1, Tr, Ti, psSumRe, psSumIm);
                                             clusterCounter[2][clusterIdx] += 1;
-                                            mask[y][x] = (byte)clusterIdx;
+                                            mask[y][x] = (byte) clusterIdx;
 
                                         } else { // mixed
 
@@ -841,20 +853,20 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
                                             if (clusterIdx >= pvNumClusters + pdNumClusters) { // ps
                                                 clusterIdx -= pvNumClusters + pdNumClusters;
-                                                computeSummationOfT3(clusterIdx+1, Tr, Ti, psSumRe, psSumIm);
+                                                computeSummationOfT3(clusterIdx + 1, Tr, Ti, psSumRe, psSumIm);
                                                 clusterCounter[2][clusterIdx] += 1;
-                                                mask[y][x] = (byte)clusterIdx;
+                                                mask[y][x] = (byte) clusterIdx;
 
                                             } else if (clusterIdx >= pvNumClusters) { // pd
                                                 clusterIdx -= pvNumClusters;
-                                                computeSummationOfT3(clusterIdx+1, Tr, Ti, pdSumRe, pdSumIm);
+                                                computeSummationOfT3(clusterIdx + 1, Tr, Ti, pdSumRe, pdSumIm);
                                                 clusterCounter[1][clusterIdx] += 1;
-                                                mask[y][x] = (byte)(-64 + clusterIdx);
+                                                mask[y][x] = (byte) (-64 + clusterIdx);
 
                                             } else { // pv
-                                                computeSummationOfT3(clusterIdx+1, Tr, Ti, pvSumRe, pvSumIm);
+                                                computeSummationOfT3(clusterIdx + 1, Tr, Ti, pvSumRe, pvSumIm);
                                                 clusterCounter[0][clusterIdx] += 1;
-                                                mask[y][x] = (byte)(-128 + clusterIdx);
+                                                mask[y][x] = (byte) (-128 + clusterIdx);
                                             }
                                         }
                                     }
@@ -942,14 +954,14 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                 pvColourIndexMap[c] = numInitialClusters + getColourIndex(c, pvAvgClusterPower, numInitialClusters) + 1;
             }
             for (int c = 0; c < pdNumClusters; c++) {
-                pdColourIndexMap[c] = 2*numInitialClusters + getColourIndex(c, pdAvgClusterPower, numInitialClusters) + 1;
+                pdColourIndexMap[c] = 2 * numInitialClusters + getColourIndex(c, pdAvgClusterPower, numInitialClusters) + 1;
             }
             for (int c = 0; c < psNumClusters; c++) {
                 psColourIndexMap[c] = getColourIndex(c, psAvgClusterPower, numInitialClusters) + 1;
             }
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " computeInitialClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(op.getId() + " computeInitialClusterCenters ", e);
         } finally {
             status.done();
         }
@@ -958,20 +970,21 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
     private static int getColourIndex(
             final int clusterIndex, final double[] pAvgClusterPower, final int numInitialClusters) {
         int n = 0;
-        for (double p:pAvgClusterPower) {
+        for (double p : pAvgClusterPower) {
             if (p > pAvgClusterPower[clusterIndex]) {
                 n++;
             }
         }
 
-        final int d = numInitialClusters/pAvgClusterPower.length;
-        return n*d;
+        final int d = numInitialClusters / pAvgClusterPower.length;
+        return n * d;
     }
 
     /**
      * Find the nearest cluster for a given T3 matrix using Wishart distance
-     * @param Tr Real part of the T3 matrix
-     * @param Ti Imaginary part of the T3 matrix
+     *
+     * @param Tr             Real part of the T3 matrix
+     * @param Ti             Imaginary part of the T3 matrix
      * @param clusterCenters The cluster centers
      * @return The zone index for the nearest cluster
      */
@@ -1023,7 +1036,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         } */
 
         return mask[y][x] < -64 ? pvColourIndexMap[mask[y][x] + 128] :
-               mask[y][x] < 0 ? pdColourIndexMap[mask[y][x] + 64] : psColourIndexMap[mask[y][x]];
+                mask[y][x] < 0 ? pdColourIndexMap[mask[y][x] + 64] : psColourIndexMap[mask[y][x]];
     }
 
 }

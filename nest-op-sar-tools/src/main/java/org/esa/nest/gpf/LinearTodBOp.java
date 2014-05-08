@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,23 +39,23 @@ import java.util.HashMap;
  * Converts bands to dB
  */
 
-@OperatorMetadata(alias="LinearTodB",
+@OperatorMetadata(alias = "LinearTodB",
         category = "Utilities\\Data Conversion",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Converts bands to dB")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Converts bands to dB")
 public final class LinearTodBOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    private static final String dBStr = "_"+Unit.DB;
+    private static final String dBStr = "_" + Unit.DB;
     private static final double underFlowFloat = 1.0e-30;
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
@@ -69,8 +69,7 @@ public final class LinearTodBOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -80,7 +79,7 @@ public final class LinearTodBOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -92,8 +91,7 @@ public final class LinearTodBOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -131,7 +129,7 @@ public final class LinearTodBOp extends Operator {
 
             final ProductData srcData1 = sourceRaster1.getDataBuffer();
             ProductData srcData2 = null;
-            if(sourceRaster2 != null)
+            if (sourceRaster2 != null)
                 srcData2 = sourceRaster2.getDataBuffer();
 
             final TileIndex trgIndex = new TileIndex(targetTile);
@@ -159,7 +157,7 @@ public final class LinearTodBOp extends Operator {
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -172,9 +170,9 @@ public final class LinearTodBOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         addSelectedBands();
 
@@ -193,7 +191,7 @@ public final class LinearTodBOp extends Operator {
 
             final Band srcBand = sourceBands[i];
             String unit = srcBand.getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 unit = Unit.AMPLITUDE;  // assume amplitude
             }
 
@@ -204,14 +202,14 @@ public final class LinearTodBOp extends Operator {
                 if (i == sourceBands.length - 1) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
-                final String nextUnit = sourceBands[i+1].getUnit();
+                final String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !((unit.equals(Unit.REAL) && nextUnit.equals(Unit.IMAGINARY)) ||
-                                          (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
+                        (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
                 final String[] srcBandNames = new String[2];
                 srcBandNames[0] = srcBand.getName();
-                srcBandNames[1] = sourceBands[i+1].getName();
+                srcBandNames[1] = sourceBands[i + 1].getName();
                 targetBandName = "Intensity";
                 final String suff = OperatorUtils.getSuffixFromBandName(srcBandNames[0]);
                 if (suff != null) {
@@ -221,13 +219,13 @@ public final class LinearTodBOp extends Operator {
                 if (pol != null && !pol.isEmpty() && !targetBandName.toLowerCase().contains(pol)) {
                     targetBandName += "_" + pol.toUpperCase();
                 }
-                if(isPolsar) {
+                if (isPolsar) {
                     final String pre = OperatorUtils.getprefixFromBandName(srcBandNames[0]);
                     targetBandName = "Intensity_" + pre;
                 }
                 targetBandName += dBStr;
                 ++i;
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetUnit = Unit.INTENSITY_DB;
                 }
@@ -236,18 +234,18 @@ public final class LinearTodBOp extends Operator {
 
                 final String[] srcBandNames = {srcBand.getName()};
                 targetBandName = srcBand.getName() + dBStr;
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetUnit = unit + dBStr;
                 }
             }
 
-            if(targetProduct.getBand(targetBandName) == null) {
+            if (targetProduct.getBand(targetBandName) == null) {
 
                 final Band targetBand = new Band(targetBandName,
-                                           ProductData.TYPE_FLOAT32,
-                                           srcBand.getSceneRasterWidth(),
-                                           srcBand.getSceneRasterHeight());
+                        ProductData.TYPE_FLOAT32,
+                        srcBand.getSceneRasterWidth(),
+                        srcBand.getSceneRasterHeight());
 
                 targetBand.setUnit(targetUnit);
                 targetProduct.addBand(targetBand);
@@ -260,6 +258,7 @@ public final class LinearTodBOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

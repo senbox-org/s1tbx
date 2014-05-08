@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,7 +31,7 @@ public class TestAlosPalsarProductReader extends TestCase {
     private AlosPalsarProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    private String[] exceptionExemptions = { "geocoding is null", "not supported" };
+    private String[] exceptionExemptions = {"geocoding is null", "not supported"};
 
     public TestAlosPalsarProductReader(String name) {
         super(name);
@@ -55,17 +55,17 @@ public class TestAlosPalsarProductReader extends TestCase {
 
     /**
      * Open all files in a folder recursively
+     *
      * @throws Exception anything
      */
-    public void testOpenAll() throws Exception
-    {
+    public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathALOS);
-        if(!folder.exists()) {
+        if (!folder.exists()) {
             TestUtils.skipTest(this);
             return;
         }
 
-        if(TestUtils.canTestReadersOnAllProducts)
+        if (TestUtils.canTestReadersOnAllProducts)
             TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, exceptionExemptions);
     }
 }

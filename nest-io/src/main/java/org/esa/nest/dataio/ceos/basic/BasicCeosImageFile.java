@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,7 +28,6 @@ import java.io.IOException;
 
 /**
  * This class represents an image file of a CEOS product.
-
  */
 class BasicCeosImageFile extends CEOSImageFile {
 
@@ -44,7 +43,7 @@ class BasicCeosImageFile extends CEOSImageFile {
         binaryReader = new BinaryFileReader(imageStream);
         _imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_recordDefinitionFile);
         binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
-        if(getRasterHeight() == 0) {
+        if (getRasterHeight() == 0) {
             final int height = histogramRecord.getAttributeInt("Data samples in line");
             _imageFDR.getBinaryDatabase().set("Number of lines per data set", height);
         }
@@ -57,7 +56,7 @@ class BasicCeosImageFile extends CEOSImageFile {
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line*_imageRecordLength);
+        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
         return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 }

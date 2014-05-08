@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,45 +15,40 @@
  */
 package org.esa.nest.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import java.util.HashMap;
-
 /**
  * Creates a new product with only selected bands
  */
 
-@OperatorMetadata(alias="flip",
+@OperatorMetadata(alias = "flip",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="flips a product horizontal/vertical")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "flips a product horizontal/vertical")
 public final class FlipOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(valueSet = { "Horizontal", "Vertical", "Horizontal and Vertical" },
-            defaultValue = "Vertical" , label="Flip")
+    @Parameter(valueSet = {"Horizontal", "Vertical", "Horizontal and Vertical"},
+            defaultValue = "Vertical", label = "Flip")
     private String flipType = "Vertical";
 
     /**
@@ -65,8 +60,7 @@ public final class FlipOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -74,23 +68,23 @@ public final class FlipOp extends Operator {
 
         try {
             int flippingType = ProductFlipper.FLIP_BOTH;
-            if(flipType.equalsIgnoreCase("Horizontal"))
+            if (flipType.equalsIgnoreCase("Horizontal"))
                 flippingType = ProductFlipper.FLIP_HORIZONTAL;
-            else if(flipType.equalsIgnoreCase("Vertical"))
+            else if (flipType.equalsIgnoreCase("Vertical"))
                 flippingType = ProductFlipper.FLIP_VERTICAL;
 
             sourceProduct = ProductFlipperExt.createFlippedProduct(sourceProduct, flippingType,
                     sourceProduct.getName(), sourceProduct.getDescription());
 
             targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
             addSelectedBands();
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -110,6 +104,7 @@ public final class FlipOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

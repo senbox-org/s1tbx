@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,7 +32,6 @@ import java.util.Iterator;
 
 /**
  * Reader for ImageIO File
- *
  */
 public class ImageIOFile {
 
@@ -66,7 +65,7 @@ public class ImageIOFile {
 
     private synchronized void createReader(final ImageReader iioReader) throws IOException {
         stream = ImageIO.createImageInputStream(inputFile);
-        if(stream == null)
+        if (stream == null)
             throw new IOException("Unable to open " + inputFile.toString());
 
         reader = iioReader;
@@ -77,11 +76,11 @@ public class ImageIOFile {
 
         dataType = ProductData.TYPE_INT32;
         final ImageTypeSpecifier its = reader.getRawImageType(0);
-        if(its != null) {
+        if (its != null) {
             numBands = reader.getRawImageType(0).getNumBands();
             dataType = bufferImageTypeToProductType(its.getBufferedImageType());
 
-            if(its.getBufferedImageType() == BufferedImage.TYPE_BYTE_INDEXED) {
+            if (its.getBufferedImageType() == BufferedImage.TYPE_BYTE_INDEXED) {
                 isIndexed = true;
                 createIndexedImageInfo(its.getColorModel());
             }
@@ -90,11 +89,11 @@ public class ImageIOFile {
 
     public static ImageReader getIIOReader(final File inputFile) throws IOException {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
-        if(stream == null)
+        if (stream == null)
             throw new IOException("Unable to open " + inputFile.toString());
 
         final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        if(!imageReaders.hasNext())
+        if (!imageReaders.hasNext())
             throw new IOException("No ImageIO reader found for " + inputFile.toString());
 
         return imageReaders.next();
@@ -102,32 +101,32 @@ public class ImageIOFile {
 
     public static ImageReader getTiffIIOReader(final File inputFile) throws IOException {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
-        if(stream == null)
+        if (stream == null)
             throw new IOException("Unable to open " + inputFile.toString());
 
         ImageReader reader = null;
         final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while(imageReaders.hasNext()) {
+        while (imageReaders.hasNext()) {
             final ImageReader iioReader = imageReaders.next();
-            if(iioReader instanceof TIFFImageReader) {
+            if (iioReader instanceof TIFFImageReader) {
                 reader = iioReader;
                 break;
             }
         }
-        if(reader == null)
+        if (reader == null)
             throw new IOException("Unable to open " + inputFile.toString());
         return reader;
     }
 
     public ImageReader getReader() throws IOException {
-        if(reader == null) {
+        if (reader == null) {
             createReader(getTiffIIOReader(inputFile));
         }
         return reader;
     }
 
     private static int bufferImageTypeToProductType(int biType) {
-        switch(biType) {
+        switch (biType) {
             case BufferedImage.TYPE_CUSTOM:
             case BufferedImage.TYPE_INT_RGB:
             case BufferedImage.TYPE_INT_ARGB:
@@ -151,7 +150,7 @@ public class ImageIOFile {
     }
 
     final void createIndexedImageInfo(ColorModel colorModel) {
-        final IndexColorModel indexColorModel = (IndexColorModel)colorModel;
+        final IndexColorModel indexColorModel = (IndexColorModel) colorModel;
         indexCoding = new IndexCoding("color_map");
         final int colorCount = indexColorModel.getMapSize();
         final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
@@ -177,9 +176,9 @@ public class ImageIOFile {
     }
 
     public void close() throws IOException {
-        if(stream != null)
+        if (stream != null)
             stream.close();
-        if(reader != null)
+        if (reader != null)
             reader.dispose();
     }
 
@@ -188,14 +187,14 @@ public class ImageIOFile {
     }
 
     public int getSceneWidth() throws IOException {
-        if(sceneWidth == 0) {
+        if (sceneWidth == 0) {
             sceneWidth = reader.getWidth(0);
         }
         return sceneWidth;
     }
 
     public int getSceneHeight() throws IOException {
-        if(sceneHeight == 0) {
+        if (sceneHeight == 0) {
             sceneHeight = reader.getHeight(0);
         }
         return sceneHeight;
@@ -214,20 +213,20 @@ public class ImageIOFile {
     }
 
     public void readImageIORasterBand(final int sourceOffsetX, final int sourceOffsetY,
-                                                   final int sourceStepX, final int sourceStepY,
-                                                   final ProductData destBuffer,
-                                                   final int destOffsetX, final int destOffsetY,
-                                                   final int destWidth, final int destHeight,
-                                                   final int imageID,
-                                                   final int bandSampleOffset) throws IOException {
+                                      final int sourceStepX, final int sourceStepY,
+                                      final ProductData destBuffer,
+                                      final int destOffsetX, final int destOffsetY,
+                                      final int destWidth, final int destHeight,
+                                      final int imageID,
+                                      final int bandSampleOffset) throws IOException {
         final Raster data;
 
-        synchronized(inputFile) {
+        synchronized (inputFile) {
             final ImageReader reader = getReader();
             final ImageReadParam param = reader.getDefaultReadParam();
             param.setSourceSubsampling(sourceStepX, sourceStepY,
-                                       sourceOffsetX % sourceStepX,
-                                       sourceOffsetY % sourceStepY);
+                    sourceOffsetX % sourceStepX,
+                    sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
             data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
@@ -239,8 +238,8 @@ public class ImageIOFile {
         final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
 
-        if(dataBufferType == DataBuffer.TYPE_FLOAT && destBuffer.getElems() instanceof float[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[])destBuffer.getElems(), dataBuffer);
+        if (dataBufferType == DataBuffer.TYPE_FLOAT && destBuffer.getElems() instanceof float[]) {
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[]) destBuffer.getElems(), dataBuffer);
         } else if (dataBufferType == DataBuffer.TYPE_DOUBLE && destBuffer.getElems() instanceof double[]) {
             final double[] dArray = new double[destSize];
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
@@ -250,8 +249,8 @@ public class ImageIOFile {
         } else {
 
             int Offset = 0;
-            for(int i=0; i<destHeight; i++) {
-                for (int j=0; j<destWidth; j++) {
+            for (int i = 0; i < destHeight; i++) {
+                for (int j = 0; j < destWidth; j++) {
                     destBuffer.setElemDoubleAt(Offset++, sampleModel.getSample(j, i, sampleOffset, dataBuffer));
                 }
             }
@@ -263,7 +262,7 @@ public class ImageIOFile {
         public final int bandSampleOffset;
         public final ImageIOFile img;
         public boolean isImaginary = false;
-        
+
         public BandInfo(final Band band, final ImageIOFile imgFile, final int id, final int offset) {
             img = imgFile;
             imageID = id;

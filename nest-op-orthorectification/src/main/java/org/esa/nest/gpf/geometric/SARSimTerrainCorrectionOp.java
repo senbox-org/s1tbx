@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,7 +39,10 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.*;
+import org.esa.nest.eo.Constants;
+import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.eo.LocalGeometry;
+import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.*;
 import org.esa.nest.util.ResourceUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -54,107 +57,107 @@ import java.util.List;
 
 /**
  * The operator generates orthorectified image using rigorous SAR simulation.
- *
+ * <p/>
  * Some major steps of the procedure are given below:
- *
+ * <p/>
  * 1. SAR simulation: Generate simulated SAR image using DEM, the geocoding and orbit state vectors from the
- *    original SAR image, and mathematical modeling of SAR imaging geometry. The simulated SAR image will have
- *    the same dimension and resolution as the original image. For detailed steps and parameters used in SAR
- *    simulation, the reader is referred to NEST help for SAR Simulation Operator.
- *
+ * original SAR image, and mathematical modeling of SAR imaging geometry. The simulated SAR image will have
+ * the same dimension and resolution as the original image. For detailed steps and parameters used in SAR
+ * simulation, the reader is referred to NEST help for SAR Simulation Operator.
+ * <p/>
  * 2. Co-registration: The simulated SAR image (master) and the original SAR image (slave) are co-registered
- *    and a WARP function is produced. The WARP function maps each pixel in the simulated SAR image to its
- *    corresponding position in the original SAR image. For detailed steps and parameters used in co-registration,
- *    the reader is referred to NEST help for GCP Selection Operator.
- *
+ * and a WARP function is produced. The WARP function maps each pixel in the simulated SAR image to its
+ * corresponding position in the original SAR image. For detailed steps and parameters used in co-registration,
+ * the reader is referred to NEST help for GCP Selection Operator.
+ * <p/>
  * 3. Terrain correction: Traverse DEM grid that covers the imaging area. For each cell in the DEM grid, compute
- *    its corresponding pixel position in the simulated SAR image using SAR model. Then its corresponding pixel
- *    position in the original SAR image can be found with the help of the WARP function. Finally the pixel
- *    value can be obtained for the orthorectified image.
- *
+ * its corresponding pixel position in the simulated SAR image using SAR model. Then its corresponding pixel
+ * position in the original SAR image can be found with the help of the WARP function. Finally the pixel
+ * value can be obtained for the orthorectified image.
+ * <p/>
  * Reference: Guide to ASAR Geocoding, Issue 1.0, 19.03.2008
  */
 
-@OperatorMetadata(alias="SARSim-Terrain-Correction",
+@OperatorMetadata(alias = "SARSim-Terrain-Correction",
         category = "Geometric\\Terrain Correction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Orthorectification with SAR simulation")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Orthorectification with SAR simulation")
 public class SARSimTerrainCorrectionOp extends Operator {
 
     public static final String PRODUCT_SUFFIX = "_SimTC";
-    
-    @SourceProduct(alias="source")
+
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The RMS threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "1.0",
-                label="RMS Threshold")
+            label = "RMS Threshold")
     private float rmsThreshold = 1.0f;
 
     @Parameter(description = "The order of WARP polynomial function", valueSet = {"1", "2", "3"}, defaultValue = "1",
-                label="Warp Polynomial Order")
+            label = "Warp Polynomial Order")
     private int warpPolynomialOrder = 1;
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label="Image Resampling Method")
+            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
     private String imgResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
-    @Parameter(description = "The pixel spacing in meters", defaultValue = "0", label="Pixel Spacing (m)")
+    @Parameter(description = "The pixel spacing in meters", defaultValue = "0", label = "Pixel Spacing (m)")
     private double pixelSpacingInMeter = 0;
 
-    @Parameter(description = "The pixel spacing in degrees", defaultValue = "0", label="Pixel Spacing (deg)")
+    @Parameter(description = "The pixel spacing in degrees", defaultValue = "0", label = "Pixel Spacing (deg)")
     private double pixelSpacingInDegree = 0;
 
     @Parameter(description = "The coordinate reference system in well known text format")
     private String mapProjection;
 
-    @Parameter(defaultValue="false", label="Save DEM as band")
+    @Parameter(defaultValue = "false", label = "Save DEM as band")
     private boolean saveDEM = false;
 
-    @Parameter(defaultValue="false", label="Save local incidence angle as band")
+    @Parameter(defaultValue = "false", label = "Save local incidence angle as band")
     private boolean saveLocalIncidenceAngle = false;
 
-    @Parameter(defaultValue="false", label="Save projected local incidence angle as band")
+    @Parameter(defaultValue = "false", label = "Save projected local incidence angle as band")
     private boolean saveProjectedLocalIncidenceAngle = false;
 
-    @Parameter(defaultValue="true", label="Save selected source band")
+    @Parameter(defaultValue = "true", label = "Save selected source band")
     private boolean saveSelectedSourceBand = true;
 
-    @Parameter(defaultValue="false", label="Apply radiometric normalization")
+    @Parameter(defaultValue = "false", label = "Apply radiometric normalization")
     private boolean applyRadiometricNormalization = false;
-    
-    @Parameter(defaultValue="false", label="Save Sigma0 as a band")
+
+    @Parameter(defaultValue = "false", label = "Save Sigma0 as a band")
     private boolean saveSigmaNought = false;
 
-    @Parameter(defaultValue="false", label="Save Gamma0 as a band")
+    @Parameter(defaultValue = "false", label = "Save Gamma0 as a band")
     private boolean saveGammaNought = false;
 
-    @Parameter(defaultValue="false", label="Save Beta0 as a band")
+    @Parameter(defaultValue = "false", label = "Save Beta0 as a band")
     private boolean saveBetaNought = false;
 
     @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID,
             Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
+            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
     private String incidenceAngleForSigma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
     @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID,
             Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
+            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
     private String incidenceAngleForGamma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
     @Parameter(valueSet = {CalibrationOp.LATEST_AUX, CalibrationOp.PRODUCT_AUX, CalibrationOp.EXTERNAL_AUX},
-            description = "The auxiliary file", defaultValue=CalibrationOp.LATEST_AUX, label="Auxiliary File")
+            description = "The auxiliary file", defaultValue = CalibrationOp.LATEST_AUX, label = "Auxiliary File")
     private String auxFile = CalibrationOp.LATEST_AUX;
 
-    @Parameter(description = "The antenne elevation pattern gain auxiliary data file.", label="External Aux File")
+    @Parameter(description = "The antenne elevation pattern gain auxiliary data file.", label = "External Aux File")
     private File externalAuxFile = null;
 
-    @Parameter(description = "Show range and azimuth shifts file in a text viewer", defaultValue = "false", label="Show Range and Azimuth Shifts")
+    @Parameter(description = "Show range and azimuth shifts file in a text viewer", defaultValue = "false", label = "Show Range and Azimuth Shifts")
     private boolean openShiftsFile = false;
 
     @Parameter(description = "Show the Residuals file in a text viewer", defaultValue = "false", label = "Show Residuals")
@@ -240,15 +243,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            if(OperatorUtils.isMapProjected(sourceProduct)) {
+            if (OperatorUtils.isMapProjected(sourceProduct)) {
                 throw new OperatorException("Source product is already map projected");
             }
 
@@ -275,7 +277,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             createTargetProduct();
 
-            if(!useAvgSceneHeight) {
+            if (!useAvgSceneHeight) {
                 getElevationModel();
             }
 
@@ -294,7 +296,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             updateTargetProductMetadata();
 
             DEMFactory.validateDEM(demName, sourceProduct);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -305,10 +307,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
             dem.dispose();
             dem = null;
         }
-        if(!orthoDataProduced && processingStarted) {
-            final String errMsg = getId() +" error: no valid output was produced. Please verify the DEM";
+        if (!orthoDataProduced && processingStarted) {
+            final String errMsg = getId() + " error: no valid output was produced. Please verify the DEM";
             System.out.println(errMsg);
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 VisatApp.getApp().setStatusBarMessage(errMsg);
             }
         }
@@ -327,18 +329,18 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         if (saveBetaNought || saveGammaNought ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveSigmaNought = true;
             saveProjectedLocalIncidenceAngle = true;
         }
 
         if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveIncidenceAngleFromEllipsoid = true;
         }
 
         if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveLocalIncidenceAngle = true;
         }
 
@@ -347,6 +349,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Retrieve required data from Abstracted Metadata
+     *
      * @throws Exception if metadata not found
      */
     private void getMetadata() throws Exception {
@@ -404,11 +407,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Get elevation model.
+     *
      * @throws Exception The exceptions.
      */
     private synchronized void getElevationModel() throws Exception {
 
-        if(isElevationModelAvailable) return;
+        if (isElevationModelAvailable) return;
 
         demName = absRoot.getAttributeString(AbstractMetadata.DEM);
         demResamplingMethod = absRoot.getAttributeString("DEM resampling method");
@@ -419,13 +423,13 @@ public class SARSimTerrainCorrectionOp extends Operator {
             final File externalDemFile = new File(demName);
             dem = new FileElevationModel(externalDemFile, demResamplingMethod, demNoDataValue);
             demName = externalDemFile.getName();
-            demNoDataValue = (float)absRoot.getAttributeDouble("external DEM no data value");
+            demNoDataValue = (float) absRoot.getAttributeDouble("external DEM no data value");
         } else {
             dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
             demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
 
-        if(elevationBand != null) {
+        if (elevationBand != null) {
             elevationBand.setNoDataValue(demNoDataValue);
             elevationBand.setNoDataValueUsed(true);
         }
@@ -455,13 +459,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Create target product.
+     *
      * @throws OperatorException The exception.
      */
     private void createTargetProduct() throws Exception {
 
         if (pixelSpacingInMeter <= 0.0) {
             pixelSpacingInMeter = Math.max(SARGeocoding.getAzimuthPixelSpacing(sourceProduct),
-                                           SARGeocoding.getRangePixelSpacing(sourceProduct));
+                    SARGeocoding.getRangePixelSpacing(sourceProduct));
             pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
         }
         delLat = pixelSpacingInDegree;
@@ -490,9 +495,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         try {
             ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        } catch(Exception e) {
-            if(!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
-                throw new OperatorException("Use Nearest Neighbour with Classifications: "+e.getMessage());
+        } catch (Exception e) {
+            if (!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
+                throw new OperatorException("Use Nearest Neighbour with Classifications: " + e.getMessage());
             }
         }
 
@@ -501,14 +506,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     private static void addLayoverShadowBitmasks(final Product product) {
         final Band layoverShadowBand = product.getBand(SARSimulationOp.layoverShadowMaskBandName);
-        if(layoverShadowBand != null) {
+        if (layoverShadowBand != null) {
             final String maskName = layoverShadowBand.getName();
             final BitmaskDef layover = new BitmaskDef("Layover",
-                        "", maskName + " == 1", Color.GREEN, 0.5f);
+                    "", maskName + " == 1", Color.GREEN, 0.5f);
             final BitmaskDef shadow = new BitmaskDef("Shadow",
-                        "", maskName + " == 2", Color.BLUE, 0.5f);
+                    "", maskName + " == 2", Color.BLUE, 0.5f);
             final BitmaskDef layoverShadow = new BitmaskDef("Layover_and_Shadow",
-                        "", maskName + " == 3", Color.YELLOW, 0.5f);
+                    "", maskName + " == 3", Color.YELLOW, 0.5f);
 
             product.addBitmaskDef(layover);
             product.addBitmaskDef(shadow);
@@ -518,13 +523,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
 
         final Band[] sourceBands = sourceProduct.getBands();
         if (sourceBands.length == 1) {
-            throw new OperatorException("Source product should include a simulated intensity band. Only "+sourceBands[0].getName()+" found");
+            throw new OperatorException("Source product should include a simulated intensity band. Only " + sourceBands[0].getName() + " found");
         }
 
         String targetBandName;
@@ -567,10 +573,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 targetBandName = bandName;
                 int dataType = ProductData.TYPE_FLOAT32;
                 // use original dataType for nearest neighbour and indexCoding bands
-                if(imgResampling.equals(Resampling.NEAREST_NEIGHBOUR))
+                if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR))
                     dataType = srcBand.getDataType();
                 if (RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
-                                                          targetBandName, srcBand.getUnit(), srcBand, dataType) != null) {
+                        targetBandName, srcBand.getUnit(), srcBand, dataType) != null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetBandapplyRadiometricNormalizationFlag.put(targetBandName, false);
                     targetBandApplyRetroCalibrationFlag.put(targetBandName, false);
@@ -578,26 +584,26 @@ public class SARSimTerrainCorrectionOp extends Operator {
             }
         }
 
-        if(saveDEM) {
+        if (saveDEM) {
             elevationBand = RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
                     "elevation", Unit.METERS, null, ProductData.TYPE_FLOAT32);
         }
 
-        if(saveLocalIncidenceAngle) {
+        if (saveLocalIncidenceAngle) {
             RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
                     "localIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
-        if(saveProjectedLocalIncidenceAngle) {
+        if (saveProjectedLocalIncidenceAngle) {
             RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
                     "projectedLocalIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
         if (saveLayoverShadowMask) {
             final Band layoverShadowingMasksBand = new Band(SARSimulationOp.layoverShadowMaskBandName,
-                                                     ProductData.TYPE_INT8,
-                                                     targetImageWidth,
-                                                     targetImageHeight);
+                    ProductData.TYPE_INT8,
+                    targetImageWidth,
+                    targetImageHeight);
             layoverShadowingMasksBand.setUnit(Unit.AMPLITUDE);
             targetProduct.addBand(layoverShadowingMasksBand);
         }
@@ -622,6 +628,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Update metadata in the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void updateTargetProductMetadata() throws OperatorException {
@@ -632,10 +639,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
 
         final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
-        final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0,0), null);
-        final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth-1, 0), null);
-        final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0,targetImageHeight-1), null);
-        final GeoPos geoPosLastFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth-1, targetImageHeight-1), null);
+        final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0, 0), null);
+        final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth - 1, 0), null);
+        final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0, targetImageHeight - 1), null);
+        final GeoPos geoPosLastFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth - 1, targetImageHeight - 1), null);
 
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, geoPosFirstNear.getLat());
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, geoPosFirstFar.getLat());
@@ -665,7 +672,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         // save look directions for 5 range lines
         final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
         final int numOfDirections = 5;
-        for(int i=1; i <= numOfDirections; ++i) {
+        for (int i = 1; i <= numOfDirections; ++i) {
             SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
                     sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
                     longitude);
@@ -679,11 +686,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         // find first real slave band
-        for(Band targetBand : keySet) {
-            if(targetBand.getName().equals(processedSlaveBand) || targetBand.getName().contains("Sigma0")) {
+        for (Band targetBand : keySet) {
+            if (targetBand.getName().equals(processedSlaveBand) || targetBand.getName().contains("Sigma0")) {
                 final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
                 final Band srcBand = sourceProduct.getBand(srcBandNames[0]);
-                if(srcBand != null) {
+                if (srcBand != null) {
                     final Tile sourceRaster = getSourceTile(srcBand, targetRectangle);
                     break;
                 }
@@ -695,18 +702,18 @@ public class SARSimTerrainCorrectionOp extends Operator {
         masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
         final int numSrcBands = sourceProduct.getNumBands();
         boolean appendFlag = false;
-        for(int i = 1; i < numSrcBands; ++i) { // loop through all slave bands
+        for (int i = 1; i < numSrcBands; ++i) { // loop through all slave bands
 
             final Band srcBand = sourceProduct.getBandAt(i);
             final String unit = srcBand.getUnit();
-            if(unit != null && unit.contains(Unit.BIT)) // skip layover_shadow_mask band
+            if (unit != null && unit.contains(Unit.BIT)) // skip layover_shadow_mask band
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = sourceProduct.getGcpGroup(srcBand);
-            if(slaveGCPGroup.getNodeCount() < 3) {
+            if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
-                for(Band band : sourceProduct.getBands()) {
-                    if(band != srcBand && band != masterBand) {
+                for (Band band : sourceProduct.getBands()) {
+                    if (band != srcBand && band != masterBand) {
                         slaveGCPGroup = sourceProduct.getGcpGroup(band);
                         if (slaveGCPGroup.getNodeCount() >= 3)        // only one band should have GCPs
                             break;
@@ -718,7 +725,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             warpDataMap.put(srcBand, warpData);
 
             WarpOp.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
-                                                 maxIterations, rmsThreshold, appendFlag, warpData);
+                    maxIterations, rmsThreshold, appendFlag, warpData);
 
             if (!appendFlag) {
                 appendFlag = true;
@@ -732,16 +739,16 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     private void announceGCPWarning() {
         String msg = "";
-        for(Band srcBand : sourceProduct.getBands()) {
+        for (Band srcBand : sourceProduct.getBands()) {
             final WarpOp.WarpData warpData = warpDataMap.get(srcBand);
-            if(warpData != null && warpData.notEnoughGCPs) {
-                msg += srcBand.getName() +" does not have enough valid GCPs for the warp\n";
+            if (warpData != null && warpData.notEnoughGCPs) {
+                msg += srcBand.getName() + " does not have enough valid GCPs for the warp\n";
                 openResidualsFile = true;
             }
         }
-        if(!msg.isEmpty()) {
+        if (!msg.isEmpty()) {
             System.out.println(msg);
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 AutoCloseOptionPane.showWarningDialog("Some bands did not coregister", msg);
             }
         }
@@ -752,12 +759,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
             return;
         }
 
-        if(openShiftsFile) {
+        if (openShiftsFile) {
             final File shiftsFile = getFile(sourceProduct, "_shift.txt");
-            if(Desktop.isDesktopSupported() && shiftsFile.exists()) {
+            if (Desktop.isDesktopSupported() && shiftsFile.exists()) {
                 try {
                     Desktop.getDesktop().open(shiftsFile);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     // do nothing
                 }
@@ -766,10 +773,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         if (openResidualsFile) {
             final File residualsFile = getFile(sourceProduct, "_residual.txt");
-            if(Desktop.isDesktopSupported() && residualsFile.exists()) {
+            if (Desktop.isDesktopSupported() && residualsFile.exists()) {
                 try {
                     Desktop.getDesktop().open(residualsFile);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     // do nothing
                 }
@@ -812,8 +819,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         processingStarted = true;
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int ymax = y0 + h;
         final int xmax = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
@@ -831,30 +838,30 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         final Set<Band> keySet = targetTiles.keySet();
 
-        if(!warpDataAvailable) {
+        if (!warpDataAvailable) {
             getWarpData(keySet, targetRectangle);
             outputResidualAndShiftFiles();
         }
 
         final List<RangeDopplerGeocodingOp.TileData> trgTileList = new ArrayList<RangeDopplerGeocodingOp.TileData>();
-        for(Band targetBand : keySet) {
+        for (Band targetBand : keySet) {
 
-            if(targetBand.getName().equals("elevation")) {
+            if (targetBand.getName().equals("elevation")) {
                 demBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
 
-            if(targetBand.getName().equals("localIncidenceAngle")) {
+            if (targetBand.getName().equals("localIncidenceAngle")) {
                 localIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
 
-            if(targetBand.getName().equals("projectedLocalIncidenceAngle")) {
+            if (targetBand.getName().equals("projectedLocalIncidenceAngle")) {
                 projectedLocalIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
 
-            if(targetBand.getName().equals(SARSimulationOp.layoverShadowMaskBandName)) {
+            if (targetBand.getName().equals(SARSimulationOp.layoverShadowMaskBandName)) {
                 layoverShadowingMasksBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
@@ -865,7 +872,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             }
 
             final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
-            final Band[] srcBands = new Band[] { sourceProduct.getBand(srcBandNames[0]),
+            final Band[] srcBands = new Band[]{sourceProduct.getBand(srcBandNames[0]),
                     srcBandNames.length > 1 ? sourceProduct.getBand(srcBandNames[1]) : null};
 
             final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData(
@@ -877,29 +884,29 @@ public class SARSimTerrainCorrectionOp extends Operator {
             trgTileList.add(td);
         }
         final RangeDopplerGeocodingOp.TileData[] trgTiles = trgTileList.toArray(new RangeDopplerGeocodingOp.TileData[trgTileList.size()]);
-        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0-1, y0-1, w+2, h+2);
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0 - 1, y0 - 1, w + 2, h + 2);
 
         try {
-            final double[][] localDEM = new double[h+2][w+2];
-            if(useAvgSceneHeight) {
+            final double[][] localDEM = new double[h + 2][w + 2];
+            if (useAvgSceneHeight) {
                 DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
             } else {
                 final boolean valid = DEMFactory.getLocalDEM(
                         dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);
-                if(!valid)
+                if (!valid)
                     return;
             }
 
             for (int y = y0; y < ymax; y++) {
-                final int yy = y-y0+1;
+                final int yy = y - y0 + 1;
 
                 for (int x = x0; x < xmax; x++) {
 
                     final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
 
-                    final double alt = localDEM[yy][x-x0+1];
+                    final double alt = localDEM[yy][x - x0 + 1];
 
-                    if(saveDEM) {
+                    if (saveDEM) {
                         demBuffer.setElemDoubleAt(index, alt);
                     }
 
@@ -909,7 +916,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     }
 
                     tileGeoRef.getGeoPos(x, y, geoPos);
-                    if(!geoPos.isValid()) {
+                    if (!geoPos.isValid()) {
                         continue;
                     }
                     final double lat = geoPos.lat;
@@ -936,7 +943,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
                         slantRange = SARGeocoding.computeSlantRange(
-                            zeroDoppler, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                                zeroDoppler, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
                     }
 
                     final double azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;
@@ -974,19 +981,19 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         }
 
                         if (saveLayoverShadowMask) {
-                            final Rectangle srcRect = new Rectangle((int)(rangeIndex+0.5), (int)(azimuthIndex+0.5), 1, 1);
+                            final Rectangle srcRect = new Rectangle((int) (rangeIndex + 0.5), (int) (azimuthIndex + 0.5), 1, 1);
                             final Tile sourceTile = getSourceTile(maskBand, srcRect);
                             final int m = sourceTile.getDataBuffer().getElemIntAt(sourceTile.getDataBufferIndex(
-                                    (int)(rangeIndex+0.5), (int)(azimuthIndex+0.5)));
+                                    (int) (rangeIndex + 0.5), (int) (azimuthIndex + 0.5)));
                             layoverShadowingMasksBuffer.setElemIntAt(index, m);
                         }
 
                         if (saveIncidenceAngleFromEllipsoid) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
-                                    index, incidenceAngle.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
+                                    index, incidenceAngle.getPixelFloat((float) rangeIndex, (float) azimuthIndex));
                         }
 
-                        for(RangeDopplerGeocodingOp.TileData tileData : trgTiles) {
+                        for (RangeDopplerGeocodingOp.TileData tileData : trgTiles) {
 
                             final Unit.UnitType bandUnit = getBandUnit(tileData.bandName);
                             final String[] srcBandName = targetBandNameToSourceBandName.get(tileData.bandName);
@@ -997,7 +1004,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                                 continue;
                             }
                             WarpOp.getWarpedCoords(warpData, warpPolynomialOrder,
-                                                   rangeIndex, azimuthIndex, pixelPos);
+                                    rangeIndex, azimuthIndex, pixelPos);
                             if (pixelPos.x < 0.0 || pixelPos.x >= srcMaxRange || pixelPos.y < 0.0 || pixelPos.y >= srcMaxAzimuth) {
                                 tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
                                 continue;
@@ -1010,10 +1017,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                                 if (localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                     final double satelliteHeight = Math.sqrt(
-                                            sensorPos[0]*sensorPos[0] + sensorPos[1]*sensorPos[1] + sensorPos[2]*sensorPos[2]);
+                                            sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2]);
 
                                     final double sceneToEarthCentre = Math.sqrt(
-                                            earthPoint[0]*earthPoint[0] + earthPoint[1]*earthPoint[1] + earthPoint[2]*earthPoint[2]);
+                                            earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2]);
 
                                     v = calibrator.applyCalibration(
                                             v, rangeIndex, azimuthIndex, slantRange, satelliteHeight, sceneToEarthCentre,
@@ -1029,7 +1036,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     }
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             orthoDataProduced = true; //to prevent multiple error messages
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -1037,17 +1044,19 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Save noDataValue to target pixel with given index.
-     * @param index The pixel index in target image.
+     *
+     * @param index    The pixel index in target image.
      * @param trgTiles The target tiles.
      */
     private static void saveNoDataValueToTarget(final int index, RangeDopplerGeocodingOp.TileData[] trgTiles) {
-        for(RangeDopplerGeocodingOp.TileData tileData : trgTiles) {
+        for (RangeDopplerGeocodingOp.TileData tileData : trgTiles) {
             tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
         }
     }
 
     /**
      * Compute zero Doppler time for given erath point.
+     *
      * @param earthPoint The earth point in xyz cooordinate.
      * @return The zero Doppler time in days if it is found, -1 otherwise.
      * @throws OperatorException The operator exception.
@@ -1061,37 +1070,38 @@ public class SARSimTerrainCorrectionOp extends Operator {
         double upperBoundFreq = getDopplerFrequency(upperBound, earthPoint);
 
         if (Double.compare(lowerBoundFreq, 0.0) == 0) {
-            return firstLineUTC + lowerBound*lineTimeInterval;
+            return firstLineUTC + lowerBound * lineTimeInterval;
         } else if (Double.compare(upperBoundFreq, 0.0) == 0) {
-            return firstLineUTC + upperBound*lineTimeInterval;
-        } else if (lowerBoundFreq*upperBoundFreq > 0.0) {
+            return firstLineUTC + upperBound * lineTimeInterval;
+        } else if (lowerBoundFreq * upperBoundFreq > 0.0) {
             return NonValidZeroDopplerTime;
         }
 
         // start binary search
         double midFreq;
-        while(upperBound - lowerBound > 1) {
+        while (upperBound - lowerBound > 1) {
 
-            final int mid = (int)((lowerBound + upperBound)/2.0);
+            final int mid = (int) ((lowerBound + upperBound) / 2.0);
             midFreq = getDopplerFrequency(mid, earthPoint);
             if (Double.compare(midFreq, 0.0) == 0) {
-                return firstLineUTC + mid*lineTimeInterval;
-            } else if (midFreq*lowerBoundFreq > 0.0) {
+                return firstLineUTC + mid * lineTimeInterval;
+            } else if (midFreq * lowerBoundFreq > 0.0) {
                 lowerBound = mid;
                 lowerBoundFreq = midFreq;
-            } else if (midFreq*upperBoundFreq > 0.0) {
+            } else if (midFreq * upperBoundFreq > 0.0) {
                 upperBound = mid;
                 upperBoundFreq = midFreq;
             }
         }
 
-        final double y0 = lowerBound - lowerBoundFreq*(upperBound - lowerBound)/(upperBoundFreq - lowerBoundFreq);
-        return firstLineUTC + y0*lineTimeInterval;
+        final double y0 = lowerBound - lowerBoundFreq * (upperBound - lowerBound) / (upperBoundFreq - lowerBoundFreq);
+        return firstLineUTC + y0 * lineTimeInterval;
     }
 
     /**
      * Compute Doppler frequency for given earthPoint and sensor position.
-     * @param y The index for given range line.
+     *
+     * @param y          The index for given range line.
      * @param earthPoint The earth point in xyz coordinate.
      * @return The Doppler frequency in Hz.
      */
@@ -1100,20 +1110,21 @@ public class SARSimTerrainCorrectionOp extends Operator {
         if (y < 0 || y > sourceImageHeight - 1) {
             throw new OperatorException("Invalid range line index: " + y);
         }
-        
+
         final double xVel = sensorVelocity[y][0];
         final double yVel = sensorVelocity[y][1];
         final double zVel = sensorVelocity[y][2];
         final double xDiff = earthPoint[0] - sensorPosition[y][0];
         final double yDiff = earthPoint[1] - sensorPosition[y][1];
         final double zDiff = earthPoint[2] - sensorPosition[y][2];
-        final double distance = Math.sqrt(xDiff*xDiff + yDiff*yDiff + zDiff*zDiff);
+        final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 
-        return 2.0 * (xVel*xDiff + yVel*yDiff + zVel*zDiff) / (distance*wavelength);
+        return 2.0 * (xVel * xDiff + yVel * yDiff + zVel * zDiff) / (distance * wavelength);
     }
 
     /**
      * Get unit for the source band corresponding to the given target band.
+     *
      * @param bandName The target band name.
      * @return The source band unit.
      */
@@ -1124,9 +1135,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     /**
      * Compute orthorectified pixel value for given pixel.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param tileData The source tile information.
+     *
+     * @param azimuthIndex  The azimuth index for pixel in source image.
+     * @param rangeIndex    The range index for pixel in source image.
+     * @param tileData      The source tile information.
      * @param subSwathIndex The subswath index.
      * @return The pixel value.
      */
@@ -1135,8 +1147,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
                                  final int[] subSwathIndex) {
 
         try {
-            final int x0 = (int)(rangeIndex + 0.5);
-            final int y0 = (int)(azimuthIndex + 0.5);
+            final int x0 = (int) (rangeIndex + 0.5);
+            final int y0 = (int) (azimuthIndex + 0.5);
             Rectangle srcRect = null;
             Tile sourceTileI, sourceTileQ = null;
 
@@ -1173,7 +1185,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             tileData.imgResamplingRaster.set(rangeIndex, azimuthIndex, sourceTileI, sourceTileQ);
 
             imgResampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
-                                       sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
+                    sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
 
             double v = imgResampling.resample(tileData.imgResamplingRaster, tileData.imgResamplingIndex);
 
@@ -1181,7 +1193,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             return v;
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
 
@@ -1249,10 +1261,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
             p.format("Mean Azimuth Shift = %8.3f", meanAzimuthShift);
             p.println();
 
-        } catch(IOException exc) {
+        } catch (IOException exc) {
             throw new OperatorException(exc);
         } finally {
-            if(p != null)
+            if (p != null)
                 p.close();
         }
     }
@@ -1260,7 +1272,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private static File getFile(final Product sourceProduct, final String name) {
         final String fileName = sourceProduct.getName() + name;
         final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if(!appUserDir.exists()) {
+        if (!appUserDir.exists()) {
             appUserDir.mkdirs();
         }
         return new File(appUserDir.toString(), fileName);
@@ -1272,6 +1284,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

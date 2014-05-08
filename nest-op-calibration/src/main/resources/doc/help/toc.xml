@@ -7,8 +7,8 @@
     <tocitem text="Graph Processing">
         <tocitem text="SAR Operators">
             <tocitem text="Calibration" target="CalibrationOp"/>
-			<tocitem text="Remove Antenna Pattern" target="RemoveAntennaPatternOp"/>
+            <tocitem text="Remove Antenna Pattern" target="RemoveAntennaPatternOp"/>
         </tocitem>
     </tocitem>
-    
+
 </toc>

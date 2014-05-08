@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,7 +28,6 @@ import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.gpf.geometric.RangeDopplerGeocodingOp;
 import org.esa.nest.util.TestUtils;
 
 import java.io.File;
@@ -39,17 +38,17 @@ import java.io.File;
 public class TestRangeDopplerOp extends TestCase {
 
     private OperatorSpi spi;
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_TC.dim";
+    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_TC.dim";
 
-    private final static String inputPathIMS =     TestUtils.rootPathExpectedProducts+"\\input\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523.dim";
-    private final static String expectedPathIMS =  TestUtils.rootPathExpectedProducts+"\\expected\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523_TC.dim";
+    private final static String inputPathIMS = TestUtils.rootPathExpectedProducts + "\\input\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523.dim";
+    private final static String expectedPathIMS = TestUtils.rootPathExpectedProducts + "\\expected\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523_TC.dim";
 
-    private final static String inputPathAPM =     TestUtils.rootPathExpectedProducts+"\\input\\ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1";
-    private final static String expectedPathAPM =  TestUtils.rootPathExpectedProducts+"\\expected\\ENVISAT-ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1_TC.dim";
+    private final static String inputPathAPM = TestUtils.rootPathExpectedProducts + "\\input\\ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1";
+    private final static String expectedPathAPM = TestUtils.rootPathExpectedProducts + "\\expected\\ENVISAT-ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1_TC.dim";
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
-    private String[] exceptionExemptions = { "not supported", "already map projected", "outside of SRTM valid area" };
+    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
+    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
 
     @Override
     protected void setUp() throws Exception {
@@ -64,19 +63,20 @@ public class TestRangeDopplerOp extends TestCase {
 
     /**
      * Processes a WSM product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testProcessWSM() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
 
-        final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp)spi.createOperator();
+        final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.setApplyRadiometricCalibration(true);
         String[] bandNames = {"Amplitude"};
         op.setSourceBandNames(bandNames);
-        
+
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, false, false);
@@ -86,7 +86,7 @@ public class TestRangeDopplerOp extends TestCase {
     public void testGetLocalDEM() throws Exception {
 
         final File inputFile = new File("P:\\nest\\nest\\ESA Data\\RADAR\\ASAR\\Image Mode Medium Resolution\\ASA_IMM_1PNIPA20080507_220932_000000502068_00230_32348_0581.N1");
-        if(!inputFile.exists()) {
+        if (!inputFile.exists()) {
             TestUtils.skipTest(this);
             return;
         }
@@ -115,19 +115,20 @@ public class TestRangeDopplerOp extends TestCase {
 
     /**
      * Processes a IMS product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testProcessIMS() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathIMS);
 
-        final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp)spi.createOperator();
+        final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.setApplyRadiometricCalibration(true);
         String[] bandNames = {"i", "q"};
         op.setSourceBandNames(bandNames);
-        
+
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, false, false);
@@ -136,13 +137,14 @@ public class TestRangeDopplerOp extends TestCase {
 
     /**
      * Processes a APM product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testProcessAPM() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathAPM);
 
-        final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp)spi.createOperator();
+        final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.setApplyRadiometricCalibration(true);
@@ -155,13 +157,11 @@ public class TestRangeDopplerOp extends TestCase {
         TestUtils.compareProducts(targetProduct, expectedPathAPM, null);
     }
 
-    public void testProcessAllASAR() throws Exception
-    {
+    public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
-    public void testProcessAllERS() throws Exception
-    {
+    public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
@@ -170,23 +170,19 @@ public class TestRangeDopplerOp extends TestCase {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
     }     */
 
-    public void testProcessAllRadarsat2() throws Exception
-    {
+    public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
-    public void testProcessAllTerraSARX() throws Exception
-    {
+    public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
     }
 
-    public void testProcessAllCosmo() throws Exception
-    {
+    public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
-    public void testProcessAllNestBox() throws Exception
-    {
+    public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

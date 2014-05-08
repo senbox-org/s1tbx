@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,7 +44,7 @@ import java.util.Map;
  * Raw SAR images usually contain significant geometric distortions. One of the factors that cause the
  * distortions is the ground elevation of the targets. This operator corrects the topographic distortion
  * in the raw image caused by this factor. The operator implements the Geolocation-Grid (GG) geocoding method.
- *
+ * <p/>
  * The method consis of the following major steps:
  * (1) Get coner latitudes and longitudes for the source image;
  * (2) Compute [LatMin, LatMax] and [LonMin, LonMax];
@@ -61,36 +61,36 @@ import java.util.Map;
  * (7.6) Compute azimuth image index Ia using zero Doppler time tc(i,j);
  * (7.8) Compute range image index Ir using slant range r(i,j) or groung range;
  * (7.9) Compute pixel value x(Ia,Ir) using interpolation and save it for current sample.
- *
+ * <p/>
  * Reference: Guide to ASAR Geocoding, Issue 1.0, 19.03.2008
  */
 
-@OperatorMetadata(alias="Ellipsoid-Correction-GG",
+@OperatorMetadata(alias = "Ellipsoid-Correction-GG",
         category = "Geometric\\Ellipsoid Correction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="GG method for orthorectification")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "GG method for orthorectification")
 public final class GeolocationGridGeocodingOp extends Operator {
 
     public static final String PRODUCT_SUFFIX = "_EC";
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label="Image Resampling Method")
+            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
     private String imgResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
     @Parameter(description = "The coordinate reference system in well known text format")
     private String mapProjection;
-    
+
     private boolean srgrFlag = false;
 
     private int sourceImageWidth = 0;
@@ -126,15 +126,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            if(OperatorUtils.isMapProjected(sourceProduct)) {
+            if (OperatorUtils.isMapProjected(sourceProduct)) {
                 throw new OperatorException("Source product is already map projected");
             }
 
@@ -148,13 +147,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     /**
      * Retrieve required data from Abstracted Metadata
+     *
      * @throws Exception if metadata not found
      */
     private void getMetadata() throws Exception {
@@ -179,7 +179,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
         }
 
         final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        if(incidenceAngle != null) {
+        if (incidenceAngle != null) {
             nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
         }
     }
@@ -194,13 +194,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
     /**
      * Create target product.
+     *
      * @throws OperatorException The exception.
      */
     private void createTargetProduct() throws OperatorException {
 
         try {
             final double pixelSpacingInMeter = Math.max(SARGeocoding.getAzimuthPixelSpacing(sourceProduct),
-                                                        SARGeocoding.getRangePixelSpacing(sourceProduct));
+                    SARGeocoding.getRangePixelSpacing(sourceProduct));
             final double pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
 
             delLat = pixelSpacingInDegree;
@@ -229,9 +230,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
             try {
                 ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-            } catch(Exception e) {
-                if(!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
-                    throw new OperatorException("Use Nearest Neighbour with Classifications: "+e.getMessage());
+            } catch (Exception e) {
+                if (!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
+                    throw new OperatorException("Use Nearest Neighbour with Classifications: " + e.getMessage());
                 }
             }
 
@@ -243,6 +244,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
     /**
      * Update metadata in the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void updateTargetProductMetadata() throws OperatorException {
@@ -253,11 +255,11 @@ public final class GeolocationGridGeocodingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetProduct.getSceneRasterHeight());
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetProduct.getSceneRasterWidth());
 
-        final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0,0), null);
-        final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetProduct.getSceneRasterWidth()-1, 0), null);
-        final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0,targetProduct.getSceneRasterHeight()-1), null);
-        final GeoPos geoPosLastFar = targetGeoCoding.getGeoPos(new PixelPos(targetProduct.getSceneRasterWidth()-1,
-                                                                            targetProduct.getSceneRasterHeight()-1), null);
+        final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0, 0), null);
+        final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetProduct.getSceneRasterWidth() - 1, 0), null);
+        final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0, targetProduct.getSceneRasterHeight() - 1), null);
+        final GeoPos geoPosLastFar = targetGeoCoding.getGeoPos(new PixelPos(targetProduct.getSceneRasterWidth() - 1,
+                targetProduct.getSceneRasterHeight() - 1), null);
 
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, geoPosFirstNear.getLat());
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, geoPosFirstFar.getLat());
@@ -276,7 +278,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
         // save look directions for 5 range lines
         final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
         final int numOfDirections = 5;
-        for(int i=1; i <= numOfDirections; ++i) {
+        for (int i = 1; i <= numOfDirections; ++i) {
             SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
                     sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
                     longitude);
@@ -311,8 +313,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -330,8 +331,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
         final int y0 = targetTileRectangle.y;
-        final int w  = targetTileRectangle.width;
-        final int h  = targetTileRectangle.height;
+        final int w = targetTileRectangle.width;
+        final int h = targetTileRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
@@ -369,7 +370,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                     geoPos.setLocation(lat, lon);
                     srcGeocoding.getPixelPos(geoPos, pixPos);
                     if (Float.isNaN(pixPos.x) || Float.isNaN(pixPos.y) ||
-                        pixPos.x < 0.0 || pixPos.x >= srcMaxRange || pixPos.y < 0.0 || pixPos.y >= srcMaxAzimuth) {
+                            pixPos.x < 0.0 || pixPos.x >= srcMaxRange || pixPos.y < 0.0 || pixPos.y >= srcMaxAzimuth) {
                         trgData.setElemDoubleAt(index, srcBandNoDataValue);
                         continue;
                     }
@@ -389,14 +390,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
                     }
 
                     if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange ||
-                        azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
-                            trgData.setElemDoubleAt(index, srcBandNoDataValue);
+                            azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
+                        trgData.setElemDoubleAt(index, srcBandNoDataValue);
                     } else {
                         trgData.setElemDoubleAt(index, getPixelValue(azimuthIndex, rangeIndex, sourceBand1, sourceBand2));
                     }
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -405,21 +406,23 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
     /**
      * Compute zero Doppler time for a given pixel using biquadratic interpolation.
+     *
      * @param pixPos The pixel position.
      * @return The zero Doppler time in days.
      */
     private double computeZeroDopplerTime(final PixelPos pixPos) {
         // todo Guide requires using biquadratic interpolation, is it necessary?
-        final int j0 = (int)pixPos.y;
-        final double t0 = firstLineUTC + j0*lineTimeInterval;
-        final double t1 = firstLineUTC + (j0 + 1)*lineTimeInterval;
-        return t0 + (pixPos.y - j0)*(t1 - t0);
+        final int j0 = (int) pixPos.y;
+        final double t0 = firstLineUTC + j0 * lineTimeInterval;
+        final double t1 = firstLineUTC + (j0 + 1) * lineTimeInterval;
+        return t0 + (pixPos.y - j0) * (t1 - t0);
     }
 
     /**
      * Compute range index in source image for earth point with given zero Doppler time and slant range.
+     *
      * @param zeroDopplerTime The zero Doppler time in MJD.
-     * @param slantRange The slant range in meters.
+     * @param slantRange      The slant range in meters.
      * @return The range index.
      */
     private double computeRangeIndex(double zeroDopplerTime, double slantRange) throws Exception {
@@ -428,7 +431,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
         if (srgrFlag) { // ground detected image
 
-            if(srgrConvParams.length == 0)
+            if (srgrConvParams.length == 0)
                 throw new Exception("SRGR coefficients not found in product");
 
             int idx = 0;
@@ -447,12 +450,12 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
         } else { // slant range image
 
-            final int azimuthIndex = (int)((zeroDopplerTime - firstLineUTC) / lineTimeInterval);
+            final int azimuthIndex = (int) ((zeroDopplerTime - firstLineUTC) / lineTimeInterval);
             double r0;
             if (nearRangeOnLeft) {
-                r0 = slantRangeTime.getPixelDouble(0, azimuthIndex) / Constants.oneBillion*Constants.halfLightSpeed;
+                r0 = slantRangeTime.getPixelDouble(0, azimuthIndex) / Constants.oneBillion * Constants.halfLightSpeed;
             } else {
-                r0 = slantRangeTime.getPixelDouble(sourceImageWidth-1, azimuthIndex)/Constants.oneBillion*Constants.halfLightSpeed;
+                r0 = slantRangeTime.getPixelDouble(sourceImageWidth - 1, azimuthIndex) / Constants.oneBillion * Constants.halfLightSpeed;
             }
             rangeIndex = (slantRange - r0) / rangeSpacing;
         }
@@ -466,16 +469,17 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
     /**
      * Compute orthorectified pixel value for given pixel.
+     *
      * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
+     * @param rangeIndex   The range index for pixel in source image.
      * @return The pixel value.
      */
     private double getPixelValue(final double azimuthIndex, final double rangeIndex,
                                  final Band sourceBand1, final Band sourceBand2) {
 
         try {
-            final int x0 = (int)(rangeIndex + 0.5);
-            final int y0 = (int)(azimuthIndex + 0.5);
+            final int x0 = (int) (rangeIndex + 0.5);
+            final int y0 = (int) (azimuthIndex + 0.5);
             Rectangle srcRect = null;
             Tile sourceTileI, sourceTileQ = null;
 
@@ -513,11 +517,11 @@ public final class GeolocationGridGeocodingOp extends Operator {
             final Resampling.Index imgResamplingIndex = resampling.createIndex();
 
             resampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
-                                       sourceImageWidth, sourceImageHeight, imgResamplingIndex);
+                    sourceImageWidth, sourceImageHeight, imgResamplingIndex);
 
             return resampling.resample(imgResamplingRaster, imgResamplingIndex);
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
 
@@ -565,7 +569,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                         continue;
                     }
 
-                    samples[i][j] = (float)v;
+                    samples[i][j] = (float) v;
 
                     if (dataBufferQ != null) {
                         final double vq = dataBufferQ.getElemDoubleAt(sourceTileQ.getDataBufferIndex(x[j], y[i]));
@@ -575,7 +579,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                             continue;
                         }
 
-                        samples[i][j] = v*v + vq*vq;
+                        samples[i][j] = v * v + vq * vq;
                     }
                 }
             }
@@ -588,13 +592,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(GeolocationGridGeocodingOp.class);
-            setOperatorUI(GeolocationGridGeocodingOpUI.class);            
+            setOperatorUI(GeolocationGridGeocodingOpUI.class);
         }
     }
 }

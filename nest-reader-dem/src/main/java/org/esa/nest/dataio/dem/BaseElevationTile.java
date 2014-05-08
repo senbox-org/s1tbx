@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -53,7 +53,7 @@ public class BaseElevationTile implements ElevationTile {
         float[] line = objectArray[pixelY];
         if (line == null) {
             line = band.readPixels(0, pixelY, bandWidth, 1, new float[bandWidth], ProgressMonitor.NULL);
-            if(useDEMGravitationalModel) {
+            if (useDEMGravitationalModel) {
                 addGravitationalModel(pixelY, line);
             }
             objectArray[pixelY] = line;

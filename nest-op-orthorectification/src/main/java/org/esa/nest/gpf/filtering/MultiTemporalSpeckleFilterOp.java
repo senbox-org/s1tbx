@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,56 +38,56 @@ import java.util.Map;
 
 /**
  * Applies Multitemporal Speckle Filtering to multitemporal images.
- *
+ * <p/>
  * For a sequence of n registered multitemporal PRI images, with intensity at position (x, y) in image k
  * denoted by Ik(x, y), the goal of temporal filtering is to combine them linearly such that the n output
  * images Jk(x, y) meeting the following two conditions:
- *
+ * <p/>
  * 1. Jk is unbiased (i.e. E[Jk] = E[Ik], where E[] denotes expected value, so that the filtering does not
- *    distort the sigma0 values).
- *
- * 2. Jk has minimum variance, so that speckle is minimized. 
- *
+ * distort the sigma0 values).
+ * <p/>
+ * 2. Jk has minimum variance, so that speckle is minimized.
+ * <p/>
  * The following equation has been implemented:
- *
- *    Jk(x, y) = E[Ik]*(I1(x, y)/E[I1] + ... + In(x, y)/E[In])/n
- *
+ * <p/>
+ * Jk(x, y) = E[Ik]*(I1(x, y)/E[I1] + ... + In(x, y)/E[In])/n
+ * <p/>
  * where E[I] is the local mean value of pixels in a user selected window centered at (x, y) in image I.
  * The window size can be 3x3, 5x5, 7x7, 9x9 or 11x11.
- * 
+ * <p/>
  * The operator has the following two preprocessing steps:
- *
+ * <p/>
  * 1. The first step is calibration in which ?0 is derived from the digital number at each pixel. This
- *    ensures that values of from different times and in different parts of the image are comparable.
- *
+ * ensures that values of from different times and in different parts of the image are comparable.
+ * <p/>
  * 2. The second is registration of the images in the multitemporal sequence.
- *
+ * <p/>
  * Here it is assumed that preprocessing has been performed before applying this operator. The input to
  * the operator is assumed to be a product with multiple calibrated and co-registrated bands.
- *
+ * <p/>
  * Reference:
  * [1] S. Quegan, T. L. Toan, J. J. Yu, F. Ribbes and N. Floury, "Multitemporal ERS SAR Analysis Applied to
  * Forest Mapping", IEEE Transactions on Geoscience and Remote Sensing, vol. 38, no. 2, March 2000.
  */
 
-@OperatorMetadata(alias="Multi-Temporal-Speckle-Filter",
+@OperatorMetadata(alias = "Multi-Temporal-Speckle-Filter",
         category = "SAR Tools\\Speckle Filtering",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Speckle Reduction using Multitemporal Filtering")
 public class MultiTemporalSpeckleFilterOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct = null;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band", 
-            rasterDataNodeType = Band.class, label="Source Bands")
+    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-               defaultValue = WINDOW_SIZE_3x3, label="Window Size")
+            defaultValue = WINDOW_SIZE_3x3, label = "Window Size")
     private String windowSize = WINDOW_SIZE_3x3;
 
     private int halfWindowWidth = 0;
@@ -117,8 +117,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -129,9 +128,9 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
             targetProduct = new Product(sourceProduct.getName(),
-                                        sourceProduct.getProductType(),
-                                        sourceProduct.getSceneRasterWidth(),
-                                        sourceProduct.getSceneRasterHeight());
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -161,9 +160,9 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
                 throw new OperatorException("Unknown filter size: " + windowSize);
             }
 
-            halfWindowWidth = windowWidth/2;
-            halfWindowHeight = windowHeight/2;
-        } catch(Throwable e) {
+            halfWindowWidth = windowWidth / 2;
+            halfWindowHeight = windowHeight / 2;
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -173,11 +172,11 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      */
     private void addSelectedBands() {
 
-        if(sourceBandNames == null || sourceBandNames.length == 0 && OperatorUtils.isComplex(sourceProduct)) {
+        if (sourceBandNames == null || sourceBandNames.length == 0 && OperatorUtils.isComplex(sourceProduct)) {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if(band.getUnit().contains("intensity"))
+                if (band.getUnit().contains("intensity"))
                     bandNameList.add(band.getName());
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
@@ -190,7 +189,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
         for (Band srcBand : sourceBands) {
             final String unit = srcBand.getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
@@ -198,9 +197,9 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
                 throw new OperatorException("Please select amplitude or intensity bands.");
             } else {
                 final Band targetBand = new Band(srcBand.getName(),
-                                                 ProductData.TYPE_FLOAT32,
-                                                 sourceProduct.getSceneRasterWidth(),
-                                                 sourceProduct.getSceneRasterHeight());
+                        ProductData.TYPE_FLOAT32,
+                        sourceProduct.getSceneRasterWidth(),
+                        sourceProduct.getSceneRasterHeight());
 
                 targetBand.setUnit(unit);
                 targetProduct.addBand(targetBand);
@@ -222,10 +221,10 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
-        
+
         final Band[] targetBands = targetProduct.getBands();
         final int numBands = targetBands.length;
         final ProductData[] targetData = new ProductData[numBands];
@@ -249,7 +248,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
         final double[] localMeans = new double[numBands];
         double srcDataValue = 0.0;
         final int yMax = y0 + h;
-        for(int y = y0; y < yMax; y++) {
+        for (int y = y0; y < yMax; y++) {
             final int xMax = x0 + w;
             for (int x = x0; x < xMax; x++) {
 
@@ -289,10 +288,11 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
     /**
      * Get source tile rectangle.
+     *
      * @param tx0 X coordinate for the upper left corner pixel in the target tile.
      * @param ty0 Y coordinate for the upper left corner pixel in the target tile.
-     * @param tw The target tile width.
-     * @param th The target tile height.
+     * @param tw  The target tile width.
+     * @param th  The target tile height.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
@@ -307,18 +307,19 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
     /**
      * Compute mean value for pixels in a window with given center.
-     * @param xc X coordinate of the center pixel.
-     * @param yc Y coordinate of the center pixel.
-     * @param srcTile Source tile.
-     * @param srcData Source data.
+     *
+     * @param xc          X coordinate of the center pixel.
+     * @param yc          Y coordinate of the center pixel.
+     * @param srcTile     Source tile.
+     * @param srcData     Source data.
      * @param noDataValue The noDataValue for source band.
      * @return The mean value.
      */
     private double computeLocalMean(int xc, int yc, Tile srcTile, ProductData srcData, double noDataValue) {
         final int x0 = Math.max(0, xc - halfWindowWidth);
         final int y0 = Math.max(0, yc - halfWindowHeight);
-        final int xMax = Math.min(xc + halfWindowWidth, sourceImageWidth-1);
-        final int yMax = Math.min(yc + halfWindowHeight, sourceImageHeight-1);
+        final int xMax = Math.min(xc + halfWindowWidth, sourceImageWidth - 1);
+        final int yMax = Math.min(yc + halfWindowHeight, sourceImageHeight - 1);
 
         double mean = 0.0;
         double value = 0.0;
@@ -333,7 +334,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
                 }
             }
         }
-        return mean/n;
+        return mean / n;
     }
 
 
@@ -342,6 +343,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see OperatorSpi#createOperator()
      * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

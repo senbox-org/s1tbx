@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,8 +20,8 @@ package org.esa.nest.dataio.netcdf;
  */
 public interface NetcdfConstants {
 
-    final static String[] NETCDF_FORMAT_NAMES = { "NetCDF" };
-	final static String[] NETCDF_FORMAT_FILE_EXTENSIONS = { "nc", "nc3" };
+    final static String[] NETCDF_FORMAT_NAMES = {"NetCDF"};
+    final static String[] NETCDF_FORMAT_FILE_EXTENSIONS = {"nc", "nc3"};
     final static String NETCDF_PLUGIN_DESCRIPTION = "NetCDF Products";
 
     final static String GLOBAL_ATTRIBUTES_NAME = "Global_Attributes";
@@ -47,6 +47,6 @@ public interface NetcdfConstants {
     // CF convention lon
     // COARDS convention longitude
     // Enviview longs first_line_tie_points.longs
-    final static String[] LON_VAR_NAMES = { "lon", "longitude", "longs", "first_line_tie_points.longs" };
-    final static String[] LAT_VAR_NAMES = { "lat", "latitude", "lats", "first_line_tie_points.lats" };
+    final static String[] LON_VAR_NAMES = {"lon", "longitude", "longs", "first_line_tie_points.longs"};
+    final static String[] LAT_VAR_NAMES = {"lat", "latitude", "lats", "first_line_tie_points.lats"};
 }

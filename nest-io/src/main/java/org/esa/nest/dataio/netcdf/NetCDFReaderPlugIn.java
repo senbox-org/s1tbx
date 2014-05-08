@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,12 +26,11 @@ import java.util.Locale;
 
 /**
  * The ReaderPlugIn for NetCDF products.
- *
  */
 public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
 
     protected String[] FORMAT_NAMES = NetcdfConstants.NETCDF_FORMAT_NAMES;
-	protected String[] FORMAT_FILE_EXTENSIONS = NetcdfConstants.NETCDF_FORMAT_FILE_EXTENSIONS;
+    protected String[] FORMAT_FILE_EXTENSIONS = NetcdfConstants.NETCDF_FORMAT_FILE_EXTENSIONS;
     protected String PLUGIN_DESCRIPTION = NetcdfConstants.NETCDF_PLUGIN_DESCRIPTION;
     private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
 
@@ -40,7 +39,6 @@ public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      *
      * @param input any input object
-     *
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
@@ -54,8 +52,8 @@ public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
 
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
-        for(String ext : FORMAT_FILE_EXTENSIONS) {
-            if(!ext.isEmpty() && fileName.endsWith(ext.toLowerCase()))
+        for (String ext : FORMAT_FILE_EXTENSIONS) {
+            if (!ext.isEmpty() && fileName.endsWith(ext.toLowerCase()))
                 return isIntended(ext);
         }
 
@@ -120,7 +118,6 @@ public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
@@ -139,7 +136,6 @@ public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
          * if no extension are defined, the method always returns <code>true</code>
          *
          * @param file the file to be or not be accepted.
-         *
          * @return <code>true</code> if given file is accepted by this filter
          */
         public boolean accept(final File file) {

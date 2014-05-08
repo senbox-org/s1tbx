@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -52,12 +52,12 @@ import java.util.HashMap;
  * The sample operator implementation for an algorithm
  * that can compute bands independently of each other.
  */
-@OperatorMetadata(alias="Data-Analysis",
+@OperatorMetadata(alias = "Data-Analysis",
         category = "Analysis",
-        description="Computes statistics",
+        description = "Computes statistics",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        internal=true)
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        internal = true)
 public class DataAnalysisOp extends Operator {
 
     @SourceProduct
@@ -100,8 +100,7 @@ public class DataAnalysisOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -116,7 +115,7 @@ public class DataAnalysisOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -127,7 +126,7 @@ public class DataAnalysisOp extends Operator {
     void getNumOfBandsForStatistics() {
 
         numOfBands = 0;
-        for(Band band : sourceProduct.getBands()) {
+        for (Band band : sourceProduct.getBands()) {
             statisticsBandIndex.put(band.getName(), numOfBands);
             numOfBands++;
         }
@@ -164,13 +163,13 @@ public class DataAnalysisOp extends Operator {
     void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for(Band band : sourceProduct.getBands()) {
+        for (Band band : sourceProduct.getBands()) {
             ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
         }
     }
@@ -182,8 +181,7 @@ public class DataAnalysisOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -193,6 +191,7 @@ public class DataAnalysisOp extends Operator {
 
     /**
      * Compute statistics for given source tile.
+     *
      * @param targetBand
      * @param targetTile
      * @param targetTileRectangle
@@ -208,18 +207,18 @@ public class DataAnalysisOp extends Operator {
         double v, v2;
         for (int i = 0; i < n; i++) {
 
-            if(sampleTypeIsComplex) {
+            if (sampleTypeIsComplex) {
                 // todo
             }
             v = rawSamples1.getElemDoubleAt(i);
-            if(v > max[idx])
+            if (v > max[idx])
                 max[idx] = v;
-            if(v < min[idx])
+            if (v < min[idx])
                 min[idx] = v;
-            v2 = v*v;
+            v2 = v * v;
             sum[idx] += v;
             sum2[idx] += v2;
-            sum4[idx] += v2*v2;
+            sum4[idx] += v2 * v2;
         }
 
         // copy source data to target
@@ -240,22 +239,22 @@ public class DataAnalysisOp extends Operator {
 
         completeStatistics();
 
-        if(writeToFile)
+        if (writeToFile)
             writeStatsToFile();
     }
 
     private void completeStatistics() {
-        for (String bandName : statisticsBandIndex.keySet())  {
+        for (String bandName : statisticsBandIndex.keySet()) {
 
-                final int bandIdx = statisticsBandIndex.get(bandName);
-                final double m = sum[bandIdx] / numOfPixels;
-                final double m2 = sum2[bandIdx] / numOfPixels;
-                final double m4 = sum4[bandIdx] / numOfPixels;
+            final int bandIdx = statisticsBandIndex.get(bandName);
+            final double m = sum[bandIdx] / numOfPixels;
+            final double m2 = sum2[bandIdx] / numOfPixels;
+            final double m4 = sum4[bandIdx] / numOfPixels;
 
-                mean[bandIdx] = m;
-                std[bandIdx] = Math.sqrt(m2 - m*m);
-                coefVar[bandIdx] = Math.sqrt(m4 - m2*m2) / m2;
-                enl[bandIdx] = m2*m2 / (m4 - m2*m2);
+            mean[bandIdx] = m;
+            std[bandIdx] = Math.sqrt(m2 - m * m);
+            coefVar[bandIdx] = Math.sqrt(m4 - m2 * m2) / m2;
+            enl[bandIdx] = m2 * m2 / (m4 - m2 * m2);
         }
     }
 
@@ -263,7 +262,7 @@ public class DataAnalysisOp extends Operator {
         String fileName = sourceProduct.getName() + "_statistics.txt";
         try {
             final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-            if(!appUserDir.exists()) {
+            if (!appUserDir.exists()) {
                 appUserDir.mkdirs();
             }
             fileName = appUserDir.toString() + File.separator + fileName;
@@ -273,7 +272,7 @@ public class DataAnalysisOp extends Operator {
             final PrintStream p = new PrintStream(out);
 
             p.println();
-            for (String bandName : statisticsBandIndex.keySet())  {
+            for (String bandName : statisticsBandIndex.keySet()) {
 
                 int bandIdx = statisticsBandIndex.get(bandName);
 
@@ -299,7 +298,7 @@ public class DataAnalysisOp extends Operator {
 
             p.close();
 
-        } catch(IOException exc) {
+        } catch (IOException exc) {
             throw new OperatorException(exc);
         }
     }
@@ -360,6 +359,7 @@ public class DataAnalysisOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see OperatorSpi#createOperator()
      * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

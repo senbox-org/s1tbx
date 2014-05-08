@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,10 +16,10 @@
 package org.csa.rstb.dat.actions;
 
 import Jama.Matrix;
-import org.csa.rstb.dat.dialogs.ProductGeometrySelectorDialog;
-import org.csa.rstb.gpf.PolOpUtils;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.csa.rstb.dat.dialogs.ProductGeometrySelectorDialog;
+import org.csa.rstb.gpf.PolOpUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
@@ -43,12 +43,11 @@ import java.util.List;
 
 /**
  * Supervised Training action.
- *
  */
 public class SupervisedTrainingAction extends AbstractVisatAction {
 
     private static final int windowSize = 5;
-    private static final int halfWindowSize = windowSize/2;
+    private static final int halfWindowSize = windowSize / 2;
 
     private static final double[][] Sr = new double[2][2];
     private static final double[][] Si = new double[2][2];
@@ -66,14 +65,14 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         try {
             final ProductGeometrySelectorDialog dlg = new ProductGeometrySelectorDialog("Select Training Geometries");
             dlg.show();
-            if(dlg.IsOK()) {
+            if (dlg.IsOK()) {
                 final Product quadPolProduct = dlg.getProduct();
                 sourceImageWidth = quadPolProduct.getSceneRasterWidth();
                 sourceImageHeight = quadPolProduct.getSceneRasterHeight();
 
                 PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(quadPolProduct);
                 if (sourceProductType != PolBandUtils.MATRIX.T3 && sourceProductType != PolBandUtils.MATRIX.C3 &&
-                    sourceProductType != PolBandUtils.MATRIX.FULL) {
+                        sourceProductType != PolBandUtils.MATRIX.FULL) {
                     VisatApp.getApp().showErrorDialog("Quad pol product is expected");
                     return;
                 }
@@ -82,14 +81,14 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                         PolBandUtils.getSourceBands(quadPolProduct, sourceProductType);
 
                 final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(quadPolProduct,
-                                                                    dlg.getRoiProduct(),
-                                                                    dlg.getSelectedGeometries(),
-                                                                    dlg.getSaveFile(),
-                                                                    srcBandList[0].srcBands,
-                                                                    sourceProductType);
+                        dlg.getRoiProduct(),
+                        dlg.getSelectedGeometries(),
+                        dlg.getSaveFile(),
+                        srcBandList[0].srcBands,
+                        sourceProductType);
                 worker.executeWithBlocking();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }
@@ -137,7 +136,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
             final double[][] Ti = new double[3][3];
             PrintStream out = null;
             timeMonitor.start();
-            
+
             final String[] subGeometries = createSubGeometries(roiProduct, geometries);
             try {
                 out = new PrintStream(new FileOutputStream(file.getAbsolutePath(), false));
@@ -147,23 +146,23 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
 
                 // find task length
                 int totalRows = 0;
-                for(final String geom : subGeometries) {
+                for (final String geom : subGeometries) {
                     final VectorDataNode vec = roiProduct.getVectorDataGroup().get(geom);
-                    final int minY = Math.min(sourceImageWidth, Math.max(0, (int)vec.getEnvelope().getMinY()-1));
-                    final int maxY = Math.min(sourceImageHeight, (int)vec.getEnvelope().getMaxY()+1);
+                    final int minY = Math.min(sourceImageWidth, Math.max(0, (int) vec.getEnvelope().getMinY() - 1));
+                    final int maxY = Math.min(sourceImageHeight, (int) vec.getEnvelope().getMaxY() + 1);
                     totalRows += (maxY - minY);
                 }
 
                 pm.beginTask(title, totalRows);
                 int k = 0;
-                for(final String geom : subGeometries) {
+                for (final String geom : subGeometries) {
 
                     final Mask band = roiProduct.getMaskGroup().get(geom);
                     final VectorDataNode vec = roiProduct.getVectorDataGroup().get(geom);
-                    final int minX = Math.min(sourceImageWidth, Math.max(0, (int)vec.getEnvelope().getMinX()-1));
-                    final int minY = Math.min(sourceImageWidth, Math.max(0, (int)vec.getEnvelope().getMinY()-1));
-                    final int maxX = Math.min(sourceImageWidth, (int)vec.getEnvelope().getMaxX()+1);
-                    final int maxY = Math.min(sourceImageHeight, (int)vec.getEnvelope().getMaxY()+1);
+                    final int minX = Math.min(sourceImageWidth, Math.max(0, (int) vec.getEnvelope().getMinX() - 1));
+                    final int minY = Math.min(sourceImageWidth, Math.max(0, (int) vec.getEnvelope().getMinY() - 1));
+                    final int maxX = Math.min(sourceImageWidth, (int) vec.getEnvelope().getMaxX() + 1);
+                    final int maxY = Math.min(sourceImageHeight, (int) vec.getEnvelope().getMaxY() + 1);
 
                     double t11 = 0.0, t12Re = 0.0, t12Im = 0.0, t13Re = 0.0, t13Im = 0.0;
                     double t22 = 0.0, t23Re = 0.0, t23Im = 0.0, t33 = 0.0;
@@ -171,25 +170,25 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
 
                     final int width = maxX - minX;
                     final int height = maxY - minY;
-                    if(width <= 0 || height <= 0) {
+                    if (width <= 0 || height <= 0) {
                         pm.worked(height);
                         continue;
                     }
 
                     final int[] data = new int[width];
 
-                    for(int y = minY; y < maxY; ++y) {
+                    for (int y = minY; y < maxY; ++y) {
 
-                        if(pm.isCanceled()) {
+                        if (pm.isCanceled()) {
                             error = new Exception("Training cancelled by user");
                             return false;
                         }
-                        final int pct = (int)(((y-minY)/(float)height)*100);
-                        pm.setTaskName(title+geom+' '+pct+'%');
+                        final int pct = (int) (((y - minY) / (float) height) * 100);
+                        pm.setTaskName(title + geom + ' ' + pct + '%');
 
                         band.readPixels(minX, y, width, 1, data);
-                        for(int x = minX; x < maxX; ++x) {
-                            if(data[x-minX] != 0) {
+                        for (int x = minX; x < maxX; ++x) {
+                            if (data[x - minX] != 0) {
                                 if (sourceProductType == PolBandUtils.MATRIX.FULL) {
                                     getMeanCoherencyMatrixFromFullPol(x, y, sourceBands, Tr, Ti);
                                 } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
@@ -198,31 +197,31 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                                     getMeanCoherencyMatrixFromT3(x, y, sourceBands, Tr, Ti);
                                 }
 
-                                t11   += Tr[0][0];
+                                t11 += Tr[0][0];
                                 t12Re += Tr[0][1];
                                 t12Im += Ti[0][1];
                                 t13Re += Tr[0][2];
                                 t13Im += Ti[0][2];
-                                t22   += Tr[1][1];
+                                t22 += Tr[1][1];
                                 t23Re += Tr[1][2];
                                 t23Im += Ti[1][2];
-                                t33   += Tr[2][2];
+                                t33 += Tr[2][2];
 
                                 counter++;
                             }
                         }
                         pm.worked(1);
                     }
-                    
-                    t11   /= counter;
+
+                    t11 /= counter;
                     t12Re /= counter;
                     t12Im /= counter;
                     t13Re /= counter;
                     t13Im /= counter;
-                    t22   /= counter;
+                    t22 /= counter;
                     t23Re /= counter;
                     t23Im /= counter;
-                    t33   /= counter;
+                    t33 /= counter;
 
                     out.println("cluster" + k + " = " + geom);
                     out.println();
@@ -240,12 +239,12 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                     k++;
                 }
                 return true;
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 error = e;
                 return false;
             } finally {
-                if(out != null)
+                if (out != null)
                     out.close();
                 pm.done();
 
@@ -256,15 +255,15 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         private static String[] createSubGeometries(final Product product, final String[] geometries) {
             final List<String> subGeometries = new ArrayList<String>(geometries.length);
             try {
-                for(String geometry : geometries) {
+                for (String geometry : geometries) {
                     final VectorDataNode vec = product.getVectorDataGroup().get(geometry);
                     final FeatureCollection featCollection = vec.getFeatureCollection();
-                    int i=1;
+                    int i = 1;
                     Iterator f = featCollection.iterator();
-                    while(f.hasNext()) {
-                        final SimpleFeature feature = (SimpleFeature)f.next();
+                    while (f.hasNext()) {
+                        final SimpleFeature feature = (SimpleFeature) f.next();
 
-                        final String subGeomName = geometry+'_'+i;
+                        final String subGeomName = geometry + '_' + i;
                         final VectorDataNode vectorDataNode = new VectorDataNode(subGeomName, vec.getFeatureType());
                         vectorDataNode.getFeatureCollection().add(feature);
                         product.getVectorDataGroup().add(vectorDataNode);
@@ -272,7 +271,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                         ++i;
                     }
                 }
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
             return subGeometries.toArray(new String[subGeometries.size()]);
@@ -280,11 +279,11 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
 
         private static void removeSubGeometries(final Product product, final String[] subGeometries) {
             try {
-                for(String subGeom : subGeometries) {
+                for (String subGeom : subGeometries) {
                     final VectorDataNode vectorDataNode = product.getVectorDataGroup().get(subGeom);
                     product.getVectorDataGroup().remove(vectorDataNode);
                 }
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
@@ -294,25 +293,26 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
             roiProduct.setModified(false);
             try {
                 final long duration = timeMonitor.stop();
-                final Boolean isOk = (Boolean)this.get();
-                if(isOk) {
+                final Boolean isOk = (Boolean) this.get();
+                if (isOk) {
                     final String durationStr = "Processing completed in " + ProcessTimeMonitor.formatDuration(duration);
                     VisatApp.getApp().showMessageDialog("Done",
-                                                 "Supervised Training Dataset Completed\n"+
-                                                  file.getAbsolutePath() +"\n\n"+
-                                                  durationStr,
-                                                  JOptionPane.INFORMATION_MESSAGE, null);
+                            "Supervised Training Dataset Completed\n" +
+                                    file.getAbsolutePath() + "\n\n" +
+                                    durationStr,
+                            JOptionPane.INFORMATION_MESSAGE, null
+                    );
                 } else {
-                    VisatApp.getApp().showErrorDialog("An error occurred\n"+ error.getMessage());
+                    VisatApp.getApp().showErrorDialog("An error occurred\n" + error.getMessage());
                 }
-            } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("An error occurred\n"+ e.getMessage());
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog("An error occurred\n" + e.getMessage());
             }
         }
     }
 
     private static void getMeanCoherencyMatrixFromFullPol(final int x, final int y, final Band[] sourceBands,
-                                               final double[][] Tr, final double[][] Ti) throws Exception {
+                                                          final double[][] Tr, final double[][] Ti) throws Exception {
 
         final int xSt = Math.max(x - halfWindowSize, 0);
         final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
@@ -320,7 +320,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
         final int w = xEd - xSt + 1;
         final int h = yEd - ySt + 1;
-        final int num = w*h;
+        final int num = w * h;
 
         final double[] i_hh = new double[num];
         final double[] q_hh = new double[num];
@@ -349,8 +349,8 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         sourceBands[6].readPixels(xSt, ySt, w, h, i_vv);
         sourceBands[7].readPixels(xSt, ySt, w, h, q_vv);
         */
-        final Matrix TrMat = new Matrix(3,3);
-        final Matrix TiMat = new Matrix(3,3);
+        final Matrix TrMat = new Matrix(3, 3);
+        final Matrix TiMat = new Matrix(3, 3);
         for (int i = 0; i < num; ++i) {
             Sr[0][0] = i_hh[i];
             Si[0][0] = q_hh[i];
@@ -367,14 +367,14 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
             TiMat.plusEquals(new Matrix(tempTi));
         }
 
-        TrMat.timesEquals(1.0/num);
-        TiMat.timesEquals(1.0/num);
+        TrMat.timesEquals(1.0 / num);
+        TiMat.timesEquals(1.0 / num);
         copyMatrix(TrMat, Tr);
         copyMatrix(TiMat, Ti);
     }
 
     private static void getMeanCoherencyMatrixFromC3(final int x, final int y, final Band[] sourceBands,
-                                               final double[][] Tr, final double[][] Ti) throws Exception {
+                                                     final double[][] Tr, final double[][] Ti) throws Exception {
 
         final int xSt = Math.max(x - halfWindowSize, 0);
         final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
@@ -382,7 +382,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
         final int w = xEd - xSt + 1;
         final int h = yEd - ySt + 1;
-        final int num = w*h;
+        final int num = w * h;
 
         final double[] c11 = new double[num];
         final double[] c12r = new double[num];
@@ -414,8 +414,8 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         sourceBands[7].readPixels(xSt, ySt, w, h, c23i);
         sourceBands[8].readPixels(xSt, ySt, w, h, c33);
         */
-        final Matrix TrMat = new Matrix(3,3);
-        final Matrix TiMat = new Matrix(3,3);
+        final Matrix TrMat = new Matrix(3, 3);
+        final Matrix TiMat = new Matrix(3, 3);
         for (int i = 0; i < num; ++i) {
             tempCr[0][0] = c11[i]; // C11 - real
             tempCi[0][0] = 0.0;    // C11 - imag
@@ -442,22 +442,22 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
             TiMat.plusEquals(new Matrix(tempTi));
         }
 
-        TrMat.timesEquals(1.0/num);
-        TiMat.timesEquals(1.0/num);
+        TrMat.timesEquals(1.0 / num);
+        TiMat.timesEquals(1.0 / num);
         copyMatrix(TrMat, Tr);
         copyMatrix(TiMat, Ti);
     }
 
     private static void getMeanCoherencyMatrixFromT3(final int x, final int y, final Band[] sourceBands,
-                                               final double[][] Tr, final double[][] Ti) throws Exception {
-        
+                                                     final double[][] Tr, final double[][] Ti) throws Exception {
+
         final int xSt = Math.max(x - halfWindowSize, 0);
         final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
         final int ySt = Math.max(y - halfWindowSize, 0);
         final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
         final int w = xEd - xSt + 1;
         final int h = yEd - ySt + 1;
-        final int num = w*h;
+        final int num = w * h;
 
         final double[] t11 = new double[num];
         final double[] t12r = new double[num];
@@ -489,8 +489,8 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         sourceBands[7].readPixels(xSt, ySt, w, h, t23i);
         sourceBands[8].readPixels(xSt, ySt, w, h, t33);
         */
-        final Matrix TrMat = new Matrix(3,3);
-        final Matrix TiMat = new Matrix(3,3);
+        final Matrix TrMat = new Matrix(3, 3);
+        final Matrix TiMat = new Matrix(3, 3);
         for (int i = 0; i < num; ++i) {
             tempTr[0][0] = t11[i]; // T11 - real
             tempTi[0][0] = 0.0;    // T11 - imag
@@ -515,26 +515,27 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
             TiMat.plusEquals(new Matrix(tempTi));
         }
 
-        TrMat.timesEquals(1.0/num);
-        TiMat.timesEquals(1.0/num);
+        TrMat.timesEquals(1.0 / num);
+        TiMat.timesEquals(1.0 / num);
         copyMatrix(TrMat, Tr);
         copyMatrix(TiMat, Ti);
     }
 
     /**
      * copy 3 x 3 matrix with loop unwinding
+     *
      * @param mat Matrix input
-     * @param T double[][] output
+     * @param T   double[][] output
      */
     private static void copyMatrix(final Matrix mat, final double[][] T) {
-        T[0][0] = mat.get(0,0);
-        T[0][1] = mat.get(0,1);
-        T[0][2] = mat.get(0,2);
-        T[1][0] = mat.get(1,0);
-        T[1][1] = mat.get(1,1);
-        T[1][2] = mat.get(1,2);
-        T[2][0] = mat.get(2,0);
-        T[2][1] = mat.get(2,1);
-        T[2][2] = mat.get(2,2);
+        T[0][0] = mat.get(0, 0);
+        T[0][1] = mat.get(0, 1);
+        T[0][2] = mat.get(0, 2);
+        T[1][0] = mat.get(1, 0);
+        T[1][1] = mat.get(1, 1);
+        T[1][2] = mat.get(1, 2);
+        T[2][0] = mat.get(2, 0);
+        T[2][1] = mat.get(2, 1);
+        T[2][2] = mat.get(2, 2);
     }
 }

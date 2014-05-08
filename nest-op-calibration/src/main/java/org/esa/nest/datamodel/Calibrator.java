@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,28 +22,27 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 
 import java.io.File;
-import java.util.HashMap;
 
 /**
-* The abstract base class for all calibration operators intended to be extended by clients.
+ * The abstract base class for all calibration operators intended to be extended by clients.
  * The following methods are intended to be implemented or overidden:
  */
 public interface Calibrator {
 
     /**
-     * @param op The calibration operator
-     * @param sourceProduct The source product.
-     * @param targetProduct The target product.
+     * @param op                          The calibration operator
+     * @param sourceProduct               The source product.
+     * @param targetProduct               The target product.
      * @param mustPerformRetroCalibration For absolut calibration, this flag is false because retro-calibration may not
-     *        be needed in case XCA file is not available or the old and new XCA files are identical. For radiometric
-     *        normalization in Terrain Correction, this flag is true because retro-calibration is always needed.
-     * @param mustUpdateMetadata For Pre-Calibration, thie flag is false because calibration has net been performed.
-     *        For absolut calibration or radiometric normalization, the flag is true.
+     *                                    be needed in case XCA file is not available or the old and new XCA files are identical. For radiometric
+     *                                    normalization in Terrain Correction, this flag is true because retro-calibration is always needed.
+     * @param mustUpdateMetadata          For Pre-Calibration, thie flag is false because calibration has net been performed.
+     *                                    For absolut calibration or radiometric normalization, the flag is true.
      * @throws OperatorException The exception.
      */
     public void initialize(final Operator op, final Product sourceProduct, final Product targetProduct,
                            final boolean mustPerformRetroCalibration, final boolean mustUpdateMetadata)
-                           throws OperatorException;
+            throws OperatorException;
 
     public void computeTile(final Band targetBand, final Tile targetTile,
                             final com.bc.ceres.core.ProgressMonitor pm) throws OperatorException;
@@ -65,7 +64,7 @@ public interface Calibrator {
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex);
-    
+
     public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile, final String srcBandName);
 
     public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames);

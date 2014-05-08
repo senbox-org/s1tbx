@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,14 +25,11 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
 
 import java.io.File;
-import java.util.HashMap;
 
 /**
  * Calibration for all data products.
@@ -42,52 +39,52 @@ import java.util.HashMap;
 @OperatorMetadata(alias = "Calibration",
         category = "SAR Tools\\Radiometric Correction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Calibration of products")
 public class CalibrationOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Band")
+            rasterDataNodeType = Band.class, label = "Source Band")
     private String[] sourceBandNames;
 
     @Parameter(valueSet = {LATEST_AUX, PRODUCT_AUX, EXTERNAL_AUX}, description = "The auxiliary file",
-               defaultValue=LATEST_AUX, label="Auxiliary File")
+            defaultValue = LATEST_AUX, label = "Auxiliary File")
     private String auxFile = LATEST_AUX;
 
-    @Parameter(description = "The antenna elevation pattern gain auxiliary data file.", label="External Aux File")
+    @Parameter(description = "The antenna elevation pattern gain auxiliary data file.", label = "External Aux File")
     private File externalAuxFile = null;
 
-    @Parameter(description = "Output image in complex", defaultValue = "false", label="Save in complex")
+    @Parameter(description = "Output image in complex", defaultValue = "false", label = "Save in complex")
     private Boolean outputImageInComplex = false;
-                     
-    @Parameter(description = "Output image scale", defaultValue = "false", label="Scale in dB")
+
+    @Parameter(description = "Output image scale", defaultValue = "false", label = "Scale in dB")
     private Boolean outputImageScaleInDb = false;
 
-    @Parameter(description = "Create gamma0 virtual band", defaultValue = "false", label="Create gamma0 virtual band")
+    @Parameter(description = "Create gamma0 virtual band", defaultValue = "false", label = "Create gamma0 virtual band")
     private Boolean createGammaBand = false;
 
-    @Parameter(description = "Create beta0 virtual band", defaultValue = "false", label="Create beta0 virtual band")
+    @Parameter(description = "Create beta0 virtual band", defaultValue = "false", label = "Create beta0 virtual band")
     private Boolean createBetaBand = false;
 
     // for Sentinel-1 mission only
-    @Parameter(description = "The list of polarisations", label="Polarisations")
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
-    @Parameter(description = "Output sigma0 band", defaultValue = "true", label="Output sigma0 band")
+    @Parameter(description = "Output sigma0 band", defaultValue = "true", label = "Output sigma0 band")
     private Boolean outputSigmaBand = true;
 
-    @Parameter(description = "Output gamma0 band", defaultValue = "false", label="Output gamma0 band")
+    @Parameter(description = "Output gamma0 band", defaultValue = "false", label = "Output gamma0 band")
     private Boolean outputGammaBand = false;
 
-    @Parameter(description = "Output beta0 band", defaultValue = "false", label="Output beta0 band")
+    @Parameter(description = "Output beta0 band", defaultValue = "false", label = "Output beta0 band")
     private Boolean outputBetaBand = false;
 
-    @Parameter(description = "Output DN band", defaultValue = "false", label="Output DN band")
+    @Parameter(description = "Output DN band", defaultValue = "false", label = "Output DN band")
     private Boolean outputDNBand = false;
 
     private Calibrator calibrator = null;
@@ -112,8 +109,7 @@ public class CalibrationOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -123,14 +119,14 @@ public class CalibrationOp extends Operator {
             if (AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.coregistered_stack)) {
                 throw new OperatorException("Cannot apply calibration to coregistered product.");
             }
-            
+
             calibrator = CalibrationFactory.createCalibrator(sourceProduct);
             calibrator.setAuxFileFlag(auxFile);
             calibrator.setExternalAuxFile(externalAuxFile);
             calibrator.setOutputImageInComplex(outputImageInComplex);
             calibrator.setOutputImageIndB(outputImageScaleInDb);
 
-            if(calibrator instanceof Sentinel1Calibrator) {
+            if (calibrator instanceof Sentinel1Calibrator) {
                 Sentinel1Calibrator cal = (Sentinel1Calibrator) calibrator;
                 cal.setUserSelections(sourceProduct,
                         selectedPolarisations, outputSigmaBand, outputGammaBand, outputBetaBand, outputDNBand);
@@ -138,15 +134,15 @@ public class CalibrationOp extends Operator {
             targetProduct = calibrator.createTargetProduct(sourceProduct, sourceBandNames);
             calibrator.initialize(this, sourceProduct, targetProduct, false, true);
 
-            if(createGammaBand) {
+            if (createGammaBand) {
                 createGammaVirtualBand(targetProduct, outputImageScaleInDb);
             }
 
-            if(createBetaBand) {
+            if (createBetaBand) {
                 createBetaVirtualBand(targetProduct, outputImageScaleInDb);
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -158,28 +154,28 @@ public class CalibrationOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
             calibrator.computeTile(targetBand, targetTile, pm);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     /**
      * Create Gamma image as a virtual band.
-     * @param trgProduct The target product
+     *
+     * @param trgProduct           The target product
      * @param outputImageScaleInDb flag if output is in dB
      */
     public static void createGammaVirtualBand(final Product trgProduct, final boolean outputImageScaleInDb) {
 
-        int count=1;
+        int count = 1;
         final Band[] bands = trgProduct.getBands();
-        for(Band trgBand : bands) {
+        for (Band trgBand : bands) {
 
             final String unit = trgBand.getUnit();
             if (trgBand instanceof VirtualBand || (unit != null && unit.contains("phase"))) {
@@ -191,28 +187,28 @@ public class CalibrationOp extends Operator {
             if (outputImageScaleInDb) {
                 expression = "(pow(10," + trgBandName + "/10.0)" + " / cos(incident_angle * PI/180.0)) "
                         + "==0 ? 0 : 10 * log10(abs("
-                        +"(pow(10," + trgBandName + "/10.0)" + " / cos(incident_angle * PI/180.0))"
-                        +"))";
+                        + "(pow(10," + trgBandName + "/10.0)" + " / cos(incident_angle * PI/180.0))"
+                        + "))";
             } else {
                 expression = trgBandName + " / cos(incident_angle * PI/180.0)";
             }
             String gammeBandName = "Gamma0";
 
-            if(bands.length > 1) {
-                if(trgBandName.contains("_HH"))
+            if (bands.length > 1) {
+                if (trgBandName.contains("_HH"))
                     gammeBandName += "_HH";
-                else if(trgBandName.contains("_VV"))
+                else if (trgBandName.contains("_VV"))
                     gammeBandName += "_VV";
-                else if(trgBandName.contains("_HV"))
+                else if (trgBandName.contains("_HV"))
                     gammeBandName += "_HV";
-                else if(trgBandName.contains("_VH"))
+                else if (trgBandName.contains("_VH"))
                     gammeBandName += "_VH";
             }
-            if(outputImageScaleInDb) {
+            if (outputImageScaleInDb) {
                 gammeBandName += "_dB";
             }
 
-            while(trgProduct.getBand(gammeBandName) != null) {
+            while (trgProduct.getBand(gammeBandName) != null) {
                 gammeBandName += "_" + ++count;
             }
 
@@ -229,14 +225,15 @@ public class CalibrationOp extends Operator {
 
     /**
      * Create Beta image as a virtual band.
-     * @param trgProduct The target product
+     *
+     * @param trgProduct           The target product
      * @param outputImageScaleInDb flag if output is in dB
      */
     public static void createBetaVirtualBand(final Product trgProduct, final boolean outputImageScaleInDb) {
 
-        int count=1;
+        int count = 1;
         final Band[] bands = trgProduct.getBands();
-        for(Band trgBand : bands) {
+        for (Band trgBand : bands) {
 
             final String unit = trgBand.getUnit();
             if (trgBand instanceof VirtualBand || (unit != null && unit.contains("phase"))) {
@@ -248,28 +245,28 @@ public class CalibrationOp extends Operator {
             if (outputImageScaleInDb) {
                 expression = "(pow(10," + trgBandName + "/10.0)" + " / sin(incident_angle * PI/180.0)) "
                         + "==0 ? 0 : 10 * log10(abs("
-                        +"(pow(10," + trgBandName + "/10.0)" + " / sin(incident_angle * PI/180.0))"
-                        +"))";
+                        + "(pow(10," + trgBandName + "/10.0)" + " / sin(incident_angle * PI/180.0))"
+                        + "))";
             } else {
                 expression = trgBandName + " / sin(incident_angle * PI/180.0)";
             }
             String betaBandName = "Beta0";
 
-            if(bands.length > 1) {
-                if(trgBandName.contains("_HH"))
+            if (bands.length > 1) {
+                if (trgBandName.contains("_HH"))
                     betaBandName += "_HH";
-                else if(trgBandName.contains("_VV"))
+                else if (trgBandName.contains("_VV"))
                     betaBandName += "_VV";
-                else if(trgBandName.contains("_HV"))
+                else if (trgBandName.contains("_HV"))
                     betaBandName += "_HV";
-                else if(trgBandName.contains("_VH"))
+                else if (trgBandName.contains("_VH"))
                     betaBandName += "_VH";
             }
-            if(outputImageScaleInDb) {
+            if (outputImageScaleInDb) {
                 betaBandName += "_dB";
             }
 
-            while(trgProduct.getBand(betaBandName) != null) {
+            while (trgProduct.getBand(betaBandName) != null) {
                 betaBandName += "_" + ++count;
             }
 

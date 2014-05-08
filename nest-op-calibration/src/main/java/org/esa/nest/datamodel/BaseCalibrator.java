@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -88,7 +88,7 @@ public class BaseCalibrator {
      */
     public void getSampleType() {
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-        if(sampleType.equals("COMPLEX")) {
+        if (sampleType.equals("COMPLEX")) {
             isComplex = true;
         }
     }
@@ -132,17 +132,17 @@ public class BaseCalibrator {
             final Band srcBandI = sourceBands[i];
             final String unit = srcBandI.getUnit();
             String nextUnit = null;
-            if(unit == null) {
-                throw new OperatorException("band "+srcBandI.getName()+" requires a unit");
-            } else if(unit.contains(Unit.DB)) {
+            if (unit == null) {
+                throw new OperatorException("band " + srcBandI.getName() + " requires a unit");
+            } else if (unit.contains(Unit.DB)) {
                 throw new OperatorException("Calibration of bands in dB is not supported");
             } else if (unit.contains(Unit.IMAGINARY)) {
                 throw new OperatorException("I and Q bands should be selected in pairs");
             } else if (unit.contains(Unit.REAL)) {
-                if(i+1 >= sourceBands.length) {
+                if (i + 1 >= sourceBands.length) {
                     throw new OperatorException("I and Q bands should be selected in pairs");
                 }
-                nextUnit = sourceBands[i+1].getUnit();
+                nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
                     throw new OperatorException("I and Q bands should be selected in pairs");
                 }
@@ -155,13 +155,13 @@ public class BaseCalibrator {
             final Band targetBandI = targetProduct.addBand(srcBandINames[0], ProductData.TYPE_FLOAT32);
             targetBandI.setUnit(unit);
 
-            final Band srcBandQ = sourceBands[i+1];
+            final Band srcBandQ = sourceBands[i + 1];
             final String[] srcBandQNames = {srcBandQ.getName()};
             targetBandNameToSourceBandName.put(srcBandQNames[0], srcBandQNames);
             final Band targetBandQ = targetProduct.addBand(srcBandQNames[0], ProductData.TYPE_FLOAT32);
             targetBandQ.setUnit(nextUnit);
 
-            final String suffix = "_"+OperatorUtils.getSuffixFromBandName(srcBandI.getName());
+            final String suffix = "_" + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
         }
     }
@@ -176,14 +176,14 @@ public class BaseCalibrator {
 
             final Band srcBand = sourceBands[i];
             final String unit = srcBand.getUnit();
-            if(unit == null) {
-                throw new OperatorException("band "+srcBand.getName()+" requires a unit");
+            if (unit == null) {
+                throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
             String targetUnit = Unit.INTENSITY;
             int targetType = ProductData.TYPE_FLOAT32;
 
-            if(unit.contains(Unit.DB)) {
+            if (unit.contains(Unit.DB)) {
 
                 throw new OperatorException("Calibration of bands in dB is not supported");
             } else if (unit.contains(Unit.PHASE)) {
@@ -192,7 +192,7 @@ public class BaseCalibrator {
                 targetBandName = srcBand.getName();
                 targetType = srcBand.getDataType();
                 targetUnit = Unit.PHASE;
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                 }
 
@@ -201,19 +201,19 @@ public class BaseCalibrator {
                 throw new OperatorException("Real and imaginary bands should be selected in pairs");
 
             } else if (unit.contains(Unit.REAL)) {
-                if(i+1 >= sourceBands.length)
+                if (i + 1 >= sourceBands.length)
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
 
-                final String nextUnit = sourceBands[i+1].getUnit();
+                final String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
                 final String[] srcBandNames = new String[2];
                 srcBandNames[0] = srcBand.getName();
-                srcBandNames[1] = sourceBands[i+1].getName();
+                srcBandNames[1] = sourceBands[i + 1].getName();
                 targetBandName = createTargetBandName(srcBandNames[0], absRoot);
                 ++i;
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                 }
 
@@ -221,13 +221,13 @@ public class BaseCalibrator {
 
                 final String[] srcBandNames = {srcBand.getName()};
                 targetBandName = createTargetBandName(srcBandNames[0], absRoot);
-                if(targetProduct.getBand(targetBandName) == null) {
+                if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                 }
             }
 
             // add band only if it doesn't already exist
-            if(targetProduct.getBand(targetBandName) == null) {
+            if (targetProduct.getBand(targetBandName) == null) {
                 final Band targetBand = new Band(targetBandName,
                         targetType,
                         sourceProduct.getSceneRasterWidth(),
@@ -248,7 +248,7 @@ public class BaseCalibrator {
         if (pol != null && !pol.isEmpty()) {
             targetBandName = "Sigma0_" + pol.toUpperCase();
         }
-        if(outputImageScaleInDb) {
+        if (outputImageScaleInDb) {
             targetBandName += "_dB";
         }
         return targetBandName;

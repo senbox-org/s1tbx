@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,9 +41,9 @@ public class CalibrationOpUI extends BaseOperatorUI {
     private final JList bandList = new JList();
     private final JScrollPane bandListPane = new JScrollPane(bandList);
     private final JLabel bandListLabel = new JideLabel("Source Bands:");
-    private final JComboBox auxFile = new JComboBox(new String[] {CalibrationOp.LATEST_AUX,
-                                                                  CalibrationOp.PRODUCT_AUX,
-                                                                  CalibrationOp.EXTERNAL_AUX});
+    private final JComboBox auxFile = new JComboBox(new String[]{CalibrationOp.LATEST_AUX,
+            CalibrationOp.PRODUCT_AUX,
+            CalibrationOp.EXTERNAL_AUX});
 
     private final JLabel auxFileLabel = new JLabel("ENVISAT Auxiliary File:");
     private final JLabel externalAuxFileLabel = new JLabel("External Auxiliary File:");
@@ -81,8 +81,8 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
         auxFile.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                final String item = (String)auxFile.getSelectedItem();
-                if(item.equals(CalibrationOp.EXTERNAL_AUX)) {
+                final String item = (String) auxFile.getSelectedItem();
+                if (item.equals(CalibrationOp.EXTERNAL_AUX)) {
                     enableExternalAuxFile(true);
                 } else {
                     externalAuxFile.setText("");
@@ -102,65 +102,65 @@ public class CalibrationOpUI extends BaseOperatorUI {
         });
 
         saveInComplexCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(ItemEvent e) {
 
-                    saveInComplex = (e.getStateChange() == ItemEvent.SELECTED);
+                saveInComplex = (e.getStateChange() == ItemEvent.SELECTED);
 
-                    if (saveInComplex) {
-                        saveInDbCheckBox.setEnabled(false);
-                        createGamma0VirtualBandCheckBox.setEnabled(false);
-                        createBeta0VirtualBandCheckBox.setEnabled(false);
-                        saveInDbCheckBox.setSelected(false);
-                        createGamma0VirtualBandCheckBox.setSelected(false);
-                        createBeta0VirtualBandCheckBox.setSelected(false);
-                    } else {
-                        saveInDbCheckBox.setEnabled(true);
-                        createGamma0VirtualBandCheckBox.setEnabled(true);
-                        createBeta0VirtualBandCheckBox.setEnabled(true);
-                    }
+                if (saveInComplex) {
+                    saveInDbCheckBox.setEnabled(false);
+                    createGamma0VirtualBandCheckBox.setEnabled(false);
+                    createBeta0VirtualBandCheckBox.setEnabled(false);
+                    saveInDbCheckBox.setSelected(false);
+                    createGamma0VirtualBandCheckBox.setSelected(false);
+                    createBeta0VirtualBandCheckBox.setSelected(false);
+                } else {
+                    saveInDbCheckBox.setEnabled(true);
+                    createGamma0VirtualBandCheckBox.setEnabled(true);
+                    createBeta0VirtualBandCheckBox.setEnabled(true);
                 }
+            }
         });
 
         saveInDbCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveInDb = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                saveInDb = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         createGamma0VirtualBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    createGamma0VirtualBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                createGamma0VirtualBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         createBeta0VirtualBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    createBeta0VirtualBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                createBeta0VirtualBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputSigmaBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputSigmaBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputSigmaBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputGammaBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputGammaBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputGammaBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputBetaBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputBetaBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputBetaBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputDNBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputDNBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputDNBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return panel;
@@ -168,9 +168,9 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
-        OperatorUIUtils.initParamList(bandList, getBandNames(), (Object[])paramMap.get("sourceBands"));
+        OperatorUIUtils.initParamList(bandList, getBandNames(), (Object[]) paramMap.get("sourceBands"));
 
-        if(sourceProducts != null) {
+        if (sourceProducts != null) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
             if (absRoot != null) {
 
@@ -187,7 +187,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
                 }
 
                 final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-                if(!mission.equals("ENVISAT")) {
+                if (!mission.equals("ENVISAT")) {
                     auxFile.setEnabled(false);
                     auxFileLabel.setEnabled(false);
                 } else {
@@ -257,49 +257,49 @@ public class CalibrationOpUI extends BaseOperatorUI {
             auxFile.setSelectedItem(paramMap.get("auxFile"));
         }
 
-        final File extFile = (File)paramMap.get("externalAuxFile");
-        if(extFile != null) {
+        final File extFile = (File) paramMap.get("externalAuxFile");
+        if (extFile != null) {
             externalAuxFile.setText(extFile.getAbsolutePath());
         }
 
         Boolean paramVal;
-        paramVal = (Boolean)paramMap.get("outputImageInComplex");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputImageInComplex");
+        if (paramVal != null) {
             saveInComplex = paramVal;
             saveInComplexCheckBox.setSelected(saveInComplex);
         }
-        paramVal = (Boolean)paramMap.get("outputImageScaleInDb");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputImageScaleInDb");
+        if (paramVal != null) {
             saveInDb = paramVal;
             saveInDbCheckBox.setSelected(saveInDb);
         }
-        paramVal = (Boolean)paramMap.get("createGammaBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("createGammaBand");
+        if (paramVal != null) {
             createGamma0VirtualBand = paramVal;
             createGamma0VirtualBandCheckBox.setSelected(createGamma0VirtualBand);
         }
-        paramVal = (Boolean)paramMap.get("createBetaBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("createBetaBand");
+        if (paramVal != null) {
             createBeta0VirtualBand = paramVal;
             createBeta0VirtualBandCheckBox.setSelected(createBeta0VirtualBand);
         }
-        paramVal = (Boolean)paramMap.get("outputSigmaBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputSigmaBand");
+        if (paramVal != null) {
             outputSigmaBand = paramVal;
             outputSigmaBandCheckBox.setSelected(outputSigmaBand);
         }
-        paramVal = (Boolean)paramMap.get("outputGammaBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputGammaBand");
+        if (paramVal != null) {
             outputGammaBand = paramVal;
             outputGammaBandCheckBox.setSelected(outputGammaBand);
         }
-        paramVal = (Boolean)paramMap.get("outputBetaBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputBetaBand");
+        if (paramVal != null) {
             outputBetaBand = paramVal;
             outputBetaBandCheckBox.setSelected(outputBetaBand);
         }
-        paramVal = (Boolean)paramMap.get("outputDNBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputDNBand");
+        if (paramVal != null) {
             outputDNBand = paramVal;
             outputDNBandCheckBox.setSelected(outputDNBand);
         }
@@ -318,7 +318,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
         paramMap.put("auxFile", auxFile.getSelectedItem());
 
         final String extFileStr = externalAuxFile.getText();
-        if(!extFileStr.isEmpty()) {
+        if (!extFileStr.isEmpty()) {
             paramMap.put("externalAuxFile", new File(extFileStr));
         }
 
@@ -347,7 +347,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, auxFileLabel, auxFile);
         gbc.gridy++;
         DialogUtils.addInnerPanel(contentPane, gbc, externalAuxFileLabel, externalAuxFile,
-                                  externalAuxFileBrowseButton);
+                externalAuxFileBrowseButton);
 
         gbc.gridx = 0;
         gbc.gridy++;

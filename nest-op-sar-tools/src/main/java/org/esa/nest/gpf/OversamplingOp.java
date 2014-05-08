@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,43 +39,43 @@ import java.util.Map;
  * Oversample
  */
 
-@OperatorMetadata(alias="Oversample",
+@OperatorMetadata(alias = "Oversample",
         category = "Utilities\\Resampling",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Oversample the datset")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Oversample the datset")
 public class OversamplingOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(valueSet = {UndersamplingOp.IMAGE_SIZE, UndersamplingOp.RATIO, UndersamplingOp.PIXEL_SPACING},
-            defaultValue = UndersamplingOp.RATIO, label="Output Image By:")
+            defaultValue = UndersamplingOp.RATIO, label = "Output Image By:")
     private String outputImageBy = UndersamplingOp.RATIO;
 
-    @Parameter(description = "The row dimension of the output image", defaultValue = "1000", label="Output Image Rows")
+    @Parameter(description = "The row dimension of the output image", defaultValue = "1000", label = "Output Image Rows")
     private int targetImageHeight = 1000;
-    @Parameter(description = "The col dimension of the output image", defaultValue = "1000", label="Output Image Columns")
+    @Parameter(description = "The col dimension of the output image", defaultValue = "1000", label = "Output Image Columns")
     private int targetImageWidth = 1000;
 
-    @Parameter(description = "The width ratio of the output/input images", defaultValue = "2.0", label="Width Ratio")
+    @Parameter(description = "The width ratio of the output/input images", defaultValue = "2.0", label = "Width Ratio")
     private float widthRatio = 2.0f;
-    @Parameter(description = "The height ratio of the output/input images", defaultValue = "2.0", label="Height Ratio")
+    @Parameter(description = "The height ratio of the output/input images", defaultValue = "2.0", label = "Height Ratio")
     private float heightRatio = 2.0f;
 
-    @Parameter(description = "The range pixel spacing", defaultValue = "12.5", label="Range Spacing")
+    @Parameter(description = "The range pixel spacing", defaultValue = "12.5", label = "Range Spacing")
     private float rangeSpacing = 12.5f;
-    @Parameter(description = "The azimuth pixel spacing", defaultValue = "12.5", label="Azimuth Spacing")
+    @Parameter(description = "The azimuth pixel spacing", defaultValue = "12.5", label = "Azimuth Spacing")
     private float azimuthSpacing = 12.5f;
 
     @Parameter(description = "use PRF as azimuth tile size and range line as range tile size", defaultValue = "false",
-                label="Use PRF Tile Size")
+            label = "Use PRF Tile Size")
     private boolean usePRFTileSize = false;
 
     private MetadataElement abs; // root of the abstracted metadata
@@ -107,8 +107,7 @@ public class OversamplingOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -137,7 +136,7 @@ public class OversamplingOp extends Operator {
             computeTargetImageSizeAndPixelSpacings();
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -147,10 +146,10 @@ public class OversamplingOp extends Operator {
      */
     private void getSrcImagePixelSpacings() {
 
-        srcRangeSpacing = (float)abs.getAttributeDouble(AbstractMetadata.range_spacing);
+        srcRangeSpacing = (float) abs.getAttributeDouble(AbstractMetadata.range_spacing);
         //System.out.println("Range spacing is " + srcRangeSpacing);
 
-        srcAzimuthSpacing = (float)abs.getAttributeDouble(AbstractMetadata.azimuth_spacing);
+        srcAzimuthSpacing = (float) abs.getAttributeDouble(AbstractMetadata.azimuth_spacing);
         //System.out.println("Azimuth spacing is " + srcAzimuthSpacing);
     }
 
@@ -170,7 +169,7 @@ public class OversamplingOp extends Operator {
     void getPRF() {
 
         prf = abs.getAttributeDouble(AbstractMetadata.pulse_repetition_frequency);
-        if(prf == 0) {
+        if (prf == 0) {
             System.out.println("PRF is 0");
             prf = 100;
         }
@@ -213,7 +212,7 @@ public class OversamplingOp extends Operator {
     private void computeDopplerCentroidFreqForERSProd() {
 
         // get range sampling rate (in Hz)
-        final double samplingRate = abs.getAttributeDouble(AbstractMetadata.range_sampling_rate)*Constants.oneMillion; // MHz to Hz
+        final double samplingRate = abs.getAttributeDouble(AbstractMetadata.range_sampling_rate) * Constants.oneMillion; // MHz to Hz
 
         // Get coefficients of Doppler frequency polynomial from
         // fields 105, 106 and 107 in PRI Data Set Summary Record
@@ -244,8 +243,8 @@ public class OversamplingOp extends Operator {
         // compute Doppler centroid frequencies
         dopplerCentroidFreq = new double[sourceImageWidth];
         for (int c = 0; c < sourceImageWidth; c++) {
-            final double dt = (c - sourceImageWidth*0.5) / samplingRate;
-            dopplerCentroidFreq[c] = a0 + a1*dt + a2*dt*dt;
+            final double dt = (c - sourceImageWidth * 0.5) / samplingRate;
+            dopplerCentroidFreq[c] = a0 + a1 * dt + a2 * dt * dt;
         }
     }
 
@@ -285,7 +284,7 @@ public class OversamplingOp extends Operator {
         for (int c = 0; c < sourceImageWidth; c++) {
             final double tSR = slantRangeTime.getPixelDouble(c, 0) * nsTOs;
             final double dt = tSR - t0;
-            dopplerCentroidFreq[c] = d0 + d1*dt + d2*Math.pow(dt, 2.0) + d3*Math.pow(dt, 3.0) + d4*Math.pow(dt, 4.0);
+            dopplerCentroidFreq[c] = d0 + d1 * dt + d2 * Math.pow(dt, 2.0) + d3 * Math.pow(dt, 3.0) + d4 * Math.pow(dt, 4.0);
         }
         /*
         for (double v:dopplerCentroidFreq) {
@@ -304,7 +303,7 @@ public class OversamplingOp extends Operator {
             dopplerCentroidFreq[c] = 0.0;
         }
     }
-    
+
     /**
      * Compute target image size and range/azimuth spacings.
      *
@@ -318,8 +317,8 @@ public class OversamplingOp extends Operator {
                 throw new OperatorException("Output image size must not be smaller than the source image size");
             }
 
-            widthRatio = (float)targetImageWidth / (float)sourceImageWidth;
-            heightRatio = (float)targetImageHeight / (float)sourceImageHeight;
+            widthRatio = (float) targetImageWidth / (float) sourceImageWidth;
+            heightRatio = (float) targetImageHeight / (float) sourceImageHeight;
 
             rangeSpacing = srcRangeSpacing / widthRatio;
             azimuthSpacing = srcAzimuthSpacing / heightRatio;
@@ -330,8 +329,8 @@ public class OversamplingOp extends Operator {
                 throw new OperatorException("The width or height ratio must not be smaller than 1");
             }
 
-            targetImageHeight = (int)(heightRatio * sourceImageHeight + 0.5f);
-            targetImageWidth = (int)(widthRatio * sourceImageWidth + 0.5f);
+            targetImageHeight = (int) (heightRatio * sourceImageHeight + 0.5f);
+            targetImageWidth = (int) (widthRatio * sourceImageWidth + 0.5f);
 
             rangeSpacing = srcRangeSpacing / widthRatio;
             azimuthSpacing = srcAzimuthSpacing / heightRatio;
@@ -339,29 +338,29 @@ public class OversamplingOp extends Operator {
         } else if (outputImageBy.equals(UndersamplingOp.PIXEL_SPACING)) {
 
             if (rangeSpacing <= 0.0f || rangeSpacing > srcRangeSpacing ||
-                azimuthSpacing <= 0.0f || azimuthSpacing > srcAzimuthSpacing) {
+                    azimuthSpacing <= 0.0f || azimuthSpacing > srcAzimuthSpacing) {
                 throw new OperatorException("The azimuth or range spacing must be positive and no greater than the source spacing");
             }
 
             widthRatio = srcRangeSpacing / rangeSpacing;
             heightRatio = srcAzimuthSpacing / azimuthSpacing;
 
-            targetImageHeight = (int)(heightRatio * sourceImageHeight + 0.5);
-            targetImageWidth = (int)(widthRatio * sourceImageWidth + 0.5);
+            targetImageHeight = (int) (heightRatio * sourceImageHeight + 0.5);
+            targetImageWidth = (int) (widthRatio * sourceImageWidth + 0.5);
 
         } else {
             throw new OperatorException("Please specify output image size, or row and column ratios, or pixel spacings");
         }
 
-        widthRatioByHeightRatio = widthRatio*heightRatio;
+        widthRatioByHeightRatio = widthRatio * heightRatio;
     }
 
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    targetImageWidth,
-                                    targetImageHeight);
+                sourceProduct.getProductType(),
+                targetImageWidth,
+                targetImageHeight);
 
         addSelectedBands();
 
@@ -376,10 +375,10 @@ public class OversamplingOp extends Operator {
         updateTargetProductMetadata();
 
         final int sourceImageTileWidth = sourceImageWidth;
-        final int sourceImageTileHeight = Math.min((int)(prf+0.5), sourceImageHeight);
+        final int sourceImageTileHeight = Math.min((int) (prf + 0.5), sourceImageHeight);
 
-        final int targetImageTileWidth = (int)(sourceImageTileWidth * widthRatio + 0.5f);
-        final int targetImageTileHeight = (int)(sourceImageTileHeight * heightRatio + 0.5f);
+        final int targetImageTileWidth = (int) (sourceImageTileWidth * widthRatio + 0.5f);
+        final int targetImageTileHeight = (int) (sourceImageTileHeight * heightRatio + 0.5f);
 
         if (usePRFTileSize) {
             targetProduct.setPreferredTileSize(targetImageTileWidth, targetImageTileHeight);
@@ -393,15 +392,15 @@ public class OversamplingOp extends Operator {
         for (int i = 0; i < sourceBands.length; i++) {
 
             String unit = sourceBands[i].getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 unit = Unit.AMPLITUDE;  // assume amplitude
             }
 
             if (unit.contains(Unit.REAL)) {
-                if(i+1 >= sourceBands.length) {
+                if (i + 1 >= sourceBands.length) {
                     throw new OperatorException("I and Q bands should be selected in pairs");
                 }
-                String nextUnit = sourceBands[i+1].getUnit();
+                String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
                     throw new OperatorException("I and Q bands should be selected in pairs");
                 }
@@ -409,7 +408,7 @@ public class OversamplingOp extends Operator {
                 final Band targetBandI = targetProduct.addBand(sourceBands[i].getName(), ProductData.TYPE_FLOAT32);
                 targetBandI.setUnit(unit);
 
-                final Band targetBandQ = targetProduct.addBand(sourceBands[i+1].getName(), ProductData.TYPE_FLOAT32);
+                final Band targetBandQ = targetProduct.addBand(sourceBands[i + 1].getName(), ProductData.TYPE_FLOAT32);
                 targetBandQ.setUnit(nextUnit);
 
                 String suffix = OperatorUtils.getSuffixFromBandName(sourceBands[i].getName());
@@ -446,15 +445,15 @@ public class OversamplingOp extends Operator {
         final int gridHeight = 11;
         final float subSamplingX = targetImageWidth / (gridWidth - 1.0f);
         final float subSamplingY = targetImageHeight / (gridHeight - 1.0f);
-        final PixelPos[] newTiePointPos = new PixelPos[gridWidth*gridHeight];
+        final PixelPos[] newTiePointPos = new PixelPos[gridWidth * gridHeight];
 
         int k = 0;
         for (int j = 0; j < gridHeight; j++) {
-            final float ty = Math.min(j*subSamplingY, targetImageHeight - 1);
-            final float y = (int)(ty / heightRatio + 0.5f);
+            final float ty = Math.min(j * subSamplingY, targetImageHeight - 1);
+            final float y = (int) (ty / heightRatio + 0.5f);
             for (int i = 0; i < gridWidth; i++) {
-                final float tx = Math.min(i*subSamplingX, targetImageWidth - 1);
-                final float x = (int)(tx / widthRatio + 0.5f);
+                final float tx = Math.min(i * subSamplingX, targetImageWidth - 1);
+                final float x = (int) (tx / widthRatio + 0.5f);
                 newTiePointPos[k] = new PixelPos();
                 newTiePointPos[k].x = x;
                 newTiePointPos[k].y = y;
@@ -480,19 +479,18 @@ public class OversamplingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
 
-        final float oldLineTimeInterval = (float)absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval/heightRatio);
+        final float oldLineTimeInterval = (float) absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval / heightRatio);
     }
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetTileMap The target tiles associated with all target bands to be computed.
+     * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
@@ -509,25 +507,25 @@ public class OversamplingOp extends Operator {
 
                 if (targetBands[i].getUnit().equals(Unit.REAL)) {
 
-                    if (i+1 >= targetBands.length) {
+                    if (i + 1 >= targetBands.length) {
                         throw new OperatorException("q band is missing from target product");
                     }
 
                     computeOverSampledTileForComplexImage(targetBands[i].getName(),
-                                                          targetBands[i+1].getName(),
-                                                          targetTileMap.get(targetBands[i]),
-                                                          targetTileMap.get(targetBands[i+1]));
+                            targetBands[i + 1].getName(),
+                            targetTileMap.get(targetBands[i]),
+                            targetTileMap.get(targetBands[i + 1]));
                     i++;
 
                 } else {
 
                     computeOverSampledTileForRealImage(targetBands[i].getName(),
-                                                       targetTileMap.get(targetBands[i]));
+                            targetTileMap.get(targetBands[i]));
                 }
 
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -551,17 +549,17 @@ public class OversamplingOp extends Operator {
         final int sourceTileWidth = sourceTileRectangle.width;
         final int sourceTileHeight = sourceTileRectangle.height;
 
-        final int overSampledSourceTileWidth  = (int)(widthRatio * sourceTileWidth + 0.5);
-        final int overSampledSourceTileHeight = (int)(heightRatio * sourceTileHeight + 0.5);
+        final int overSampledSourceTileWidth = (int) (widthRatio * sourceTileWidth + 0.5);
+        final int overSampledSourceTileHeight = (int) (heightRatio * sourceTileHeight + 0.5);
 
-        final double[][]tmpI = new double[overSampledSourceTileHeight][sourceTileWidth];
-        final double[][]tmpQ = new double[overSampledSourceTileHeight][sourceTileWidth];
+        final double[][] tmpI = new double[overSampledSourceTileHeight][sourceTileWidth];
+        final double[][] tmpQ = new double[overSampledSourceTileHeight][sourceTileWidth];
 
         final Band srcBand = sourceProduct.getBand(targetBandName);
         final Tile srcRaster = getSourceTile(srcBand, sourceTileRectangle);
         final ProductData srcData = srcRaster.getDataBuffer();
 
-        final double[] rowArray = new double[sourceTileWidth*2];
+        final double[] rowArray = new double[sourceTileWidth * 2];
 
         // perform 1-D FFT on each row
         final DoubleFFT_1D src_row_fft = new DoubleFFT_1D(sourceTileWidth);
@@ -569,15 +567,15 @@ public class OversamplingOp extends Operator {
             getRowData(sy0 + y, sx0, sourceTileWidth, srcData, srcRaster, rowArray);
             src_row_fft.complexForward(rowArray);
             for (int x = 0; x < sourceTileWidth; x++) {
-                tmpI[y][x] = rowArray[2*x];
-                tmpQ[y][x] = rowArray[2*x+1];
+                tmpI[y][x] = rowArray[2 * x];
+                tmpQ[y][x] = rowArray[2 * x + 1];
             }
         }
 
-        final int d = (int)(sourceTileHeight/2 + 0.5);
+        final int d = (int) (sourceTileHeight / 2 + 0.5);
 
-        final double[] colArray = new double[2*sourceTileHeight];
-        final double[] zeroPaddedColSpec = new double[2*overSampledSourceTileHeight];
+        final double[] colArray = new double[2 * sourceTileHeight];
+        final double[] zeroPaddedColSpec = new double[2 * overSampledSourceTileHeight];
 
         // perform 1-D FFT, zero padding and IFFT on each column
         final DoubleFFT_1D src_col_fft = new DoubleFFT_1D(sourceTileHeight);
@@ -590,36 +588,36 @@ public class OversamplingOp extends Operator {
             saveOverSampledCol(zeroPaddedColSpec, x, overSampledSourceTileHeight, tmpI, tmpQ);
         }
 
-        final double[] tgtRow = new double[overSampledSourceTileWidth*2];
+        final double[] tgtRow = new double[overSampledSourceTileWidth * 2];
 
         // perform 1-D IFFT on each row
         final DoubleFFT_1D tgt_row_fft = new DoubleFFT_1D(overSampledSourceTileWidth);
         int ySt = 0;
         if (overlapInfo.topOverlapped) {
-            ySt = (int)(heightRatio*overlapInfo.numOfLinesOnTop);
+            ySt = (int) (heightRatio * overlapInfo.numOfLinesOnTop);
         }
         int xSt = 0;
         if (overlapInfo.leftOverlapped) {
-            xSt = (int)(widthRatio*overlapInfo.numOfLinesOnLeft);
+            xSt = (int) (widthRatio * overlapInfo.numOfLinesOnLeft);
         }
 
         for (int y = 0; y < targetTileHeight; y++) {
-            getRowData(y+ySt, sourceTileWidth, overSampledSourceTileWidth, tgtRow, tmpI, tmpQ);
+            getRowData(y + ySt, sourceTileWidth, overSampledSourceTileWidth, tgtRow, tmpI, tmpQ);
             tgt_row_fft.complexInverse(tgtRow, true);
             saveOverSampledComplexImage(tgtRow, ty0 + y, tx0, targetTileWidth, xSt,
-                                        widthRatioByHeightRatio, tgtData, targetTile);
+                    widthRatioByHeightRatio, tgtData, targetTile);
         }
     }
 
     private Rectangle getSourceTileRectangle(Rectangle targetTileRectangle, OverlapInfo overlapInfo) {
 
-        final int sx0 = (int)(targetTileRectangle.x / widthRatio + 0.5f);
-        final int sy0 = (int)(targetTileRectangle.y / heightRatio + 0.5f);
-        final int sw  = (int)(targetTileRectangle.width / widthRatio + 0.5f);
-        final int sh  = (int)(targetTileRectangle.height / heightRatio + 0.5f);
+        final int sx0 = (int) (targetTileRectangle.x / widthRatio + 0.5f);
+        final int sy0 = (int) (targetTileRectangle.y / heightRatio + 0.5f);
+        final int sw = (int) (targetTileRectangle.width / widthRatio + 0.5f);
+        final int sh = (int) (targetTileRectangle.height / heightRatio + 0.5f);
 
-        final int swHalf = sw/2;
-        final int shHalf = sh/2;
+        final int swHalf = sw / 2;
+        final int shHalf = sh / 2;
         int sx0Ext = sx0, sy0Ext = sy0, swExt = sw, shExt = sh;
         if (sx0 - swHalf >= 0) {
             sx0Ext -= swHalf;
@@ -674,11 +672,11 @@ public class OversamplingOp extends Operator {
         final int sourceTileWidth = sourceTileRectangle.width;
         final int sourceTileHeight = sourceTileRectangle.height;
 
-        final int overSampledSourceTileWidth  = (int)(widthRatio * sourceTileWidth + 0.5);
-        final int overSampledSourceTileHeight = (int)(heightRatio * sourceTileHeight + 0.5);
+        final int overSampledSourceTileWidth = (int) (widthRatio * sourceTileWidth + 0.5);
+        final int overSampledSourceTileHeight = (int) (heightRatio * sourceTileHeight + 0.5);
 
-        final double[][]tmpI = new double[overSampledSourceTileHeight][sourceTileWidth];
-        final double[][]tmpQ = new double[overSampledSourceTileHeight][sourceTileWidth];
+        final double[][] tmpI = new double[overSampledSourceTileHeight][sourceTileWidth];
+        final double[][] tmpQ = new double[overSampledSourceTileHeight][sourceTileWidth];
 
         final Band iBand = sourceProduct.getBand(iBandName);
         final Band qBand = sourceProduct.getBand(qBandName);
@@ -689,7 +687,7 @@ public class OversamplingOp extends Operator {
         final ProductData iSrcData = iRaster.getDataBuffer();
         final ProductData qSrcData = qRaster.getDataBuffer();
 
-        final double[] rowArray = new double[sourceTileWidth*2];
+        final double[] rowArray = new double[sourceTileWidth * 2];
 
         // perform 1-D FFT on each row
         final DoubleFFT_1D src_row_fft = new DoubleFFT_1D(sourceTileWidth);
@@ -697,15 +695,15 @@ public class OversamplingOp extends Operator {
             getRowData(sy0 + y, sx0, sourceTileWidth, iSrcData, qSrcData, iRaster, rowArray);
             src_row_fft.complexForward(rowArray);
             for (int x = 0; x < sourceTileWidth; x++) {
-                tmpI[y][x] = rowArray[2*x];
-                tmpQ[y][x] = rowArray[2*x+1];
+                tmpI[y][x] = rowArray[2 * x];
+                tmpQ[y][x] = rowArray[2 * x + 1];
             }
         }
 
-        final double[] colArray = new double[2*sourceTileHeight];
-        final double[] zeroPaddedColSpec = new double[2*overSampledSourceTileHeight];
+        final double[] colArray = new double[2 * sourceTileHeight];
+        final double[] zeroPaddedColSpec = new double[2 * overSampledSourceTileHeight];
 
-        final int halfHeight = sourceTileHeight/2;
+        final int halfHeight = sourceTileHeight / 2;
         final double heightByPRF = sourceTileHeight / prf;
 
         // perform 1-D FFT, zero padding and IFFT on each column
@@ -715,7 +713,7 @@ public class OversamplingOp extends Operator {
             getColData(x, sourceTileHeight, colArray, tmpI, tmpQ);
             src_col_fft.complexForward(colArray);
 
-            final int idxFdc = (int)(dopplerCentroidFreq[sx0 + x] * heightByPRF + 0.5);
+            final int idxFdc = (int) (dopplerCentroidFreq[sx0 + x] * heightByPRF + 0.5);
             final int d = (idxFdc + halfHeight) % sourceTileHeight;
 
             paddingZeros(colArray, sourceTileHeight, overSampledSourceTileHeight, d, zeroPaddedColSpec);
@@ -723,30 +721,30 @@ public class OversamplingOp extends Operator {
             saveOverSampledCol(zeroPaddedColSpec, x, overSampledSourceTileHeight, tmpI, tmpQ);
         }
 
-        final double[] tgtRow = new double[overSampledSourceTileWidth*2];
+        final double[] tgtRow = new double[overSampledSourceTileWidth * 2];
 
         // zero padding and perform 1-D IFFT on each row
         final DoubleFFT_1D tgt_row_fft = new DoubleFFT_1D(overSampledSourceTileWidth);
         int ySt = 0;
         if (overlapInfo.topOverlapped) {
-            ySt = (int)(heightRatio*overlapInfo.numOfLinesOnTop);
+            ySt = (int) (heightRatio * overlapInfo.numOfLinesOnTop);
         }
         int xSt = 0;
         if (overlapInfo.leftOverlapped) {
-            xSt = (int)(widthRatio*overlapInfo.numOfLinesOnLeft);
+            xSt = (int) (widthRatio * overlapInfo.numOfLinesOnLeft);
         }
 
         for (int y = 0; y < targetTileHeight; y++) {
-            getRowData(y+ySt, sourceTileWidth, overSampledSourceTileWidth, tgtRow, tmpI, tmpQ);
+            getRowData(y + ySt, sourceTileWidth, overSampledSourceTileWidth, tgtRow, tmpI, tmpQ);
             tgt_row_fft.complexInverse(tgtRow, true);
             saveOverSampledComplexImage(tgtRow, ty0 + y, tx0, targetTileWidth, xSt, widthRatioByHeightRatio,
-                                        iTgtData, qTgtData, iTargetTile);
+                    iTgtData, qTgtData, iTargetTile);
         }
     }
 
     private static void getRowData(final int sy, final int sx0, final int sw,
-                                       final ProductData srcData, final Tile srcRaster,
-                                       final double[] array) {
+                                   final ProductData srcData, final Tile srcRaster,
+                                   final double[] array) {
 
         int k = 0;
         final int length = sx0 + sw;
@@ -771,7 +769,7 @@ public class OversamplingOp extends Operator {
     }
 
     private static void getColData(final int x, final int sourceTileHeight, final double[] array,
-                            final double[][] tmpI, final double[][] tmpQ) {
+                                   final double[][] tmpI, final double[][] tmpQ) {
 
         int k = 0;
         for (int y = 0; y < sourceTileHeight; ++y) {
@@ -781,19 +779,19 @@ public class OversamplingOp extends Operator {
     }
 
     private static void paddingZeros(final double[] colSpec, final int sourceTileHeight, final int targetTileHeight,
-                                         final int d, final double[] array) {
+                                     final int d, final double[] array) {
 
         Arrays.fill(array, 0.0);
         final int s1 = 0;
-        final int s2 = d*2;
+        final int s2 = d * 2;
         final int S1 = 0;
-        final int S2 = 2*(targetTileHeight - sourceTileHeight + d);
+        final int S2 = 2 * (targetTileHeight - sourceTileHeight + d);
         System.arraycopy(colSpec, s1, array, S1, s2);
-        System.arraycopy(colSpec, s2, array, S2, (sourceTileHeight - d)*2);
+        System.arraycopy(colSpec, s2, array, S2, (sourceTileHeight - d) * 2);
     }
 
     private static void saveOverSampledCol(final double[] overSampledCol, final int x, final int targetTileHeight,
-                                    final double[][] tmpI, final double[][] tmpQ) {
+                                           final double[][] tmpI, final double[][] tmpQ) {
 
         int k = 0;
         for (int y = 0; y < targetTileHeight; ++y) {
@@ -803,11 +801,11 @@ public class OversamplingOp extends Operator {
     }
 
     private static void getRowData(final int y, final int sourceTileWidth, final int targetTileWidth, final double[] array,
-                            final double[][] tmpI, final double[][] tmpQ) {
+                                   final double[][] tmpI, final double[][] tmpQ) {
 
         Arrays.fill(array, 0.0);
 
-        final int firstHalfSourceTileWidth = (int)(sourceTileWidth/2 + 0.5);
+        final int firstHalfSourceTileWidth = (int) (sourceTileWidth / 2 + 0.5);
         int k = 0;
         for (int x = 0; x < firstHalfSourceTileWidth; ++x) {
             array[k++] = tmpI[y][x];
@@ -815,7 +813,7 @@ public class OversamplingOp extends Operator {
         }
 
         final int secondHalfSourceTileWidth = sourceTileWidth - firstHalfSourceTileWidth;
-        k = 2*(targetTileWidth - secondHalfSourceTileWidth);
+        k = 2 * (targetTileWidth - secondHalfSourceTileWidth);
         for (int x = firstHalfSourceTileWidth; x < sourceTileWidth; ++x) {
             array[k++] = tmpI[y][x];
             array[k++] = tmpQ[y][x];
@@ -826,24 +824,24 @@ public class OversamplingOp extends Operator {
                                                     final int tw, final int xSt, final double widthRatioByHeightRatio,
                                                     final ProductData tgtData, final Tile targetTile) {
 
-        int k = xSt*2;
+        int k = xSt * 2;
         for (int tx = tx0; tx < tx0 + tw; ++tx) {
             final double i = overSampledRow[k++];
             final double q = overSampledRow[k++];
             tgtData.setElemDoubleAt(targetTile.getDataBufferIndex(tx, ty),
-                    widthRatioByHeightRatio*Math.sqrt(i*i + q*q));
+                    widthRatioByHeightRatio * Math.sqrt(i * i + q * q));
         }
     }
 
     private static void saveOverSampledComplexImage(final double[] overSampledRow, final int ty, final int tx0,
-                                             final int tw, final int xSt, final double widthRatioByHeightRatio,
-                                             final ProductData iData, final ProductData qData, final Tile iTargetTile) {
+                                                    final int tw, final int xSt, final double widthRatioByHeightRatio,
+                                                    final ProductData iData, final ProductData qData, final Tile iTargetTile) {
 
-        int k = xSt*2;
+        int k = xSt * 2;
         for (int tx = tx0; tx < tx0 + tw; ++tx) {
             final int index = iTargetTile.getDataBufferIndex(tx, ty);
-            iData.setElemDoubleAt(index, widthRatioByHeightRatio*overSampledRow[k++]);
-            qData.setElemDoubleAt(index, widthRatioByHeightRatio*overSampledRow[k++]);
+            iData.setElemDoubleAt(index, widthRatioByHeightRatio * overSampledRow[k++]);
+            qData.setElemDoubleAt(index, widthRatioByHeightRatio * overSampledRow[k++]);
         }
     }
 
@@ -858,7 +856,7 @@ public class OversamplingOp extends Operator {
         public int numOfLinesOnLeft;
         public int numOfLinesOnRight;
 
-        public OverlapInfo(){
+        public OverlapInfo() {
         }
     }
 
@@ -867,6 +865,7 @@ public class OversamplingOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

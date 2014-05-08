@@ -67,7 +67,7 @@ public abstract class SingleOperatorBenchmark extends Benchmark {
 
     //S-1
     public void testPerf_S1_GRD() throws Throwable {
-        if(skipS1) return;
+        if (skipS1) return;
         process(spi, DataSets.instance().S1_GRD_product);
     }
 

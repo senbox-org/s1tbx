@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,6 @@ package org.esa.nest.gpf;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -36,23 +35,23 @@ import java.util.List;
 
 /**
  * The urban area detection operator.
- *
+ * <p/>
  * The operator implements the algorithm given in [1].
- *
+ * <p/>
  * [1] T. Esch, M. Thiel, A. Schenk, A. Roth, A. Müller, and S. Dech,
- *     "Delineation of Urban Footprints From TerraSAR-X Data by Analyzing
- *     Speckle Characteristics and Intensity Information," IEEE Transactions
- *     on Geoscience and Remote Sensing, vol. 48, no. 2, pp. 905-916, 2010.
+ * "Delineation of Urban Footprints From TerraSAR-X Data by Analyzing
+ * Speckle Characteristics and Intensity Information," IEEE Transactions
+ * on Geoscience and Remote Sensing, vol. 48, no. 2, pp. 905-916, 2010.
  */
 
 @OperatorMetadata(alias = "Flood-Detection",
         category = "Feature Extraction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Detect flooded area.")
 public class FloodDetectionOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
@@ -79,14 +78,15 @@ public class FloodDetectionOp extends Operator {
 
     /**
      * Create target product.
+     *
      * @throws Exception The exception.
      */
     private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -95,6 +95,7 @@ public class FloodDetectionOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws org.esa.beam.framework.gpf.OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
@@ -103,7 +104,7 @@ public class FloodDetectionOp extends Operator {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if(band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
+                if (band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
                     bandNameList.add(band.getName());
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
@@ -122,7 +123,7 @@ public class FloodDetectionOp extends Operator {
         for (Band srcBand : sourceBands) {
             final String srcBandNames = srcBand.getName();
             final String unit = srcBand.getUnit();
-            if(unit == null) {
+            if (unit == null) {
                 throw new OperatorException("band " + srcBandNames + " requires a unit");
             }
 
@@ -142,15 +143,15 @@ public class FloodDetectionOp extends Operator {
         final Band terrainMask = targetProduct.getBand("Terrain_Mask");
 
         //create Mask
-        String expression = "("+mstBand.getName() + " < 0.05 && "+mstBand.getName()+ " > 0)";
-        if(slvBand != null) {
-            expression += " && !("+slvBand.getName() + " < 0.05 && "+slvBand.getName()+ " > 0)";
+        String expression = "(" + mstBand.getName() + " < 0.05 && " + mstBand.getName() + " > 0)";
+        if (slvBand != null) {
+            expression += " && !(" + slvBand.getName() + " < 0.05 && " + slvBand.getName() + " > 0)";
         }
-        if(terrainMask != null) {
-            expression += " && "+terrainMask.getName()+" == 0";
+        if (terrainMask != null) {
+            expression += " && " + terrainMask.getName() + " == 0";
         }
 
-        final Mask mask = new Mask(mstBand.getName()+"_flood",
+        final Mask mask = new Mask(mstBand.getName() + "_flood",
                 mstBand.getSceneRasterWidth(),
                 mstBand.getSceneRasterHeight(),
                 Mask.BandMathsType.INSTANCE);

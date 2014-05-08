@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,9 +26,9 @@ import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.eo.Constants;
 import org.esa.nest.util.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -40,7 +40,6 @@ import java.util.*;
 
 /**
  * This class represents a product directory.
- *
  */
 public class TerraSarXProductDirectory extends XMLProductDirectory {
 
@@ -84,11 +83,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement geocodedImageInfo = productSpecific.getElement("geocodedImageInfo");
 
         MetadataAttribute attrib = generalHeader.getAttribute("fileName");
-        if(attrib != null)
+        if (attrib != null)
             productName = attrib.getData().getElemString().replace("_____", "_").replace("__", "_");
-        if(productName.endsWith(".xml"))
-                productName = productName.substring(0, productName.length()-4);
-        
+        if (productName.endsWith(".xml"))
+            productName = productName.substring(0, productName.length() - 4);
+
         //mph
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
         productType = productVariantInfo.getAttributeString("productType", defStr).replace("_____", "_").replace("__", "_");
@@ -101,12 +100,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 ReaderUtils.getTime(generalHeader, "generationTime", AbstractMetadata.dateFormat));
 
         MetadataElement elem = generalHeader.getElement("generationSystem");
-        if(elem != null) {
+        if (elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                elem.getAttributeString("generationSystem", defStr));
+                    elem.getAttributeString("generationSystem", defStr));
         }
 
-        if(missionInfo != null) {
+        if (missionInfo != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, missionInfo.getAttributeInt("orbitCycle", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, missionInfo.getAttributeInt("relOrbit", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, missionInfo.getAttributeInt("absOrbit", defInt));
@@ -115,35 +114,35 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         final MetadataElement acquisitionInfo = productInfo.getElement("acquisitionInfo");
-        if(acquisitionInfo != null) {
+        if (acquisitionInfo != null) {
             final String imagingMode = getAcquisitionMode(acquisitionInfo.getAttributeString("imagingMode", defStr));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, imagingMode);
             final String lookDirection = acquisitionInfo.getAttributeString("lookDirection", defStr);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS,
                     acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
-            productDescription = productType +' '+ imagingMode;
+            productDescription = productType + ' ' + imagingMode;
 
-            if(missionInfo == null) {
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, acquisitionInfo.getAttributeString("orbitDirection", defStr));   
+            if (missionInfo == null) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, acquisitionInfo.getAttributeString("orbitDirection", defStr));
             }
         }
 
         final MetadataElement polarisationList = acquisitionInfo.getElement("polarisationList");
         final MetadataAttribute[] polList = polarisationList.getAttributes();
-        for(int i=0; i < polList.length; ++i) {
+        for (int i = 0; i < polList.length; ++i) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i], polList[i].getData().getElemString());
         }
 
-        if(sceneInfo != null) {
+        if (sceneInfo != null) {
             setStartStopTime(product, absRoot, sceneInfo);
 
             getCornerCoords(sceneInfo, geocodedImageInfo);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
                     sceneInfo.getAttributeDouble("sceneAverageHeight", defInt));
-        } else if(acquisitionInfo != null) {
-            setStartStopTime(product, absRoot, acquisitionInfo);   
+        } else if (acquisitionInfo != null) {
+            setStartStopTime(product, absRoot, acquisitionInfo);
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latCorners[0]);
@@ -154,7 +153,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latCorners[2]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonCorners[2]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latCorners[3]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonCorners[3]);  
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonCorners[3]);
 
         final MetadataElement imageRaster = imageDataInfo.getElement("imageRaster");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
@@ -168,7 +167,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         // See Andrea's email dated Sept. 30, 2010
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-        if(sampleType.contains("COMPLEX") && complexImageInfo != null) {
+        if (sampleType.contains("COMPLEX") && complexImageInfo != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                     complexImageInfo.getAttributeDouble("projectedSpacingAzimuth", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
@@ -182,7 +181,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     colSpacing.getAttributeDouble("columnSpacing", defInt));
         }
 
-        if(instrument != null) {
+        if (instrument != null) {
             final MetadataElement settings = instrument.getElement("settings");
             final MetadataElement settingRecord = settings.getElement("settingRecord");
             final MetadataElement PRF = settingRecord.getElement("PRF");
@@ -197,26 +196,26 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         int srgr = 1;
-        if(productVariantInfo.getAttributeString("projection", " ").equalsIgnoreCase("SLANTRANGE"))
+        if (productVariantInfo.getAttributeString("projection", " ").equalsIgnoreCase("SLANTRANGE"))
             srgr = 0;
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, srgr);
         final String mapProjection = productVariantInfo.getAttributeString("mapProjection", " ").trim();
-        if(!mapProjection.isEmpty()) {
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, mapProjection);    
+        if (!mapProjection.isEmpty()) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, mapProjection);
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 0);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
 
         final MetadataElement processingFlags = processing.getElement("processingFlags");
-        if(processingFlags != null) {
+        if (processingFlags != null) {
             setFlag(processingFlags, "rangeSpreadingLossCorrectedFlag", "true", absRoot, AbstractMetadata.range_spread_comp_flag);
             setFlag(processingFlags, "elevationPatternCorrectedFlag", "true", absRoot, AbstractMetadata.ant_elev_corr_flag);
         }
-        
+
         // add Range and Azimuth bandwidth
         final MetadataElement processingParameter = processing.getElement("processingParameter");
-        if(processingParameter != null) {
+        if (processingParameter != null) {
             final double rangeBW = processingParameter.getAttributeDouble("totalProcessedRangeBandwidth"); // Hz
             final double azimuthBW = processingParameter.getAttributeDouble("totalProcessedAzimuthBandwidth"); // Hz
 
@@ -230,33 +229,33 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         //       problem for stripmap product when the two slant range times are different.
 
         final MetadataElement calibration = level1Elem.getElement("calibration");
-        if(calibration != null) {
+        if (calibration != null) {
             final MetadataElement calibrationConstant = calibration.getElement("calibrationConstant");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
                     calibrationConstant.getAttributeDouble("calFactor", defInt));
         }
 
-        if(platform != null) {
+        if (platform != null) {
             final MetadataElement orbit = platform.getElement("orbit");
             addOrbitStateVectors(absRoot, orbit);
             addSRGRCoefficients(absRoot, productSpecific, productInfo);
         }
 
         final MetadataElement doppler = processing.getElement("doppler");
-        if(doppler != null) {
+        if (doppler != null) {
             final MetadataElement dopplerCentroid = doppler.getElement("dopplerCentroid");
             addDopplerCentroidCoefficients(absRoot, dopplerCentroid);
         }
 
         // handle ATI products by copying abs metadata to slv metadata
         final String antennaReceiveConfiguration = acquisitionInfo.getAttributeString("antennaReceiveConfiguration", "");
-        if(antennaReceiveConfiguration.equals("DRA")) {
+        if (antennaReceiveConfiguration.equals("DRA")) {
             final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(product);
 
             // copy Abstracted Metadata
-            for(File cosFile : cosarFileList) {
+            for (File cosFile : cosarFileList) {
                 final String fileName = cosFile.getName().toUpperCase();
-                if(fileName.contains("_SRA_"))
+                if (fileName.contains("_SRA_"))
                     continue;
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 1);
                 final MetadataElement targetSlaveMetadata = new MetadataElement(fileName);
@@ -265,7 +264,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
 
             // modify abstracted metadata
-            
+
         }
     }
 
@@ -283,11 +282,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private static String getAcquisitionMode(final String mode) {
-        if(mode.equalsIgnoreCase("SM"))
+        if (mode.equalsIgnoreCase("SM"))
             return "Stripmap";
-        else if(mode.equalsIgnoreCase("SL") || mode.equalsIgnoreCase("HS"))
+        else if (mode.equalsIgnoreCase("SL") || mode.equalsIgnoreCase("HS"))
             return "Spotlight";
-        else if(mode.equalsIgnoreCase("SC"))
+        else if (mode.equalsIgnoreCase("SC"))
             return "ScanSAR";
         return " ";
     }
@@ -295,7 +294,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private static void setFlag(MetadataElement elem, String attribTag, String trueValue,
                                 MetadataElement absRoot, String absTag) {
         int val = 0;
-        if(elem.getAttributeString(attribTag, " ").equalsIgnoreCase(trueValue))
+        if (elem.getAttributeString(attribTag, " ").equalsIgnoreCase(trueValue))
             val = 1;
         AbstractMetadata.setAttribute(absRoot, absTag, val);
     }
@@ -307,41 +306,41 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final List<CornerCoord> coordList = new ArrayList<CornerCoord>();
 
         final MetadataElement[] children = sceneInfo.getElements();
-        for(MetadataElement child : children) {
-            if(child.getName().equals("sceneCornerCoord")) {
+        for (MetadataElement child : children) {
+            if (child.getName().equals("sceneCornerCoord")) {
                 final int refRow = child.getAttributeInt("refRow", 0);
                 final int refCol = child.getAttributeInt("refColumn", 0);
 
-                coordList.add( new CornerCoord(refRow, refCol,
-                                                (float)child.getAttributeDouble("lat", 0),
-                                                (float)child.getAttributeDouble("lon", 0),
-                                                (float)child.getAttributeDouble("rangeTime", 0) * 1000000000f,
-                                                (float)child.getAttributeDouble("incidenceAngle", 0)) );
+                coordList.add(new CornerCoord(refRow, refCol,
+                        (float) child.getAttributeDouble("lat", 0),
+                        (float) child.getAttributeDouble("lon", 0),
+                        (float) child.getAttributeDouble("rangeTime", 0) * 1000000000f,
+                        (float) child.getAttributeDouble("incidenceAngle", 0)));
 
-                if(refRow > maxRow) maxRow = refRow;
-                if(refCol > maxCol) maxCol = refCol;
-                if(refRow < minRow) minRow = refRow;
-                if(refCol < minCol) minCol = refCol;
+                if (refRow > maxRow) maxRow = refRow;
+                if (refCol > maxCol) maxCol = refCol;
+                if (refRow < minRow) minRow = refRow;
+                if (refCol < minCol) minCol = refCol;
             }
         }
 
         int[] indexArray = {0, 1, 2, 3};
-        if(minRow == maxRow && minCol == maxCol && geocodedImageInfo != null) {
+        if (minRow == maxRow && minCol == maxCol && geocodedImageInfo != null) {
             final MetadataElement geoParameter = geocodedImageInfo.getElement("geoParameter");
             final MetadataElement sceneCoordsGeographic = geoParameter.getElement("sceneCoordsGeographic");
-            final float latUL = (float)sceneCoordsGeographic.getAttributeDouble("upperLeftLatitude", 0);
-            final float latUR = (float)sceneCoordsGeographic.getAttributeDouble("upperRightLatitude", 0);
-            final float latLL = (float)sceneCoordsGeographic.getAttributeDouble("lowerLeftLatitude", 0);
-            final float latLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLatitude", 0);
+            final float latUL = (float) sceneCoordsGeographic.getAttributeDouble("upperLeftLatitude", 0);
+            final float latUR = (float) sceneCoordsGeographic.getAttributeDouble("upperRightLatitude", 0);
+            final float latLL = (float) sceneCoordsGeographic.getAttributeDouble("lowerLeftLatitude", 0);
+            final float latLR = (float) sceneCoordsGeographic.getAttributeDouble("lowerRightLatitude", 0);
 
-            final float lonUL = (float)sceneCoordsGeographic.getAttributeDouble("upperLeftLongitude", 0);
-            final float lonUR = (float)sceneCoordsGeographic.getAttributeDouble("upperRightLongitude", 0);
-            final float lonLL = (float)sceneCoordsGeographic.getAttributeDouble("lowerLeftLongitude", 0);
-            final float lonLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
+            final float lonUL = (float) sceneCoordsGeographic.getAttributeDouble("upperLeftLongitude", 0);
+            final float lonUR = (float) sceneCoordsGeographic.getAttributeDouble("upperRightLongitude", 0);
+            final float lonLL = (float) sceneCoordsGeographic.getAttributeDouble("lowerLeftLongitude", 0);
+            final float lonLR = (float) sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
 
             int k = 0;
             double d0, d1, d2, d3;
-            for(CornerCoord coord : coordList) {
+            for (CornerCoord coord : coordList) {
                 d0 = Math.abs(coord.lat - latUL) + Math.abs(coord.lon - lonUL);
                 d1 = Math.abs(coord.lat - latUR) + Math.abs(coord.lon - lonUR);
                 d2 = Math.abs(coord.lat - latLL) + Math.abs(coord.lon - lonLL);
@@ -361,8 +360,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         int index = 0;
-        for(CornerCoord coord : coordList) {
-            if(minRow == maxRow && minCol == maxCol) {
+        for (CornerCoord coord : coordList) {
+            if (minRow == maxRow && minCol == maxCol) {
                 latCorners[indexArray[index]] = coord.lat;
                 lonCorners[indexArray[index]] = coord.lon;
                 slantRangeCorners[indexArray[index]] = coord.rangeTime;
@@ -370,20 +369,20 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 ++index;
             } else {
                 index = -1;
-                if(coord.refRow == minRow) {
-                    if(Math.abs(coord.refCol - minCol) < Math.abs(coord.refCol - maxCol)) {            // UL
+                if (coord.refRow == minRow) {
+                    if (Math.abs(coord.refCol - minCol) < Math.abs(coord.refCol - maxCol)) {            // UL
                         index = 0;
                     } else {     // UR
                         index = 1;
                     }
-                } else if(coord.refRow == maxRow) {
-                    if(Math.abs(coord.refCol - minCol) < Math.abs(coord.refCol - maxCol)) {            // LL
+                } else if (coord.refRow == maxRow) {
+                    if (Math.abs(coord.refCol - minCol) < Math.abs(coord.refCol - maxCol)) {            // LL
                         index = 2;
                     } else {     // LR
                         index = 3;
                     }
                 }
-                if(index >= 0) {
+                if (index >= 0) {
                     latCorners[index] = coord.lat;
                     lonCorners[index] = coord.lon;
                     slantRangeCorners[index] = coord.rangeTime;
@@ -423,12 +422,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        final File georefFile = new File(getBaseDir(), "ANNOTATION"+File.separator+"GEOREF.xml");
-        if(georefFile.exists()) {
+        final File georefFile = new File(getBaseDir(), "ANNOTATION" + File.separator + "GEOREF.xml");
+        if (georefFile.exists()) {
             try {
                 //readGeoRef(product, georefFile);
                 //return;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //
             }
         }
@@ -436,7 +435,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
-        if(OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
+        if (OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 
@@ -487,7 +486,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final Element gridReferenceTime = geoGrid.getChild("gridReferenceTime");
         final Element tReferenceTimeUTC = gridReferenceTime.getChild("tReferenceTimeUTC");
 
-        final int size = numAz*numRg;
+        final int size = numAz * numRg;
         final double[] latList = new double[size];
         final double[] lonList = new double[size];
         final double[] incList = new double[size];
@@ -498,11 +497,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         //final boolean flip = !isSLC();
 
         int i = 0;
-        int r = numRg-1;
+        int r = numRg - 1;
         int c = 0;
         boolean regridNeeded = false;
         final List<Element> grdPntList = geoGrid.getChildren("gridPoint");
-        for(Element pnt : grdPntList) {
+        for (Element pnt : grdPntList) {
             int index = i;
             /*
             if(flip) {
@@ -523,12 +522,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             lonList[index] = Double.parseDouble(lonElem.getValue());
 
             final Element rowElem = pnt.getChild("row");
-            if(rowElem != null) {
+            if (rowElem != null) {
                 row[index] = Integer.parseInt(rowElem.getValue()) - 1;
                 regridNeeded = true;
             }
             final Element colElem = pnt.getChild("col");
-            if(colElem != null) {
+            if (colElem != null) {
                 col[index] = Integer.parseInt(colElem.getValue()) - 1;
             }
 
@@ -542,67 +541,67 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final int gridHeight = numAz;
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        float[] newLatList = new float[newGridWidth*newGridHeight];
-        float[] newLonList = new float[newGridWidth*newGridHeight];
-        float[] newIncList = new float[newGridWidth*newGridHeight];
+        float[] newLatList = new float[newGridWidth * newGridHeight];
+        float[] newLonList = new float[newGridWidth * newGridHeight];
+        float[] newIncList = new float[newGridWidth * newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
-        final double subSamplingX = sceneRasterWidth / (double)(newGridWidth - 1);
-        final double subSamplingY = sceneRasterHeight / (double)(newGridHeight - 1);
+        final double subSamplingX = sceneRasterWidth / (double) (newGridWidth - 1);
+        final double subSamplingY = sceneRasterHeight / (double) (newGridHeight - 1);
 
-        if(regridNeeded) {
+        if (regridNeeded) {
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, latList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, lonList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, incList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
         } else {
-            for(int m=0;m< newLatList.length; ++m) {
-                newLatList[m] = (float)latList[m];
-                newLonList[m] = (float)lonList[m];
-                newIncList[m] = (float)incList[m];
+            for (int m = 0; m < newLatList.length; ++m) {
+                newLatList[m] = (float) latList[m];
+                newLonList[m] = (float) lonList[m];
+                newIncList[m] = (float) incList[m];
             }
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newLatList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, (float) subSamplingX, (float) subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(latGrid);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, (float) subSamplingX, (float) subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(lonGrid);
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newIncList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, (float) subSamplingX, (float) subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
         product.setGeoCoding(tpGeoCoding);
 
-       // final TiePointGrid timeGrid = new TiePointGrid("Time", gridWidth, gridHeight, 0, 0,
-      //          subSamplingX, subSamplingY, timeList);
-      //  timeGrid.setUnit(Unit.NANOSECONDS);
-      //  product.addTiePointGrid(timeGrid);
+        // final TiePointGrid timeGrid = new TiePointGrid("Time", gridWidth, gridHeight, 0, 0,
+        //          subSamplingX, subSamplingY, timeList);
+        //  timeGrid.setUnit(Unit.NANOSECONDS);
+        //  product.addTiePointGrid(timeGrid);
     }
 
     private static void getListInEvenlySpacedGrid(
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
-            final int sourceGridHeight, final int [] x, final int [] y, final double[] sourcePointList,
+            final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
             final float[] targetPointList) {
 
-        if (sourcePointList.length != sourceGridWidth*sourceGridHeight) {
+        if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
                     "Original tie point array size does not match 'sourceGridWidth' x 'sourceGridHeight'");
         }
 
-        if (targetPointList.length != targetGridWidth*targetGridHeight) {
+        if (targetPointList.length != targetGridWidth * targetGridHeight) {
             throw new IllegalArgumentException(
                     "Target tie point array size does not match 'targetGridWidth' x 'targetGridHeight'");
         }
@@ -610,7 +609,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         int k = 0;
         for (int r = 0; r < targetGridHeight; r++) {
 
-            double newY = r*subSamplingY;
+            double newY = r * subSamplingY;
             if (newY > sceneRasterHeight - 1) {
                 newY = sceneRasterHeight - 1;
             }
@@ -619,18 +618,18 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             for (int rr = 1; rr < sourceGridHeight; rr++) {
                 j0 = rr - 1;
                 j1 = rr;
-                oldY0 = y[j0*sourceGridWidth];
-                oldY1 = y[j1*sourceGridWidth];
+                oldY0 = y[j0 * sourceGridWidth];
+                oldY1 = y[j1 * sourceGridWidth];
                 if (oldY1 > newY) {
                     break;
                 }
             }
 
-            final double wj = (newY - oldY0)/(oldY1 - oldY0);
+            final double wj = (newY - oldY0) / (oldY1 - oldY0);
 
             for (int c = 0; c < targetGridWidth; c++) {
 
-                double newX = c*subSamplingX;
+                double newX = c * subSamplingX;
                 if (newX > sceneRasterWidth - 1) {
                     newX = sceneRasterWidth - 1;
                 }
@@ -645,7 +644,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                         break;
                     }
                 }
-                final double wi = (newX - oldX0)/(oldX1 - oldX0);
+                final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
                 targetPointList[k++] = (float) MathUtils.interpolate2D(wi, wj,
                         sourcePointList[i0 + j0 * sourceGridWidth],
@@ -661,17 +660,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         final int gridWidth = 4;
         final int gridHeight = 4;
-        final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
-        final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
-        if(subSamplingX == 0 || subSamplingY == 0)
+        final float subSamplingX = (float) product.getSceneRasterWidth() / (float) (gridWidth - 1);
+        final float subSamplingY = (float) product.getSceneRasterHeight() / (float) (gridHeight - 1);
+        if (subSamplingX == 0 || subSamplingY == 0)
             return;
 
         final float[] flippedSlantRangeCorners = new float[4];
         final float[] flippedIncidenceCorners = new float[4];
         getFlippedCorners(product, flippedSlantRangeCorners, flippedIncidenceCorners);
 
-        if(product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
-            final float[] fineAngles = new float[gridWidth*gridHeight];
+        if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
+            final float[] fineAngles = new float[gridWidth * gridHeight];
             ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedIncidenceCorners, fineAngles);
 
             final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
@@ -680,7 +679,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             product.addTiePointGrid(incidentAngleGrid);
         }
 
-        final float[] fineSlantRange = new float[gridWidth*gridHeight];
+        final float[] fineSlantRange = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
@@ -695,7 +694,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
-        if(OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
+        if (OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
 
             flippedSlantRangeCorners[0] = slantRangeCorners[0];
             flippedSlantRangeCorners[1] = slantRangeCorners[1];
@@ -743,22 +742,22 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         for (String key : ImageKeys) {
             final ImageIOFile img = bandImageFileMap.get(key);
 
-            for(int i=0; i < img.getNumImages(); ++i) {
+            for (int i = 0; i < img.getNumImages(); ++i) {
 
-                for(int b=0; b < img.getNumBands(); ++b) {
+                for (int b = 0; b < img.getNumBands(); ++b) {
                     final String pol = SARReader.findPolarizationInBandName(img.getName());
-                    final Band band = new Band("Amplitude_"+pol, img.getDataType(), width, height);
+                    final Band band = new Band("Amplitude_" + pol, img.getDataType(), width, height);
                     band.setUnit(Unit.AMPLITUDE);
                     product.addBand(band);
 
-                    SARReader.createVirtualIntensityBand(product, band, '_'+pol);
+                    SARReader.createVirtualIntensityBand(product, band, '_' + pol);
 
                     bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                 }
             }
         }
 
-        if(!cosarFileList.isEmpty()) {
+        if (!cosarFileList.isEmpty()) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             final int h = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line, 0);
             final int w = absRoot.getAttributeInt(AbstractMetadata.num_output_lines, 0);
@@ -770,25 +769,25 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                 final String fileName = file.getName().toUpperCase();
                 final String pol = SARReader.findPolarizationInBandName(fileName);
-                if(!polsUnique) {
+                if (!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
-                    extraInfo = fileName.substring(polIndex+2, fileName.indexOf(".", polIndex+3));
+                    extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
                 }
 
-                final Band realBand = new Band("i_"+pol+extraInfo, ProductData.TYPE_INT16, w, h);
+                final Band realBand = new Band("i_" + pol + extraInfo, ProductData.TYPE_INT16, w, h);
                 realBand.setUnit(Unit.REAL);
                 product.addBand(realBand);
 
-                final Band imaginaryBand = new Band("q_"+pol+extraInfo, ProductData.TYPE_INT16, w, h);
+                final Band imaginaryBand = new Band("q_" + pol + extraInfo, ProductData.TYPE_INT16, w, h);
                 imaginaryBand.setUnit(Unit.IMAGINARY);
                 product.addBand(imaginaryBand);
 
-                ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, '_'+pol+extraInfo);
+                ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, '_' + pol + extraInfo);
 
                 try {
                     cosarBandMap.put(realBand.getName(), FileImageInputStreamExtImpl.createInputStream(file));
                     cosarBandMap.put(imaginaryBand.getName(), FileImageInputStreamExtImpl.createInputStream(file));
-                } catch(Exception e) {
+                } catch (Exception e) {
                     //
                 }
             }
@@ -800,10 +799,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         for (final File file : cosarFileList) {
             pols.add(SARReader.findPolarizationInBandName(file.getName()));
         }
-        for(int i=0; i < pols.size(); ++i) {
-            for(int j=i+1; j < pols.size(); ++j) {
-                if(pols.get(i).equals(pols.get(j)))
-                   return false;
+        for (int i = 0; i < pols.size(); ++i) {
+            for (int j = i + 1; j < pols.size(); ++j) {
+                if (pols.get(i).equals(pols.get(j)))
+                    return false;
             }
         }
         return true;
@@ -813,23 +812,23 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
         final MetadataElement[] stateVectorElems = orbitInformation.getElements();
-        for(int i=1; i < stateVectorElems.length; ++i) {
+        for (int i = 1; i < stateVectorElems.length; ++i) {
             // first stateVectorElem is orbitHeader therefore skip it
             addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i], i);
         }
 
         // set state vector time
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+        if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                ReaderUtils.getTime(stateVectorElems[1], "timeUTC", AbstractMetadata.dateFormat));
+                    ReaderUtils.getTime(stateVectorElems[1], "timeUTC", AbstractMetadata.dateFormat));
         }
     }
 
     private static void addVector(String name, MetadataElement orbitVectorListElem,
                                   MetadataElement srcElem, int num) {
-        final MetadataElement orbitVectorElem = new MetadataElement(name+num);
+        final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
                 ReaderUtils.getTime(srcElem, "timeUTC", AbstractMetadata.dateFormat));
@@ -855,12 +854,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         // get swath begin time and swath end time
         final MetadataElement sceneInfo = productInfo.getElement("sceneInfo");
-        if(sceneInfo == null) {
+        if (sceneInfo == null) {
             return;
         }
 
         final MetadataElement rangeTime = sceneInfo.getElement("rangeTime");
-        if(rangeTime == null) {
+        if (rangeTime == null) {
             return;
         }
 
@@ -869,12 +868,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         // get slant range time to ground rang conversion coefficients
         final MetadataElement projectedImageInfo = productSpecific.getElement("projectedImageInfo");
-        if(projectedImageInfo == null) {
+        if (projectedImageInfo == null) {
             return;
         }
 
         final MetadataElement slantToGroundRangeProjection = projectedImageInfo.getElement("slantToGroundRangeProjection");
-        if(slantToGroundRangeProjection == null) {
+        if (slantToGroundRangeProjection == null) {
             return;
         }
 
@@ -883,7 +882,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final double referencePoint = slantToGroundRangeProjection.getAttributeDouble("referencePoint");
         final int polynomialDegree = slantToGroundRangeProjection.getAttributeInt("polynomialDegree");
 
-        final double[] s2gCoef = new double[polynomialDegree+1];
+        final double[] s2gCoef = new double[polynomialDegree + 1];
         int cnt = 0;
         for (MetadataElement elem : slantToGroundRangeProjection.getElements()) {
             s2gCoef[cnt++] = elem.getAttributeDouble("coefficient", 0);
@@ -891,30 +890,30 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         // compute ground range to slant range conversion coefficients
         final int m = 11; // order of ground to slant polynomial
-        double[] sltRgTime = new double[m+1];
-        double[] groundRange = new double[m+1];
+        double[] sltRgTime = new double[m + 1];
+        double[] groundRange = new double[m + 1];
         for (int i = 0; i <= m; i++) {
-            sltRgTime[i] = firstPixelTime + (lastPixelTime - firstPixelTime)*i/m;
+            sltRgTime[i] = firstPixelTime + (lastPixelTime - firstPixelTime) * i / m;
             groundRange[i] = org.esa.nest.util.MathUtils.computePolynomialValue(sltRgTime[i] - referencePoint, s2gCoef);
         }
 
         // final double groundRangeRef = (groundRange[0] + groundRange[m]) / 2;
         final double groundRangeRef = 0.0; // set ground range ref to 0 because when g2sCoef are used in computing
-                                           // slant range from ground range, the ground range origin is assumed to be 0
-        final double[] deltaGroundRange = new double[m+1];
+        // slant range from ground range, the ground range origin is assumed to be 0
+        final double[] deltaGroundRange = new double[m + 1];
         final double deltaMax = groundRange[m] - groundRangeRef;
         for (int i = 0; i <= m; i++) {
             deltaGroundRange[i] = (groundRange[i] - groundRangeRef) / deltaMax;
         }
 
         final Matrix G = org.esa.nest.util.MathUtils.createVandermondeMatrix(deltaGroundRange, m);
-        final Matrix tau = new Matrix(sltRgTime, m+1);
+        final Matrix tau = new Matrix(sltRgTime, m + 1);
         final Matrix s = G.solve(tau);
         final double[] g2sCoef = s.getColumnPackedCopy();
 
         double tmp = 1;
         for (int i = 0; i <= m; i++) {
-            g2sCoef[i] *= Constants.halfLightSpeed/tmp;
+            g2sCoef[i] *= Constants.halfLightSpeed / tmp;
             tmp *= deltaMax;
         }
 
@@ -929,7 +928,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
         for (int i = 0; i <= m; i++) {
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i+1));
+            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             srgrListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
                     ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
@@ -945,9 +944,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
         int listCnt = 1;
-        for(MetadataElement dopplerEstimate : dopplerElems) {
-            if(dopplerEstimate.getName().equalsIgnoreCase("dopplerEstimate")) {
-                final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list+'.'+listCnt);
+        for (MetadataElement dopplerEstimate : dopplerElems) {
+            if (dopplerEstimate.getName().equalsIgnoreCase("dopplerEstimate")) {
+                final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
 
@@ -965,9 +964,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 */
 
                 int cnt = 1;
-                for(MetadataElement coefficient : coefficients) {
+                for (MetadataElement coefficient : coefficients) {
                     final double coefValue = coefficient.getAttributeDouble("coefficient", 0);
-                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
                     dopplerListElem.addElement(coefElem);
                     ++cnt;
 
@@ -1014,9 +1013,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final float rangeTime, incidenceAngle;
 
         CornerCoord(int row, int col, float lt, float ln, float range, float angle) {
-            refRow = row; refCol = col;
-            lat = lt; lon = ln;
-            rangeTime = range; incidenceAngle = angle;
+            refRow = row;
+            refCol = col;
+            lat = lt;
+            lon = ln;
+            rangeTime = range;
+            incidenceAngle = angle;
         }
     }
 }

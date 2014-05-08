@@ -25,7 +25,7 @@ public class GenericComplexReader extends GenericReader {
 
     private int rasterWidth = 0;
     private int rasterHeight = 0;
-//    private int numBands = 1;
+    //    private int numBands = 1;
     private int dataType = ProductData.TYPE_INT16;
     private ByteOrder byteOrder = ByteOrder.nativeOrder();
 

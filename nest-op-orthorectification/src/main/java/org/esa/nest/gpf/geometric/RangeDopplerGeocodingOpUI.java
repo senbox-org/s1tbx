@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -49,17 +49,17 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     final JComboBox<String> imgResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
 
-    final JComboBox incidenceAngleForGamma0 = new JComboBox<String>(new String[] {Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+    final JComboBox incidenceAngleForGamma0 = new JComboBox<String>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox incidenceAngleForSigma0 = new JComboBox<String>(new String[] {Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+    final JComboBox incidenceAngleForSigma0 = new JComboBox<String>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox auxFile = new JComboBox<String>(new String[] {CalibrationOp.LATEST_AUX,
-                                                          CalibrationOp.PRODUCT_AUX,
-                                                          CalibrationOp.EXTERNAL_AUX});
+    final JComboBox auxFile = new JComboBox<String>(new String[]{CalibrationOp.LATEST_AUX,
+            CalibrationOp.PRODUCT_AUX,
+            CalibrationOp.EXTERNAL_AUX});
 
     final JTextField pixelSpacingInMeter = new JTextField("");
     final JTextField pixelSpacingInDegree = new JTextField("");
@@ -121,7 +121,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         demName.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                if(((String)demName.getSelectedItem()).startsWith(externalDEMStr)) {
+                if (((String) demName.getSelectedItem()).startsWith(externalDEMStr)) {
                     enableExternalDEM(true);
                 } else {
                     externalDEMFile.setText("");
@@ -130,12 +130,12 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(24);
-        enableExternalDEM(((String)demName.getSelectedItem()).startsWith(externalDEMStr));
+        enableExternalDEM(((String) demName.getSelectedItem()).startsWith(externalDEMStr));
 
         auxFile.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                final String item = (String)auxFile.getSelectedItem();
-                if(item.equals(CalibrationOp.EXTERNAL_AUX)) {
+                final String item = (String) auxFile.getSelectedItem();
+                if (item.equals(CalibrationOp.EXTERNAL_AUX)) {
                     enableExternalAuxFile(true);
                 } else {
                     externalAuxFile.setText("");
@@ -144,8 +144,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             }
         });
         externalAuxFile.setColumns(24);
-        final String auxFileParam = (String)parameterMap.get("auxFile");
-        if(auxFileParam != null) {
+        final String auxFileParam = (String) parameterMap.get("auxFile");
+        if (auxFileParam != null) {
             auxFile.setSelectedItem(auxFileParam);
         }
         enableExternalAuxFile(false);
@@ -160,14 +160,14 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         });
 
         nodataValueAtSeaCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    nodataValueAtSea = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                nodataValueAtSea = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         saveDEMCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         saveIncidenceAngleFromEllipsoidCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -175,87 +175,87 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             }
         });
         saveLocalIncidenceAngleCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveLocalIncidenceAngle = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                saveLocalIncidenceAngle = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         saveProjectedLocalIncidenceAngleCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveProjectedLocalIncidenceAngle = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                saveProjectedLocalIncidenceAngle = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         saveSelectedSourceBandCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveSelectedSourceBand = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                saveSelectedSourceBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         applyRadiometricNormalizationCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(ItemEvent e) {
 
-                    applyRadiometricNormalization = (e.getStateChange() == ItemEvent.SELECTED);
-                    if (applyRadiometricNormalization) {
+                applyRadiometricNormalization = (e.getStateChange() == ItemEvent.SELECTED);
+                if (applyRadiometricNormalization) {
 
-                        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-                        if (absRoot != null) {
-                            final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-                            final int isCalibrated = absRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, 0);
+                    final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+                    if (absRoot != null) {
+                        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+                        final int isCalibrated = absRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, 0);
 
-                            // todo ALOS
-                            // todo move this into calibrator.canRadiometricallyNormalize(mission)
-                            if (isCalibrated==0 && (mission.equals("ENVISAT") || mission.contains("ERS") ||
+                        // todo ALOS
+                        // todo move this into calibrator.canRadiometricallyNormalize(mission)
+                        if (isCalibrated == 0 && (mission.equals("ENVISAT") || mission.contains("ERS") ||
                                 mission.equals("RS2") || mission.contains("TSX") || mission.contains("TDX") ||
                                 mission.contains("ALOS") || mission.contains("CSKS"))) {
 
-                                enableRadiometricNormalization(true);
+                            enableRadiometricNormalization(true);
 
-                                saveSigmaNoughtCheckBox.setSelected(saveSigmaNought);
-                                saveGammaNoughtCheckBox.setSelected(saveGammaNought);
-                                saveBetaNoughtCheckBox.setSelected(saveBetaNought);
-                                saveSelectedSourceBandCheckBox.setSelected(false);
+                            saveSigmaNoughtCheckBox.setSelected(saveSigmaNought);
+                            saveGammaNoughtCheckBox.setSelected(saveGammaNought);
+                            saveBetaNoughtCheckBox.setSelected(saveBetaNought);
+                            saveSelectedSourceBandCheckBox.setSelected(false);
 
-                            } else {
+                        } else {
 
-                                enableRadiometricNormalization(false);
-                                saveSelectedSourceBandCheckBox.setSelected(true);
-                            }
+                            enableRadiometricNormalization(false);
+                            saveSelectedSourceBandCheckBox.setSelected(true);
                         }
-
-                    } else {
-                        enableRadiometricNormalization(false);
-                        saveSelectedSourceBandCheckBox.setSelected(true);
                     }
+
+                } else {
+                    enableRadiometricNormalization(false);
+                    saveSelectedSourceBandCheckBox.setSelected(true);
                 }
+            }
         });
         saveBetaNoughtCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveBetaNought = (e.getStateChange() == ItemEvent.SELECTED);
-                    if (saveBetaNought) {
-                        saveSigmaNoughtCheckBox.setSelected(true);
-                        saveProjectedLocalIncidenceAngleCheckBox.setSelected(true);
-                    }
+            public void itemStateChanged(ItemEvent e) {
+                saveBetaNought = (e.getStateChange() == ItemEvent.SELECTED);
+                if (saveBetaNought) {
+                    saveSigmaNoughtCheckBox.setSelected(true);
+                    saveProjectedLocalIncidenceAngleCheckBox.setSelected(true);
                 }
+            }
         });
         saveGammaNoughtCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveGammaNought = (e.getStateChange() == ItemEvent.SELECTED);
-                    if (saveGammaNought) {
-                        saveSigmaNoughtCheckBox.setSelected(true);
+            public void itemStateChanged(ItemEvent e) {
+                saveGammaNought = (e.getStateChange() == ItemEvent.SELECTED);
+                if (saveGammaNought) {
+                    saveSigmaNoughtCheckBox.setSelected(true);
+                    saveProjectedLocalIncidenceAngleCheckBox.setSelected(true);
+                }
+            }
+        });
+        saveSigmaNoughtCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveSigmaNought = (e.getStateChange() == ItemEvent.SELECTED);
+                if (saveSigmaNought) {
+                    if (incidenceAngleForSigma0.getSelectedItem().equals(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
+                        saveProjectedLocalIncidenceAngleCheckBox.setSelected(false);
+                    } else {
                         saveProjectedLocalIncidenceAngleCheckBox.setSelected(true);
                     }
                 }
-        });
-        saveSigmaNoughtCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveSigmaNought = (e.getStateChange() == ItemEvent.SELECTED);
-                    if (saveSigmaNought) {
-                        if (incidenceAngleForSigma0.getSelectedItem().equals(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
-                            saveProjectedLocalIncidenceAngleCheckBox.setSelected(false);
-                        } else {
-                            saveProjectedLocalIncidenceAngleCheckBox.setSelected(true);
-                        }
-                    }
-                }
+            }
         });
 
         externalAuxFileBrowseButton.addActionListener(new ActionListener() {
@@ -279,8 +279,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     public void initParameters() {
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        final String demNameParam = (String)paramMap.get("demName");
-        if(demNameParam != null)
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null)
             demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
 
         demResamplingMethod.setSelectedItem(paramMap.get("demResamplingMethod"));
@@ -288,30 +288,30 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         incidenceAngleForGamma0.setSelectedItem(paramMap.get("incidenceAngleForGamma0"));
         incidenceAngleForSigma0.setSelectedItem(paramMap.get("incidenceAngleForSigma0"));
 
-        final String mapProjection = (String)paramMap.get("mapProjection");
+        final String mapProjection = (String) paramMap.get("mapProjection");
         mapProjHandler.initParameters(mapProjection, sourceProducts);
         crsButton.setText(mapProjHandler.getCRSName());
 
-        pixMSaved = (Double)paramMap.get("pixelSpacingInMeter");
-        if(pixMSaved != null && pixMSaved != 0.0) {
+        pixMSaved = (Double) paramMap.get("pixelSpacingInMeter");
+        if (pixMSaved != null && pixMSaved != 0.0) {
             pixelSpacingInMeter.setText(String.valueOf(pixMSaved));
         }
 
-        pixDSaved = (Double)paramMap.get("pixelSpacingInDegree");
-        if(pixDSaved != null && pixDSaved != 0.0) {
+        pixDSaved = (Double) paramMap.get("pixelSpacingInDegree");
+        if (pixDSaved != null && pixDSaved != 0.0) {
             pixelSpacingInDegree.setText(String.valueOf(pixDSaved));
         }
 
         if (sourceProducts != null) {
             final String productName = sourceProducts[0].getName();
-            if(!productName.equals(savedProductName)) {
+            if (!productName.equals(savedProductName)) {
                 savedProductName = productName;
 
                 try {
                     azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProducts[0]);
                     rangePixelSpacing = SARGeocoding.getRangePixelSpacing(sourceProducts[0]);
-                    azimuthPixelSpacing = (double)((int)(azimuthPixelSpacing*100 + 0.5))/100.0;
-                    rangePixelSpacing = (double)((int)(rangePixelSpacing*100 + 0.5))/100.0;
+                    azimuthPixelSpacing = (double) ((int) (azimuthPixelSpacing * 100 + 0.5)) / 100.0;
+                    rangePixelSpacing = (double) ((int) (rangePixelSpacing * 100 + 0.5)) / 100.0;
                 } catch (Exception e) {
                     azimuthPixelSpacing = 0.0;
                     rangePixelSpacing = 0.0;
@@ -320,7 +320,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 sourcePixelSpacingsLabelPart2.setText(text);
             }
 
-            if(pixDSaved == null || pixDSaved == 0.0) {
+            if (pixDSaved == null || pixDSaved == 0.0) {
                 Double pixM, pixD;
                 try {
                     pixM = Math.max(azimuthPixelSpacing, rangePixelSpacing);
@@ -336,53 +336,53 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             }
         }
 
-        final File extDEMFile = (File)paramMap.get("externalDEMFile");
-        if(extDEMFile != null) {
+        final File extDEMFile = (File) paramMap.get("externalDEMFile");
+        if (extDEMFile != null) {
             externalDEMFile.setText(extDEMFile.getAbsolutePath());
-            extNoDataValue =  (Double)paramMap.get("externalDEMNoDataValue");
-            if(extNoDataValue != null)
+            extNoDataValue = (Double) paramMap.get("externalDEMNoDataValue");
+            if (extNoDataValue != null)
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
         }
 
         Boolean paramVal;
-        paramVal = (Boolean)paramMap.get("nodataValueAtSea");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("nodataValueAtSea");
+        if (paramVal != null) {
             nodataValueAtSea = paramVal;
             nodataValueAtSeaCheckBox.setSelected(nodataValueAtSea);
         }
 
-        paramVal = (Boolean)paramMap.get("saveDEM");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveDEM");
+        if (paramVal != null) {
             saveDEM = paramVal;
             saveDEMCheckBox.setSelected(saveDEM);
         }
 
-        paramVal = (Boolean)paramMap.get("saveIncidenceAngleFromEllipsoid");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveIncidenceAngleFromEllipsoid");
+        if (paramVal != null) {
             saveIncidenceAngleFromEllipsoid = paramVal;
             saveIncidenceAngleFromEllipsoidCheckBox.setSelected(saveIncidenceAngleFromEllipsoid);
         }
 
-        paramVal = (Boolean)paramMap.get("saveLocalIncidenceAngle");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveLocalIncidenceAngle");
+        if (paramVal != null) {
             saveLocalIncidenceAngle = paramVal;
             saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
         }
 
-        paramVal = (Boolean)paramMap.get("saveProjectedLocalIncidenceAngle");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveProjectedLocalIncidenceAngle");
+        if (paramVal != null) {
             saveProjectedLocalIncidenceAngle = paramVal;
             saveProjectedLocalIncidenceAngleCheckBox.setSelected(saveProjectedLocalIncidenceAngle);
         }
 
-        paramVal = (Boolean)paramMap.get("saveSelectedSourceBand");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveSelectedSourceBand");
+        if (paramVal != null) {
             saveSelectedSourceBand = paramVal;
             saveSelectedSourceBandCheckBox.setSelected(saveSelectedSourceBand);
         }
 
-        paramVal = (Boolean)paramMap.get("applyRadiometricNormalization");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("applyRadiometricNormalization");
+        if (paramVal != null) {
             applyRadiometricNormalization = paramVal;
             applyRadiometricNormalizationCheckBox.setSelected(applyRadiometricNormalization);
 
@@ -393,25 +393,25 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveBetaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
         }
 
-        paramVal = (Boolean)paramMap.get("saveBetaNought");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveBetaNought");
+        if (paramVal != null) {
             saveBetaNought = paramVal;
             saveBetaNoughtCheckBox.setSelected(saveBetaNought);
         }
 
-        paramVal = (Boolean)paramMap.get("saveGammaNought");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveGammaNought");
+        if (paramVal != null) {
             saveGammaNought = paramVal;
             saveGammaNoughtCheckBox.setSelected(saveGammaNought);
         }
 
-        paramVal = (Boolean)paramMap.get("saveSigmaNought");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("saveSigmaNought");
+        if (paramVal != null) {
             saveSigmaNought = paramVal;
             saveSigmaNoughtCheckBox.setSelected(saveSigmaNought);
         }
 
-        if(sourceProducts != null) {
+        if (sourceProducts != null) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
             if (absRoot != null) {
                 final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
@@ -422,15 +422,15 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 }
             }
         }
-        final String auxFileStr = (String)paramMap.get("auxFile");
-        if(auxFileStr != null) {
+        final String auxFileStr = (String) paramMap.get("auxFile");
+        if (auxFileStr != null) {
             auxFile.setSelectedItem(auxFileStr);
         }
-        final File extAuxFile = (File)paramMap.get("externalAuxFile");
-        if(extAuxFile != null) {
+        final File extAuxFile = (File) paramMap.get("externalAuxFile");
+        if (extAuxFile != null) {
             externalAuxFile.setText(extAuxFile.getAbsolutePath());
         }
-        if(applyRadiometricNormalization != null) {
+        if (applyRadiometricNormalization != null) {
             auxFile.setEnabled(applyRadiometricNormalization);
             auxFileLabel.setEnabled(applyRadiometricNormalization);
             externalAuxFile.setEnabled(applyRadiometricNormalization);
@@ -444,30 +444,30 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         if (sourceProducts != null) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            if(absRoot != null) {
+            if (absRoot != null) {
                 final boolean antElevCorrFlag = absRoot.getAttributeInt(AbstractMetadata.ant_elev_corr_flag) != 0;
                 final boolean multilookFlag = absRoot.getAttributeInt(AbstractMetadata.multilook_flag) != 0;
                 final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
                 final boolean isPolsar = absRoot.getAttributeInt(AbstractMetadata.polsarData, 0) == 1;
 
-                if(isPolsar && applyRadiometricNormalization) {
+                if (isPolsar && applyRadiometricNormalization) {
                     applyRadiometricNormalization = false;
                     return new UIValidation(UIValidation.State.WARNING, "Radiometric normalization is" +
                             " not available for polarimetric matrix products");
                 }
-                
+
                 if ((mission.equals("ENVISAT") || mission.contains("ERS")) &&
-                     applyRadiometricNormalization && antElevCorrFlag && multilookFlag) {
+                        applyRadiometricNormalization && antElevCorrFlag && multilookFlag) {
                     return new UIValidation(UIValidation.State.WARNING, "For multilooked products only" +
                             " constant and incidence angle corrections will be performed for radiometric normalization");
                 }
 
                 if (!mission.equals("RS2") && !mission.contains("TSX") && !mission.contains("TDX") && !mission.equals("ENVISAT") &&
-                    !mission.contains("ERS") && !mission.contains("CSK") && !mission.contains("ALOS") && !mission.equals(" ") &&
+                        !mission.contains("ERS") && !mission.contains("CSK") && !mission.contains("ALOS") && !mission.equals(" ") &&
                         applyRadiometricNormalization) {
                     applyRadiometricNormalization = false;
                     return new UIValidation(UIValidation.State.WARNING, "Radiometric normalization currently is" +
-                            " not available for "+mission+" products");
+                            " not available for " + mission + " products");
                 }
             }
         }
@@ -479,30 +479,30 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
-        paramMap.put("demName", (DEMFactory.getProperDEMName((String)demName.getSelectedItem())));
+        paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
         paramMap.put("demResamplingMethod", demResamplingMethod.getSelectedItem());
         paramMap.put("imgResamplingMethod", imgResamplingMethod.getSelectedItem());
         paramMap.put("incidenceAngleForGamma0", incidenceAngleForGamma0.getSelectedItem());
         paramMap.put("incidenceAngleForSigma0", incidenceAngleForSigma0.getSelectedItem());
-        if(pixelSpacingInMeter.getText().isEmpty()) {
+        if (pixelSpacingInMeter.getText().isEmpty()) {
             paramMap.put("pixelSpacingInMeter", 0.0);
         } else {
             paramMap.put("pixelSpacingInMeter", Double.parseDouble(pixelSpacingInMeter.getText()));
         }
 
-        if(pixelSpacingInDegree.getText().isEmpty()) {
+        if (pixelSpacingInDegree.getText().isEmpty()) {
             paramMap.put("pixelSpacingInDegree", 0.0);
         } else {
             paramMap.put("pixelSpacingInDegree", Double.parseDouble(pixelSpacingInDegree.getText()));
         }
 
         final String extFileStr = externalDEMFile.getText();
-        if(!extFileStr.isEmpty()) {
+        if (!extFileStr.isEmpty()) {
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
 
-        if(mapProjHandler.getCRS() != null) {
+        if (mapProjHandler.getCRS() != null) {
             paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
         }
 
@@ -519,7 +519,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         paramMap.put("auxFile", auxFile.getSelectedItem());
         final String extAuxFileStr = externalAuxFile.getText();
-        if(!extAuxFileStr.isEmpty()) {
+        if (!extAuxFileStr.isEmpty()) {
             paramMap.put("externalAuxFile", new File(extAuxFileStr));
         }
     }
@@ -537,7 +537,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy++;
-        if(!useAvgSceneHeight) {
+        if (!useAvgSceneHeight) {
             DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
             gbc.gridy++;
             DialogUtils.addInnerPanel(contentPane, gbc, externalDEMFileLabel, externalDEMFile, externalDEMBrowseButton);
@@ -563,7 +563,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Map Projection:", crsButton);
 
-        if(!useAvgSceneHeight) {
+        if (!useAvgSceneHeight) {
             gbc.gridx = 0;
             gbc.gridy++;
             contentPane.add(nodataValueAtSeaCheckBox, gbc);
@@ -650,6 +650,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         public void focusGained(final FocusEvent e) {
         }
+
         public void focusLost(final FocusEvent e) {
             Double pixM = 0.0, pixD = 0.0;
             try {
@@ -670,6 +671,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         public void focusGained(final FocusEvent e) {
         }
+
         public void focusLost(final FocusEvent e) {
             Double pixM = 0.0, pixD = 0.0;
             try {

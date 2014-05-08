@@ -29,7 +29,7 @@ public abstract class Benchmark extends TestCase {
 
             spi = CreateOperatorSpi();
             GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             t.printStackTrace();
         }
     }
@@ -47,11 +47,11 @@ public abstract class Benchmark extends TestCase {
     protected abstract OperatorSpi CreateOperatorSpi();
 
     protected final void process(final OperatorSpi spi, final Product product) throws Throwable {
-        if(!BenchConstants.runBenchmarks) return;
-        if(product == null) return;
+        if (!BenchConstants.runBenchmarks) return;
+        if (product == null) return;
 
         try {
-            if(BenchConstants.numIterations > 1) {
+            if (BenchConstants.numIterations > 1) {
                 //warm up
                 run(spi, product);
             }
@@ -59,7 +59,7 @@ public abstract class Benchmark extends TestCase {
             final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
             timeMonitor.start();
 
-            for(int i=0; i< BenchConstants.numIterations; ++i) {
+            for (int i = 0; i < BenchConstants.numIterations; ++i) {
                 MemUtils.freeAllMemory();
                 run(spi, product);
             }
@@ -70,11 +70,11 @@ public abstract class Benchmark extends TestCase {
             final int h = product.getSceneRasterHeight();
             final long seconds = duration / BenchConstants.numIterations;
 
-            System.out.println(spi.getOperatorAlias() +' '+ mission +' '+ product.getProductType() +' '+w +'x'+ h
-                    +" avg time: "+ ProcessTimeMonitor.formatDuration(seconds) +" ("+ seconds +" s)");
+            System.out.println(spi.getOperatorAlias() + ' ' + mission + ' ' + product.getProductType() + ' ' + w + 'x' + h
+                    + " avg time: " + ProcessTimeMonitor.formatDuration(seconds) + " (" + seconds + " s)");
             System.out.flush();
-        } catch(Throwable t) {
-            System.out.println("Test failed " + spi.getOperatorAlias() +' '+ product.getProductType());
+        } catch (Throwable t) {
+            System.out.println("Test failed " + spi.getOperatorAlias() + ' ' + product.getProductType());
             throw t;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,8 +22,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
- * A reader for reading binary files 
- *
+ * A reader for reading binary files
  */
 public final class BinaryFileReader {
 
@@ -42,7 +41,7 @@ public final class BinaryFileReader {
     }
 
     public void setByteOrder(ByteOrder order) {
-         _stream.setByteOrder(order);
+        _stream.setByteOrder(order);
     }
 
     public void seek(final long pos) throws IOException {
@@ -114,54 +113,54 @@ public final class BinaryFileReader {
     }
 
     public void read(final byte[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public void read(final char[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public void read(final short[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public void read(final int[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public void read(final long[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public void read(final float[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public void read(final double[] array) throws IOException {
-            _stream.readFully(array, 0, array.length);
+        _stream.readFully(array, 0, array.length);
     }
 
     public long readIn(final int n) throws IOException, IllegalBinaryFormatException {
         final long streamPosition = _stream.getStreamPosition();
         final String longStr = readAn(n).trim();
-        if(longStr.isEmpty()) return 0;
+        if (longStr.isEmpty()) return 0;
         return parseLong(longStr, streamPosition);
     }
 
     private static long parseLong(String integerStr, long streamPosition) throws IllegalBinaryFormatException {
         long number;
         try {
-            number = Long .parseLong(integerStr);
+            number = Long.parseLong(integerStr);
         } catch (NumberFormatException e) {
 
             final String newStr = createIntegerString(integerStr,
-                new char[]{'.', '-'}, ' ').trim();
+                    new char[]{'.', '-'}, ' ').trim();
             try {
-                if(newStr.isEmpty() || newStr.equals(".") || newStr.equals("-")) return 0;
+                if (newStr.isEmpty() || newStr.equals(".") || newStr.equals("-")) return 0;
                 number = Long.parseLong(newStr);
             } catch (NumberFormatException e2) {
                 final String message = String.format(EM_NOT_PARSABLE_X_STRING + " \"" + integerStr + '"',
-                                                                    new Object[]{"integer"});
+                        new Object[]{"integer"});
                 throw new IllegalBinaryFormatException(message, streamPosition, e);
             }
         }
@@ -171,8 +170,8 @@ public final class BinaryFileReader {
     public double readFn(final int n) throws IOException, IllegalBinaryFormatException {
         final long streamPosition = _stream.getStreamPosition();
         String doubleString = readAn(n).trim();
-        if(doubleString.isEmpty()) return 0;
-        doubleString = doubleString.replaceAll("D","E");
+        if (doubleString.isEmpty()) return 0;
+        doubleString = doubleString.replaceAll("D", "E");
         try {
             return Double.parseDouble(doubleString);
         } catch (NumberFormatException e) {
@@ -197,7 +196,7 @@ public final class BinaryFileReader {
         final byte[] b = new byte[n];
         int bytesRead = _stream.read(b);
         String str = new String(b).trim();
-        if(str.isEmpty()) return 0;
+        if (str.isEmpty()) return 0;
 
         ByteBuffer bBuffer = ByteBuffer.wrap(b);
         double d = bBuffer.getDouble();
@@ -220,7 +219,7 @@ public final class BinaryFileReader {
             throw new IllegalBinaryFormatException(message, streamPosition);
         }
         final String str = new String(bytes);
-        if(str.contains("\0"))
+        if (str.contains("\0"))
             return str.replace("\0", " ");
 
         return str;

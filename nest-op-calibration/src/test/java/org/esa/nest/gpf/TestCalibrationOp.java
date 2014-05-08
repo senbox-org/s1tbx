@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,18 +28,18 @@ public class TestCalibrationOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Calib.dim";
+    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Calib.dim";
 
-    private final static String inputPathIMP =     TestUtils.rootPathExpectedProducts+"\\input\\subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43.dim";
-    private final static String expectedPathIMP =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43_Calib.dim";
-    private final static String inputPathIMS =     TestUtils.rootPathExpectedProducts+"\\input\\subset_0_of_ERS-2_SAR_SLC-ORBIT_10249_DATE__06-APR-1997_03_09_34.dim";
-    private final static String expectedPathIMS =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_ERS-2_SAR_SLC-ORBIT_10249_DATE__06-APR-1997_03_09_34_Calib.dim";
+    private final static String inputPathIMP = TestUtils.rootPathExpectedProducts + "\\input\\subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43.dim";
+    private final static String expectedPathIMP = TestUtils.rootPathExpectedProducts + "\\expected\\subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43_Calib.dim";
+    private final static String inputPathIMS = TestUtils.rootPathExpectedProducts + "\\input\\subset_0_of_ERS-2_SAR_SLC-ORBIT_10249_DATE__06-APR-1997_03_09_34.dim";
+    private final static String expectedPathIMS = TestUtils.rootPathExpectedProducts + "\\expected\\subset_0_of_ERS-2_SAR_SLC-ORBIT_10249_DATE__06-APR-1997_03_09_34_Calib.dim";
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U" };
-    private String[] exceptionExemptions = { "not supported",
-                                             "calibration has already been applied",
-                                             "Cannot apply calibration to coregistered product"};
+    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U"};
+    private String[] exceptionExemptions = {"not supported",
+            "calibration has already been applied",
+            "Cannot apply calibration to coregistered product"};
 
     @Override
     protected void setUp() throws Exception {
@@ -66,7 +66,8 @@ public class TestCalibrationOp extends TestCase {
 
     /**
      * Processes a product and compares it to processed product known to be correct
-     * @param inputPath the path to the input product
+     *
+     * @param inputPath    the path to the input product
      * @param expectedPath the path to the expected product
      * @throws Exception general exception
      */
@@ -74,44 +75,38 @@ public class TestCalibrationOp extends TestCase {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPath);
 
-        final CalibrationOp op = (CalibrationOp)spi.createOperator();
+        final CalibrationOp op = (CalibrationOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, false, false);
-    //    TestUtils.compareProducts(op, targetProduct, expectedPath, null);
-    // todo fix expected output files
+        //    TestUtils.compareProducts(op, targetProduct, expectedPath, null);
+        // todo fix expected output files
     }
 
-    public void testProcessAllASAR() throws Exception
-    {
+    public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
     }
 
-    public void testProcessAllERS() throws Exception
-    {
+    public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
     }
 
-    public void testProcessAllALOS() throws Exception
-    {
+    public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, productTypeExemptions, null);
     }
 
-    public void testProcessAllRadarsat2() throws Exception
-    {
+    public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, productTypeExemptions, null);
     }
 
-    public void testProcessAllCosmo() throws Exception
-    {
+    public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, productTypeExemptions, exceptionExemptions);
     }
 
-    public void testProcessAllNestBox() throws Exception
-    {
+    public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

@@ -6,18 +6,18 @@
 
     <tocitem text="Graph Processing">
         <tocitem text="Geometry Operators">
-			<tocitem text="CreateElevation" target="CreateElevationOp"/>
-			<tocitem text="Range Doppler Terrain Correction" target="RangeDopplerGeocodingOp"/>
-			<tocitem text="SAR Simulation Terrain Correction" target="SARSimGeocodingOp"/>
-			<tocitem text="SAR Simulation" target="SARSimOp"/>
-			<tocitem text="Geolocation Grid Ellipsoid Correction" target="GeolocationGridGeocodingOp"/>
-			<tocitem text="Average Height RD Ellipsoid Correction" target="EllipsoidCorrectionRDOp"/>
-			<tocitem text="Map Projection" target="MapProjectionOp"/>
-			<tocitem text="Slant Range to Ground Range" target="SRGROp"/>
-			<tocitem text="Mosaic" target="MosaicOp"/>
-			<tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
-			<tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
-		</tocitem>
+            <tocitem text="CreateElevation" target="CreateElevationOp"/>
+            <tocitem text="Range Doppler Terrain Correction" target="RangeDopplerGeocodingOp"/>
+            <tocitem text="SAR Simulation Terrain Correction" target="SARSimGeocodingOp"/>
+            <tocitem text="SAR Simulation" target="SARSimOp"/>
+            <tocitem text="Geolocation Grid Ellipsoid Correction" target="GeolocationGridGeocodingOp"/>
+            <tocitem text="Average Height RD Ellipsoid Correction" target="EllipsoidCorrectionRDOp"/>
+            <tocitem text="Map Projection" target="MapProjectionOp"/>
+            <tocitem text="Slant Range to Ground Range" target="SRGROp"/>
+            <tocitem text="Mosaic" target="MosaicOp"/>
+            <tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
+            <tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
+        </tocitem>
     </tocitem>
-    
+
 </toc>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -106,21 +106,21 @@ public class FilePointerRecordTest extends TestCase {
 
         assertNotNull(record);
         assertEquals("A ", record.getAttributeString("Ascii code character"));
-        assertEquals(2, (int)record.getAttributeInt("File Pointer Number"));
+        assertEquals(2, (int) record.getAttributeInt("File Pointer Number"));
         assertEquals("AL PSMB2IMGYBSQ ", record.getAttributeString("File ID"));
         assertEquals("IMAGERY                     ", record.getAttributeString("File class"));
         assertEquals("IMGY", record.getAttributeString("File class code"));
         assertEquals("BINARY ONLY                 ", record.getAttributeString("File datatype"));
         assertEquals("BINO", record.getAttributeString("File datatype Code"));
-        assertEquals(14001, (int)record.getAttributeInt("Number of records"));
-        assertEquals(897623, (int)record.getAttributeInt("FirstRecordLength"));
-        assertEquals(8634264, (int)record.getAttributeInt("MaxRecordLength"));
+        assertEquals(14001, (int) record.getAttributeInt("Number of records"));
+        assertEquals(897623, (int) record.getAttributeInt("FirstRecordLength"));
+        assertEquals(8634264, (int) record.getAttributeInt("MaxRecordLength"));
         assertEquals("FIXED LENGTH", record.getAttributeString("RecordLengthType"));
         assertEquals("FIXD", record.getAttributeString("RecordLengthTypeCode"));
-        assertEquals(1, (int)record.getAttributeInt("FirstRecordVolumeNumber"));
-        assertEquals(2, (int)record.getAttributeInt("FinalRecordVolumeNumber"));
-        assertEquals(3, (int)record.getAttributeInt("ReferencedFilePortionStart"));
-        assertEquals(17, (int)record.getAttributeInt("ReferencedFilePortionEnd"));
+        assertEquals(1, (int) record.getAttributeInt("FirstRecordVolumeNumber"));
+        assertEquals(2, (int) record.getAttributeInt("FinalRecordVolumeNumber"));
+        assertEquals(3, (int) record.getAttributeInt("ReferencedFilePortionStart"));
+        assertEquals(17, (int) record.getAttributeInt("ReferencedFilePortionEnd"));
     }
 
     private static void writeRecordData(ImageOutputStream ios) throws IOException {
@@ -146,8 +146,8 @@ public class FilePointerRecordTest extends TestCase {
 
         // Blank = 208 blanks
         ios.writeBytes("                                                  " +
-                       "                                                  " +
-                       "                                                  " +
-                       "                                                  "); // A208
+                "                                                  " +
+                "                                                  " +
+                "                                                  "); // A208
     }
 }

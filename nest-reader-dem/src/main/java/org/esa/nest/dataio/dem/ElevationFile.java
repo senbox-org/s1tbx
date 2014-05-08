@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,18 +50,18 @@ public abstract class ElevationFile {
     public ElevationFile(final File localFile, final ProductReader reader) {
         this.localFile = localFile;
         this.localZipFile = new File(localFile.getParentFile(),
-                    FileUtils.getFilenameWithoutExtension(localFile)+".zip");
+                FileUtils.getFilenameWithoutExtension(localFile) + ".zip");
         this.productReader = reader;
     }
 
     public void dispose() {
         try {
-            if(ftp != null)
+            if (ftp != null)
                 ftp.disconnect();
             ftp = null;
             tile.dispose();
             tile = null;
-        } catch(Exception e) {
+        } catch (Exception e) {
             //
         }
     }
@@ -71,8 +71,8 @@ public abstract class ElevationFile {
     }
 
     public final ElevationTile getTile() throws IOException {
-        if(tile == null) {
-            if(!remoteFileExists && !localFileExists)
+        if (tile == null) {
+            if (!remoteFileExists && !localFileExists)
                 return null;
             getFile();
         }
@@ -89,32 +89,32 @@ public abstract class ElevationFile {
 
     private synchronized void getFile() throws IOException {
         try {
-            if(tile != null) return;
-            if(!localFileExists && !errorInLocalFile) {
+            if (tile != null) return;
+            if (!localFileExists && !errorInLocalFile) {
                 localFileExists = findLocalFile();
             }
-            if(localFileExists) {
+            if (localFileExists) {
                 getLocalFile();
-            } else if(remoteFileExists) {
-                if(getRemoteFile()) {
+            } else if (remoteFileExists) {
+                if (getRemoteFile()) {
                     getLocalFile();
                 }
             }
-            if(tile != null) {
+            if (tile != null) {
                 errorInLocalFile = false;
             } else {
-                if(!remoteFileExists && localFileExists) {
-                    System.out.println("Unable to reader product "+localFile.getAbsolutePath());
+                if (!remoteFileExists && localFileExists) {
+                    System.out.println("Unable to reader product " + localFile.getAbsolutePath());
                 }
                 localFileExists = false;
                 errorInLocalFile = true;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             tile = null;
             localFileExists = false;
             errorInLocalFile = true;
-            if(unrecoverableError) {
+            if (unrecoverableError) {
                 throw new IOException(e);
             }
         }
@@ -122,11 +122,11 @@ public abstract class ElevationFile {
 
     private void getLocalFile() throws IOException {
         File dataFile = localFile;
-        if(!dataFile.exists())
+        if (!dataFile.exists())
             dataFile = getFileFromZip(localZipFile);
-        if(dataFile != null) {
+        if (dataFile != null) {
             final Product product = productReader.readProductNodes(dataFile, null);
-            if(product != null) {
+            if (product != null) {
                 tile = createTile(product);
             }
         }
@@ -140,19 +140,19 @@ public abstract class ElevationFile {
 
     protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
         final VisatApp visatApp = VisatApp.getApp();
-        final String remotePath = baseUrl+localZipFile.getName();
-        System.out.println("http retrieving "+remotePath);
+        final String remotePath = baseUrl + localZipFile.getName();
+        System.out.println("http retrieving " + remotePath);
         try {
-            if(visatApp != null)
-                visatApp.setStatusBarMessage("Downloading "+localZipFile.getName());
+            if (visatApp != null)
+                visatApp.setStatusBarMessage("Downloading " + localZipFile.getName());
 
             downloadFile(new URL(remotePath), localZipFile);
 
-            if(visatApp != null)
-                    visatApp.setStatusBarMessage("");
+            if (visatApp != null)
+                visatApp.setStatusBarMessage("");
             return true;
-        } catch(Exception e) {
-            System.out.println("http error:"+e.getMessage() + " on " + remotePath);
+        } catch (Exception e) {
+            System.out.println("http error:" + e.getMessage() + " on " + remotePath);
             remoteFileExists = false;
         }
         return false;
@@ -161,10 +161,11 @@ public abstract class ElevationFile {
     /**
      * Downloads a file from the specified URL to the specified local target directory.
      * The method uses a Swing progress monitor to visualize the download process.
-     * @param fileUrl the URL of the file to be downloaded
+     *
+     * @param fileUrl      the URL of the file to be downloaded
      * @param localZipFile the target file
-     * @throws IOException if an I/O error occurs
      * @return File the downloaded file
+     * @throws IOException if an I/O error occurs
      */
     private static File downloadFile(final URL fileUrl, final File localZipFile) throws IOException {
         final File outputFile = new File(localZipFile.getParentFile(), new File(fileUrl.getFile()).getName());
@@ -181,14 +182,14 @@ public abstract class ElevationFile {
 
         try {
             final StatusProgressMonitor status = new StatusProgressMonitor(contentLength,
-                    "Downloading "+localZipFile.getName()+"... ");
+                    "Downloading " + localZipFile.getName() + "... ");
             status.setAllowStdOut(false);
 
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
             int total = 0;
-            while ((n = is.read(buf, 0, size)) > -1)  {
+            while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
                 total += n;
                 status.worked(total);
@@ -217,7 +218,7 @@ public abstract class ElevationFile {
 
     protected boolean getRemoteFTPFile() throws IOException {
         try {
-            if(ftp == null) {
+            if (ftp == null) {
                 ftp = new ftpUtils(getRemoteFTP());
                 fileSizeMap = ftpUtils.readRemoteFileList(ftp, getRemoteFTP(), getRemotePath());
             }
@@ -226,10 +227,10 @@ public abstract class ElevationFile {
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
             final ftpUtils.FTPError result = ftp.retrieveFile(getRemotePath() + remoteFileName, localZipFile, fileSize);
-            if(result == ftpUtils.FTPError.OK) {
+            if (result == ftpUtils.FTPError.OK) {
                 return true;
             } else {
-                if(result == ftpUtils.FTPError.FILE_NOT_FOUND) {
+                if (result == ftpUtils.FTPError.FILE_NOT_FOUND) {
                     remoteFileExists = false;
                 } else {
                     dispose();
@@ -237,16 +238,16 @@ public abstract class ElevationFile {
                 localZipFile.delete();
             }
             return false;
-        } catch(SocketException e) {
+        } catch (SocketException e) {
             unrecoverableError = true;
             throw e;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            if(ftp == null) {
+            if (ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
-                throw new IOException("Failed to connect to FTP "+ getRemoteFTP()+
-                        '\n' +e.getMessage());
+                throw new IOException("Failed to connect to FTP " + getRemoteFTP() +
+                        '\n' + e.getMessage());
             }
             dispose();
         }
@@ -258,7 +259,7 @@ public abstract class ElevationFile {
         if (ext.equalsIgnoreCase(".zip")) {
             final String baseName = localFile.getName();
             final File newFile = new File(ResourceUtils.getApplicationUserTempDataDir(), baseName);
-            if(newFile.exists())
+            if (newFile.exists())
                 return newFile;
 
             ZipFile zipFile = null;
@@ -272,7 +273,7 @@ public abstract class ElevationFile {
                     zipEntry = zipFile.getEntry(baseName.toLowerCase());
                     if (zipEntry == null) {
                         final String folderName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
-                        zipEntry = zipFile.getEntry(folderName +'/'+ localFile.getName());
+                        zipEntry = zipFile.getEntry(folderName + '/' + localFile.getName());
                         if (zipEntry == null) {
                             localFileExists = false;
                             throw new IOException("Entry '" + baseName + "' not found in zip file.");
@@ -289,14 +290,14 @@ public abstract class ElevationFile {
                     fileoutputstream.write(buf, 0, n);
 
                 return newFile;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
                 dataFile.delete();
                 return null;
             } finally {
-                if(zipFile != null)
+                if (zipFile != null)
                     zipFile.close();
-                if(fileoutputstream != null)
+                if (fileoutputstream != null)
                     fileoutputstream.close();
             }
         }

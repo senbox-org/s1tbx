@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -289,7 +289,7 @@ public class BinaryFileReaderTest extends TestCase {
     }
 
     public void testReadGnArray() throws IllegalBinaryFormatException,
-                                         IOException {
+            IOException {
         _ios.writeBytes("-1.06962770630708111E+01");
         _ios.writeBytes(" 1.28993192035406507E-05");
         _ios.writeBytes("-8.94946528898421729E-05");

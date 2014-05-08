@@ -5,7 +5,7 @@
 
 <map version="2.0">
 
-    <mapID target="CalibrationOp" url="operators/CalibrationOp.html"/>	
-	<mapID target="RemoveAntennaPatternOp" url="operators/RemoveAntennaPatternOp.html"/>
+    <mapID target="CalibrationOp" url="operators/CalibrationOp.html"/>
+    <mapID target="RemoveAntennaPatternOp" url="operators/RemoveAntennaPatternOp.html"/>
 
 </map>

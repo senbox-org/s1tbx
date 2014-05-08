@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,9 +23,9 @@ import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.eo.Constants;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -73,7 +73,7 @@ public abstract class CEOSProductDirectory {
         binaryReader.close();
 
         productType = volumeDirectoryFile.getProductType();
-        if(productType == null || productType.equals("unknown"))
+        if (productType == null || productType.equals("unknown"))
             throw new IOException("Unable to read level 0 product");
 
         isProductSLC = productType.contains("SLC") || productType.contains("COMPLEX");
@@ -84,7 +84,7 @@ public abstract class CEOSProductDirectory {
         final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
         final String mission = constants.getMission();
 
-        if(volumeDirectoryFile == null) {
+        if (volumeDirectoryFile == null) {
             volumeDirectoryFile = new CEOSVolumeDirectoryFile(binaryReader, mission);
         }
         binaryReader.close();
@@ -93,22 +93,22 @@ public abstract class CEOSProductDirectory {
     public boolean isSLC() {
         return isProductSLC;
     }
-    
+
     protected String getSampleType() {
-        if(isProductSLC)
+        if (isProductSLC)
             return "COMPLEX";
         else
             return "DETECTED";
     }
 
     protected final String getVolumeId() throws IOException {
-        if(volumeDirectoryFile == null)
+        if (volumeDirectoryFile == null)
             readVolumeDiscriptor();
         return volumeDirectoryFile.getVolumeDescriptorRecord().getAttributeString("Volume set ID");
     }
 
     protected final String getLogicalVolumeId() throws IOException {
-        if(volumeDirectoryFile == null)
+        if (volumeDirectoryFile == null)
             readVolumeDiscriptor();
         return volumeDirectoryFile.getVolumeDescriptorRecord().getAttributeString("Logical volume ID");
     }
@@ -122,18 +122,18 @@ public abstract class CEOSProductDirectory {
             final int gridWidth = 11;
             final int gridHeight = 11;
 
-            final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
-            final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
+            final float subSamplingX = (float) product.getSceneRasterWidth() / (float) (gridWidth - 1);
+            final float subSamplingY = (float) product.getSceneRasterHeight() / (float) (gridHeight - 1);
 
             // add incidence angle tie point grid
-            if(facility != null) {
+            if (facility != null) {
 
                 final double angle1 = facility.getAttributeDouble("Incidence angle at first range pixel");
                 final double angle2 = facility.getAttributeDouble("Incidence angle at centre range pixel");
                 final double angle3 = facility.getAttributeDouble("Incidence angle at last valid range pixel");
 
-                final float[] angles = new float[]{(float)angle1, (float)angle2, (float)angle3};
-                final float[] fineAngles = new float[gridWidth*gridHeight];
+                final float[] angles = new float[]{(float) angle1, (float) angle2, (float) angle3};
+                final float[] fineAngles = new float[gridWidth * gridHeight];
 
                 ReaderUtils.createFineTiePointGrid(3, 1, gridWidth, gridHeight, angles, fineAngles);
 
@@ -144,14 +144,14 @@ public abstract class CEOSProductDirectory {
                 product.addTiePointGrid(incidentAngleGrid);
             }
             // add slant range time tie point grid
-            if(scene != null) {
+            if (scene != null) {
 
-                final double time1 = scene.getAttributeDouble("Zero-doppler range time of first range pixel")*1000000; // ms to ns
-                final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel")*1000000; // ms to ns
-                final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel")*1000000; // ms to ns
+                final double time1 = scene.getAttributeDouble("Zero-doppler range time of first range pixel") * 1000000; // ms to ns
+                final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel") * 1000000; // ms to ns
+                final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel") * 1000000; // ms to ns
 
-                final float[] times = new float[]{(float)time1, (float)time2, (float)time3};
-                final float[] fineTimes = new float[gridWidth*gridHeight];
+                final float[] times = new float[]{(float) time1, (float) time2, (float) time3};
+                final float[] fineTimes = new float[gridWidth * gridHeight];
 
                 ReaderUtils.createFineTiePointGrid(3, 1, gridWidth, gridHeight, times, fineTimes);
 
@@ -161,19 +161,19 @@ public abstract class CEOSProductDirectory {
 
                 product.addTiePointGrid(slantRangeTimeGrid);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
 
         }
     }
 
-    protected Band createBand(final Product product, final String name, final String unit, final int bitsPerSample){
+    protected Band createBand(final Product product, final String name, final String unit, final int bitsPerSample) {
 
         int dataType = ProductData.TYPE_UINT16;
-        if(bitsPerSample == 16) {
+        if (bitsPerSample == 16) {
             dataType = isProductSLC ? ProductData.TYPE_INT16 : ProductData.TYPE_UINT16;
-        } else if(bitsPerSample == 32) {
+        } else if (bitsPerSample == 32) {
             dataType = ProductData.TYPE_FLOAT32;
-        } else if(bitsPerSample == 8) {
+        } else if (bitsPerSample == 8) {
             dataType = isProductSLC ? ProductData.TYPE_INT8 : ProductData.TYPE_UINT8;
         }
         final Band band = new Band(name, dataType, sceneWidth, sceneHeight);
@@ -192,27 +192,27 @@ public abstract class CEOSProductDirectory {
             final String procTime = volDescRec.getAttributeString("Logical volume preparation time").trim();
 
             return ProductData.UTC.parse(procDate + procTime, "yyyyMMddHHmmss");
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             System.out.println(e.toString());
             return AbstractMetadata.NO_METADATA_UTC;
         }
     }
 
     protected static String getPass(final BinaryRecord mapProjRec, final BinaryRecord sceneRec) {
-        if(mapProjRec != null) {
+        if (mapProjRec != null) {
             final Double heading = mapProjRec.getAttributeDouble("Platform heading at nadir corresponding to scene centre");
-            if(heading != null) {
-                if(heading > 90 && heading < 270) return "DESCENDING";
+            if (heading != null) {
+                if (heading > 90 && heading < 270) return "DESCENDING";
                 else return "ASCENDING";
             }
         }
-        if(sceneRec != null) {
+        if (sceneRec != null) {
             String pass = sceneRec.getAttributeString("Ascending or Descending flag");
-            if(pass == null) {
+            if (pass == null) {
                 pass = sceneRec.getAttributeString("Time direction indicator along line direction");
             }
-            if(pass != null) {
-                if(pass.toUpperCase().trim().startsWith("DESC"))
+            if (pass != null) {
+                if (pass.toUpperCase().trim().startsWith("DESC"))
                     return "DESCENDING";
                 else
                     return "ASCENDING";
@@ -222,35 +222,35 @@ public abstract class CEOSProductDirectory {
     }
 
     protected static ProductData.UTC getUTCScanStartTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
-        if(sceneRec != null) {
+        if (sceneRec != null) {
             final String startTime = sceneRec.getAttributeString("Zero-doppler azimuth time of first azimuth pixel");
-            if(startTime != null)
+            if (startTime != null)
                 return AbstractMetadata.parseUTC(startTime);
         }
-        if(detailProcRec != null) {
+        if (detailProcRec != null) {
             final String startTime = detailProcRec.getAttributeString("Processing start time");
-            if(startTime != null)
+            if (startTime != null)
                 return AbstractMetadata.parseUTC(startTime, dateFormat);
         }
         return AbstractMetadata.NO_METADATA_UTC;
     }
 
     protected static ProductData.UTC getUTCScanStopTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
-        if(sceneRec != null) {
+        if (sceneRec != null) {
             final String endTime = sceneRec.getAttributeString("Zero-doppler azimuth time of last azimuth pixel");
-            if(endTime != null)
+            if (endTime != null)
                 return AbstractMetadata.parseUTC(endTime);
         }
-        if(detailProcRec != null) {
+        if (detailProcRec != null) {
             final String endTime = detailProcRec.getAttributeString("Processing stop time");
-            if(endTime != null)
+            if (endTime != null)
                 return AbstractMetadata.parseUTC(endTime, dateFormat);
         }
         return AbstractMetadata.NO_METADATA_UTC;
     }
 
-    protected static void addSummaryMetadata(final File summaryFile, final String name, final MetadataElement parent) 
-                                            throws IOException {
+    protected static void addSummaryMetadata(final File summaryFile, final String name, final MetadataElement parent)
+            throws IOException {
         if (!summaryFile.exists())
             return;
 
@@ -272,7 +272,7 @@ public abstract class CEOSProductDirectory {
             final String data = ((String) entry.getValue()).trim();
             // strip of double quotes
             String strippedData = "";
-            if(data.length() > 2)
+            if (data.length() > 2)
                 strippedData = data.substring(1, data.length() - 1);
             final MetadataAttribute attribute = new MetadataAttribute((String) entry.getKey(),
                     new ProductData.ASCII(strippedData), true);
@@ -283,13 +283,13 @@ public abstract class CEOSProductDirectory {
     }
 
     protected static void assertSameWidthAndHeightForAllImages(final CEOSImageFile[] imageFiles,
-                                                      final int width, final int height) {
+                                                               final int width, final int height) {
         for (int i = 0; i < imageFiles.length; i++) {
             final CEOSImageFile imageFile = imageFiles[i];
             Guardian.assertTrue("_sceneWidth == imageFile[" + i + "].getRasterWidth()",
-                                width == imageFile.getRasterWidth());
+                    width == imageFile.getRasterWidth());
             Guardian.assertTrue("_sceneHeight == imageFile[" + i + "].getRasterHeight()",
-                                height == imageFile.getRasterHeight());
+                    height == imageFile.getRasterHeight());
         }
     }
 
@@ -300,46 +300,46 @@ public abstract class CEOSProductDirectory {
 
     protected static int isGroundRange(final BinaryRecord mapProjRec) {
         final String projDesc = mapProjRec.getAttributeString("Map projection descriptor").toLowerCase();
-        if(projDesc.contains("slant"))
+        if (projDesc.contains("slant"))
             return 0;
         return 1;
     }
 
     protected static void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
-        if(platformPosRec == null) return;
-        
+        if (platformPosRec == null) return;
+
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         final int numPoints = platformPosRec.getAttributeInt("Number of data points");
 
-        for(int i=1; i <= numPoints; ++i) {
+        for (int i = 1; i <= numPoints; ++i) {
             addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, platformPosRec, i);
         }
 
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+        if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
-            
+
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                getOrbitTime(platformPosRec, 1));
+                    getOrbitTime(platformPosRec, 1));
         }
     }
 
     private static void addVector(String name, MetadataElement orbitVectorListElem,
                                   BinaryRecord platformPosRec, int num) {
-        final MetadataElement orbitVectorElem = new MetadataElement(name+num);
+        final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time, getOrbitTime(platformPosRec, num));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                platformPosRec.getAttributeDouble("Position vector X "+num));
+                platformPosRec.getAttributeDouble("Position vector X " + num));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                platformPosRec.getAttributeDouble("Position vector Y "+num));
+                platformPosRec.getAttributeDouble("Position vector Y " + num));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                platformPosRec.getAttributeDouble("Position vector Z "+num));
+                platformPosRec.getAttributeDouble("Position vector Z " + num));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                platformPosRec.getAttributeDouble("Velocity vector X' "+num));
+                platformPosRec.getAttributeDouble("Velocity vector X' " + num));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                platformPosRec.getAttributeDouble("Velocity vector Y' "+num));
+                platformPosRec.getAttributeDouble("Velocity vector Y' " + num));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                platformPosRec.getAttributeDouble("Velocity vector Z' "+num));
+                platformPosRec.getAttributeDouble("Velocity vector Z' " + num));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
@@ -349,27 +349,27 @@ public abstract class CEOSProductDirectory {
         final int month = platformPosRec.getAttributeInt("Month of data point");
         final int day = platformPosRec.getAttributeInt("Day of data point");
         Double secondsOfDay = platformPosRec.getAttributeDouble("Seconds of day");
-        if(secondsOfDay == null)
+        if (secondsOfDay == null)
             secondsOfDay = 0.0;
         final double hoursf = secondsOfDay / 3600f;
-        final int hour = (int)hoursf;
+        final int hour = (int) hoursf;
         final double minutesf = (hoursf - hour) * 60f;
-        final int minute = (int)minutesf;
-        float second = ((float)minutesf - minute) * 60f;
+        final int minute = (int) minutesf;
+        float second = ((float) minutesf - minute) * 60f;
 
         Double interval = platformPosRec.getAttributeDouble("Time interval between DATA points");
         if (interval == null || interval <= 0.0) {
             System.out.println("CEOSProductDirectory: Time interval between DATA points in Platform Position Data is " + interval);
             interval = 0.0;
         }
-        second += interval * (num-1);
+        second += interval * (num - 1);
 
-        return AbstractMetadata.parseUTC(String.valueOf(year)+'-'+month+'-'+day+' '+
-                                  hour+':'+minute+':'+second, AbstractMetadata.dateFormat);
+        return AbstractMetadata.parseUTC(String.valueOf(year) + '-' + month + '-' + day + ' ' +
+                hour + ':' + minute + ':' + second, AbstractMetadata.dateFormat);
     }
 
     protected static void addSRGRCoefficients(final MetadataElement absRoot, final BinaryRecord facilityRec) {
-        if(facilityRec == null) return;
+        if (facilityRec == null) return;
 
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
 
@@ -393,7 +393,7 @@ public abstract class CEOSProductDirectory {
     }
 
     protected static void addSRGRCoef(final MetadataElement srgrListElem, final BinaryRecord rec, final String tag, int cnt) {
-        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
         srgrListElem.addElement(coefElem);
 
         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
@@ -402,7 +402,7 @@ public abstract class CEOSProductDirectory {
     }
 
     protected static void addDopplerCentroidCoefficients(final MetadataElement absRoot, final BinaryRecord sceneRec) {
-        if(sceneRec == null) return;
+        if (sceneRec == null) return;
 
         final MetadataElement dopCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
@@ -421,7 +421,7 @@ public abstract class CEOSProductDirectory {
     }
 
     protected static void addDopCoef(final MetadataElement dopListElem, final BinaryRecord rec, final String tag, int cnt) {
-        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
         dopListElem.addElement(coefElem);
 
         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef, ProductData.TYPE_FLOAT64, "", tag);
@@ -429,7 +429,7 @@ public abstract class CEOSProductDirectory {
     }
 
     protected static ImageInputStream createInputStream(final File file) throws IOException {
-        if(file == null) return null;
+        if (file == null) return null;
         return FileImageInputStreamExtImpl.createInputStream(file);
     }
 }

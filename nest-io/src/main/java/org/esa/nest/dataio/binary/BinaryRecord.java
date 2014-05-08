@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,7 +39,7 @@ public class BinaryRecord {
             this.startPos = reader.getCurrentPos();
         }
 
-        if(startPos >= reader.getLength()) {
+        if (startPos >= reader.getLength()) {
             recordLength = 0;
             db = null;
             return;
@@ -76,11 +76,11 @@ public class BinaryRecord {
     }
 
     public final BinaryDBReader getBinaryDatabase() {
-        return db; 
+        return db;
     }
 
     public long getRecordEndPosition() {
-        if(recordLength != null)
+        if (recordLength != null)
             return startPos + recordLength;
         return startPos;
     }
@@ -90,7 +90,7 @@ public class BinaryRecord {
     }
 
     public void assignMetadataTo(final MetadataElement elem) {
-        if(db != null) {
+        if (db != null) {
             db.assignMetadataTo(elem);
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,10 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Kernel;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -35,10 +38,10 @@ import java.util.Map;
  * The sample operator implementation for an algorithm
  * that can compute bands independently of each other.
  */
-@OperatorMetadata(alias="Image-Filter",
+@OperatorMetadata(alias = "Image-Filter",
         category = "Image Processing",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Common Image Processing Filters")
 public class FilterOperator extends Operator {
 
@@ -48,13 +51,13 @@ public class FilterOperator extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
-    
+
     @Parameter
     private String selectedFilterName = null;
 
-    @Parameter(description = "The kernel file", label="Kernel File")
+    @Parameter(description = "The kernel file", label = "Kernel File")
     private File userDefinedKernelFile = null;
 
     private transient Map<Band, Band> bandMap;
@@ -70,11 +73,11 @@ public class FilterOperator extends Operator {
         populateFilterMap(SMOOTHING_FILTERS);
         populateFilterMap(SHARPENING_FILTERS);
         populateFilterMap(LAPLACIAN_FILTERS);
-       // populateFilterMap(NON_LINEAR_FILTERS);
+        // populateFilterMap(NON_LINEAR_FILTERS);
     }
 
     private void populateFilterMap(Filter[] filters) {
-        for(Filter f : filters) {
+        for (Filter f : filters) {
             filterMap.put(f.toString(), f);
         }
     }
@@ -88,8 +91,7 @@ public class FilterOperator extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -145,8 +147,7 @@ public class FilterOperator extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -182,11 +183,11 @@ public class FilterOperator extends Operator {
         final float[][] kernelData = UndersamplingOp.readFile(userDefinedKernelFile.getAbsolutePath());
         final int filterWidth = kernelData.length;
         final int filterHeight = kernelData[0].length;
-        final double[] data = new double[filterWidth*filterHeight];
+        final double[] data = new double[filterWidth * filterHeight];
         int k = 0;
         for (int r = 0; r < filterHeight; r++) {
             for (int c = 0; c < filterWidth; c++) {
-                data[k++] = (double)kernelData[r][c];
+                data[k++] = (double) kernelData[r][c];
             }
         }
         return new KernelFilter("User Defined Filter", new Kernel(filterWidth, filterHeight, data));
@@ -420,6 +421,7 @@ public class FilterOperator extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see OperatorSpi#createOperator()
      * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

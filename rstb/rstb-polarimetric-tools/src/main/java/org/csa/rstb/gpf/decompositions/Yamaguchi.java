@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,16 +39,17 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
     }
 
     /**
-        Return the list of band names for the target product
+     * Return the list of band names for the target product
      */
     public String[] getTargetBandNames() {
-        return new String[] { "Yamaguchi_dbl_r", "Yamaguchi_vol_g", "Yamaguchi_surf_b", "Yamaguchi_hlx" };
+        return new String[]{"Yamaguchi_dbl_r", "Yamaguchi_vol_g", "Yamaguchi_surf_b", "Yamaguchi_hlx"};
     }
 
     /**
      * Sets the unit for the new target band
+     *
      * @param targetBandName the band name
-     * @param targetBand the new target band
+     * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
@@ -56,24 +57,24 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
 
     /**
      * Perform decomposition for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op              the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                                    final Operator op) throws OperatorException {
+                            final Operator op) throws OperatorException {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         //System.out.println("freeman x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
@@ -110,34 +111,34 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
             }
 
             double ratio, d, cR, cI, c0, s, pd, pv, ps, pc, span, k1, k2, k3;
-            for(int y = y0; y < maxY; ++y) {
+            for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
-                for(int x = x0; x < maxX; ++x) {
+                for (int x = x0; x < maxX; ++x) {
 
                     PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
-                                                       sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                            sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
 
                     span = Tr[0][0] + Tr[1][1] + Tr[2][2];
-                    pc = 2*Math.abs(Ti[1][2]);
-                    ratio = 10*Math.log10(Cr[2][2] / Cr[0][0]);
+                    pc = 2 * Math.abs(Ti[1][2]);
+                    ratio = 10 * Math.log10(Cr[2][2] / Cr[0][0]);
 
                     if (ratio <= -2) {
-                        k1 = 1.0/6.0;
-                        k2 = 7.0/30.0;
-                        k3 = 4.0/15.0;
+                        k1 = 1.0 / 6.0;
+                        k2 = 7.0 / 30.0;
+                        k3 = 4.0 / 15.0;
                     } else if (ratio > 2) {
-                        k1 = -1.0/6.0;
-                        k2 = 7.0/30.0;
-                        k3 = 4.0/15.0;
+                        k1 = -1.0 / 6.0;
+                        k2 = 7.0 / 30.0;
+                        k3 = 4.0 / 15.0;
                     } else { // -2 < ratio <= 2
                         k1 = 0.0;
-                        k2 = 1.0/4.0;
-                        k3 = 1.0/4.0;
+                        k2 = 1.0 / 4.0;
+                        k3 = 1.0 / 4.0;
                     }
 
-                    pv = (Tr[2][2] - 0.5*pc) / k3;
+                    pv = (Tr[2][2] - 0.5 * pc) / k3;
 
                     if (pv <= 0) { // Freeman-Durden 3 component decomposition
                         pc = 0;
@@ -148,20 +149,20 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
 
                     } else { // Yamaguchi 4 component decomposition
 
-                        s = Tr[0][0] - 0.5*pv;
-                        d = Tr[1][1] - k2*pv - 0.5*pc;
-                        cR = Tr[0][1] - k1*pv;
+                        s = Tr[0][0] - 0.5 * pv;
+                        d = Tr[1][1] - k2 * pv - 0.5 * pc;
+                        cR = Tr[0][1] - k1 * pv;
                         cI = Ti[0][1];
 
                         if (pv + pc < span) {
 
-                            c0 = Cr[0][2] - 0.5*Cr[1][1] + 0.5*pc;
+                            c0 = Cr[0][2] - 0.5 * Cr[1][1] + 0.5 * pc;
                             if (c0 < 0) {
-                                ps = s - (cR*cR + cI*cI)/d;
-                                pd = d + (cR*cR + cI*cI)/d;
+                                ps = s - (cR * cR + cI * cI) / d;
+                                pd = d + (cR * cR + cI * cI) / d;
                             } else {
-                                ps = s + (cR*cR + cI*cI)/s;
-                                pd = d - (cR*cR + cI*cI)/s;
+                                ps = s + (cR * cR + cI * cI) / s;
+                                pd = d - (cR * cR + cI * cI) / s;
                             }
 
                             if (ps > 0 && pd < 0) {
@@ -189,16 +190,16 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
                     pc = scaleDb(pc, bandList.spanMin, bandList.spanMax);
 
                     // save Pd as red, Pv as green and Ps as blue
-                    for (TargetInfo target : targetInfo){
+                    for (TargetInfo target : targetInfo) {
 
                         if (target.colour == TargetBandColour.R) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)pd);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) pd);
                         } else if (target.colour == TargetBandColour.G) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)pv);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) pv);
                         } else if (target.colour == TargetBandColour.B) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)ps);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) ps);
                         } else {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)pc);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) pc);
                         }
                     }
                 }

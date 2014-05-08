@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,14 +43,14 @@ public class ReplaceMetadataAction extends ExecCommand {
 
         final Product destProduct = VisatApp.getApp().getSelectedProduct();
         final String[] compatibleProductNames = getCompatibleProducts(destProduct);
-        if(compatibleProductNames.length == 0) {
+        if (compatibleProductNames.length == 0) {
             VisatApp.getApp().showErrorDialog("There are not any compatible products currently opened\nDimensions must be the same");
             return;
         }
 
         final StringSelectorDialog dlg = new StringSelectorDialog("Replace Metadata with", compatibleProductNames);
         dlg.show();
-        if(dlg.IsOK()) {
+        if (dlg.IsOK()) {
             try {
                 final MetadataElement origAbsRoot = AbstractMetadata.getAbstractedMetadata(destProduct);
                 final int isPolsar = origAbsRoot.getAttributeInt(AbstractMetadata.polsarData, 0);
@@ -60,8 +60,8 @@ public class ReplaceMetadataAction extends ExecCommand {
                 final Product[] products = VisatApp.getApp().getProductManager().getProducts();
 
                 Product srcProduct = null;
-                for(Product prod : products) {
-                    if(prod.getDisplayName().equals(srcProductName)) {
+                for (Product prod : products) {
+                    if (prod.getDisplayName().equals(srcProductName)) {
                         srcProduct = prod;
                         break;
                     }
@@ -81,11 +81,11 @@ public class ReplaceMetadataAction extends ExecCommand {
                 VisatApp.getApp().addProduct(destProduct);
 
                 ReplaceMetadataOp.resetPolarizations(AbstractMetadata.getAbstractedMetadata(destProduct),
-                                                     isPolsar, isCalibrated);
+                        isPolsar, isCalibrated);
 
                 tmpMetadataFile.delete();
-            } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to save or load metadata\n"+e.getMessage());
+            } catch (Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to save or load metadata\n" + e.getMessage());
             }
         }
     }
@@ -100,10 +100,10 @@ public class ReplaceMetadataAction extends ExecCommand {
         final List<String> prodList = new ArrayList<String>();
 
         final Product[] products = VisatApp.getApp().getProductManager().getProducts();
-        for(Product p : products) {
-            if(p != destProduct &&
-               p.getSceneRasterWidth() == destProduct.getSceneRasterWidth() &&
-               p.getSceneRasterHeight() == destProduct.getSceneRasterHeight()) {
+        for (Product p : products) {
+            if (p != destProduct &&
+                    p.getSceneRasterWidth() == destProduct.getSceneRasterWidth() &&
+                    p.getSceneRasterHeight() == destProduct.getSceneRasterHeight()) {
                 prodList.add(p.getDisplayName());
             }
         }
@@ -112,13 +112,13 @@ public class ReplaceMetadataAction extends ExecCommand {
 
     private static void clearProductMetadata(final Product product) {
         final String[] tpgNames = product.getTiePointGridNames();
-        for(String tpg : tpgNames) {
+        for (String tpg : tpgNames) {
             product.removeTiePointGrid(product.getTiePointGrid(tpg));
         }
 
         final MetadataElement root = product.getMetadataRoot();
         final MetadataElement[] elems = root.getElements();
-        for(MetadataElement e : elems) {
+        for (MetadataElement e : elems) {
             root.removeElement(e);
         }
         AbstractMetadata.addAbstractedMetadataHeader(product.getMetadataRoot());

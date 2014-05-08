@@ -11,20 +11,20 @@
     <mapID target="doc" url="images/HelpDoc.jpg"/>
 
     <mapID target="Overview" url="general/Overview.html"/>
-	<mapID target="SupportedProducts" url="general/SupportedProducts.html"/>
-	<mapID target="commandLineReference" url="general/commandLineReference.html"/>
-		
-	<!--Development-->
-	<mapID target="general_design" url="development/general_design.html"/>
-	<mapID target="detailed_design" url="development/detailed_design.html"/>
-	<mapID target="open_source" url="development/open_source.html"/>
-	<mapID target="build_source" url="development/build_source.html"/>
-	<mapID target="developing_reader" url="development/developing_reader.html"/>
-	<mapID target="developing_writer" url="development/developing_writer.html"/>
-	<mapID target="developing_operator" url="development/developing_operator.html"/>
-	
-	<!--FAQ-->
-	<mapID target="faq_installation" url="faq/faq_installation.html"/>
-	<mapID target="faq_general" url="faq/faq_general.html"/>
-	
+    <mapID target="SupportedProducts" url="general/SupportedProducts.html"/>
+    <mapID target="commandLineReference" url="general/commandLineReference.html"/>
+
+    <!--Development-->
+    <mapID target="general_design" url="development/general_design.html"/>
+    <mapID target="detailed_design" url="development/detailed_design.html"/>
+    <mapID target="open_source" url="development/open_source.html"/>
+    <mapID target="build_source" url="development/build_source.html"/>
+    <mapID target="developing_reader" url="development/developing_reader.html"/>
+    <mapID target="developing_writer" url="development/developing_writer.html"/>
+    <mapID target="developing_operator" url="development/developing_operator.html"/>
+
+    <!--FAQ-->
+    <mapID target="faq_installation" url="faq/faq_installation.html"/>
+    <mapID target="faq_general" url="faq/faq_general.html"/>
+
 </map>

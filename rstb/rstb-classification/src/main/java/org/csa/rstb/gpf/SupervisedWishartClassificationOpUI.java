@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -57,8 +57,8 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        final File dataSetFile = (File)paramMap.get("trainingDataSet");
-        if(dataSetFile != null) {
+        final File dataSetFile = (File) paramMap.get("trainingDataSet");
+        if (dataSetFile != null) {
             trainingDataSet.setText(dataSetFile.getAbsolutePath());
         }
         windowSize.setText(String.valueOf(paramMap.get("windowSize")));
@@ -74,7 +74,7 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         final String dataSetStr = trainingDataSet.getText();
-        if(!dataSetStr.isEmpty()) {
+        if (!dataSetStr.isEmpty()) {
             paramMap.put("trainingDataSet", new File(dataSetStr));
         }
         paramMap.put("windowSize", Integer.parseInt(windowSize.getText()));
@@ -84,7 +84,7 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
 
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
-        
+
         gbc.gridx = 0;
         DialogUtils.addComponent(contentPane, gbc, trainingDataSetLabel, trainingDataSet);
         gbc.gridx = 2;

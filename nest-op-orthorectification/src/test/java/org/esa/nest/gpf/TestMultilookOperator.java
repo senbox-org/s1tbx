@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,11 +33,11 @@ public class TestMultilookOperator extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
+    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
-    private String[] exceptionExemptions = { "not supported", "not intended" };
+    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
+    private String[] exceptionExemptions = {"not supported", "not intended"};
 
     @Override
     protected void setUp() throws Exception {
@@ -53,15 +53,16 @@ public class TestMultilookOperator extends TestCase {
 
     /**
      * Tests multi-look operator with a 4x16 "DETECTED" test product.
+     *
      * @throws Exception general exception
      */
     public void testMultilookOfRealImage() throws Exception {
-        if(TestUtils.skipTest(this))
+        if (TestUtils.skipTest(this))
             return;
 
         final Product sourceProduct = createTestProduct(16, 4);
 
-        final MultilookOp op = (MultilookOp)spi.createOperator();
+        final MultilookOp op = (MultilookOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.setNumRangeLooks(4);
@@ -98,13 +99,14 @@ public class TestMultilookOperator extends TestCase {
 
     /**
      * Processes a product and compares it to processed product known to be correct
+     *
      * @throws Exception general exception
      */
     public void testProcessing() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
-        
-        final MultilookOp op = (MultilookOp)spi.createOperator();
+
+        final MultilookOp op = (MultilookOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
@@ -116,10 +118,11 @@ public class TestMultilookOperator extends TestCase {
 
     /**
      * Creates a 4-by-16 test product as shown below:
-     *  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
+     * 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
      * 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32
      * 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48
      * 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
+     *
      * @param w width
      * @param h height
      * @return the created product
@@ -158,38 +161,31 @@ public class TestMultilookOperator extends TestCase {
         return testProduct;
     }
 
-    public void testProcessAllASAR() throws Exception
-    {
+    public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
     }
 
-    public void testProcessAllERS() throws Exception
-    {
+    public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
     }
 
-    public void testProcessAllALOS() throws Exception
-    {
+    public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, null);
     }
 
-    public void testProcessAllRadarsat2() throws Exception
-    {
+    public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
-    public void testProcessAllTerraSARX() throws Exception
-    {
+    public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, null);
     }
 
-    public void testProcessAllCosmo() throws Exception
-    {
+    public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
-    public void testProcessAllNestBox() throws Exception
-    {
+    public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

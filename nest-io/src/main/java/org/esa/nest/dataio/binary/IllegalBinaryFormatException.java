@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,8 +32,8 @@ public class IllegalBinaryFormatException extends Exception {
      * cause is not initialized, and may subsequently be initialized by
      * a call to {@link #initCause}.
      *
-     * @param message the detail message. The detail message is saved for
-     *                later retrieval by the {@link #getMessage()} method.
+     * @param message   the detail message. The detail message is saved for
+     *                  later retrieval by the {@link #getMessage()} method.
      * @param streamPos
      */
     public IllegalBinaryFormatException(final String message, final long streamPos) {
@@ -47,13 +47,13 @@ public class IllegalBinaryFormatException extends Exception {
      * <code>cause</code> is <i>not</i> automatically incorporated in
      * this exception's detail message.
      *
-     * @param message the detail message (which is saved for later retrieval
-     *                by the {@link #getMessage()} method).
+     * @param message   the detail message (which is saved for later retrieval
+     *                  by the {@link #getMessage()} method).
      * @param streamPos
-     * @param cause   the cause (which is saved for later retrieval by the
-     *                {@link #getCause()} method).  (A <tt>null</tt> value is
-     *                permitted, and indicates that the cause is nonexistent or
-     *                unknown.)
+     * @param cause     the cause (which is saved for later retrieval by the
+     *                  {@link #getCause()} method).  (A <tt>null</tt> value is
+     *                  permitted, and indicates that the cause is nonexistent or
+     *                  unknown.)
      */
     public IllegalBinaryFormatException(final String message, final long streamPos, final Throwable cause) {
         super(message, cause);
@@ -68,7 +68,7 @@ public class IllegalBinaryFormatException extends Exception {
      * Returns the detail message string of this throwable.
      *
      * @return the detail message string of this <tt>Throwable</tt> instance
-     *         (which may be <tt>null</tt>).
+     * (which may be <tt>null</tt>).
      */
     @Override
     public String getMessage() {

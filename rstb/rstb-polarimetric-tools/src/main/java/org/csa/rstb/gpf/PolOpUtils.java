@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,9 +20,9 @@ import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.PolBandUtils;
 import org.esa.nest.gpf.TileIndex;
-import org.esa.nest.eo.Constants;
 
 /*
 import Jama.Matrix;
@@ -42,13 +42,14 @@ public final class PolOpUtils {
 
     /**
      * Get scatter matrix for given pixel.
-     * @param index X,Y coordinate of the given pixel
-     * @param dataBuffers Source tiles dataBuffers for all 8 source bands
+     *
+     * @param index           X,Y coordinate of the given pixel
+     * @param dataBuffers     Source tiles dataBuffers for all 8 source bands
      * @param scatterMatrix_i Real part of the scatter matrix
      * @param scatterMatrix_q Imaginary part of the scatter matrix
      */
     public static void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
-                                        final double[][] scatterMatrix_i, final double[][] scatterMatrix_q){
+                                               final double[][] scatterMatrix_i, final double[][] scatterMatrix_q) {
 
         scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // HH - real
         scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // HH - imag
@@ -65,13 +66,14 @@ public final class PolOpUtils {
 
     /**
      * Get covariance matrix C3 for given pixel.
-     * @param index X,Y coordinate of the given pixel
+     *
+     * @param index       X,Y coordinate of the given pixel
      * @param dataBuffers Source tiles dataBuffers for all 9 source bands
-     * @param Cr Real part of the covariance matrix
-     * @param Ci Imaginary part of the covariance matrix
+     * @param Cr          Real part of the covariance matrix
+     * @param Ci          Imaginary part of the covariance matrix
      */
     public static void getCovarianceMatrixC3(final int index, final ProductData[] dataBuffers,
-                                             final double[][] Cr, final double[][] Ci){
+                                             final double[][] Cr, final double[][] Ci) {
 
         Cr[0][0] = dataBuffers[0].getElemDoubleAt(index); // C11 - real
         Ci[0][0] = 0.0;                                   // C11 - imag
@@ -91,20 +93,24 @@ public final class PolOpUtils {
         Cr[2][2] = dataBuffers[8].getElemDoubleAt(index); // C33 - real
         Ci[2][2] = 0.0;                                   // C33 - imag
 
-        Cr[1][0] = Cr[0][1]; Ci[1][0] = -Ci[0][1];
-        Cr[2][0] = Cr[0][2]; Ci[2][0] = -Ci[0][2];
-        Cr[2][1] = Cr[1][2]; Ci[2][1] = -Ci[1][2];
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+        Cr[2][0] = Cr[0][2];
+        Ci[2][0] = -Ci[0][2];
+        Cr[2][1] = Cr[1][2];
+        Ci[2][1] = -Ci[1][2];
     }
 
     /**
      * Get covariance matrix C4 for given pixel.
-     * @param index X,Y coordinate of the given pixel
+     *
+     * @param index       X,Y coordinate of the given pixel
      * @param dataBuffers Source tiles dataBuffers for all 16 source bands
-     * @param Cr Real part of the covariance matrix
-     * @param Ci Imaginary part of the covariance matrix
+     * @param Cr          Real part of the covariance matrix
+     * @param Ci          Imaginary part of the covariance matrix
      */
     public static void getCovarianceMatrixC4(final int index, final ProductData[] dataBuffers,
-                                             final double[][] Cr, final double[][] Ci){
+                                             final double[][] Cr, final double[][] Ci) {
 
         Cr[0][0] = dataBuffers[0].getElemDoubleAt(index); // C11 - real
         Ci[0][0] = 0.0;                                   // C11 - imag
@@ -136,23 +142,30 @@ public final class PolOpUtils {
         Cr[3][3] = dataBuffers[15].getElemDoubleAt(index); // C44 - real
         Ci[3][3] = 0.0;                                    // C44 - imag
 
-        Cr[1][0] = Cr[0][1]; Ci[1][0] = -Ci[0][1];
-        Cr[2][0] = Cr[0][2]; Ci[2][0] = -Ci[0][2];
-        Cr[2][1] = Cr[1][2]; Ci[2][1] = -Ci[1][2];
-        Cr[3][0] = Cr[0][3]; Ci[3][0] = -Ci[0][3];
-        Cr[3][1] = Cr[1][3]; Ci[3][1] = -Ci[1][3];
-        Cr[3][2] = Cr[2][3]; Ci[3][2] = -Ci[2][3];
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+        Cr[2][0] = Cr[0][2];
+        Ci[2][0] = -Ci[0][2];
+        Cr[2][1] = Cr[1][2];
+        Ci[2][1] = -Ci[1][2];
+        Cr[3][0] = Cr[0][3];
+        Ci[3][0] = -Ci[0][3];
+        Cr[3][1] = Cr[1][3];
+        Ci[3][1] = -Ci[1][3];
+        Cr[3][2] = Cr[2][3];
+        Ci[3][2] = -Ci[2][3];
     }
 
     /**
      * Get coherency matrix T3 for given pixel.
-     * @param index X,Y coordinate of the given pixel
+     *
+     * @param index       X,Y coordinate of the given pixel
      * @param dataBuffers Source tile buffers for all 9 source bands
-     * @param Tr Real part of the coherency matrix
-     * @param Ti Imaginary part of the coherency matrix
+     * @param Tr          Real part of the coherency matrix
+     * @param Ti          Imaginary part of the coherency matrix
      */
     public static void getCoherencyMatrixT3(final int index, final ProductData[] dataBuffers,
-                                            final double[][] Tr, final double[][] Ti){
+                                            final double[][] Tr, final double[][] Ti) {
 
         Tr[0][0] = dataBuffers[0].getElemDoubleAt(index); // T11 - real
         Ti[0][0] = 0.0;                                                   // T11 - imag
@@ -172,20 +185,24 @@ public final class PolOpUtils {
         Tr[2][2] = dataBuffers[8].getElemDoubleAt(index); // T33 - real
         Ti[2][2] = 0.0;                                                   // T33 - imag
 
-        Tr[1][0] = Tr[0][1]; Ti[1][0] = -Ti[0][1];
-        Tr[2][0] = Tr[0][2]; Ti[2][0] = -Ti[0][2];
-        Tr[2][1] = Tr[1][2]; Ti[2][1] = -Ti[1][2];
+        Tr[1][0] = Tr[0][1];
+        Ti[1][0] = -Ti[0][1];
+        Tr[2][0] = Tr[0][2];
+        Ti[2][0] = -Ti[0][2];
+        Tr[2][1] = Tr[1][2];
+        Ti[2][1] = -Ti[1][2];
     }
 
     /**
      * Get coherency matrix T4 for given pixel.
-     * @param index X,Y coordinate of the given pixel
+     *
+     * @param index       X,Y coordinate of the given pixel
      * @param dataBuffers Source tile buffers for all 16 source bands
-     * @param Tr Real part of the coherency matrix
-     * @param Ti Imaginary part of the coherency matrix
+     * @param Tr          Real part of the coherency matrix
+     * @param Ti          Imaginary part of the coherency matrix
      */
     public static void getCoherencyMatrixT4(final int index, final ProductData[] dataBuffers,
-                                            final double[][] Tr, final double[][] Ti){
+                                            final double[][] Tr, final double[][] Ti) {
 
         Tr[0][0] = dataBuffers[0].getElemDoubleAt(index); // T11 - real
         Ti[0][0] = 0.0;                                   // T11 - imag
@@ -217,23 +234,30 @@ public final class PolOpUtils {
         Tr[3][3] = dataBuffers[15].getElemDoubleAt(index); // T44 - real
         Ti[3][3] = 0.0;                                    // T44 - imag
 
-        Tr[1][0] = Tr[0][1]; Ti[1][0] = -Ti[0][1];
-        Tr[2][0] = Tr[0][2]; Ti[2][0] = -Ti[0][2];
-        Tr[2][1] = Tr[1][2]; Ti[2][1] = -Ti[1][2];
-        Tr[3][0] = Tr[0][3]; Ti[3][0] = -Ti[0][3];
-        Tr[3][1] = Tr[1][3]; Ti[3][1] = -Ti[1][3];
-        Tr[3][2] = Tr[2][3]; Ti[3][2] = -Ti[2][3];
+        Tr[1][0] = Tr[0][1];
+        Ti[1][0] = -Ti[0][1];
+        Tr[2][0] = Tr[0][2];
+        Ti[2][0] = -Ti[0][2];
+        Tr[2][1] = Tr[1][2];
+        Ti[2][1] = -Ti[1][2];
+        Tr[3][0] = Tr[0][3];
+        Ti[3][0] = -Ti[0][3];
+        Tr[3][1] = Tr[1][3];
+        Ti[3][1] = -Ti[1][3];
+        Tr[3][2] = Tr[2][3];
+        Ti[3][2] = -Ti[2][3];
     }
 
     /**
      * Compute covariance matrix for given scatter matrix.
+     *
      * @param scatterRe Real part of the scatter matrix
      * @param scatterIm Imaginary part of the scatter matrix
-     * @param Cr Real part of the covariance matrix
-     * @param Ci Imaginary part of the covariance matrix
+     * @param Cr        Real part of the covariance matrix
+     * @param Ci        Imaginary part of the covariance matrix
      */
     public static void computeCovarianceMatrixC3(final double[][] scatterRe, final double[][] scatterIm,
-                                               final double[][] Cr, final double[][] Ci) {
+                                                 final double[][] Cr, final double[][] Ci) {
 
         final double sHHr = scatterRe[0][0];
         final double sHHi = scatterIm[0][0];
@@ -251,35 +275,39 @@ public final class PolOpUtils {
         final double k3r = sVVr;
         final double k3i = sVVi;
 
-        Cr[0][0] = k1r*k1r + k1i*k1i;
+        Cr[0][0] = k1r * k1r + k1i * k1i;
         Ci[0][0] = 0.0;
 
-        Cr[0][1] = k1r*k2r + k1i*k2i;
-        Ci[0][1] = k1i*k2r - k1r*k2i;
+        Cr[0][1] = k1r * k2r + k1i * k2i;
+        Ci[0][1] = k1i * k2r - k1r * k2i;
 
-        Cr[0][2] = k1r*k3r + k1i*k3i;
-        Ci[0][2] = k1i*k3r - k1r*k3i;
+        Cr[0][2] = k1r * k3r + k1i * k3i;
+        Ci[0][2] = k1i * k3r - k1r * k3i;
 
-        Cr[1][1] = k2r*k2r + k2i*k2i;
+        Cr[1][1] = k2r * k2r + k2i * k2i;
         Ci[1][1] = 0.0;
 
-        Cr[1][2] = k2r*k3r + k2i*k3i;
-        Ci[1][2] = k2i*k3r - k2r*k3i;
+        Cr[1][2] = k2r * k3r + k2i * k3i;
+        Ci[1][2] = k2i * k3r - k2r * k3i;
 
-        Cr[2][2] = k3r*k3r + k3i*k3i;
+        Cr[2][2] = k3r * k3r + k3i * k3i;
         Ci[2][2] = 0.0;
 
-        Cr[1][0] = Cr[0][1]; Ci[1][0] = -Ci[0][1];
-        Cr[2][0] = Cr[0][2]; Ci[2][0] = -Ci[0][2];
-        Cr[2][1] = Cr[1][2]; Ci[2][1] = -Ci[1][2];
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+        Cr[2][0] = Cr[0][2];
+        Ci[2][0] = -Ci[0][2];
+        Cr[2][1] = Cr[1][2];
+        Ci[2][1] = -Ci[1][2];
     }
 
     /**
      * Compute covariance matrix C4 for given scatter matrix.
+     *
      * @param scatterRe Real part of the scatter matrix
      * @param scatterIm Imaginary part of the scatter matrix
-     * @param Cr Real part of the covariance matrix
-     * @param Ci Imaginary part of the covariance matrix
+     * @param Cr        Real part of the covariance matrix
+     * @param Ci        Imaginary part of the covariance matrix
      */
     public static void computeCovarianceMatrixC4(final double[][] scatterRe, final double[][] scatterIm,
                                                  final double[][] Cr, final double[][] Ci) {
@@ -302,50 +330,57 @@ public final class PolOpUtils {
         final double k4r = sVVr;
         final double k4i = sVVi;
 
-        Cr[0][0] = k1r*k1r + k1i*k1i;
+        Cr[0][0] = k1r * k1r + k1i * k1i;
         Ci[0][0] = 0.0;
 
-        Cr[0][1] = k1r*k2r + k1i*k2i;
-        Ci[0][1] = k1i*k2r - k1r*k2i;
+        Cr[0][1] = k1r * k2r + k1i * k2i;
+        Ci[0][1] = k1i * k2r - k1r * k2i;
 
-        Cr[0][2] = k1r*k3r + k1i*k3i;
-        Ci[0][2] = k1i*k3r - k1r*k3i;
+        Cr[0][2] = k1r * k3r + k1i * k3i;
+        Ci[0][2] = k1i * k3r - k1r * k3i;
 
-        Cr[0][3] = k1r*k4r + k1i*k4i;
-        Ci[0][3] = k1i*k4r - k1r*k4i;
+        Cr[0][3] = k1r * k4r + k1i * k4i;
+        Ci[0][3] = k1i * k4r - k1r * k4i;
 
-        Cr[1][1] = k2r*k2r + k2i*k2i;
+        Cr[1][1] = k2r * k2r + k2i * k2i;
         Ci[1][1] = 0.0;
 
-        Cr[1][2] = k2r*k3r + k2i*k3i;
-        Ci[1][2] = k2i*k3r - k2r*k3i;
+        Cr[1][2] = k2r * k3r + k2i * k3i;
+        Ci[1][2] = k2i * k3r - k2r * k3i;
 
-        Cr[1][3] = k2r*k4r + k2i*k4i;
-        Ci[1][3] = k2i*k4r - k2r*k4i;
+        Cr[1][3] = k2r * k4r + k2i * k4i;
+        Ci[1][3] = k2i * k4r - k2r * k4i;
 
-        Cr[2][2] = k3r*k3r + k3i*k3i;
+        Cr[2][2] = k3r * k3r + k3i * k3i;
         Ci[2][2] = 0.0;
 
-        Cr[2][3] = k3r*k4r + k3i*k4i;
-        Ci[2][3] = k3i*k4r - k3r*k4i;
+        Cr[2][3] = k3r * k4r + k3i * k4i;
+        Ci[2][3] = k3i * k4r - k3r * k4i;
 
-        Cr[3][3] = k4r*k4r + k4i*k4i;
+        Cr[3][3] = k4r * k4r + k4i * k4i;
         Ci[3][3] = 0.0;
 
-        Cr[1][0] = Cr[0][1]; Ci[1][0] = -Ci[0][1];
-        Cr[2][0] = Cr[0][2]; Ci[2][0] = -Ci[0][2];
-        Cr[2][1] = Cr[1][2]; Ci[2][1] = -Ci[1][2];
-        Cr[3][0] = Cr[0][3]; Ci[3][0] = -Ci[0][3];
-        Cr[3][1] = Cr[1][3]; Ci[3][1] = -Ci[1][3];
-        Cr[3][2] = Cr[2][3]; Ci[3][2] = -Ci[2][3];
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+        Cr[2][0] = Cr[0][2];
+        Ci[2][0] = -Ci[0][2];
+        Cr[2][1] = Cr[1][2];
+        Ci[2][1] = -Ci[1][2];
+        Cr[3][0] = Cr[0][3];
+        Ci[3][0] = -Ci[0][3];
+        Cr[3][1] = Cr[1][3];
+        Ci[3][1] = -Ci[1][3];
+        Cr[3][2] = Cr[2][3];
+        Ci[3][2] = -Ci[2][3];
     }
 
     /**
      * Compute coherency matrix T3 for given scatter matrix.
+     *
      * @param scatterRe Real part of the scatter matrix
      * @param scatterIm Imaginary part of the scatter matrix
-     * @param Tr Real part of the coherency matrix
-     * @param Ti Imaginary part of the coherency matrix
+     * @param Tr        Real part of the coherency matrix
+     * @param Ti        Imaginary part of the coherency matrix
      */
     public static void computeCoherencyMatrixT3(final double[][] scatterRe, final double[][] scatterIm,
                                                 final double[][] Tr, final double[][] Ti) {
@@ -366,35 +401,39 @@ public final class PolOpUtils {
         final double k3r = (sHVr + sVHr) / sqrt2;
         final double k3i = (sHVi + sVHi) / sqrt2;
 
-        Tr[0][0] = k1r*k1r + k1i*k1i;
+        Tr[0][0] = k1r * k1r + k1i * k1i;
         Ti[0][0] = 0.0;
 
-        Tr[0][1] = k1r*k2r + k1i*k2i;
-        Ti[0][1] = k1i*k2r - k1r*k2i;
+        Tr[0][1] = k1r * k2r + k1i * k2i;
+        Ti[0][1] = k1i * k2r - k1r * k2i;
 
-        Tr[0][2] = k1r*k3r + k1i*k3i;
-        Ti[0][2] = k1i*k3r - k1r*k3i;
+        Tr[0][2] = k1r * k3r + k1i * k3i;
+        Ti[0][2] = k1i * k3r - k1r * k3i;
 
-        Tr[1][1] = k2r*k2r + k2i*k2i;
+        Tr[1][1] = k2r * k2r + k2i * k2i;
         Ti[1][1] = 0.0;
 
-        Tr[1][2] = k2r*k3r + k2i*k3i;
-        Ti[1][2] = k2i*k3r - k2r*k3i;
+        Tr[1][2] = k2r * k3r + k2i * k3i;
+        Ti[1][2] = k2i * k3r - k2r * k3i;
 
-        Tr[2][2] = k3r*k3r + k3i*k3i;
+        Tr[2][2] = k3r * k3r + k3i * k3i;
         Ti[2][2] = 0.0;
 
-        Tr[1][0] = Tr[0][1]; Ti[1][0] = -Ti[0][1];
-        Tr[2][0] = Tr[0][2]; Ti[2][0] = -Ti[0][2];
-        Tr[2][1] = Tr[1][2]; Ti[2][1] = -Ti[1][2];
+        Tr[1][0] = Tr[0][1];
+        Ti[1][0] = -Ti[0][1];
+        Tr[2][0] = Tr[0][2];
+        Ti[2][0] = -Ti[0][2];
+        Tr[2][1] = Tr[1][2];
+        Ti[2][1] = -Ti[1][2];
     }
 
     /**
      * Compute coherency matrix T4 for given scatter matrix.
+     *
      * @param scatterRe Real part of the scatter matrix
      * @param scatterIm Imaginary part of the scatter matrix
-     * @param Tr Real part of the coherency matrix
-     * @param Ti Imaginary part of the coherency matrix
+     * @param Tr        Real part of the coherency matrix
+     * @param Ti        Imaginary part of the coherency matrix
      */
     public static void computeCoherencyMatrixT4(final double[][] scatterRe, final double[][] scatterIm,
                                                 final double[][] Tr, final double[][] Ti) {
@@ -417,52 +456,59 @@ public final class PolOpUtils {
         final double k4r = (sVHi - sHVi) / sqrt2;
         final double k4i = (sHVr - sVHr) / sqrt2;
 
-        Tr[0][0] = k1r*k1r + k1i*k1i;
+        Tr[0][0] = k1r * k1r + k1i * k1i;
         Ti[0][0] = 0.0;
 
-        Tr[0][1] = k1r*k2r + k1i*k2i;
-        Ti[0][1] = k1i*k2r - k1r*k2i;
+        Tr[0][1] = k1r * k2r + k1i * k2i;
+        Ti[0][1] = k1i * k2r - k1r * k2i;
 
-        Tr[0][2] = k1r*k3r + k1i*k3i;
-        Ti[0][2] = k1i*k3r - k1r*k3i;
+        Tr[0][2] = k1r * k3r + k1i * k3i;
+        Ti[0][2] = k1i * k3r - k1r * k3i;
 
-        Tr[0][3] = k1r*k4r + k1i*k4i;
-        Ti[0][3] = k1i*k4r - k1r*k4i;
+        Tr[0][3] = k1r * k4r + k1i * k4i;
+        Ti[0][3] = k1i * k4r - k1r * k4i;
 
-        Tr[1][1] = k2r*k2r + k2i*k2i;
+        Tr[1][1] = k2r * k2r + k2i * k2i;
         Ti[1][1] = 0.0;
 
-        Tr[1][2] = k2r*k3r + k2i*k3i;
-        Ti[1][2] = k2i*k3r - k2r*k3i;
+        Tr[1][2] = k2r * k3r + k2i * k3i;
+        Ti[1][2] = k2i * k3r - k2r * k3i;
 
-        Tr[1][3] = k2r*k4r + k2i*k4i;
-        Ti[1][3] = k2i*k4r - k2r*k4i;
+        Tr[1][3] = k2r * k4r + k2i * k4i;
+        Ti[1][3] = k2i * k4r - k2r * k4i;
 
-        Tr[2][2] = k3r*k3r + k3i*k3i;
+        Tr[2][2] = k3r * k3r + k3i * k3i;
         Ti[2][2] = 0.0;
 
-        Tr[2][3] = k3r*k4r + k3i*k4i;
-        Ti[2][3] = k3i*k4r - k3r*k4i;
+        Tr[2][3] = k3r * k4r + k3i * k4i;
+        Ti[2][3] = k3i * k4r - k3r * k4i;
 
-        Tr[3][3] = k4r*k4r + k4i*k4i;
+        Tr[3][3] = k4r * k4r + k4i * k4i;
         Ti[3][3] = 0.0;
 
-        Tr[1][0] = Tr[0][1]; Ti[1][0] = -Ti[0][1];
-        Tr[2][0] = Tr[0][2]; Ti[2][0] = -Ti[0][2];
-        Tr[2][1] = Tr[1][2]; Ti[2][1] = -Ti[1][2];
-        Tr[3][0] = Tr[0][3]; Ti[3][0] = -Ti[0][3];
-        Tr[3][1] = Tr[1][3]; Ti[3][1] = -Ti[1][3];
-        Tr[3][2] = Tr[2][3]; Ti[3][2] = -Ti[2][3];
+        Tr[1][0] = Tr[0][1];
+        Ti[1][0] = -Ti[0][1];
+        Tr[2][0] = Tr[0][2];
+        Ti[2][0] = -Ti[0][2];
+        Tr[2][1] = Tr[1][2];
+        Ti[2][1] = -Ti[1][2];
+        Tr[3][0] = Tr[0][3];
+        Ti[3][0] = -Ti[0][3];
+        Tr[3][1] = Tr[1][3];
+        Ti[3][1] = -Ti[1][3];
+        Tr[3][2] = Tr[2][3];
+        Ti[3][2] = -Ti[2][3];
     }
 
     /**
      * Compute 3x3 correlation matrix for two given scatter matrices.
+     *
      * @param scatter1Re Real part of the 1st scatter matrix
      * @param scatter1Im Imaginary part of the 1st scatter matrix
      * @param scatter2Re Real part of the 2nd scatter matrix
      * @param scatter2Im Imaginary part of the 2nd scatter matrix
-     * @param Tr Real part of the correlation matrix
-     * @param Ti Imaginary part of the correlation matrix
+     * @param Tr         Real part of the correlation matrix
+     * @param Ti         Imaginary part of the correlation matrix
      */
     public static void computeCorrelationMatrix(final double[][] scatter1Re, final double[][] scatter1Im,
                                                 final double[][] scatter2Re, final double[][] scatter2Im,
@@ -500,36 +546,37 @@ public final class PolOpUtils {
         final double k23r = (s2HVr + s2VHr) / sqrt2;
         final double k23i = (s2HVi + s2VHi) / sqrt2;
 
-        Tr[0][0] = k11r*k21r + k11i*k21i;
-        Ti[0][0] = k11i*k21r - k11r*k21i;
+        Tr[0][0] = k11r * k21r + k11i * k21i;
+        Ti[0][0] = k11i * k21r - k11r * k21i;
 
-        Tr[0][1] = k11r*k22r + k11i*k22i;
-        Ti[0][1] = k11i*k22r - k11r*k22i;
+        Tr[0][1] = k11r * k22r + k11i * k22i;
+        Ti[0][1] = k11i * k22r - k11r * k22i;
 
-        Tr[0][2] = k11r*k23r + k11i*k23i;
-        Ti[0][2] = k11i*k23r - k11r*k23i;
+        Tr[0][2] = k11r * k23r + k11i * k23i;
+        Ti[0][2] = k11i * k23r - k11r * k23i;
 
-        Tr[1][0] = k12r*k21r + k12i*k21i;
-        Ti[1][0] = k12i*k21r - k12r*k21i;
+        Tr[1][0] = k12r * k21r + k12i * k21i;
+        Ti[1][0] = k12i * k21r - k12r * k21i;
 
-        Tr[1][1] = k12r*k22r + k12i*k22i;
-        Ti[1][1] = k12i*k22r - k12r*k22i;
+        Tr[1][1] = k12r * k22r + k12i * k22i;
+        Ti[1][1] = k12i * k22r - k12r * k22i;
 
-        Tr[1][2] = k12r*k23r + k12i*k23i;
-        Ti[1][2] = k12i*k23r - k12r*k23i;
+        Tr[1][2] = k12r * k23r + k12i * k23i;
+        Ti[1][2] = k12i * k23r - k12r * k23i;
 
-        Tr[2][0] = k13r*k21r + k13i*k21i;
-        Ti[2][0] = k13i*k21r - k13r*k21i;
+        Tr[2][0] = k13r * k21r + k13i * k21i;
+        Ti[2][0] = k13i * k21r - k13r * k21i;
 
-        Tr[2][1] = k13r*k22r + k13i*k22i;
-        Ti[2][1] = k13i*k22r - k13r*k22i;
+        Tr[2][1] = k13r * k22r + k13i * k22i;
+        Ti[2][1] = k13i * k22r - k13r * k22i;
 
-        Tr[2][2] = k13r*k23r + k13i*k23i;
-        Ti[2][2] = k13i*k23r - k13r*k23i;
+        Tr[2][2] = k13r * k23r + k13i * k23i;
+        Ti[2][2] = k13i * k23r - k13r * k23i;
     }
 
     /**
      * Convert covariance matrix C4 to coherency matrix T4
+     *
      * @param c4Re Real part of C4 matrix
      * @param c4Im Imaginary part of C4 matrix
      * @param t4Re Real part of T4 matrix
@@ -538,29 +585,29 @@ public final class PolOpUtils {
     public static void c4ToT4(final double[][] c4Re, final double[][] c4Im,
                               final double[][] t4Re, final double[][] t4Im) {
 
-        t4Re[0][0] = 0.5*(c4Re[0][0] + 2*c4Re[0][3] + c4Re[3][3]);
-        t4Im[0][0] = 0.5*(c4Im[0][0] + c4Im[3][3]);
+        t4Re[0][0] = 0.5 * (c4Re[0][0] + 2 * c4Re[0][3] + c4Re[3][3]);
+        t4Im[0][0] = 0.5 * (c4Im[0][0] + c4Im[3][3]);
 
-        t4Re[0][1] = 0.5*(c4Re[0][0] - c4Re[3][3]);
-        t4Im[0][1] = 0.5*(c4Im[0][0] - 2*c4Im[0][3] - c4Im[3][3]);
+        t4Re[0][1] = 0.5 * (c4Re[0][0] - c4Re[3][3]);
+        t4Im[0][1] = 0.5 * (c4Im[0][0] - 2 * c4Im[0][3] - c4Im[3][3]);
 
-        t4Re[0][2] = 0.5*(c4Re[0][1] + c4Re[1][3] + c4Re[0][2] + c4Re[2][3]);
-        t4Im[0][2] = 0.5*(c4Im[0][1] - c4Im[1][3] + c4Im[0][2] - c4Im[2][3]);
+        t4Re[0][2] = 0.5 * (c4Re[0][1] + c4Re[1][3] + c4Re[0][2] + c4Re[2][3]);
+        t4Im[0][2] = 0.5 * (c4Im[0][1] - c4Im[1][3] + c4Im[0][2] - c4Im[2][3]);
 
-        t4Re[0][3] = 0.5*(c4Im[0][1] - c4Im[1][3] - c4Im[0][2] + c4Im[2][3]);
-        t4Im[0][3] = 0.5*(-c4Re[0][1] - c4Re[1][3] + c4Re[0][2] + c4Re[2][3]);
+        t4Re[0][3] = 0.5 * (c4Im[0][1] - c4Im[1][3] - c4Im[0][2] + c4Im[2][3]);
+        t4Im[0][3] = 0.5 * (-c4Re[0][1] - c4Re[1][3] + c4Re[0][2] + c4Re[2][3]);
 
         t4Re[1][0] = t4Re[0][1];
         t4Im[1][0] = -t4Im[0][1];
 
-        t4Re[1][1] = 0.5*(c4Re[0][0] - 2*c4Re[0][3] + c4Re[3][3]);
-        t4Im[1][1] = 0.5*(c4Im[0][0] + c4Im[3][3]);
+        t4Re[1][1] = 0.5 * (c4Re[0][0] - 2 * c4Re[0][3] + c4Re[3][3]);
+        t4Im[1][1] = 0.5 * (c4Im[0][0] + c4Im[3][3]);
 
-        t4Re[1][2] = 0.5*(c4Re[0][1] - c4Re[1][3] + c4Re[0][2] - c4Re[2][3]);
-        t4Im[1][2] = 0.5*(c4Im[0][1] + c4Im[1][3] + c4Im[0][2] + c4Im[2][3]);
+        t4Re[1][2] = 0.5 * (c4Re[0][1] - c4Re[1][3] + c4Re[0][2] - c4Re[2][3]);
+        t4Im[1][2] = 0.5 * (c4Im[0][1] + c4Im[1][3] + c4Im[0][2] + c4Im[2][3]);
 
-        t4Re[1][3] = 0.5*(c4Im[0][1] + c4Im[1][3] - c4Im[0][2] - c4Im[2][3]);
-        t4Im[1][3] = 0.5*(-c4Re[0][1] + c4Re[1][3] + c4Re[0][2] - c4Re[2][3]);
+        t4Re[1][3] = 0.5 * (c4Im[0][1] + c4Im[1][3] - c4Im[0][2] - c4Im[2][3]);
+        t4Im[1][3] = 0.5 * (-c4Re[0][1] + c4Re[1][3] + c4Re[0][2] - c4Re[2][3]);
 
         t4Re[2][0] = t4Re[0][2];
         t4Im[2][0] = -t4Im[0][2];
@@ -568,11 +615,11 @@ public final class PolOpUtils {
         t4Re[2][1] = t4Re[1][2];
         t4Im[2][1] = -t4Im[1][2];
 
-        t4Re[2][2] = 0.5*(c4Re[1][1] + 2*c4Re[1][2] + c4Re[2][2]);
-        t4Im[2][2] = 0.5*(c4Im[1][1] + c4Im[2][2]);
+        t4Re[2][2] = 0.5 * (c4Re[1][1] + 2 * c4Re[1][2] + c4Re[2][2]);
+        t4Im[2][2] = 0.5 * (c4Im[1][1] + c4Im[2][2]);
 
-        t4Re[2][3] = 0.5*(c4Im[1][1] - 2*c4Im[1][2] - c4Im[2][2]);
-        t4Im[2][3] = 0.5*(-c4Re[1][1] + c4Re[2][2]);
+        t4Re[2][3] = 0.5 * (c4Im[1][1] - 2 * c4Im[1][2] - c4Im[2][2]);
+        t4Im[2][3] = 0.5 * (-c4Re[1][1] + c4Re[2][2]);
 
         t4Re[3][0] = t4Re[0][3];
         t4Im[3][0] = -t4Im[0][3];
@@ -583,12 +630,13 @@ public final class PolOpUtils {
         t4Re[3][2] = t4Re[2][3];
         t4Im[3][2] = -t4Im[2][3];
 
-        t4Re[3][3] = 0.5*(c4Re[1][1] - 2*c4Re[1][2] + c4Re[2][2]);
-        t4Im[3][3] = 0.5*(c4Im[1][1] + c4Im[2][2]);
+        t4Re[3][3] = 0.5 * (c4Re[1][1] - 2 * c4Re[1][2] + c4Re[2][2]);
+        t4Im[3][3] = 0.5 * (c4Im[1][1] + c4Im[2][2]);
     }
 
     /**
      * Convert coherency matrix T4 to covariance matrix C4
+     *
      * @param t4Re Real part of T4 matrix
      * @param t4Im Imaginary part of T4 matrix
      * @param c4Re Real part of C4 matrix
@@ -597,29 +645,29 @@ public final class PolOpUtils {
     public static void t4ToC4(final double[][] t4Re, final double[][] t4Im,
                               final double[][] c4Re, final double[][] c4Im) {
 
-        c4Re[0][0] = 0.5*(t4Re[0][0] + t4Re[0][1] + t4Re[1][0] + t4Re[1][1]);
+        c4Re[0][0] = 0.5 * (t4Re[0][0] + t4Re[0][1] + t4Re[1][0] + t4Re[1][1]);
         c4Im[0][0] = 0.0;
 
-        c4Re[0][1] = 0.5*(t4Re[0][2] - t4Im[0][3] + t4Re[1][2] - t4Im[1][3]);
-        c4Im[0][1] = 0.5*(t4Im[0][2] + t4Re[0][3] + t4Im[1][2] + t4Re[1][3]);
+        c4Re[0][1] = 0.5 * (t4Re[0][2] - t4Im[0][3] + t4Re[1][2] - t4Im[1][3]);
+        c4Im[0][1] = 0.5 * (t4Im[0][2] + t4Re[0][3] + t4Im[1][2] + t4Re[1][3]);
 
-        c4Re[0][2] = 0.5*(t4Re[0][2] + t4Im[0][3] + t4Re[1][2] + t4Im[1][3]);
-        c4Im[0][2] = 0.5*(t4Im[0][2] - t4Re[0][3] + t4Im[1][2] - t4Re[1][3]);
+        c4Re[0][2] = 0.5 * (t4Re[0][2] + t4Im[0][3] + t4Re[1][2] + t4Im[1][3]);
+        c4Im[0][2] = 0.5 * (t4Im[0][2] - t4Re[0][3] + t4Im[1][2] - t4Re[1][3]);
 
-        c4Re[0][3] = 0.5*(t4Re[0][0] - t4Re[0][1] + t4Re[1][0] - t4Re[1][1]);
-        c4Im[0][3] = 0.5*(t4Im[0][0] - t4Im[0][1] + t4Im[1][0] - t4Im[1][1]);
+        c4Re[0][3] = 0.5 * (t4Re[0][0] - t4Re[0][1] + t4Re[1][0] - t4Re[1][1]);
+        c4Im[0][3] = 0.5 * (t4Im[0][0] - t4Im[0][1] + t4Im[1][0] - t4Im[1][1]);
 
         c4Re[1][0] = c4Re[0][1];
         c4Im[1][0] = -c4Im[0][1];
 
-        c4Re[1][1] = 0.5*(t4Re[2][2] - t4Im[2][3] + t4Im[3][2] + t4Re[3][3]);
+        c4Re[1][1] = 0.5 * (t4Re[2][2] - t4Im[2][3] + t4Im[3][2] + t4Re[3][3]);
         c4Im[1][1] = 0.0;
 
-        c4Re[1][2] = 0.5*(t4Re[2][2] + t4Im[2][3] + t4Im[3][2] - t4Re[3][3]);
-        c4Im[1][2] = 0.5*(t4Im[2][2] - t4Re[2][3] - t4Re[3][2] - t4Im[3][3]);
+        c4Re[1][2] = 0.5 * (t4Re[2][2] + t4Im[2][3] + t4Im[3][2] - t4Re[3][3]);
+        c4Im[1][2] = 0.5 * (t4Im[2][2] - t4Re[2][3] - t4Re[3][2] - t4Im[3][3]);
 
-        c4Re[1][3] = 0.5*(t4Re[2][0] - t4Re[2][1] + t4Im[3][0] - t4Im[3][1]);
-        c4Im[1][3] = 0.5*(t4Im[2][0] - t4Im[2][1] - t4Re[3][0] + t4Re[3][1]);
+        c4Re[1][3] = 0.5 * (t4Re[2][0] - t4Re[2][1] + t4Im[3][0] - t4Im[3][1]);
+        c4Im[1][3] = 0.5 * (t4Im[2][0] - t4Im[2][1] - t4Re[3][0] + t4Re[3][1]);
 
         c4Re[2][0] = c4Re[0][2];
         c4Im[2][0] = -c4Im[0][2];
@@ -627,11 +675,11 @@ public final class PolOpUtils {
         c4Re[2][1] = c4Re[1][2];
         c4Im[2][1] = -c4Im[1][2];
 
-        c4Re[2][2] = 0.5*(t4Re[2][2] + t4Im[2][3] - t4Im[3][2] + t4Re[3][3]);
+        c4Re[2][2] = 0.5 * (t4Re[2][2] + t4Im[2][3] - t4Im[3][2] + t4Re[3][3]);
         c4Im[2][2] = 0.0;
 
-        c4Re[2][3] = 0.5*(t4Re[2][0] - t4Re[2][1] - t4Im[3][0] + t4Im[3][1]);
-        c4Im[2][3] = 0.5*(t4Im[2][0] - t4Im[2][1] + t4Re[3][0] - t4Re[3][1]);
+        c4Re[2][3] = 0.5 * (t4Re[2][0] - t4Re[2][1] - t4Im[3][0] + t4Im[3][1]);
+        c4Im[2][3] = 0.5 * (t4Im[2][0] - t4Im[2][1] + t4Re[3][0] - t4Re[3][1]);
 
         c4Re[3][0] = c4Re[0][3];
         c4Im[3][0] = -c4Im[0][3];
@@ -642,12 +690,13 @@ public final class PolOpUtils {
         c4Re[3][2] = c4Re[2][3];
         c4Im[3][2] = -c4Im[2][3];
 
-        c4Re[3][3] = 0.5*(t4Re[0][0] - t4Re[0][1] - t4Re[1][0] + t4Re[1][1]);
+        c4Re[3][3] = 0.5 * (t4Re[0][0] - t4Re[0][1] - t4Re[1][0] + t4Re[1][1]);
         c4Im[3][3] = 0.0;
     }
 
     /**
      * Convert covariance matrix C3 to coherency matrix T3
+     *
      * @param c3Re Real part of C3 matrix
      * @param c3Im Imaginary part of C3 matrix
      * @param t3Re Real part of T3 matrix
@@ -656,7 +705,7 @@ public final class PolOpUtils {
     public static void c3ToT3(final double[][] c3Re, final double[][] c3Im,
                               final double[][] t3Re, final double[][] t3Im) {
 
-        t3Re[0][0] = (c3Re[0][0] + 2*c3Re[0][2] + c3Re[2][2]) / 2;
+        t3Re[0][0] = (c3Re[0][0] + 2 * c3Re[0][2] + c3Re[2][2]) / 2;
         t3Im[0][0] = 0.0;
         t3Re[0][1] = (c3Re[0][0] - c3Re[2][2]) / 2;
         t3Im[0][1] = -c3Im[0][2];
@@ -665,7 +714,7 @@ public final class PolOpUtils {
 
         t3Re[1][0] = t3Re[0][1];
         t3Im[1][0] = -t3Im[0][1];
-        t3Re[1][1] = (c3Re[0][0] - 2*c3Re[0][2] + c3Re[2][2]) / 2;
+        t3Re[1][1] = (c3Re[0][0] - 2 * c3Re[0][2] + c3Re[2][2]) / 2;
         t3Im[1][1] = 0.0;
         t3Re[1][2] = (c3Re[0][1] - c3Re[1][2]) / sqrt2;
         t3Im[1][2] = (c3Im[0][1] + c3Im[1][2]) / sqrt2;
@@ -680,6 +729,7 @@ public final class PolOpUtils {
 
     /**
      * Convert coherency matrix T3 to covariance matrix C3
+     *
      * @param t3Re Real part of T3 matrix
      * @param t3Im Imaginary part of T3 matrix
      * @param c3Re Real part of C3 matrix
@@ -688,14 +738,14 @@ public final class PolOpUtils {
     public static void t3ToC3(final double[][] t3Re, final double[][] t3Im,
                               final double[][] c3Re, final double[][] c3Im) {
 
-        c3Re[0][0] = 0.5*(t3Re[0][0] + t3Re[0][1] + t3Re[1][0] + t3Re[1][1]);
+        c3Re[0][0] = 0.5 * (t3Re[0][0] + t3Re[0][1] + t3Re[1][0] + t3Re[1][1]);
         c3Im[0][0] = 0.0;
 
         c3Re[0][1] = (t3Re[0][2] + t3Re[1][2]) / sqrt2;
         c3Im[0][1] = (t3Im[0][2] + t3Im[1][2]) / sqrt2;
 
-        c3Re[0][2] = 0.5*(t3Re[0][0] - t3Re[0][1] + t3Re[1][0] - t3Re[1][1]);
-        c3Im[0][2] = 0.5*(t3Im[0][0] - t3Im[0][1] + t3Im[1][0] - t3Im[1][1]);
+        c3Re[0][2] = 0.5 * (t3Re[0][0] - t3Re[0][1] + t3Re[1][0] - t3Re[1][1]);
+        c3Im[0][2] = 0.5 * (t3Im[0][0] - t3Im[0][1] + t3Im[1][0] - t3Im[1][1]);
 
         c3Re[1][0] = c3Re[0][1];
         c3Im[1][0] = -c3Im[0][1];
@@ -712,12 +762,13 @@ public final class PolOpUtils {
         c3Re[2][1] = c3Re[1][2];
         c3Im[2][1] = -c3Im[1][2];
 
-        c3Re[2][2] = 0.5*(t3Re[0][0] - t3Re[0][1] - t3Re[1][0] + t3Re[1][1]);
+        c3Re[2][2] = 0.5 * (t3Re[0][0] - t3Re[0][1] - t3Re[1][0] + t3Re[1][1]);
         c3Im[2][2] = 0.0;
     }
 
     /**
      * Convert coherency matrix T4 to coherency matrix T3
+     *
      * @param t4Re Real part of T4 matrix
      * @param t4Im Imaginary part of T4 matrix
      * @param t3Re Real part of T3 matrix
@@ -727,28 +778,29 @@ public final class PolOpUtils {
                               final double[][] t3Re, final double[][] t3Im) {
 
         // loop unwrapping
-        System.arraycopy(t4Re[0],0,t3Re[0],0,t3Re[0].length);
-        System.arraycopy(t4Im[0],0,t3Im[0],0,t3Im[0].length);
+        System.arraycopy(t4Re[0], 0, t3Re[0], 0, t3Re[0].length);
+        System.arraycopy(t4Im[0], 0, t3Im[0], 0, t3Im[0].length);
 
-        System.arraycopy(t4Re[1],0,t3Re[1],0,t3Re[1].length);
-        System.arraycopy(t4Im[1],0,t3Im[1],0,t3Im[1].length);
+        System.arraycopy(t4Re[1], 0, t3Re[1], 0, t3Re[1].length);
+        System.arraycopy(t4Im[1], 0, t3Im[1], 0, t3Im[1].length);
 
-        System.arraycopy(t4Re[2],0,t3Re[2],0,t3Re[2].length);
-        System.arraycopy(t4Im[2],0,t3Im[2],0,t3Im[2].length);
+        System.arraycopy(t4Re[2], 0, t3Re[2], 0, t3Re[2].length);
+        System.arraycopy(t4Im[2], 0, t3Im[2], 0, t3Im[2].length);
     }
 
     /**
      * Get mean coherency matrix for given pixel.
-     * @param x X coordinate of the given pixel.
-     * @param y Y coordinate of the given pixel.
-     * @param halfWindowSize The sliding window size / 2.
+     *
+     * @param x                 X coordinate of the given pixel.
+     * @param y                 Y coordinate of the given pixel.
+     * @param halfWindowSize    The sliding window size / 2.
      * @param sourceProductType The source product type.
-     * @param sourceImageWidth The source image width.
+     * @param sourceImageWidth  The source image width.
      * @param sourceImageHeight The source image height.
-     * @param srcIndex The TileIndex of the first source tile
-     * @param dataBuffers Source tile data buffers.
-     * @param Tr The real part of the mean coherency matrix.
-     * @param Ti The imaginary part of the mean coherency matrix.
+     * @param srcIndex          The TileIndex of the first source tile
+     * @param dataBuffers       Source tile data buffers.
+     * @param Tr                The real part of the mean coherency matrix.
+     * @param Ti                The imaginary part of the mean coherency matrix.
      */
     public static void getMeanCoherencyMatrix(
             final int x, final int y, final int halfWindowSize, final int sourceImageWidth, final int sourceImageHeight,
@@ -766,10 +818,10 @@ public final class PolOpUtils {
         final int xEd = FastMath.min(x + halfWindowSize, sourceImageWidth - 1);
         final int ySt = FastMath.max(y - halfWindowSize, 0);
         final int yEd = FastMath.min(y + halfWindowSize, sourceImageHeight - 1);
-        final int num = (yEd - ySt + 1)*(xEd - xSt + 1);
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
-        final Matrix TrMat = new Matrix(3,3);
-        final Matrix TiMat = new Matrix(3,3);
+        final Matrix TrMat = new Matrix(3, 3);
+        final Matrix TiMat = new Matrix(3, 3);
 
         if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
@@ -807,28 +859,29 @@ public final class PolOpUtils {
             }
         }
 
-        TrMat.timesEquals(1.0/num);
-        TiMat.timesEquals(1.0/num);
+        TrMat.timesEquals(1.0 / num);
+        TiMat.timesEquals(1.0 / num);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Tr[i][j] = TrMat.get(i,j);
-                Ti[i][j] = TiMat.get(i,j);
+                Tr[i][j] = TrMat.get(i, j);
+                Ti[i][j] = TiMat.get(i, j);
             }
         }
     }
 
     /**
      * Get mean covariance matrix for given pixel.
-     * @param x X coordinate of the given pixel.
-     * @param y Y coordinate of the given pixel.
-     * @param halfWindowSize The sliding window size / 2
+     *
+     * @param x                 X coordinate of the given pixel.
+     * @param y                 Y coordinate of the given pixel.
+     * @param halfWindowSize    The sliding window size / 2
      * @param sourceProductType The source product type.
-     * @param sourceImageWidth The source image width.
+     * @param sourceImageWidth  The source image width.
      * @param sourceImageHeight The source image height.
-     * @param sourceTiles The source tiles for all bands.
-     * @param dataBuffers Source tile data buffers.
-     * @param Cr The real part of the mean covariance matrix.
-     * @param Ci The imaginary part of the mean covariance matrix.
+     * @param sourceTiles       The source tiles for all bands.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Cr                The real part of the mean covariance matrix.
+     * @param Ci                The imaginary part of the mean covariance matrix.
      */
     public static void getMeanCovarianceMatrix(
             final int x, final int y, final int halfWindowSize, final int sourceImageWidth, final int sourceImageHeight,
@@ -846,12 +899,12 @@ public final class PolOpUtils {
         final int xEd = FastMath.min(x + halfWindowSize, sourceTiles[0].getMaxX() - 1);
         final int ySt = FastMath.max(y - halfWindowSize, sourceTiles[0].getMinY());
         final int yEd = FastMath.min(y + halfWindowSize, sourceTiles[0].getMaxY() - 1);
-        final int num = (yEd - ySt + 1)*(xEd - xSt + 1);
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-        final Matrix CrMat = new Matrix(3,3);
-        final Matrix CiMat = new Matrix(3,3);
+        final Matrix CrMat = new Matrix(3, 3);
+        final Matrix CiMat = new Matrix(3, 3);
 
         if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
@@ -889,19 +942,19 @@ public final class PolOpUtils {
             }
         }
 
-        CrMat.timesEquals(1.0/num);
-        CiMat.timesEquals(1.0/num);
+        CrMat.timesEquals(1.0 / num);
+        CiMat.timesEquals(1.0 / num);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Cr[i][j] = CrMat.get(i,j);
-                Ci[i][j] = CiMat.get(i,j);
+                Cr[i][j] = CrMat.get(i, j);
+                Ci[i][j] = CiMat.get(i, j);
             }
         }
     }
 
 
     public static void getT3(final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
-                       final double[][] Tr, final double[][] Ti) {
+                             final double[][] Tr, final double[][] Ti) {
 
         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
@@ -925,12 +978,13 @@ public final class PolOpUtils {
 
     /**
      * Perform eigenvalue decomposition for a given Hermitian matrix
-     * @param n Matrix dimension
-     * @param HMr Real part of the Hermitian matrix
-     * @param HMi Imaginary part of the Hermitian matrix
+     *
+     * @param n           Matrix dimension
+     * @param HMr         Real part of the Hermitian matrix
+     * @param HMi         Imaginary part of the Hermitian matrix
      * @param EigenVectRe Real part of the eigenvector matrix
      * @param EigenVectIm Imaginary part of the eigenvector matrix
-     * @param EigenVal Eigenvalue vector
+     * @param EigenVal    Eigenvalue vector
      */
     public static void eigenDecomposition(final int n, final double[][] HMr, final double[][] HMi,
                                           final double[][] EigenVectRe, final double[][] EigenVectIm, final double[] EigenVal) {
@@ -949,7 +1003,7 @@ public final class PolOpUtils {
         final double[] hc = new double[2];
         double sm, tresh, x, toto, e, f, g, h, r, d1, d2;
         int p, q, ii, i, j, k;
-        int n2 = n*n;
+        int n2 = n * n;
 
         for (i = 0; i < n; i++) {
             for (j = 0; j < n; j++) {
@@ -965,13 +1019,13 @@ public final class PolOpUtils {
             z[i] = 0.;
         }
 
-        final int iiMax = 1000*n2;
+        final int iiMax = 1000 * n2;
         for (ii = 1; ii < iiMax; ii++) {
 
             sm = 0.;
-            for (p = 0; p < n-1; p++) {
+            for (p = 0; p < n - 1; p++) {
                 for (q = p + 1; q < n; q++) {
-                    sm += 2.0*Math.sqrt(ar[p][q]*ar[p][q] + ai[p][q]*ai[p][q]);
+                    sm += 2.0 * Math.sqrt(ar[p][q] * ar[p][q] + ai[p][q] * ai[p][q]);
                 }
             }
             sm /= (n2 - n);
@@ -982,15 +1036,15 @@ public final class PolOpUtils {
 
             tresh = 1.E-17;
             if (ii < 4) {
-                tresh = (long) 0.2*sm / n2;
+                tresh = (long) 0.2 * sm / n2;
             }
 
             x = -1.E-15;
             p = 0;
             q = 0;
-            for (i = 0; i < n-1; i++) {
+            for (i = 0; i < n - 1; i++) {
                 for (j = i + 1; j < n; j++) {
-                    toto = Math.sqrt(ar[i][j]*ar[i][j] + ai[i][j]*ai[i][j]);
+                    toto = Math.sqrt(ar[i][j] * ar[i][j] + ai[i][j] * ai[i][j]);
                     if (x < toto) {
                         x = toto;
                         p = i;
@@ -998,29 +1052,29 @@ public final class PolOpUtils {
                     }
                 }
             }
-            toto = Math.sqrt(ar[p][q]*ar[p][q] + ai[p][q]*ai[p][q]);
+            toto = Math.sqrt(ar[p][q] * ar[p][q] + ai[p][q] * ai[p][q]);
             if (toto > tresh) {
                 e = d[p] - d[q];
                 w[0] = ar[p][q];
                 w[1] = ai[p][q];
-                g = Math.sqrt(w[0]*w[0] + w[1]*w[1]);
-                g = g*g;
-                f = Math.sqrt(e*e + 4.0*g);
+                g = Math.sqrt(w[0] * w[0] + w[1] * w[1]);
+                g = g * g;
+                f = Math.sqrt(e * e + 4.0 * g);
                 d1 = e + f;
                 d2 = e - f;
                 if (Math.abs(d2) > Math.abs(d1)) {
                     d1 = d2;
                 }
-                r = Math.abs(d1) / Math.sqrt(d1*d1 + 4.0*g);
+                r = Math.abs(d1) / Math.sqrt(d1 * d1 + 4.0 * g);
                 s[0] = r;
                 s[1] = 0.0;
-                titi[0] = 2.0*r/d1;
+                titi[0] = 2.0 * r / d1;
                 titi[1] = 0.0;
-                c[0] = titi[0]*w[0] - titi[1]*w[1];
-                c[1] = titi[0]*w[1] + titi[1]*w[0];
-                r = Math.sqrt(s[0]*s[0] + s[1]*s[1]);
-                r = r*r;
-                h = (d1/2.0 + 2.0*g/d1)*r;
+                c[0] = titi[0] * w[0] - titi[1] * w[1];
+                c[1] = titi[0] * w[1] + titi[1] * w[0];
+                r = Math.sqrt(s[0] * s[0] + s[1] * s[1]);
+                r = r * r;
+                h = (d1 / 2.0 + 2.0 * g / d1) * r;
                 d[p] = d[p] - h;
                 z[p] = z[p] - h;
                 d[q] = d[q] + h;
@@ -1033,30 +1087,30 @@ public final class PolOpUtils {
                     gc[1] = ai[j][p];
                     hc[0] = ar[j][q];
                     hc[1] = ai[j][q];
-                    ar[j][p] = c[0]*gc[0] - c[1]*gc[1] - s[0]*hc[0] - s[1]*hc[1];
-                    ai[j][p] = c[0]*gc[1] + c[1]*gc[0] - s[0]*hc[1] + s[1]*hc[0];
-                    ar[j][q] = s[0]*gc[0] - s[1]*gc[1] + c[0]*hc[0] + c[1]*hc[1];
-                    ai[j][q] = s[0]*gc[1] + s[1]*gc[0] + c[0]*hc[1] - c[1]*hc[0];
+                    ar[j][p] = c[0] * gc[0] - c[1] * gc[1] - s[0] * hc[0] - s[1] * hc[1];
+                    ai[j][p] = c[0] * gc[1] + c[1] * gc[0] - s[0] * hc[1] + s[1] * hc[0];
+                    ar[j][q] = s[0] * gc[0] - s[1] * gc[1] + c[0] * hc[0] + c[1] * hc[1];
+                    ai[j][q] = s[0] * gc[1] + s[1] * gc[0] + c[0] * hc[1] - c[1] * hc[0];
                 }
-                for (j = p+1; j < q; j++) {
+                for (j = p + 1; j < q; j++) {
                     gc[0] = ar[p][j];
                     gc[1] = ai[p][j];
                     hc[0] = ar[j][q];
                     hc[1] = ai[j][q];
-                    ar[p][j] = c[0]*gc[0] + c[1]*gc[1] - s[0]*hc[0] - s[1]*hc[1];
-                    ai[p][j] = c[0]*gc[1] - c[1]*gc[0] + s[0]*hc[1] - s[1]*hc[0];
-                    ar[j][q] = s[0]*gc[0] + s[1]*gc[1] + c[0]*hc[0] + c[1]*hc[1];
-                    ai[j][q] = -s[0]*gc[1] + s[1]*gc[0] + c[0]*hc[1] - c[1]*hc[0];
+                    ar[p][j] = c[0] * gc[0] + c[1] * gc[1] - s[0] * hc[0] - s[1] * hc[1];
+                    ai[p][j] = c[0] * gc[1] - c[1] * gc[0] + s[0] * hc[1] - s[1] * hc[0];
+                    ar[j][q] = s[0] * gc[0] + s[1] * gc[1] + c[0] * hc[0] + c[1] * hc[1];
+                    ai[j][q] = -s[0] * gc[1] + s[1] * gc[0] + c[0] * hc[1] - c[1] * hc[0];
                 }
-                for (j = q+1; j < n; j++) {
+                for (j = q + 1; j < n; j++) {
                     gc[0] = ar[p][j];
                     gc[1] = ai[p][j];
                     hc[0] = ar[q][j];
                     hc[1] = ai[q][j];
-                    ar[p][j] = c[0]*gc[0] + c[1]*gc[1] - s[0]*hc[0] + s[1]*hc[1];
-                    ai[p][j] = c[0]*gc[1] - c[1]*gc[0] - s[0]*hc[1] - s[1]*hc[0];
-                    ar[q][j] = s[0]*gc[0] + s[1]*gc[1] + c[0]*hc[0] - c[1]*hc[1];
-                    ai[q][j] = s[0]*gc[1] - s[1]*gc[0] + c[0]*hc[1] + c[1]*hc[0];
+                    ar[p][j] = c[0] * gc[0] + c[1] * gc[1] - s[0] * hc[0] + s[1] * hc[1];
+                    ai[p][j] = c[0] * gc[1] - c[1] * gc[0] - s[0] * hc[1] - s[1] * hc[0];
+                    ar[q][j] = s[0] * gc[0] + s[1] * gc[1] + c[0] * hc[0] - c[1] * hc[1];
+                    ai[q][j] = s[0] * gc[1] - s[1] * gc[0] + c[0] * hc[1] + c[1] * hc[0];
                 }
                 for (j = 0; j < n; j++) {
                     gc[0] = vr[j][p];
@@ -1075,8 +1129,8 @@ public final class PolOpUtils {
             d[k] = 0;
             for (i = 0; i < n; i++) {
                 for (j = 0; j < n; j++) {
-                    d[k] = d[k] + vr[i][k]*(HMr[i][j]*vr[j][k] - HMi[i][j]*vi[j][k]);
-                    d[k] = d[k] + vi[i][k]*(HMr[i][j]*vi[j][k] + HMi[i][j]*vr[j][k]);
+                    d[k] = d[k] + vr[i][k] * (HMr[i][j] * vr[j][k] - HMi[i][j] * vi[j][k]);
+                    d[k] = d[k] + vi[i][k] * (HMr[i][j] * vi[j][k] + HMi[i][j] * vr[j][k]);
                 }
             }
         }
@@ -1142,17 +1196,17 @@ public final class PolOpUtils {
 
     /**
      * Eigenvalue decomposition of general complex matrix using JAMA eig function
-      */
+     */
     public static void eigenDecompGeneral(int n, double[][] HMr, double[][] HMi,
                                           double[][] EigenVectRe, double[][] EigenVectIm, double[] EigenVal) {
 
-        final double[][] H = new double[2*n][2*n];
+        final double[][] H = new double[2 * n][2 * n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 H[i][j] = HMr[i][j];
-                H[n+i][n+j] = HMr[i][j];
-                H[i][n+j] = -HMi[i][j];
-                H[n+i][j] = HMi[i][j];
+                H[n + i][n + j] = HMr[i][j];
+                H[i][n + j] = -HMi[i][j];
+                H[n + i][j] = HMi[i][j];
             }
         }
 
@@ -1161,7 +1215,7 @@ public final class PolOpUtils {
         final Matrix V = Evd.getV();
         final Matrix D = Evd.getD();
 
-        final int n2 = n*2;
+        final int n2 = n * 2;
         double[][] d = D.getArray();
         double[][] v = V.getArray();
         double x;
@@ -1181,11 +1235,11 @@ public final class PolOpUtils {
         }
 
         for (int i = 0; i < n; i++) {
-            final int i2 = i*2;
+            final int i2 = i * 2;
             EigenVal[i] = d[i2][i2];
             for (int j = 0; j < n; j++) {
                 EigenVectRe[j][i] = v[j][i2];
-                EigenVectIm[j][i] = v[n+j][i2];
+                EigenVectIm[j][i] = v[n + j][i2];
             }
         }
     }
@@ -1194,14 +1248,14 @@ public final class PolOpUtils {
     public static void inverseComplexMatrix(
             final int n, final double[][] Mr, final double[][] Mi, double[][] invMr, double[][] invMi) {
 
-        final int n2 = n*2;
+        final int n2 = n * 2;
         final double[][] M = new double[n2][n2];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 M[i][j] = Mr[i][j];
-                M[i+n][j+n] = Mr[i][j];
-                M[i][j+n] = -Mi[i][j];
-                M[i+n][j] = Mi[i][j];
+                M[i + n][j + n] = Mr[i][j];
+                M[i][j + n] = -Mi[i][j];
+                M[i + n][j] = Mi[i][j];
             }
         }
 
@@ -1222,8 +1276,8 @@ public final class PolOpUtils {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                invMr[i][j] = invMMat.get(i,j);
-                invMi[i][j] = invMMat.get(i+n,j);
+                invMr[i][j] = invMMat.get(i, j);
+                invMi[i][j] = invMMat.get(i + n, j);
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,12 +38,12 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox filter = new JComboBox(new String[] { SpeckleFilterOp.MEAN_SPECKLE_FILTER,
-                                                                  SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
-                                                                  SpeckleFilterOp.FROST_SPECKLE_FILTER,
-                                                                  SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
-                                                                  SpeckleFilterOp.LEE_SPECKLE_FILTER,
-                                                                  SpeckleFilterOp.LEE_REFINED_FILTER } );
+    private final JComboBox filter = new JComboBox(new String[]{SpeckleFilterOp.MEAN_SPECKLE_FILTER,
+            SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
+            SpeckleFilterOp.FROST_SPECKLE_FILTER,
+            SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
+            SpeckleFilterOp.LEE_SPECKLE_FILTER,
+            SpeckleFilterOp.LEE_REFINED_FILTER});
 
     private final JLabel dampingFactorLabel = new JLabel("Damping Factor:");
     private final JLabel edgeThresholdLabel = new JLabel("Edge Threshold:");
@@ -69,15 +69,15 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         initParameters();
 
         estimateENLCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(ItemEvent e) {
 
-                    estimateENL = (e.getStateChange() == ItemEvent.SELECTED);
-                    if (estimateENL) {
-                        enl.setEnabled(false);
-                    } else {
-                        enl.setEnabled(true);
-                    }
+                estimateENL = (e.getStateChange() == ItemEvent.SELECTED);
+                if (estimateENL) {
+                    enl.setEnabled(false);
+                } else {
+                    enl.setEnabled(true);
                 }
+            }
         });
 
         return panel;
@@ -165,8 +165,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
     }
 
     private void updateFilterSelection() {
-        final String item = (String)filter.getSelectedItem();
-        if(item.equals(SpeckleFilterOp.FROST_SPECKLE_FILTER)) {
+        final String item = (String) filter.getSelectedItem();
+        if (item.equals(SpeckleFilterOp.FROST_SPECKLE_FILTER)) {
             DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, true);
         } else {
             DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, false);

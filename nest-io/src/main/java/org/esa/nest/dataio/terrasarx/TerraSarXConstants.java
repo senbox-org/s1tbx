@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,13 +20,13 @@ import java.io.File;
 /**
  * Several constants used for reading TerraSarX products.
  */
-class TerraSarXConstants  {
+class TerraSarXConstants {
 
     private final static String[] FORMAT_NAMES = new String[]{"TerraSarX"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"xml"};
     private final static String PLUGIN_DESCRIPTION = "TerraSarX Products";      /*I18N*/
     final static String PRODUCT_TYPE_PREFIX = "";
-    final static String[] HEADER_PREFIX = { "TSX1", "TSX2", "TDX1", "TDX2" };
+    final static String[] HEADER_PREFIX = {"TSX1", "TSX2", "TDX1", "TDX2"};
 
     final static String PRODUCT_DESCRIPTION_PREFIX = "TerraSarX product ";
 

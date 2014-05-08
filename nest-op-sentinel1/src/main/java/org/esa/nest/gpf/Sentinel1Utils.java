@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,20 +20,17 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.util.math.Array;
 import org.esa.nest.datamodel.AbstractMetadata;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.text.DateFormat;
 
-public final class Sentinel1Utils
-{
-	public final static DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
-	
-    private Sentinel1Utils()
-    {
+public final class Sentinel1Utils {
+    public final static DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
+
+    private Sentinel1Utils() {
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
@@ -111,7 +108,7 @@ public final class Sentinel1Utils
         final MetadataElement[] list = noiseVectorListElem.getElements();
 
         final List<NoiseVector> noiseVectorList = new ArrayList<NoiseVector>(5);
-        for(MetadataElement noiseVectorElem : list) {
+        for (MetadataElement noiseVectorElem : list) {
             final ProductData.UTC time = getTime(noiseVectorElem, "azimuthTime");
             final int line = Integer.parseInt(noiseVectorElem.getAttributeString("line"));
 
@@ -140,7 +137,7 @@ public final class Sentinel1Utils
         final MetadataElement[] list = calibrationVectorListElem.getElements();
 
         final List<CalibrationVector> calibrationVectorList = new ArrayList<CalibrationVector>(5);
-        for(MetadataElement calibrationVectorElem : list) {
+        for (MetadataElement calibrationVectorElem : list) {
             final ProductData.UTC time = getTime(calibrationVectorElem, "azimuthTime");
             final int line = Integer.parseInt(calibrationVectorElem.getAttributeString("line"));
 

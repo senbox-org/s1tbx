@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.gpf.classifiers.PolClassifierBase;
 import org.csa.rstb.gpf.classifiers.Wishart;
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -46,22 +46,22 @@ import java.util.Properties;
  * Perform supervised Wishart classification of a given polarimetric product
  */
 
-@OperatorMetadata(alias="Supervised-Wishart-Classification",
+@OperatorMetadata(alias = "Supervised-Wishart-Classification",
         category = "Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description="Perform supervised Wishart classification")
+        description = "Perform supervised Wishart classification")
 public final class SupervisedWishartClassificationOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The training data set file", label="Training Data Set")
+    @Parameter(description = "The training data set file", label = "Training Data Set")
     private File trainingDataSet = null;
 
-    @Parameter(description = "The sliding window size", interval = "(1, 100]", defaultValue = "5", label="Window Size")
+    @Parameter(description = "The sliding window size", interval = "(1, 100]", defaultValue = "5", label = "Window Size")
     private int windowSize = 5;
     private int halfWindowSize;
 
@@ -84,8 +84,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -105,16 +104,17 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     /**
      * Read cluster centers from training data set file.
+     *
      * @throws IOException The I/O exception
      */
-    private void getClusterCenters()  throws IOException {
+    private void getClusterCenters() throws IOException {
 
         final Properties clusterCenterProperties = ResourceUtils.loadProperties(trainingDataSet.getAbsolutePath());
         final int numOfClusters = Integer.parseInt(clusterCenterProperties.getProperty("number_of_clusters"));
@@ -159,9 +159,9 @@ public final class SupervisedWishartClassificationOp extends Operator {
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         // add index coding
         final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
@@ -173,13 +173,13 @@ public final class SupervisedWishartClassificationOp extends Operator {
         final String targetBandName = "supervised_wishart_class";
 
         final Band targetBand = new Band(targetBandName,
-                                         ProductData.TYPE_UINT8,
-                                         targetProduct.getSceneRasterWidth(),
-                                         targetProduct.getSceneRasterHeight());
+                ProductData.TYPE_UINT8,
+                targetProduct.getSceneRasterWidth(),
+                targetProduct.getSceneRasterHeight());
 
         targetBand.setUnit("zone_index");
         targetBand.setSampleCoding(indexCoding);
-        
+
         targetProduct.addBand(targetBand);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
@@ -194,8 +194,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -204,15 +203,15 @@ public final class SupervisedWishartClassificationOp extends Operator {
             final Rectangle targetRectangle = targetTile.getRectangle();
             final int x0 = targetRectangle.x;
             final int y0 = targetRectangle.y;
-            final int w  = targetRectangle.width;
-            final int h  = targetRectangle.height;
+            final int w = targetRectangle.width;
+            final int h = targetRectangle.height;
             final int maxY = y0 + h;
             final int maxX = x0 + w;
             final ProductData targetData = targetTile.getDataBuffer();
             final TileIndex trgIndex = new TileIndex(targetTile);
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+            for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -231,15 +230,15 @@ public final class SupervisedWishartClassificationOp extends Operator {
                     for (int x = x0; x < maxX; ++x) {
 
                         PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
-                                                          sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                                sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                         targetData.setElemIntAt(
                                 trgIndex.getIndex(x),
-                                clusterToClassMap[Wishart.findZoneIndex(Tr, Ti, clusterCenters)-1]);
+                                clusterToClassMap[Wishart.findZoneIndex(Tr, Ti, clusterCenters) - 1]);
                     }
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -248,10 +247,11 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
     /**
      * Get source tile rectangle.
+     *
      * @param tx0 X coordinate for the upper left corner pixel in the target tile.
      * @param ty0 Y coordinate for the upper left corner pixel in the target tile.
-     * @param tw The target tile width.
-     * @param th The target tile height.
+     * @param tw  The target tile width.
+     * @param th  The target tile height.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
@@ -271,6 +271,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

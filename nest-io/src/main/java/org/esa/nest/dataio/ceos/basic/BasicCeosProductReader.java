@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,6 @@ import java.io.File;
 
 /**
  * The product reader for CEOS products.
- *
  */
 public class BasicCeosProductReader extends CEOSProductReader {
 
@@ -35,7 +34,7 @@ public class BasicCeosProductReader extends CEOSProductReader {
      *                     implementations
      */
     public BasicCeosProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     @Override
@@ -48,8 +47,8 @@ public class BasicCeosProductReader extends CEOSProductReader {
         try {
             _dataDir = createProductDirectory(file);
 
-            final BasicCeosProductDirectory dataDir = (BasicCeosProductDirectory)_dataDir;
-            if(dataDir.isCeos())
+            final BasicCeosProductDirectory dataDir = (BasicCeosProductDirectory) _dataDir;
+            if (dataDir.isCeos())
                 return DecodeQualification.SUITABLE;
             return DecodeQualification.UNABLE;
 

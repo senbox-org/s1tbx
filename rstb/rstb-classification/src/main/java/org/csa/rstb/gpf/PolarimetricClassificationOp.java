@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,11 +15,11 @@
  */
 package org.csa.rstb.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.gpf.classifiers.CloudePottier;
 import org.csa.rstb.gpf.classifiers.FreemanDurdenWishart;
 import org.csa.rstb.gpf.classifiers.PolClassifier;
 import org.csa.rstb.gpf.classifiers.Wishart;
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -41,40 +41,40 @@ import java.util.Map;
  * Perform Polarimetric classification of a given polarimetric product
  */
 
-@OperatorMetadata(alias="Polarimetric-Classification",
+@OperatorMetadata(alias = "Polarimetric-Classification",
         category = "Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description="Perform Polarimetric classification of a given product")
+        description = "Perform Polarimetric classification of a given product")
 public final class PolarimetricClassificationOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(valueSet = {UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, UNSUPERVISED_WISHART_CLASSIFICATION,
-                           UNSUPERVISED_TERRAIN_CLASSIFICATION},
-               defaultValue = UNSUPERVISED_WISHART_CLASSIFICATION, label="Classification")
+            UNSUPERVISED_TERRAIN_CLASSIFICATION},
+            defaultValue = UNSUPERVISED_WISHART_CLASSIFICATION, label = "Classification")
     private String classification = UNSUPERVISED_WISHART_CLASSIFICATION;
 
-    @Parameter(description = "The sliding window size", interval = "(1, 100]", defaultValue = "5", label="Window Size")
+    @Parameter(description = "The sliding window size", interval = "(1, 100]", defaultValue = "5", label = "Window Size")
     private int windowSize = 5;
 
     @Parameter(description = "The maximum number of iterations", interval = "[1, 100]", defaultValue = "3",
-               label="Maximum Number of Iterations")
+            label = "Maximum Number of Iterations")
     private int maxIterations = 3;
 
     @Parameter(description = "The initial number of classes", interval = "[9, 1000]", defaultValue = "90",
-               label="The Initial Number of Classes")
+            label = "The Initial Number of Classes")
     private int numInitialClasses = 90;
 
     @Parameter(description = "The desired number of classes", interval = "[9, 100]", defaultValue = "15",
-               label="The Final Number of Classes")
+            label = "The Final Number of Classes")
     private int numFinalClasses = 15;
 
     @Parameter(description = "The threshold for classifying pixels to mixed category", interval = "(0, *)",
-               defaultValue = "0.5", label="Threshold for Mixed Category")
+            defaultValue = "0.5", label = "Threshold for Mixed Category")
     private double mixedCategoryThreshold = 0.5;
 
     private int sourceImageWidth = 0;
@@ -92,14 +92,15 @@ public final class PolarimetricClassificationOp extends Operator {
 
     /**
      * Set classification. This function is used by unit test only.
+     *
      * @param s The classification name.
      */
     public void SetClassification(String s) {
 
         if (s.equals(UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION) ||
-            s.equals(UNSUPERVISED_WISHART_CLASSIFICATION) ||
-            s.equals(UNSUPERVISED_TERRAIN_CLASSIFICATION)) {
-                classification = s;
+                s.equals(UNSUPERVISED_WISHART_CLASSIFICATION) ||
+                s.equals(UNSUPERVISED_TERRAIN_CLASSIFICATION)) {
+            classification = s;
         } else {
             throw new OperatorException(s + " is an invalid classification name.");
         }
@@ -114,8 +115,7 @@ public final class PolarimetricClassificationOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -132,12 +132,12 @@ public final class PolarimetricClassificationOp extends Operator {
 
             createTargetProduct();
 
-            if(targetProduct.getNumBands() > 1 && !classifier.canProcessStacks()) {
+            if (targetProduct.getNumBands() > 1 && !classifier.canProcessStacks()) {
                 throw new OperatorException("Stack processing is not supported with this classifier.");
             }
 
             updateTargetProductMetadata();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -147,15 +147,15 @@ public final class PolarimetricClassificationOp extends Operator {
 
             return new CloudePottier(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap);
 
-        } else if(classification.equals(UNSUPERVISED_WISHART_CLASSIFICATION)) {
+        } else if (classification.equals(UNSUPERVISED_WISHART_CLASSIFICATION)) {
 
             return new Wishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
-                               maxIterations);
+                    maxIterations);
 
         } else if (classification.equals(UNSUPERVISED_TERRAIN_CLASSIFICATION)) {
 
             return new FreemanDurdenWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
-                               maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold);
+                    maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold);
         }
         throw new OperatorException(classification + " is an invalid classification name.");
     }
@@ -166,8 +166,8 @@ public final class PolarimetricClassificationOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth, sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth, sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -178,11 +178,11 @@ public final class PolarimetricClassificationOp extends Operator {
         targetProduct.getIndexCodingGroup().add(indexCoding);
 
         // add a target product per source product
-        for(final PolBandUtils.QuadSourceBand bandList :srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
             final Band targetBand = new Band(targetBandName + bandList.suffix,
-                                             ProductData.TYPE_UINT8,
-                                             targetProduct.getSceneRasterWidth(),
-                                             targetProduct.getSceneRasterHeight());
+                    ProductData.TYPE_UINT8,
+                    targetProduct.getSceneRasterWidth(),
+                    targetProduct.getSceneRasterHeight());
 
             targetBand.setUnit("zone_index");
             targetBand.setNoDataValue(Wishart.NODATACLASS);
@@ -215,15 +215,14 @@ public final class PolarimetricClassificationOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
             classifier.computeTile(targetBand, targetTile, this);
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -235,6 +234,7 @@ public final class PolarimetricClassificationOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

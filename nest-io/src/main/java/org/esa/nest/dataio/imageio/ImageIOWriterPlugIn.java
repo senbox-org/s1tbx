@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,7 @@ import java.util.Locale;
 
 public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
 
-    private static final String[] FORMAT_NAMES = { "JP2", "JPG", "PNG", "BMP", "GIF" };
+    private static final String[] FORMAT_NAMES = {"JP2", "JPG", "PNG", "BMP", "GIF"};
 
     /**
      * Constructs a new product writer plug-in instance.
@@ -45,9 +45,9 @@ public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
         final List<String> extList = new ArrayList<String>(20);
         extList.addAll(Arrays.asList(ImageIO.getWriterFileSuffixes()));
 
-        final String[] exclude = { "pbm", "jpeg", "wbmp", "pgm", "ppm", "tiff", "gz"};
-        for(String ext : exclude) {
-            extList.remove(ext);    
+        final String[] exclude = {"pbm", "jpeg", "wbmp", "pgm", "ppm", "tiff", "gz"};
+        for (String ext : exclude) {
+            extList.remove(ext);
         }
 
         return extList.toArray(new String[extList.size()]);
@@ -61,7 +61,6 @@ public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid output types, never <code>null</code>
-     *
      * @see org.esa.beam.framework.dataio.AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
@@ -79,7 +78,6 @@ public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
@@ -92,7 +90,7 @@ public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
      * @return a new instance of the writer class
      */
     public ProductWriter createWriterInstance() {
-        return new ImageIOWriter(this); 
+        return new ImageIOWriter(this);
     }
 
     public BeamFileFilter getProductFileFilter() {

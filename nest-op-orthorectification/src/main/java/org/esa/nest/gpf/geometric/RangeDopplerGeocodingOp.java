@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,8 +37,10 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.*;
 import org.esa.nest.eo.Constants;
+import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.eo.LocalGeometry;
+import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.CalibrationOp;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
@@ -54,7 +56,7 @@ import java.util.List;
  * Raw SAR images usually contain significant geometric distortions. One of the factors that cause the
  * distortions is the ground elevation of the targets. This operator corrects the topographic distortion
  * in the raw image caused by this factor. The operator implements the Range-Doppler (RD) geocoding method.
- *
+ * <p/>
  * The method consis of the following major steps:
  * (1) Get state vectors from the metadata;
  * (2) Compute satellite position and velocity for each azimuth time by interpolating the state vectors;
@@ -73,103 +75,103 @@ import java.util.List;
  * (8.7) Compute azimuth image index Ia using zero Doppler time tc(i,j);
  * (8.8) Compute range image index Ir using slant range r(tc(i,j)) or ground range;
  * (8.9) Compute pixel value x(Ia,Ir) using interpolation and save it for current sample.
- *
+ * <p/>
  * Reference: Guide to ASAR Geocoding, Issue 1.0, 19.03.2008
  */
 
-@OperatorMetadata(alias="Terrain-Correction",
+@OperatorMetadata(alias = "Terrain-Correction",
         category = "Geometric\\Terrain Correction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="RD method for orthorectification")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "RD method for orthorectification")
 public class RangeDopplerGeocodingOp extends Operator {
 
     public static final String PRODUCT_SUFFIX = "_TC";
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     Product sourceProduct;
     @TargetProduct
     Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private
     String[] sourceBandNames = null;
 
     @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"}, description = "The digital elevation model.",
-               defaultValue="SRTM 3Sec", label="Digital Elevation Model")
+            defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
-    @Parameter(label="External DEM")
+    @Parameter(label = "External DEM")
     private File externalDEMFile = null;
 
-    @Parameter(label="DEM No Data Value", defaultValue = "0")
+    @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label="DEM Resampling Method")
+            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label="Image Resampling Method")
+            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
     private String imgResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
-    @Parameter(description = "The pixel spacing in meters", defaultValue = "0", label="Pixel Spacing (m)")
+    @Parameter(description = "The pixel spacing in meters", defaultValue = "0", label = "Pixel Spacing (m)")
     private double pixelSpacingInMeter = 0;
 
-    @Parameter(description = "The pixel spacing in degrees", defaultValue = "0", label="Pixel Spacing (deg)")
+    @Parameter(description = "The pixel spacing in degrees", defaultValue = "0", label = "Pixel Spacing (deg)")
     private double pixelSpacingInDegree = 0;
 
-    @Parameter(description = "The coordinate reference system in well known text format", defaultValue="WGS84(DD)")
+    @Parameter(description = "The coordinate reference system in well known text format", defaultValue = "WGS84(DD)")
     private String mapProjection = "WGS84(DD)";
 
-    @Parameter(defaultValue="true", label="Mask out areas with no elevation", description = "Mask the sea with no data value (faster)")
+    @Parameter(defaultValue = "true", label = "Mask out areas with no elevation", description = "Mask the sea with no data value (faster)")
     private boolean nodataValueAtSea = true;
 
-    @Parameter(defaultValue="false", label="Save DEM as band")
+    @Parameter(defaultValue = "false", label = "Save DEM as band")
     private boolean saveDEM = false;
 
-    @Parameter(defaultValue="false", label="Save incidence angle from ellipsoid as band")
+    @Parameter(defaultValue = "false", label = "Save incidence angle from ellipsoid as band")
     private boolean saveIncidenceAngleFromEllipsoid = false;
 
-    @Parameter(defaultValue="false", label="Save local incidence angle as band")
+    @Parameter(defaultValue = "false", label = "Save local incidence angle as band")
     private boolean saveLocalIncidenceAngle = false;
 
-    @Parameter(defaultValue="false", label="Save projected local incidence angle as band")
+    @Parameter(defaultValue = "false", label = "Save projected local incidence angle as band")
     private boolean saveProjectedLocalIncidenceAngle = false;
 
-    @Parameter(defaultValue="true", label="Save selected source band")
+    @Parameter(defaultValue = "true", label = "Save selected source band")
     private boolean saveSelectedSourceBand = true;
 
-    @Parameter(defaultValue="false", label="Apply radiometric normalization")
+    @Parameter(defaultValue = "false", label = "Apply radiometric normalization")
     private boolean applyRadiometricNormalization = false;
 
-    @Parameter(defaultValue="false", label="Save Sigma0 as a band")
+    @Parameter(defaultValue = "false", label = "Save Sigma0 as a band")
     private boolean saveSigmaNought = false;
 
-    @Parameter(defaultValue="false", label="Save Gamma0 as a band")
+    @Parameter(defaultValue = "false", label = "Save Gamma0 as a band")
     private boolean saveGammaNought = false;
 
-    @Parameter(defaultValue="false", label="Save Beta0 as a band")
+    @Parameter(defaultValue = "false", label = "Save Beta0 as a band")
     private boolean saveBetaNought = false;
 
     @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID, Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
+            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
     private String incidenceAngleForSigma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
     @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID, Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
+            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
     private String incidenceAngleForGamma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
     @Parameter(valueSet = {CalibrationOp.LATEST_AUX, CalibrationOp.PRODUCT_AUX, CalibrationOp.EXTERNAL_AUX},
-            description = "The auxiliary file", defaultValue=CalibrationOp.LATEST_AUX, label="Auxiliary File")
+            description = "The auxiliary file", defaultValue = CalibrationOp.LATEST_AUX, label = "Auxiliary File")
     private String auxFile = CalibrationOp.LATEST_AUX;
 
-    @Parameter(description = "The antenne elevation pattern gain auxiliary data file.", label="External Aux File")
+    @Parameter(description = "The antenne elevation pattern gain auxiliary data file.", label = "External Aux File")
     private File externalAuxFile = null;
 
     private MetadataElement absRoot = null;
@@ -238,15 +240,14 @@ public class RangeDopplerGeocodingOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            if(OperatorUtils.isMapProjected(sourceProduct)) {
+            if (OperatorUtils.isMapProjected(sourceProduct)) {
                 throw new OperatorException("Source product is already map projected");
             }
 
@@ -283,14 +284,14 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             updateTargetProductMetadata();
 
-            if(externalDEMFile == null && !useAvgSceneHeight) {
+            if (externalDEMFile == null && !useAvgSceneHeight) {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
 
             if (!useAvgSceneHeight) {
                 DEMFactory.validateDEM(demName, sourceProduct);
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -301,10 +302,10 @@ public class RangeDopplerGeocodingOp extends Operator {
             dem.dispose();
         }
 
-        if(!orthoDataProduced && processingStarted) {
-            final String errMsg = getId() +" error: no valid output was produced. Please verify the DEM";
+        if (!orthoDataProduced && processingStarted) {
+            final String errMsg = getId() + " error: no valid output was produced. Please verify the DEM";
             System.out.println(errMsg);
-            if(VisatApp.getApp() != null) {
+            if (VisatApp.getApp() != null) {
                 VisatApp.getApp().setStatusBarMessage(errMsg);
             }
         }
@@ -322,20 +323,20 @@ public class RangeDopplerGeocodingOp extends Operator {
             saveBetaNought = false;
         }
 
-        if ( saveBetaNought || saveGammaNought ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ) {
+        if (saveBetaNought || saveGammaNought ||
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveSigmaNought = true;
             saveProjectedLocalIncidenceAngle = true;
         }
 
         if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveIncidenceAngleFromEllipsoid = true;
         }
 
         if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveLocalIncidenceAngle = true;
         }
 
@@ -356,6 +357,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Retrieve required data from Abstracted Metadata
+     *
      * @throws Exception if metadata not found
      */
     private void getMetadata() throws Exception {
@@ -428,6 +430,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Get the mission type.
+     *
      * @param absRoot the AbstractMetadata
      * @return the mission string
      */
@@ -435,7 +438,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
         if (mission.equals("ALOS")) {
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).toUpperCase();
-            if(!productType.contains("1.1"))
+            if (!productType.contains("1.1"))
                 throw new OperatorException("Detected ALOS PALSAR products are currently not supported");
         }
         if (mission.equals("RS1")) {
@@ -447,14 +450,15 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Get elevation model.
+     *
      * @throws Exception The exceptions.
      */
     private synchronized void getElevationModel() throws Exception {
 
-        if(isElevationModelAvailable) return;
-        if(externalDEMFile != null) { // if external DEM file is specified by user
+        if (isElevationModelAvailable) return;
+        if (externalDEMFile != null) { // if external DEM file is specified by user
 
-            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float)externalDEMNoDataValue);
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
 
             demNoDataValue = (float) externalDEMNoDataValue;
             demName = externalDEMFile.getName();
@@ -465,7 +469,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
 
-        if(elevationBand != null) {
+        if (elevationBand != null) {
             elevationBand.setNoDataValue(demNoDataValue);
             elevationBand.setNoDataValueUsed(true);
         }
@@ -485,7 +489,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         try {
             if (pixelSpacingInMeter <= 0.0) {
                 pixelSpacingInMeter = Math.max(SARGeocoding.getAzimuthPixelSpacing(sourceProduct),
-                                               SARGeocoding.getRangePixelSpacing(sourceProduct));
+                        SARGeocoding.getRangePixelSpacing(sourceProduct));
                 pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
             }
             delLat = pixelSpacingInDegree;
@@ -516,9 +520,9 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             try {
                 ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-            } catch(Exception e) {
-                if(!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
-                    throw new OperatorException("Use Nearest Neighbour with Classifications: "+e.getMessage());
+            } catch (Exception e) {
+                if (!imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
+                    throw new OperatorException("Use Nearest Neighbour with Classifications: " + e.getMessage());
                 }
             }
 
@@ -529,6 +533,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Add the user selected bands to target product.
+     *
      * @throws OperatorException The exceptions.
      */
     void addSelectedBands() throws OperatorException {
@@ -542,19 +547,19 @@ public class RangeDopplerGeocodingOp extends Operator {
             final String unit = srcBand.getUnit();
 
             if (unit != null && !isPolsar &&
-                    (unit.equals(Unit.REAL)||unit.equals(Unit.IMAGINARY))) {
+                    (unit.equals(Unit.REAL) || unit.equals(Unit.IMAGINARY))) {
 
                 if (i == sourceBands.length - 1) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
-                final String nextUnit = sourceBands[i+1].getUnit();
+                final String nextUnit = sourceBands[i + 1].getUnit();
                 if (nextUnit == null || !((unit.equals(Unit.REAL) && nextUnit.equals(Unit.IMAGINARY)) ||
-                                          (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
+                        (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
                 final Band[] srcBands = new Band[2];
                 srcBands[0] = srcBand;
-                srcBands[1] = sourceBands[i+1];
+                srcBands[1] = sourceBands[i + 1];
                 final String pol = OperatorUtils.getBandPolarization(srcBand.getName(), absRoot);
                 final String suffix = OperatorUtils.getSuffixFromBandName(srcBand.getName());
 
@@ -629,10 +634,10 @@ public class RangeDopplerGeocodingOp extends Operator {
                     }
                     int dataType = ProductData.TYPE_FLOAT32;
                     // use original dataType for nearest neighbour and indexCoding bands
-                    if(imgResampling.equals(Resampling.NEAREST_NEIGHBOUR))
+                    if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR))
                         dataType = srcBand.getDataType();
                     if (addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
-                                      targetBandName, unit, srcBand, dataType) != null) {
+                            targetBandName, unit, srcBand, dataType) != null) {
                         targetBandNameToSourceBand.put(targetBandName, srcBands);
                         targetBandApplyRadiometricNormalizationFlag.put(targetBandName, false);
                         targetBandApplyRetroCalibrationFlag.put(targetBandName, false);
@@ -641,15 +646,15 @@ public class RangeDopplerGeocodingOp extends Operator {
             }
         }
 
-        if(saveDEM) {
+        if (saveDEM) {
             elevationBand = addTargetBand("elevation", Unit.METERS, null);
         }
 
-        if(saveLocalIncidenceAngle) {
+        if (saveLocalIncidenceAngle) {
             addTargetBand("localIncidenceAngle", Unit.DEGREES, null);
         }
 
-        if(saveProjectedLocalIncidenceAngle) {
+        if (saveProjectedLocalIncidenceAngle) {
             addTargetBand("projectedLocalIncidenceAngle", Unit.DEGREES, null);
         }
 
@@ -679,7 +684,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                                      final String bandName, final String bandUnit, final Band sourceBand,
                                      final int dataType) {
 
-        if(targetProduct.getBand(bandName) == null) {
+        if (targetProduct.getBand(bandName) == null) {
 
             final Band targetBand = new Band(bandName, dataType, targetImageWidth, targetImageHeight);
 
@@ -698,6 +703,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Update metadata in the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void updateTargetProductMetadata() throws Exception {
@@ -707,10 +713,10 @@ public class RangeDopplerGeocodingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
 
-        final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0,0), null);
-        final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth-1, 0), null);
-        final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0,targetImageHeight-1), null);
-        final GeoPos geoPosLastFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth-1, targetImageHeight-1), null);
+        final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0, 0), null);
+        final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth - 1, 0), null);
+        final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0, targetImageHeight - 1), null);
+        final GeoPos geoPosLastFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth - 1, targetImageHeight - 1), null);
 
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, geoPosFirstNear.getLat());
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, geoPosFirstFar.getLat());
@@ -724,7 +730,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.map_projection, targetCRS.getName().getCode());
         if (!useAvgSceneHeight) {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.is_terrain_corrected, 1);
-            if(externalDEMFile != null) { // if external DEM file is specified by user
+            if (externalDEMFile != null) { // if external DEM file is specified by user
                 AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, externalDEMFile.getPath());
             } else {
                 AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, demName);
@@ -737,7 +743,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.lon_pixel_res, delLon);
 
         if (pixelSpacingInMeter > 0.0 &&
-            Double.compare(pixelSpacingInMeter, SARGeocoding.getPixelSpacing(sourceProduct)) != 0) {
+                Double.compare(pixelSpacingInMeter, SARGeocoding.getPixelSpacing(sourceProduct)) != 0) {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, pixelSpacingInMeter);
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, pixelSpacingInMeter);
         }
@@ -745,7 +751,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         // save look directions for 5 range lines
         final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
         final int numOfDirections = 5;
-        for(int i=1; i <= numOfDirections; ++i) {
+        for (int i = 1; i <= numOfDirections; ++i) {
             SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections, sourceImageWidth,
                     sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude, longitude);
         }
@@ -756,7 +762,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      * Compute sensor position and velocity for each range line from the orbit state vectors.
      */
     private void computeSensorPositionsAndVelocities() {
-        
+
         final int numVectorsUsed = Math.min(orbitStateVectors.length, 5);
         timeArray = new double[numVectorsUsed];
         xPosArray = new double[numVectorsUsed];
@@ -787,27 +793,27 @@ public class RangeDopplerGeocodingOp extends Operator {
             if (!isElevationModelAvailable) {
                 getElevationModel();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0-1, y0-1, w+2, h+2);
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0 - 1, y0 - 1, w + 2, h + 2);
 
         try {
-            double[][] localDEM = new double[h+2][w+2];
-            if(useAvgSceneHeight) {
-                DEMFactory.fillDEM(localDEM, (float)avgSceneHeight);
+            double[][] localDEM = new double[h + 2][w + 2];
+            if (useAvgSceneHeight) {
+                DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
             } else {
                 final boolean valid = DEMFactory.getLocalDEM(
                         dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct,
                         nodataValueAtSea, localDEM);
-                if(!valid && nodataValueAtSea)
+                if (!valid && nodataValueAtSea)
                     return;
             }
 
@@ -823,19 +829,19 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             final List<TileData> trgTileList = new ArrayList<TileData>();
             final Set<Band> keySet = targetTiles.keySet();
-            for(Band targetBand : keySet) {
+            for (Band targetBand : keySet) {
 
-                if(targetBand.getName().equals("elevation")) {
+                if (targetBand.getName().equals("elevation")) {
                     demBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
 
-                if(targetBand.getName().equals("localIncidenceAngle")) {
+                if (targetBand.getName().equals("localIncidenceAngle")) {
                     localIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
 
-                if(targetBand.getName().equals("projectedLocalIncidenceAngle")) {
+                if (targetBand.getName().equals("projectedLocalIncidenceAngle")) {
                     projectedLocalIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
@@ -860,19 +866,19 @@ public class RangeDopplerGeocodingOp extends Operator {
             final TileData[] trgTiles = trgTileList.toArray(new TileData[trgTileList.size()]);
 
             for (int y = y0; y < maxY; y++) {
-                final int yy = y-y0+1;
+                final int yy = y - y0 + 1;
 
                 for (int x = x0; x < maxX; x++) {
 
-					final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
+                    final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
 
-                    double alt = localDEM[yy][x-x0+1];
+                    double alt = localDEM[yy][x - x0 + 1];
 
-                    if(saveDEM) {
+                    if (saveDEM) {
                         demBuffer.setElemDoubleAt(index, alt);
                     }
 
-                    if(alt == demNoDataValue && !useAvgSceneHeight) {
+                    if (alt == demNoDataValue && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
                             //saveNoDataValueToTarget(index, trgTiles);
                             continue;
@@ -886,7 +892,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         lon -= 360.0;
                     }
 
-                    if(alt == demNoDataValue && !nodataValueAtSea) {
+                    if (alt == demNoDataValue && !nodataValueAtSea) {
                         // get corrected elevation for 0
                         alt = EarthGravitationalModel96.instance().getEGM(lat, lon);
                     }
@@ -954,20 +960,20 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                         if (saveIncidenceAngleFromEllipsoid && incidenceAngle != null) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
-                                    index, incidenceAngle.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
+                                    index, incidenceAngle.getPixelFloat((float) rangeIndex, (float) azimuthIndex));
                         }
 
                         double satelliteHeight = 0;
                         double sceneToEarthCentre = 0;
                         if (saveSigmaNought) {
-                                satelliteHeight = Math.sqrt(
-                                        sensorPos[0]*sensorPos[0] + sensorPos[1]*sensorPos[1] + sensorPos[2]*sensorPos[2]);
+                            satelliteHeight = Math.sqrt(
+                                    sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2]);
 
-                                sceneToEarthCentre = Math.sqrt(
-                                        earthPoint[0]*earthPoint[0] + earthPoint[1]*earthPoint[1] + earthPoint[2]*earthPoint[2]);
+                            sceneToEarthCentre = Math.sqrt(
+                                    earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2]);
                         }
 
-                        for(TileData tileData : trgTiles) {
+                        for (TileData tileData : trgTiles) {
                             int[] subSwathIndex = {INVALID_SUB_SWATH_INDEX};
                             double v = getPixelValue(azimuthIndex, rangeIndex, tileData, subSwathIndex);
 
@@ -980,7 +986,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                                     v = tileData.noDataValue;
                                 }
                             }
-                            
+
                             tileData.tileDataBuffer.setElemDoubleAt(index, v);
                         }
                         orthoDataProduced = true;
@@ -989,7 +995,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             }
             localDEM = null;
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             orthoDataProduced = true; //to prevent multiple error messages
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -997,6 +1003,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Get unit for the source band corresponding to the given target band.
+     *
      * @param bandName The target band name.
      * @return The source band unit.
      */
@@ -1007,9 +1014,10 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Compute orthorectified pixel value for given pixel.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param tileData The source tile information.
+     *
+     * @param azimuthIndex  The azimuth index for pixel in source image.
+     * @param rangeIndex    The range index for pixel in source image.
+     * @param tileData      The source tile information.
      * @param subSwathIndex The subSwath index.
      * @return The pixel value.
      */
@@ -1017,8 +1025,8 @@ public class RangeDopplerGeocodingOp extends Operator {
                                  final TileData tileData, final int[] subSwathIndex) {
 
         try {
-            final int x0 = (int)(rangeIndex + 0.5);
-            final int y0 = (int)(azimuthIndex + 0.5);
+            final int x0 = (int) (rangeIndex + 0.5);
+            final int y0 = (int) (azimuthIndex + 0.5);
             Rectangle srcRect;
 
             if (imgResampling == Resampling.BILINEAR_INTERPOLATION) {
@@ -1050,7 +1058,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     srcBands.length > 1 ? getSourceTile(srcBands[1], srcRect) : null);
 
             imgResampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
-                                    sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
+                    sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
 
             double v = imgResampling.resample(tileData.imgResamplingRaster, tileData.imgResamplingIndex);
 
@@ -1058,7 +1066,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             return v;
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
 
@@ -1067,6 +1075,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     /**
      * Set flag for radiometric correction. This function is for unit test only.
+     *
      * @param flag The flag.
      */
     void setApplyRadiometricCalibration(final boolean flag) {
@@ -1161,7 +1170,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
 
-                    final  int index = sourceTileI.getDataBufferIndex(x[j], y[i]);
+                    final int index = sourceTileI.getDataBufferIndex(x[j], y[i]);
                     double v = dataBufferI.getElemDoubleAt(index);
                     if (tileData.noDataValue != 0 && (v == tileData.noDataValue)) {
                         samples[i][j] = tileData.noDataValue;
@@ -1180,7 +1189,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                             continue;
                         }
 
-                        samples[i][j] = v*v + vq*vq;
+                        samples[i][j] = v * v + vq * vq;
                     }
 
                     final int[] subSwathIndex = {-1};
@@ -1242,6 +1251,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

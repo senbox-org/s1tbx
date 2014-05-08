@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -52,7 +52,7 @@ class ERSImageFile extends CEOSImageFile {
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line*_imageRecordLength);
+        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
         return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,12 +25,11 @@ import java.util.Locale;
 
 /**
  * The ReaderPlugIn for generic binary images.
- *
  */
 public class GenericReaderPlugIn implements ProductReaderPlugIn {
 
-	private final static String[] FORMAT_NAMES = { "Generic Binary" };
-	private final static String[] FORMAT_FILE_EXTENSIONS = { "bin", "bil", "bsq", "bip", "img", "ras", "dat" };
+    private final static String[] FORMAT_NAMES = {"Generic Binary"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = {"bin", "bil", "bsq", "bip", "img", "ras", "dat"};
     private final static String PLUGIN_DESCRIPTION = "Generic Binary";
     private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
 
@@ -39,7 +38,6 @@ public class GenericReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      *
      * @param input any input object
-     *
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
@@ -102,7 +100,6 @@ public class GenericReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
@@ -121,7 +118,6 @@ public class GenericReaderPlugIn implements ProductReaderPlugIn {
          * if no extension are defined, the method always returns <code>true</code>
          *
          * @param file the file to be or not be accepted.
-         *
          * @return <code>true</code> if given file is accepted by this filter
          */
         @Override

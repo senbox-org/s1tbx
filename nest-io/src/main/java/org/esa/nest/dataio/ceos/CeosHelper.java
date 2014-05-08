@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,8 +33,8 @@ public class CeosHelper {
         final File[] files = baseDir.listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String fileName) {
                 final String name = fileName.toUpperCase();
-                for(String prefix : constants.getVolumeFilePrefix()) {
-                    if(name.startsWith(prefix) || name.endsWith('.'+prefix))
+                for (String prefix : constants.getVolumeFilePrefix()) {
+                    if (name.startsWith(prefix) || name.endsWith('.' + prefix))
                         return true;
                 }
                 return false;
@@ -42,11 +42,11 @@ public class CeosHelper {
         });
         if (files == null || files.length < 1) {
             throw new IOException("No volume descriptor file found in directory:\n"
-                                  + baseDir.getPath());
+                    + baseDir.getPath());
         }
         if (files.length > 1) {
             throw new IOException("Multiple volume descriptor files found in directory:\n"
-                                  + baseDir.getPath());
+                    + baseDir.getPath());
         }
         return files[0];
     }
@@ -67,8 +67,8 @@ public class CeosHelper {
         final File[] fileList = baseDir.listFiles();
         for (File file : fileList) {
             final String name = file.getName().toUpperCase();
-            for(String prefix : prefixList) {
-                if (name.startsWith(prefix) || name.endsWith('.'+prefix))
+            for (String prefix : prefixList) {
+                if (name.startsWith(prefix) || name.endsWith('.' + prefix))
                     return file;
             }
         }
@@ -76,14 +76,14 @@ public class CeosHelper {
     }
 
     public static String getProductName(final BinaryRecord textRecord) {
-        if(textRecord == null) return "unknown";
+        if (textRecord == null) return "unknown";
         final String name = textRecord.getAttributeString("Product type specifier").trim().replace("PRODUCT:", "")
                 + '-' + textRecord.getAttributeString("Scene identification").trim();
         return StringUtils.createValidName(name.trim(), new char[]{'_', '-'}, '_');
     }
 
     public static String getProductType(final BinaryRecord textRecord) {
-        if(textRecord == null) return "unknown";
+        if (textRecord == null) return "unknown";
         String type = textRecord.getAttributeString("Product type specifier").trim();
         type = type.replace("PRODUCT:", "");
         type = type.replace("JERS-1", "JERS1");
@@ -106,7 +106,7 @@ public class CeosHelper {
     }
 
     public static void addMetadata(MetadataElement sphElem, BinaryRecord rec, String name) {
-        if(rec != null) {
+        if (rec != null) {
             final MetadataElement metadata = new MetadataElement(name);
             rec.assignMetadataTo(metadata);
             sphElem.addElement(metadata);

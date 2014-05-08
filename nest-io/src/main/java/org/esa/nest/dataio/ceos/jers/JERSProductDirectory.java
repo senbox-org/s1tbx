@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,8 +28,8 @@ import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.eo.Constants;
+import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,6 @@ import java.util.Map;
  * <p/>
  * <p>This class is public for the benefit of the implementation of another (internal) class and its API may
  * change in future releases of the software.</p>
- *
  */
 class JERSProductDirectory extends CEOSProductDirectory {
 
@@ -65,7 +64,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
         readVolumeDirectoryFile();
         leaderFile = new JERSLeaderFile(
                 createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
-        
+
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
         final List<JERSImageFile> imgArray = new ArrayList<JERSImageFile>(imageFileNames.length);
         for (String fileName : imageFileNames) {
@@ -88,17 +87,17 @@ class JERSProductDirectory extends CEOSProductDirectory {
     @Override
     public Product createProduct() throws IOException {
         final Product product = new Product(getProductName(),
-                                            productType,
+                productType,
                 sceneWidth, sceneHeight);
 
-        if(imageFiles.length > 1) {
+        if (imageFiles.length > 1) {
             int index = 1;
             for (final JERSImageFile imageFile : imageFiles) {
 
-                if(isProductSLC) {
+                if (isProductSLC) {
                     final Band bandI = createBand(product, "i_" + index, Unit.REAL, imageFile);
                     final Band bandQ = createBand(product, "q_" + index, Unit.IMAGINARY, imageFile);
-                    ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_"+index);
+                    ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_" + index);
                 } else {
                     Band band = createBand(product, "Amplitude_" + index, Unit.AMPLITUDE, imageFile);
                     SARReader.createVirtualIntensityBand(product, band, "_" + index);
@@ -107,7 +106,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
             }
         } else {
             final JERSImageFile imageFile = imageFiles[0];
-            if(isProductSLC) {
+            if (isProductSLC) {
                 final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "");
@@ -122,7 +121,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
         product.setDescription(getProductDescription());
 
         ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
-                                          leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
+                leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
         addTiePointGrids(product, leaderFile.getFacilityRecord(), leaderFile.getSceneRecord());
         addMetaData(product);
 
@@ -165,7 +164,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
         leaderFile.addMetadata(leadMetadata);
         root.addElement(leadMetadata);
 
-        if(trailerFile != null) {
+        if (trailerFile != null) {
             final MetadataElement trailMetadata = new MetadataElement("Trailer");
             trailerFile.addMetadata(trailMetadata);
             root.addElement(trailMetadata);
@@ -209,7 +208,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
 
-        if(mapProjRec != null) {
+        if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
                     mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
@@ -231,35 +230,36 @@ class JERSProductDirectory extends CEOSProductDirectory {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                mapProjRec.getAttributeString("Name of reference ellipsoid"));
-        } else if(sceneRec != null) {
+                    mapProjRec.getAttributeString("Name of reference ellipsoid"));
+        } else if (sceneRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                sceneRec.getAttributeDouble("Pixel spacing"));
+                    sceneRec.getAttributeDouble("Pixel spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                sceneRec.getAttributeDouble("Line spacing"));
+                    sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
         }
 
         //sph
-        if(sceneRec != null) {
+        if (sceneRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                sceneRec.getAttributeString("Processing system identifier").trim() );
+                    sceneRec.getAttributeString("Processing system identifier").trim());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                     sceneRec.getAttributeString("Processing algorithm identifier"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT,
-                Integer.parseInt(sceneRec.getAttributeString("Orbit number").trim()));
+                    Integer.parseInt(sceneRec.getAttributeString("Orbit number").trim()));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
                     SARReader.findPolarizationInBandName(
-                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel")));
+                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel"))
+            );
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                     sceneRec.getAttributeString("Processing algorithm identifier"));
@@ -270,15 +270,15 @@ class JERSProductDirectory extends CEOSProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
                     sceneRec.getAttributeDouble("Pulse Repetition Frequency"));
             double radarFreq = sceneRec.getAttributeDouble("Radar frequency") * 1000.0;
-            if(radarFreq == 0) {
+            if (radarFreq == 0) {
                 radarFreq = getRadarFrequency(sceneRec);
             }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radarFreq);
             Double slantRangeTime = sceneRec.getAttributeDouble("Zero-doppler range time of first range pixel");
-            if(slantRangeTime != null) {
+            if (slantRangeTime != null) {
                 slantRangeTime *= 0.001; //s
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                    slantRangeTime* Constants.halfLightSpeed);
+                        slantRangeTime * Constants.halfLightSpeed);
             }
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
@@ -301,9 +301,9 @@ class JERSProductDirectory extends CEOSProductDirectory {
                 product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
-        if(facilityRec != null) {
+        if (facilityRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.parseUTC(
-                facilityRec.getAttributeString("Time of input state vector used to processed the image")));
+                    facilityRec.getAttributeString("Time of input state vector used to processed the image")));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
                     facilityRec.getAttributeInt("Antenna pattern correction flag"));
@@ -321,7 +321,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
     }
 
     private String getMapProjection(BinaryRecord mapProjRec) {
-        if(productType.contains("IMG") || productType.contains("GEC")) {
+        if (productType.contains("IMG") || productType.contains("GEC")) {
             return mapProjRec.getAttributeString("Map projection descriptor");
         }
         return " ";
@@ -333,9 +333,9 @@ class JERSProductDirectory extends CEOSProductDirectory {
 
     private String getProductDescription() {
         BinaryRecord sceneRecord = leaderFile.getSceneRecord();
-        
+
         String level = "";
-        if(sceneRecord != null) {
+        if (sceneRecord != null) {
             level = sceneRecord.getAttributeString("Scene reference number").trim();
         }
         return JERSConstants.PRODUCT_DESCRIPTION_PREFIX + level;

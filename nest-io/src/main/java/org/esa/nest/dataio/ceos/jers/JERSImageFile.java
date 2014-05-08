@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -40,8 +40,8 @@ class JERSImageFile extends CEOSImageFile {
         _imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
         binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
         final int numLines = _imageFDR.getAttributeInt("Number of lines per data set");
-        if(numLines == 0) {
-            throw new IllegalBinaryFormatException("not an image file", 0);    
+        if (numLines == 0) {
+            throw new IllegalBinaryFormatException("not an image file", 0);
         }
         _imageRecords = new BinaryRecord[numLines];
         _imageRecords[0] = createNewImageRecord(0);
@@ -52,7 +52,7 @@ class JERSImageFile extends CEOSImageFile {
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line*_imageRecordLength);
+        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
         return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 }

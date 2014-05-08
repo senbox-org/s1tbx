@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,7 @@ import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.nest.gpf.OperatorUtils;
 
 /**
-    Input Panel
+ * Input Panel
  */
 public class PolSARWizardInputPanel extends AbstractInputPanel {
 
@@ -34,14 +34,14 @@ public class PolSARWizardInputPanel extends AbstractInputPanel {
     }
 
     public boolean validateInput() {
-        if(!super.validateInput()) return false;
+        if (!super.validateInput()) return false;
 
         final Product product = sourcePanel.getSelectedSourceProduct();
-        if(!OperatorUtils.isQuadPol(product)) {
+        if (!OperatorUtils.isQuadPol(product)) {
             showErrorMsg("The product is not fully polarimetric.\nPlease select a Quad Pol SLC product");
             return false;
         }
-        if(!OperatorUtils.isComplex(product)) {
+        if (!OperatorUtils.isComplex(product)) {
             showErrorMsg("The product is not complex.\nPlease select a Quad Pol SLC product");
             return false;
         }

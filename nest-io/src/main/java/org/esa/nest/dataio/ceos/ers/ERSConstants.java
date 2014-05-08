@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,10 +27,10 @@ public class ERSConstants implements CEOSConstants {
     private final static String PLUGIN_DESCRIPTION = "ERS CEOS Products";      /*I18N*/
     final static String PRODUCT_TYPE_PREFIX = "";
 
-    private final static String[] VOLUME_FILE_PREFIX = { "VDF" };
-    private static final String[] LEADER_FILE_PREFIX = { "LEA" };
-    private static final String[] IMAGE_FILE_PREFIX = { "DAT" };
-    private static final String[] TRAILER_FILE_PREFIX = { "TR" };
+    private final static String[] VOLUME_FILE_PREFIX = {"VDF"};
+    private static final String[] LEADER_FILE_PREFIX = {"LEA"};
+    private static final String[] IMAGE_FILE_PREFIX = {"DAT"};
+    private static final String[] TRAILER_FILE_PREFIX = {"TR"};
 
     private final static String MISSION = "ers";
 

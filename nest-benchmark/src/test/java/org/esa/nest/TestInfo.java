@@ -18,7 +18,7 @@ public class TestInfo {
         this.num = num;
         this.graphFile = new File(graph);
         this.inputFolder = new File(input_products);
-        if(expected_results != null)
+        if (expected_results != null)
             this.expectedFolder = new File(expected_results);
         else
             this.expectedFolder = null;

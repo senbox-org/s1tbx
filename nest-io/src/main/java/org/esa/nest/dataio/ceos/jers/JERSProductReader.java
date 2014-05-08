@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,6 @@ import java.io.File;
 
 /**
  * The product reader for JERS products.
- *
  */
 public class JERSProductReader extends CEOSProductReader {
 
@@ -35,7 +34,7 @@ public class JERSProductReader extends CEOSProductReader {
      *                     implementations
      */
     public JERSProductReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     protected CEOSProductDirectory createProductDirectory(File inputFile) {
@@ -47,11 +46,11 @@ public class JERSProductReader extends CEOSProductReader {
         try {
             _dataDir = createProductDirectory(file);
 
-            final JERSProductDirectory jersDataDir = (JERSProductDirectory)_dataDir;
-            if(jersDataDir.isJERS())
+            final JERSProductDirectory jersDataDir = (JERSProductDirectory) _dataDir;
+            if (jersDataDir.isJERS())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
-            
+
         } catch (Exception e) {
             System.out.println(e.toString());
 

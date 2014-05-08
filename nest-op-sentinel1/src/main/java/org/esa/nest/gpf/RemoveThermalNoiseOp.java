@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,7 +37,7 @@ import java.util.ArrayList;
         category = "SAR Tools\\SENTINEL-1",
         authors = "Cecilia Wong, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description="Removes thermal noise from Sentinel-1 products")
+        description = "Removes thermal noise from Sentinel-1 products")
 public final class RemoveThermalNoiseOp extends Operator {
 
     // One source product
@@ -72,7 +72,9 @@ public final class RemoveThermalNoiseOp extends Operator {
     private ArrayList<double[]> gamma = new ArrayList<>();
     private ArrayList<double[]> dn = new ArrayList<>();
 
-    private enum NOISE_BAND_TYPE { SIGMA0, BETA0, GAMMA, DN, INVALID };
+    private enum NOISE_BAND_TYPE {SIGMA0, BETA0, GAMMA, DN, INVALID}
+
+    ;
 
     /**
      * Default constructor. The graph processing framework
@@ -90,8 +92,7 @@ public final class RemoveThermalNoiseOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -187,9 +188,9 @@ public final class RemoveThermalNoiseOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         //System.out.println("createTargetProduct: new targetProduct -- " + targetProduct.getName() + " h = " + targetProduct.getSceneRasterHeight() + " w = " + targetProduct.getSceneRasterWidth());
 
@@ -197,7 +198,7 @@ public final class RemoveThermalNoiseOp extends Operator {
 
         for (Band srcBand : sourceBands) {
 
-            if ((srcBand instanceof VirtualBand))  {
+            if ((srcBand instanceof VirtualBand)) {
 
                 // Cannot use ProductUtils.copyBand() to copy virtual bands, they will become real bands.
 
@@ -213,9 +214,9 @@ public final class RemoveThermalNoiseOp extends Operator {
             } else if (shouldApplyCorrection(srcBand)) {
 
                 final Band newBand = new Band(srcBand.getName(),
-                                              srcBand.getDataType(),
-                                              srcBand.getSceneRasterWidth(),
-                                              srcBand.getRasterHeight());
+                        srcBand.getDataType(),
+                        srcBand.getSceneRasterWidth(),
+                        srcBand.getRasterHeight());
                 targetProduct.addBand(newBand);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, newBand);
 
@@ -269,14 +270,14 @@ public final class RemoveThermalNoiseOp extends Operator {
 
         // This is the width of the LUT, i.e. number of columns.
         final int count = (intNames.length > 0) ?
-                            Integer.parseInt(getMetadataElement(vector, intNames[0]).getAttributeString("count")) :
-                            Integer.parseInt(getMetadataElement(vector, doubleNames[0]).getAttributeString("count"));
+                Integer.parseInt(getMetadataElement(vector, intNames[0]).getAttributeString("count")) :
+                Integer.parseInt(getMetadataElement(vector, doubleNames[0]).getAttributeString("count"));
 
         for (String name : intNames) {
 
             final String[] valuesAsArrayOfStrings = readValuesAsArrayOfStrings(vector, name, count);
             final int values[] = new int[count];
-            for (int i = 0; i < count; i++ ) {
+            for (int i = 0; i < count; i++) {
                 values[i] = Integer.parseInt(valuesAsArrayOfStrings[i]);
             }
             intValues.add(values);
@@ -286,7 +287,7 @@ public final class RemoveThermalNoiseOp extends Operator {
 
             final String[] valuesAsArrayOfStrings = readValuesAsArrayOfStrings(vector, name, count);
             final double values[] = new double[count];
-            for (int i = 0; i < count; i++ ) {
+            for (int i = 0; i < count; i++) {
                 values[i] = Double.parseDouble(valuesAsArrayOfStrings[i]);
             }
             doubleValues.add(values);
@@ -396,7 +397,7 @@ public final class RemoveThermalNoiseOp extends Operator {
             throw new OperatorException("Invalid values.length: " + values.length);
         }
 
-        if (val < 0 || val > values[values.length-1]) {
+        if (val < 0 || val > values[values.length - 1]) {
 
             // This should never happen.
             // If this happens, one possibility is the noise LUT in the metadata is not complete, i.e.,
@@ -405,7 +406,7 @@ public final class RemoveThermalNoiseOp extends Operator {
         }
 
         int leftIdx = 0;
-        int rightIdx = values.length-1;
+        int rightIdx = values.length - 1;
 
         int cnt = 0;
 
@@ -421,7 +422,7 @@ public final class RemoveThermalNoiseOp extends Operator {
                 return rightIdx;
             }
 
-            if ((leftIdx+1) == rightIdx) {
+            if ((leftIdx + 1) == rightIdx) {
 
                 return leftIdx;
             }
@@ -454,11 +455,11 @@ public final class RemoveThermalNoiseOp extends Operator {
         // TBD Optimize!!!!!
 
         final int leftYIdx = findLeftOfBracket(y, line);
-        final int rightYIdx = (y == line[leftYIdx]) ? leftYIdx : leftYIdx+1;
+        final int rightYIdx = (y == line[leftYIdx]) ? leftYIdx : leftYIdx + 1;
 
         double val = 0.0;
 
-        checkBracket(leftYIdx, rightYIdx, line.length-1);
+        checkBracket(leftYIdx, rightYIdx, line.length - 1);
 
         if (leftYIdx == rightYIdx) {
 
@@ -467,7 +468,7 @@ public final class RemoveThermalNoiseOp extends Operator {
                 throw new OperatorException("computeValue: y = " + y + " leftYIdx == rightYIdx = " + leftYIdx);
             }
 
-        } else if (y <= line[leftYIdx] || y >= line[rightYIdx])  {
+        } else if (y <= line[leftYIdx] || y >= line[rightYIdx]) {
 
             throw new OperatorException("computeValue: y = " + y + " line[" + leftYIdx + "] = " + line[leftYIdx] + " line[" + rightYIdx + "] = " + line[rightYIdx]);
         }
@@ -497,12 +498,12 @@ public final class RemoveThermalNoiseOp extends Operator {
                                                      final ArrayList<int[]> pixel, final ArrayList<double[]> value) {
 
         final int leftXIdx = findLeftOfBracket(x, pixel.get(yIdx));
-        final int rightXIdx = (x == pixel.get(yIdx)[leftXIdx]) ? leftXIdx : leftXIdx+1;
+        final int rightXIdx = (x == pixel.get(yIdx)[leftXIdx]) ? leftXIdx : leftXIdx + 1;
 
-        checkBracket(leftXIdx, rightXIdx, pixel.get(yIdx).length );
+        checkBracket(leftXIdx, rightXIdx, pixel.get(yIdx).length);
 
         final double leftNoise = value.get(yIdx)[leftXIdx];
-        final double rightNoise =  value.get(yIdx)[rightXIdx];
+        final double rightNoise = value.get(yIdx)[rightXIdx];
 
         return linearInterpolate(pixel.get(yIdx)[leftXIdx], pixel.get(yIdx)[rightXIdx], x, leftNoise, rightNoise);
     }
@@ -520,7 +521,7 @@ public final class RemoveThermalNoiseOp extends Operator {
         if (x1 == x0) {
             return y0;
         } else {
-            return y0 + (y1-y0)*(x-x0)/(x1-x0);
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
         }
     }
 
@@ -531,8 +532,7 @@ public final class RemoveThermalNoiseOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -542,8 +542,8 @@ public final class RemoveThermalNoiseOp extends Operator {
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int tx0 = targetTileRectangle.x;
         final int ty0 = targetTileRectangle.y;
-        final int tw  = targetTileRectangle.width;
-        final int th  = targetTileRectangle.height;
+        final int tw = targetTileRectangle.width;
+        final int th = targetTileRectangle.height;
 
         //System.out.println("tx0 = " + tx0 + " ty0 = " + ty0 + " tw = " + tw + " th = " + th);
 
@@ -568,7 +568,7 @@ public final class RemoveThermalNoiseOp extends Operator {
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
 
-            ArrayList<double []> calibrationValue = null;
+            ArrayList<double[]> calibrationValue = null;
 
             final NOISE_BAND_TYPE noiseBandType = getNoiseBandType(bandName);
 
@@ -603,7 +603,7 @@ public final class RemoveThermalNoiseOp extends Operator {
 
                     final double A = computeValue(x, y, calibrationLine, calibrationPixel, calibrationValue);
 
-                    final double noise = removeNoise ? eta/A : -eta/A;
+                    final double noise = removeNoise ? eta / A : -eta / A;
 
                     final double tgtValue = srcValue - noise;
 
@@ -612,7 +612,7 @@ public final class RemoveThermalNoiseOp extends Operator {
                 }
             }
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();

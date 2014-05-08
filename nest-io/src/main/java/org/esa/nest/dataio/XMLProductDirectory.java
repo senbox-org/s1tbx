@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,6 @@
  */
 package org.esa.nest.dataio;
 
-import com.sun.imageio.plugins.common.ReaderUtil;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -24,7 +23,6 @@ import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
 import org.jdom2.Document;
@@ -41,7 +39,6 @@ import java.util.Set;
  * <p/>
  * <p>This class is public for the benefit of the implementation of another (internal) class and its API may
  * change in future releases of the software.</p>
- *
  */
 public class XMLProductDirectory {
 
@@ -70,9 +67,9 @@ public class XMLProductDirectory {
         xmlDoc = XMLSupport.LoadXML(xmlHeader.getAbsolutePath());
 
         final File[] fileList = imgFolder.listFiles();
-        if(fileList != null) {
+        if (fileList != null) {
             for (File file : fileList) {
-                if(file.isFile()) {
+                if (file.isFile()) {
                     addImageFile(file);
                 }
             }
@@ -104,8 +101,8 @@ public class XMLProductDirectory {
 
     public Product createProduct() throws Exception {
         final Product product = new Product(getProductName(),
-                                            getProductType(),
-                                            sceneWidth, sceneHeight);
+                getProductType(),
+                sceneWidth, sceneHeight);
 
         addMetaData(product);
         addGeoCoding(product);
@@ -141,10 +138,10 @@ public class XMLProductDirectory {
         for (String key : keys) {
             final ImageIOFile img = bandImageFileMap.get(key);
 
-            for(int i=0; i < img.getNumImages(); ++i) {
+            for (int i = 0; i < img.getNumImages(); ++i) {
 
-                for(int b=0; b < img.getNumBands(); ++b) {
-                    final Band band = new Band(img.getName()+bandCnt++, img.getDataType(), width, height);
+                for (int b = 0; b < img.getNumBands(); ++b) {
+                    final Band band = new Band(img.getName() + bandCnt++, img.getDataType(), width, height);
                     band.setUnit(Unit.AMPLITUDE);
                     product.addBand(band);
                     bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -176,7 +173,7 @@ public class XMLProductDirectory {
         return baseDir;
     }
 
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException  {
+    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
 
         AbstractMetadata.addAbstractedMetadataHeader(root);
     }

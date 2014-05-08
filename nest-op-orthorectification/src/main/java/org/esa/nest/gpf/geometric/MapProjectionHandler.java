@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,7 +32,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
-    Helper for adding map projection components into an operator UI
+ * Helper for adding map projection components into an operator UI
  */
 public class MapProjectionHandler {
 
@@ -60,7 +60,7 @@ public class MapProjectionHandler {
     }
 
     public String getCRSName() {
-        if(crs != null) {
+        if (crs != null) {
             return crs.getName().getCode();
         }
         return "";
@@ -68,19 +68,19 @@ public class MapProjectionHandler {
 
     private CoordinateReferenceSystem getCRS(final String mapProjection, final Product[] sourceProducts) {
         final CoordinateReferenceSystem theCRS = parseCRS(mapProjection);
-        if(theCRS == null)
+        if (theCRS == null)
             return getCRSFromDialog(sourceProducts);
         return theCRS;
     }
 
     static CoordinateReferenceSystem parseCRS(final String mapProjection) {
         try {
-            if(mapProjection != null && !mapProjection.isEmpty())
+            if (mapProjection != null && !mapProjection.isEmpty())
                 return CRS.parseWKT(mapProjection);
         } catch (Exception e) {
             try {
                 return CRS.decode(mapProjection, true);
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
         }
@@ -89,10 +89,10 @@ public class MapProjectionHandler {
 
     private CoordinateReferenceSystem getCRSFromDialog(final Product[] sourceProducts) {
         try {
-            if(sourceProducts == null || sourceProducts[0] == null)
-                return crsSelectionPanel.getCrs(new GeoPos(0,0));
+            if (sourceProducts == null || sourceProducts[0] == null)
+                return crsSelectionPanel.getCrs(new GeoPos(0, 0));
             return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(sourceProducts[0]));
-        } catch(Exception e) {
+        } catch (Exception e) {
             VisatApp.getApp().showErrorDialog("Unable to create coodinate reference system");
         }
         return null;
@@ -101,13 +101,13 @@ public class MapProjectionHandler {
     public void promptForFeatureCrs(final Product[] sourceProducts) {
 
         final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(),
-                                                   "Map Projection",
-                                                   ModalDialog.ID_OK_CANCEL_HELP, "mapProjection");
+                "Map Projection",
+                ModalDialog.ID_OK_CANCEL_HELP, "mapProjection");
 
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
-        tableLayout.setTablePadding(4,4);
+        tableLayout.setTablePadding(4, 4);
         tableLayout.setCellPadding(0, 0, new Insets(4, 10, 4, 4));
         final JPanel contentPanel = new JPanel(tableLayout);
         contentPanel.add(crsSelectionPanel);
@@ -119,7 +119,7 @@ public class MapProjectionHandler {
 
     public static CoordinateReferenceSystem getCRS(String mapProjection) throws Exception {
         try {
-            if(mapProjection == null || mapProjection.isEmpty() || mapProjection.equals("WGS84(DD)")) {
+            if (mapProjection == null || mapProjection.isEmpty() || mapProjection.equals("WGS84(DD)")) {
                 return DefaultGeographicCRS.WGS84;
             }
             return CRS.parseWKT(mapProjection);

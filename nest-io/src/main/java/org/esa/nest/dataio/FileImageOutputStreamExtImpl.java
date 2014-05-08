@@ -16,18 +16,16 @@
  */
 package org.esa.nest.dataio;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteOrder;
-
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.ImageOutputStreamImpl;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteOrder;
 
 /**
  * An implementation of {@link ImageOutputStream} that take its output on a
  * {@link File}.
- * 
+ *
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini, GeoSolutions
  */
@@ -46,9 +44,8 @@ public final class FileImageOutputStreamExtImpl extends ImageOutputStreamImpl
 
     /**
      * A constructor which accepts a File as input.
-     * 
-     * @param file eraf
      *
+     * @param file eraf
      * @throws IOException
      */
     public FileImageOutputStreamExtImpl(File file)
@@ -63,10 +60,9 @@ public final class FileImageOutputStreamExtImpl extends ImageOutputStreamImpl
 
     /**
      * A constructor which accepts a File as input.
-     * 
-     * @param file eraf
-     * @param bufSize
      *
+     * @param file    eraf
+     * @param bufSize
      * @throws IOException
      */
     public FileImageOutputStreamExtImpl(File file, int bufSize)
@@ -132,18 +128,16 @@ public final class FileImageOutputStreamExtImpl extends ImageOutputStreamImpl
      * legal to seeking past the end of the eraf; an <code>EOFException</code>
      * will be thrown only if a read is performed. The eraf length will not be
      * increased until a write is performed.
-     * 
-     * @exception IndexOutOfBoundsException
-     *                    if <code>pos</code> is smaller than the flushed
-     *                    position.
-     * @exception IOException
-     *                    if any other I/O error occurs.
+     *
+     * @throws IndexOutOfBoundsException if <code>pos</code> is smaller than the flushed
+     *                                   position.
+     * @throws IOException               if any other I/O error occurs.
      */
     @Override
     public void seek(long pos) throws IOException {
         //checkClosed();
         if (pos < flushedPos) {
-            throw new IndexOutOfBoundsException("IndexOutOfBounds pos < flushedPos! " + pos + " < "+ flushedPos);
+            throw new IndexOutOfBoundsException("IndexOutOfBounds pos < flushedPos! " + pos + " < " + flushedPos);
         }
         bitOffset = 0;
         streamPos = eraf.seek(pos);
@@ -151,21 +145,19 @@ public final class FileImageOutputStreamExtImpl extends ImageOutputStreamImpl
 
     /**
      * Closes the underlying {@link EnhancedRandomAccessFile}.
-     * 
-     * @throws IOException
-     *                 in case something bad happens.
+     *
+     * @throws IOException in case something bad happens.
      */
     @Override
     public void close() throws IOException {
-    	try{
-	    	if(!isClosed){
-		        super.close();
-		        eraf.close();
-	    	}
-    	}
-    	finally{
-    		isClosed=true;
-    	}
+        try {
+            if (!isClosed) {
+                super.close();
+                eraf.close();
+            }
+        } finally {
+            isClosed = true;
+        }
     }
 
     /**
@@ -178,7 +170,6 @@ public final class FileImageOutputStreamExtImpl extends ImageOutputStreamImpl
     /**
      * Disposes this {@link FileImageInputStreamExtImpl} by closing its
      * underlying {@link EnhancedRandomAccessFile}.
-     * 
      */
     public void dispose() {
         try {
@@ -190,7 +181,7 @@ public final class FileImageOutputStreamExtImpl extends ImageOutputStreamImpl
 
     /**
      * Provides a simple description for this {@link ImageOutputStream}.
-     * 
+     *
      * @return a simple description for this {@link ImageOutputStream}.
      */
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,16 +27,16 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
  * scene height from metadata instead of scene height from DEM.
  */
 
-@OperatorMetadata(alias="Ellipsoid-Correction-RD",
+@OperatorMetadata(alias = "Ellipsoid-Correction-RD",
         category = "Geometric\\Ellipsoid Correction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description="Ellipsoid correction with RD method and average scene height")
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Ellipsoid correction with RD method and average scene height")
 public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
 
     public static final String PRODUCT_SUFFIX = "_EC";
-    
-    @SourceProduct(alias="source")
+
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct2;
@@ -54,6 +54,7 @@ public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

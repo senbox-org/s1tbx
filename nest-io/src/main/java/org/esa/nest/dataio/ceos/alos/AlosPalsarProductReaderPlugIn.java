@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import java.io.File;
 
 /**
  * The ReaderPlugIn for ALOS PALSAR CEOS products.
- *
  */
 public class AlosPalsarProductReaderPlugIn extends CEOSProductReaderPlugIn {
 
@@ -44,8 +43,8 @@ public class AlosPalsarProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(File file) {
         final String name = file.getName().toUpperCase();
-        for(String prefix : constants.getVolumeFilePrefix()) {
-            if(name.startsWith(prefix)) {
+        for (String prefix : constants.getVolumeFilePrefix()) {
+            if (name.startsWith(prefix)) {
                 final AlosPalsarProductReader reader = new AlosPalsarProductReader(this);
                 return reader.checkProductQualification(file);
             }

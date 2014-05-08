@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,7 +28,6 @@ import org.esa.nest.datamodel.Unit;
 
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
 
 /**
  * Calibration for Radarsat2 data products.
@@ -100,7 +99,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                 updateTargetProductMetadata();
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
     }
@@ -110,7 +109,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if(!mission.equals("RS2")) {
+        if (!mission.equals("RS2")) {
             throw new OperatorException(mission + " is not a valid mission for Radarsat2 Calibration");
         }
     }
@@ -130,24 +129,25 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement lutSigmaElem = origProdRoot.getElement(lutsigma);
 
-        if(lutSigmaElem != null) {
+        if (lutSigmaElem != null) {
             offset = lutSigmaElem.getAttributeDouble("offset", 0);
 
             final MetadataAttribute gainsAttrib = lutSigmaElem.getAttribute("gains");
-            if(gainsAttrib !=null) {
-                gains = (double[])gainsAttrib.getData().getElems();
+            if (gainsAttrib != null) {
+                gains = (double[]) gainsAttrib.getData().getElems();
             }
         } else {
-            throw new OperatorException(lutsigma+" not found. Please ensure the look up table "+lutsigma+".xml is in the same folder as the original product");
+            throw new OperatorException(lutsigma + " not found. Please ensure the look up table " + lutsigma + ".xml is in the same folder as the original product");
         }
 
-        if(gains.length < sourceProduct.getSceneRasterWidth()) {
+        if (gains.length < sourceProduct.getSceneRasterWidth()) {
             throw new OperatorException("Calibration LUT is smaller than source product width");
         }
     }
 
     /**
      * Get incidence angle and slant range time tie point grids.
+     *
      * @param sourceProduct the source
      */
     private void getTiePointGridData(Product sourceProduct) {
@@ -176,8 +176,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
@@ -228,7 +227,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    sigma = dn*dn;
+                    sigma = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     sigma = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
@@ -244,8 +243,8 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("Calibration: unhandled unit");
                 }
 
-                if(isComplex) {
-                    if(gains != null) {
+                if (isComplex) {
+                    if (gains != null) {
                         if (outputImageInComplex) {
                             sigma /= gains[x + subsetOffsetX];
                         } else {
@@ -254,7 +253,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                     }
                 } else {
                     sigma += offset;
-                    if(gains != null) {
+                    if (gains != null) {
                         sigma /= gains[x + subsetOffsetX];
                     }
                 }
@@ -274,33 +273,33 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
-            final double satelliteHeight, final double sceneToEarthCentre,final double localIncidenceAngle,
+            final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            sigma = v*v;
+            sigma = v * v;
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v/10.0); // convert dB to linear scale
+            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }
 
-        if(isComplex) {
-            if(gains != null) {
-                sigma /= (gains[(int)rangeIndex] * gains[(int)rangeIndex]);
+        if (isComplex) {
+            if (gains != null) {
+                sigma /= (gains[(int) rangeIndex] * gains[(int) rangeIndex]);
             }
         } else {
             sigma += offset;
-            if(gains != null) {
-                sigma /= gains[(int)rangeIndex];
+            if (gains != null) {
+                sigma /= gains[(int) rangeIndex];
             }
         }
 
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma*Math.sin(localIncidenceAngle * MathUtils.DTOR);
+            return sigma * Math.sin(localIncidenceAngle * MathUtils.DTOR);
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
             return sigma;
         }
@@ -320,5 +319,5 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         final Band sourceBand = sourceProduct.getBand(targetBand.getName());
         final Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
-    }    
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,8 +33,8 @@ public class TestSRGROperator extends TestCase {
 
     private OperatorSpi spi;
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
-    private String[] exceptionExemptions = { "conversion has already been applied", "not supported", "GeoCoding is null" };
+    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
+    private String[] exceptionExemptions = {"conversion has already been applied", "not supported", "GeoCoding is null"};
 
     @Override
     protected void setUp() throws Exception {
@@ -55,12 +55,12 @@ public class TestSRGROperator extends TestCase {
 
         Product sourceProduct = createTestProduct(16, 4);
 
-        SRGROp op = (SRGROp)spi.createOperator();
+        SRGROp op = (SRGROp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.setNumOfRangePoints(6);
         op.setSourceBandName("band1");
-        
+
         // get targetProduct: execute initialize()
         Product targetProduct = op.getTargetProduct();
         assertNotNull(targetProduct);
@@ -74,14 +74,14 @@ public class TestSRGROperator extends TestCase {
 
         double[] warpPolynomialCoef = op.getWarpPolynomialCoef();
         double[] expectedWarpCoeff = {-0.267942583741615, 1.039902702338278, -0.001031550514190, 0.000014679621756,
-                                      -0.000000075665832};
+                -0.000000075665832};
         for (int i = 0; i < warpPolynomialCoef.length; i++) {
             assertTrue(Math.abs(expectedWarpCoeff[i] - warpPolynomialCoef[i]) < 0.000001);
         }
         // compare with expected outputs:
         float[] expectedValues = {1.0f, 3.0221484f, 5.0534487f, 7.0752897f, 9.097291f, 11.119023f, 13.130011f, 17.0f,
-        19.022148f, 21.053448f, 23.07529f, 25.09729f, 27.119024f, 29.13001f, 33.0f, 35.02215f, 37.053448f, 39.07529f,
-        41.09729f, 43.119022f, 45.130013f, 49.0f, 51.02215f, 53.053448f, 55.07529f, 57.09729f, 59.119022f, 61.130013f};
+                19.022148f, 21.053448f, 23.07529f, 25.09729f, 27.119024f, 29.13001f, 33.0f, 35.02215f, 37.053448f, 39.07529f,
+                41.09729f, 43.119022f, 45.130013f, 49.0f, 51.02215f, 53.053448f, 55.07529f, 57.09729f, 59.119022f, 61.130013f};
         //assertTrue(Arrays.equals(expectedValues, floatValues));
 
         // compare updated metadata
@@ -93,7 +93,7 @@ public class TestSRGROperator extends TestCase {
 
     /**
      * Creates a 4-by-16 test product as shown below:
-     *  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
+     * 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
      * 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32
      * 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48
      * 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
@@ -120,30 +120,30 @@ public class TestSRGROperator extends TestCase {
                 ProductData.createInstance("DESCENDING"), false));
 
         abs.addAttribute(new MetadataAttribute(AbstractMetadata.srgr_flag,
-                ProductData.createInstance(new byte[] {0}), false));
+                ProductData.createInstance(new byte[]{0}), false));
 
         abs.addAttribute(new MetadataAttribute(AbstractMetadata.range_spacing,
-                ProductData.createInstance(new float[] {7.0F}), false));
+                ProductData.createInstance(new float[]{7.0F}), false));
 
         abs.addAttribute(new MetadataAttribute(AbstractMetadata.azimuth_spacing,
-                ProductData.createInstance(new float[] {4.0F}), false));
+                ProductData.createInstance(new float[]{4.0F}), false));
 
         abs.addAttribute(new MetadataAttribute(AbstractMetadata.slant_range_to_first_pixel,
-                ProductData.createInstance(new float[] {800000.0F}), false));
-        
+                ProductData.createInstance(new float[]{800000.0F}), false));
+
         // create incidence angle tie point grid
-        float[] incidence_angle = new float[w*h];
+        float[] incidence_angle = new float[w * h];
         Arrays.fill(incidence_angle, 30.0f);
         testProduct.addTiePointGrid(new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, w, h, 0, 0, 1, 1, incidence_angle));
 
         // create lat/lon tie point grids
-        float[] lat = new float[w*h];
-        float[] lon = new float[w*h];
+        float[] lat = new float[w * h];
+        float[] lon = new float[w * h];
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                int i = y*w + x;
-                lon[i] = 13.20f + x/10000.0f;
-                lat[i] = 51.60f + y/10000.0f;
+                int i = y * w + x;
+                lon[i] = 13.20f + x / 10000.0f;
+                lat[i] = 51.60f + y / 10000.0f;
             }
         }
         TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, w, h, 0, 0, 1, 1, lat);
@@ -158,38 +158,31 @@ public class TestSRGROperator extends TestCase {
         return testProduct;
     }
 
-    public void testProcessAllASAR() throws Exception
-    {
+    public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
-    public void testProcessAllERS() throws Exception
-    {
+    public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
-    public void testProcessAllALOS() throws Exception
-    {
+    public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
     }
 
-    public void testProcessAllRadarsat2() throws Exception
-    {
+    public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
-    public void testProcessAllTerraSARX() throws Exception
-    {
+    public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
     }
 
-    public void testProcessAllCosmo() throws Exception
-    {
+    public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
-    public void testProcessAllNestBox() throws Exception
-    {
+    public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

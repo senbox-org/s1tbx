@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
-import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;

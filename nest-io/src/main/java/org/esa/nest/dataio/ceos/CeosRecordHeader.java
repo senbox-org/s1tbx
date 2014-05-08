@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,7 +44,7 @@ public class CeosRecordHeader {
             secondRecordSubtype = reader.readB1();
             thirdRecordSubtype = reader.readB1();
             recordLength = reader.readB4();
-        } catch(Exception e) {
+        } catch (Exception e) {
             //System.out.println(e.toString() + ':' +e.getCause().toString());
         }
         //System.out.println("\nrec "+recordNum+" type "+recordTypeCode+" length "+recordLength);

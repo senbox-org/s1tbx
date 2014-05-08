@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -49,28 +49,28 @@ public abstract class BaseOrbitFile implements OrbitFile {
     }
 
     protected static void getRemoteFiles(final ftpUtils ftp, final Map<String, Long> fileSizeMap,
-                                       final String remotePath, final File localPath, final ProgressMonitor pm) {
+                                         final String remotePath, final File localPath, final ProgressMonitor pm) {
         final Set<String> remoteFileNames = fileSizeMap.keySet();
-        pm.beginTask("Downloading Orbit files from "+remotePath, remoteFileNames.size());
-        for(String fileName : remoteFileNames) {
-            if(pm.isCanceled()) break;
+        pm.beginTask("Downloading Orbit files from " + remotePath, remoteFileNames.size());
+        for (String fileName : remoteFileNames) {
+            if (pm.isCanceled()) break;
 
             final long fileSize = fileSizeMap.get(fileName);
             final File localFile = new File(localPath, fileName);
-            if(localFile.exists() && localFile.length() == fileSize)
+            if (localFile.exists() && localFile.length() == fileSize)
                 continue;
             try {
-                int attempts=0;
-                while(attempts < 3) {
-                    final ftpUtils.FTPError result = ftp.retrieveFile(remotePath +'/'+ fileName, localFile, fileSize);
-                    if(result == ftpUtils.FTPError.OK) {
+                int attempts = 0;
+                while (attempts < 3) {
+                    final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + '/' + fileName, localFile, fileSize);
+                    if (result == ftpUtils.FTPError.OK) {
                         break;
                     } else {
                         attempts++;
                         localFile.delete();
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 localFile.delete();
                 System.out.println(e.getMessage());
             }
@@ -82,7 +82,7 @@ public abstract class BaseOrbitFile implements OrbitFile {
 
     protected boolean getRemoteFile(String remoteFTP, String remotePath, File localFile) {
         try {
-            if(ftp == null) {
+            if (ftp == null) {
                 ftp = new ftpUtils(remoteFTP);
                 fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteFTP, remotePath);
             }
@@ -91,14 +91,14 @@ public abstract class BaseOrbitFile implements OrbitFile {
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
             final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-            if(result == ftpUtils.FTPError.OK) {
+            if (result == ftpUtils.FTPError.OK) {
                 return true;
             } else {
                 localFile.delete();
             }
 
             return false;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return false;

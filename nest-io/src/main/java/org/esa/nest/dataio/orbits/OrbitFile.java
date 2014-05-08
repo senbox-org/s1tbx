@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,6 +26,7 @@ public interface OrbitFile {
 
     /**
      * Get orbit information for given time.
+     *
      * @param utc The UTC in days.
      * @return The orbit information.
      * @throws Exception The exceptions.
@@ -34,6 +35,7 @@ public interface OrbitFile {
 
     /**
      * Get the orbit file used
+     *
      * @return the new orbit file
      */
     public File getOrbitFile();

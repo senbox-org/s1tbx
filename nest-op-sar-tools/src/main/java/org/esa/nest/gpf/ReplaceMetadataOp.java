@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,10 +31,10 @@ import org.esa.nest.datamodel.AbstractMetadata;
 /**
  * Replaces the Metadata with that of another product
  */
-@OperatorMetadata(alias="ReplaceMetadata",
+@OperatorMetadata(alias = "ReplaceMetadata",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Replace the metadata of the first product with that of the second")
 public class ReplaceMetadataOp extends Operator {
 
@@ -43,13 +43,13 @@ public class ReplaceMetadataOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(defaultValue="Replace the metadata of the first product with that of the second", label=" ")
+    @Parameter(defaultValue = "Replace the metadata of the first product with that of the second", label = " ")
     String note;
 
     /**
-	     * Default constructor. The graph processing framework
-	     * requires that an operator has a default constructor.
-	 */
+     * Default constructor. The graph processing framework
+     * requires that an operator has a default constructor.
+     */
     public ReplaceMetadataOp() {
     }
 
@@ -62,15 +62,14 @@ public class ReplaceMetadataOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            if(sourceProduct.length != 2) {
+            if (sourceProduct.length != 2) {
                 throw new OperatorException("ReplaceMetadataOp requires two source products.");
             }
             final Product masterProduct = sourceProduct[0];
@@ -78,14 +77,14 @@ public class ReplaceMetadataOp extends Operator {
 
             // create target product
             targetProduct = new Product(masterProduct.getName(),
-                                        slaveProduct.getProductType(),
-                                        masterProduct.getSceneRasterWidth(),
-                                        masterProduct.getSceneRasterHeight());
+                    slaveProduct.getProductType(),
+                    masterProduct.getSceneRasterWidth(),
+                    masterProduct.getSceneRasterHeight());
 
             // Add target bands
             final Band[] bands = masterProduct.getBands();
             for (Band srcBand : bands) {
-    
+
                 final Band targetBand = ProductUtils.copyBand(srcBand.getName(), masterProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             }
@@ -98,20 +97,20 @@ public class ReplaceMetadataOp extends Operator {
 
             resetPolarizations(AbstractMetadata.getAbstractedMetadata(targetProduct), isPolsar, isCalibrated);
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
     public static void resetPolarizations(final MetadataElement absRoot, final int isPolsar, final int isCal) {
-        if(isPolsar > 0) {
+        if (isPolsar > 0) {
             absRoot.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, " ");
             absRoot.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, " ");
             absRoot.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, " ");
             absRoot.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, " ");
             absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
         }
-        if(isCal > 0) {     // polsarpro input already calibrated -- set by polsarpro reader
+        if (isCal > 0) {     // polsarpro input already calibrated -- set by polsarpro reader
             absRoot.setAttributeInt(AbstractMetadata.abs_calibration_flag, 1);
         }
     }
@@ -121,6 +120,7 @@ public class ReplaceMetadataOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

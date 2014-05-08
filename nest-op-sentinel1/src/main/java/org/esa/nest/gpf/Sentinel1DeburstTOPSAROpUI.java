@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,6 @@ import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.Map;
 
 /**
@@ -46,7 +45,7 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        if(sourceProducts != null && sourceProducts.length > 0) {
+        if (sourceProducts != null && sourceProducts.length > 0) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
             final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
             polList.setListData(polarisations);

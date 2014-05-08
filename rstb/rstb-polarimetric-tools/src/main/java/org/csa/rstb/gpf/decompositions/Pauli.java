@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,17 +38,19 @@ public class Pauli extends DecompositionBase implements Decomposition {
     }
 
     /**
-        Return the list of band names for the target product
-        @return list of band names
+     * Return the list of band names for the target product
+     *
+     * @return list of band names
      */
     public String[] getTargetBandNames() {
-        return new String[] { "Pauli_r", "Pauli_g", "Pauli_b" };
+        return new String[]{"Pauli_r", "Pauli_g", "Pauli_b"};
     }
 
     /**
      * Sets the unit for the new target band
+     *
      * @param targetBandName the band name
-     * @param targetBand the new target band
+     * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
@@ -56,23 +58,23 @@ public class Pauli extends DecompositionBase implements Decomposition {
 
     /**
      * Perform decomposition for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op              the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
@@ -105,15 +107,15 @@ public class Pauli extends DecompositionBase implements Decomposition {
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             double re = 0.0, im = 0.0, v = 0.0;
-            for(int y = y0; y < maxY; ++y) {
+            for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
                 srcIndex.calculateStride(y);
-                for(int x = x0; x < maxX; ++x) {
+                for (int x = x0; x < maxX; ++x) {
 
                     if (sourceProductType == PolBandUtils.MATRIX.FULL) {
                         PolOpUtils.getComplexScatterMatrix(srcIndex.getIndex(x), dataBuffers, Sr, Si);
 
-                        for (TargetInfo target : targetInfo){
+                        for (TargetInfo target : targetInfo) {
 
                             if (target.colour == TargetBandColour.R) {
                                 re = Sr[0][0] - Sr[1][1];
@@ -126,39 +128,39 @@ public class Pauli extends DecompositionBase implements Decomposition {
                                 im = Si[0][0] + Si[1][1];
                             }
 
-                            v = (re*re + im*im) / 2.0;
+                            v = (re * re + im * im) / 2.0;
                             if (v < PolOpUtils.EPS) {
                                 v = PolOpUtils.EPS;
                             }
-                            v = 10.0*Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)v);
+                            v = 10.0 * Math.log10(v);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                         }
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
                         PolOpUtils.getCovarianceMatrixC3(srcIndex.getIndex(x), dataBuffers, Cr, Ci);
 
-                        for (TargetInfo target : targetInfo){
+                        for (TargetInfo target : targetInfo) {
 
                             if (target.colour == TargetBandColour.R) { // T22 = 0.5*(C11 - 2*C13_real + C33)
-                                v = 0.5*(Cr[0][0] - 2.0*Cr[0][2] + Cr[2][2]);
+                                v = 0.5 * (Cr[0][0] - 2.0 * Cr[0][2] + Cr[2][2]);
                             } else if (target.colour == TargetBandColour.G) { // T33 = C22
                                 v = Cr[1][1];
                             } else if (target.colour == TargetBandColour.B) { // T11 = 0.5*(C11 + 2*C13_real + C33)
-                                v = 0.5*(Cr[0][0] + 2.0*Cr[0][2] + Cr[2][2]);
+                                v = 0.5 * (Cr[0][0] + 2.0 * Cr[0][2] + Cr[2][2]);
                             }
 
                             if (v < PolOpUtils.EPS) {
                                 v = PolOpUtils.EPS;
                             }
-                            v = 10.0*Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)v);
+                            v = 10.0 * Math.log10(v);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                         }
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
                         PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), dataBuffers, Tr, Ti);
-                        for (TargetInfo target : targetInfo){
+                        for (TargetInfo target : targetInfo) {
 
                             if (target.colour == TargetBandColour.R) { // T22
                                 v = Tr[1][1];
@@ -171,8 +173,8 @@ public class Pauli extends DecompositionBase implements Decomposition {
                             if (v < PolOpUtils.EPS) {
                                 v = PolOpUtils.EPS;
                             }
-                            v = 10.0*Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)v);
+                            v = 10.0 * Math.log10(v);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                         }
                     }
                 }

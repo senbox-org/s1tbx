@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,9 +51,9 @@ public class MultilookOpUI extends BaseOperatorUI {
         initParameters();
 
         outputIntensityCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputIntensity = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputIntensity = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         grSquarePixelCheckBox.addItemListener(new ItemListener() {
@@ -90,14 +90,14 @@ public class MultilookOpUI extends BaseOperatorUI {
         nRgLooks.setText(String.valueOf(paramMap.get("nRgLooks")));
         nAzLooks.setText(String.valueOf(paramMap.get("nAzLooks")));
 
-        outputIntensity = (Boolean)paramMap.get("outputIntensity");
-        if(outputIntensity != null) {
+        outputIntensity = (Boolean) paramMap.get("outputIntensity");
+        if (outputIntensity != null) {
             outputIntensityCheckBox.setSelected(outputIntensity);
         }
         outputIntensityCheckBox.setVisible(isComplexSrcProduct());
 
-        grSquarePixel = (Boolean)paramMap.get("grSquarePixel");
-        if(grSquarePixel != null) {
+        grSquarePixel = (Boolean) paramMap.get("grSquarePixel");
+        if (grSquarePixel != null) {
             grSquarePixelCheckBox.setSelected(grSquarePixel);
             independentLooksCheckBox.setSelected(!grSquarePixel);
             if (grSquarePixel) {
@@ -112,7 +112,7 @@ public class MultilookOpUI extends BaseOperatorUI {
     }
 
     private void setAzimuthLooks() {
-        if(sourceProducts != null && sourceProducts.length > 0) {
+        if (sourceProducts != null && sourceProducts.length > 0) {
             try {
                 if (grSquarePixelCheckBox.isSelected()) {
                     final MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
@@ -151,9 +151,9 @@ public class MultilookOpUI extends BaseOperatorUI {
 
         final String nRgLooksStr = nRgLooks.getText();
         final String nAzLooksStr = nAzLooks.getText();
-        if(nRgLooksStr != null && !nRgLooksStr.isEmpty())
+        if (nRgLooksStr != null && !nRgLooksStr.isEmpty())
             paramMap.put("nRgLooks", Integer.parseInt(nRgLooksStr));
-        if(nAzLooksStr != null && !nAzLooksStr.isEmpty())
+        if (nAzLooksStr != null && !nAzLooksStr.isEmpty())
             paramMap.put("nAzLooks", Integer.parseInt(nAzLooksStr));
         paramMap.put("outputIntensity", outputIntensity);
         paramMap.put("grSquarePixel", grSquarePixel);
@@ -194,6 +194,7 @@ public class MultilookOpUI extends BaseOperatorUI {
 
             public void focusGained(final FocusEvent e) {
             }
+
             public void focusLost(final FocusEvent e) {
                 setAzimuthLooks();
             }
@@ -208,7 +209,7 @@ public class MultilookOpUI extends BaseOperatorUI {
 
         gbc.gridy++;
         contentPane.add(outputIntensityCheckBox, gbc);
-        
+
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "",
                 new JTextArea("Note: Detection for complex data\nis done without resampling."));

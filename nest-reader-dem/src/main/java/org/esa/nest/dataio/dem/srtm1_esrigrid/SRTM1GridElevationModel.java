@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,8 +46,8 @@ public final class SRTM1GridElevationModel extends BaseElevationModel {
 
     @Override
     public GeoPos getGeoPos(final PixelPos pixelPos) {
-        final float pixelLat = (float)((RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 60.0);
-        final float pixelLon = (float)(pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
+        final float pixelLat = (float) ((RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 60.0);
+        final float pixelLon = (float) (pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
         return new GeoPos(pixelLat, pixelLon);
     }
 

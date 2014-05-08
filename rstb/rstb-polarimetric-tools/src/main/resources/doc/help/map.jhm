@@ -7,7 +7,7 @@
     <mapID target="PolarimetricMatricesOp" url="operators/PolarimetricMatricesOp.html"/>
     <mapID target="PolarimetricDecompositionOp" url="operators/PolarimetricDecompositionOp.html"/>
     <mapID target="PolarimetricSpeckleFilterOp" url="operators/PolarimetricSpeckleFilterOp.html"/>
-	<mapID target="OrientationAngleCorrectionOp" url="operators/OrientationAngleCorrectionOp.html"/>
-	<mapID target="PolarimetricClassificationOp" url="operators/PolarimetricClassificationOp.html"/>
-	<mapID target="SupervisedWishartClassificationOp" url="operators/SupervisedWishartClassificationOp.html"/>
+    <mapID target="OrientationAngleCorrectionOp" url="operators/OrientationAngleCorrectionOp.html"/>
+    <mapID target="PolarimetricClassificationOp" url="operators/PolarimetricClassificationOp.html"/>
+    <mapID target="SupervisedWishartClassificationOp" url="operators/SupervisedWishartClassificationOp.html"/>
 </map>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -76,7 +76,7 @@ public class TextRecordTest extends TestCase {
         ios.writeBytes("PRODUCT:O1B2R_UB                        "); // A40
         // facility = "PROCESS:JAPAN-JAXA-EOC-ALOS-DPS  YYYYMMDDHHNNSS" + 13 blanks
         ios.writeBytes("PROCESS:JAPAN-JAXA-EOC-ALOS-DPS  20060410075225             "); //A60
-        
+
         // Blank = 200 blanks
         CeosTestHelper.writeBlanks(ios, 200);
     }
@@ -89,7 +89,7 @@ public class TextRecordTest extends TestCase {
         assertEquals("A ", record.getAttributeString("Ascii code character"));
         assertEquals("PRODUCT:O1B2R_UB                        ", record.getAttributeString("Product type specifier"));
         assertEquals("PROCESS:JAPAN-JAXA-EOC-ALOS-DPS  20060410075225             ",
-                     record.getAttributeString("Location and datetime of product creation"));
+                record.getAttributeString("Location and datetime of product creation"));
 
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,15 +41,15 @@ public class SARSimTerrainCorrectionOpUI extends RangeDopplerGeocodingOpUI {
         final JComponent pane = super.CreateOpTab(operatorName, parameterMap, appContext);
 
         openShiftsFileCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    openShiftsFile = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                openShiftsFile = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         openResidualsFileCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    openResidualsFile = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                openResidualsFile = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return new JScrollPane(pane);
@@ -59,16 +59,16 @@ public class SARSimTerrainCorrectionOpUI extends RangeDopplerGeocodingOpUI {
     public void initParameters() {
         super.initParameters();
 
-        float threshold = (Float)paramMap.get("rmsThreshold");
+        float threshold = (Float) paramMap.get("rmsThreshold");
         rmsThreshold.setText(String.valueOf(threshold));
 
-        int order = (Integer)paramMap.get("warpPolynomialOrder");
+        int order = (Integer) paramMap.get("warpPolynomialOrder");
         warpPolynomialOrder.setText(String.valueOf(order));
 
-        openShiftsFile = (Boolean)paramMap.get("openShiftsFile");
+        openShiftsFile = (Boolean) paramMap.get("openShiftsFile");
         openShiftsFileCheckBox.setSelected(openShiftsFile);
 
-        openResidualsFile = (Boolean)paramMap.get("openResidualsFile");
+        openResidualsFile = (Boolean) paramMap.get("openResidualsFile");
         openResidualsFileCheckBox.setSelected(openResidualsFile);
     }
 
@@ -106,7 +106,7 @@ public class SARSimTerrainCorrectionOpUI extends RangeDopplerGeocodingOpUI {
 
         pixelSpacingInMeter.addFocusListener(new PixelSpacingMeterListener());
         pixelSpacingInDegree.addFocusListener(new PixelSpacingDegreeListener());
-        
+
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Map Projection:", crsButton);
 

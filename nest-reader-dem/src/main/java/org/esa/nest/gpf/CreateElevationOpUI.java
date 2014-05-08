@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,8 +50,8 @@ public class CreateElevationOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        final String demNameParam = (String)paramMap.get("demName");
-        if(demNameParam != null)
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null)
             demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
         elevationBandName.setText(String.valueOf(paramMap.get("elevationBandName")));
         externalDEM.setText(String.valueOf(paramMap.get("externalDEM")));
@@ -67,7 +67,7 @@ public class CreateElevationOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        paramMap.put("demName", DEMFactory.getProperDEMName((String)demName.getSelectedItem()));
+        paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
         paramMap.put("elevationBandName", elevationBandName.getText());
         paramMap.put("externalDEM", externalDEM.getText());
         paramMap.put("resamplingMethod", demResamplingMethod.getSelectedItem());

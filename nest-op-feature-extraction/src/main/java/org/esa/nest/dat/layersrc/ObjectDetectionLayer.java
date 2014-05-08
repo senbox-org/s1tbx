@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,7 +39,6 @@ import java.util.List;
 
 /**
  * Shows a detected object
- *
  */
 public class ObjectDetectionLayer extends Layer {
 
@@ -75,9 +74,9 @@ public class ObjectDetectionLayer extends Layer {
         final MetadataElement absMetadata = AbstractMetadata.getAbstractedMetadata(product);
         if (absMetadata != null) {
             final String shipFilePath = absMetadata.getAttributeString(AbstractMetadata.target_report_file, null);
-            if(shipFilePath != null) {
+            if (shipFilePath != null) {
                 final File file = new File(shipFilePath);
-                if(file.exists())
+                if (file.exists())
                     return file;
             }
         }
@@ -85,13 +84,13 @@ public class ObjectDetectionLayer extends Layer {
     }
 
     private void LoadTargets(final File file) {
-        if(file == null)
+        if (file == null)
             return;
 
         Document doc;
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
-        } catch(IOException e) {
+        } catch (IOException e) {
             return;
         }
 
@@ -103,24 +102,24 @@ public class ObjectDetectionLayer extends Layer {
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element targetsDetectedElem = (Element) aChild;
-                if(targetsDetectedElem.getName().equals("targetsDetected")) {
+                if (targetsDetectedElem.getName().equals("targetsDetected")) {
                     final Attribute attrib = targetsDetectedElem.getAttribute("bandName");
-                    if(attrib != null && band.getName().equalsIgnoreCase(attrib.getValue())) {
+                    if (attrib != null && band.getName().equalsIgnoreCase(attrib.getValue())) {
                         final List content = targetsDetectedElem.getContent();
                         for (Object det : content) {
                             if (det instanceof Element) {
                                 final Element targetElem = (Element) det;
-                                if(targetElem.getName().equals("target")) {
+                                if (targetElem.getName().equals("target")) {
                                     final Attribute lat = targetElem.getAttribute("lat");
-                                    if(lat == null) continue;
+                                    if (lat == null) continue;
                                     final Attribute lon = targetElem.getAttribute("lon");
-                                    if(lon == null) continue;
+                                    if (lon == null) continue;
                                     final Attribute width = targetElem.getAttribute("width");
-                                    if(width == null) continue;
+                                    if (width == null) continue;
                                     final Attribute length = targetElem.getAttribute("length");
-                                    if(length == null) continue;
+                                    if (length == null) continue;
                                     final Attribute intensity = targetElem.getAttribute("intensity");
-                                    if(intensity == null) continue;
+                                    if (intensity == null) continue;
 
                                     targetList.add(new ObjectDiscriminationOp.ShipRecord(
                                             Double.parseDouble(lat.getValue()),
@@ -140,7 +139,7 @@ public class ObjectDetectionLayer extends Layer {
     @Override
     protected void renderLayer(Rendering rendering) {
 
-        if(band == null || targetList.isEmpty())
+        if (band == null || targetList.isEmpty())
             return;
 
         final Viewport vp = rendering.getViewport();
@@ -163,28 +162,28 @@ public class ObjectDetectionLayer extends Layer {
         final double[] vpts = new double[4];
 
         final DecimalFormat frmt = new DecimalFormat("0.00");
-        for(ObjectDiscriminationOp.ShipRecord target : targetList) {
-            geo.setLocation((float)target.lat, (float)target.lon);
+        for (ObjectDiscriminationOp.ShipRecord target : targetList) {
+            geo.setLocation((float) target.lat, (float) target.lon);
             geoCoding.getPixelPos(geo, pix);
-            final double halfWidth = target.width/2.0;
-            final double halfHeight = target.length/2.0;
+            final double halfWidth = target.width / 2.0;
+            final double halfHeight = target.length / 2.0;
 
-            ipts[0] = pix.getX()-halfWidth;
-            ipts[1] = pix.getY()-halfHeight;
-            ipts[2] = ipts[0]+target.width;
-            ipts[3] = ipts[1]+target.length;
+            ipts[0] = pix.getX() - halfWidth;
+            ipts[1] = pix.getY() - halfHeight;
+            ipts[2] = ipts[0] + target.width;
+            ipts[3] = ipts[1] + target.length;
 
             screenPixel.pixelToScreen(ipts, vpts);
 
-            final double w = vpts[2]-vpts[0];
-            final double h = vpts[3]-vpts[1];
+            final double w = vpts[2] - vpts[0];
+            final double h = vpts[3] - vpts[1];
             final Ellipse2D.Double circle = new Ellipse2D.Double(vpts[0], vpts[1], w, h);
             graphics.draw(circle);
 
-            final double targetWidthInMeter = (target.width - border)*rangeSpacing;
-            final double targetlengthInMeter = (target.length - border)*azimuthSpacing;
-            final double size = Math.sqrt(targetWidthInMeter*targetWidthInMeter + targetlengthInMeter*targetlengthInMeter);
-            graphics.drawString(frmt.format(size) + "m", (int)vpts[0], (int)vpts[1]);
+            final double targetWidthInMeter = (target.width - border) * rangeSpacing;
+            final double targetlengthInMeter = (target.length - border) * azimuthSpacing;
+            final double size = Math.sqrt(targetWidthInMeter * targetWidthInMeter + targetlengthInMeter * targetlengthInMeter);
+            graphics.drawString(frmt.format(size) + "m", (int) vpts[0], (int) vpts[1]);
         }
     }
 }

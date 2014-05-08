@@ -6,8 +6,8 @@
 
     <tocitem text="Graph Processing">
         <tocitem text="Geometry Operators">
-			<tocitem text="Coherence Optimization" target="CoherenceOptimizationOp"/>
+            <tocitem text="Coherence Optimization" target="CoherenceOptimizationOp"/>
         </tocitem>
     </tocitem>
-    
+
 </toc>

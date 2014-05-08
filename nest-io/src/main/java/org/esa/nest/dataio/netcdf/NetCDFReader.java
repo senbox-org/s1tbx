@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,7 +38,6 @@ import java.util.Map;
 
 /**
  * The product reader for NetCDF products.
- *
  */
 public class NetCDFReader extends AbstractProductReader {
 
@@ -101,10 +100,10 @@ public class NetCDFReader extends AbstractProductReader {
         final NcAttributeMap globalAttributes = NcAttributeMap.create(netcdfFile);
 
         product = new Product(inputFile.getName(),
-                               NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]),
-                               rasterDim.getDimX().getLength(),
-                               rasterDim.getDimY().getLength(),
-                               this);
+                NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]),
+                rasterDim.getDimX().getLength(),
+                rasterDim.getDimY().getLength(),
+                this);
         product.setFileLocation(inputFile);
         product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
         product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
@@ -119,10 +118,10 @@ public class NetCDFReader extends AbstractProductReader {
         product.setModified(false);
 
         // update product type
-        if(product.getProductType().equalsIgnoreCase(readerPlugIn.getFormatNames()[0])) {
+        if (product.getProductType().equalsIgnoreCase(readerPlugIn.getFormatNames()[0])) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             final String type = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-            if(!type.isEmpty())
+            if (!type.isEmpty())
                 product.setProductType(type);
         }
 
@@ -165,10 +164,10 @@ public class NetCDFReader extends AbstractProductReader {
             final int rank = variable.getRank();
             final int gridWidth = variable.getDimension(rank - 1).getLength();
             int gridHeight = variable.getDimension(rank - 2).getLength();
-            if(rank >= 3 && gridHeight <= 1)
+            if (rank >= 3 && gridHeight <= 1)
                 gridHeight = variable.getDimension(rank - 3).getLength();
             final TiePointGrid tpg = NetCDFUtils.createTiePointGrid(variable, gridWidth, gridHeight,
-                        product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
 
             product.addTiePointGrid(tpg);
         }
@@ -185,25 +184,25 @@ public class NetCDFReader extends AbstractProductReader {
     }
 
     public static boolean setMapGeoCoding(final NcRasterDim rasterDim, final Product product,
-                                       NetcdfFile netcdfFile, boolean yFlipped) {
+                                          NetcdfFile netcdfFile, boolean yFlipped) {
         final NcVariableMap varMap = NcVariableMap.create(netcdfFile);
 
-        Variable lonVar=null, latVar=null;
-        for(String lonStr : NetcdfConstants.LON_VAR_NAMES) {
+        Variable lonVar = null, latVar = null;
+        for (String lonStr : NetcdfConstants.LON_VAR_NAMES) {
             lonVar = varMap.get(lonStr);
-            if(lonVar != null)
+            if (lonVar != null)
                 break;
         }
-        for(String latStr : NetcdfConstants.LAT_VAR_NAMES) {
+        for (String latStr : NetcdfConstants.LAT_VAR_NAMES) {
             latVar = varMap.get(latStr);
-            if(latVar != null)
+            if (latVar != null)
                 break;
         }
         if (lonVar != null && latVar != null && rasterDim.fitsTo(lonVar, latVar)) {
             try {
                 final NetCDFUtils.MapInfoX mapInfoX = NetCDFUtils.createMapInfoX(lonVar, latVar,
-                                                                                 product.getSceneRasterWidth(),
-                                                                                 product.getSceneRasterHeight());
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight());
                 if (mapInfoX != null) {
                     yFlipped = mapInfoX.isYFlipped();
                     product.setGeoCoding(new MapGeoCoding(mapInfoX.getMapInfo()));
@@ -216,39 +215,39 @@ public class NetCDFReader extends AbstractProductReader {
     }
 
     public static void setTiePointGeoCoding(final Product product) {
-        TiePointGrid lonGrid=null, latGrid=null;
-        for(String lonStr : NetcdfConstants.LON_VAR_NAMES) {
+        TiePointGrid lonGrid = null, latGrid = null;
+        for (String lonStr : NetcdfConstants.LON_VAR_NAMES) {
             lonGrid = product.getTiePointGrid(lonStr);
-            if(lonGrid != null)
+            if (lonGrid != null)
                 break;
         }
-        for(String latStr : NetcdfConstants.LAT_VAR_NAMES) {
+        for (String latStr : NetcdfConstants.LAT_VAR_NAMES) {
             latGrid = product.getTiePointGrid(latStr);
-            if(latGrid != null)
+            if (latGrid != null)
                 break;
         }
-        if (latGrid != null && lonGrid != null) {       
+        if (latGrid != null && lonGrid != null) {
             final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
             product.setGeoCoding(tpGeoCoding);
         }
     }
 
     public static void setPixelGeoCoding(final Product product) throws IOException {
-        Band lonBand=null, latBand=null;
-        for(String lonStr : NetcdfConstants.LON_VAR_NAMES) {
+        Band lonBand = null, latBand = null;
+        for (String lonStr : NetcdfConstants.LON_VAR_NAMES) {
             lonBand = product.getBand(lonStr);
-            if(lonBand != null)
+            if (lonBand != null)
                 break;
         }
-        for(String latStr : NetcdfConstants.LAT_VAR_NAMES) {
+        for (String latStr : NetcdfConstants.LAT_VAR_NAMES) {
             latBand = product.getBand(latStr);
-            if(latBand != null)
+            if (latBand != null)
                 break;
         }
         if (latBand != null && lonBand != null) {
             product.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                     latBand.getValidPixelExpression(),
-                                                     5, ProgressMonitor.NULL));
+                    latBand.getValidPixelExpression(),
+                    5, ProgressMonitor.NULL));
         }
     }
 
@@ -257,9 +256,9 @@ public class NetCDFReader extends AbstractProductReader {
      */
     @Override
     protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
-                                          ProgressMonitor pm) throws IOException {
+                                                       int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                                                       int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+                                                       ProgressMonitor pm) throws IOException {
 
         Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
         Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
@@ -270,15 +269,15 @@ public class NetCDFReader extends AbstractProductReader {
 
         final Variable[] variables = variableMap.getAll();
         Variable variable = null;
-        for(Variable var : variables) {
-            if(destBand.getName().equalsIgnoreCase(var.getName()) ||
-               destBand.getName().equalsIgnoreCase(var.getShortName())) {
+        for (Variable var : variables) {
+            if (destBand.getName().equalsIgnoreCase(var.getName()) ||
+                    destBand.getName().equalsIgnoreCase(var.getShortName())) {
                 variable = var;
                 break;
             }
         }
-        if(variable == null) {
-            throw new IOException("Band "+destBand.getName()+" not found");
+        if (variable == null) {
+            throw new IOException("Band " + destBand.getName() + " not found");
         }
         final int rank = variable.getRank();
         final int[] origin = new int[rank];

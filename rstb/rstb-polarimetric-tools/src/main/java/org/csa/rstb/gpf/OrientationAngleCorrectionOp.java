@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,14 +42,14 @@ import java.util.Map;
  * Perform polarization orientation angle correction for given coherency matrix
  */
 
-@OperatorMetadata(alias="Orientation-Angle-Correction",
+@OperatorMetadata(alias = "Orientation-Angle-Correction",
         category = "Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description="Perform polarization orientation angle correction for given coherency matrix")
+        description = "Perform polarization orientation angle correction for given coherency matrix")
 public final class OrientationAngleCorrectionOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -57,8 +57,8 @@ public final class OrientationAngleCorrectionOp extends Operator {
     private PolBandUtils.QuadSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType;
 
-    private final static double PI4 = Math.PI/4.0;
-    private final static double PI2 = Math.PI/2.0;
+    private final static double PI4 = Math.PI / 4.0;
+    private final static double PI2 = Math.PI / 2.0;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -69,8 +69,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -83,7 +82,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -94,9 +93,9 @@ public final class OrientationAngleCorrectionOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         addSelectedBands();
 
@@ -107,6 +106,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
     /**
      * Add bands to the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void addSelectedBands() throws OperatorException {
@@ -124,7 +124,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
         //targetBandNameList.add("Ori_Ang");
 
         final String[] bandNames = targetBandNameList.toArray(new String[targetBandNameList.size()]);
-        for(PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
             final Band[] targetBands = PolBandUtils.addBands(targetProduct, bandNames, bandList.suffix);
             bandList.addTargetBands(targetBands);
         }
@@ -137,8 +137,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          if an error occurs during computation of the target rasters.
+     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
@@ -146,8 +145,8 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
             final int x0 = targetRectangle.x;
             final int y0 = targetRectangle.y;
-            final int w  = targetRectangle.width;
-            final int h  = targetRectangle.height;
+            final int w = targetRectangle.width;
+            final int h = targetRectangle.height;
             final int maxY = y0 + h;
             final int maxX = x0 + w;
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
@@ -161,7 +160,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
             final double[][] T4r = new double[4][4];
             final double[][] T4i = new double[4][4];
 
-            for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+            for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -172,9 +171,9 @@ public final class OrientationAngleCorrectionOp extends Operator {
                 final TileIndex trgIndex = new TileIndex(sourceTiles[0]);
 
                 double theta, t11, t12Re, t12Im, t13Re, t13Im, t22, t23Re, t23Im, t33, c, s, c2, s2, s4, cs;
-                for(int y = y0; y < maxY; ++y) {
+                for (int y = y0; y < maxY; ++y) {
                     trgIndex.calculateStride(y);
-                    for(int x = x0; x < maxX; ++x) {
+                    for (int x = x0; x < maxX; ++x) {
 
                         final int idx = trgIndex.getIndex(x);
 
@@ -200,44 +199,44 @@ public final class OrientationAngleCorrectionOp extends Operator {
                         }
 
                         theta = estimateOrientationAngle(T3r[1][2], T3r[1][1], T3r[2][2]);
-                        c = FastMath.cos(2*theta);
-                        s = FastMath.sin(2*theta);
-                        c2 = c*c;
-                        s2 = s*s;
-                        cs = c*s;
+                        c = FastMath.cos(2 * theta);
+                        s = FastMath.sin(2 * theta);
+                        c2 = c * c;
+                        s2 = s * s;
+                        cs = c * s;
 
                         t11 = T3r[0][0];
-                        t12Re = T3r[0][1]*c - T3r[0][2]*s;
-                        t12Im = T3i[0][1]*c - T3i[0][2]*s;
-                        t13Re = T3r[0][1]*s + T3r[0][2]*c;
-                        t13Im = T3i[0][1]*s + T3i[0][2]*c;
-                        t22 = T3r[1][1]*c2 + T3r[2][2]*s2 - 2*T3r[1][2]*cs;
-                        t23Re = T3r[1][2]*(c2 - s2) + (T3r[1][1] - T3r[2][2])*cs;
+                        t12Re = T3r[0][1] * c - T3r[0][2] * s;
+                        t12Im = T3i[0][1] * c - T3i[0][2] * s;
+                        t13Re = T3r[0][1] * s + T3r[0][2] * c;
+                        t13Im = T3i[0][1] * s + T3i[0][2] * c;
+                        t22 = T3r[1][1] * c2 + T3r[2][2] * s2 - 2 * T3r[1][2] * cs;
+                        t23Re = T3r[1][2] * (c2 - s2) + (T3r[1][1] - T3r[2][2]) * cs;
                         t23Im = T3i[1][2];
-                        t33 = T3r[1][1]*s2 + T3r[2][2]*c2 + 2*T3r[1][2]*cs;
+                        t33 = T3r[1][1] * s2 + T3r[2][2] * c2 + 2 * T3r[1][2] * cs;
 
-                        for (Band targetBand : bandList.targetBands){
+                        for (Band targetBand : bandList.targetBands) {
                             final String targetBandName = targetBand.getName();
                             final Tile targetTile = targetTiles.get(targetBand);
 
                             if (targetBandName.contains("T11")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t11);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t11);
                             } else if (targetBandName.contains("T12_real")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t12Re);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t12Re);
                             } else if (targetBandName.contains("T12_imag")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t12Im);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t12Im);
                             } else if (targetBandName.contains("T13_real")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t13Re);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t13Re);
                             } else if (targetBandName.contains("T13_imag")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t13Im);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t13Im);
                             } else if (targetBandName.contains("T22")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t22);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t22);
                             } else if (targetBandName.contains("T23_real")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t23Re);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t23Re);
                             } else if (targetBandName.contains("T23_imag")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t23Im);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t23Im);
                             } else if (targetBandName.contains("T33")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)t33);
+                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t33);
                             }
                             /*
                             else if (targetBandName.equals("Ori_Ang")) {
@@ -248,7 +247,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
                     }
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
@@ -257,9 +256,10 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
     /**
      * Compute polarization orientation angle.
+     *
      * @param t23Re Real part of the t23 element of coherency matrix
-     * @param t22 The t22 element of the coherency matrix
-     * @param t33 The t33 element of the coherency matrix
+     * @param t22   The t22 element of the coherency matrix
+     * @param t33   The t33 element of the coherency matrix
      * @return The polarization orientation angle in radian
      */
     private static double estimateOrientationAngle(final double t23Re, final double t22, final double t33) {
@@ -267,7 +267,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
             return 0.0;
         }
 
-        double theta = 0.25*(Math.atan2(2*t23Re, t33 - t22) + Math.PI);
+        double theta = 0.25 * (Math.atan2(2 * t23Re, t33 - t22) + Math.PI);
         if (theta > PI4) {
             theta -= PI2;
         }
@@ -279,6 +279,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

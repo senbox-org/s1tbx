@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -151,7 +151,7 @@ public class TestConvertDataTypeOperator extends TestCase {
     private double[] convert(final String targetType, final String scaling) throws Exception {
         final Product sourceProduct = createTestProduct(width, height, 100000, 500000);
 
-        final ConvertDataTypeOp op = (ConvertDataTypeOp)spi.createOperator();
+        final ConvertDataTypeOp op = (ConvertDataTypeOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
         op.setTargetDataType(targetType);
@@ -165,7 +165,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertNotNull(band);
 
         // readPixels: execute computeTiles()
-        final double[] values = new double[width*height];
+        final double[] values = new double[width * height];
         band.readPixels(0, 0, width, height, values, ProgressMonitor.NULL);
 
         //outputValues(band.getName() + " op values:", values);
@@ -175,7 +175,7 @@ public class TestConvertDataTypeOperator extends TestCase {
 
     private static void outputValues(final String title, final double[] values) {
         System.out.println(title);
-        for(double v : values) {
+        for (double v : values) {
             System.out.print(v + ", ");
         }
         System.out.println();
@@ -183,8 +183,9 @@ public class TestConvertDataTypeOperator extends TestCase {
 
     /**
      * Creates a new product
-     * @param w width
-     * @param h height
+     *
+     * @param w   width
+     * @param h   height
      * @param min minimum value
      * @param max maximum value
      * @return the created product
@@ -196,9 +197,9 @@ public class TestConvertDataTypeOperator extends TestCase {
         // create a Band: band1
         final Band band1 = testProduct.addBand("band1", ProductData.TYPE_FLOAT64);
         band1.setUnit(Unit.AMPLITUDE);
-        final int range = w*h;
+        final int range = w * h;
         final double[] values = new double[range];
-        final double slope = (max-min) / range;
+        final double slope = (max - min) / range;
         for (int i = 0; i < range; i++) {
             values[i] = i * slope + min;
         }

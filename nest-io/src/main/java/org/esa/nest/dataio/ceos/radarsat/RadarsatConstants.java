@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,10 +26,10 @@ public class RadarsatConstants implements CEOSConstants {
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
     private static final String PLUGIN_DESCRIPTION = "RADARSAT-1 CEOS Products";      /*I18N*/
 
-    private final static String[] VOLUME_FILE_PREFIX = { "VDF", "VOL" };
-    private static final String[] LEADER_FILE_PREFIX = { "LEA", "SARL" };
-    private static final String[] IMAGE_FILE_PREFIX = { "DAT", "IM", "SARD" };
-    private static final String[] TRAILER_FILE_PREFIX = { "TR", "SART" };
+    private final static String[] VOLUME_FILE_PREFIX = {"VDF", "VOL"};
+    private static final String[] LEADER_FILE_PREFIX = {"LEA", "SARL"};
+    private static final String[] IMAGE_FILE_PREFIX = {"DAT", "IM", "SARD"};
+    private static final String[] TRAILER_FILE_PREFIX = {"TR", "SART"};
 
     private final static String MISSION = "radarsat";
 

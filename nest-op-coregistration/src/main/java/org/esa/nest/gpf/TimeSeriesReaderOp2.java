@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -48,11 +48,10 @@ import java.io.IOException;
  *        &lt;/parameters&gt;
  *    &lt;/node&gt;
  * </pre>
- *
  */
 @OperatorMetadata(alias = "Time-Series-Reader",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Reads a list of products from disk and produces a stack.")
 public class TimeSeriesReaderOp2 extends Operator {
 
@@ -88,7 +87,7 @@ public class TimeSeriesReaderOp2 extends Operator {
         Rectangle rectangle = targetTile.getRectangle();
         try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
-                                          rectangle.height, dataBuffer, pm);
+                    rectangle.height, dataBuffer, pm);
             targetTile.setRawSamples(dataBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);

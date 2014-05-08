@@ -94,10 +94,10 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
 
     @Override
     public File getDemInstallDir() {
-        if(demInstallDir == null) {
+        if (demInstallDir == null) {
             final String path = Settings.instance().get("DEM/Getasse30DEMDataPath");
             demInstallDir = new File(path);
-            if(!demInstallDir.exists())
+            if (!demInstallDir.exists())
                 demInstallDir.mkdirs();
         }
         return demInstallDir;
@@ -125,7 +125,7 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
 
     @Override
     public ElevationModel createDem(Resampling resampling) {
-       return new GETASSE30ElevationModel(this, resampling);
+        return new GETASSE30ElevationModel(this, resampling);
     }
 
     public File getTileFile(int minLon, int minLat) {

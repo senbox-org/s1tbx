@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,20 +42,20 @@ import java.util.Map;
  * Generate polarimetric covariance or coherency matrix for a given full pol product
  */
 
-@OperatorMetadata(alias="Polarimetric-Matrices",
+@OperatorMetadata(alias = "Polarimetric-Matrices",
         category = "Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description="Generates covariance or coherency matrix for given product")
+        description = "Generates covariance or coherency matrix for given product")
 public final class PolarimetricMatricesOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(valueSet = {C3, C4, T3, T4}, description = "The covariance or coherency matrix",
-               defaultValue=T3, label="Polarimetric Matrix")
+            defaultValue = T3, label = "Polarimetric Matrix")
     private String matrix = T3;
 
     private PolBandUtils.QuadSourceBand[] srcBandList;
@@ -70,6 +70,7 @@ public final class PolarimetricMatricesOp extends Operator {
 
     /**
      * Set matrix type. This function is used by unit test only.
+     *
      * @param s The matrix type.
      */
     public void SetMatrixType(final String s) {
@@ -90,8 +91,7 @@ public final class PolarimetricMatricesOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -104,7 +104,7 @@ public final class PolarimetricMatricesOp extends Operator {
             createTargetProduct();
 
             updateTargetProductMetadata();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -115,9 +115,9 @@ public final class PolarimetricMatricesOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         addSelectedBands();
 
@@ -126,6 +126,7 @@ public final class PolarimetricMatricesOp extends Operator {
 
     /**
      * Add bands to the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void addSelectedBands() throws OperatorException {
@@ -155,7 +156,7 @@ public final class PolarimetricMatricesOp extends Operator {
             throw new OperatorException("Unknown matrix type: " + matrix);
         }
 
-        for(PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
             final Band[] targetBands = PolBandUtils.addBands(targetProduct, bandNames, bandList.suffix);
             bandList.addTargetBands(targetBands);
         }
@@ -165,41 +166,41 @@ public final class PolarimetricMatricesOp extends Operator {
 
     private void mapMatrixElemToBands() {
         final Band[] bands = targetProduct.getBands();
-        for (Band band : bands){
+        for (Band band : bands) {
             final String targetBandName = band.getName();
 
             if (targetBandName.contains("11")) {
-                matrixBandMap.put(band, new MatrixElem(0,0, false));
+                matrixBandMap.put(band, new MatrixElem(0, 0, false));
             } else if (targetBandName.contains("12_real")) {
-                matrixBandMap.put(band, new MatrixElem(0,1, false));
+                matrixBandMap.put(band, new MatrixElem(0, 1, false));
             } else if (targetBandName.contains("12_imag")) {
-                matrixBandMap.put(band, new MatrixElem(0,1, true));
+                matrixBandMap.put(band, new MatrixElem(0, 1, true));
             } else if (targetBandName.contains("13_real")) {
-                matrixBandMap.put(band, new MatrixElem(0,2, false));
+                matrixBandMap.put(band, new MatrixElem(0, 2, false));
             } else if (targetBandName.contains("13_imag")) {
-                matrixBandMap.put(band, new MatrixElem(0,2, true));
+                matrixBandMap.put(band, new MatrixElem(0, 2, true));
             } else if (targetBandName.contains("14_real")) {
-                matrixBandMap.put(band, new MatrixElem(0,3, false));
+                matrixBandMap.put(band, new MatrixElem(0, 3, false));
             } else if (targetBandName.contains("14_imag")) {
-                matrixBandMap.put(band, new MatrixElem(0,3, true));
+                matrixBandMap.put(band, new MatrixElem(0, 3, true));
             } else if (targetBandName.contains("22")) {
-                matrixBandMap.put(band, new MatrixElem(1,1, false));
+                matrixBandMap.put(band, new MatrixElem(1, 1, false));
             } else if (targetBandName.contains("23_real")) {
-                matrixBandMap.put(band, new MatrixElem(1,2, false));
+                matrixBandMap.put(band, new MatrixElem(1, 2, false));
             } else if (targetBandName.contains("23_imag")) {
-                matrixBandMap.put(band, new MatrixElem(1,2, true));
+                matrixBandMap.put(band, new MatrixElem(1, 2, true));
             } else if (targetBandName.contains("24_real")) {
-                matrixBandMap.put(band, new MatrixElem(1,3, false));
+                matrixBandMap.put(band, new MatrixElem(1, 3, false));
             } else if (targetBandName.contains("24_imag")) {
-                matrixBandMap.put(band, new MatrixElem(1,3, true));
+                matrixBandMap.put(band, new MatrixElem(1, 3, true));
             } else if (targetBandName.contains("33")) {
-                matrixBandMap.put(band, new MatrixElem(2,2, false));
+                matrixBandMap.put(band, new MatrixElem(2, 2, false));
             } else if (targetBandName.contains("34_real")) {
-                matrixBandMap.put(band, new MatrixElem(2,3, false));
+                matrixBandMap.put(band, new MatrixElem(2, 3, false));
             } else if (targetBandName.contains("34_imag")) {
-                matrixBandMap.put(band, new MatrixElem(2,3, true));
+                matrixBandMap.put(band, new MatrixElem(2, 3, true));
             } else if (targetBandName.contains("44")) {
-                matrixBandMap.put(band, new MatrixElem(3,3, false));
+                matrixBandMap.put(band, new MatrixElem(3, 3, false));
             }
         }
     }
@@ -209,7 +210,7 @@ public final class PolarimetricMatricesOp extends Operator {
      */
     private void updateTargetProductMetadata() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        
+
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
 
         // Save new slave band names
@@ -223,8 +224,7 @@ public final class PolarimetricMatricesOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          if an error occurs during computation of the target rasters.
+     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
@@ -249,12 +249,12 @@ public final class PolarimetricMatricesOp extends Operator {
             tempIm = new double[4][4];
         }
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
             try {
                 // save tile data for quicker access
                 final TileData[] tileDataList = new TileData[bandList.targetBands.length];
                 int i = 0;
-                for (Band targetBand : bandList.targetBands){
+                for (Band targetBand : bandList.targetBands) {
                     final Tile targetTile = targetTiles.get(targetBand);
                     final MatrixElem elem = matrixBandMap.get(targetBand);
 
@@ -290,12 +290,12 @@ public final class PolarimetricMatricesOp extends Operator {
                             PolOpUtils.computeCoherencyMatrixT4(Sr, Si, tempRe, tempIm);
                         }
 
-                        for (final TileData tileData : tileDataList){
+                        for (final TileData tileData : tileDataList) {
 
-                            if(tileData.elem.isImaginary) {
-                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float)tempIm[tileData.elem.i][tileData.elem.j]);
+                            if (tileData.elem.isImaginary) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) tempIm[tileData.elem.i][tileData.elem.j]);
                             } else {
-                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float)tempRe[tileData.elem.i][tileData.elem.j]);
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) tempRe[tileData.elem.i][tileData.elem.j]);
                             }
                         }
                     }
@@ -326,7 +326,7 @@ public final class PolarimetricMatricesOp extends Operator {
                     }
                 }*/
 
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 OperatorUtils.catchOperatorException(getId(), e);
             }
         }
@@ -336,6 +336,7 @@ public final class PolarimetricMatricesOp extends Operator {
         public final int i;
         public final int j;
         public final boolean isImaginary;
+
         MatrixElem(final int i, final int j, final boolean isImaginary) {
             this.i = i;
             this.j = j;
@@ -360,6 +361,7 @@ public final class PolarimetricMatricesOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

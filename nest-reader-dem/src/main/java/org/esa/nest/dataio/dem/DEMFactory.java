@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,9 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.TileGeoreferencing;
-import org.jlinda.core.*;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 
 import java.util.Arrays;
 
@@ -39,22 +41,22 @@ public class DEMFactory {
 
     private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
     private static final String[] demNameList = new String[descriptors.length];
-    private static final String[] demResamplingList = new String[ResamplingFactory.resamplingNames.length +1];
+    private static final String[] demResamplingList = new String[ResamplingFactory.resamplingNames.length + 1];
 
     static {
         for (int i = 0; i < descriptors.length; i++) {
             demNameList[i] = DEMFactory.appendAutoDEM(descriptors[i].getName());
         }
 
-        int i=0;
-        for(String resampleName : ResamplingFactory.resamplingNames) {
+        int i = 0;
+        for (String resampleName : ResamplingFactory.resamplingNames) {
             demResamplingList[i++] = resampleName;
         }
         demResamplingList[i] = DELAUNAY_INTERPOLATION;
     }
 
     public static String[] getDEMNameList() {
-        return  demNameList;
+        return demNameList;
     }
 
     public static String[] getDEMResamplingMethods() {
@@ -78,11 +80,11 @@ public class DEMFactory {
         }
 
         Resampling resampleMethod = null;
-        if(!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
+        if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
             resampleMethod = ResamplingFactory.createResampling(demResamplingMethod);
 
         final ElevationModel dem = demDescriptor.createDem(resampleMethod);
-        if(dem == null) {
+        if (dem == null) {
             throw new OperatorException("The DEM '" + demName + "' has not been installed.");
         }
         return dem;
@@ -97,24 +99,24 @@ public class DEMFactory {
         }
 
         if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-            if(!demDescriptor.installDemFiles(VisatApp.getApp())) {
-                throw new OperatorException("DEM "+ demName +" must be installed first");
+            if (!demDescriptor.installDemFiles(VisatApp.getApp())) {
+                throw new OperatorException("DEM " + demName + " must be installed first");
             }
         }
     }
 
     public static void validateDEM(final String demName, final Product srcProduct) {
         // check if outside dem area
-        if(demName.contains("SRTM")) {
+        if (demName.contains("SRTM")) {
             final GeoCoding geocoding = srcProduct.getGeoCoding();
             final int w = srcProduct.getSceneRasterWidth();
             final int h = srcProduct.getSceneRasterHeight();
-            final GeoPos geo1 = geocoding.getGeoPos(new PixelPos(0,0), null);
-            final GeoPos geo2 = geocoding.getGeoPos(new PixelPos(w,0), null);
-            final GeoPos geo3 = geocoding.getGeoPos(new PixelPos(w,h), null);
+            final GeoPos geo1 = geocoding.getGeoPos(new PixelPos(0, 0), null);
+            final GeoPos geo2 = geocoding.getGeoPos(new PixelPos(w, 0), null);
+            final GeoPos geo3 = geocoding.getGeoPos(new PixelPos(w, h), null);
             final GeoPos geo4 = geocoding.getGeoPos(new PixelPos(0, h), null);
 
-            if((geo1.getLat() > 60 && geo2.getLat() > 60 && geo3.getLat() > 60 && geo4.getLat() > 60) ||
+            if ((geo1.getLat() > 60 && geo2.getLat() > 60 && geo3.getLat() > 60 && geo4.getLat() > 60) ||
                     (geo1.getLat() < -60 && geo2.getLat() < -60 && geo3.getLat() < -60 && geo4.getLat() < -60)) {
                 throw new OperatorException("Entire image is outside of SRTM valid area.\nPlease use another DEM.");
             }
@@ -128,7 +130,7 @@ public class DEMFactory {
     }
 
     public static String appendAutoDEM(String demName) {
-        if(demName.equals("GETASSE30") || demName.equals("SRTM 3Sec") || demName.equals("ACE2_5Min")
+        if (demName.equals("GETASSE30") || demName.equals("SRTM 3Sec") || demName.equals("ACE2_5Min")
                 || demName.equals("ACE30"))
             demName += AUTODEM;
         return demName;
@@ -136,14 +138,15 @@ public class DEMFactory {
 
     /**
      * Read DEM for current tile.
-     * @param dem the model
+     *
+     * @param dem            the model
      * @param demNoDataValue the no data value of the dem
-     * @param tileGeoRef the georeferencing of the target product
-     * @param x0 The x coordinate of the pixel at the upper left corner of current tile.
-     * @param y0 The y coordinate of the pixel at the upper left corner of current tile.
-     * @param tileHeight The tile height.
-     * @param tileWidth The tile width.
-     * @param localDEM The DEM for the tile.
+     * @param tileGeoRef     the georeferencing of the target product
+     * @param x0             The x coordinate of the pixel at the upper left corner of current tile.
+     * @param y0             The y coordinate of the pixel at the upper left corner of current tile.
+     * @param tileHeight     The tile height.
+     * @param tileWidth      The tile width.
+     * @param localDEM       The DEM for the tile.
      * @return true if all dem values are valid
      * @throws Exception from DEM
      */
@@ -156,7 +159,7 @@ public class DEMFactory {
                                       final boolean nodataValueAtSea,
                                       final double[][] localDEM) throws Exception {
 
-        if(demResamplingMethod != null && demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
+        if (demResamplingMethod != null && demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
             return getLocalDEMUsingDelaunayInterpolation(
                     dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, sourceProduct, localDEM);
         }
@@ -191,7 +194,7 @@ public class DEMFactory {
                     alt = EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon);
                 }
 
-                if(!valid && alt != demNoDataValue) {
+                if (!valid && alt != demNoDataValue) {
                     valid = true;
                 }
 
@@ -212,28 +215,28 @@ public class DEMFactory {
         final int maxY = y0 + tileHeight + 1;
         final int maxX = x0 + tileWidth + 1;
         final PixelPos pixelPos = new PixelPos();
-        final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0-1, y0 + tileHeight, x0-1, x0 + tileWidth);
+        final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0 - 1, y0 + tileHeight, x0 - 1, x0 + tileWidth);
 
         final GeoPos tgtUL = new GeoPos();
         final GeoPos tgtUR = new GeoPos();
         final GeoPos tgtLL = new GeoPos();
         final GeoPos tgtLR = new GeoPos();
 
-        tileGeoRef.getGeoPos(x0-1, y0-1, tgtUL);
-        tileGeoRef.getGeoPos(x0+tileWidth, y0-1, tgtUR);
-        tileGeoRef.getGeoPos(x0-1, y0+tileHeight, tgtLL);
-        tileGeoRef.getGeoPos(x0+tileWidth, y0+tileHeight, tgtLR);
+        tileGeoRef.getGeoPos(x0 - 1, y0 - 1, tgtUL);
+        tileGeoRef.getGeoPos(x0 + tileWidth, y0 - 1, tgtUR);
+        tileGeoRef.getGeoPos(x0 - 1, y0 + tileHeight, tgtLL);
+        tileGeoRef.getGeoPos(x0 + tileWidth, y0 + tileHeight, tgtLR);
 
         final double latMin = Math.min(Math.min(Math.min(tgtUL.lat, tgtUR.lat), tgtLL.lat), tgtLR.lat);
         final double latMax = Math.max(Math.max(Math.max(tgtUL.lat, tgtUR.lat), tgtLL.lat), tgtLR.lat);
         final double lonMin = Math.min(Math.min(Math.min(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
         final double lonMax = Math.max(Math.max(Math.max(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
 
-        final GeoPos upperLeftCorner = new GeoPos((float)latMax, (float)lonMin);
-        final GeoPos lowerRightCorner = new GeoPos((float)latMin, (float)lonMax);
+        final GeoPos upperLeftCorner = new GeoPos((float) latMax, (float) lonMin);
+        final GeoPos lowerRightCorner = new GeoPos((float) latMin, (float) lonMax);
 
         GeoPos[] geoCorners = {upperLeftCorner, lowerRightCorner};
-        final GeoPos geoExtent = new GeoPos((float)(0.25*(latMax - latMin)), (float)(0.25*(lonMax - lonMin)));
+        final GeoPos geoExtent = new GeoPos((float) (0.25 * (latMax - latMin)), (float) (0.25 * (lonMax - lonMin)));
 
         /* inline of extendCorners call: avoiding ambiguous dependencies GeoPos vs GeoPoint */
         // geoCorners = extendCorners(geoExtent, geoCorners);
@@ -279,7 +282,7 @@ public class DEMFactory {
             final int endY = startY + nLatPixels;
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
-                    pos.setLocation(x+0.5f,y+0.5f);
+                    pos.setLocation(x + 0.5f, y + 0.5f);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
@@ -302,12 +305,12 @@ public class DEMFactory {
             y_in = new double[nLatPixels][nLonPixels];
             z_in = new double[nLatPixels][nLonPixels];
             final int startX = (int) upperLeftCornerPos.x;
-            final int endX = (int)endPixelPos.x;
+            final int endX = (int) endPixelPos.x;
             final int startY = (int) upperLeftCornerPos.y;
             final int endY = startY + nLatPixels;
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
-                    pos.setLocation(x+0.5f,y+0.5f);
+                    pos.setLocation(x + 0.5f, y + 0.5f);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
@@ -323,8 +326,8 @@ public class DEMFactory {
             }
 
             for (int y = startY, i = 0; y < endY; y++, i++) {
-                for (int x = 0, j = endX - startX; x < (int)lowerRightCornerPos.x; x++, j++) {
-                    pos.setLocation(x+0.5f,y+0.5f);
+                for (int x = 0, j = endX - startX; x < (int) lowerRightCornerPos.x; x++, j++) {
+                    pos.setLocation(x + 0.5f, y + 0.5f);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
@@ -365,8 +368,8 @@ public class DEMFactory {
         for (int y = y0 - 1; y < maxY; y++) {
             final int yy = y - y0 + 1;
             for (int x = x0 - 1; x < maxX; x++) {
-                alt = (float)elevation[yy][x - x0 + 1];
-                if(!valid && alt != demNoDataValue)
+                alt = (float) elevation[yy][x - x0 + 1];
+                if (!valid && alt != demNoDataValue)
                     valid = true;
                 localDEM[yy][x - x0 + 1] = alt;
             }

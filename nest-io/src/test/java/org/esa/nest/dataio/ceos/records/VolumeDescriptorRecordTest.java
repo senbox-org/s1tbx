@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -136,15 +136,15 @@ public class VolumeDescriptorRecordTest extends TestCase {
         assertEquals("bcdefghijklm", record.getAttributeString("Software version number"));
         assertEquals("cdefghijklmnopqr", record.getAttributeString("Logical volume ID"));
         assertEquals("defghijklmnopqrs", record.getAttributeString("Volume set ID"));
-        assertEquals(12, (int)record.getAttributeInt("Volume number of this volume descriptor record"));
-        assertEquals(2345, (int)record.getAttributeInt("Number of first file following the volume directory file"));
-        assertEquals(3456, (int)record.getAttributeInt("Logical volume number in volume set"));
+        assertEquals(12, (int) record.getAttributeInt("Volume number of this volume descriptor record"));
+        assertEquals(2345, (int) record.getAttributeInt("Number of first file following the volume directory file"));
+        assertEquals(3456, (int) record.getAttributeInt("Logical volume number in volume set"));
         assertEquals("efghijkl", record.getAttributeString("Logical volume preparation date"));
         assertEquals("fghijklm", record.getAttributeString("Logical volume preparation time"));
         assertEquals("ghijklmnopqr", record.getAttributeString("Logical volume preparation country"));
         assertEquals("hijklmno", record.getAttributeString("Logical volume preparing agency"));
         assertEquals("ijklmnopqrst", record.getAttributeString("Logical volume preparing facility"));
-        assertEquals(4567, (int)record.getAttributeInt("Number of filepointer records"));
-        assertEquals(5678, (int)record.getAttributeInt("Number of records"));
+        assertEquals(4567, (int) record.getAttributeInt("Number of filepointer records"));
+        assertEquals(5678, (int) record.getAttributeInt("Number of records"));
     }
 }

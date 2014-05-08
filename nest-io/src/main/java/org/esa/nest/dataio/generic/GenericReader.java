@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,7 +39,6 @@ import java.nio.ByteOrder;
 
 /**
  * The product reader for ImageIO products.
- *
  */
 public class GenericReader extends AbstractProductReader {
 
@@ -53,7 +52,7 @@ public class GenericReader extends AbstractProductReader {
     private final int _startPosImageRecords = 0;
     private int _imageHeaderLength = 0;
     private ImageInputStream imageInputStream = null;
-    
+
     private BinaryFileReader binaryReader = null;
 
     /**
@@ -63,7 +62,7 @@ public class GenericReader extends AbstractProductReader {
      *                     implementations
      */
     public GenericReader(final ProductReaderPlugIn readerPlugIn) {
-       super(readerPlugIn);
+        super(readerPlugIn);
     }
 
     /**
@@ -76,7 +75,7 @@ public class GenericReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        if(VisatApp.getApp() != null) {
+        if (VisatApp.getApp() != null) {
             //if in DAT then open options dialog
             final GenericBinaryDialog dialog = new GenericBinaryDialog(VisatApp.getApp().getMainFrame(), "importGenericBinary");
             if (dialog.show() == ModalDialog.ID_OK) {
@@ -95,13 +94,13 @@ public class GenericReader extends AbstractProductReader {
         final File inputFile = ReaderUtils.getFileFromInput(getInput());
 
         final Product product = new Product(inputFile.getName(),
-                                            "Generic",
-                                            rasterWidth, rasterHeight);
+                "Generic",
+                rasterWidth, rasterHeight);
         product.setFileLocation(inputFile);
-        
+
         int bandCnt = 1;
-        for(int b=0; b < numBands; ++b) {
-            final Band band = new Band("band"+ bandCnt++, dataType, rasterWidth, rasterHeight);
+        for (int b = 0; b < numBands; ++b) {
+            final Band band = new Band("band" + bandCnt++, dataType, rasterWidth, rasterHeight);
             product.addBand(band);
         }
 
@@ -156,19 +155,19 @@ public class GenericReader extends AbstractProductReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
 
-            readBandRasterData(sourceOffsetX,sourceOffsetY,
-                               sourceWidth, sourceHeight,
-                               sourceStepX, sourceStepY,
-                               _startPosImageRecords +_imageHeaderLength, imageInputStream,
-                               destBand, destWidth, destBuffer, pm);
+        readBandRasterData(sourceOffsetX, sourceOffsetY,
+                sourceWidth, sourceHeight,
+                sourceStepX, sourceStepY,
+                _startPosImageRecords + _imageHeaderLength, imageInputStream,
+                destBand, destWidth, destBuffer, pm);
     }
 
     private static void readBandRasterData(final int sourceOffsetX, final int sourceOffsetY,
-                                          final int sourceWidth, final int sourceHeight,
-                                          final int sourceStepX, final int sourceStepY,
-                                          final long bandOffset, final ImageInputStream imageInputStream,
-                                          final Band destBand, final int destWidth,  final ProductData destBuffer,
-                                          final ProgressMonitor pm) throws IOException {
+                                           final int sourceWidth, final int sourceHeight,
+                                           final int sourceStepX, final int sourceStepY,
+                                           final long bandOffset, final ImageInputStream imageInputStream,
+                                           final Band destBand, final int destWidth, final ProductData destBuffer,
+                                           final ProgressMonitor pm) throws IOException {
 
         final int sourceMinX = sourceOffsetX;
         final int sourceMinY = sourceOffsetY;
@@ -208,11 +207,11 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataIntSLC(final int sourceOffsetX, final int sourceOffsetY,
-                                          final int sourceWidth, final int sourceHeight,
-                                          final int sourceStepX, final int sourceStepY,
-                                          final long bandOffset, boolean oneOf2, final ImageInputStream imageInputStream,
-                                          final Band destBand, final int destWidth,  final ProductData destBuffer,
-                                          final ProgressMonitor pm) throws IOException {
+                                                final int sourceWidth, final int sourceHeight,
+                                                final int sourceStepX, final int sourceStepY,
+                                                final long bandOffset, boolean oneOf2, final ImageInputStream imageInputStream,
+                                                final Band destBand, final int destWidth, final ProductData destBuffer,
+                                                final ProgressMonitor pm) throws IOException {
 
         final int sourceMinX = sourceOffsetX;
         final int sourceMinY = sourceOffsetY;
@@ -256,12 +255,12 @@ public class GenericReader extends AbstractProductReader {
 
 
     public static void readBandRasterDataShort(final int sourceOffsetX, final int sourceOffsetY,
-                                        final int sourceWidth, final int sourceHeight,
-                                        final int sourceStepX, final int sourceStepY,
-                                        final int imageStartOffset, int imageRecordLength,
-                                        final int destWidth, final ProductData destBuffer,
-                                        final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                        throws IOException {
+                                               final int sourceWidth, final int sourceHeight,
+                                               final int sourceStepX, final int sourceStepY,
+                                               final int imageStartOffset, int imageRecordLength,
+                                               final int destWidth, final ProductData destBuffer,
+                                               final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 2;
         final long xpos = imageStartOffset + x;
@@ -282,7 +281,7 @@ public class GenericReader extends AbstractProductReader {
                     binaryReader.seek(imageRecordLength * y + xpos);
                     binaryReader.read(srcLine);
                 }
-                
+
                 // Copy source line into destination buffer
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                 if (sourceStepX == 1) {
@@ -303,12 +302,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataUShort(final int sourceOffsetX, final int sourceOffsetY,
-                                        final int sourceWidth, final int sourceHeight,
-                                        final int sourceStepX, final int sourceStepY,
-                                        final int imageStartOffset, int imageRecordLength,
-                                        final int destWidth, final ProductData destBuffer,
-                                        final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                        throws IOException {
+                                                final int sourceWidth, final int sourceHeight,
+                                                final int sourceStepX, final int sourceStepY,
+                                                final int imageStartOffset, int imageRecordLength,
+                                                final int destWidth, final ProductData destBuffer,
+                                                final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 4;
         final long xpos = imageStartOffset + x;
@@ -349,12 +348,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataByte(final int sourceOffsetX, final int sourceOffsetY,
-                                       final int sourceWidth, final int sourceHeight,
-                                       final int sourceStepX, final int sourceStepY,
-                                       final int imageStartOffset, int imageRecordLength,
-                                       final int destWidth, final ProductData destBuffer,
-                                       final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                       throws IOException {
+                                              final int sourceWidth, final int sourceHeight,
+                                              final int sourceStepX, final int sourceStepY,
+                                              final int imageStartOffset, int imageRecordLength,
+                                              final int destWidth, final ProductData destBuffer,
+                                              final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 1;
         final long xpos = imageStartOffset + x;
@@ -396,13 +395,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataUByte(final int sourceOffsetX, final int sourceOffsetY,
-                                              final int sourceWidth, final int sourceHeight,
-                                              final int sourceStepX, final int sourceStepY,
-                                              final int imageStartOffset, int imageRecordLength,
-                                              final int destWidth, final ProductData destBuffer,
-                                              final BinaryFileReader binaryReader, final ProgressMonitor pm)
-            throws IOException, IllegalBinaryFormatException
-    {
+                                               final int sourceWidth, final int sourceHeight,
+                                               final int sourceStepX, final int sourceStepY,
+                                               final int imageStartOffset, int imageRecordLength,
+                                               final int destWidth, final ProductData destBuffer,
+                                               final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException, IllegalBinaryFormatException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 2;
         final long xpos = imageStartOffset + x;
@@ -422,8 +420,8 @@ public class GenericReader extends AbstractProductReader {
                 synchronized (binaryReader) {
                     binaryReader.seek(imageRecordLength * y + xpos);
                     //binaryReader.read(srcLine);
-                    for(int i=0; i < sourceWidth; ++i) {
-                        srcLine[i] = (byte)binaryReader.readUB1();
+                    for (int i = 0; i < sourceWidth; ++i) {
+                        srcLine[i] = (byte) binaryReader.readUB1();
                     }
                 }
 
@@ -453,7 +451,7 @@ public class GenericReader extends AbstractProductReader {
                                              final int imageStartOffset, int imageRecordLength,
                                              final int destWidth, final ProductData destBuffer,
                                              final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                             throws IOException {
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 4;
         final long xpos = imageStartOffset + x;
@@ -495,12 +493,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataFloat(final int sourceOffsetX, final int sourceOffsetY,
-                                             final int sourceWidth, final int sourceHeight,
-                                             final int sourceStepX, final int sourceStepY,
-                                             final int imageStartOffset, int imageRecordLength,
-                                             final int destWidth, final ProductData destBuffer,
-                                             final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                             throws IOException {
+                                               final int sourceWidth, final int sourceHeight,
+                                               final int sourceStepX, final int sourceStepY,
+                                               final int imageStartOffset, int imageRecordLength,
+                                               final int destWidth, final ProductData destBuffer,
+                                               final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 4;
         final long xpos = imageStartOffset + x;
@@ -542,12 +540,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataLong(final int sourceOffsetX, final int sourceOffsetY,
-                                             final int sourceWidth, final int sourceHeight,
-                                             final int sourceStepX, final int sourceStepY,
-                                             final int imageStartOffset, int imageRecordLength,
-                                             final int destWidth, final ProductData destBuffer,
-                                             final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                             throws IOException {
+                                              final int sourceWidth, final int sourceHeight,
+                                              final int sourceStepX, final int sourceStepY,
+                                              final int imageStartOffset, int imageRecordLength,
+                                              final int destWidth, final ProductData destBuffer,
+                                              final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 8;
         final long xpos = imageStartOffset + x;
@@ -589,12 +587,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataDouble(final int sourceOffsetX, final int sourceOffsetY,
-                                             final int sourceWidth, final int sourceHeight,
-                                             final int sourceStepX, final int sourceStepY,
-                                             final int imageStartOffset, int imageRecordLength,
-                                             final int destWidth, final ProductData destBuffer,
-                                             final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                             throws IOException {
+                                                final int sourceWidth, final int sourceHeight,
+                                                final int sourceStepX, final int sourceStepY,
+                                                final int imageStartOffset, int imageRecordLength,
+                                                final int destWidth, final ProductData destBuffer,
+                                                final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 8;
         final long xpos = imageStartOffset + x;
@@ -636,12 +634,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataSLCShort(final int sourceOffsetX, final int sourceOffsetY,
-                                      final int sourceWidth, final int sourceHeight,
-                                      final int sourceStepX, final int sourceStepY,
-                                      final int imageStartOffset, int imageRecordLength,
-                                      final int destWidth, final ProductData destBuffer, boolean oneOf2,
-                                      final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                        throws IOException {
+                                                  final int sourceWidth, final int sourceHeight,
+                                                  final int sourceStepX, final int sourceStepY,
+                                                  final int imageStartOffset, int imageRecordLength,
+                                                  final int destWidth, final ProductData destBuffer, boolean oneOf2,
+                                                  final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 4;
         final long xpos = imageStartOffset + x;
@@ -679,12 +677,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataSLCFloat(final int sourceOffsetX, final int sourceOffsetY,
-                                           final int sourceWidth, final int sourceHeight,
-                                           final int sourceStepX, final int sourceStepY,
-                                           final int imageStartOffset, int imageRecordLength,
-                                           final int destWidth, final ProductData destBuffer, boolean oneOf2,
-                                           final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                            throws IOException {
+                                                  final int sourceWidth, final int sourceHeight,
+                                                  final int sourceStepX, final int sourceStepY,
+                                                  final int imageStartOffset, int imageRecordLength,
+                                                  final int destWidth, final ProductData destBuffer, boolean oneOf2,
+                                                  final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 8;
         final long xpos = imageStartOffset + x;
@@ -722,12 +720,12 @@ public class GenericReader extends AbstractProductReader {
     }
 
     public static void readBandRasterDataSLCByte(final int sourceOffsetX, final int sourceOffsetY,
-                                          final int sourceWidth, final int sourceHeight,
-                                          final int sourceStepX, final int sourceStepY,
-                                          final int imageStartOffset, int imageRecordLength,
-                                          final int destWidth, final ProductData destBuffer, boolean oneOf2,
-                                          final BinaryFileReader binaryReader, final ProgressMonitor pm)
-                                          throws IOException {
+                                                 final int sourceWidth, final int sourceHeight,
+                                                 final int sourceStepX, final int sourceStepY,
+                                                 final int imageStartOffset, int imageRecordLength,
+                                                 final int destWidth, final ProductData destBuffer, boolean oneOf2,
+                                                 final BinaryFileReader binaryReader, final ProgressMonitor pm)
+            throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 2;
         final long xpos = imageStartOffset + x;
@@ -784,7 +782,7 @@ public class GenericReader extends AbstractProductReader {
 
     private static void copyLine(final char[] srcLine, final short[] destLine, final int sourceStepX) {
         for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = (short)srcLine[i];
+            destLine[x] = (short) srcLine[i];
         }
     }
 
@@ -832,7 +830,7 @@ public class GenericReader extends AbstractProductReader {
 
     private static void copyLine1Of2(final float[] srcLine, final float[] destLine, final int sourceStepX) {
         for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = (int)srcLine[i << 1];
+            destLine[x] = (int) srcLine[i << 1];
         }
     }
 
@@ -860,7 +858,7 @@ public class GenericReader extends AbstractProductReader {
     private static void copyLine2Of2(final float[] srcLine, final float[] destLine, final int sourceStepX) {
         final int length = destLine.length;
         for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = (int)srcLine[(i << 1) + 1];
+            destLine[x] = (int) srcLine[(i << 1) + 1];
         }
     }
 }

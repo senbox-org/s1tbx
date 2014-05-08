@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -40,16 +40,17 @@ public class vanZyl extends DecompositionBase implements Decomposition {
     }
 
     /**
-        Return the list of band names for the target product
+     * Return the list of band names for the target product
      */
     public String[] getTargetBandNames() {
-        return new String[] { "vanZyl_dbl_r", "vanZyl_vol_g", "vanZyl_surf_b" };
+        return new String[]{"vanZyl_dbl_r", "vanZyl_vol_g", "vanZyl_surf_b"};
     }
 
     /**
      * Sets the unit for the new target band
+     *
      * @param targetBandName the band name
-     * @param targetBand the new target band
+     * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
@@ -57,24 +58,24 @@ public class vanZyl extends DecompositionBase implements Decomposition {
 
     /**
      * Perform decomposition for given tile.
-     * @param targetTiles The current tiles to be computed for each target band.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op              the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                                    final Operator op) throws OperatorException {
+                            final Operator op) throws OperatorException {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
-        final int w  = targetRectangle.width;
-        final int h  = targetRectangle.height;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         //System.out.println("freeman x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for(final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
@@ -108,47 +109,47 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
             }
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-            
+
             double alpha, mu, rhoRe, rhoIm, rho2, eta, delta, lambda1, lambda2, lambda3, fs, fd, fv, tmp1, tmp2;
-            for(int y = y0; y < maxY; ++y) {
+            for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
-                for(int x = x0; x < maxX; ++x) {
+                for (int x = x0; x < maxX; ++x) {
 
                     if (sourceProductType == MATRIX.FULL ||
-                        sourceProductType == MATRIX.C3) {
+                            sourceProductType == MATRIX.C3) {
 
                         PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
-                                                           sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                                sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                         PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
 
                     } else if (sourceProductType == MATRIX.T3) {
 
                         PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
-                                                          sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                                sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                         PolOpUtils.t3ToC3(Tr, Ti, Cr, Ci);
                     }
 
                     alpha = Cr[0][0];
-                    mu    = Cr[2][2] / Cr[0][0];
-                    eta   = Cr[1][1] / Cr[0][0];
+                    mu = Cr[2][2] / Cr[0][0];
+                    eta = Cr[1][1] / Cr[0][0];
                     rhoRe = Cr[0][2] / Cr[0][0];
                     rhoIm = Ci[0][2] / Cr[0][0];
-                    rho2 = rhoRe*rhoRe + rhoIm*rhoIm;
+                    rho2 = rhoRe * rhoRe + rhoIm * rhoIm;
 
-                    delta = Math.sqrt((1 - mu)*(1 - mu) + 4*rho2);
-                    lambda1 = 0.5*alpha*(1 + mu + delta);
-                    lambda2 = 0.5*alpha*(1 + mu - delta);
-                    lambda3 = alpha*eta;
+                    delta = Math.sqrt((1 - mu) * (1 - mu) + 4 * rho2);
+                    lambda1 = 0.5 * alpha * (1 + mu + delta);
+                    lambda2 = 0.5 * alpha * (1 + mu - delta);
+                    lambda3 = alpha * eta;
 
-                    tmp1 = (mu - 1 + delta)*(mu - 1 + delta);
-                    tmp2 = tmp1 + 4*rho2;
-                    fs = lambda1*tmp1/tmp2;
+                    tmp1 = (mu - 1 + delta) * (mu - 1 + delta);
+                    tmp2 = tmp1 + 4 * rho2;
+                    fs = lambda1 * tmp1 / tmp2;
 
-                    tmp1 = (mu - 1 - delta)*(mu - 1 - delta);
-                    tmp2 = tmp1 + 4*rho2;
-                    fd = lambda2*tmp1/tmp2;
+                    tmp1 = (mu - 1 - delta) * (mu - 1 - delta);
+                    tmp2 = tmp1 + 4 * rho2;
+                    fd = lambda2 * tmp1 / tmp2;
                     fv = lambda3;
 
                     fs = scaleDb(fs, bandList.spanMin, bandList.spanMax);
@@ -156,14 +157,14 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                     fv = scaleDb(fv, bandList.spanMin, bandList.spanMax);
 
                     // save fd as red, fv as green and fs as blue
-                    for (TargetInfo target : targetInfo){
+                    for (TargetInfo target : targetInfo) {
 
                         if (target.colour == TargetBandColour.R) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)fd);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fd);
                         } else if (target.colour == TargetBandColour.G) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)fv);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fv);
                         } else if (target.colour == TargetBandColour.B) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)fs);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fs);
                         }
                     }
                 }

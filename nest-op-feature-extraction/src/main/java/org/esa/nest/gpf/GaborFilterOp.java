@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,20 +34,20 @@ import java.util.HashMap;
 
 /**
  */
-@OperatorMetadata(alias="GaborFilter",
-                  category = "Classification\\Primitive Features",
-                  authors = "Jun Lu, Luis Veci",
-                  copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-                  description="Extract Texture Features")
+@OperatorMetadata(alias = "GaborFilter",
+        category = "Classification\\Primitive Features",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Extract Texture Features")
 public class GaborFilterOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label="Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter
@@ -58,9 +58,9 @@ public class GaborFilterOp extends Operator {
     double[][] filter;
 
     /**
-	     * Default constructor. The graph processing framework
-	     * requires that an operator has a default constructor.
-	 */
+     * Default constructor. The graph processing framework
+     * requires that an operator has a default constructor.
+     */
     public GaborFilterOp() {
     }
 
@@ -73,30 +73,29 @@ public class GaborFilterOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
-            getSourceMetadata();
+        getSourceMetadata();
 
-            // create target product
-            targetProduct = new Product(sourceProduct.getName(),
-                                        sourceProduct.getProductType(),
-                                        sourceProduct.getSceneRasterWidth(),
-                                        sourceProduct.getSceneRasterHeight());
+        // create target product
+        targetProduct = new Product(sourceProduct.getName(),
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
-            OperatorUtils.addSelectedBands(
-                    sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, true);
+        OperatorUtils.addSelectedBands(
+                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, true);
 
-            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-            // update the metadata with the affect of the processing
-            updateTargetProductMetadata();
+        // update the metadata with the affect of the processing
+        updateTargetProductMetadata();
 
-            filter = GaborFilter.createGarborFilter(4.0, theta, 1.0, 2.0, 0.3);
+        filter = GaborFilter.createGarborFilter(4.0, theta, 1.0, 2.0, 0.3);
     }
 
     /**
@@ -120,8 +119,7 @@ public class GaborFilterOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -132,14 +130,14 @@ public class GaborFilterOp extends Operator {
         final int h = targetTile.getRectangle().height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        final int xmax=(int)Math.floor(filter.length/2.0);
-        final int ymax=(int)Math.floor(filter[0].length/2.0);
+        final int xmax = (int) Math.floor(filter.length / 2.0);
+        final int ymax = (int) Math.floor(filter[0].length / 2.0);
         final String[] srcBandName = targetBandNameToSourceBandName.get(targetBand.getName());
         final Band srcBand = sourceProduct.getBand(srcBandName[0]);
-        final int minBoundx = Math.max(0, x0-xmax);
-        final int minBoundy = Math.max(0, y0-ymax);
-        final int boundW = Math.min(w+minBoundx+xmax, srcBand.getSceneRasterWidth()-x0);
-        final int boundH = Math.min(h+minBoundy+ymax, srcBand.getSceneRasterHeight()-y0);
+        final int minBoundx = Math.max(0, x0 - xmax);
+        final int minBoundy = Math.max(0, y0 - ymax);
+        final int boundW = Math.min(w + minBoundx + xmax, srcBand.getSceneRasterWidth() - x0);
+        final int boundH = Math.min(h + minBoundy + ymax, srcBand.getSceneRasterHeight() - y0);
         final Rectangle srcRect = new Rectangle(minBoundx, minBoundy, boundW, boundH);
 
         final Tile sourceTile = getSourceTile(srcBand, srcRect);
@@ -153,21 +151,21 @@ public class GaborFilterOp extends Operator {
             trgIndex.calculateStride(y);
             for (int x = x0; x < x0 + w; x++) {
 
-                double sum=0;
-                for (int yf=-ymax;yf<=ymax;yf++){
-                    final int yy = y-yf;
-                    if(yy>=minBoundy && yy < y0 + boundH) {
+                double sum = 0;
+                for (int yf = -ymax; yf <= ymax; yf++) {
+                    final int yy = y - yf;
+                    if (yy >= minBoundy && yy < y0 + boundH) {
                         srcIndex.calculateStride(yy);
-                        for (int xf=-xmax;xf<=xmax;xf++){
-                            final int xx = x-xf;
-                            if (xx>=minBoundx && xx < x0 + boundW) {
+                        for (int xf = -xmax; xf <= xmax; xf++) {
+                            final int xx = x - xf;
+                            if (xx >= minBoundx && xx < x0 + boundW) {
                                 final int idx = srcIndex.getIndex(xx);
-                                if(idx < maxIndex)   //todo something not right here
-                                    sum+=filter[xf+xmax][yf+ymax] * srcData.getElemDoubleAt(idx);
+                                if (idx < maxIndex)   //todo something not right here
+                                    sum += filter[xf + xmax][yf + ymax] * srcData.getElemDoubleAt(idx);
                             }
                         }
                     }
-                }     
+                }
                 trgData.setElemDoubleAt(trgIndex.getIndex(x), sum);
             }
         }
@@ -179,6 +177,7 @@ public class GaborFilterOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

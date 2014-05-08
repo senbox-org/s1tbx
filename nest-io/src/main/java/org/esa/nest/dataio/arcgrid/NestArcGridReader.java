@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,24 +17,11 @@ package org.esa.nest.dataio.arcgrid;
 
 import org.esa.beam.dataio.arcbin.ArcBinGridReader;
 import org.esa.beam.dataio.arcbin.ArcBinGridReaderPlugIn;
-import org.esa.beam.dataio.arcbin.GeorefBounds;
-import org.esa.beam.dataio.arcbin.Header;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.eo.GeoUtils;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.CoordinateOperation;
 
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,18 +40,18 @@ public class NestArcGridReader extends ArcBinGridReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, product.getProductType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, product.getSceneRasterHeight());
-        
-        if(!AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile))
+
+        if (!AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile))
             AbstractMetadata.loadExternalMetadata(product, absRoot, new File(inputFile.getParentFile(), "PolSARPro_NEST_metadata.xml"));
 
-        if(product.getName().startsWith("sm_")) {
+        if (product.getName().startsWith("sm_")) {
             try {
                 final String date = product.getName().substring(3, product.getName().length());
                 final ProductData.UTC time = ProductData.UTC.parse(date, "yyyyMMdd");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, time);
                 product.setStartTime(time);
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //
             }
         }

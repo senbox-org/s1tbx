@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,7 +32,7 @@ public class TestEnvisatReader extends TestCase {
     private EnvisatProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    private String[] productTypeExemptions = { "WVW", "WVI", "WVS", "WSS" };
+    private String[] productTypeExemptions = {"WVW", "WVI", "WVS", "WSS"};
 
     public TestEnvisatReader(String name) {
         super(name);
@@ -56,17 +56,17 @@ public class TestEnvisatReader extends TestCase {
 
     /**
      * Open all files in a folder recursively
+     *
      * @throws Exception anything
      */
-    public void testOpenAll() throws Exception
-    {
+    public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathASAR);
-        if(!folder.exists()) {
+        if (!folder.exists()) {
             TestUtils.skipTest(this);
             return;
         }
 
-        if(TestUtils.canTestReadersOnAllProducts)
+        if (TestUtils.canTestReadersOnAllProducts)
             TestUtils.recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, null);
     }
 }

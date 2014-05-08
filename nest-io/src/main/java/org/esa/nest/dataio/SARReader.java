@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public abstract class SARReader extends AbstractProductReader {
 
-    private static String[] elemsToKeep = { "Abstracted_Metadata", "MAIN_PROCESSING_PARAMS_ADS", "DSD", "SPH", "lutSigma" };
+    private static String[] elemsToKeep = {"Abstracted_Metadata", "MAIN_PROCESSING_PARAMS_ADS", "DSD", "SPH", "lutSigma"};
 
     protected SARReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -57,7 +57,7 @@ public abstract class SARReader extends AbstractProductReader {
         final Band[] bands = product.getBands();
         for (Band band : bands) {
             String unit = band.getUnit();
-            if(unit != null && (unit.contains("intensity") || unit.contains("amplitude"))) {
+            if (unit != null && (unit.contains("intensity") || unit.contains("amplitude"))) {
                 product.setQuicklookBandName(band.getName());
                 return;
             }
@@ -65,7 +65,7 @@ public abstract class SARReader extends AbstractProductReader {
         // if not intensity bands found find first amplitude
         for (Band band : bands) {
             String unit = band.getUnit();
-            if(unit != null && (unit.contains("amplitude"))) {
+            if (unit != null && (unit.contains("amplitude"))) {
                 product.setQuicklookBandName(band.getName());
                 return;
             }
@@ -89,13 +89,13 @@ public abstract class SARReader extends AbstractProductReader {
     public static String findPolarizationInBandName(final String bandName) {
 
         final String id = bandName.toUpperCase();
-        if(id.contains("HH") || id.contains("H/H") || id.contains("H-H"))
+        if (id.contains("HH") || id.contains("H/H") || id.contains("H-H"))
             return "HH";
-        else if(id.contains("VV") || id.contains("V/V") || id.contains("V-V"))
+        else if (id.contains("VV") || id.contains("V/V") || id.contains("V-V"))
             return "VV";
-        else if(id.contains("HV") || id.contains("H/V") || id.contains("H-V"))
+        else if (id.contains("HV") || id.contains("H/V") || id.contains("H-V"))
             return "HV";
-        else if(id.contains("VH") || id.contains("V/H") || id.contains("V-H"))
+        else if (id.contains("VH") || id.contains("V/H") || id.contains("V-H"))
             return "VH";
 
         return null;
@@ -104,23 +104,23 @@ public abstract class SARReader extends AbstractProductReader {
     public static void discardUnusedMetadata(final Product product) {
         final String dicardUnusedMetadata = RuntimeContext.getModuleContext().getRuntimeConfig().
                 getContextProperty("discard.unused.metadata");
-        if(dicardUnusedMetadata.equalsIgnoreCase("true")) {
+        if (dicardUnusedMetadata.equalsIgnoreCase("true")) {
             removeUnusedMetadata(AbstractMetadata.getOriginalProductMetadata(product));
         }
     }
 
     private static void removeUnusedMetadata(final MetadataElement root) {
         final MetadataElement[] elems = root.getElements();
-        for(MetadataElement elem : elems) {
+        for (MetadataElement elem : elems) {
             final String name = elem.getName();
             boolean keep = false;
-            for(String toKeep : elemsToKeep) {
-                if(name.equals(toKeep)) {
+            for (String toKeep : elemsToKeep) {
+                if (name.equals(toKeep)) {
                     keep = true;
                     break;
                 }
             }
-            if(!keep) {
+            if (!keep) {
                 root.removeElement(elem);
                 elem.dispose();
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,18 +21,20 @@ import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.gpf.Tile;
 
 /**
-    Polarimetric Classifiers
+ * Polarimetric Classifiers
  */
 public interface PolClassifier {
 
     /**
-        Return the band name for the target product
-        @return band name
+     * Return the band name for the target product
+     *
+     * @return band name
      */
     public String getTargetBandName();
 
     /**
      * returns the number of classes
+     *
      * @return num classes
      */
     public int getNumClasses();
@@ -43,11 +45,11 @@ public interface PolClassifier {
 
     /**
      * Perform decomposition for given tile.
+     *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the filtered value.
+     * @param op         the polarimetric decomposition operator
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op);
 }

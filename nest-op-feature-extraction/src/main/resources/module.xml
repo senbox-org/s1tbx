@@ -8,10 +8,10 @@
 
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
         <module>beam-core</module>
@@ -22,22 +22,22 @@
     <dependency>
         <module>nest-core</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>nest-dat</module>
     </dependency>
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
-	<dependency>
-		<module>nest-reader-dem</module>
+    <dependency>
+        <module>nest-reader-dem</module>
     </dependency>
     <dependency>
         <module>nest-io</module>
     </dependency>
-	
+
     <categories>Processor</categories>
 
-	<extension point="beam-ui:layerSources">
+    <extension point="beam-ui:layerSources">
         <layerSource>
             <id>object-detection-layer-source</id>
             <name>Object Detection Results</name>
@@ -51,7 +51,7 @@
             <class>org.esa.nest.dat.layersrc.WindFieldEstimationLayerSource</class>
         </layerSource>
     </extension>
-	
+
     <extension point="beam-ui:actions">
 
         <action>
@@ -105,15 +105,15 @@
         </action>
 
         <action>
-	        <id>SpeckleDivergence</id>
-	        <helpId>SpeckleDivergence</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>SpeckleDivergence</id>
+            <helpId>SpeckleDivergence</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
-	        <text>Speckle-Divergence</text>
+            <text>Speckle-Divergence</text>
             <shortDescr>Speckle-Divergence</shortDescr>
-	        <operatorName>Speckle-Divergence</operatorName>
-	        <dialogTitle>Urban Area Detection</dialogTitle>
+            <operatorName>Speckle-Divergence</operatorName>
+            <dialogTitle>Urban Area Detection</dialogTitle>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
         </action>
 
@@ -169,7 +169,7 @@
             <targetProductNameSuffix>_glcm</targetProductNameSuffix>
         </action>
 
-		<action>
+        <action>
             <id>GaborFilterOp</id>
             <helpId>GaborFilterOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -181,7 +181,7 @@
             <dialogTitle>Gabor Filter</dialogTitle>
             <targetProductNameSuffix>_gab</targetProductNameSuffix>
         </action>
-		
+
         <action>
             <id>UrbanAreaDetectionGraph</id>
             <helpId>UrbanAreaDetectionGraph</helpId>
@@ -216,52 +216,52 @@
             <parent>classification</parent>
         </action>
 
-         <action>
-	        <id>ObjectDetection</id>
-	        <helpId>ObjectDetection</helpId>
-	        <class>org.esa.nest.dat.actions.GraphAction</class>
+        <action>
+            <id>ObjectDetection</id>
+            <helpId>ObjectDetection</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>oceanTools</parent>
-	        <text>Object Detection</text>
+            <text>Object Detection</text>
             <shortDescr>Ocean Object Detection</shortDescr>
-	        <dialogTitle>Ocean Object Detection</dialogTitle>
+            <dialogTitle>Ocean Object Detection</dialogTitle>
             <graphFile>ShipDetectionGraph.xml</graphFile>
-            <targetProductNameSuffix>_obj</targetProductNameSuffix>               
+            <targetProductNameSuffix>_obj</targetProductNameSuffix>
         </action>
 
         <action>
-	        <id>OilSpillDetectionOp</id>
-	        <helpId>OilSpillDetection</helpId>
-	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <id>OilSpillDetectionOp</id>
+            <helpId>OilSpillDetection</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>oceanTools</parent>
-	        <text>Oil Spill Detection</text>
+            <text>Oil Spill Detection</text>
             <shortDescr>Oil Spill Detection</shortDescr>
-	        <dialogTitle>Oil Spill Detection</dialogTitle>
+            <dialogTitle>Oil Spill Detection</dialogTitle>
             <graphFile>OilSpillDetectionGraph.xml</graphFile>
             <targetProductNameSuffix>_oil</targetProductNameSuffix>
             <placeAfter>ObjectDetection</placeAfter>
         </action>
 
         <action>
-	        <id>WindFieldEstimation</id>
-	        <helpId>WindFieldEstimation</helpId>
-	        <class>org.esa.nest.dat.actions.GraphAction</class>
+            <id>WindFieldEstimation</id>
+            <helpId>WindFieldEstimation</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>oceanTools</parent>
-	        <text>Wind Field Estimation</text>
+            <text>Wind Field Estimation</text>
             <shortDescr>Wind Field Estimation</shortDescr>
-	        <dialogTitle>Wind Field Estimation</dialogTitle>
+            <dialogTitle>Wind Field Estimation</dialogTitle>
             <graphFile>WindFieldEstimationGraph.xml</graphFile>
             <targetProductNameSuffix>_wind</targetProductNameSuffix>
             <placeAfter>OilSpillDetectionOp</placeAfter>
         </action>
     </extension>
 
-	<extension point="beam-ui:helpSets">
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>featureExtractionHelp</id>
+            <id>featureExtractionHelp</id>
             <path>doc/help/feature-extraction.hs</path>
         </helpSet>
     </extension>

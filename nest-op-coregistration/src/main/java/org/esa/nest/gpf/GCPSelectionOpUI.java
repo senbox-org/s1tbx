@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -34,13 +34,13 @@ import java.util.Map;
 public class GCPSelectionOpUI extends BaseOperatorUI {
 
     private final JComboBox coarseRegistrationWindowWidth = new JComboBox(
-            new String[] { "32","64","128","256","512","1024","2048" } );
+            new String[]{"32", "64", "128", "256", "512", "1024", "2048"});
     private final JComboBox coarseRegistrationWindowHeight = new JComboBox(
-            new String[] { "32","64","128","256","512","1024","2048" } );
+            new String[]{"32", "64", "128", "256", "512", "1024", "2048"});
     private final JComboBox rowInterpFactor = new JComboBox(
-            new String[] { "2","4","8","16" } );
+            new String[]{"2", "4", "8", "16"});
     private final JComboBox columnInterpFactor = new JComboBox(
-            new String[] { "2","4","8","16" } );
+            new String[]{"2", "4", "8", "16"});
 
     private final JTextField numGCPtoGenerate = new JTextField("");
     private final JTextField maxIteration = new JTextField("");
@@ -49,9 +49,9 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
     // for complex products
     final JCheckBox applyFineRegistrationCheckBox = new JCheckBox("Apply Fine Registration");
     private final JComboBox fineRegistrationWindowWidth = new JComboBox(
-            new String[] { "8","16","32","64","128","256","512" } );
+            new String[]{"8", "16", "32", "64", "128", "256", "512"});
     private final JComboBox fineRegistrationWindowHeight = new JComboBox(
-            new String[] { "8","16","32","64","128","256","512" } );
+            new String[]{"8", "16", "32", "64", "128", "256", "512"});
 
     private final JTextField coherenceWindowSize = new JTextField("");
     private final JTextField coherenceThreshold = new JTextField("");
@@ -74,16 +74,16 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         initParameters();
 
         applyFineRegistrationCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    applyFineRegistration = (e.getStateChange() == ItemEvent.SELECTED);
-                    enableComplexFields();
-                }
+            public void itemStateChanged(ItemEvent e) {
+                applyFineRegistration = (e.getStateChange() == ItemEvent.SELECTED);
+                enableComplexFields();
+            }
         });
 
         computeOffsetCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    computeOffset = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                computeOffset = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         onlyGCPsOnLandCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -105,14 +105,14 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         maxIteration.setText(String.valueOf(paramMap.get("maxIteration")));
         gcpTolerance.setText(String.valueOf(paramMap.get("gcpTolerance")));
 
-        if(sourceProducts != null && sourceProducts.length > 0) {
+        if (sourceProducts != null && sourceProducts.length > 0) {
             isComplex = OperatorUtils.isComplex(sourceProducts[0]);
         }
 
-        if(isComplex) {
-            applyFineRegistration = (Boolean)paramMap.get("applyFineRegistration");
+        if (isComplex) {
+            applyFineRegistration = (Boolean) paramMap.get("applyFineRegistration");
             applyFineRegistrationCheckBox.setSelected(applyFineRegistration);
-            
+
             fineRegistrationWindowWidth.setSelectedItem(paramMap.get("fineRegistrationWindowWidth"));
             fineRegistrationWindowHeight.setSelectedItem(paramMap.get("fineRegistrationWindowHeight"));
             coherenceWindowSize.setText(String.valueOf(paramMap.get("coherenceWindowSize")));
@@ -120,10 +120,10 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         }
         enableComplexFields();
 
-        computeOffset = (Boolean)paramMap.get("computeOffset");
+        computeOffset = (Boolean) paramMap.get("computeOffset");
         computeOffsetCheckBox.setSelected(computeOffset);
 
-        onlyGCPsOnLand = (Boolean)paramMap.get("onlyGCPsOnLand");
+        onlyGCPsOnLand = (Boolean) paramMap.get("onlyGCPsOnLand");
         onlyGCPsOnLandCheckBox.setSelected(onlyGCPsOnLand);
     }
 
@@ -144,14 +144,14 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         paramMap.put("maxIteration", Integer.parseInt(maxIteration.getText()));
         paramMap.put("gcpTolerance", Double.parseDouble(gcpTolerance.getText()));
 
-        if(isComplex) {
+        if (isComplex) {
             paramMap.put("applyFineRegistration", applyFineRegistration);
 
             if (applyFineRegistration) {
                 paramMap.put("fineRegistrationWindowWidth", fineRegistrationWindowWidth.getSelectedItem());
                 paramMap.put("fineRegistrationWindowHeight", fineRegistrationWindowHeight.getSelectedItem());
                 paramMap.put("coherenceThreshold", Double.parseDouble(coherenceThreshold.getText()));
-                if(useSlidingWindow.isSelected()) {
+                if (useSlidingWindow.isSelected()) {
                     paramMap.put("useSlidingWindow", true);
                     paramMap.put("coherenceWindowSize", Integer.parseInt(coherenceWindowSize.getText()));
                 } else {
@@ -220,11 +220,11 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
     private void enableComplexFields() {
         applyFineRegistrationCheckBox.setEnabled(isComplex);
-        fineRegistrationWindowWidth.setEnabled(isComplex&&applyFineRegistration);
-        fineRegistrationWindowHeight.setEnabled(isComplex&&applyFineRegistration);
-        coherenceWindowSize.setEnabled(isComplex&&applyFineRegistration);
-        coherenceThreshold.setEnabled(isComplex&&applyFineRegistration);
-        useSlidingWindow.setEnabled(isComplex&&applyFineRegistration);
+        fineRegistrationWindowWidth.setEnabled(isComplex && applyFineRegistration);
+        fineRegistrationWindowHeight.setEnabled(isComplex && applyFineRegistration);
+        coherenceWindowSize.setEnabled(isComplex && applyFineRegistration);
+        coherenceThreshold.setEnabled(isComplex && applyFineRegistration);
+        useSlidingWindow.setEnabled(isComplex && applyFineRegistration);
     }
 
 

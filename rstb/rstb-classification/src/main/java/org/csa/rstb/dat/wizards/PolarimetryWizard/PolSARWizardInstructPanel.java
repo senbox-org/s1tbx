@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,7 +19,7 @@ import org.esa.nest.dat.wizards.AbstractInstructPanel;
 import org.esa.nest.dat.wizards.WizardPanel;
 
 /**
-    Instructions Panel
+ * Instructions Panel
  */
 public class PolSARWizardInstructPanel extends AbstractInstructPanel {
 
@@ -37,11 +37,11 @@ public class PolSARWizardInstructPanel extends AbstractInstructPanel {
 
     protected String getDescription() {
         return "Welcome to the Polarimetric Classification Wizard.\n\n" +
-               "With this wizard you will be able classify a fully polarimetric product.";
+                "With this wizard you will be able classify a fully polarimetric product.";
     }
 
     protected String getInstructions() {
-        return "Step 1: Select a Quad Pol SLC product\n\n"+
-               "Step 2: Create a T3 matrix, speckle filter and classify\n\n";
+        return "Step 1: Select a Quad Pol SLC product\n\n" +
+                "Step 2: Create a T3 matrix, speckle filter and classify\n\n";
     }
 }

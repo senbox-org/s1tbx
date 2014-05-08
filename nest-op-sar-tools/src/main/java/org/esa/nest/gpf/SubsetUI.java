@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,7 +24,6 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.WorldMapUI;
@@ -94,12 +93,12 @@ public class SubsetUI extends BaseOperatorUI {
         regionX.setText(String.valueOf(paramMap.get("regionX")));
         regionY.setText(String.valueOf(paramMap.get("regionY")));
 
-        Integer widthVal = (Integer)paramMap.get("width");
-        Integer heightVal = (Integer)paramMap.get("height");
-        if(sourceProducts != null && sourceProducts.length > 0) {
-            if(widthVal == null || widthVal == 0)
+        Integer widthVal = (Integer) paramMap.get("width");
+        Integer heightVal = (Integer) paramMap.get("height");
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            if (widthVal == null || widthVal == 0)
                 widthVal = sourceProducts[0].getSceneRasterWidth();
-            if(heightVal == null || heightVal == 0)
+            if (heightVal == null || heightVal == 0)
                 heightVal = sourceProducts[0].getSceneRasterHeight();
 
             worldMapUI.getModel().setAutoZoomEnabled(true);
@@ -112,13 +111,13 @@ public class SubsetUI extends BaseOperatorUI {
         subSamplingX.setText(String.valueOf(paramMap.get("subSamplingX")));
         subSamplingY.setText(String.valueOf(paramMap.get("subSamplingY")));
 
-        geoRegion = (Geometry)paramMap.get("geoRegion");
-        if(geoRegion != null) {
+        geoRegion = (Geometry) paramMap.get("geoRegion");
+        if (geoRegion != null) {
             geoCoordRadio.setSelected(true);
 
             final Coordinate coord[] = geoRegion.getCoordinates();
-            worldMapUI.setSelectionStart((float)coord[0].y, (float)coord[0].x);
-            worldMapUI.setSelectionEnd((float)coord[2].y, (float)coord[2].x);
+            worldMapUI.setSelectionStart((float) coord[0].y, (float) coord[0].x);
+            worldMapUI.setSelectionEnd((float) coord[2].y, (float) coord[2].x);
 
             pixelPanel.setVisible(false);
             geoPanel.setVisible(true);
@@ -138,25 +137,25 @@ public class SubsetUI extends BaseOperatorUI {
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         final String regionXStr = regionX.getText();
-        if(regionXStr != null && !regionXStr.isEmpty())
+        if (regionXStr != null && !regionXStr.isEmpty())
             paramMap.put("regionX", Integer.parseInt(regionXStr));
         final String regionYStr = regionY.getText();
-        if(regionYStr != null && !regionYStr.isEmpty())
+        if (regionYStr != null && !regionYStr.isEmpty())
             paramMap.put("regionY", Integer.parseInt(regionYStr));
         final String widthStr = width.getText();
-        if(widthStr != null && !widthStr.isEmpty())
+        if (widthStr != null && !widthStr.isEmpty())
             paramMap.put("width", Integer.parseInt(widthStr));
         final String heightStr = height.getText();
-        if(heightStr != null && !heightStr.isEmpty())
+        if (heightStr != null && !heightStr.isEmpty())
             paramMap.put("height", Integer.parseInt(heightStr));
         final String subSamplingXStr = subSamplingX.getText();
-        if(subSamplingXStr != null && !subSamplingXStr.isEmpty())
+        if (subSamplingXStr != null && !subSamplingXStr.isEmpty())
             paramMap.put("subSamplingX", Integer.parseInt(subSamplingXStr));
         final String subSamplingYStr = subSamplingY.getText();
-        if(subSamplingYStr != null && !subSamplingYStr.isEmpty())
+        if (subSamplingYStr != null && !subSamplingYStr.isEmpty())
             paramMap.put("subSamplingY", Integer.parseInt(subSamplingYStr));
 
-        if(geoCoordRadio.isSelected() && geoRegion != null) {
+        if (geoCoordRadio.isSelected() && geoRegion != null) {
             paramMap.put("geoRegion", geoRegion);
         }
     }
@@ -183,8 +182,8 @@ public class SubsetUI extends BaseOperatorUI {
         pixelCoordRadio.setActionCommand("pixelCoordRadio");
         geoCoordRadio.setActionCommand("geoCoordRadio");
         ButtonGroup group = new ButtonGroup();
-    	group.add(pixelCoordRadio);
-	    group.add(geoCoordRadio);
+        group.add(pixelCoordRadio);
+        group.add(geoCoordRadio);
         RadioListener myListener = new RadioListener();
         pixelCoordRadio.addActionListener(myListener);
         geoCoordRadio.addActionListener(myListener);
@@ -243,11 +242,11 @@ public class SubsetUI extends BaseOperatorUI {
     private void getGeoRegion() {
         geoRegion = null;
         geoText.setText("");
-        if(geoCoordRadio.isSelected()) {
+        if (geoCoordRadio.isSelected()) {
             final GeoPos[] selectionBox = worldMapUI.getSelectionBox();
-            if(selectionBox != null) {
-                final Coordinate[] coords = new Coordinate[selectionBox.length+1];
-                for(int i=0; i<selectionBox.length; ++i) {
+            if (selectionBox != null) {
+                final Coordinate[] coords = new Coordinate[selectionBox.length + 1];
+                for (int i = 0; i < selectionBox.length; ++i) {
                     coords[i] = new Coordinate(selectionBox[i].getLon(), selectionBox[i].getLat());
                 }
                 coords[selectionBox.length] = new Coordinate(selectionBox[0].getLon(), selectionBox[0].getLat());
@@ -266,11 +265,11 @@ public class SubsetUI extends BaseOperatorUI {
             geoRegion = new WKTReader().read(geoText.getText());
 
             final Coordinate coord[] = geoRegion.getCoordinates();
-            worldMapUI.setSelectionStart((float)coord[0].y, (float)coord[0].x);
-            worldMapUI.setSelectionEnd((float)coord[2].y, (float)coord[2].x);
+            worldMapUI.setSelectionStart((float) coord[0].y, (float) coord[0].x);
+            worldMapUI.setSelectionEnd((float) coord[2].y, (float) coord[2].x);
             worldMapUI.getWorlMapPane().revalidate();
             worldMapUI.getWorlMapPane().getLayerCanvas().updateUI();
-        } catch(Exception e) {
+        } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }

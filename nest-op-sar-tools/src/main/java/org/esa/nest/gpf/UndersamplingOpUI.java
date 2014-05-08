@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -36,8 +36,8 @@ import java.util.Map;
 public class UndersamplingOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
-    private final JComboBox method = new JComboBox(new String[] {       UndersamplingOp.SUB_SAMPLING,
-                                                                        UndersamplingOp.KERNEL_FILTERING });
+    private final JComboBox method = new JComboBox(new String[]{UndersamplingOp.SUB_SAMPLING,
+            UndersamplingOp.KERNEL_FILTERING});
 
     private final JTextField subSamplingX = new JTextField("");
     private final JTextField subSamplingY = new JTextField("");
@@ -51,13 +51,13 @@ public class UndersamplingOpUI extends BaseOperatorUI {
                                                                         UndersamplingOp.VERTICAL,
                                                                         UndersamplingOp.USER_DEFINED } );
     */
-    private final JComboBox filterSize = new JComboBox(new String[] {   UndersamplingOp.FILTER_SIZE_3x3,
-                                                                        UndersamplingOp.FILTER_SIZE_5x5,
-                                                                        UndersamplingOp.FILTER_SIZE_7x7 } );
+    private final JComboBox filterSize = new JComboBox(new String[]{UndersamplingOp.FILTER_SIZE_3x3,
+            UndersamplingOp.FILTER_SIZE_5x5,
+            UndersamplingOp.FILTER_SIZE_7x7});
 
-    private final JComboBox outputImageBy = new JComboBox(new String[] { UndersamplingOp.IMAGE_SIZE,
-                                                                         UndersamplingOp.RATIO,
-                                                                         UndersamplingOp.PIXEL_SPACING } );
+    private final JComboBox outputImageBy = new JComboBox(new String[]{UndersamplingOp.IMAGE_SIZE,
+            UndersamplingOp.RATIO,
+            UndersamplingOp.PIXEL_SPACING});
 
     private final JTextField targetImageHeight = new JTextField("");
     private final JTextField targetImageWidth = new JTextField("");
@@ -68,7 +68,7 @@ public class UndersamplingOpUI extends BaseOperatorUI {
 
     private final JLabel subSamplingXLabel = new JLabel("Sub-Sampling in X:");
     private final JLabel subSamplingYLabel = new JLabel("Sub-Sampling in Y:");
-//    private final JLabel filterTypeLabel = new JLabel("Filter Type:");
+    //    private final JLabel filterTypeLabel = new JLabel("Filter Type:");
     private final JLabel filterSizeLabel = new JLabel("Filter Size:");
     private final JLabel targetImageHeightLabel = new JLabel("Rows:");
     private final JLabel targetImageWidthLabel = new JLabel("Columns:");
@@ -205,7 +205,7 @@ public class UndersamplingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, targetImageHeightLabel, targetImageHeight);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, targetImageWidthLabel, targetImageWidth);
-        
+
         gbc.gridy = savedY;
         DialogUtils.addComponent(contentPane, gbc, widthRatioLabel, widthRatio);
         gbc.gridy++;
@@ -249,8 +249,8 @@ public class UndersamplingOpUI extends BaseOperatorUI {
     }
 
     private void updateMethod() {
-        final String item = (String)method.getSelectedItem();
-        if(item.equals(UndersamplingOp.SUB_SAMPLING)) {
+        final String item = (String) method.getSelectedItem();
+        if (item.equals(UndersamplingOp.SUB_SAMPLING)) {
             enableKernelFiltering(false);
             enableSubSampling(true);
             updateOutputImageBy(false);
@@ -262,16 +262,16 @@ public class UndersamplingOpUI extends BaseOperatorUI {
     }
 
     private void updateOutputImageBy(boolean show) {
-        if(show) {
+        if (show) {
             outputImageBy.setVisible(true);
             outputImageByLabel.setVisible(true);
 
-            String item = (String)outputImageBy.getSelectedItem();
-            if(item.equals(UndersamplingOp.IMAGE_SIZE)) {
+            String item = (String) outputImageBy.getSelectedItem();
+            if (item.equals(UndersamplingOp.IMAGE_SIZE)) {
                 enableRowColumn(true);
                 enableRatio(false);
                 enablePixelSpacing(false);
-            } else if(item.equals(UndersamplingOp.RATIO)){
+            } else if (item.equals(UndersamplingOp.RATIO)) {
                 enableRowColumn(false);
                 enableRatio(true);
                 enablePixelSpacing(false);
@@ -286,6 +286,6 @@ public class UndersamplingOpUI extends BaseOperatorUI {
             enableRowColumn(false);
             enableRatio(false);
             enablePixelSpacing(false);
-        }             
+        }
     }
 }

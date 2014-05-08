@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,9 +23,9 @@ import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.eo.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,6 @@ import java.util.*;
 
 /**
  * This class represents a product directory.
- *
  */
 public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
@@ -42,7 +41,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private String productType = "Radarsat2";
     private final String productDescription = "";
 
-    private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId()+
+    private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
 
     private final transient Map<String, String> polarizationMap = new HashMap<String, String>(4);
@@ -63,12 +62,12 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         for (String key : keys) {
             final ImageIOFile img = bandImageFileMap.get(key);
 
-            for(int i=0; i < img.getNumImages(); ++i) {
+            for (int i = 0; i < img.getNumImages(); ++i) {
 
-                if(isSLC()) {
-                    for(int b=0; b < img.getNumBands(); ++b) {
+                if (isSLC()) {
+                    for (int b = 0; b < img.getNumBands(); ++b) {
                         final String imgName = img.getName().toLowerCase();
-                        if(real) {
+                        if (real) {
                             bandName = "i_" + polarizationMap.get(imgName);
                             unit = Unit.REAL;
                         } else {
@@ -82,16 +81,16 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        if(real)
+                        if (real)
                             lastRealBand = band;
                         else {
                             ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band,
-                                    '_'+polarizationMap.get(imgName));
+                                    '_' + polarizationMap.get(imgName));
                         }
                         real = !real;
                     }
                 } else {
-                    for(int b=0; b < img.getNumBands(); ++b) {
+                    for (int b = 0; b < img.getNumBands(); ++b) {
                         final String imgName = img.getName().toLowerCase();
                         bandName = "Amplitude_" + polarizationMap.get(imgName);
                         final Band band = new Band(bandName, ProductData.TYPE_UINT32, width, height);
@@ -152,19 +151,19 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
 
         productType = generalProcessingInformation.getAttributeString("productType", defStr);
-        if(productType.contains("SLC"))
+        if (productType.contains("SLC"))
             setSLC(true);
 
         final String productId = productElem.getAttributeString("productId", defStr);
         final String beamMode = sourceAttributes.getAttributeString("beamModeMnemonic", defStr);
         String passStr = "DES";
-        if(pass.equals("ASCENDING")) {
+        if (pass.equals("ASCENDING")) {
             passStr = "ASC";
         }
 
         ProductData.UTC startTime = null;
         ProductData.UTC stopTime = null;
-        if(flipToSARGeometry && pass.equals("ASCENDING")) {
+        if (flipToSARGeometry && pass.equals("ASCENDING")) {
             stopTime = ReaderUtils.getTime(sarProcessingInformation,
                     "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
             startTime = ReaderUtils.getTime(sarProcessingInformation,
@@ -182,12 +181,13 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
 
-        productName = getMission() +'-'+ productType +'-'+ beamMode +'-'+ passStr +'-'+ dateString +'-'+ productId;
+        productName = getMission() + '-' + productType + '-' + beamMode + '-' + passStr + '-' + dateString + '-' + productId;
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                generalProcessingInformation.getAttributeString("processingFacility", defStr) +'-'+
-                generalProcessingInformation.getAttributeString("softwareVersion", defStr));
+                generalProcessingInformation.getAttributeString("processingFacility", defStr) + '-' +
+                        generalProcessingInformation.getAttributeString("softwareVersion", defStr)
+        );
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 ReaderUtils.getTime(generalProcessingInformation, "processingTime", AbstractMetadata.dateFormat));
@@ -245,7 +245,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement adcSamplingRate = radarParameters.getElement("adcSamplingRate");
         double rangeSamplingRate = adcSamplingRate.getAttributeDouble("adcSamplingRate", defInt) / Constants.oneMillion;
 
-        if(aquisitionMode.equalsIgnoreCase("UltraFine")) {
+        if (aquisitionMode.equalsIgnoreCase("UltraFine")) {
             prf *= 2.0;
             rangeSamplingRate *= 2.0;
         }
@@ -253,13 +253,13 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRate);
 
         final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
-        if(geographicInformation != null) {
+        if (geographicInformation != null) {
             final MetadataElement referenceEllipsoidParameters = geographicInformation.getElement("referenceEllipsoidParameters");
-            if(referenceEllipsoidParameters != null) {
+            if (referenceEllipsoidParameters != null) {
                 final MetadataElement geodeticTerrainHeight = referenceEllipsoidParameters.getElement("geodeticTerrainHeight");
-                if(geodeticTerrainHeight != null) {
+                if (geodeticTerrainHeight != null) {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
-                        geodeticTerrainHeight.getAttributeDouble("geodeticTerrainHeight", defInt));
+                            geodeticTerrainHeight.getAttributeDouble("geodeticTerrainHeight", defInt));
                 }
             }
         }
@@ -274,16 +274,16 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
     protected void verifyProductFormat(final MetadataElement imageAttributes) throws IOException {
         final String imageProductFormat = imageAttributes.getAttributeString("productFormat");
-        if(!imageProductFormat.equalsIgnoreCase("GeoTIFF")) {
-            throw new IOException("Radarsat2 "+imageProductFormat+" format is not supported by this reader\n Contact nest_pr@array.ca");
+        if (!imageProductFormat.equalsIgnoreCase("GeoTIFF")) {
+            throw new IOException("Radarsat2 " + imageProductFormat + " format is not supported by this reader\n Contact nest_pr@array.ca");
         }
     }
 
     private static int getFlag(final MetadataElement elem, String tag) {
         String valStr = elem.getAttributeString(tag, " ").toUpperCase();
-        if(valStr.equals("FALSE") || valStr.equals("0"))
+        if (valStr.equals("FALSE") || valStr.equals("0"))
             return 0;
-        else if(valStr.equals("TRUE") || valStr.equals("1"))
+        else if (valStr.equals("TRUE") || valStr.equals("1"))
             return 1;
         return -1;
     }
@@ -291,8 +291,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private void getPolarizations(final MetadataElement absRoot, final MetadataElement imageAttributes) {
         final MetadataElement[] imageAttribElems = imageAttributes.getElements();
         int i = 0;
-        for(MetadataElement elem : imageAttribElems) {
-            if(elem.getName().equals("fullResolutionImageData")) {
+        for (MetadataElement elem : imageAttribElems) {
+            if (elem.getName().equals("fullResolutionImageData")) {
 
                 final String pol = elem.getAttributeString("pole", "").toUpperCase();
                 polarizationMap.put(elem.getAttributeString("fullResolutionImageData", "").toLowerCase(), pol);
@@ -304,7 +304,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
     private static String getDataType(final MetadataElement rasterAttributes) {
         final String dataType = rasterAttributes.getAttributeString("dataType", AbstractMetadata.NO_METADATA_STRING).toUpperCase();
-        if(dataType.contains("COMPLEX"))
+        if (dataType.contains("COMPLEX"))
             return "COMPLEX";
         return "DETECTED";
     }
@@ -313,22 +313,22 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
         final MetadataElement[] stateVectorElems = orbitInformation.getElements();
-        for(int i=1; i <= stateVectorElems.length; ++i) {
-            addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i-1], i);
+        for (int i = 1; i <= stateVectorElems.length; ++i) {
+            addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i - 1], i);
         }
 
         // set state vector time
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+        if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                ReaderUtils.getTime(stateVectorElems[0], "timeStamp", AbstractMetadata.dateFormat));
+                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", AbstractMetadata.dateFormat));
         }
     }
 
     private static void addVector(String name, MetadataElement orbitVectorListElem,
                                   MetadataElement srcElem, int num) {
-        final MetadataElement orbitVectorElem = new MetadataElement(name+num);
+        final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
                 ReaderUtils.getTime(srcElem, "timeStamp", AbstractMetadata.dateFormat));
@@ -359,9 +359,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
 
         int listCnt = 1;
-        for(MetadataElement elem : imageGenerationParameters.getElements()) {
-            if(elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
-                final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list+'.'+listCnt);
+        for (MetadataElement elem : imageGenerationParameters.getElements()) {
+            if (elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
+                final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list + '.' + listCnt);
                 srgrCoefficientsElem.addElement(srgrListElem);
                 ++listCnt;
 
@@ -374,13 +374,13 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
 
                 final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");
-                if(!coeffStr.isEmpty()) {
+                if (!coeffStr.isEmpty()) {
                     final StringTokenizer st = new StringTokenizer(coeffStr);
                     int cnt = 1;
-                    while(st.hasMoreTokens()) {
+                    while (st.hasMoreTokens()) {
                         final double coefValue = Double.parseDouble(st.nextToken());
 
-                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
                         srgrListElem.addElement(coefElem);
                         ++cnt;
                         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
@@ -398,9 +398,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
         int listCnt = 1;
-        for(MetadataElement elem : imageGenerationParameters.getElements()) {
-            if(elem.getName().equalsIgnoreCase("dopplerCentroid")) {
-                final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list+'.'+listCnt);
+        for (MetadataElement elem : imageGenerationParameters.getElements()) {
+            if (elem.getName().equalsIgnoreCase("dopplerCentroid")) {
+                final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
 
@@ -408,19 +408,19 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
                 final double refTime = elem.getElement("dopplerCentroidReferenceTime").
-                        getAttributeDouble("dopplerCentroidReferenceTime", 0)*1e9; // s to ns
+                        getAttributeDouble("dopplerCentroidReferenceTime", 0) * 1e9; // s to ns
                 AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
                         ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
                 AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
                 final String coeffStr = elem.getAttributeString("dopplerCentroidCoefficients", "");
-                if(!coeffStr.isEmpty()) {
+                if (!coeffStr.isEmpty()) {
                     final StringTokenizer st = new StringTokenizer(coeffStr);
                     int cnt = 1;
-                    while(st.hasMoreTokens()) {
+                    while (st.hasMoreTokens()) {
                         final double coefValue = Double.parseDouble(st.nextToken());
 
-                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
                         dopplerListElem.addElement(coefElem);
                         ++cnt;
                         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
@@ -451,18 +451,18 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         float[] lngList = new float[geoGrid.length];
 
         int gridWidth = 0, gridHeight = 0;
-        int i=0;
-        for(MetadataElement imageTiePoint : geoGrid) {
+        int i = 0;
+        for (MetadataElement imageTiePoint : geoGrid) {
             final MetadataElement geodeticCoordinate = imageTiePoint.getElement("geodeticCoordinate");
             final MetadataElement latitude = geodeticCoordinate.getElement("latitude");
             final MetadataElement longitude = geodeticCoordinate.getElement("longitude");
-            latList[i] = (float)latitude.getAttributeDouble("latitude", 0);
-            lngList[i] = (float)longitude.getAttributeDouble("longitude", 0);
+            latList[i] = (float) latitude.getAttributeDouble("latitude", 0);
+            lngList[i] = (float) longitude.getAttributeDouble("longitude", 0);
 
             final MetadataElement imageCoordinate = imageTiePoint.getElement("imageCoordinate");
             final double pix = imageCoordinate.getAttributeDouble("pixel", 0);
-            if(pix == 0) {
-                if(gridWidth == 0)
+            if (pix == 0) {
+                if (gridWidth == 0)
                     gridWidth = i;
                 ++gridHeight;
             }
@@ -470,27 +470,27 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             ++i;
         }
 
-        if(flipToSARGeometry) {
+        if (flipToSARGeometry) {
             float[] flippedLatList = new float[geoGrid.length];
             float[] flippedLonList = new float[geoGrid.length];
             int is, id;
             if (isAscending) {
                 if (isAntennaPointingRight) { // flip upside down
                     for (int r = 0; r < gridHeight; r++) {
-                        is = r*gridWidth;
-                        id = (gridHeight - r - 1)*gridWidth;
+                        is = r * gridWidth;
+                        id = (gridHeight - r - 1) * gridWidth;
                         for (int c = 0; c < gridWidth; c++) {
-                            flippedLatList[id+c] = latList[is+c];
-                            flippedLonList[id+c] = lngList[is+c];
+                            flippedLatList[id + c] = latList[is + c];
+                            flippedLonList[id + c] = lngList[is + c];
                         }
                     }
                 } else { // flip upside down then left to right
                     for (int r = 0; r < gridHeight; r++) {
-                        is = r*gridWidth;
-                        id = (gridHeight - r)*gridWidth;
+                        is = r * gridWidth;
+                        id = (gridHeight - r) * gridWidth;
                         for (int c = 0; c < gridWidth; c++) {
-                            flippedLatList[id-c-1] = latList[is+c];
-                            flippedLonList[id-c-1] = lngList[is+c];
+                            flippedLatList[id - c - 1] = latList[is + c];
+                            flippedLonList[id - c - 1] = lngList[is + c];
                         }
                     }
                 }
@@ -499,11 +499,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
                 if (isAntennaPointingRight) {  // flip left to right
                     for (int r = 0; r < gridHeight; r++) {
-                        is = r*gridWidth;
-                        id = r*gridWidth + gridWidth;
+                        is = r * gridWidth;
+                        id = r * gridWidth + gridWidth;
                         for (int c = 0; c < gridWidth; c++) {
-                            flippedLatList[id-c-1] = latList[is+c];
-                            flippedLonList[id-c-1] = lngList[is+c];
+                            flippedLatList[id - c - 1] = latList[is + c];
+                            flippedLonList[id - c - 1] = lngList[is + c];
                         }
                     }
                 } else { // no flipping is needed
@@ -516,8 +516,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             lngList = flippedLonList;
         }
 
-        float subSamplingX = (float)(product.getSceneRasterWidth() - 1) / (gridWidth - 1);
-        float subSamplingY = (float)(product.getSceneRasterHeight() - 1) / (gridHeight - 1);
+        float subSamplingX = (float) (product.getSceneRasterWidth() - 1) / (gridWidth - 1);
+        float subSamplingY = (float) (product.getSceneRasterHeight() - 1) / (gridHeight - 1);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, latList);
@@ -544,13 +544,13 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelFloat(0, 0));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(w-1, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(w-1, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(w - 1, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(w - 1, 0));
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, h-1));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, h-1));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(w-1, h-1));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(w-1, h-1));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, h - 1));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, h - 1));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(w - 1, h - 1));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(w - 1, h - 1));
     }
 
     @Override
@@ -560,8 +560,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final int sourceImageHeight = product.getSceneRasterHeight();
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final int subSamplingX = (int)((float)sourceImageWidth / (float)(gridWidth - 1));
-        final int subSamplingY = (int)((float)sourceImageHeight / (float)(gridHeight - 1));
+        final int subSamplingX = (int) ((float) sourceImageWidth / (float) (gridWidth - 1));
+        final int subSamplingY = (int) ((float) sourceImageHeight / (float) (gridHeight - 1));
 
         double a = Constants.semiMajorAxis; // WGS 84: equatorial Earth radius in m
         double b = Constants.semiMinorAxis; // WGS 84: polar Earth radius in m
@@ -576,7 +576,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         // get scene center latitude
         final GeoPos sceneCenterPos =
-                product.getGeoCoding().getGeoPos(new PixelPos(sourceImageWidth/2.0f, sourceImageHeight/2.0f), null);
+                product.getGeoCoding().getGeoPos(new PixelPos(sourceImageWidth / 2.0f, sourceImageHeight / 2.0f), null);
         double sceneCenterLatitude = sceneCenterPos.lat; // in deg
 
         // get near range incidence angle
@@ -585,15 +585,15 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement imageGenerationParameters = productElem.getElement("imageGenerationParameters");
         final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
         final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");
-        final double nearRangeIncidenceAngle = (float)incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
+        final double nearRangeIncidenceAngle = (float) incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
 
         final double alpha1 = nearRangeIncidenceAngle * org.esa.beam.util.math.MathUtils.DTOR;
         final double lambda = sceneCenterLatitude * org.esa.beam.util.math.MathUtils.DTOR;
         final double cos2 = Math.cos(lambda) * Math.cos(lambda);
         final double sin2 = Math.sin(lambda) * Math.sin(lambda);
-        final double e2 = (b*b)/(a*a);
-        final double rt = a*Math.sqrt((cos2 + e2*e2*sin2)/(cos2 + e2*sin2));
-        final double rt2 = rt*rt;
+        final double e2 = (b * b) / (a * a);
+        final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
+        final double rt2 = rt * rt;
 
         double groundRangeSpacing;
         if (srgrFlag) { // detected
@@ -604,42 +604,42 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         double deltaPsi = groundRangeSpacing / rt; // in radian
         final double r1 = slantRangeToFirstPixel;
-        final double rtPlusH = Math.sqrt(rt2 + r1*r1 + 2.0*rt*r1*Math.cos(alpha1));
-        final double rtPlusH2 = rtPlusH*rtPlusH;
-        final double theta1 = Math.acos((r1 + rt*Math.cos(alpha1))/rtPlusH);
+        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * Math.cos(alpha1));
+        final double rtPlusH2 = rtPlusH * rtPlusH;
+        final double theta1 = Math.acos((r1 + rt * Math.cos(alpha1)) / rtPlusH);
         final double psi1 = alpha1 - theta1;
         double psi = psi1;
         float[] incidenceAngles = new float[gridWidth];
-        final int n = gridWidth*subSamplingX;
+        final int n = gridWidth * subSamplingX;
         int k = 0;
         for (int i = 0; i < n; i++) {
-            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0*rt*rtPlusH*Math.cos(psi));
-            final double alpha = Math.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
+            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * Math.cos(psi));
+            final double alpha = Math.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
             if (i % subSamplingX == 0) {
                 int index = k++;
 
-                if(!flipToSARGeometry && (isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight))) {// flip
-                    index = gridWidth-1 - index;
+                if (!flipToSARGeometry && (isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight))) {// flip
+                    index = gridWidth - 1 - index;
                 }
 
-                incidenceAngles[index] = (float)(alpha * org.esa.beam.util.math.MathUtils.RTOD);
+                incidenceAngles[index] = (float) (alpha * org.esa.beam.util.math.MathUtils.RTOD);
             }
 
             if (!srgrFlag) { // complex
                 groundRangeSpacing = rangeSpacing / Math.sin(alpha);
-                deltaPsi = groundRangeSpacing/rt;
+                deltaPsi = groundRangeSpacing / rt;
             }
             psi = psi + deltaPsi;
         }
 
-        float[] incidenceAngleList = new float[gridWidth*gridHeight];
+        float[] incidenceAngleList = new float[gridWidth * gridHeight];
         for (int j = 0; j < gridHeight; j++) {
-            System.arraycopy(incidenceAngles, 0, incidenceAngleList, j*gridWidth, gridWidth);
+            System.arraycopy(incidenceAngles, 0, incidenceAngleList, j * gridWidth, gridWidth);
         }
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(
                 OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                (float)subSamplingX, (float)subSamplingY, incidenceAngleList);
+                (float) subSamplingX, (float) subSamplingY, incidenceAngleList);
 
         incidentAngleGrid.setUnit(Unit.DEGREES);
 
@@ -658,17 +658,17 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         final List<coefList> segmentsArray = new ArrayList<coefList>();
 
-        for(MetadataElement elem : imageGenerationParameters.getElements()) {
-            if(elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
+        for (MetadataElement elem : imageGenerationParameters.getElements()) {
+            if (elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
                 final coefList coef = new coefList();
                 segmentsArray.add(coef);
                 coef.utcSeconds = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", AbstractMetadata.dateFormat).getMJD() * 24 * 3600;
                 coef.grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
 
                 final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");
-                if(!coeffStr.isEmpty()) {
+                if (!coeffStr.isEmpty()) {
                     final StringTokenizer st = new StringTokenizer(coeffStr);
-                    while(st.hasMoreTokens()) {
+                    while (st.hasMoreTokens()) {
                         coef.coefficients.add(Double.parseDouble(st.nextToken()));
                     }
                 }
@@ -689,19 +689,19 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final int sceneHeight = product.getSceneRasterHeight();
         final int subSamplingX = sceneWidth / (gridWidth - 1);
         final int subSamplingY = sceneHeight / (gridHeight - 1);
-        final float[] rangeDist = new float[gridWidth*gridHeight];
-        final float[] rangeTime = new float[gridWidth*gridHeight];
+        final float[] rangeDist = new float[gridWidth * gridHeight];
+        final float[] rangeTime = new float[gridWidth * gridHeight];
 
         final coefList[] segments = segmentsArray.toArray(new coefList[segmentsArray.size()]);
 
         int k = 0;
         int c = 0;
         for (int j = 0; j < gridHeight; j++) {
-            final double time = startSeconds + (j*lineTimeInterval);
-            while(c < segments.length && segments[c].utcSeconds < time)
+            final double time = startSeconds + (j * lineTimeInterval);
+            while (c < segments.length && segments[c].utcSeconds < time)
                 ++c;
-            if(c >= segments.length)
-                c = segments.length-1;
+            if (c >= segments.length)
+                c = segments.length - 1;
 
             final coefList coef = segments[c];
             final double GR0 = coef.grOrigin;
@@ -711,24 +711,24 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             final double s3 = coef.coefficients.get(3);
             final double s4 = coef.coefficients.get(4);
 
-            for(int i = 0; i < gridWidth; i++) {
-                int x = i*subSamplingX;
+            for (int i = 0; i < gridWidth; i++) {
+                int x = i * subSamplingX;
                 final double GR = x * pixelSpacing;
-                final double g = GR-GR0;
-                final double g2 = g*g;
+                final double g = GR - GR0;
+                final double g2 = g * g;
 
                 //SlantRange = s0 + s1(GR - GR0) + s2(GR-GR0)^2 + s3(GRGR0)^3 + s4(GR-GR0)^4;
-                rangeDist[k++] = (float)(s0 + s1*g + s2*g2 + s3*g2*g + s4*g2*g2);
+                rangeDist[k++] = (float) (s0 + s1 * g + s2 * g2 + s3 * g2 * g + s4 * g2 * g2);
             }
         }
 
         // get slant range time in nanoseconds from range distance in meters
-        for(int i = 0; i < rangeDist.length; i++) {
+        for (int i = 0; i < rangeDist.length; i++) {
             int index = i;
-            if(!flipToSARGeometry && (isDescending && isAntennaPointingRight || !isDescending && !isAntennaPointingRight)) // flip for descending RS2
-                index = rangeDist.length-1 - i;
+            if (!flipToSARGeometry && (isDescending && isAntennaPointingRight || !isDescending && !isAntennaPointingRight)) // flip for descending RS2
+                index = rangeDist.length - 1 - i;
 
-            rangeTime[index] = (float)(rangeDist[i] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
+            rangeTime[index] = (float) (rangeDist[i] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,

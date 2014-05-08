@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,6 @@ import java.util.Locale;
 
 /**
  * The ReaderPlugIn for TerraSarX products.
- *
  */
 public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
 
@@ -35,7 +34,6 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      *
      * @param input any input object
-     *
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
@@ -44,8 +42,8 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
         final String filename = file.getName().toUpperCase();
-        for(String header : TerraSarXConstants.HEADER_PREFIX) {
-            if(filename.startsWith(header) && filename.endsWith(TerraSarXConstants.getIndicationKey())) {
+        for (String header : TerraSarXConstants.HEADER_PREFIX) {
+            if (filename.startsWith(header) && filename.endsWith(TerraSarXConstants.getIndicationKey())) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -106,7 +104,6 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
@@ -128,7 +125,6 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
          * if no extension are defined, the method always returns <code>true</code>
          *
          * @param file the file to be or not be accepted.
-         *
          * @return <code>true</code> if given file is accepted by this filter
          */
         public boolean accept(final File file) {
@@ -136,8 +132,8 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
                 final String name = file.getName().toUpperCase();
                 if (file.isDirectory())
                     return true;
-                for(String header : TerraSarXConstants.HEADER_PREFIX) {
-                    if(name.startsWith(header))
+                for (String header : TerraSarXConstants.HEADER_PREFIX) {
+                    if (name.startsWith(header))
                         return true;
                 }
             }

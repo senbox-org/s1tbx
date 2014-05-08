@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,10 +28,10 @@ public class TestClassifcationOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathQuad =          TestUtils.rootPathExpectedProducts+"\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack =     TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack =           TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack =           TestUtils.rootPathExpectedProducts+"\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+    private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
 
     @Override
     protected void setUp() throws Exception {
@@ -61,31 +61,31 @@ public class TestClassifcationOp extends TestCase {
 
     public void testCloudePottierClassifier() throws Exception {
 
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputPathQuad);
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputQuadFullStack);
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputC3Stack);
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputT3Stack);
     }
 
     public void testWishartClassifier() throws Exception {
 
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputPathQuad);
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputQuadFullStack);
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputC3Stack);
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputT3Stack);
     }
 
     public void testTerrainClassifier() throws Exception {
 
-        runClassification((PolarimetricClassificationOp)spi.createOperator(),
+        runClassification((PolarimetricClassificationOp) spi.createOperator(),
                 PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, inputPathQuad);
 //        runClassification((PolarimetricClassificationOp)spi.createOperator(),
 //                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, inputQuadFullStack);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -95,12 +95,12 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     private static final boolean includeWMSPanel = false;
 
     private static final String[] servers = new String[]
-        {
-            "http://neowms.sci.gsfc.nasa.gov/wms/wms",
-            //"http://mapserver.flightgear.org/cgi-bin/landcover",
-            "http://wms.jpl.nasa.gov/wms.cgi",
-            "http://worldwind46.arc.nasa.gov:8087/wms"
-        };
+            {
+                    "http://neowms.sci.gsfc.nasa.gov/wms/wms",
+                    //"http://mapserver.flightgear.org/cgi-bin/landcover",
+                    "http://wms.jpl.nasa.gov/wms.cgi",
+                    "http://worldwind46.arc.nasa.gov:8087/wms"
+            };
 
     public NestWWToolView() {
     }
@@ -110,8 +110,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
         productLayer = new ProductLayer(true);
         final Window windowPane = getPaneWindow();
-        if(windowPane != null)
-            windowPane.setSize(800,400);
+        if (windowPane != null)
+            windowPane.setSize(800, 400);
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setSize(new Dimension(300, 300));
 
@@ -137,7 +137,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
         // world wind canvas
         initialize(mainPane);
-        if(wwjPanel == null) return mainPane;
+        if (wwjPanel == null) return mainPane;
 
         final MSVirtualEarthLayer virtualEarthLayerA = new MSVirtualEarthLayer(MSVirtualEarthLayer.LAYER_AERIAL);
         virtualEarthLayerA.setName("MS Bing Aerial");
@@ -175,7 +175,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     }
 
     WorldWindowGLCanvas getWwd() {
-        if(wwjPanel == null)
+        if (wwjPanel == null)
             return null;
         return wwjPanel.getWwd();
     }
@@ -207,14 +207,14 @@ public class NestWWToolView extends AbstractToolView implements WWView {
                 layerPanel.add(makeControlPanel(), BorderLayout.SOUTH);
                 layerPanel.update(getWwd());
             }
-            if(includeProductPanel) {
+            if (includeProductPanel) {
                 productPanel = new ProductPanel(wwjPanel.getWwd(), productLayer);
                 mainPane.add(productPanel, BorderLayout.WEST);
 
                 productPanel.add(makeControlPanel(), BorderLayout.SOUTH);
                 productPanel.update(getWwd());
             }
-            if(includeWMSPanel) {
+            if (includeWMSPanel) {
                 tabbedPane.add(new JPanel());
                 tabbedPane.setTitleAt(0, "+");
                 tabbedPane.addChangeListener(new ChangeListener() {
@@ -247,8 +247,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
                 mainPane.add(tabbedPane, BorderLayout.EAST);
             }
-        } catch(Throwable e) {
-            System.out.println("Can't load openGL "+e.getMessage());   
+        } catch (Throwable e) {
+            System.out.println("Can't load openGL " + e.getMessage());
         }
     }
 
@@ -282,84 +282,78 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     }
 
     public void setSelectedProduct(Product product) {
-        if(productLayer != null)
+        if (productLayer != null)
             productLayer.setSelectedProduct(product);
-        if(productPanel != null)
+        if (productPanel != null)
             productPanel.update(getWwd());
-        if(isVisible()) {
+        if (isVisible()) {
             getWwd().redrawNow();
         }
     }
 
     public Product getSelectedProduct() {
-        if(productLayer != null)
+        if (productLayer != null)
             return productLayer.getSelectedProduct();
         return null;
     }
 
     public void setProducts(Product[] products) {
-        if(productLayer != null) {
+        if (productLayer != null) {
             for (Product prod : products) {
                 try {
                     productLayer.addProduct(prod);
-                } catch(Exception e) {
-                    datApp.showErrorDialog("WorldWind unable to add product " + prod.getName()+
-                                            "\n"+e.getMessage());
+                } catch (Exception e) {
+                    datApp.showErrorDialog("WorldWind unable to add product " + prod.getName() +
+                            "\n" + e.getMessage());
                 }
             }
         }
-        if(productPanel != null)
+        if (productPanel != null)
             productPanel.update(getWwd());
-        if(isVisible()) {
+        if (isVisible()) {
             getWwd().redrawNow();
         }
     }
 
     public void removeProduct(Product product) {
-        if(getSelectedProduct() == product)
+        if (getSelectedProduct() == product)
             setSelectedProduct(null);
-        if(productLayer != null)
+        if (productLayer != null)
             productLayer.removeProduct(product);
-        if(productPanel != null)
+        if (productPanel != null)
             productPanel.update(getWwd());
 
-        if(isVisible()) {
+        if (isVisible()) {
             getWwd().redrawNow();
         }
     }
 
-    private WMSLayersPanel addTab(int position, String server)
-        {
-            // Add a server to the tabbed dialog.
-            try
-            {
-                final WMSLayersPanel layersPanel = new WMSLayersPanel(wwjPanel.getWwd(), server, wmsPanelSize);
-                this.tabbedPane.add(layersPanel, BorderLayout.CENTER);
-                final String title = layersPanel.getServerDisplayString();
-                this.tabbedPane.setTitleAt(position, title != null && title.length() > 0 ? title : server);
+    private WMSLayersPanel addTab(int position, String server) {
+        // Add a server to the tabbed dialog.
+        try {
+            final WMSLayersPanel layersPanel = new WMSLayersPanel(wwjPanel.getWwd(), server, wmsPanelSize);
+            this.tabbedPane.add(layersPanel, BorderLayout.CENTER);
+            final String title = layersPanel.getServerDisplayString();
+            this.tabbedPane.setTitleAt(position, title != null && title.length() > 0 ? title : server);
 
-                // Add a listener to notice wms layer selections and tell the layer panel to reflect the new state.
-                layersPanel.addPropertyChangeListener("LayersPanelUpdated", new PropertyChangeListener()
-                {
-                    public void propertyChange(PropertyChangeEvent propertyChangeEvent)
-                    {
-                        layerPanel.update(wwjPanel.getWwd());
-                    }
-                });
+            // Add a listener to notice wms layer selections and tell the layer panel to reflect the new state.
+            layersPanel.addPropertyChangeListener("LayersPanelUpdated", new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+                    layerPanel.update(wwjPanel.getWwd());
+                }
+            });
 
-                return layersPanel;
-            }
-            catch (URISyntaxException e)
-            {
-                JOptionPane.showMessageDialog(null, "Server URL is invalid", "Invalid Server URL",
+            return layersPanel;
+        } catch (URISyntaxException e) {
+            JOptionPane.showMessageDialog(null, "Server URL is invalid", "Invalid Server URL",
                     JOptionPane.ERROR_MESSAGE);
-                tabbedPane.setSelectedIndex(previousTabIndex);
-                return null;
-            }
+            tabbedPane.setSelectedIndex(previousTabIndex);
+            return null;
         }
+    }
 
     private static ElevationModel makeElevationModel() throws URISyntaxException, ParserConfigurationException,
-                                                        IOException, SAXException {
+            IOException, SAXException {
         final URI serverURI = new URI("http://www.nasa.network.com/elev");
 
         final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -367,8 +361,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         if (Configuration.getJavaVersion() >= 1.6) {
             try {
                 docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            }
-            catch (ParserConfigurationException e) {   // Note it and continue on. Some Java5 parsers don't support the feature.
+            } catch (ParserConfigurationException e) {   // Note it and continue on. Some Java5 parsers don't support the feature.
                 String message = Logging.getMessage("XML.NonvalidatingNotSupported");
                 Logging.logger().finest(message);
             }
@@ -433,7 +426,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
             try {
                 final ElevationModel em = makeElevationModel();
                 m.getGlobe().setElevationModel(em);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //
             }
         }
@@ -455,7 +448,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
             Product product = null;
             if (contentPane instanceof ProductSceneView) {
                 product = ((ProductSceneView) contentPane).getProduct();
-            } 
+            }
             setSelectedProduct(product);
         }
 

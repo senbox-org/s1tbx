@@ -1,59 +1,60 @@
-<?xml version="1.0"?><project>
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
+<?xml version="1.0"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
         <groupId>org.esa.nest</groupId>
-		<artifactId>s1tbx</artifactId>
+        <artifactId>s1tbx</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-	
-  <groupId>org.esa.nest</groupId>
-  <artifactId>nest-op-orthorectification</artifactId>
-  <name>NEST Orthorectification</name>
-  <version>6.0-SNAPSHOT</version>
-  <description>Provides for orthorectifying SAR data</description>
-  
-  <dependencies>
-    <dependency>
-      <groupId>org.esa.beam</groupId>
-      <artifactId>beam-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.beam</groupId>
-      <artifactId>beam-gpf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.beam</groupId>
-      <artifactId>beam-visat-rcp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.nest</groupId>
-      <artifactId>nest-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.nest</groupId>
-      <artifactId>nest-graph-builder</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.nest</groupId>
-      <artifactId>nest-op-calibration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.nest</groupId>
-      <artifactId>nest-op-coregistration</artifactId>
-	  <version>${nest.version}</version>
-    </dependency>
-	<dependency>
-      <groupId>org.jlinda</groupId>
-      <artifactId>jlinda-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.esa.nest</groupId>
-      <artifactId>nest-reader-dem</artifactId>
-    </dependency>
-  </dependencies>
-  
-	<build>
+
+    <groupId>org.esa.nest</groupId>
+    <artifactId>nest-op-orthorectification</artifactId>
+    <name>NEST Orthorectification</name>
+    <version>6.0-SNAPSHOT</version>
+    <description>Provides for orthorectifying SAR data</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-graph-builder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-calibration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-coregistration</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-reader-dem</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
         <plugins>
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>

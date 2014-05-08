@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -36,7 +36,7 @@ public final class SRTM3GeoTiffElevationModel extends BaseElevationModel {
 
     @Override
     public double getIndexX(final GeoPos geoPos) {
-        return (geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv+0.25;// - 0.5;
+        return (geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv + 0.25;// - 0.5;
     }
 
     @Override
@@ -46,14 +46,14 @@ public final class SRTM3GeoTiffElevationModel extends BaseElevationModel {
 
     @Override
     public GeoPos getGeoPos(final PixelPos pixelPos) {
-        final float pixelLat = (float)((RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 60.0);
-        final float pixelLon = (float)(pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
+        final float pixelLat = (float) ((RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 60.0);
+        final float pixelLon = (float) (pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
         return new GeoPos(pixelLat, pixelLon);
     }
 
     @Override
     protected void createElevationFile(final ElevationFile[][] elevationFiles,
-                                                final int x, final int y, final File demInstallDir) {
+                                       final int x, final int y, final File demInstallDir) {
         final String fileName = descriptor.createTileFilename(x + 1, y + 1);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][y] = new SRTM3GeoTiffFile(this, localFile, productReaderPlugIn.createReaderInstance());

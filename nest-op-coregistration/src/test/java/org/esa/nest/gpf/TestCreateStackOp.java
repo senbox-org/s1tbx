@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,16 +44,16 @@ public class TestCreateStackOp extends TestCase {
 
     public void testOperator() throws Exception {
 
-        final CreateStackOp op = (CreateStackOp)spi.createOperator();
+        final CreateStackOp op = (CreateStackOp) spi.createOperator();
         assertNotNull(op);
 
-        final Product mstProduct = createTestProduct(40,40, 30, 10, 10, 20);
-        final Product slvProduct1 = createTestProduct(40,40, 35, 15, 15, 25);
+        final Product mstProduct = createTestProduct(40, 40, 30, 10, 10, 20);
+        final Product slvProduct1 = createTestProduct(40, 40, 35, 15, 15, 25);
 
         //ProductIO.writeProduct(mstProduct, "c:\\data\\out\\mstProduct", "BEAM-DIMAP");
         //ProductIO.writeProduct(slvProduct1, "c:\\data\\out\\slvProduct1", "BEAM-DIMAP");
 
-        op.setSourceProducts(new Product[] {mstProduct, slvProduct1});
+        op.setSourceProducts(new Product[]{mstProduct, slvProduct1});
         op.setTestParameters(CreateStackOp.MASTER_EXTENT);
 
         // get targetProduct gets initialize to be executed
@@ -82,7 +82,7 @@ public class TestCreateStackOp extends TestCase {
         int i;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                i = y*w + x;
+                i = y * w + x;
                 floatValues[i] = 0;
             }
         }

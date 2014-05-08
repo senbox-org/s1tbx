@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -61,7 +61,7 @@ public class GeolocationGridGeocodingOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
         imgResamplingMethod.setSelectedItem(paramMap.get("imgResamplingMethod"));
-        final String mapProjection = (String)paramMap.get("mapProjection");
+        final String mapProjection = (String) paramMap.get("mapProjection");
         mapProjHandler.initParameters(mapProjection, sourceProducts);
         crsButton.setText(mapProjHandler.getCRSName());
     }
@@ -77,7 +77,7 @@ public class GeolocationGridGeocodingOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
         paramMap.put("imgResamplingMethod", imgResamplingMethod.getSelectedItem());
-        if(mapProjHandler.getCRS() != null) {
+        if (mapProjHandler.getCRS() != null) {
             paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
         }
     }

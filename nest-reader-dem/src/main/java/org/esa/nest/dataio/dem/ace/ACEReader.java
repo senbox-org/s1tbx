@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -123,7 +123,6 @@ public class ACEReader extends AbstractProductReader {
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #readBandRasterData
      * @see #getSubsetDef
@@ -137,7 +136,7 @@ public class ACEReader extends AbstractProductReader {
         try {
             final short[] elems = (short[]) destBuffer.getElems();
             readRasterDataImpl(elems, sourceOffsetY, sourceOffsetX, sourceStepX, sourceStepY, destWidth, destHeight,
-                               SubProgressMonitor.create(pm, 1));
+                    SubProgressMonitor.create(pm, 1));
             maskInt32Extrema(elems);
         } finally {
             pm.done();
@@ -198,12 +197,12 @@ public class ACEReader extends AbstractProductReader {
         final int height = _fileInfo.getHeight();
         _product = new Product(productName, ACEReaderPlugIn.FORMAT_NAME, width, height, this);
         final MapInfo mapInfo = new MapInfo(MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME),
-                                            0.5F, 0.5F,
-                                            _fileInfo.getEasting(),
-                                            _fileInfo.getNorthing() + height * _fileInfo.getPixelSizeY(),
-                                            _fileInfo.getPixelSizeX(),
-                                            _fileInfo.getPixelSizeY(),
-                                            Datum.WGS_84);
+                0.5F, 0.5F,
+                _fileInfo.getEasting(),
+                _fileInfo.getNorthing() + height * _fileInfo.getPixelSizeY(),
+                _fileInfo.getPixelSizeX(),
+                _fileInfo.getPixelSizeY(),
+                Datum.WGS_84);
         mapInfo.setSceneWidth(width);
         mapInfo.setSceneHeight(height);
         _product.setGeoCoding(new MapGeoCoding(mapInfo));
@@ -218,13 +217,13 @@ public class ACEReader extends AbstractProductReader {
 
 
     private synchronized void readRasterDataImpl(final short[] elems,
-                                    final int sourceOffsetY,
-                                    final int sourceOffsetX,
-                                    final int sourceStepX,
-                                    final int sourceStepY,
-                                    final int destWidth,
-                                    final int destHeight,
-                                    ProgressMonitor pm) throws IOException {
+                                                 final int sourceOffsetY,
+                                                 final int sourceOffsetX,
+                                                 final int sourceStepX,
+                                                 final int sourceStepY,
+                                                 final int destWidth,
+                                                 final int destHeight,
+                                                 ProgressMonitor pm) throws IOException {
         final int sceneWidth = _product.getSceneRasterWidth();
         pm.beginTask("Reading raster data...", destHeight);
         try {

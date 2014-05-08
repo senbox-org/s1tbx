@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -88,10 +88,10 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
 
     @Override
     public File getDemInstallDir() {
-        if(demInstallDir == null) {
+        if (demInstallDir == null) {
             final String path = Settings.instance().get("DEM/srtm1GridDEMDataPath");
             demInstallDir = new File(path);
-            if(!demInstallDir.exists())
+            if (!demInstallDir.exists())
                 demInstallDir.mkdirs();
         }
         return demInstallDir;

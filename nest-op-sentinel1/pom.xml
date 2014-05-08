@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>org.esa.nest</groupId>
-		<artifactId>s1tbx</artifactId>
+        <artifactId>s1tbx</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
@@ -13,7 +13,7 @@
     <artifactId>nest-op-sentinel1</artifactId>
     <name>NEST Sentinel-1 Tools</name>
     <version>6.0-SNAPSHOT</version>
-	
+
     <packaging>jar</packaging>
 
     <dependencies>

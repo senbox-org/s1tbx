@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.esa.nest</groupId>
-		<artifactId>s1tbx</artifactId>
+        <artifactId>s1tbx</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
@@ -22,14 +22,14 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-bootstrap</artifactId>
-			<version>${beam.version}</version>
+            <version>${beam.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envi-reader</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
         </dependency>
@@ -38,7 +38,7 @@
             <artifactId>beam-arcbingrid-reader</artifactId>
             <version>${beam.version}</version>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-reader-dem</artifactId>
         </dependency>
@@ -46,7 +46,7 @@
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-op-calibration</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
         </dependency>
@@ -62,7 +62,7 @@
             <version>0.1-SNAPSHOT</version>
         </dependency-->
 
-		<dependency>
+        <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
         </dependency>
@@ -71,11 +71,11 @@
             <artifactId>junit</artifactId>
             <scope>compile</scope>
         </dependency>
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
         </dependency>
@@ -91,55 +91,55 @@
             <groupId>ncsa.hdf</groupId>
             <artifactId>lib-hdf</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>nujan</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>gov.nasa</groupId>
             <artifactId>nasa-worldwind</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.processing</groupId>
             <artifactId>jogl</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.processing</groupId>
             <artifactId>gluegen-rt</artifactId>
         </dependency>
-		<dependency>
-			<groupId>edu.emory.mathcs</groupId>
-			<artifactId>jtransforms</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>edu.emory.mathcs</groupId>
+            <artifactId>jtransforms</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jblas</groupId>
             <artifactId>jblas</artifactId>
         </dependency>
 
-		<dependency>
-			<groupId>org.geonames</groupId>
-			<artifactId>geonames</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jaitools</groupId>
+        <dependency>
+            <groupId>org.geonames</groupId>
+            <artifactId>geonames</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jaitools</groupId>
             <artifactId>jt-all</artifactId>
         </dependency>
         <dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij</artifactId>
-		</dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>de.lmu.ifi.dbs.jfeaturelib</groupId>
             <artifactId>JFeatureLib</artifactId>
         </dependency>
-		
-		<dependency>
+
+        <dependency>
             <groupId>org.openimaj</groupId>
             <artifactId>core</artifactId>
         </dependency>
@@ -183,12 +183,12 @@
             <groupId>com.googlecode.matrix-toolkits-java</groupId>
             <artifactId>mtj</artifactId>
         </dependency>
-		
-		<dependency>
+
+        <dependency>
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>sevenzipjbinding</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>native-libs</artifactId>
         </dependency>
@@ -197,8 +197,8 @@
             <artifactId>commons-compress</artifactId>
             <version>1.8</version>
         </dependency>
-		
-		<dependency>
+
+        <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
             <artifactId>weka-stable</artifactId>
             <version>3.6.6</version>
@@ -213,11 +213,11 @@
             <artifactId>mahout-math</artifactId>
             <version>0.8</version>
         </dependency>
-		<dependency>
-			<groupId>org.apache.mahout</groupId>
-			<artifactId>mahout-integration</artifactId>
-			<version>0.8</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-integration</artifactId>
+            <version>0.8</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-collections</artifactId>
@@ -233,8 +233,8 @@
             <artifactId>hadoop-core</artifactId>
             <version>0.20.2</version>
         </dependency>
-		
-		<dependency>
+
+        <dependency>
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
         </dependency>

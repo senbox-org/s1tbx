@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -55,27 +55,25 @@ public class TestImageIOReader extends TestCase {
         readerPlugin = null;
     }
 
-    public void testImageIO() throws IOException
-    {
+    public void testImageIO() throws IOException {
         String[] readerFormats = ImageIO.getReaderFormatNames();
         String[] readerSuffixes = ImageIO.getReaderFileSuffixes();
         String[] writerFormats = ImageIO.getWriterFormatNames();
         String[] writerSuffixes = ImageIO.getWriterFileSuffixes();
 
-        for(String s : readerFormats)
+        for (String s : readerFormats)
             TestUtils.log.info("ImageIOreader: " + s);
-        for(String s : readerSuffixes)
+        for (String s : readerSuffixes)
             TestUtils.log.info("ImageIOreaderSuffix: " + s);
-        for(String s : writerFormats)
+        for (String s : writerFormats)
             TestUtils.log.info("ImageIOwriter: " + s);
-        for(String s : writerSuffixes)
+        for (String s : writerSuffixes)
             TestUtils.log.info("ImageIOwriterSuffix: " + s);
     }
 
-    public void testOpen() throws IOException
-    {
+    public void testOpen() throws IOException {
         File file = new File(filePath);
-        if(!file.exists()) return;
+        if (!file.exists()) return;
 
         Product product = reader.readProductNodes(file, null);
     }

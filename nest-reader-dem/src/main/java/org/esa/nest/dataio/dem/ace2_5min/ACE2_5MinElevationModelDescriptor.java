@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -98,10 +98,10 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
 
     @Override
     public File getDemInstallDir() {
-        if(aceDemInstallDir == null) {
+        if (aceDemInstallDir == null) {
             final String path = Settings.instance().get("DEM/ace2_5MinDEMDataPath");
             aceDemInstallDir = new File(path);
-            if(!aceDemInstallDir.exists())
+            if (!aceDemInstallDir.exists())
                 aceDemInstallDir.mkdirs();
         }
         return aceDemInstallDir;
@@ -166,7 +166,7 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
 
         try {
             final VisatApp visatApp = VisatApp.getApp();
-            if(visatApp != null) {
+            if (visatApp != null) {
                 visatApp.setStatusBarMessage("Downloading ACE2 5Min DEM...");
             }
 
@@ -174,10 +174,10 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
             FileUnpacker.unpackZip(archiveFile, demInstallDir, parent);
             archiveFile.delete();
 
-            if(visatApp != null) {
+            if (visatApp != null) {
                 visatApp.setStatusBarMessage("");
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -200,7 +200,7 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
                     pm.worked(1);
                     archiveFile.delete();
                     pm.worked(1);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     return false;
                 } finally {

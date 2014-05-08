@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -79,7 +79,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
         demName.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                if(((String)demName.getSelectedItem()).startsWith(externalDEMStr)) {
+                if (((String) demName.getSelectedItem()).startsWith(externalDEMStr)) {
                     enableExternalDEM(true);
                 } else {
                     externalDEMFile.setText("");
@@ -88,7 +88,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(30);
-        enableExternalDEM(((String)demName.getSelectedItem()).startsWith(externalDEMStr));
+        enableExternalDEM(((String) demName.getSelectedItem()).startsWith(externalDEMStr));
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -127,9 +127,9 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             }
         });
         saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return new JScrollPane(panel);
@@ -140,41 +140,41 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        final String demNameParam = (String)paramMap.get("demName");
-        if(demNameParam != null)
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null)
             demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
         demResamplingMethod.setSelectedItem(paramMap.get("demResamplingMethod"));
 
-        final File extFile = (File)paramMap.get("externalDEMFile");
-        if(extFile != null) {
+        final File extFile = (File) paramMap.get("externalDEMFile");
+        if (extFile != null) {
             externalDEMFile.setText(extFile.getAbsolutePath());
-            extNoDataValue =  (Double)paramMap.get("externalDEMNoDataValue");
-            if(extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
+            extNoDataValue = (Double) paramMap.get("externalDEMNoDataValue");
+            if (extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
             }
         }
 
-        isSARSimTC = (Boolean)paramMap.get("isSARSimTC");
-        if(isSARSimTC == null)
+        isSARSimTC = (Boolean) paramMap.get("isSARSimTC");
+        if (isSARSimTC == null)
             isSARSimTC = true;
 
-        if(!isSARSimTC) {
-            reGridMethod = (Boolean)paramMap.get("reGridMethod");
+        if (!isSARSimTC) {
+            reGridMethod = (Boolean) paramMap.get("reGridMethod");
             reGridMethodCheckBox.setSelected(reGridMethod);
 
-            orbitMethod = (Boolean)paramMap.get("orbitMethod");
+            orbitMethod = (Boolean) paramMap.get("orbitMethod");
             orbitMethodCheckBox.setSelected(orbitMethod);
 
-            saveDEM = (Boolean)paramMap.get("saveDEM");
+            saveDEM = (Boolean) paramMap.get("saveDEM");
             saveDEMCheckBox.setSelected(saveDEM);
 
-            saveZeroHeightSimulation = (Boolean)paramMap.get("saveZeroHeightSimulation");
+            saveZeroHeightSimulation = (Boolean) paramMap.get("saveZeroHeightSimulation");
             saveZeroHeightSimulationCheckBox.setSelected(saveZeroHeightSimulation);
 
-            saveLocalIncidenceAngle = (Boolean)paramMap.get("saveLocalIncidenceAngle");
+            saveLocalIncidenceAngle = (Boolean) paramMap.get("saveLocalIncidenceAngle");
             saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
         }
-        saveLayoverShadowMask = (Boolean)paramMap.get("saveLayoverShadowMask");
+        saveLayoverShadowMask = (Boolean) paramMap.get("saveLayoverShadowMask");
         if (saveLayoverShadowMask != null) {
             saveLayoverShadowMaskCheckBox.setSelected(saveLayoverShadowMask);
         }
@@ -193,16 +193,16 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
-        paramMap.put("demName", DEMFactory.getProperDEMName((String)demName.getSelectedItem()));
+        paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
         paramMap.put("demResamplingMethod", demResamplingMethod.getSelectedItem());
 
         final String extFileStr = externalDEMFile.getText();
-        if(!extFileStr.isEmpty()) {
+        if (!extFileStr.isEmpty()) {
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
 
-        if(!isSARSimTC) {
+        if (!isSARSimTC) {
             paramMap.put("reGridMethod", reGridMethod);
             paramMap.put("orbitMethod", orbitMethod);
             paramMap.put("saveDEM", saveDEM);
@@ -235,7 +235,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
 
         gbc.gridx = 0;
-        if(!isSARSimTC) {
+        if (!isSARSimTC) {
             gbc.gridy++;
             contentPane.add(reGridMethodCheckBox, gbc);
             gbc.gridy++;

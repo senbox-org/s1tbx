@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -76,8 +76,8 @@ public class ImageIOWriter extends AbstractProductWriter {
 
         file = ReaderUtils.getFileFromInput(getOutput());
         // ensure extension // this should not be done here
-        if(!file.getName().toLowerCase().endsWith(format.toLowerCase())) {
-            file = new File(file.getAbsolutePath()+'.'+format.toLowerCase());   
+        if (!file.getName().toLowerCase().endsWith(format.toLowerCase())) {
+            file = new File(file.getAbsolutePath() + '.' + format.toLowerCase());
         }
 
         final Iterator<ImageWriter> writerList = ImageIO.getImageWritersBySuffix(format);
@@ -123,7 +123,7 @@ public class ImageIOWriter extends AbstractProductWriter {
                     dataArray[pos++] = (short)sourceBuffer.getElemIntAt(i);
                 } */
 
-                if(sourceHeight == sourceBand.getRasterHeight() || sourceOffsetY == sourceBand.getRasterHeight()-1) {
+            if (sourceHeight == sourceBand.getRasterHeight() || sourceOffsetY == sourceBand.getRasterHeight() - 1) {
                     
                 /*    RenderedImage img = createRenderedImage(dataArray,
                                                             sourceBand.getRasterWidth(), sourceBand.getRasterHeight());
@@ -131,14 +131,14 @@ public class ImageIOWriter extends AbstractProductWriter {
                     //writer.write(null, new IIOImage(img, null, null), param);
                     //ImageIO.write(img, format, file);         */
 
-                    writer.write(null, new IIOImage(sourceBand.getSourceImage(), null, null), param);
-                }
-        //    }
-        } catch(Exception e) {
+                writer.write(null, new IIOImage(sourceBand.getSourceImage(), null, null), param);
+            }
+            //    }
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            if(VisatApp.getApp()!=null) {
-                VisatApp.getApp().showErrorDialog(e.getMessage()+
-                        "\nTry using convertDataType to convert to UInt8 or a data type supported by the image format");    
+            if (VisatApp.getApp() != null) {
+                VisatApp.getApp().showErrorDialog(e.getMessage() +
+                        "\nTry using convertDataType to convert to UInt8 or a data type supported by the image format");
             }
         }
     }
@@ -149,7 +149,7 @@ public class ImageIOWriter extends AbstractProductWriter {
         final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_INT, w, h, 1);
         final ColorModel colourModel = PlanarImage.createColorModel(sampleModel);
         final DataBufferInt dataBuffer = new DataBufferInt(array, array.length);
-        final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new Point(0,0));
+        final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new Point(0, 0));
 
         return new BufferedImage(colourModel, raster, false, new Hashtable());
     }
@@ -183,7 +183,7 @@ public class ImageIOWriter extends AbstractProductWriter {
             _outputStream.close();
             _outputStream = null;
         }
-        if(writer != null) {
+        if (writer != null) {
             writer.dispose();
         }
     }
@@ -192,7 +192,6 @@ public class ImageIOWriter extends AbstractProductWriter {
      * Returns wether the given product node is to be written.
      *
      * @param node the product node
-     *
      * @return <code>true</code> if so
      */
     @Override

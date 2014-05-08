@@ -4,27 +4,27 @@
     <version>6.0-SNAPSHOT</version>
     <name>NEST SAR Tools</name>
     <description>NEST SAR Tools</description>
-	
+
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
-      <module>nest-graph-builder</module>
-    </dependency>
-	<dependency>
-      <module>nest-core</module>
+        <module>nest-graph-builder</module>
     </dependency>
     <dependency>
-      <module>nest-dat</module>
+        <module>nest-core</module>
     </dependency>
-	<dependency>
+    <dependency>
+        <module>nest-dat</module>
+    </dependency>
+    <dependency>
         <module>jlinda-core</module>
     </dependency>
-	
+
     <categories>Processing</categories>
 
     <extension point="beam-ui:actions">
@@ -38,26 +38,26 @@
         </action>
 
         <action>
-	        <id>OverSampleOp</id>
-	        <helpId>OverSampleOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>OverSampleOp</id>
+            <helpId>OverSampleOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Resampling</parent>
-	        <text>Oversample</text>
-	        <operatorName>Oversample</operatorName>
-	        <dialogTitle>Oversample an image</dialogTitle>
+            <text>Oversample</text>
+            <operatorName>Oversample</operatorName>
+            <dialogTitle>Oversample an image</dialogTitle>
             <targetProductNameSuffix>_OvrS</targetProductNameSuffix>
         </action>
 
         <action>
-	        <id>UnderSampleOp</id>
-	        <helpId>UnderSampleOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>UnderSampleOp</id>
+            <helpId>UnderSampleOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Resampling</parent>
-	        <text>Undersample</text>
-	        <operatorName>Undersample</operatorName>
-	        <dialogTitle>Undersample an image</dialogTitle>
+            <text>Undersample</text>
+            <operatorName>Undersample</operatorName>
+            <dialogTitle>Undersample an image</dialogTitle>
             <targetProductNameSuffix>_UndS</targetProductNameSuffix>
         </action>
 
@@ -70,16 +70,16 @@
         </action>
 
         <action>
-	        <id>ConvertDatatypeOp</id>
-	        <helpId>ConvertDatatypeOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>ConvertDatatypeOp</id>
+            <helpId>ConvertDatatypeOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>DatasetConversion</parent>
-	        <text>Convert Datatype</text>
-	        <operatorName>Convert-Datatype</operatorName>
-	        <dialogTitle>Change the datatype of the product</dialogTitle>
+            <text>Convert Datatype</text>
+            <operatorName>Convert-Datatype</operatorName>
+            <dialogTitle>Change the datatype of the product</dialogTitle>
             <targetProductNameSuffix>_Cnv</targetProductNameSuffix>
-	    </action>
+        </action>
 
         <action>
             <id>AmplitudeToIntensityOp</id>
@@ -112,45 +112,45 @@
         </action>
 
         <action>
-	        <id>applyOrbitFile</id>
-	        <helpId>ApplyOrbitFileOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>applyOrbitFile</id>
+            <helpId>ApplyOrbitFileOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
-	        <text>Apply Orbit File</text>
-	        <operatorName>Apply-Orbit-File</operatorName>
-	        <dialogTitle>Apply Orbit File to Product</dialogTitle>
+            <text>Apply Orbit File</text>
+            <operatorName>Apply-Orbit-File</operatorName>
+            <dialogTitle>Apply Orbit File to Product</dialogTitle>
             <targetProductNameSuffix>_Orb</targetProductNameSuffix>
-			<placeBefore>Calibration</placeBefore>
-	    </action>
+            <placeBefore>Calibration</placeBefore>
+        </action>
 
         <action>
-	        <id>GeoCorrectionOp1</id>
-	        <helpId>GeoCorrectionOp1</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>GeoCorrectionOp1</id>
+            <helpId>GeoCorrectionOp1</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
-	        <text>Geo Correction 1</text>
-	        <operatorName>Geo-Correction-1</operatorName>
-	        <dialogTitle>Geo Correction 1</dialogTitle>
+            <text>Geo Correction 1</text>
+            <operatorName>Geo-Correction-1</operatorName>
+            <dialogTitle>Geo Correction 1</dialogTitle>
             <shortDescr>Geo Correction 1</shortDescr>
             <targetProductNameSuffix>_GeoCorr1</targetProductNameSuffix>
-			<placeAfter>applyOrbitFile</placeAfter>
+            <placeAfter>applyOrbitFile</placeAfter>
         </action>
 
 
         <action>
-	        <id>GeoCorrectionOp2</id>
-	        <helpId>GeoCorrectionOp2</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>GeoCorrectionOp2</id>
+            <helpId>GeoCorrectionOp2</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
-	        <text>Geo Correction 2</text>
-	        <operatorName>Geo-Correction-2</operatorName>
-	        <dialogTitle>Geo Correction 2</dialogTitle>
+            <text>Geo Correction 2</text>
+            <operatorName>Geo-Correction-2</operatorName>
+            <dialogTitle>Geo Correction 2</dialogTitle>
             <shortDescr>Geo Correction 2</shortDescr>
             <targetProductNameSuffix>_GeoCorr2</targetProductNameSuffix>
-			<placeAfter>GeoCorrectionOp1</placeAfter>
+            <placeAfter>GeoCorrectionOp1</placeAfter>
             <separatorAfter>true</separatorAfter>
         </action>
 
@@ -165,24 +165,24 @@
         </action>
 
         <action>
-	        <id>ImageFilterOp</id>
-	        <helpId>FilterOperator</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>ImageFilterOp</id>
+            <helpId>FilterOperator</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
-	        <text>Image Filtering</text>
-	        <operatorName>Image-Filter</operatorName>
-	        <dialogTitle>Image filtering</dialogTitle>
+            <text>Image Filtering</text>
+            <operatorName>Image-Filter</operatorName>
+            <dialogTitle>Image filtering</dialogTitle>
             <shortDescr>Apply an image filter</shortDescr>
             <targetProductNameSuffix>_Filt</targetProductNameSuffix>
-	    </action>
+        </action>
 
     </extension>
 
-	<extension point="beam-ui:helpSets">
+    <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-			<id>sartoolsHelp</id>
+            <id>sartoolsHelp</id>
             <path>doc/help/sartools.hs</path>
         </helpSet>
     </extension>

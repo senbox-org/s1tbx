@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,6 @@ import java.util.Locale;
 
 /**
  * The ReaderPlugIn for Sentinel1 products.
- *
  */
 public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
@@ -35,7 +34,6 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      *
      * @param input any input object
-     *
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
@@ -44,10 +42,10 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
         final String filename = file.getName().toUpperCase();
-        if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX)  &&
+        if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
                 filename.endsWith(Sentinel1Constants.getIndicationKey())) {
             final File baseFolder = file.getParentFile();
-            if(isLevel1(baseFolder) || isLevel2(baseFolder) || isLevel0(baseFolder))
+            if (isLevel1(baseFolder) || isLevel2(baseFolder) || isLevel0(baseFolder))
                 return DecodeQualification.INTENDED;
         }
         return DecodeQualification.UNABLE;
@@ -55,7 +53,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
     public static boolean isLevel1(final File baseFolder) {
         final File annotationFolder = new File(baseFolder, "annotation");
-        if(annotationFolder.exists()) {
+        if (annotationFolder.exists()) {
             return checkFolder(annotationFolder, ".xml");
         }
         final File measurementFolder = new File(baseFolder, "measurement");
@@ -73,11 +71,11 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
     private static boolean checkFolder(final File folder, final String extension) {
         final File[] files = folder.listFiles();
-        if(files != null) {
-            for(File f : files) {
+        if (files != null) {
+            for (File f : files) {
                 final String name = f.getName().toLowerCase();
-                if(f.isFile() && (name.startsWith("s1") || name.startsWith("asa") || name.startsWith("rs2"))) {
-                    if(extension == null || name.endsWith(extension)) {
+                if (f.isFile() && (name.startsWith("s1") || name.startsWith("asa") || name.startsWith("rs2"))) {
+                    if (extension == null || name.endsWith(extension)) {
                         return true;
                     }
                 }
@@ -140,7 +138,6 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
@@ -162,13 +159,12 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
          * if no extension are defined, the method always returns <code>true</code>
          *
          * @param file the file to be or not be accepted.
-         *
          * @return <code>true</code> if given file is accepted by this filter
          */
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 if (file.isDirectory() || (file.getName().toUpperCase().startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
-                                           file.getName().toUpperCase().endsWith(Sentinel1Constants.getIndicationKey())) ) {
+                        file.getName().toUpperCase().endsWith(Sentinel1Constants.getIndicationKey()))) {
                     return true;
                 }
             }

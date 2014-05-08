@@ -6,9 +6,9 @@
 <map version="2.0">
 
     <!--Ocean Tools-->
-	<mapID target="ObjectDetection" url="operators/ObjectDetection.html"/>
-	<mapID target="OilSpillDetection" url="operators/OilSpillDetectionOp.html"/>
-	<mapID target="CreateLandMask" url="operators/CreateLandMask.html"/>
-	<mapID target="WindFieldEstimation" url="operators/WindFieldEstimationOp.html"/>
+    <mapID target="ObjectDetection" url="operators/ObjectDetection.html"/>
+    <mapID target="OilSpillDetection" url="operators/OilSpillDetectionOp.html"/>
+    <mapID target="CreateLandMask" url="operators/CreateLandMask.html"/>
+    <mapID target="WindFieldEstimation" url="operators/WindFieldEstimationOp.html"/>
 
 </map>

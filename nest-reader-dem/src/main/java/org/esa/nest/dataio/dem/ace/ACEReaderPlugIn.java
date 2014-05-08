@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,7 @@ import java.util.Locale;
 public class ACEReaderPlugIn implements ProductReaderPlugIn {
 
     public static final String FORMAT_NAME = "ACE";
-    private static final String[] FILE_EXTENSIONS = new String[]{ ".ACE" };
+    private static final String[] FILE_EXTENSIONS = new String[]{".ACE"};
     private static final Class[] INPUT_TYPES = new Class[]{
             String.class,
             File.class,
@@ -117,7 +117,6 @@ public class ACEReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {

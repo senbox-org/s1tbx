@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -94,52 +94,52 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        if(sourceProducts != null) {
+        if (sourceProducts != null) {
             crsSelectionPanel.setReferenceProduct(sourceProducts[0]);
         }
 
-        if(paramMap.get("resamplingName") != null)
-            reprojectionModel.resamplingMethod = (String)paramMap.get("resamplingName");
+        if (paramMap.get("resamplingName") != null)
+            reprojectionModel.resamplingMethod = (String) paramMap.get("resamplingName");
         else
-            reprojectionModel.resamplingMethod = (String)paramMap.get("resampling");
+            reprojectionModel.resamplingMethod = (String) paramMap.get("resampling");
         resampleComboBox.setSelectedItem(reprojectionModel.resamplingMethod);
-        if(paramMap.get("includeTiePointGrids") != null) {
-            reprojectionModel.reprojTiePoints = (Boolean)paramMap.get("includeTiePointGrids");
+        if (paramMap.get("includeTiePointGrids") != null) {
+            reprojectionModel.reprojTiePoints = (Boolean) paramMap.get("includeTiePointGrids");
             includeTPcheck.setSelected(reprojectionModel.reprojTiePoints);
         }
-        if(paramMap.get("preserveResolution") != null) {
-            reprojectionModel.preserveResolution = (Boolean)paramMap.get("preserveResolution");
+        if (paramMap.get("preserveResolution") != null) {
+            reprojectionModel.preserveResolution = (Boolean) paramMap.get("preserveResolution");
             preserveResolutionCheckBox.setSelected(reprojectionModel.preserveResolution);
         }
-        if(paramMap.get("noDataValue") != null) {
-            reprojectionModel.noDataValue = (Double)paramMap.get("noDataValue");
+        if (paramMap.get("noDataValue") != null) {
+            reprojectionModel.noDataValue = (Double) paramMap.get("noDataValue");
             noDataField.setText(String.valueOf(reprojectionModel.noDataValue));
         }
 
-        if(paramMap.get("crs") != null) {
-            crs = createTargetCRS((String)paramMap.get("crs"));
+        if (paramMap.get("crs") != null) {
+            crs = createTargetCRS((String) paramMap.get("crs"));
             infoForm.setCrsInfoText(crs.getName().getCode(), crs.toString());
-            final CustomCrsPanel customCRS = (CustomCrsPanel)customCrsUI.getCrsUI();
+            final CustomCrsPanel customCRS = (CustomCrsPanel) customCrsUI.getCrsUI();
             final String name = crs.getName().getCode();
             String projection = name;
             String datum = "";
-            if(name.contains("/")) {
-                projection = name.substring(0, name.indexOf("/")-1).replace("_", " ");
-                datum = name.substring(name.indexOf("/")+2, name.length());
+            if (name.contains("/")) {
+                projection = name.substring(0, name.indexOf("/") - 1).replace("_", " ");
+                datum = name.substring(name.indexOf("/") + 2, name.length());
             }
 
             int cnt = customCRS.projectionComboBox.getItemCount();
-            for(int i = 0; i < cnt; ++i) {
-                AbstractCrsProvider provider = (AbstractCrsProvider)customCRS.projectionComboBox.getItemAt(i);
-                if(provider.getName().equalsIgnoreCase(projection)) {
+            for (int i = 0; i < cnt; ++i) {
+                AbstractCrsProvider provider = (AbstractCrsProvider) customCRS.projectionComboBox.getItemAt(i);
+                if (provider.getName().equalsIgnoreCase(projection)) {
                     customCRS.projectionComboBox.setSelectedItem(provider);
                     break;
                 }
             }
             cnt = customCRS.datumComboBox.getItemCount();
-            for(int i = 0; i < cnt; ++i) {
-                GeodeticDatum geoDatum = (GeodeticDatum)customCRS.datumComboBox.getItemAt(i);
-                if(geoDatum.getName().getCode().equalsIgnoreCase(datum)) {
+            for (int i = 0; i < cnt; ++i) {
+                GeodeticDatum geoDatum = (GeodeticDatum) customCRS.datumComboBox.getItemAt(i);
+                if (geoDatum.getName().getCode().equalsIgnoreCase(datum)) {
                     customCRS.datumComboBox.setSelectedItem(geoDatum);
                     break;
                 }
@@ -147,30 +147,30 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
         } else {
             updateCRS();
         }
-        
-        if(sourceProducts != null && crs != null && outputGeometryModel == null) {
+
+        if (sourceProducts != null && crs != null && outputGeometryModel == null) {
             outputGeometryModel = new OutputGeometryFormModel(sourceProducts[0], crs);
         }
 
         if (outputGeometryModel != null) {
             final PropertySet container = outputGeometryModel.getPropertySet();
-            if(paramMap.get("referencePixelX") != null)
+            if (paramMap.get("referencePixelX") != null)
                 container.setValue("referencePixelX", paramMap.get("referencePixelX"));
-            if(paramMap.get("referencePixelY") != null)
+            if (paramMap.get("referencePixelY") != null)
                 container.setValue("referencePixelY", paramMap.get("referencePixelY"));
-            if(paramMap.get("easting") != null)
+            if (paramMap.get("easting") != null)
                 container.setValue("easting", paramMap.get("easting"));
-            if(paramMap.get("northing") != null)
+            if (paramMap.get("northing") != null)
                 container.setValue("northing", paramMap.get("northing"));
-            if(paramMap.get("orientation") != null)
+            if (paramMap.get("orientation") != null)
                 container.setValue("orientation", paramMap.get("orientation"));
-            if(paramMap.get("pixelSizeX") != null)
+            if (paramMap.get("pixelSizeX") != null)
                 container.setValue("pixelSizeX", paramMap.get("pixelSizeX"));
-            if(paramMap.get("pixelSizeY") != null)
+            if (paramMap.get("pixelSizeY") != null)
                 container.setValue("pixelSizeY", paramMap.get("pixelSizeY"));
-            if(paramMap.get("width") != null)
+            if (paramMap.get("width") != null)
                 container.setValue("width", paramMap.get("width"));
-            if(paramMap.get("height") != null)
+            if (paramMap.get("height") != null)
                 container.setValue("height", paramMap.get("height"));
         }
         updateOutputParameterState();
@@ -196,7 +196,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
         if (crs != null && !collocationCrsUI.getRadioButton().isSelected()) {
             paramMap.put("crs", crs.toWKT());
         }
-        
+
         if (!reprojectionModel.preserveResolution && outputGeometryModel != null) {
             final PropertySet container = outputGeometryModel.getPropertySet();
             paramMap.put("referencePixelX", container.getValue("referencePixelX"));
@@ -270,7 +270,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
     }
 
     private void updateCRS() {
-        if(sourceProducts != null) {
+        if (sourceProducts != null) {
 
             final Product sourceProduct = sourceProducts[0];
             try {
@@ -305,7 +305,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
     private void updateProductSize() {
         int width = 0;
         int height = 0;
-        if(sourceProducts == null) return;
+        if (sourceProducts == null) return;
         final Product sourceProduct = sourceProducts[0];
         if (sourceProduct != null && crs != null) {
             if (!reprojectionModel.preserveResolution && outputGeometryModel != null) {
@@ -315,13 +315,13 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
             } else {
                 ImageGeometry iGeometry;
                 final Product collocationProduct = collocationCrsUI.getCollocationProduct();
-                if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+                if (collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
                     iGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
-                }else {
+                } else {
                     iGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs,
-                                                                   null, null, null, null,
-                                                                   null, null, null, null,
-                                                                   null);
+                            null, null, null, null,
+                            null, null, null, null,
+                            null);
 
                 }
                 Rectangle imageRect = iGeometry.getImageRect();
@@ -362,7 +362,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
         }
 
         void setCrsErrorText(String infoText) {
-            setCrsInfoText("<html><b>"+infoText+"</b>", null);
+            setCrsInfoText("<html><b>" + infoText + "</b>", null);
         }
 
         void setCrsInfoText(String infoText, String wkt) {
@@ -418,9 +418,9 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
                     wktArea.setText(wkt);
                     final JScrollPane scrollPane = new JScrollPane(wktArea);
                     final ModalDialog dialog = new ModalDialog(appContext.getApplicationWindow(),
-                                                               "Coordinate reference system as well known text",
-                                                               scrollPane,
-                                                               ModalDialog.ID_OK, null);
+                            "Coordinate reference system as well known text",
+                            scrollPane,
+                            ModalDialog.ID_OK, null);
                     dialog.show();
                 }
             });
@@ -455,7 +455,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean collocate = (Boolean) evt.getNewValue();
                 reprojectionContainer.setValue(Model.PRESERVE_RESOLUTION,
-                                                collocate || reprojectionModel.preserveResolution);
+                        collocate || reprojectionModel.preserveResolution);
                 preserveResolutionCheckBox.setEnabled(!collocate);
             }
         });
@@ -510,7 +510,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
 
         public void actionPerformed(ActionEvent event) {
             try {
-                if(sourceProducts == null) return;
+                if (sourceProducts == null) return;
                 final Product sourceProduct = sourceProducts[0];
                 if (sourceProduct == null) {
                     showWarningMessage("Please select a product to reproject.\n");
@@ -525,9 +525,9 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
                     workCopy = new OutputGeometryFormModel(outputGeometryModel);
                 } else {
                     final Product collocationProduct = collocationCrsUI.getCollocationProduct();
-                    if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+                    if (collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
                         workCopy = new OutputGeometryFormModel(sourceProduct, collocationProduct);
-                    }else {
+                    } else {
                         workCopy = new OutputGeometryFormModel(sourceProduct, crs);
                     }
                 }
@@ -541,7 +541,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
                 }
             } catch (Exception e) {
                 appContext.handleError("Could not create a 'Coordinate Reference System'.\n" +
-                                       e.getMessage(), e);
+                        e.getMessage(), e);
             }
         }
 
@@ -569,12 +569,12 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
         protected void onReset() {
             final Product collocationProduct = collocationCrsUI.getCollocationProduct();
             ImageGeometry imageGeometry;
-            if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+            if (collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
                 imageGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
-            }else {
+            } else {
                 imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs,
-                null, null, null, null,
-                null, null, null, null, null);
+                        null, null, null, null,
+                        null, null, null, null, null);
             }
             outputGeometryFormModel.resetToDefaults(imageGeometry);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -47,19 +47,19 @@ import java.util.ArrayList;
  * 8. GLCM Mean
  * 9. GLCM Variance
  * 10. GLCM Correlation
- *
+ * <p/>
  * Pixels with ratio value in range [3.76, 6.55] are initially classified as forest. Other classes are
  * selected based on the number of classes and their ratio value ranges.
  */
 
-@OperatorMetadata(alias="Forest-Area-Classification",
-                  category = "Classification\\Feature Extraction",
-                  authors = "Jun Lu, Luis Veci",
-                  copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-                  description="Detect forest area")
+@OperatorMetadata(alias = "Forest-Area-Classification",
+        category = "Classification\\Feature Extraction",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description = "Detect forest area")
 public final class ForestAreaClassificationOp extends Operator {
 
-    @SourceProduct(alias="source")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -69,15 +69,15 @@ public final class ForestAreaClassificationOp extends Operator {
     private String[] sourceBandNames = null;
 
     @Parameter(description = "The number of classes", interval = "[3, 20]", defaultValue = "3",
-               label="Number of Classes")
+            label = "Number of Classes")
     private int numClasses = 3;
 
     @Parameter(description = "The maximum number of iterations", interval = "[1, 100]", defaultValue = "10",
-               label="Maximum Number of Iterations")
+            label = "Maximum Number of Iterations")
     private int maxIterations = 10;
 
     @Parameter(description = "The convergence threshold", interval = "[1, 100]", defaultValue = "95",
-               label="Convergence Threshold (%)")
+            label = "Convergence Threshold (%)")
     private int convergenceThreshold = 95;
 
     private int srcWidth = 0;
@@ -98,8 +98,7 @@ public final class ForestAreaClassificationOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -108,7 +107,7 @@ public final class ForestAreaClassificationOp extends Operator {
         try {
             createTargetProduct();
 
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -122,9 +121,9 @@ public final class ForestAreaClassificationOp extends Operator {
         srcHeight = sourceProduct.getSceneRasterHeight();
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    srcWidth,
-                                    srcHeight);
+                sourceProduct.getProductType(),
+                srcWidth,
+                srcHeight);
 
         addSelectedBands();
 
@@ -133,6 +132,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
     /**
      * Add bands to the target product.
+     *
      * @throws OperatorException The exception.
      */
     private void addSelectedBands() throws OperatorException {
@@ -142,7 +142,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
         int k = 1;
         for (String bandName : sourceBandNames) {
-            if(!hasRatio && bandName.contains("ratio")) {
+            if (!hasRatio && bandName.contains("ratio")) {
                 srcBandNames[0] = bandName;
                 hasRatio = true;
                 continue;
@@ -160,9 +160,9 @@ public final class ForestAreaClassificationOp extends Operator {
         }
 
         final Band targetBand = new Band("land_cover_classes",
-                                         ProductData.TYPE_UINT8,
-                                         targetProduct.getSceneRasterWidth(),
-                                         targetProduct.getSceneRasterHeight());
+                ProductData.TYPE_UINT8,
+                targetProduct.getSceneRasterWidth(),
+                targetProduct.getSceneRasterHeight());
 
         targetBand.setUnit("class_index");
         targetBand.setNoDataValue(255);
@@ -177,8 +177,7 @@ public final class ForestAreaClassificationOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -190,8 +189,8 @@ public final class ForestAreaClassificationOp extends Operator {
         final Rectangle targetRectangle = targetTile.getRectangle();
         final int tx0 = targetRectangle.x;
         final int ty0 = targetRectangle.y;
-        final int tw  = targetRectangle.width;
-        final int th  = targetRectangle.height;
+        final int tw = targetRectangle.width;
+        final int th = targetRectangle.height;
         final int maxY = ty0 + th;
         final int maxX = tx0 + tw;
         final ProductData targetData = targetTile.getDataBuffer();
@@ -231,7 +230,8 @@ public final class ForestAreaClassificationOp extends Operator {
 
     /**
      * Compute initial cluster centers.
-     * @param clusterList Cluster list.
+     *
+     * @param clusterList    Cluster list.
      * @param tileRectangles Tile rectangle array.
      */
     private void computeInitialClusterCenters(final java.util.List<ClusterInfo> clusterList,
@@ -249,7 +249,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
         final ThreadManager threadManager = new ThreadManager();
 
-        final double[][] clusterSum = new double[numClasses][numSrcBands-1];
+        final double[][] clusterSum = new double[numClasses][numSrcBands - 1];
 
         try {
             for (final Rectangle rectangle : tileRectangles) {
@@ -259,7 +259,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
                     final Tile[] sourceTiles = new Tile[numSrcBands];
                     final ProductData[] dataBuffers = new ProductData[numSrcBands];
-                    final double[] u = new double[numSrcBands-1];
+                    final double[] u = new double[numSrcBands - 1];
 
                     @Override
                     public void run() {
@@ -289,11 +289,11 @@ public final class ForestAreaClassificationOp extends Operator {
 
                                 synchronized (counter) {
 
-                                    if (!Double.isNaN(ratio)){
+                                    if (!Double.isNaN(ratio)) {
                                         for (int i = 0; i < numClasses; i++) {
                                             if (ratio >= clusterList.get(i).initLowBound &&
-                                                ratio < clusterList.get(i).initHighBound) {
-                                                mask[y][x] = (byte)i;
+                                                    ratio < clusterList.get(i).initHighBound) {
+                                                mask[y][x] = (byte) i;
                                                 addClusterSum(i, clusterSum, u);
                                                 counter[i]++;
                                                 break;
@@ -311,16 +311,16 @@ public final class ForestAreaClassificationOp extends Operator {
             }
             threadManager.finish();
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(getId()+ " computeInitialClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " computeInitialClusterCenters ", e);
         } finally {
             status.done();
         }
 
-        double[] center = new double[numSrcBands-1];
+        double[] center = new double[numSrcBands - 1];
         for (int i = 0; i < numClasses; i++) {
-            for (int j = 0; j < numSrcBands-1; j++) {
-                center[j] = clusterSum[i][j]/counter[i];
+            for (int j = 0; j < numSrcBands - 1; j++) {
+                center[j] = clusterSum[i][j] / counter[i];
             }
             clusterList.get(i).setClusterCenter(center, counter[i]);
         }
@@ -329,10 +329,10 @@ public final class ForestAreaClassificationOp extends Operator {
     private void setInitialClusterBoundaries(final java.util.List<ClusterInfo> clusterList) {
 
         final Band ratio = sourceProduct.getBand(srcBandNames[0]);
-        final double bandMin = ratio.getStx(true,ProgressMonitor.NULL).getMinimum();
-        final double bandMax = ratio.getStx(true,ProgressMonitor.NULL).getMaximum();
-        final int numLowerClasses = Math.max(1, (int)Math.round((T_Ratio_Low - bandMin)/(bandMax - bandMin -
-                                                                 T_Ratio_High + T_Ratio_Low)*(numClasses - 1)));
+        final double bandMin = ratio.getStx(true, ProgressMonitor.NULL).getMinimum();
+        final double bandMax = ratio.getStx(true, ProgressMonitor.NULL).getMaximum();
+        final int numLowerClasses = Math.max(1, (int) Math.round((T_Ratio_Low - bandMin) / (bandMax - bandMin -
+                T_Ratio_High + T_Ratio_Low) * (numClasses - 1)));
         final int numHighClasses = numClasses - 1 - numLowerClasses;
         final double dl = (T_Ratio_Low - bandMin) / numLowerClasses;
         final double dh = (bandMax - T_Ratio_High) / numHighClasses;
@@ -342,9 +342,9 @@ public final class ForestAreaClassificationOp extends Operator {
             if (i == 0) {
                 cluster.setInitialClusterBounds(T_Ratio_Low, T_Ratio_High);
             } else if (i <= numLowerClasses) {
-                cluster.setInitialClusterBounds(bandMin + (i-1)*dl, bandMin + i*dl);
+                cluster.setInitialClusterBounds(bandMin + (i - 1) * dl, bandMin + i * dl);
             } else {
-                cluster.setInitialClusterBounds(T_Ratio_High + (i-numLowerClasses-1)*dh, T_Ratio_High + (i-numLowerClasses)*dh);
+                cluster.setInitialClusterBounds(T_Ratio_High + (i - numLowerClasses - 1) * dh, T_Ratio_High + (i - numLowerClasses) * dh);
             }
             clusterList.add(cluster);
         }
@@ -353,19 +353,20 @@ public final class ForestAreaClassificationOp extends Operator {
     private void getCurrentPoint(final int idx, final ProductData[] dataBuffers, final double[] u) {
 
         for (int i = 1; i < dataBuffers.length; i++) {
-            u[i-1] = dataBuffers[i].getElemDoubleAt(idx);
+            u[i - 1] = dataBuffers[i].getElemDoubleAt(idx);
         }
     }
 
     private void addClusterSum(final int classIdx, final double[][] clusterSum, final double[] u) {
-        for (int j = 0 ; j < u.length; j++) {
+        for (int j = 0; j < u.length; j++) {
             clusterSum[classIdx][j] += u[j];
         }
     }
 
     /**
      * Compute covariance matrices for all clusters.
-     * @param clusterList The cluster list.
+     *
+     * @param clusterList    The cluster list.
      * @param tileRectangles The tile rectangles.
      */
     private void computeClusterCovarianceMatrices(final java.util.List<ClusterInfo> clusterList,
@@ -379,7 +380,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
         final ThreadManager threadManager = new ThreadManager();
 
-        final double[][][] clusterCov = new double[numClasses][numSrcBands-1][numSrcBands-1];
+        final double[][][] clusterCov = new double[numClasses][numSrcBands - 1][numSrcBands - 1];
 
         try {
             for (final Rectangle rectangle : tileRectangles) {
@@ -389,8 +390,8 @@ public final class ForestAreaClassificationOp extends Operator {
 
                     final Tile[] sourceTiles = new Tile[numSrcBands];
                     final ProductData[] dataBuffers = new ProductData[numSrcBands];
-                    final double [][] C = new double[numSrcBands-1][numSrcBands-1];
-                    final double[] u = new double[numSrcBands-1];
+                    final double[][] C = new double[numSrcBands - 1][numSrcBands - 1];
+                    final double[] u = new double[numSrcBands - 1];
 
                     @Override
                     public void run() {
@@ -422,8 +423,8 @@ public final class ForestAreaClassificationOp extends Operator {
 
                                 synchronized (clusterCov) {
 
-                                    for (int i = 0; i < numSrcBands-1; i++) {
-                                        for (int j = 0; j < numSrcBands-1; j++) {
+                                    for (int i = 0; i < numSrcBands - 1; i++) {
+                                        for (int j = 0; j < numSrcBands - 1; j++) {
                                             clusterCov[classIdx][i][j] += C[i][j];
                                         }
                                     }
@@ -438,15 +439,15 @@ public final class ForestAreaClassificationOp extends Operator {
             }
             threadManager.finish();
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(getId()+ " computeClusterCovarianceMatrices ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " computeClusterCovarianceMatrices ", e);
         } finally {
             status.done();
         }
 
         for (int c = 0; c < numClasses; c++) {
-            for (int i = 0; i < numSrcBands-1; i++) {
-                for (int j = 0; j < numSrcBands-1; j++) {
+            for (int i = 0; i < numSrcBands - 1; i++) {
+                for (int j = 0; j < numSrcBands - 1; j++) {
                     clusterCov[c][i][j] /= clusterList.get(c).size;
                 }
             }
@@ -454,10 +455,10 @@ public final class ForestAreaClassificationOp extends Operator {
         }
     }
 
-    private void computeCovarianceMatrix(final double [] center, final double[] u, final double[][] C) {
+    private void computeCovarianceMatrix(final double[] center, final double[] u, final double[][] C) {
         for (int i = 0; i < u.length; i++) {
             for (int j = 0; j < u.length; j++) {
-                C[i][j] = (u[i] - center[i])*(u[j] - center[j]);
+                C[i][j] = (u[i] - center[i]) * (u[j] - center[j]);
             }
         }
     }
@@ -465,14 +466,14 @@ public final class ForestAreaClassificationOp extends Operator {
     private void computeFinalClusterCenters(final java.util.List<ClusterInfo> clusterList,
                                             final Rectangle[] tileRectangles) {
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length*maxIterations,
+        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length * maxIterations,
                 "Computing Final Cluster Centres... ");
         int tileCnt = 0;
 
         final int numSrcBands = srcBandNames.length;
         final int[] clusterCounter = new int[numClasses];
         final int[] clusterPixelChangeCounter = new int[numClasses];
-        final double[][] clusterSum = new double[numClasses][numSrcBands-1];
+        final double[][] clusterSum = new double[numClasses][numSrcBands - 1];
 
         final ThreadManager threadManager = new ThreadManager();
 
@@ -481,7 +482,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
                 java.util.Arrays.fill(clusterCounter, 0);
                 java.util.Arrays.fill(clusterPixelChangeCounter, 0);
-                for (double[] row:clusterSum) {
+                for (double[] row : clusterSum) {
                     java.util.Arrays.fill(row, 0.0);
                 }
 
@@ -492,7 +493,7 @@ public final class ForestAreaClassificationOp extends Operator {
                         final Tile[] sourceTiles = new Tile[numSrcBands];
                         final ProductData[] dataBuffers = new ProductData[numSrcBands];
 
-                        final double[] u = new double[numSrcBands-1];
+                        final double[] u = new double[numSrcBands - 1];
 
                         @Override
                         public void run() {
@@ -523,7 +524,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
                                         if (mask[y][x] != clusterIdx) {
                                             clusterPixelChangeCounter[mask[y][x]]++;
-                                            mask[y][x] = (byte)clusterIdx;
+                                            mask[y][x] = (byte) clusterIdx;
                                         }
                                         addClusterSum(clusterIdx, clusterSum, u);
                                         clusterCounter[clusterIdx]++;
@@ -539,7 +540,7 @@ public final class ForestAreaClassificationOp extends Operator {
                 threadManager.finish();
 
 
-                if (isConvergent(clusterList, clusterPixelChangeCounter)){
+                if (isConvergent(clusterList, clusterPixelChangeCounter)) {
                     break;
                 }
 
@@ -548,8 +549,8 @@ public final class ForestAreaClassificationOp extends Operator {
                 computeClusterCovarianceMatrices(clusterList, tileRectangles);
             }
 
-        } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(getId()+ " computeFinalClusterCenters ", e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " computeFinalClusterCenters ", e);
         } finally {
             status.done();
         }
@@ -574,13 +575,13 @@ public final class ForestAreaClassificationOp extends Operator {
 
         Matrix uMat = new Matrix(u, u.length);
         Matrix uMatNew = uMat.minus(new Matrix(cluster.center, cluster.center.length));
-        return uMatNew.transpose().times(cluster.invCov).times(uMatNew).get(0,0) + cluster.logDet;
+        return uMatNew.transpose().times(cluster.invCov).times(uMatNew).get(0, 0) + cluster.logDet;
     }
 
     private boolean isConvergent(final java.util.List<ClusterInfo> clusterList, final int[] clusterPixelChangeCounter) {
 
         for (int c = 0; c < numClasses; c++) {
-            final double unchangedPercentage = 100.0*(1.0 - (double)clusterPixelChangeCounter[c] / (double)clusterList.get(c).size);
+            final double unchangedPercentage = 100.0 * (1.0 - (double) clusterPixelChangeCounter[c] / (double) clusterList.get(c).size);
             if (unchangedPercentage < convergenceThreshold) {
                 return false;
             }
@@ -637,6 +638,7 @@ public final class ForestAreaClassificationOp extends Operator {
      * via the SPI configuration file
      * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
+     *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */

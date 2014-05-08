@@ -8,10 +8,10 @@
 
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-	<funding>European Space Agency</funding>
+    <funding>European Space Agency</funding>
 
     <dependency>
         <module>nest-graph-builder</module>
@@ -22,7 +22,7 @@
     <dependency>
         <module>nest-core</module>
     </dependency>
-		
+
     <categories>Processor</categories>
 
     <extension point="beam-ui:actions">
@@ -36,14 +36,14 @@
         </action>
 
         <action>
-	        <id>Sentinel1TOPSARDeburstOp</id>
-	        <helpId>Sentinel1TOPSARDeburstOp</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <id>Sentinel1TOPSARDeburstOp</id>
+            <helpId>Sentinel1TOPSARDeburstOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-	        <text>Sentinel1 TOPSAR Deburst</text>
-	        <operatorName>DeburstTOPSAR</operatorName>
-	        <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
+            <text>Sentinel1 TOPSAR Deburst</text>
+            <operatorName>DeburstTOPSAR</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
             <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
             <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
         </action>

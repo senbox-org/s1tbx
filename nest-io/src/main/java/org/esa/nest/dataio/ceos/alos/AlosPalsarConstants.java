@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,10 +26,10 @@ public class AlosPalsarConstants implements CEOSConstants {
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
     private final static String PLUGIN_DESCRIPTION = "ALOS PALSAR CEOS Products";      /*I18N*/
 
-    private final static String[] VOLUME_FILE_PREFIX = { "VOL" };
-    private static final String[] LEADER_FILE_PREFIX = { "LE" };
-    private static final String[] IMAGE_FILE_PREFIX = { "IMG" };
-    private static final String[] TRAILER_FILE_PREFIX = { "TR" };
+    private final static String[] VOLUME_FILE_PREFIX = {"VOL"};
+    private static final String[] LEADER_FILE_PREFIX = {"LE"};
+    private static final String[] IMAGE_FILE_PREFIX = {"IMG"};
+    private static final String[] TRAILER_FILE_PREFIX = {"TR"};
 
     final static String MISSION = "alos";
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,7 +33,7 @@ public class NestGeoTiffProductReader extends GeoTiffProductReader {
     @Override
     protected void initMetadata(final Product product, final File inputFile) throws IOException {
 
-        if(!AbstractMetadata.hasAbstractedMetadata(product)) {
+        if (!AbstractMetadata.hasAbstractedMetadata(product)) {
             final MetadataElement root = product.getMetadataRoot();
             final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 

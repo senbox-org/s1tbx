@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -33,9 +33,9 @@ public class OversamplingOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox outputImageBy = new JComboBox(new String[] { UndersamplingOp.IMAGE_SIZE,
-                                                                         UndersamplingOp.RATIO,
-                                                                         UndersamplingOp.PIXEL_SPACING } );
+    private final JComboBox outputImageBy = new JComboBox(new String[]{UndersamplingOp.IMAGE_SIZE,
+            UndersamplingOp.RATIO,
+            UndersamplingOp.PIXEL_SPACING});
 
     private final JTextField targetImageHeight = new JTextField("");
     private final JTextField targetImageWidth = new JTextField("");
@@ -68,9 +68,9 @@ public class OversamplingOpUI extends BaseOperatorUI {
         });
 
         usePRFTileSizeCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    usePRFTileSize = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                usePRFTileSize = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return panel;
@@ -88,8 +88,8 @@ public class OversamplingOpUI extends BaseOperatorUI {
         rangeSpacing.setText(String.valueOf(paramMap.get("rangeSpacing")));
         azimuthSpacing.setText(String.valueOf(paramMap.get("azimuthSpacing")));
 
-        usePRFTileSize = (Boolean)paramMap.get("usePRFTileSize");
-        if(usePRFTileSize != null) {
+        usePRFTileSize = (Boolean) paramMap.get("usePRFTileSize");
+        if (usePRFTileSize != null) {
             usePRFTileSizeCheckBox.setSelected(usePRFTileSize);
         }
 
@@ -143,7 +143,7 @@ public class OversamplingOpUI extends BaseOperatorUI {
         gbc.gridy++;
         contentPane.add(usePRFTileSizeCheckBox, gbc);
         DialogUtils.fillPanel(contentPane, gbc);
-        
+
         return contentPane;
     }
 
@@ -163,16 +163,16 @@ public class OversamplingOpUI extends BaseOperatorUI {
     }
 
     private void updateOutputImageBy(final boolean show) {
-        if(show) {
+        if (show) {
             outputImageBy.setVisible(true);
             outputImageByLabel.setVisible(true);
 
-            final String item = (String)outputImageBy.getSelectedItem();
-            if(item.equals(UndersamplingOp.IMAGE_SIZE)) {
+            final String item = (String) outputImageBy.getSelectedItem();
+            if (item.equals(UndersamplingOp.IMAGE_SIZE)) {
                 enableRowColumn(true);
                 enableRatio(false);
                 enablePixelSpacing(false);
-            } else if(item.equals(UndersamplingOp.RATIO)){
+            } else if (item.equals(UndersamplingOp.RATIO)) {
                 enableRowColumn(false);
                 enableRatio(true);
                 enablePixelSpacing(false);

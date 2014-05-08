@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,16 +28,16 @@ import java.util.Map;
 
 public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
 
-    private final JComboBox decomposition = new JComboBox(new String[] {
-                                                          PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.PAULI_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.YAMAGUCHI_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.VANZYL_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION,
-                                                          PolarimetricDecompositionOp.TOUZI_DECOMPOSITION
-    } );
+    private final JComboBox decomposition = new JComboBox(new String[]{
+            PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION,
+            PolarimetricDecompositionOp.PAULI_DECOMPOSITION,
+            PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION,
+            PolarimetricDecompositionOp.YAMAGUCHI_DECOMPOSITION,
+            PolarimetricDecompositionOp.VANZYL_DECOMPOSITION,
+            PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION,
+            PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION,
+            PolarimetricDecompositionOp.TOUZI_DECOMPOSITION
+    });
 
     private final JLabel windowSizeLabel = new JLabel("Window Size:   ");
     private final JTextField windowSize = new JTextField("");
@@ -70,51 +70,51 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
         initParameters();
 
         outputHAAlphaCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputHAAlpha = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputHAAlpha = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputBetaDeltaGammaLambdaCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputBetaDeltaGammaLambda = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputBetaDeltaGammaLambda = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputAlpha123CheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputAlpha123 = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputAlpha123 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputLambda123CheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputLambda123 = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputLambda123 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputTouziParamSet0CheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputTouziParamSet0 = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputTouziParamSet0 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputTouziParamSet1CheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputTouziParamSet1 = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputTouziParamSet1 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputTouziParamSet2CheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputTouziParamSet2 = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputTouziParamSet2 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         outputTouziParamSet3CheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    outputTouziParamSet3 = (e.getStateChange() == ItemEvent.SELECTED);
-                }
+            public void itemStateChanged(ItemEvent e) {
+                outputTouziParamSet3 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return panel;
@@ -127,43 +127,43 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
         windowSize.setText(String.valueOf(paramMap.get("windowSize")));
 
         Boolean paramVal;
-        paramVal = (Boolean)paramMap.get("outputHAAlpha");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputHAAlpha");
+        if (paramVal != null) {
             outputHAAlpha = paramVal;
             outputHAAlphaCheckBox.getModel().setPressed(outputHAAlpha);
         }
-        paramVal = (Boolean)paramMap.get("outputBetaDeltaGammaLambda");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputBetaDeltaGammaLambda");
+        if (paramVal != null) {
             outputBetaDeltaGammaLambda = paramVal;
             outputBetaDeltaGammaLambdaCheckBox.getModel().setPressed(outputBetaDeltaGammaLambda);
         }
-        paramVal = (Boolean)paramMap.get("outputAlpha123");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputAlpha123");
+        if (paramVal != null) {
             outputAlpha123 = paramVal;
             outputAlpha123CheckBox.getModel().setPressed(outputAlpha123);
         }
-        paramVal = (Boolean)paramMap.get("outputLambda123");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputLambda123");
+        if (paramVal != null) {
             outputLambda123 = paramVal;
             outputLambda123CheckBox.getModel().setPressed(outputLambda123);
         }
-        paramVal = (Boolean)paramMap.get("outputTouziParamSet0");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputTouziParamSet0");
+        if (paramVal != null) {
             outputTouziParamSet0 = paramVal;
             outputTouziParamSet0CheckBox.getModel().setPressed(outputTouziParamSet0);
         }
-        paramVal = (Boolean)paramMap.get("outputTouziParamSet1");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputTouziParamSet1");
+        if (paramVal != null) {
             outputTouziParamSet1 = paramVal;
             outputTouziParamSet1CheckBox.getModel().setPressed(outputTouziParamSet1);
         }
-        paramVal = (Boolean)paramMap.get("outputTouziParamSet2");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputTouziParamSet2");
+        if (paramVal != null) {
             outputTouziParamSet2 = paramVal;
             outputTouziParamSet2CheckBox.getModel().setPressed(outputTouziParamSet2);
         }
-        paramVal = (Boolean)paramMap.get("outputTouziParamSet3");
-        if(paramVal != null) {
+        paramVal = (Boolean) paramMap.get("outputTouziParamSet3");
+        if (paramVal != null) {
             outputTouziParamSet3 = paramVal;
             outputTouziParamSet3CheckBox.getModel().setPressed(outputTouziParamSet3);
         }
@@ -199,19 +199,19 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
 
         decomposition.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                String item = (String)decomposition.getSelectedItem();
-                if (item.equals(PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION)||
-                    item.equals(PolarimetricDecompositionOp.YAMAGUCHI_DECOMPOSITION)||
-                    item.equals(PolarimetricDecompositionOp.VANZYL_DECOMPOSITION)||
-                    item.equals(PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION) ||
-                    item.equals(PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION) ||
-                    item.equals(PolarimetricDecompositionOp.TOUZI_DECOMPOSITION)) {
+                String item = (String) decomposition.getSelectedItem();
+                if (item.equals(PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.YAMAGUCHI_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.VANZYL_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.TOUZI_DECOMPOSITION)) {
                     DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
                 } else {
                     DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
                 }
 
-                if(item.equals(PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION)) {
+                if (item.equals(PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION)) {
                     outputHAAlphaCheckBox.setVisible(true);
                     outputBetaDeltaGammaLambdaCheckBox.setVisible(true);
                     outputAlpha123CheckBox.setVisible(true);

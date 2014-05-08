@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -231,7 +231,7 @@ public class ACE2_5MinFileInfo {
             }
             if (isEast(direction) && (value < 0 || value > 180)) {
                 throw new ParseException("The value '" + value + "' for east direction is out of the range 0 ... 180.",
-                                         pos);
+                        pos);
             }
             if (isSouth(direction) && (value > 0 || value < -90)) {
                 throw new ParseException(
@@ -239,7 +239,7 @@ public class ACE2_5MinFileInfo {
             }
             if (isNorth(direction) && (value < 0 || value > 90)) {
                 throw new ParseException("The value '" + value + "' for north direction is out of the range 0 ... 90.",
-                                         pos);
+                        pos);
             }
             return value;
         }
@@ -278,7 +278,7 @@ public class ACE2_5MinFileInfo {
             if (c == 's' || c == 'S') {
                 return directionSouth;
             }
-            throw new ParseException("Illegal direction character. "+c, pos);
+            throw new ParseException("Illegal direction character. " + c, pos);
         }
 
         private int readNumber() throws ParseException {

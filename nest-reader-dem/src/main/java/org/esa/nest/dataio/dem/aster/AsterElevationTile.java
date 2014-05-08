@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,7 +32,7 @@ public final class AsterElevationTile extends BaseElevationTile {
         final TileGeoreferencing tileGeoRef = new TileGeoreferencing(product, 0, index, line.length, 1);
         for (int i = 0; i < line.length; i++) {
             if (line[i] != noDataValue) {
-                tileGeoRef.getGeoPos(i,index, geoPos);
+                tileGeoRef.getGeoPos(i, index, geoPos);
                 line[i] += EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon);
             }
         }
