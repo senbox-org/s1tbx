@@ -10,7 +10,7 @@
 
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
-    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 	<funding>European Space Agency</funding>
@@ -48,11 +48,19 @@
             <parent>importRasterData</parent>
         </action>
         <action>
-            <id>importOptical</id>
+            <id>importSAR</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>SAR</text>
+            <parent>importRasterData</parent>
+        </action>
+        <action>
+            <id>importMultispectral</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Multispectral</text>
             <parent>importRasterData</parent>
         </action>
+
+        <!-- SAR Formats -->
 
         <action>
             <id>importERSCEOSProduct</id>
@@ -64,6 +72,7 @@
             <description>Open ERS 1/2 CEOS (VMP and PGS) data product or subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importERSProduct</helpId>
+            <parent>importSAR</parent>
             <placeAfter>importErsSARProduct</placeAfter>
         </action>
         <action>
@@ -75,6 +84,7 @@
             <description>Import a JERS CEOS data product or subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importJERSProduct</helpId>
+            <parent>importSAR</parent>
             <placeAfter>importERSCEOSProduct</placeAfter>
         </action>
         <action>
@@ -86,6 +96,7 @@
             <description>Import an ALOS PALSAR CEOS data product or subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importAlosPalsarProduct</helpId>
+            <parent>importSAR</parent>
             <placeAfter>importJERSCEOSProduct</placeAfter>
         </action>
         <action>
@@ -97,8 +108,74 @@
             <description>Import a RADARSAT-1 CEOS data product or subset.</description>
             <largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importRadarsatProduct</helpId>
+            <parent>importSAR</parent>
             <placeAfter>importAlosPalsarProduct</placeAfter>
         </action>
+
+        <action>
+            <id>importPolsarPro</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <readerPlugin>org.esa.nest.dataio.polsarpro.PolsarProProductReaderPlugIn</readerPlugin>
+            <formatName>PolSARPro</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <useFilesAndFolders>true</useFilesAndFolders>
+            <shortDescr>Import a PolsarPro data product.</shortDescr>
+            <parent>importSAR</parent>
+            <placeAfter>importCosmoSkymed</placeAfter>
+            <helpId>importPolsarPro</helpId>
+        </action>
+
+        <action>
+            <id>importRadarsat2Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>RADARSAT-2</formatName>
+            <shortDescr>Import a RADARSAT-2 data product or subset.</shortDescr>
+            <description>Import a RADARSAT-2 data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
+            <placeAfter>importRadarsatProduct</placeAfter>
+            <helpId>importRadarsat2</helpId>
+        </action>
+        <action>
+            <id>importTerraSarXProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>TerraSarX</formatName>
+            <text>TerraSAR-X</text>
+            <shortDescr>Import a TerraSarX data product or subset.</shortDescr>
+            <description>Import a TerraSarX data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
+            <placeAfter>importRadarsat2Product</placeAfter>
+            <helpId>importTerraSarX</helpId>
+        </action>
+
+        <action>
+            <id>importCosmoSkymed</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>CosmoSkymed</formatName>
+            <text>Cosmo-Skymed</text>
+            <readerPlugin>org.esa.nest.dataio.cosmo.CosmoSkymedReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import a CosmoSkymed file format</shortDescr>
+            <description>Import a CosmoSkymed file format</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
+            <placeAfter>importTerraSarXProduct</placeAfter>
+            <helpId>importCosmoSkymed</helpId>
+        </action>
+
+        <action>
+            <id>importS1Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>SENTINEL-1</formatName>
+            <shortDescr>Import a SENTINEL-1 product</shortDescr>
+            <description>Import a SENTINEL-1 product</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importS1Product</helpId>
+            <parent>importSAR</parent>
+        </action>
+
+        <!-- Common EO File Formats -->
 
         <action>
             <id>importImageIO</id>
@@ -136,17 +213,6 @@
             <parent>importFileFormats</parent>
         </action>
         <action>
-            <id>importPolsarPro</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <readerPlugin>org.esa.nest.dataio.polsarpro.PolsarProProductReaderPlugIn</readerPlugin>
-            <formatName>PolSARPro</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <useFilesAndFolders>true</useFilesAndFolders>
-            <shortDescr>Import a PolsarPro data product.</shortDescr>
-            <placeAfter>importCosmoSkymed</placeAfter>
-            <helpId>importPolsarPro</helpId>
-        </action>
-        <action>
             <id>importGeoTIFFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <readerPlugin>org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn</readerPlugin>
@@ -181,6 +247,23 @@
             <parent>importFileFormats</parent>
         </action>
 
+
+        <action>
+            <id>importGTOPO30</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GTOPO30</formatName>
+            <parent>importDEM</parent>
+            <readerPlugin>org.esa.nest.dataio.gtopo30.GTOPO30ReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>GTOPO30 DEM Tile</text>
+            <shortDescr>Import a GTOPO30 tile</shortDescr>
+            <description>Import a GTOPO30 tile</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importGTOPO30</helpId>
+        </action>
+
+        <!-- Exports -->
+
         <action>
             <id>exportGenericBinary</id>
             <text>Generic Binary</text>
@@ -207,52 +290,6 @@
             <helpId>exportGeoTiffXML</helpId>
         </action>
 
-
-        <action>
-            <id>importRadarsat2Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>RADARSAT-2</formatName>
-            <shortDescr>Import a RADARSAT-2 data product or subset.</shortDescr>
-            <description>Import a RADARSAT-2 data product or subset.</description>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <placeAfter>importRadarsatProduct</placeAfter>
-            <helpId>importRadarsat2</helpId>
-        </action>
-        <action>
-            <id>importTerraSarXProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>TerraSarX</formatName>
-            <text>TerraSAR-X</text>
-            <shortDescr>Import a TerraSarX data product or subset.</shortDescr>
-            <description>Import a TerraSarX data product or subset.</description>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <placeAfter>importRadarsat2Product</placeAfter>
-            <helpId>importTerraSarX</helpId>
-        </action>
-
-        <action>
-            <id>importCosmoSkymed</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>CosmoSkymed</formatName>
-            <text>Cosmo-Skymed</text>
-            <readerPlugin>org.esa.nest.dataio.cosmo.CosmoSkymedReaderPlugIn</readerPlugin>
-            <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Import a CosmoSkymed file format</shortDescr>
-            <description>Import a CosmoSkymed file format</description>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <placeAfter>importTerraSarXProduct</placeAfter>
-            <helpId>importCosmoSkymed</helpId>
-        </action>
-
-        <action>
-            <id>importS1Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>SENTINEL-1</formatName>
-            <shortDescr>Import a SENTINEL-1 product</shortDescr>
-            <description>Import a SENTINEL-1 product</description>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <helpId>importS1Product</helpId>
-        </action>
 
         <!--action>
             <id>importNetCDF</id>
@@ -289,19 +326,6 @@
             <parent>importFileFormats</parent>
         </action-->
 
-        <action>
-            <id>importGTOPO30</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>GTOPO30</formatName>
-            <parent>importDEM</parent>
-            <readerPlugin>org.esa.nest.dataio.gtopo30.GTOPO30ReaderPlugIn</readerPlugin>
-            <useAllFileFilter>true</useAllFileFilter>
-            <text>GTOPO30 DEM Tile</text>
-            <shortDescr>Import a GTOPO30 tile</shortDescr>
-            <description>Import a GTOPO30 tile</description>
-            <largeIcon>icons/Import24.gif</largeIcon>
-            <helpId>importGTOPO30</helpId>
-        </action>
     </extension>
 
 </module>
