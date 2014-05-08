@@ -70,9 +70,6 @@ public class OperatorExecutor2 {
 
     /**
      * Calls the given handler for all frames of the product the operator executor product.
-     *
-     * @param handler
-     * @return
      */
     public Object execute(Handler handler) throws Exception {
         int parallelism = Runtime.getRuntime().availableProcessors();

@@ -1022,7 +1022,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w      width of the pixel array to be read
      * @param h      height of the pixel array to be read.
      * @param pixels integer array to be filled with data
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int,int,int,int,int[])} instead.
      */
     public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1043,7 +1042,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w      width of the pixel array to be read
      * @param h      height of the pixel array to be read.
      * @param pixels float array to be filled with data
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int,int,int,int,float[])} instead.
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);

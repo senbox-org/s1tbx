@@ -55,7 +55,7 @@ public class WildcardMatcher {
     }
 
     public static File[] glob(String filePattern) throws IOException {
-        Set<File> fileSet = new TreeSet<File>();
+        Set<File> fileSet = new TreeSet<>();
         glob(filePattern, fileSet);
         return fileSet.toArray(new File[fileSet.size()]);
     }

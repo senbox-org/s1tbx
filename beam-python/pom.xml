@@ -6,7 +6,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0-SNAPSHOT</version>
+        <version>5.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -51,42 +51,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/zip-beampy-operator-example.xml</descriptor>
-                    </descriptors>
-                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>zip-examples-assembly</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-<!-- todo - it should be possible to exclude the examples from the jar. How? (mp / 22.04.2014) -->
-<!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>src/main/resources/examples/**</exclude>
-                    </excludes>
-                    &lt;!&ndash;<includes>&ndash;&gt;
-                        &lt;!&ndash;<include>src/main/resources/**</include>&ndash;&gt;
-                        &lt;!&ndash;<include>src/main/java/**</include>&ndash;&gt;
-                    &lt;!&ndash;</includes>&ndash;&gt;
-                </configuration>
-            </plugin>
--->
         </plugins>
 
     </build>

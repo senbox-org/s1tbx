@@ -47,21 +47,21 @@ public class GaussianGridConfigTest {
 
         lons = GaussianGridConfig.computeLongitudePoints(2);
         assertEquals(2, lons.length);
-        assertEquals(-90.0, lons[0], 1.0e-6);
-        assertEquals(90.0, lons[1], 1.0e-6);
+        assertEquals(0.0, lons[0], 0.0);
+        assertEquals(180.0, lons[1], 0.0);
 
         lons = GaussianGridConfig.computeLongitudePoints(360);
         assertEquals(360, lons.length);
-        assertEquals(-179.5, lons[0], 1.0e-6);
-        assertEquals(-0.5, lons[179], 1.0e-6);
-        assertEquals(0.5, lons[180], 1.0e-6);
-        assertEquals(179.5, lons[359], 1.0e-6);
+        assertEquals(0.0, lons[0], 0.0);
+        assertEquals(179.0, lons[179], 0.0);
+        assertEquals(180.0, lons[180], 0.0);
+        assertEquals(359.0, lons[359], 0.0);
 
         lons = GaussianGridConfig.computeLongitudePoints(9);
         assertEquals(9, lons.length);
-        assertEquals(-160.0, lons[0], 1.0e-6);
-        assertEquals(0.0, lons[4], 1.0e-6);
-        assertEquals(160.0, lons[8], 1.0e-6);
+        assertEquals(0.0, lons[0], 0.0);
+        assertEquals(160.0, lons[4], 0.0);
+        assertEquals(320.0, lons[8], 0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -16,7 +16,6 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
@@ -553,15 +552,6 @@ public class OperatorContext {
             if (element.getName().startsWith("node")) {
                 nodeElementCount++;
             }
-        }
-        final Calendar calendar = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
-        ProductData.UTC procTime = ProductData.UTC.create(calendar.getTime(), 0);
-        if(targetGraphME.containsAttribute("processingTime")) {
-            MetadataAttribute procTimeAttribute = targetGraphME.getAttribute("processingTime");
-            procTimeAttribute.setData(procTime);
-        }else {
-            MetadataAttribute procTimeAttribute = new MetadataAttribute("processingTime", procTime, false);
-            targetGraphME.addAttribute(procTimeAttribute);
         }
 
         if (contains) {

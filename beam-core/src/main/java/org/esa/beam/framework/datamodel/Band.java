@@ -133,7 +133,7 @@ public class Band extends AbstractBand {
     /**
      * Gets the sample coding.
      *
-     * @return the sample coding, or {@value null} if not set.
+     * @return the sample coding, or {@code null} if not set.
      */
     public SampleCoding getSampleCoding() {
         return sampleCoding;
@@ -181,7 +181,7 @@ public class Band extends AbstractBand {
     }
 
     /**
-     * Gets the spectral wavelength in <code>nm</code> (nanomater) units.
+     * Gets the spectral wavelength in <code>nm</code> (nanometer) units.
      *
      * @return the wave length in nanometers of this band, or zero if this is not a spectral band or the wave length is
      *         not known.
