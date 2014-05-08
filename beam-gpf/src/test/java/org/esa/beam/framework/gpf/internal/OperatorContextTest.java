@@ -127,10 +127,6 @@ public class OperatorContextTest {
         MetadataElement elementPG = metadataRoot.getElement(OperatorContext.PROCESSING_GRAPH_ELEMENT_NAME);
         assertNotNull(elementPG);
 
-        MetadataAttribute procTime = elementPG.getAttribute("processingTime");
-        assertNotNull("Attribute 'processingTime' does not exist", procTime);
-        assertNotNull("Attribute 'processingTime' does not have data attached", procTime.getData());
-
         MetadataElement node0Element = elementPG.getElement("node.0");
         assertNotNull(node0Element);
         assertEquals(8, node0Element.getNumAttributes());
