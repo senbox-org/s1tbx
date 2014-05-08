@@ -37,24 +37,21 @@ You will need the following software development tools:
 * For Darwin: [Xcode 5](https://itunes.apple.com/de/app/xcode/id497799835?mt=12), or higher
 * For Linux: gcc
 
-Clone or download the jpy repository from it's GitHub home
-
-    > git clone https://github.com/bcdev/jpy.git
-
-and follow the steps described in the jpy's [`README.md`](https://github.com/bcdev/jpy/blob/master/README.md).
+The very first step is to install the jpy. Please follow the setup as described in the 
+[jpy documentation](http://jpy.readthedocs.org/en/latest/install.html).
 
 If you encounter any problems during set-up please do not hesitate to contact the
 [BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
 
-After successful installation of `jpy`, you will need to install `beampy`.
+After successful installation of `jpy`, you will need to install `beampy`:
 
-### Darwin / Linux:
+On Darwin / Linux type:
 
     > export BEAM_HOME=<path to your BEAM 5 installation>
     > cd $BEAM_HOME/modules/beam-python/beampy
     > python3 setup.py install --user
 
-### Windows:
+On Windows type:
 
     > SET BEAM_HOME=<path to your BEAM 5 installation>
     > cd %BEAM_HOME%\modules\beam-python\beampy
@@ -68,13 +65,13 @@ BEAM API components. For this purpose, beampy needs to know where the BEAM insta
 configured via the environment variables `BEAM_HOME` or `BEAM5_HOME` or by using a dedicated *INI file* as described
 below.
 
-### Darwin / Linux:
+On Darwin / Linux type:
 
     > set BEAM_HOME=<path to your BEAM 5 installation>
     > python3
     >>> import beampy
 
-### Windows:
+On Windows type:
 
     > export BEAM_HOME=<path to your BEAM 5 installation>
     > python
