@@ -178,7 +178,7 @@ public final class OperatorUtils {
         return mdsPolar;
     }
 
-    public static String getprefixFromBandName(final String bandName) {
+    public static String getPrefixFromBandName(final String bandName) {
 
         final int idx1 = bandName.indexOf('_');
         if (idx1 != -1) {
@@ -389,6 +389,29 @@ public final class OperatorUtils {
             sourceBands[i] = sourceBand;
         }
         return sourceBands;
+    }
+
+    public static Band[] addBands(final Product targetProduct, final String[] targetBandNameList, final String suffix) {
+        final List<Band> bandList = new ArrayList<Band>(targetBandNameList.length);
+        for (String targetBandName : targetBandNameList) {
+
+            final Band targetBand = new Band(targetBandName + suffix,
+                    ProductData.TYPE_FLOAT32,
+                    targetProduct.getSceneRasterWidth(),
+                    targetProduct.getSceneRasterHeight());
+
+            if (targetBandName.contains("_real")) {
+                targetBand.setUnit(Unit.REAL);
+            } else if (targetBandName.contains("_imag")) {
+                targetBand.setUnit(Unit.IMAGINARY);
+            } else {
+                targetBand.setUnit(Unit.INTENSITY);
+            }
+
+            bandList.add(targetBand);
+            targetProduct.addBand(targetBand);
+        }
+        return bandList.toArray(new Band[bandList.size()]);
     }
 
     public static void catchOperatorException(String opName, final Throwable e) throws OperatorException {
@@ -647,7 +670,7 @@ public final class OperatorUtils {
                     targetBandName += '_' + pol.toUpperCase();
                 }
                 if (isPolsar) {
-                    final String pre = getprefixFromBandName(srcBandNames[0]);
+                    final String pre = getPrefixFromBandName(srcBandNames[0]);
                     targetBandName = "Intensity_" + pre;
                 }
                 ++i;

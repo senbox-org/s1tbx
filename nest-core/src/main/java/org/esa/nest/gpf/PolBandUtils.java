@@ -235,29 +235,6 @@ public class PolBandUtils {
         return sourceBands;
     }
 
-    public static Band[] addBands(final Product targetProduct, final String[] targetBandNameList, final String suffix) {
-        final List<Band> bandList = new ArrayList<Band>(targetBandNameList.length);
-        for (String targetBandName : targetBandNameList) {
-
-            final Band targetBand = new Band(targetBandName + suffix,
-                    ProductData.TYPE_FLOAT32,
-                    targetProduct.getSceneRasterWidth(),
-                    targetProduct.getSceneRasterHeight());
-
-            if (targetBandName.contains("_real")) {
-                targetBand.setUnit(Unit.REAL);
-            } else if (targetBandName.contains("_imag")) {
-                targetBand.setUnit(Unit.IMAGINARY);
-            } else {
-                targetBand.setUnit(Unit.INTENSITY);
-            }
-
-            bandList.add(targetBand);
-            targetProduct.addBand(targetBand);
-        }
-        return bandList.toArray(new Band[bandList.size()]);
-    }
-
     public static void saveNewBandNames(final Product targetProduct, final QuadSourceBand[] srcBandList) {
         if (StackUtils.isCoregisteredStack(targetProduct)) {
             boolean masterProduct = true;
