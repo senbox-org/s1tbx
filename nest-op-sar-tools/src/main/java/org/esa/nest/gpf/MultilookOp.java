@@ -76,7 +76,10 @@ public final class MultilookOp extends Operator {
 
     @Parameter(description = "For complex product output intensity or i and q", defaultValue = "true",
                 label="Output Intensity")
-    private boolean outputIntensity = true;
+    private Boolean outputIntensity = true;
+
+    @Parameter(description = "Use ground square pixel", defaultValue = "true", label="GR Square Pixel")
+    private Boolean grSquarePixel = true;
 
     @Parameter(defaultValue="Currently, detection for complex data is performed without any resampling", label="Note")
     String note;
