@@ -60,13 +60,13 @@ o Spectrum Tool
     with its own style. The set of displayed spectra can be stored and reloaded.
 
 o Magic Wand
-    With BEAM 5.0 the new Magic Wand tool has been introduced. The purpose of this tool is to select masks / regions of
-    interest (ROIs) of similar pixels given a user-defined similarity metric. The tool works on any number of bands or
+    A new Magic Wand tool has been introduced. The purpose of this tool is to create regions of interest (ROIs) within images
+    comprising pixels that are "similar" to a set of manually picked pixels. The similarity takes into account any number of bands or
     entire spectra.
 
 o Image Filters
     New morphological image filters have been added: erosion, dilation, opening and closing.
-    Users can now create their own convolution and morphological filters.
+    Users can now also create their own convolution and morphological filters using a graphical editor.
 
 o Usability
     Also the overall usability of BEAM has been improved at various places, e.g. pins can now be
