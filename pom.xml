@@ -25,7 +25,7 @@
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
 		<s1tbx.version>0.1-SNAPSHOT</s1tbx.version>
 		
-		<geotools.version>9.0-M0</geotools.version>
+		<geotools.version>2.7.4</geotools.version>
 		<jide.version>3.5.3</jide.version>
 		<hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.21</netcdf.version>	

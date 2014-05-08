@@ -18,7 +18,7 @@
 #If expected_results is not included, only output will be processed without comparison
 ####################################################################################
 
-testRoot = C:\\Build\\5.0\\NEST\\nest-test
+testRoot = C:\\Build\\nest-test
 dataRoot = P:\\nest\\nest\\ESA Data\\test\\AT_release5A\\Dataset
 maxProductsPerInputFolder = -1
 

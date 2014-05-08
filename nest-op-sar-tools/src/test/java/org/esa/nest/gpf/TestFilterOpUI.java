@@ -57,12 +57,12 @@ public class TestFilterOpUI extends TestCase {
         FilterOperator.Filter filter = FilterOpUI.getSelectedFilter(filterOpUI.getTree());
         assertNotNull(filter);
 
-        filterOpUI.setSelectedFilter("Median 5x5");
+        filterOpUI.setSelectedFilter("Arithmetic 5x5 Mean");
 
         filterOpUI.updateParameters();
 
         Object o = parameterMap.get("selectedFilterName");
-        assertTrue(((String)o).equals("Median 5x5"));
+        assertTrue(((String)o).equals("Arithmetic 5x5 Mean"));
     }
 
 }
