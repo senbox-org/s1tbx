@@ -94,7 +94,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         String[] selectedPols = selectedPolarisations;
         if (selectedPols == null || selectedPols.length == 0) {
-            //MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
             selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
         }
@@ -330,7 +329,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 if (selectedPolList.contains(pol)) {
                     String bandNameArray = "";
                     for (String bandName : targetBandNames) {
-                        if (bandName.contains(sw_pol)) {
+                        if (!isGRD && bandName.contains(sw_pol) || isGRD && bandName.contains(pol)) {
                             bandNameArray += bandName + " ";
                         }
                     }
