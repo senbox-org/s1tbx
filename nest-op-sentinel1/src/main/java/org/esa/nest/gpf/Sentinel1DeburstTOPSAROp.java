@@ -211,8 +211,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         final List<String> polarizations = new ArrayList<String>(4);
 
         for (MetadataElement dataSetListElem : annotationDataSetListElem) {
-            final String elemName = dataSetListElem.getName();
-            final String pol = elemName.substring(12, 14).toUpperCase();
+            final MetadataElement productElem = dataSetListElem.getElement("product");
+            final MetadataElement adsHeaderElem = productElem.getElement("adsHeader");
+            final String pol = adsHeaderElem.getAttributeString("polarisation");
             if (!polarizations.contains(pol)) {
                 polarizations.add(pol);
             }
