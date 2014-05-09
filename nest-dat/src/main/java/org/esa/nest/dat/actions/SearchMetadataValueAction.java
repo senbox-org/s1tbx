@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.dialogs.PromptDialog;
+import org.esa.nest.dat.dialogs.PromptDialog;
 
 /**
  * This action to searches the Metadata

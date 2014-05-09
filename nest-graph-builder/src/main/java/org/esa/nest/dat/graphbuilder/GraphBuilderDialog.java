@@ -27,7 +27,7 @@ import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.dialogs.PromptDialog;
+import org.esa.nest.dat.dialogs.PromptDialog;
 import org.esa.nest.gpf.ProductSetReaderOp;
 import org.esa.nest.gpf.ProductSetReaderOpUI;
 import org.esa.nest.util.DialogUtils;
