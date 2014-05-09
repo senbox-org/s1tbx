@@ -525,6 +525,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("Calibration: unhandled unit");
                 }
 
+                // todo: check if lut should be squared
                 trgData.setElemDoubleAt(tgtIdx, dn2 / lut[xx]);
             }
         }

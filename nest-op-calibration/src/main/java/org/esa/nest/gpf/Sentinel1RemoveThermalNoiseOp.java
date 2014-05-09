@@ -492,6 +492,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     throw new OperatorException("Unhandled unit");
                 }
 
+                // todo: check if lut should be squared
                 trgData.setElemDoubleAt(tgtIdx, dn2 - lut[xx]);
             }
         }
