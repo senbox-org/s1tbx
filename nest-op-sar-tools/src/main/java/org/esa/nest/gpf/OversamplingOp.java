@@ -872,7 +872,6 @@ public class OversamplingOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(OversamplingOp.class);
-            setOperatorUI(OversamplingOpUI.class);
         }
     }
 }

@@ -779,7 +779,6 @@ public class UndersamplingOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(UndersamplingOp.class);
-            setOperatorUI(UndersamplingOpUI.class);
         }
     }
 }

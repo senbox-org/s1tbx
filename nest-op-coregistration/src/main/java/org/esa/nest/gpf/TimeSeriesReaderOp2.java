@@ -29,7 +29,7 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.ui.SourceUI;
+import org.esa.nest.gpf.ui.SourceUI;
 
 import java.awt.*;
 import java.io.File;
@@ -97,7 +97,6 @@ public class TimeSeriesReaderOp2 extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(TimeSeriesReaderOp2.class);
-            setOperatorUI(SourceUI.class);
         }
     }
 }

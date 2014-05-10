@@ -513,7 +513,6 @@ public final class MultilookOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(MultilookOp.class);
-            super.setOperatorUI(MultilookOpUI.class);
         }
     }
 }

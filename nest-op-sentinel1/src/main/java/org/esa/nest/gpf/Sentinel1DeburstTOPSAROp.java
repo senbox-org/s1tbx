@@ -1400,7 +1400,6 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(Sentinel1DeburstTOPSAROp.class);
-            super.setOperatorUI(Sentinel1DeburstTOPSAROpUI.class);
         }
     }
 }

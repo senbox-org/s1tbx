@@ -25,7 +25,33 @@
         <module>nest-core</module>
     </dependency>
 
-    <categories>System</categories>
+    <categories>System, GPF</categories>
+
+    <activator>org.esa.nest.gpf.ui.OperatorUIRegistry</activator>
+
+    <!--
+       Extension point 'operatorUI': Adds new user interfaces for operators.
+       Extensions are instances of OperatorUI specified by the 'class' element.
+    -->
+    <extensionPoint id="OperatorUIs">
+        <OperatorUI type="org.esa.nest.gpf.ui.OperatorUIDescriptor"
+                  class="@descriptorClass"
+                  autoConfig="true">
+            <descriptorClass type="java.lang.Class">
+                org.esa.nest.gpf.ui.DefaultOperatorUIDescriptor
+            </descriptorClass>
+            <class field="operatorUIClass" type="java.lang.Class"/>
+        </OperatorUI>
+    </extensionPoint>
+
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.ProductSetReaderOpUI</id>
+            <class>org.esa.nest.gpf.ProductSetReaderOpUI</class>
+            <operatorName>ProductSet-Reader</operatorName>
+        </OperatorUI>
+    </extension>
 
     <extension point="beam-ui:actions">
 

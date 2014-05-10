@@ -1291,7 +1291,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SARSimTerrainCorrectionOp.class);
-            setOperatorUI(SARSimTerrainCorrectionOpUI.class);
         }
     }
 }

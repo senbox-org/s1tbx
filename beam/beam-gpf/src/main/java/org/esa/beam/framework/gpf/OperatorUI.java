@@ -1,7 +1,7 @@
 package org.esa.beam.framework.gpf;
 
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.gpf.ui.UIValidation;
+import org.esa.nest.gpf.ui.UIValidation;
 import org.esa.beam.framework.datamodel.Product;
 
 import javax.swing.*;

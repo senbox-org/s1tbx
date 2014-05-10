@@ -689,7 +689,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(Sentinel1RemoveThermalNoiseOp.class);
-            super.setOperatorUI(Sentinel1RemoveThermalNoiseOpUI.class);
         }
     }
 }

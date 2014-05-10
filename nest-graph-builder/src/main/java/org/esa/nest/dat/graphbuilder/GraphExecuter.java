@@ -20,9 +20,9 @@ import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.OperatorUI;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.framework.ui.BasicApp;
@@ -34,6 +34,10 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.GPFProcessor;
 import org.esa.nest.gpf.ProductSetReaderOp;
 import org.esa.nest.gpf.ReaderUtils;
+import org.esa.nest.gpf.ui.DefaultUI;
+import org.esa.nest.gpf.ui.OperatorUI;
+import org.esa.nest.gpf.ui.OperatorUIDescriptor;
+import org.esa.nest.gpf.ui.OperatorUIRegistry;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -158,13 +162,17 @@ public class GraphExecuter extends Observable {
         return newGraphNode;
     }
 
-    private static OperatorUI CreateOperatorUI(final String operatorName) {
-        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
-        if (operatorSpi == null) {
-            return null;
-        }
+    public static OperatorUI CreateOperatorUI(final String operatorName) {
 
-        return operatorSpi.createOperatorUI();
+        OperatorUIDescriptor desc = OperatorUIRegistry.getInstance().getOperatorUIDescriptor(operatorName);
+        if(desc != null) {
+            return desc.createOperatorUI();
+        }
+        desc = OperatorUIRegistry.getInstance().getOperatorUIDescriptor("DefaultUI");
+        if(desc != null) {
+            return desc.createOperatorUI();
+        }
+        return new DefaultUI();
     }
 
     public void removeOperator(final GraphNode node) {

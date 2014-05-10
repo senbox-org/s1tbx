@@ -22,12 +22,12 @@ import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorUI;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
-import org.esa.beam.framework.gpf.ui.UIValidation;
+import org.esa.nest.gpf.ui.OperatorUI;
+import org.esa.nest.gpf.ui.UIValidation;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;

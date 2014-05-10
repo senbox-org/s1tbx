@@ -61,7 +61,6 @@ public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(EllipsoidCorrectionRDOp.class);
-            setOperatorUI(EllipsoidCorrectionRDOpUI.class);
         }
     }
 }

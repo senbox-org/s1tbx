@@ -726,7 +726,6 @@ public class ALOSDeskewingOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(ALOSDeskewingOp.class);
-            this.setOperatorUI(ALOSDeskewingUI.class);
         }
     }
 }

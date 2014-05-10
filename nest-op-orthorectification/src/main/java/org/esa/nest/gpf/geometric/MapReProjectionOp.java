@@ -152,7 +152,6 @@ public final class MapReProjectionOp extends ReprojectionOp {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(MapReProjectionOp.class);
-            super.setOperatorUI(MapReProjectionOpUI.class);
         }
     }
 }

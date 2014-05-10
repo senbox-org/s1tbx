@@ -1113,7 +1113,6 @@ public final class SARSimulationOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SARSimulationOp.class);
-            setOperatorUI(SARSimulationOpUI.class);
         }
     }
 }

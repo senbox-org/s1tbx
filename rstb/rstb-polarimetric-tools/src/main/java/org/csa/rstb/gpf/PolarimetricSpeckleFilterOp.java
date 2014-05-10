@@ -2349,7 +2349,6 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(PolarimetricSpeckleFilterOp.class);
-            setOperatorUI(PolarimetricSpeckleFilterOpUI.class);
         }
     }
 }

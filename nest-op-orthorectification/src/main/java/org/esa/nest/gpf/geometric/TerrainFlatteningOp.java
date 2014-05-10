@@ -846,7 +846,6 @@ public final class TerrainFlatteningOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(TerrainFlatteningOp.class);
-            setOperatorUI(TerrainFlatteningOpUI.class);
         }
     }
 }

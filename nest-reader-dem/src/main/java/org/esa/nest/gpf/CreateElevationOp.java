@@ -208,7 +208,6 @@ public final class CreateElevationOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(CreateElevationOp.class);
-            setOperatorUI(CreateElevationOpUI.class);
         }
     }
 }

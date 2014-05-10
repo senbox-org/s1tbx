@@ -1,7 +1,7 @@
 package org.esa.beam.gpf.operators.standard;
 
-import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
-import org.esa.beam.framework.gpf.ui.UIValidation;
+import org.esa.nest.gpf.ui.BaseOperatorUI;
+import org.esa.nest.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.param.*;
