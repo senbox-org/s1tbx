@@ -47,6 +47,21 @@
     <extension point="nest-graph-builder:OperatorUIs">
 
         <OperatorUI>
+            <id>org.esa.nest.gpf.ui.DefaultUI</id>
+            <class>org.esa.nest.gpf.ui.DefaultUI</class>
+            <operatorName>DefaultUI</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.ui.SourceUI</id>
+            <class>org.esa.nest.gpf.ui.SourceUI</class>
+            <operatorName>Read</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.ui.TargetUI</id>
+            <class>org.esa.nest.gpf.ui.TargetUI</class>
+            <operatorName>Write</operatorName>
+        </OperatorUI>
+        <OperatorUI>
             <id>org.esa.nest.gpf.ProductSetReaderOpUI</id>
             <class>org.esa.nest.gpf.ProductSetReaderOpUI</class>
             <operatorName>ProductSet-Reader</operatorName>

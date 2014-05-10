@@ -25,6 +25,15 @@
 
     <categories>Processor</categories>
 
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.Sentinel1DeburstTOPSAROpUI</id>
+            <class>org.esa.nest.gpf.Sentinel1DeburstTOPSAROpUI</class>
+            <operatorName>DeburstTOPSAR</operatorName>
+        </OperatorUI>
+    </extension>
+
     <extension point="beam-ui:actions">
 
         <action>

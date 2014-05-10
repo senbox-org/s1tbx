@@ -19,7 +19,21 @@
         <module>nest-dat</module>
     </dependency>
 
-    <categories>Application,DAT</categories>
+    <categories>processor</categories>
+
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.csa.rstb.gpf.PolarimetricDecompositionOpUI</id>
+            <class>org.csa.rstb.gpf.PolarimetricDecompositionOpUI</class>
+            <operatorName>Polarimetric-Decomposition</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI</id>
+            <class>org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI</class>
+            <operatorName>Polarimetric-Speckle-Filter</operatorName>
+        </OperatorUI>
+    </extension>
 
     <extension point="beam-ui:toolViews">
         <toolView>
