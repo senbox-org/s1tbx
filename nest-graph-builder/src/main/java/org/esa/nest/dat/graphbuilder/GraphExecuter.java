@@ -348,7 +348,7 @@ public class GraphExecuter extends Observable {
         }
     }
 
-    public void setGraph(final Graph graphFromFile, final boolean addUI) {
+    public void setGraph(final Graph graphFromFile, final boolean addUI) throws GraphException {
         if (graphFromFile != null) {
             graph = graphFromFile;
             nodeList.clear();
@@ -369,9 +369,13 @@ public class GraphExecuter extends Observable {
                     newGraphNode.setDisplayParameters(presentationXML);
                 nodeList.add(newGraphNode);
 
-                if (addUI)
-                    newGraphNode.setOperatorUI(CreateOperatorUI(newGraphNode.getOperatorName()));
-
+                if (addUI) {
+                    OperatorUI ui = CreateOperatorUI(newGraphNode.getOperatorName());
+                    if(ui == null) {
+                        throw new GraphException("Unable to load "+newGraphNode.getOperatorName());
+                    }
+                    newGraphNode.setOperatorUI(ui);
+                }
                 setChanged();
                 notifyObservers(new GraphEvent(events.ADD_EVENT, newGraphNode));
                 clearChanged();
