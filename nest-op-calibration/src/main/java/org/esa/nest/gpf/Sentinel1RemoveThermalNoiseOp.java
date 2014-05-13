@@ -467,13 +467,16 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
+        final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
+        final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
+
         double dn, dn2, i, q;
         int srcIdx, tgtIdx;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
             final double[] lut = new double[w];
-            computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, targetBandName, lut);
+            computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, calType, lut);
 
             for (int x = x0; x < maxX; ++x) {
                 final int xx = x - x0;
@@ -482,7 +485,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
                     dn2 = dn * dn;
-                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                } else if (complexData) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
                     dn2 = i * i + q * q;
@@ -554,14 +557,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @param w              Tile width.
      * @param noiseInfo      Object of ThermalNoiseInfo class.
      * @param calInfo        Object of CalibrationInfo class.
-     * @param targetBandName Target band name.
+     * @param calType        one of sigma0, beta0, gamma0 or dn.
      * @param lut            The scaled noise LUT.
      */
     private void computeTileScaledNoiseLUT(final int y, final int x0, final int y0, final int w,
                                            final ThermalNoiseInfo noiseInfo,
                                            final Sentinel1Calibrator.CalibrationInfo calInfo,
-                                           final String targetBandName,
-                                           final double[] lut) {
+                                           final Sentinel1Calibrator.CALTYPE calType, final double[] lut) {
 
         if (!absoluteCalibrationPerformed) {
 
@@ -573,7 +575,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             computeTileNoiseLUT(y, x0, y0, w, noiseInfo, noiseLut);
 
             final double[] calLut = new double[w];
-            Sentinel1Calibrator.computeTileCalibrationLUTs(y, x0, y0, w, calInfo, targetBandName, calLut);
+            Sentinel1Calibrator.computeTileCalibrationLUTs(y, x0, y0, w, calInfo, calType, calLut);
 
             if (removeThermalNoise) {
                 for (int i = 0; i < w; i++) {
