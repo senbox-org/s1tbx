@@ -4,7 +4,7 @@
     <operator>Read</operator>
     <sources/>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>P:\s1tbx\s1tbx\Data\Sentinel-1 Simulated\S-1_SampleDATA_18022013\S1S-SIMU\S1A_EW_SLC__1SSH_20120101T184302_20120101T184320_001780_000001_3C93.SAFE\manifest.safe</file>
+      <file></file>
     </parameters>
   </node>
   <node id="Write">
@@ -14,7 +14,7 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <formatName>BEAM-DIMAP</formatName>
-      <file>C:\output\target.dim</file>
+      <file></file>
     </parameters>
   </node>
   <node id="DeburstTOPSAR">
