@@ -16,9 +16,9 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
+import org.esa.nest.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
-import org.esa.beam.framework.gpf.ui.UIValidation;
+import org.esa.nest.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.util.SystemUtils;

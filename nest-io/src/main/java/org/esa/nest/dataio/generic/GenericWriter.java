@@ -115,9 +115,8 @@ public class GenericWriter extends AbstractProductWriter {
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
         try {
             final long max = sourceHeight * sourceWidth;
-            final int size = sourceBuffer.getElemSize();
             for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
-                sourceBuffer.writeTo(sourcePos, sourceWidth, size, _outputStream, outputPos);
+                sourceBuffer.writeTo(sourcePos, sourceWidth, _outputStream, outputPos);
                 outputPos += (numOfWriteBands * sourceBandWidth);
             }
             pm.worked(1);

@@ -301,7 +301,6 @@ public final class PolarimetricDecompositionOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(PolarimetricDecompositionOp.class);
-            setOperatorUI(PolarimetricDecompositionOpUI.class);
         }
     }
 }

@@ -559,7 +559,6 @@ public class CrossResamplingOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(CrossResamplingOp.class);
-            setOperatorUI(CrossResamplingOpUI.class);
         }
     }
 

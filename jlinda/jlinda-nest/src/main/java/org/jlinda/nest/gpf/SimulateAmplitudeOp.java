@@ -475,7 +475,6 @@ public final class SimulateAmplitudeOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SimulateAmplitudeOp.class);
-            setOperatorUI(SimulateAmplitudeOpUI.class);
         }
     }
 }

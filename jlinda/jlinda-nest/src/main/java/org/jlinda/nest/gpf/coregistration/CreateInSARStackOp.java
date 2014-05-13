@@ -652,11 +652,6 @@ public class CreateInSARStackOp extends Operator {
         if (productPixelSpacingChecked) {
             return;
         }
-        try {
-
-        } catch(Throwable e) {
-            throw new OperatorException(e.getMessage());
-        }
 
         productPixelSpacingChecked = true;
     }
@@ -694,7 +689,6 @@ public class CreateInSARStackOp extends Operator {
 
         public Spi() {
             super(CreateInSARStackOp.class);
-            setOperatorUI(CreateInSARStackOpUI.class);
         }
     }
 }

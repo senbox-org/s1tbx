@@ -25,6 +25,35 @@
         <module>jlinda-core</module>
     </dependency>
 
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.CreateStackOpUI</id>
+            <class>org.esa.nest.gpf.CreateStackOpUI</class>
+            <operatorName>CreateStack</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.GCPSelectionOpUI</id>
+            <class>org.esa.nest.gpf.GCPSelectionOpUI</class>
+            <operatorName>GCP-Selection</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.PCAStatisticsOpUI</id>
+            <class>org.esa.nest.gpf.PCAStatisticsOpUI</class>
+            <operatorName>PCA</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TimeSeriesReaderOpUI</id>
+            <class>org.esa.nest.gpf.TimeSeriesReaderOpUI</class>
+            <operatorName>Time-Series-Reader</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.WarpOpUI</id>
+            <class>org.esa.nest.gpf.WarpOpUI</class>
+            <operatorName>Warp</operatorName>
+        </OperatorUI>
+    </extension>
+
     <extension point="beam-ui:layerSources">
         <layerSource>
             <id>gcp-vector-layer-source</id>

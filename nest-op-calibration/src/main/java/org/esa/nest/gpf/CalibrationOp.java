@@ -293,7 +293,6 @@ public class CalibrationOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(CalibrationOp.class);
-            setOperatorUI(CalibrationOpUI.class);
         }
     }
 }

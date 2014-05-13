@@ -1077,7 +1077,6 @@ public class WarpOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(WarpOp.class);
-            super.setOperatorUI(WarpOpUI.class);
         }
     }
 

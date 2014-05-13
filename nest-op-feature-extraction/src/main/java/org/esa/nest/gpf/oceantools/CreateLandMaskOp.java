@@ -263,7 +263,6 @@ public class CreateLandMaskOp extends Operator {
 
         public Spi() {
             super(CreateLandMaskOp.class);
-            setOperatorUI(CreateLandMaskOpUI.class);
         }
     }
 }

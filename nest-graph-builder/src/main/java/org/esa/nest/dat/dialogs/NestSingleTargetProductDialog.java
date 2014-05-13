@@ -27,7 +27,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorUI;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
@@ -35,12 +34,14 @@ import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
-import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.graphbuilder.GraphExecuter;
 import org.esa.nest.gpf.ProgressMonitorList;
+import org.esa.nest.gpf.ui.OperatorUI;
+import org.esa.nest.gpf.ui.UIValidation;
 import org.esa.nest.util.ResourceUtils;
 
 import javax.media.jai.JAI;
@@ -63,9 +64,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
     public NestSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
         super(operatorName, appContext, title, helpID);
 
-        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
-
-        opUI = operatorSpi.createOperatorUI();
+        opUI = GraphExecuter.CreateOperatorUI(operatorName);
 
         addParameters();
 

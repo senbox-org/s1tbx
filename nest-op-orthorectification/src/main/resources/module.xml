@@ -30,6 +30,65 @@
 
     <categories>Processing</categories>
 
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.MultilookOpUI</id>
+            <class>org.esa.nest.gpf.MultilookOpUI</class>
+            <operatorName>Multilook</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.filtering.SpeckleFilterOpUI</id>
+            <class>org.esa.nest.gpf.filtering.SpeckleFilterOpUI</class>
+            <operatorName>Speckle-Filter</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.ALOSDeskewingUI</id>
+            <class>org.esa.nest.gpf.geometric.ALOSDeskewingUI</class>
+            <operatorName>ALOS-Deskewing</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.EllipsoidCorrectionRDOpUI</id>
+            <class>org.esa.nest.gpf.geometric.EllipsoidCorrectionRDOpUI</class>
+            <operatorName>Ellipsoid-Correction-RD</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.GeolocationGridGeocodingOpUI</id>
+            <class>org.esa.nest.gpf.geometric.GeolocationGridGeocodingOpUI</class>
+            <operatorName>Ellipsoid-Correction-GG</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.MapReProjectionOpUI</id>
+            <class>org.esa.nest.gpf.geometric.MapReProjectionOpUI</class>
+            <operatorName>Reprojection</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.RangeDopplerGeocodingOpUI</id>
+            <class>org.esa.nest.gpf.geometric.RangeDopplerGeocodingOpUI</class>
+            <operatorName>Terrain-Correction</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.SARSimTerrainCorrectionOpUI</id>
+            <class>org.esa.nest.gpf.geometric.SARSimTerrainCorrectionOpUI</class>
+            <operatorName>SARSim-Terrain-Correction</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.MosaicOpUI</id>
+            <class>org.esa.nest.gpf.geometric.MosaicOpUI</class>
+            <operatorName>Mosaic</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.SARSimulationOpUI</id>
+            <class>org.esa.nest.gpf.geometric.SARSimulationOpUI</class>
+            <operatorName>SAR-Simulation</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.geometric.TerrainFlatteningOpUI</id>
+            <class>org.esa.nest.gpf.geometric.TerrainFlatteningOpUI</class>
+            <operatorName>Terrain-Flattening</operatorName>
+        </OperatorUI>
+    </extension>
+
     <extension point="beam-ui:actions">
 
         <action>

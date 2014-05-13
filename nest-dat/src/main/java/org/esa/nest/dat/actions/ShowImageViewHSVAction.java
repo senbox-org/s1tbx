@@ -61,7 +61,9 @@ public class ShowImageViewHSVAction extends ExecCommand {
     public void openProductSceneViewHSV(final Product product, final String helpId) {
         final VisatApp visatApp = VisatApp.getApp();
         final Product[] openedProducts = visatApp.getProductManager().getProducts();
-        final HSVImageProfilePane profilePane = new HSVImageProfilePane(visatApp.getPreferences(), product, openedProducts);
+        final int[] defaultBandIndices = ShowImageViewRGBAction.getDefaultBandIndices(product);
+        final HSVImageProfilePane profilePane = new HSVImageProfilePane(visatApp.getPreferences(), product,
+                openedProducts, defaultBandIndices);
         final String title = "Select HSV-Image Channels";
         final boolean ok = profilePane.showDialog(visatApp.getMainFrame(), title, helpId);
         if (!ok) {

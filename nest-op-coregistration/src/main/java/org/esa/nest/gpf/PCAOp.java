@@ -738,7 +738,6 @@ public class PCAOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(PCAOp.class);
-            super.setOperatorUI(PCAStatisticsOpUI.class);
         }
     }
 }

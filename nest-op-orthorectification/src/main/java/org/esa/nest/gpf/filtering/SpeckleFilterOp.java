@@ -1449,7 +1449,6 @@ public class SpeckleFilterOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SpeckleFilterOp.class);
-            setOperatorUI(SpeckleFilterOpUI.class);
         }
     }
 }
