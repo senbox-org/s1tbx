@@ -24,10 +24,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lveci
- * Date: Aug 12, 2008
- * To change this template use File | Settings | File Templates.
+ * Creates a generic interface to metadata
  */
 public final class AbstractMetadata {
 
@@ -36,18 +33,23 @@ public final class AbstractMetadata {
      */
     private static final String METADATA_VERSION = "6.0";
 
+    /**
+     * Default no data values
+     */
     public static final int NO_METADATA = 99999;
-    private static final short NO_METADATA_BYTE = 0;
+    public static final short NO_METADATA_BYTE = 0;
     public static final String NO_METADATA_STRING = " ";
     public static final ProductData.UTC NO_METADATA_UTC = new ProductData.UTC(0);
 
+    public static final String abstracted_metadata_version = "metadata_version";
     public static final String ABSTRACT_METADATA_ROOT = "Abstracted_Metadata";
-    @Deprecated
-    private static final String ABSTRACT_METADATA_ROOT_OLD = "Abstracted Metadata";
     private static final String ORIGINAL_PRODUCT_METADATA = "Original_Product_Metadata";
     public static final String BAND_PREFIX = "Band_";
 
-    public static final String SLAVE_METADATA_ROOT = "Slave Metadata";
+    /**
+     * Abstracted metadata generic to most EO products
+     */
+    public static final String SLAVE_METADATA_ROOT = "Slave_Metadata";
     public static final String MASTER_BANDS = "Master_bands";
     public static final String SLAVE_BANDS = "Slave_bands";
 
@@ -71,9 +73,6 @@ public final class AbstractMetadata {
     public static final String STATE_VECTOR_TIME = "STATE_VECTOR_TIME";
     public static final String VECTOR_SOURCE = "VECTOR_SOURCE";
 
-    public static final String incidence_near = "incidence_near";
-    public static final String incidence_far = "incidence_far";
-
     // SPH
     private static final String NUM_SLICES = "NUM_SLICES";
     public static final String first_line_time = "first_line_time";
@@ -90,6 +89,12 @@ public final class AbstractMetadata {
     public static final String PASS = "PASS";
     public static final String SAMPLE_TYPE = "SAMPLE_TYPE";
     public static final String sample_type = "sample_type";
+
+    // SAR Specific
+
+    public static final String incidence_near = "incidence_near";
+    public static final String incidence_far = "incidence_far";
+
     public static final String mds1_tx_rx_polar = "mds1_tx_rx_polar";
     public static final String mds2_tx_rx_polar = "mds2_tx_rx_polar";
     public static final String mds3_tx_rx_polar = "mds3_tx_rx_polar";
@@ -178,14 +183,6 @@ public final class AbstractMetadata {
     // bandwidths for insar
     public static final String range_bandwidth = "range_bandwidth";
     public static final String azimuth_bandwidth = "azimuth_bandwidth";
-
-    // help fields for parsing arguments to writers
-    public static final String temp_1 = "temp_1";
-    public static final String temp_2 = "temp_2";
-    public static final String temp_3 = "temp_3";
-    public static final String temp_4 = "temp_4";
-
-    public static final String abstracted_metadata_version = "metadata_version";
 
     public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -301,12 +298,6 @@ public final class AbstractMetadata {
 
         // Multilook
         addAbstractedAttribute(absRoot, multilook_flag, ProductData.TYPE_UINT8, "flag", "Multilook applied");
-
-        // Temp / helper entries
-        addAbstractedAttribute(absRoot, temp_1, ProductData.TYPE_ASCII, "", "Temp entry");
-        addAbstractedAttribute(absRoot, temp_2, ProductData.TYPE_ASCII, "", "Temp entry");
-        addAbstractedAttribute(absRoot, temp_3, ProductData.TYPE_ASCII, "", "Temp entry");
-        addAbstractedAttribute(absRoot, temp_4, ProductData.TYPE_ASCII, "", "Temp entry");
 
         // coregistration
         addAbstractedAttribute(absRoot, coregistered_stack, ProductData.TYPE_UINT8, "flag", "Coregistration applied");
@@ -625,12 +616,6 @@ public final class AbstractMetadata {
             return null;
         }
         MetadataElement abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-        if (abstractedMetadata == null) {
-            abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT_OLD);
-            if (abstractedMetadata != null) {
-                abstractedMetadata.setName(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-            }
-        }
         if (abstractedMetadata == null) {
             abstractedMetadata = addAbstractedMetadataHeader(root);
         } else {

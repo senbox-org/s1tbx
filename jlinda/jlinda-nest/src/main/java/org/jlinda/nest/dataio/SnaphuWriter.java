@@ -407,10 +407,10 @@ public class SnaphuWriter extends AbstractProductWriter {
 
         SnaphuParameters parameters = new SnaphuParameters();
         String temp;
-        temp = masterRoot.getAttributeString(AbstractMetadata.temp_1, "DEFO");
+        temp = masterRoot.getAttributeString("temp_1", "DEFO");
         parameters.setUnwrapMode(temp);
 
-        temp = masterRoot.getAttributeString(AbstractMetadata.temp_2, "MST");
+        temp = masterRoot.getAttributeString("temp_2", "MST");
         parameters.setSnaphuInit(temp);
 
         parameters.setLogFileName("snaphu.log");
