@@ -24,7 +24,7 @@ public class DatMain extends VisatMain {
 
     @Override
     protected void verifyJideLicense() {
-        Lm.verifyLicense("Array", "NEST", "YxhjAbyq0epTKa6vcSTdNx8O1gLVRbL");
+        Lm.verifyLicense("Array", "NEST", "XwckhJCkWG5BO0MOaVM6hjD1jvupU1p");
     }
 
     @Override
