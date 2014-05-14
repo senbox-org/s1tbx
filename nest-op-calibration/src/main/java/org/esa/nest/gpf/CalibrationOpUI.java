@@ -229,8 +229,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
                 } else if (mission.equals("SENTINEL-1A")) {
 
-                    final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProducts[0]);
-                    final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
+                    final String[] polarisations = Sentinel1Utils.getProductPolarizations(absRoot);
                     polList.setListData(polarisations);
                     OperatorUIUtils.initParamList(polList, polarisations);
 

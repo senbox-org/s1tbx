@@ -89,8 +89,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         String[] selectedPols = selectedPolarisations;
         if (selectedPols == null || selectedPols.length == 0) {
-            final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
         }
         selectedPolList = Arrays.asList(selectedPols);
 
@@ -294,25 +294,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
 
         final String[] targetBandNames = targetProduct.getBandNames();
-        final MetadataElement[] children = abs.getElements();
-        for (MetadataElement child : children) {
-            final String childName = child.getName();
-            if (childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
-                final String pol = childName.substring(childName.lastIndexOf("_") + 1);
-                final String sw_pol = childName.substring(childName.indexOf("_") + 1);
-                if (selectedPolList.contains(pol)) {
-                    String bandNameArray = "";
-                    for (String bandName : targetBandNames) {
-                        if (!isGRD && bandName.contains(sw_pol) || isGRD && bandName.contains(pol)) {
-                            bandNameArray += bandName + " ";
-                        }
-                    }
-                    child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
-                } else {
-                    abs.removeElement(child);
-                }
-            }
-        }
+        Sentinel1Utils.updateBandNames(abs, selectedPolList, targetBandNames);
     }
 
     /**
