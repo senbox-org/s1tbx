@@ -548,38 +548,68 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final double muY = (azTime - azT0) / (azT1 - azT0);
 
         final int maxX =  x0 + w;
-        for (int x = x0; x < maxX; x++) {
 
-            if (x > vec0.pixels[pixelIdx + 1]) {
-                pixelIdx++;
-            }
+        if (calType.equals(CALTYPE.SIGMA0)) {
 
-            muX = (double) (x - vec0.pixels[pixelIdx]) / (double) (vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
+            for (int x = x0; x < maxX; x++) {
+                if (x > vec0.pixels[pixelIdx + 1]) {
+                    pixelIdx++;
+                }
 
-            if (calType.equals(CALTYPE.SIGMA0)) {
+                muX = (double) (x - vec0.pixels[pixelIdx]) / (double) (vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
                 v00 = vec0.sigmaNought[pixelIdx];
                 v01 = vec0.sigmaNought[pixelIdx + 1];
                 v10 = vec1.sigmaNought[pixelIdx];
                 v11 = vec1.sigmaNought[pixelIdx + 1];
-            } else if (calType.equals(CALTYPE.BETA0)) {
+                lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            }
+
+        } else if (calType.equals(CALTYPE.BETA0)) {
+
+            for (int x = x0; x < maxX; x++) {
+                if (x > vec0.pixels[pixelIdx + 1]) {
+                    pixelIdx++;
+                }
+
+                muX = (double) (x - vec0.pixels[pixelIdx]) / (double) (vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
                 v00 = vec0.betaNought[pixelIdx];
                 v01 = vec0.betaNought[pixelIdx + 1];
                 v10 = vec1.betaNought[pixelIdx];
                 v11 = vec1.betaNought[pixelIdx + 1];
-            } else if (calType.equals(CALTYPE.GAMMA0)) {
+                lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            }
+
+        } else if (calType.equals(CALTYPE.GAMMA0)) {
+
+            for (int x = x0; x < maxX; x++) {
+                if (x > vec0.pixels[pixelIdx + 1]) {
+                    pixelIdx++;
+                }
+
+                muX = (double) (x - vec0.pixels[pixelIdx]) / (double) (vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
                 v00 = vec0.gamma[pixelIdx];
                 v01 = vec0.gamma[pixelIdx + 1];
                 v10 = vec1.gamma[pixelIdx];
                 v11 = vec1.gamma[pixelIdx + 1];
-            } else {
+                lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            }
+
+        } else {
+
+            for (int x = x0; x < maxX; x++) {
+                if (x > vec0.pixels[pixelIdx + 1]) {
+                    pixelIdx++;
+                }
+
+                muX = (double) (x - vec0.pixels[pixelIdx]) / (double) (vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
                 v00 = vec0.dn[pixelIdx];
                 v01 = vec0.dn[pixelIdx + 1];
                 v10 = vec1.dn[pixelIdx];
                 v11 = vec1.dn[pixelIdx + 1];
+                lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
             }
-
-            lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
         }
+
     }
 
     /**
