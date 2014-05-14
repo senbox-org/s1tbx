@@ -64,7 +64,7 @@ public final class DatabasePane extends JPanel {
     private final JTextField metdataValueField = new JTextField();
     private final JTextArea metadataArea = new JTextArea();
     private final JButton addMetadataButton = new JButton("+");
-    private final JButton updateButton = new JButton(UIUtils.loadImageIcon("icons/Update16.gif"));
+    private final JButton updateButton = new JButton(UIUtils.loadImageIcon("icons/ViewRefresh16.png"));
 
     private ProductDB db;
     private DBQuery dbQuery = new DBQuery();
