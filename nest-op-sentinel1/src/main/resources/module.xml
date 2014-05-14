@@ -70,18 +70,6 @@
         </action>
 
         <!--action>
-            <id>RemoveThermalNoiseOp</id>
-            <helpId>RemoveThermalNoiseOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Remove Thermal Noise</text>
-            <dialogTitle>Remove Thermal Noise operator</dialogTitle>
-            <shortDescr>Remove thermal noise from product</shortDescr>
-            <targetProductNameSuffix>_thermal_noise_corrected</targetProductNameSuffix>
-        </action-->
-
-        <!--action>
             <id>MergeSlices</id>
             <helpId>MergeSlices</helpId>
             <class>org.esa.nest.dat.actions.GraphAction</class>
