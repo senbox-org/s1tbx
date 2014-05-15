@@ -112,7 +112,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             getCalibrationFlag();
 
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-                selectedPolarisations = getProductPolarizations(origProdRoot);
+                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
             }
 
             getSubSwathParameters();
@@ -201,25 +201,28 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     /**
      * Get source product polarizations.
      *
-     * @param origProdRoot Root element of the original metadata of the source product.
+     * @param absRoot Root element of the abstracted metadata of the source product.
      * @return The polarization array.
      */
-    public static String[] getProductPolarizations(final MetadataElement origProdRoot) {
+    /*public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
-        final MetadataElement annotationElem = origProdRoot.getElement("annotation");
-        final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
+        String swath = absRoot.getAttributeString(AbstractMetadata.SWATH);
+        if (swath.length() <= 1) {
+            swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        }
+
+        final MetadataElement[] elems = absRoot.getElements();
         final List<String> polarizations = new ArrayList<String>(4);
-
-        for (MetadataElement dataSetListElem : annotationDataSetListElem) {
-            final MetadataElement productElem = dataSetListElem.getElement("product");
-            final MetadataElement adsHeaderElem = productElem.getElement("adsHeader");
-            final String pol = adsHeaderElem.getAttributeString("polarisation");
-            if (!polarizations.contains(pol)) {
-                polarizations.add(pol);
+        for (MetadataElement elem : elems) {
+            if (elem.getName().contains(swath)) {
+                final String pol = elem.getAttributeString("polarization");
+                if (!polarizations.contains(pol)) {
+                    polarizations.add(pol);
+                }
             }
         }
         return polarizations.toArray(new String[polarizations.size()]);
-    }
+    }*/
 
     /**
      * Get parameters needed for deburst for each sub-swath.

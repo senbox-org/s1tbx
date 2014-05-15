@@ -293,8 +293,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         String[] selectedPols = selectedPolarisations;
         if (selectedPols == null || selectedPols.length == 0) {
-            final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-            selectedPols = Sentinel1DeburstTOPSAROp.getProductPolarizations(origProdRoot);
+            selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
         }
         selectedPolList = Arrays.asList(selectedPols);
     }
@@ -398,6 +397,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void updateTargetProductMetadata() {
 
+        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        final String[] targetBandNames = targetProduct.getBandNames();
+        Sentinel1Utils.updateBandNames(abs, selectedPolList, targetBandNames);
+
         final MetadataElement origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
@@ -495,6 +498,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     throw new OperatorException("Unhandled unit");
                 }
 
+                // todo: check if lut should be squared
                 trgData.setElemDoubleAt(tgtIdx, dn2 - lut[xx]);
             }
         }
