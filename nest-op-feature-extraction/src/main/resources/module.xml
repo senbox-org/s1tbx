@@ -37,6 +37,15 @@
 
     <categories>Processor</categories>
 
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.oceantools.CreateLandMaskOpUI</id>
+            <class>org.esa.nest.gpf.oceantools.CreateLandMaskOpUI</class>
+            <operatorName>Land-Sea-Mask</operatorName>
+        </OperatorUI>
+    </extension>
+
     <extension point="beam-ui:layerSources">
         <layerSource>
             <id>object-detection-layer-source</id>

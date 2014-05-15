@@ -219,20 +219,6 @@ public class DatApp extends VisatApp {
         MemUtils.freeAllMemory();
     }
 
-    /**
-     * Removes and disposes the given product and performs a garbage collection. After calling this method, the product
-     * object cannot be used anymore.
-     *
-     * @param product the product to be disposed
-     * @see org.esa.beam.framework.datamodel.Product#dispose
-     */
-    @Override
-    public void disposeProduct(final Product product) {
-        removeProduct(product);
-        ProductCache.instance().removeProduct(product.getFileLocation());
-        product.dispose();
-    }
-
     @Override
     public synchronized void shutDown() {
         cleanTempFolder();

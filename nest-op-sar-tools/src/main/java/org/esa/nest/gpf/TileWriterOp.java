@@ -264,7 +264,6 @@ public class TileWriterOp extends Operator implements Output {
 
         public Spi() {
             super(TileWriterOp.class);
-            setOperatorUI(TileWriterUI.class);
         }
     }
 

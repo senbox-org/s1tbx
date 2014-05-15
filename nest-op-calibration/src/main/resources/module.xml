@@ -27,6 +27,25 @@
 
     <categories>VISAT,Processing</categories>
 
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.CalibrationOpUI</id>
+            <class>org.esa.nest.gpf.CalibrationOpUI</class>
+            <operatorName>Calibration</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.RemoveAntennaPatternOpUI</id>
+            <class>org.esa.nest.gpf.RemoveAntennaPatternOpUI</class>
+            <operatorName>RemoveAntennaPattern</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.Sentinel1RemoveThermalNoiseOpUI</id>
+            <class>org.esa.nest.gpf.Sentinel1RemoveThermalNoiseOpUI</class>
+            <operatorName>ThermalNoiseRemoval</operatorName>
+        </OperatorUI>
+    </extension>
+
     <extension point="beam-ui:actions">
         <action>
             <id>Calibration</id>
@@ -71,7 +90,7 @@
             <text>Sentinel-1 Remove Thermal Noise</text>
             <dialogTitle>Sentinel-1 Remove Thermal Noise</dialogTitle>
             <shortDescr>Remove thermal noise for Sentinel-1 product</shortDescr>
-            <operatorName>Sentinel1RemoveThermalNoise</operatorName>
+            <operatorName>ThermalNoiseRemoval</operatorName>
             <targetProductNameSuffix>_noise_corr</targetProductNameSuffix>
         </action>
 

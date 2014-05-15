@@ -27,6 +27,40 @@
 
     <categories>Processing</categories>
 
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.BandMathsOpUI</id>
+            <class>org.esa.nest.gpf.BandMathsOpUI</class>
+            <operatorName>BandMaths</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.FilterOpUI</id>
+            <class>org.esa.nest.gpf.FilterOpUI</class>
+            <operatorName>Image-Filter</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.OversamplingOpUI</id>
+            <class>org.esa.nest.gpf.OversamplingOpUI</class>
+            <operatorName>Oversample</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.SubsetUI</id>
+            <class>org.esa.nest.gpf.SubsetUI</class>
+            <operatorName>Subset</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TileWriterUI</id>
+            <class>org.esa.nest.gpf.TileWriterUI</class>
+            <operatorName>TileWriter</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.UndersamplingOpUI</id>
+            <class>org.esa.nest.gpf.UndersamplingOpUI</class>
+            <operatorName>Undersample</operatorName>
+        </OperatorUI>
+    </extension>
+
     <extension point="beam-ui:actions">
 
         <action>

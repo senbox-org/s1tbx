@@ -525,7 +525,6 @@ public final class SubtRefDemOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SubtRefDemOp.class);
-            setOperatorUI(SubtRefDemOpUI.class);
         }
     }
 }

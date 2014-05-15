@@ -129,9 +129,8 @@ public class SnaphuWriter extends AbstractProductWriter {
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", 1);//sourceHeight);
         try {
             final long max = sourceHeight * sourceWidth;
-            final int size = sourceBuffer.getElemSize();
             for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
-                sourceBuffer.writeTo(sourcePos, sourceWidth, size, outputStream, outputPos);
+                sourceBuffer.writeTo(sourcePos, sourceWidth, outputStream, outputPos);
                 outputPos += sourceBandWidth;
             }
             pm.worked(1);
@@ -408,10 +407,10 @@ public class SnaphuWriter extends AbstractProductWriter {
 
         SnaphuParameters parameters = new SnaphuParameters();
         String temp;
-        temp = masterRoot.getAttributeString(AbstractMetadata.temp_1, "DEFO");
+        temp = masterRoot.getAttributeString("temp_1", "DEFO");
         parameters.setUnwrapMode(temp);
 
-        temp = masterRoot.getAttributeString(AbstractMetadata.temp_2, "MST");
+        temp = masterRoot.getAttributeString("temp_2", "MST");
         parameters.setSnaphuInit(temp);
 
         parameters.setLogFileName("snaphu.log");

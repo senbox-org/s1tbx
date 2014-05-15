@@ -428,7 +428,6 @@ public class FilterOperator extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(FilterOperator.class);
-            setOperatorUI(FilterOpUI.class);
         }
     }
 }

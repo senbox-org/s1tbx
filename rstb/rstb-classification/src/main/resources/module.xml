@@ -31,7 +31,21 @@
         <module>rstb-polarimetric-tools</module>
     </dependency>
 
-    <categories>Application,DAT</categories>
+    <categories>processor</categories>
+
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.csa.rstb.gpf.PolarimetricClassificationOpUI</id>
+            <class>org.csa.rstb.gpf.PolarimetricClassificationOpUI</class>
+            <operatorName>Polarimetric-Classification</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.csa.rstb.gpf.SupervisedWishartClassificationOpUI</id>
+            <class>org.csa.rstb.gpf.SupervisedWishartClassificationOpUI</class>
+            <operatorName>Supervised-Wishart-Classification</operatorName>
+        </OperatorUI>
+    </extension>
 
     <extension point="beam-ui:actions">
 

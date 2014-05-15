@@ -219,7 +219,6 @@ public class RemoveAntennaPatternOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(RemoveAntennaPatternOp.class);
-            super.setOperatorUI(RemoveAntennaPatternOpUI.class);
         }
     }
 }

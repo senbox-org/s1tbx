@@ -41,6 +41,58 @@ public final class Sentinel1Utils {
         return AbstractMetadata.parseUTC(start, sentinelDateFormat);
     }
 
+    /**
+     * Get source product polarizations.
+     *
+     * @param absRoot Root element of the abstracted metadata of the source product.
+     * @return The polarization array.
+     */
+    public static String[] getProductPolarizations(final MetadataElement absRoot) {
+
+//        String swath = absRoot.getAttributeString(AbstractMetadata.SWATH);
+//        if (swath.length() <= 1) {
+//            swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+//        }
+        String swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+
+        final MetadataElement[] elems = absRoot.getElements();
+        final List<String> polarizations = new ArrayList<String>(4);
+        for (MetadataElement elem : elems) {
+            if (elem.getName().contains(swath)) {
+                final String pol = elem.getAttributeString("polarization");
+                if (!polarizations.contains(pol)) {
+                    polarizations.add(pol);
+                }
+            }
+        }
+        return polarizations.toArray(new String[polarizations.size()]);
+    }
+
+    public static void updateBandNames(
+            final MetadataElement absRoot, final java.util.List<String> selectedPolList, final String[] bandNames) {
+
+        final boolean isGRD = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).equals("GRD");
+        final MetadataElement[] children = absRoot.getElements();
+        for (MetadataElement child : children) {
+            final String childName = child.getName();
+            if (childName.startsWith(AbstractMetadata.BAND_PREFIX)) {
+                final String pol = childName.substring(childName.lastIndexOf("_") + 1);
+                final String sw_pol = childName.substring(childName.indexOf("_") + 1);
+                if (selectedPolList.contains(pol)) {
+                    String bandNameArray = "";
+                    for (String bandName : bandNames) {
+                        if (!isGRD && bandName.contains(sw_pol) || isGRD && bandName.contains(pol)) {
+                            bandNameArray += bandName + " ";
+                        }
+                    }
+                    child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
+                } else {
+                    absRoot.removeElement(child);
+                }
+            }
+        }
+    }
+
     public static int[] getIntArray(final MetadataElement elem, final String tag) {
 
         MetadataAttribute attribute = elem.getAttribute(tag);

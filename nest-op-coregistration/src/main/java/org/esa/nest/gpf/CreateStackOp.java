@@ -868,7 +868,6 @@ public class CreateStackOp extends Operator {
 
         public Spi() {
             super(CreateStackOp.class);
-            setOperatorUI(CreateStackOpUI.class);
         }
     }
 }

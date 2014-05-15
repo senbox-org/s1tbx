@@ -18,6 +18,7 @@ package org.csa.rstb.gpf;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
+import org.csa.rstb.gpf.decompositions.hAAlpha;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.nest.eo.Constants;
@@ -1280,6 +1281,30 @@ public final class PolOpUtils {
                 invMi[i][j] = invMMat.get(i + n, j);
             }
         }
+    }
+
+    /**
+     * Compute general polarimetric parameters for given coherency matrix.
+     * @param Tr Real part of the mean coherency matrix.
+     * @param Ti Imaginary part of the mean coherency matrix.
+     * @return The general polarimetric parameters.
+     */
+    public static PolarimetricParameters computePolarimetricParameters(final double[][] Tr, final double[][] Ti) {
+
+        PolarimetricParameters parameters = new PolarimetricParameters();
+
+        parameters.Span = 2*(Tr[0][0] + Tr[1][1] + Tr[2][2]);
+        hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
+        parameters.PedestalHeight = data.lambda3 / data.lambda1;
+        parameters.RVI = 4.0*data.lambda3 / (data.lambda1 + data.alpha2 + data.lambda3);
+
+        return parameters;
+    }
+
+    public static class PolarimetricParameters {
+        public double Span;
+        public double PedestalHeight;
+        public double RVI;
     }
 
 }

@@ -37,18 +37,24 @@ import java.util.StringTokenizer;
  */
 public final class AbstractMetadataIO {
 
+    private final static String TPG = "tie-point-grids";
+    private final static String NAME = "name";
+    private final static String TYPE = "type";
+    private final static String VALUE = "value";
+    private final static String ATTRIB = "attrib";
+
     public static void Save(final Product product, final MetadataElement metadataElem, final File metadataFile) {
 
         final Element root = new Element("Metadata");
         final Document doc = new Document(root);
 
         if (metadataElem != null) {
-            final Element AbstractedMetadataElem = new Element("AbstractedMetadata");
+            final Element AbstractedMetadataElem = new Element(AbstractMetadata.ABSTRACT_METADATA_ROOT);
             root.addContent(AbstractedMetadataElem);
             XMLSupport.metadataElementToDOMElement(metadataElem, AbstractedMetadataElem);
         }
         if (product.getTiePointGrids().length > 0) {
-            final Element tiePointGridsElem = new Element("tie-point-grids");
+            final Element tiePointGridsElem = new Element(TPG);
             root.addContent(tiePointGridsElem);
             writeTiePointGrids(product, tiePointGridsElem);
         }
@@ -72,9 +78,9 @@ public final class AbstractMetadataIO {
         for (Object o : elements) {
             if (o instanceof Element) {
                 final Element elem = (Element) o;
-                if (elem.getName().equals("AbstractedMetadata"))
+                if (elem.getName().equals(AbstractMetadata.ABSTRACT_METADATA_ROOT))
                     findAbstractedMetadata(elem.getContent(), metadataElem);
-                else if (elem.getName().equals("tie-point-grids"))
+                else if (elem.getName().equals(TPG))
                     parseTiePointGrids(product, elem);
             }
         }
@@ -93,7 +99,7 @@ public final class AbstractMetadataIO {
                         metadataElem.addElement(subElem);
                     }
                     findAbstractedMetadata(child.getContent(), subElem);
-                } else if (childName.equals("attrib")) {
+                } else if (childName.equals(ATTRIB)) {
                     loadAttribute(child, metadataElem);
                 }
             }
@@ -102,16 +108,16 @@ public final class AbstractMetadataIO {
 
     private static void loadAttribute(final Element domElem, final MetadataElement rootElem) {
 
-        final Attribute nameAttrib = domElem.getAttribute("name");
+        final Attribute nameAttrib = domElem.getAttribute(NAME);
         if (nameAttrib == null) return;
 
         final String name = nameAttrib.getValue();
         if (name == null) return;
 
-        final Attribute valueAttrib = domElem.getAttribute("value");
+        final Attribute valueAttrib = domElem.getAttribute(VALUE);
         if (valueAttrib == null) return;
 
-        final Attribute typeAttrib = domElem.getAttribute("type");
+        final Attribute typeAttrib = domElem.getAttribute(TYPE);
         Integer typeFromFile = null;
         if (typeAttrib != null) {
             typeFromFile = Integer.parseInt(typeAttrib.getValue());

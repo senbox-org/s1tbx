@@ -14,16 +14,25 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>nest-graph-builder</module>
-    </dependency>
-    <dependency>
         <module>beam-core</module>
     </dependency>
     <dependency>
         <module>nest-core</module>
     </dependency>
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
 
     <categories>Processor</categories>
+
+    <extension point="nest-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.Sentinel1DeburstTOPSAROpUI</id>
+            <class>org.esa.nest.gpf.Sentinel1DeburstTOPSAROpUI</class>
+            <operatorName>DeburstTOPSAR</operatorName>
+        </OperatorUI>
+    </extension>
 
     <extension point="beam-ui:actions">
 
@@ -59,18 +68,6 @@
             <dialogTitle>Sentinel1 SLC to GRD</dialogTitle>
             <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>
         </action>
-
-        <!--action>
-            <id>RemoveThermalNoiseOp</id>
-            <helpId>RemoveThermalNoiseOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Remove Thermal Noise</text>
-            <dialogTitle>Remove Thermal Noise operator</dialogTitle>
-            <shortDescr>Remove thermal noise from product</shortDescr>
-            <targetProductNameSuffix>_thermal_noise_corrected</targetProductNameSuffix>
-        </action-->
 
         <!--action>
             <id>MergeSlices</id>

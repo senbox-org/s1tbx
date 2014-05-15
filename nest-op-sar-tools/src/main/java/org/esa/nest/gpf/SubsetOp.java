@@ -172,7 +172,6 @@ public class SubsetOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SubsetOp.class);
-            setOperatorUI(SubsetUI.class);
         }
     }
 }

@@ -217,7 +217,14 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, orbitNumber.getAttributeInt("orbitNumber", defInt));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, relativeOrbitNumber.getAttributeInt("relativeOrbitNumber", defInt));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, orbitReference.getAttributeString("pass", defStr));
+
+                String pass = orbitReference.getAttributeString("pass", defStr);
+                if(pass.equals(defStr)) {
+                    final MetadataElement extension = orbitReference.getElement("extension");
+                    final MetadataElement orbitProperties = extension.getElement("orbitProperties");
+                    pass = orbitProperties.getAttributeString("pass", defStr);
+                }
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
             } else if (id.equals("measurementFrameSet")) {
 
             } else if (id.equals("generalProductInformation")) {
@@ -254,7 +261,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     private void determineProductDimensions(final Product product, final MetadataElement absRoot) throws IOException {
         int width = 0, height = 0;
-        int totalWidth = 0, totalHeight = 0;
+        int totalWidth = 0, maxHeight = 0;
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
@@ -266,10 +273,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
             totalWidth += width;
-            totalHeight += height;
+            if(height > maxHeight) {
+                maxHeight = height;
+            }
         }
         if (isSLC() && isTOPSAR()) {  // approximate does not account for overlap
-            product.setSceneDimensions(totalWidth, totalHeight);
+            product.setSceneDimensions(totalWidth, maxHeight);
         } else {
             product.setSceneDimensions(width, height);
         }

@@ -1033,7 +1033,6 @@ public class MosaicOp extends Operator {
 
         public Spi() {
             super(MosaicOp.class);
-            super.setOperatorUI(MosaicOpUI.class);
         }
     }
 }

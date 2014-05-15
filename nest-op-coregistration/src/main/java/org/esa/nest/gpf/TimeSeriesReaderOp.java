@@ -813,7 +813,6 @@ public class TimeSeriesReaderOp extends Operator {
 
         public Spi() {
             super(TimeSeriesReaderOp.class);
-            setOperatorUI(TimeSeriesReaderOpUI.class);
         }
     }
 }

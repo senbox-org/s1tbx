@@ -16,8 +16,8 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
-import org.esa.beam.framework.gpf.ui.UIValidation;
+import org.esa.nest.gpf.ui.BaseOperatorUI;
+import org.esa.nest.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.DialogUtils;
@@ -80,7 +80,7 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
 
         if (sourceProducts != null && sourceProducts.length > 0) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(absRoot);
+            final String[] polarisations = Sentinel1Utils.getProductPolarizations(absRoot);
             polList.setListData(polarisations);
 
             OperatorUIUtils.initParamList(polList, polarisations);

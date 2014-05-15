@@ -27,7 +27,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSubsetDialog;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.dialogs.PromptDialog;
+import org.esa.nest.dat.dialogs.PromptDialog;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
 import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.utils.FileFolderUtils;

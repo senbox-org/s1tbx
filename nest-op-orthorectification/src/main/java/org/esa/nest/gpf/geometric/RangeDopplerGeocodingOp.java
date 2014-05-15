@@ -1258,7 +1258,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(RangeDopplerGeocodingOp.class);
-            setOperatorUI(RangeDopplerGeocodingOpUI.class);
         }
     }
 }
