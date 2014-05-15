@@ -15,20 +15,18 @@
  */
 package org.esa.nest.dataio.sentinel1;
 
-import org.esa.beam.dataio.netcdf.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.ProfileReadContextImpl;
-import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
-import org.esa.beam.dataio.netcdf.util.RasterDigest;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.NcRasterDim;
 import org.esa.nest.dataio.netcdf.NetCDFUtils;
 import org.esa.nest.datamodel.Unit;
+//import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+
+import ucar.ma2.*;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +39,16 @@ import java.util.Set;
  * NetCDF reader for Level-2 OCN products
  */
 public class Sentinel1OCNReader {
+
+    // This maps the MDS .nc file name to the NetcdfFile
     private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<String, NetcdfFile>(1);
+
     private final Sentinel1Level1Directory dataDir;
+
+    // For WV, there can be more than one MDS .nc file. See Table 4-3 in Product Spec v2/7 (S1-RS-MDA-52-7441).
+    // Each MDS has same variables, so we want unique band names for variables of same name from different .nc file.
+    // Then given a band name, we want to map back to the .nc file.
+    private final Map<String, NetcdfFile> bandNameNCFileMap = new HashMap<String, NetcdfFile>(1);
 
     public Sentinel1OCNReader(final Sentinel1Level1Directory dataDir) {
         this.dataDir = dataDir;
@@ -70,11 +76,14 @@ public class Sentinel1OCNReader {
             final MetadataElement bandElem = NetCDFUtils.addAttributes(annotationElement, file,
                     netcdfFile.getGlobalAttributes());
 
+            //System.out.println("Sentinel1OCNReader.addNetCDFMetadata: file = " + file);
+
             final List<Variable> variableList = netcdfFile.getVariables();
             for (Variable variable : variableList) {
                 bandElem.addElement(MetadataUtils.createMetadataElement(variable, 1000));
             }
 
+            /*
             final ProfileReadContext context = new ProfileReadContextImpl(netcdfFile);
             final RasterDigest rasterDigest = RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
             if (rasterDigest == null) {
@@ -90,6 +99,48 @@ public class Sentinel1OCNReader {
 
                 }
             }
+            */
+
+            // Find index of 3rd '-'
+            int idx = -1;
+            for (int i = 0; i < 3; i++) {
+                idx = file.indexOf('-', idx+1);
+            }
+
+            final String pol = file.substring(idx+1, idx+3);
+
+            idx = file.lastIndexOf('-');
+            final String imageNum = file.substring(idx+1, idx+4);
+
+
+            for (Variable variable : variableList) {
+
+                if (variable.getRank() == 2) {
+
+                    final String bandName = pol + "_" + imageNum + "_" + variable.getFullName();
+
+                    addBand(product, variable, bandName);
+                    bandNameNCFileMap.put(bandName, netcdfFile);
+                }
+            }
+
+            /*
+            List<Dimension> dimensionList = netcdfFile.getDimensions();
+            for (Dimension d : dimensionList) {
+                int len = d.getLength();
+                String name = d.getFullName();
+                System.out.println("Sentinel1OCNReader.addNetCDFMetadata: dim name = " + name + " len = " + len);
+            }
+
+            for (Variable variable : variableList) {
+                int[] varShape = variable.getShape();
+                System.out.print("Sentinel1OCNReader.addNetCDFMetadata: variable name = " + variable.getFullName() + " ");
+                for (int i = 0; i < varShape.length; i++) {
+                    System.out.print(varShape[i] + " ");
+                }
+                System.out.println();
+            }
+            */
 
        /*     final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
             if (!variableListMap.isEmpty()) {
@@ -149,6 +200,110 @@ public class Sentinel1OCNReader {
             //     bandMap.put(band, variable);
             SARReader.createVirtualIntensityBand(product, band, cntStr);
             //  }
+        }
+    }
+
+    private void addBand(final Product product, final Variable variable, final String bandName) {
+
+        int[] shape = variable.getShape();
+
+        //  shape[1] is width, shape[0] is height
+        final Band band = NetCDFUtils.createBand(variable, shape[1], shape[0]);
+
+        band.setName(bandName);
+
+        product.addBand(band);
+
+        try {
+            Array arr = variable.read();
+
+            /*
+            for (int i = 0; i < arr.getSize(); i++) {
+                System.out.println("Sentinel1OCNReader.addBand: " + variable.getFullName() + "[" + i + "] = " + arr.getFloat(i));
+            }
+            */
+
+        } catch (IOException e) {
+
+            System.out.println("Sentinel1OCNReader.addBand: failed to add variable " + variable.getFullName() + " as band " + bandName);
+        }
+    }
+
+    private void addTiePointGridToProduct(final Variable variable, final Product product) {
+
+        // This does not work
+
+        int[] shape = variable.getShape();
+
+        //  shape[1] is width, shape[0] is height
+
+        //System.out.println("Sentinel1OCNReader.addTiePointGridToProduct for " + variable.getFullName() + " w = " + shape[1] + " h = " + shape[0]);
+
+        try {
+
+            final TiePointGrid tiePointGrid = NetCDFUtils.createTiePointGrid(variable, shape[1], shape[0], product.getSceneRasterWidth(), product.getSceneRasterHeight());
+
+            product.addTiePointGrid(tiePointGrid);
+
+        } catch (IOException e) {
+
+            System.out.println("Sentinel1OCNReader.addTiePointGridToProduct: failed for " + variable.getFullName());
+        }
+    }
+
+    public void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                        int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                        int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) {
+        /*
+        System.out.println("Sentinel1OCNReader.readData: sourceOffsetX = " + sourceOffsetX +
+                " sourceOffsetY = " + sourceOffsetY +
+                " sourceWidth = " + sourceWidth +
+                " sourceHeight = " +  sourceHeight +
+                " sourceStepX = " + sourceStepX +
+                " sourceStepY = " + sourceStepY +
+                " destOffsetX = " + destOffsetX +
+                " destOffsetY = " + destOffsetY +
+                " destWidth = " + destWidth +
+                " destHeight = " + destHeight);
+        */
+
+        final String bandName = destBand.getName();
+
+        final NetcdfFile netcdfFile = bandNameNCFileMap.get(bandName);
+
+        final int idx = bandName.lastIndexOf('_');
+        final String varFullName = bandName.substring(idx+1);
+
+        //System.out.println("Sentinel1OCNReader.readData: bandName = " + bandName + " varFullName = " + varFullName);
+
+        final Variable var = netcdfFile.findVariable(varFullName);
+
+        final int[] origin = {sourceOffsetY, sourceOffsetX};
+        final int[] shape = {sourceHeight*sourceStepY, sourceWidth*sourceStepX};
+
+        try {
+
+            final Array srcArray = var.read(origin, shape);
+
+            for (int i = 0; i < destHeight; i++) {
+
+                for (int j = 0; j < destWidth; j++) {
+
+                    final int destIdx = i*destWidth + j;
+                    final int srcIdx = i*shape[1] + j*sourceStepX;
+                    destBuffer.setElemFloatAt(destIdx, srcArray.getFloat(srcIdx));
+
+                    //System.out.println("Sentinel1OCNReader.readData:  i = " + i + " j = " + j + " destIdx = " + destIdx + " srcIdx = " + srcIdx);
+                }
+            }
+
+        } catch (IOException e) {
+
+            System.out.println("Sentinel1OCNReader.readData: IOException when reading variable " + varFullName);
+
+        } catch (InvalidRangeException e) {
+
+            System.out.println("Sentinel1OCNReader.readData: InvalidRangeException when reading variable " + varFullName);
         }
     }
 }

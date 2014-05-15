@@ -129,6 +129,20 @@ public class Sentinel1ProductReader extends SARReader {
                         bandInfo.imageID, bandInfo.bandSampleOffset);
             }
         }
+
+        if (dataDir instanceof Sentinel1Level1Directory &&
+                ((Sentinel1Level1Directory) dataDir).getProductType().contains("OCN") ) {
+
+            //System.out.println("Sentinel1ProductReader.readBandRasterDataImpl: put OCN data into band " +
+            //                      destBand.getName());
+
+            final Sentinel1Level1Directory s1L1Dir = (Sentinel1Level1Directory) dataDir;
+            synchronized(s1L1Dir) {
+                s1L1Dir.readLevel2OCNBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                                          sourceStepX, sourceStepY, destBand, destOffsetX,
+                                          destOffsetY, destWidth, destHeight, destBuffer);
+            }
+        }
     }
 
     public void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
