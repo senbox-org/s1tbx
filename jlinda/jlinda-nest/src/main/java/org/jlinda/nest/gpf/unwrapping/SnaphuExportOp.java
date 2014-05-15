@@ -3,6 +3,7 @@ package org.jlinda.nest.gpf.unwrapping;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -107,8 +108,10 @@ public class SnaphuExportOp extends Operator {
                 // update metadata with SNAPHU processing flags: the only way to parse info to the writer
                 try {
                     final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
-                    AbstractMetadata.setAttribute(absTgt, AbstractMetadata.temp_1, statCostMode.toUpperCase());
-                    AbstractMetadata.setAttribute(absTgt, AbstractMetadata.temp_2, initMethod.toUpperCase());
+                    AbstractMetadata.addAbstractedAttribute(absTgt, "temp_1", ProductData.TYPE_ASCII, "", "Temp entry");
+                    AbstractMetadata.addAbstractedAttribute(absTgt, "temp_2", ProductData.TYPE_ASCII, "", "Temp entry");
+                    AbstractMetadata.setAttribute(absTgt, "temp_1", statCostMode.toUpperCase());
+                    AbstractMetadata.setAttribute(absTgt, "temp_2", initMethod.toUpperCase());
                 } catch (Throwable e){
                     OperatorUtils.catchOperatorException(getId() + "Metadata of input product is not in the format compatible for SNAPHU export.", e);
                 }
