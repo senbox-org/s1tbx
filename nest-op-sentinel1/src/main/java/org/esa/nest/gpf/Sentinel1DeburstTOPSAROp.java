@@ -758,7 +758,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             }
 
             final BurstInfo burstInfo = new BurstInfo();
-            final int lastX = tx0 + tw;
+            final int txMax = tx0 + tw;
+            final int tyMax = ty0 + th;
 
             if (!absoluteCalibrationPerformed) {
 
@@ -771,11 +772,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                         final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
 
                         if (tileInOneSubSwath) {
-                            computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                            computeTileInOneSwath(tx0, ty0, txMax, tyMax, firstSubSwathIndex, pol,
                                     sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
 
                         } else {
-                            computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex, pol,
+                            computeMultipleSubSwaths(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex, pol,
                                     sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
 
                         }
@@ -791,10 +792,10 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                             final String bandName = "Sigma0_" + acquisitionMode;
                             final Tile targetTile = targetTiles.get(targetProduct.getBand("Sigma0_" + pol));
                             if (tileInOneSubSwath) {
-                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                computeTileInOneSwath(tx0, ty0, txMax, tyMax, firstSubSwathIndex, pol,
                                         sourceRectangle, bandName, targetTile, burstInfo);
                             } else {
-                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                computeMultipleSubSwaths(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex,
                                         pol, sourceRectangle, bandName, targetTile, burstInfo);
                             }
                         }
@@ -803,10 +804,10 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                             final String bandName = "Beta0_" + acquisitionMode;
                             final Tile targetTile = targetTiles.get(targetProduct.getBand("Beta0_" + pol));
                             if (tileInOneSubSwath) {
-                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                computeTileInOneSwath(tx0, ty0, txMax, tyMax, firstSubSwathIndex, pol,
                                         sourceRectangle, bandName, targetTile, burstInfo);
                             } else {
-                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                computeMultipleSubSwaths(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex,
                                         pol, sourceRectangle, bandName, targetTile, burstInfo);
                             }
                         }
@@ -815,10 +816,10 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                             final String bandName = "Gamma0_" + acquisitionMode;
                             final Tile targetTile = targetTiles.get(targetProduct.getBand("Gamma0_" + pol));
                             if (tileInOneSubSwath) {
-                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                computeTileInOneSwath(tx0, ty0, txMax, tyMax, firstSubSwathIndex, pol,
                                         sourceRectangle, bandName, targetTile, burstInfo);
                             } else {
-                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                computeMultipleSubSwaths(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex,
                                         pol, sourceRectangle, bandName, targetTile, burstInfo);
                             }
                         }
@@ -827,10 +828,10 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                             final String bandName = "DN_" + acquisitionMode;
                             final Tile targetTile = targetTiles.get(targetProduct.getBand("DN_" + pol));
                             if (tileInOneSubSwath) {
-                                computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                computeTileInOneSwath(tx0, ty0, txMax, tyMax, firstSubSwathIndex, pol,
                                         sourceRectangle, bandName, targetTile, burstInfo);
                             } else {
-                                computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex,
+                                computeMultipleSubSwaths(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex,
                                         pol, sourceRectangle, bandName, targetTile, burstInfo);
                             }
                         }
@@ -843,7 +844,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     }
 
     // For original SLC product
-    private void computeTileInOneSwath(final int tx0, final int ty0, final int lastX, final int th,
+    private void computeTileInOneSwath(final int tx0, final int ty0, final int txMax, final int tyMax,
                                        final int firstSubSwathIndex, final String pol,
                                        final Rectangle[] sourceRectangle,
                                        final String bandNameI, final String bandNameQ,
@@ -853,7 +854,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex - 1]);
         final int firstY = Math.max(ty0, yMin);
-        final int lastY = Math.min(ty0 + th, yMax + 1);
+        final int lastY = Math.min(tyMax, yMax + 1);
 
         if (firstY >= lastY)
             return;
@@ -888,13 +889,13 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime)
                     - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
 
-            System.arraycopy(srcArrayI, sx - offset, tgtArrayI, tx0 - tgtOffset, lastX - tx0);
-            System.arraycopy(srcArrayQ, sx - offset, tgtArrayQ, tx0 - tgtOffset, lastX - tx0);
+            System.arraycopy(srcArrayI, sx - offset, tgtArrayI, tx0 - tgtOffset, txMax - tx0);
+            System.arraycopy(srcArrayQ, sx - offset, tgtArrayQ, tx0 - tgtOffset, txMax - tx0);
         }
     }
 
     // For original SLC product
-    private void computeMultipleSubSwaths(final int tx0, final int ty0, final int lastX, final int th,
+    private void computeMultipleSubSwaths(final int tx0, final int ty0, final int txMax, final int tyMax,
                                           final int firstSubSwathIndex, final int lastSubSwathIndex, final String pol,
                                           final Rectangle[] sourceRectangle,
                                           final String bandNameI, final String bandNameQ,
@@ -923,10 +924,10 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
 
         int sy;
-        for (int y = ty0; y < ty0 + th; y++) {
+        for (int y = ty0; y < tyMax; y++) {
             final int tgtOffset = tgtIndex.calculateStride(y);
 
-            for (int x = tx0; x < lastX; x++) {
+            for (int x = tx0; x < txMax; x++) {
 
                 int subswathIndex = getSubSwathIndex(x, y, firstSubSwathIndex, lastSubSwathIndex, pol, burstInfo);
                 if (subswathIndex == -1) {
@@ -985,7 +986,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     }
 
     // For calibrated product
-    private void computeTileInOneSwath(final int tx0, final int ty0, final int lastX, final int th,
+    private void computeTileInOneSwath(final int tx0, final int ty0, final int txMax, final int tyMax,
                                        final int firstSubSwathIndex, final String pol,
                                        final Rectangle[] sourceRectangle,
                                        final String bandName, final Tile targetTile,
@@ -994,7 +995,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex - 1]);
         final int firstY = Math.max(ty0, yMin);
-        final int lastY = Math.min(ty0 + th, yMax + 1);
+        final int lastY = Math.min(tyMax, yMax + 1);
 
         if (firstY >= lastY)
             return;
@@ -1025,12 +1026,12 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime)
                     - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
 
-            System.arraycopy(srcArray, sx - offset, tgtArray, tx0 - tgtOffset, lastX - tx0);
+            System.arraycopy(srcArray, sx - offset, tgtArray, tx0 - tgtOffset, txMax - tx0);
         }
     }
 
     // For calibrated product
-    private void computeMultipleSubSwaths(final int tx0, final int ty0, final int lastX, final int th,
+    private void computeMultipleSubSwaths(final int tx0, final int ty0, final int txMax, final int tyMax,
                                           final int firstSubSwathIndex, final int lastSubSwathIndex, final String pol,
                                           final Rectangle[] sourceRectangle, final String bandName,
                                           final Tile targetTile, final BurstInfo burstInfo) {
@@ -1043,19 +1044,23 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         final float[] tgtArray = (float[]) targetTile.getDataBuffer().getElems();
 
         int k = 0;
+        double noDataValue = 0.0;
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
             final Band srcBand = sourceProduct.getBand(bandName + i + '_' + pol);
             final Tile sourceRaster = getSourceTile(srcBand, sourceRectangle[k]);
             srcTiles[k] = sourceRaster;
             srcArray[k] = (float[]) sourceRaster.getDataBuffer().getElems();
+            if (k == 0) {
+                noDataValue = srcBand.getNoDataValue();
+            }
             k++;
         }
 
         int sy;
-        for (int y = ty0; y < ty0 + th; y++) {
+        for (int y = ty0; y < tyMax; y++) {
             final int tgtOffset = tgtIndex.calculateStride(y);
 
-            for (int x = tx0; x < lastX; x++) {
+            for (int x = tx0; x < txMax; x++) {
 
                 int subswathIndex = getSubSwathIndex(x, y, firstSubSwathIndex, lastSubSwathIndex, pol, burstInfo);
                 if (subswathIndex == -1) {
@@ -1080,8 +1085,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                     intensity = srcArray[k][idx];
                 }
 
-                //if(burstInfo.swath1 != -1 && intensity == 0.0) {
-                if (burstInfo.swath1 != -1 && intensity < 300) {
+                if (burstInfo.swath1 != -1 && intensity == noDataValue) {
                     // edge of swaths found therefore use other swath
                     if (subswathIndex == burstInfo.swath0) {
                         subswathIndex = burstInfo.swath1;
@@ -1100,7 +1104,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                     }
                     idx = srcTiles[k].getDataBufferIndex(sx, sy);
 
-                    if (idx >= 0 && srcArray[k][idx] != 0.0) {
+                    if (idx >= 0 && srcArray[k][idx] != noDataValue) {
                         intensity = srcArray[k][idx];
                     }
                 }
