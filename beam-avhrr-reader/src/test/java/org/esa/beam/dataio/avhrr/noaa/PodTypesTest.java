@@ -5,6 +5,7 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class PodTypesTest {
 
+    @Ignore
     @Test
     public void testReadAvhrrHrptFile() throws Exception {
 
@@ -52,7 +54,8 @@ public class PodTypesTest {
 
         final CompoundType solarZenithAnglesType = dataRecord.getType();
         final int memberIndex = solarZenithAnglesType.getMemberIndex("SOLAR_ZENITH_ANGLES");
-        final FormatMetadata zenithAngleMetadata = (FormatMetadata) solarZenithAnglesType.getMember(memberIndex).getMetadata();
+        final FormatMetadata zenithAngleMetadata = (FormatMetadata) solarZenithAnglesType.getMember(
+                memberIndex).getMetadata();
         assertEquals(0.5, zenithAngleMetadata.getScalingFactor(), 0.0);
         assertEquals("degree", zenithAngleMetadata.getUnits());
         final SequenceData solarZenithAngles = dataRecord.getSequence("SOLAR_ZENITH_ANGLES");
