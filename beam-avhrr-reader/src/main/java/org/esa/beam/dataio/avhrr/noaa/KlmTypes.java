@@ -42,7 +42,7 @@ import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.STRING_MEMBER;
 /**
  * bin-io types for the NOAA AVHRR format.
  */
-class NoaaTypes {
+class KlmTypes {
 
     ////////////////////////////////////////////////////////////////////////////////////////
     static CompoundType arsHeaderOrderIdType =
@@ -344,16 +344,16 @@ class NoaaTypes {
         );
     }
 
-    public static CompoundType getFileType(boolean hasArsHeader, ProductFormat productFormat, int dataRecordcount) {
-        List<CompoundMember> members = new ArrayList<CompoundMember>(3);
+    static CompoundType getFileType(boolean hasArsHeader, ProductFormat productFormat, int dataRecordcount) {
+        final List<CompoundMember> members = new ArrayList<>(3);
         if (hasArsHeader) {
             members.add(MEMBER("ArsRecord", arsHeaderType));
         }
         members.add(MEMBER("HeaderRecord", getHeaderRecordType(productFormat.getBlockSize())));
 
-        Type dataRecordType = getDataRecordType(productFormat);
+        final Type dataRecordType = getDataRecordType(productFormat);
         members.add(MEMBER("DataRecord", SEQUENCE(dataRecordType, dataRecordcount)));
-        return COMPOUND("NOAA", members.toArray(new CompoundMemberImpl[members.size()]));
+        return COMPOUND("NOAA", members.toArray(new CompoundMember[members.size()]));
     }
 
 }
