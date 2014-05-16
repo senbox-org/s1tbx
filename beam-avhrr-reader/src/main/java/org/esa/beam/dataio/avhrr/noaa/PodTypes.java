@@ -22,7 +22,7 @@ import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.STRING_MEMBER;
  *
  * @author Ralf Quast
  */
-final class NoaaPodTypes {
+final class PodTypes {
 
     private static final CompoundType calibrationCoefficientsType =
             COMPOUND("",
@@ -79,7 +79,7 @@ final class NoaaPodTypes {
     static final CompoundType tbmHeaderRecordType =
             COMPOUND("TBM_HEADER_RECORD",
                      FILL_MEMBER(30),
-                     STRING_MEMBER("DATA_SET_NAME", 44),
+                     STRING_MEMBER("DATASET_NAME", 44),
                      STRING_MEMBER("TOTAL_OR_SELECTIVE_COPY", 1),
                      STRING_MEMBER("BEGINNING_LATITUDE", 3),
                      STRING_MEMBER("ENDING_LATITUDE", 3),
@@ -135,7 +135,7 @@ final class NoaaPodTypes {
                                  META().setScalingFactor(0.5).setUnits("degree")),
                      MEMBER("EARTH_LOCATION", SEQUENCE(earthLocationType, 51)),
                      MEMBER("TELEMETRY", SEQUENCE(UBYTE, 140)),
-                     MEMBER("VIDEO DATA", SEQUENCE(UINT, 3414)),
+                     MEMBER("VIDEO_DATA", SEQUENCE(UINT, 3414)),
                      MEMBER("DECIMAL_PORTION_OF_SOLAR_ZENITH_ANGLES", SEQUENCE(UBYTE, 20)),
                      MEMBER("CLOCK_DRIFT_DELTA", USHORT),
                      FILL_MEMBER(674)
@@ -143,14 +143,14 @@ final class NoaaPodTypes {
 
     static final CompoundType hrptType =
             COMPOUND("HRPT",
-                     MEMBER("TBM_HEADER_RECORD", NoaaPodTypes.tbmHeaderRecordType),
+                     MEMBER("TBM_HEADER_RECORD", PodTypes.tbmHeaderRecordType),
                      MEMBER("SPACECRAFT_ID", UBYTE),
                      MEMBER("DATA_TYPE", UBYTE),
                      MEMBER("START_TIME", SEQUENCE(UBYTE, 6)),
                      MEMBER("NUMBER_OF_SCANS", USHORT),
                      MEMBER("END_TIME", SEQUENCE(UBYTE, 6)),
-                     MEMBER("DATASET_HEADER_RECORD", NoaaPodTypes.datasetHeaderRecordType),
-                     MEMBER("DUMMY_RECORD", NoaaPodTypes.dummyRecordType),
-                     MEMBER("DATA_RECORDS", VAR_SEQUENCE(NoaaPodTypes.dataRecordType, "NUMBER_OF_SCANS"))
+                     MEMBER("DATASET_HEADER_RECORD", PodTypes.datasetHeaderRecordType),
+                     MEMBER("DUMMY_RECORD", PodTypes.dummyRecordType),
+                     MEMBER("DATA_RECORDS", VAR_SEQUENCE(PodTypes.dataRecordType, "NUMBER_OF_SCANS"))
             );
 }

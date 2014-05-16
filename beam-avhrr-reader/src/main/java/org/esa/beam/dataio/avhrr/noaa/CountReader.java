@@ -37,9 +37,9 @@ abstract class CountReader implements BandReader {
 
     protected final int channel;
 
-    protected final NoaaAvhrrFile noaaFile;
+    protected final KlmAvhrrFile noaaFile;
 
-    public CountReader(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int dataWidth) {
+    public CountReader(int channel, KlmAvhrrFile noaaFile, Calibrator calibrator, int dataWidth) {
         this.channel = channel;
         this.noaaFile = noaaFile;
         this.calibrator = calibrator;

@@ -5,7 +5,6 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,13 +17,12 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Ralf Quast
  */
-public class NoaaPodTypesTest {
+public class PodTypesTest {
 
-    @Ignore
     @Test
     public void testReadAvhrrHrptFile() throws Exception {
 
-        final DataFormat dataFormat = new DataFormat(NoaaPodTypes.hrptType, ByteOrder.BIG_ENDIAN);
+        final DataFormat dataFormat = new DataFormat(PodTypes.hrptType, ByteOrder.BIG_ENDIAN);
 
         final File file = new File("/Users/ralf/Desktop/ao11090194162709_044816.l1b");
         final DataContext context = dataFormat.createContext(file, "r");
@@ -48,19 +46,19 @@ public class NoaaPodTypesTest {
         final SequenceData data = hrptData.getSequence("DATA_RECORDS");
 
         // first scan
-        final CompoundData record = data.getCompound(0);
-        assertEquals(1, record.getUShort("SCAN_LINE_NUMBER"));
-        assertEquals(51, record.getUByte("NUMBER_OF_MEANINGFUL_ZENITH_ANGLES_AND_EARTH_LOCATION_POINTS"));
+        final CompoundData dataRecord = data.getCompound(0);
+        assertEquals(1, dataRecord.getUShort("SCAN_LINE_NUMBER"));
+        assertEquals(51, dataRecord.getUByte("NUMBER_OF_MEANINGFUL_ZENITH_ANGLES_AND_EARTH_LOCATION_POINTS"));
 
-        final CompoundType solarZenithAnglesType = record.getType();
+        final CompoundType solarZenithAnglesType = dataRecord.getType();
         final int memberIndex = solarZenithAnglesType.getMemberIndex("SOLAR_ZENITH_ANGLES");
         final FormatMetadata zenithAngleMetadata = (FormatMetadata) solarZenithAnglesType.getMember(memberIndex).getMetadata();
         assertEquals(0.5, zenithAngleMetadata.getScalingFactor(), 0.0);
         assertEquals("degree", zenithAngleMetadata.getUnits());
-        final SequenceData solarZenithAngles = record.getSequence("SOLAR_ZENITH_ANGLES");
+        final SequenceData solarZenithAngles = dataRecord.getSequence("SOLAR_ZENITH_ANGLES");
         assertEquals(-77, solarZenithAngles.getByte(0));
 
-        final SequenceData earthLocations = record.getSequence("EARTH_LOCATION");
+        final SequenceData earthLocations = dataRecord.getSequence("EARTH_LOCATION");
         final CompoundData earthLocation = earthLocations.getCompound(0);
         final FormatMetadata latMetadata = (FormatMetadata) earthLocation.getType().getMember(0).getMetadata();
         final double latScaleFactor = latMetadata.getScalingFactor();
@@ -72,6 +70,10 @@ public class NoaaPodTypesTest {
         assertEquals("degrees east", lonMetadata.getUnits());
         assertEquals(-7.9375, earthLocation.getShort("LAT") * latScaleFactor, 0.0);
         assertEquals(22.0859375, earthLocation.getShort("LON") * lonScaleFactor, 0.0);
+
+        final SequenceData videoData = dataRecord.getSequence("VIDEO_DATA");
+        assertEquals(0, videoData.getUInt(0) & 0b11000000000000000000000000000000);
+
 
         // second scan
         assertEquals(2, data.getCompound(1).getUShort("SCAN_LINE_NUMBER"));

@@ -27,9 +27,9 @@ import java.io.IOException;
 
 class FlagReader implements BandReader {
 
-    private NoaaAvhrrFile avhrrFile;
+    private KlmAvhrrFile avhrrFile;
 
-    public FlagReader(NoaaAvhrrFile avhrrFile) {
+    public FlagReader(KlmAvhrrFile avhrrFile) {
         this.avhrrFile = avhrrFile;
     }
 

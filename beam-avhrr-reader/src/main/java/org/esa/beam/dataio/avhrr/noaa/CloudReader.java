@@ -26,13 +26,13 @@ import java.io.IOException;
 
 class CloudReader implements BandReader {
 
-    private NoaaAvhrrFile noaaFile;
+    private KlmAvhrrFile noaaFile;
 
     private byte[] rawBuffer;
 
     private byte[] flagBuffer;
 
-    public CloudReader(NoaaAvhrrFile noaaFile) {
+    public CloudReader(KlmAvhrrFile noaaFile) {
         this.noaaFile = noaaFile;
         ProductFormat productFormat = noaaFile.getProductFormat();
         int dataWidth = productFormat.getProductDimension().getDataWidth();
