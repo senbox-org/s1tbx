@@ -1,25 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\build\4B\nest\target\nest-4B-1.1-bin.dir\bin\ceres-launcher.jar</jar>
-  <outfile>C:\build\4B\nest\target\nest-4B-1.1-bin.dir\nest-dat.exe</outfile>
+  <jar>E:\build\6.0\S1TBX\s1tbx\target\s1tbx-0.1-SNAPSHOT-bin-win\bin\ceres-launcher.jar</jar>
+  <outfile>E:\build\6.0\S1TBX\s1tbx\target\s1tbx-0.1-SNAPSHOT-bin-win\s1tbx-dat.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
-  <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>C:\build\4B\nest\nest-src\main\assembly\dat.ico</icon>
+  <icon>E:\build\6.0\S1TBX\s1tbx\nest-src\main\assembly\dat.ico</icon>
   <jre>
     <path>jre</path>
-    <minVersion>1.6.0</minVersion>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <minVersion>1.7.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
     <initialHeapPercent>10</initialHeapPercent>
     <maxHeapPercent>60</maxHeapPercent>
-    <opt>-Dceres.context=nest</opt>
+    <opt>-Dceres.context=s1tbx</opt>
   </jre>
 </launch4jConfig>
