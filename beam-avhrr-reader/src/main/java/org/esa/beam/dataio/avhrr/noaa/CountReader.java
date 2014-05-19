@@ -77,7 +77,7 @@ abstract class CountReader implements BandReader {
                                    int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
                                                                                                                  IOException {
 
-        AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordiantes(
+        AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordinates(
                 sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
 
         final float[] targetData = (float[]) destBuffer.getElems();
@@ -131,8 +131,8 @@ abstract class CountReader implements BandReader {
     }
 
     private boolean containsValidCounts() {
-        for (int i = 0; i < lineOfCounts.length; i++) {
-            if (lineOfCounts[i] <= 0 || lineOfCounts[i] >= 1024) {
+        for (final int i : lineOfCounts) {
+            if (i <= 0 || i >= 1024) {
                 return false;
             }
         }
