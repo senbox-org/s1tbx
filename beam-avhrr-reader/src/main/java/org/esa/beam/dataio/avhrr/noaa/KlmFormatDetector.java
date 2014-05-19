@@ -42,7 +42,7 @@ import static com.bc.ceres.binio.TypeBuilder.SEQUENCE;
 /**
  * Detects whether the AVHRR file starts with an ARS header or without it.
  */
-class KlmFormatDetector implements FormatDetector {
+class KlmFormatDetector {
 
     private static final List<String> DATASET_CREATION_SITES = Arrays.asList("CMS", "DSS", "NSS", "UKM");
 
@@ -103,7 +103,6 @@ class KlmFormatDetector implements FormatDetector {
         throw new IOException("Could not detect AVHRR data record size.");
     }
 
-    @Override
     public void dispose() {
         if (raf != null) {
             try {
@@ -139,7 +138,6 @@ class KlmFormatDetector implements FormatDetector {
         }
     }
 
-    @Override
     public boolean canDecode() {
         return decodeQualification == DecodeQualification.INTENDED;
     }

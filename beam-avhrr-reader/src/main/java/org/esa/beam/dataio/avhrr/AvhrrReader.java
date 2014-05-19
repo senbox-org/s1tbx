@@ -306,7 +306,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     }
 
     protected void addTiePointGrids() throws IOException {
-        int tpSubsampling = avhrrFile.getTiePointSupsampling();
+        int tpSubsampling = avhrrFile.getTiePointSubsampling();
         final int gridHeight = avhrrFile.getProductHeight() / tpSubsampling + 1;
 
         String[] tiePointNames = avhrrFile.getTiePointNames();
@@ -326,7 +326,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         GeoCoding geoCoding = new TiePointGeoCoding(grid[numGrids - 2],
                                                     grid[numGrids - 1], Datum.WGS_72);
         product.setGeoCoding(geoCoding);
-    }
+        }
 
     public static String format(String pattern, String arg) {
         return new MessageFormat(pattern).format(new Object[]{arg});
