@@ -65,7 +65,7 @@ class CloudReader implements BandReader {
                                                 int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
             IOException {
 
-        AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordiantes(
+        AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordinates(
                 sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
 
         final byte[] flagsData = (byte[]) destBuffer.getElems();
