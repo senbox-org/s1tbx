@@ -229,7 +229,7 @@ public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
 
     @Override
     public float[][] getTiePointData() throws IOException {
-        final int tiePointSupsampling = getTiePointSupsampling();
+        final int tiePointSupsampling = getTiePointSubsampling();
         final int gridHeight = getProductHeight() / tiePointSupsampling + 1;
         final int numTiePoints = TP_GRID_WIDTH * gridHeight;
 
@@ -286,7 +286,7 @@ public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
     }
 
     @Override
-    public int getTiePointSupsampling() {
+    public int getTiePointSubsampling() {
         return productFormat.getProductDimension().getTpSubsampling();
     }
 
