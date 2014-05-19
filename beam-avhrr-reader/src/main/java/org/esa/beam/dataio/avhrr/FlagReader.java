@@ -56,7 +56,7 @@ public class FlagReader implements BandReader {
                                    int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
                                                                                                                  IOException {
 
-        AvhrrFile.RawCoordinates rawCoord = avhrrFile.getRawCoordiantes(
+        AvhrrFile.RawCoordinates rawCoord = avhrrFile.getRawCoordinates(
                 sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
 
         final byte[] flagsData = (byte[]) destBuffer.getElems();
