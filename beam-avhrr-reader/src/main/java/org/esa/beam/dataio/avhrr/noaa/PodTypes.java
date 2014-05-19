@@ -1,6 +1,8 @@
 package org.esa.beam.dataio.avhrr.noaa;
 
+import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.SequenceData;
 
 import static com.bc.ceres.binio.SimpleType.BYTE;
 import static com.bc.ceres.binio.SimpleType.INT;
@@ -16,6 +18,7 @@ import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.FILL_MEMBER;
 import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.META;
 import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.META_MEMBER;
 import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.STRING_MEMBER;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Data types for the NOAA HRPT data format.
@@ -31,6 +34,7 @@ final class PodTypes {
                      META_MEMBER("INTERCEPT", INT,
                                  META().setScalingFactor(2.384185791015625E-7))
             );
+
     private static final CompoundType earthLocationType =
             COMPOUND("",
                      META_MEMBER("LAT", SHORT,
@@ -153,4 +157,16 @@ final class PodTypes {
                      MEMBER("DUMMY_RECORD", PodTypes.dummyRecordType),
                      MEMBER("DATA_RECORDS", VAR_SEQUENCE(PodTypes.dataRecordType, "NUMBER_OF_SCANS"))
             );
+
+    static FormatMetadata getSolarZenithAnglesMetadata() {
+        return (FormatMetadata) dataRecordType.getMember(5).getMetadata();
+    }
+
+    static FormatMetadata getLatMetadata() {
+        return (FormatMetadata) earthLocationType.getMember(0).getMetadata();
+    }
+
+    static FormatMetadata getLonMetadata() {
+        return (FormatMetadata) earthLocationType.getMember(1).getMetadata();
+    }
 }

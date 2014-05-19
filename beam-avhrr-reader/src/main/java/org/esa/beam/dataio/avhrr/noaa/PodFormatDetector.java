@@ -3,7 +3,6 @@ package org.esa.beam.dataio.avhrr.noaa;
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
-import org.esa.beam.framework.dataio.DecodeQualification;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,55 +15,41 @@ import java.nio.ByteOrder;
  *
  * @author Ralf Quast
  */
-class PodFormatDetector implements FormatDetector {
+class PodFormatDetector {
 
-    private final RandomAccessFile raf;
-    private final DecodeQualification decodeQualification;
-
-    PodFormatDetector(File file) throws FileNotFoundException {
-        raf = new RandomAccessFile(file, "r");
-
-        if (hasTbmHeader(raf)) {
-            decodeQualification = DecodeQualification.INTENDED;
-        } else {
-            decodeQualification = DecodeQualification.UNABLE;
-        }
-    }
-
-    @Override
-    public boolean canDecode() {
-        return decodeQualification == DecodeQualification.INTENDED;
-    }
-
-    @Override
-    public void dispose() {
+    public boolean canDecode(File file) {
+        RandomAccessFile raf = null;
         try {
-            raf.close();
-        } catch (IOException ignored) {
-        }
-    }
-
-    private static boolean hasTbmHeader(RandomAccessFile raf) {
-        final DataFormat dataFormat = new DataFormat(PodTypes.tbmHeaderRecordType, ByteOrder.BIG_ENDIAN);
-        final DataContext context = dataFormat.createContext(raf);
-        final CompoundData tbmHeaderData = context.getData();
-
-        try {
-            return isTbmHeader(tbmHeaderData);
-        } catch (IOException e) {
+            raf = new RandomAccessFile(file, "r");
+            final DataFormat dataFormat = new DataFormat(PodTypes.tbmHeaderRecordType, ByteOrder.BIG_ENDIAN);
+            final DataContext context = dataFormat.createContext(raf);
+            try {
+                return isTbmHeaderRecord(context.getData());
+            } catch (IOException e) {
+                return false;
+            } finally {
+                context.dispose();
+            }
+        } catch (FileNotFoundException e) {
             return false;
         } finally {
-            context.dispose();
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
+
     }
 
     // package public for testing only
-    static boolean isTbmHeader(CompoundData tbmHeaderData) throws IOException {
-        final String totalOrSelectiveCopy = getString(tbmHeaderData, 2);
+    static boolean isTbmHeaderRecord(CompoundData data) throws IOException {
+        final String totalOrSelectiveCopy = getString(data, 2);
         if ("T".equals(totalOrSelectiveCopy) || "S".equals(totalOrSelectiveCopy)) {
-            final String appendedDataSelection = getString(tbmHeaderData, 10);
+            final String appendedDataSelection = getString(data, 10);
             if ("Y".equals(appendedDataSelection) || "N".equals(appendedDataSelection)) {
-                final String datasetName = getString(tbmHeaderData, 1);
+                final String datasetName = getString(data, 1);
                 if (datasetName.matches("[A-Z]{3}\\.HRPT\\..*")) {
                     return true;
                 }

@@ -20,6 +20,21 @@ import static org.junit.Assert.assertNotNull;
  */
 public class PodTypesTest {
 
+    @Test
+    public void testSolarZenithAnglesScaleFactor() throws Exception {
+        assertEquals(1.0 / 2, PodTypes.getSolarZenithAnglesMetadata().getScalingFactor(), 0.0);
+    }
+
+    @Test
+    public void testLatScaleFactor() throws Exception {
+        assertEquals(1.0 / 128, PodTypes.getLatMetadata().getScalingFactor(), 0.0);
+    }
+
+    @Test
+    public void testLonScaleFactor() throws Exception {
+        assertEquals(1.0 / 128, PodTypes.getLonMetadata().getScalingFactor(), 0.0);
+    }
+
     @Ignore
     @Test
     public void testReadAvhrrHrptFile() throws Exception {
