@@ -76,10 +76,10 @@ public abstract class AvhrrFile {
 
     public abstract int getTiePointTrimX();
 
-    public abstract int getTiePointSupsampling();
+    public abstract int getTiePointSubsampling();
 
-	public RawCoordinates getRawCoordiantes(int sourceOffsetX,
-			int sourceOffsetY, int sourceWidth, int sourceHeight) {
+	public RawCoordinates getRawCoordinates(int sourceOffsetX,
+                                            int sourceOffsetY, int sourceWidth, int sourceHeight) {
 		RawCoordinates coordinates = new RawCoordinates();
 		if (northbound) {
 			coordinates.minX = productWidth - sourceOffsetX - sourceWidth;
