@@ -63,8 +63,8 @@ abstract class CountReader implements BandReader {
     }
 
     @Override
-    public float getScalingFactor() {
-        return 1f;
+    public double getScalingFactor() {
+        return 1.0;
     }
 
     @Override
@@ -93,7 +93,7 @@ abstract class CountReader implements BandReader {
                 boolean validData = hasData(rawY);
                 if (validData) {
                     if (calibrator.requiresCalibrationData()) {
-                        readCalibCoefficients(rawY, calibrationData);
+                        readCalibrationCoefficients(rawY, calibrationData);
                         validData = calibrator.processCalibrationData(calibrationData);
                     }
                     if (validData) {
@@ -139,7 +139,7 @@ abstract class CountReader implements BandReader {
         return true;
     }
 
-    private void readCalibCoefficients(int rawY, int[] calibCoeff) throws IOException {
+    private void readCalibrationCoefficients(int rawY, int[] calibCoeff) throws IOException {
         CompoundData dataRecord = noaaFile.getDataRecord(rawY);
         SequenceData calibration_coefficients = dataRecord.getSequence("CALIBRATION_COEFFICIENTS");
         for (int i = 0; i < calibCoeff.length; i++) {
