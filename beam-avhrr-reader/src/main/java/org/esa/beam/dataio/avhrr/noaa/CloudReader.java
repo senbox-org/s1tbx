@@ -57,7 +57,7 @@ class CloudReader implements BandReader {
         return ProductData.TYPE_UINT8;
     }
 
-    public float getScalingFactor() {
+    public double getScalingFactor() {
         return 1f;
     }
 
