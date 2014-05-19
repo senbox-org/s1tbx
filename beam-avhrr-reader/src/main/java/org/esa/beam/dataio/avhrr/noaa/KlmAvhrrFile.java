@@ -229,8 +229,8 @@ public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
 
     @Override
     public float[][] getTiePointData() throws IOException {
-        final int tiePointSupsampling = getTiePointSubsampling();
-        final int gridHeight = getProductHeight() / tiePointSupsampling + 1;
+        final int tiePointSubsampling = getTiePointSubsampling();
+        final int gridHeight = getProductHeight() / tiePointSubsampling + 1;
         final int numTiePoints = TP_GRID_WIDTH * gridHeight;
 
         float[][] tiePointData = new float[5][numTiePoints];
@@ -243,11 +243,11 @@ public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
         int targetIndex = 0;
         int targetIncr = 1;
         if (northbound) {
-            targetIndex = TP_GRID_WIDTH * ((productHeight / tiePointSupsampling) + 1) - 1;
+            targetIndex = TP_GRID_WIDTH * ((productHeight / tiePointSubsampling) + 1) - 1;
             targetIncr = -1;
         }
 
-        for (int scanLine = 0; scanLine < productHeight; scanLine += tiePointSupsampling) {
+        for (int scanLine = 0; scanLine < productHeight; scanLine += tiePointSubsampling) {
             CompoundData dataRecord = getDataRecord(scanLine);
             SequenceData angularRelationships = dataRecord.getSequence("ANGULAR_RELATIONSHIPS");
             for (int i = 0; i < numRawAngles; i++) {
@@ -305,7 +305,7 @@ public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
     }
 
     public static boolean canDecode(File file) {
-        FormatDetector formatDetector = null;
+        KlmFormatDetector formatDetector = null;
         try {
             formatDetector = new KlmFormatDetector(file);
             return formatDetector.canDecode();
