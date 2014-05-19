@@ -28,7 +28,7 @@ public interface BandReader {
 
     public String getBandDescription();
 
-    public float getScalingFactor();
+    public double getScalingFactor();
 
     public int getDataType();
 
