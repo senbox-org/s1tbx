@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-getasse30-reader</symbolicName>
-    <version>5.0</version>
+    <version>5.1</version>
     <name>GETASSE30 DEM Reader</name>
 
 

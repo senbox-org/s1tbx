@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>beam-temporal-percentile-op</symbolicName>
-    <version>5.0</version>
+    <version>5.1</version>
     <name>BEAM Temporal Percentile Operator</name>
     <funding>EU</funding>
 
