@@ -19,7 +19,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ceres.versionRange>(0.14,]</ceres.versionRange>
+        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
     </properties>
 
     <organization>
