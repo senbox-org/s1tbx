@@ -1,4 +1,0 @@
-GEO|Latitude Longitude Vector in 10-6 degrees|8
-#
-latitude |SLong|(1e-6) degrees|4|*|*|*
-longitude|ULong|(1e-6) degrees|4|*|*|*

@@ -11,7 +11,7 @@
 
     <files>
         <file>
-            <source>readme.txt</source>
+            <source>readme.md</source>
             <filtered>true</filtered>
         </file>
     </files>
@@ -93,7 +93,6 @@
 							<exclude>org.esa.nest:nest-op-feature-extraction</exclude>
 							<exclude>org.esa.nest:nest-op-orthorectification</exclude>
 							<exclude>org.esa.nest:nest-op-sar-tools</exclude>
-							<exclude>org.esa.nest:nest-ocean-tools</exclude>
 							<exclude>org.esa.nest:nest-reader-dem</exclude>
 							<exclude>org.esa.nest:nest-io</exclude>
 							<exclude>org.esa.nest:nest-dat</exclude>
