@@ -22,18 +22,17 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <artifactId>beam-modis-reader</artifactId>
     <name>BEAM MODIS (MOD,MXD,MYD) Product Reader</name>
-    <version>${beam.version}</version>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
-            <version>${beam.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>

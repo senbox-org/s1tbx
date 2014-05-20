@@ -24,16 +24,16 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <beam.versionRange>[5.0,)</beam.versionRange>
+        <ceres.version>[0.14,)</ceres.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.21</netcdf.version>
-        <beam.version>5.0</beam.version>
-        <ceres.version>0.14</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.5.3</jide.version>
         <jpy.version>0.7</jpy.version>
@@ -178,37 +178,37 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-csv-dataio</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
 
             <!-- Miscellaneous 3rd party libraries ############################################# -->

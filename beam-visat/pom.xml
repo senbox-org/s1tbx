@@ -24,11 +24,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <name>BEAM VISAT Application</name>
     <artifactId>beam-visat</artifactId>
+    <version>5.0</version>
 
     <packaging>jar</packaging>
 

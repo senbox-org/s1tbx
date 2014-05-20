@@ -25,11 +25,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <name>BEAM UI Components</name>
     <artifactId>beam-ui</artifactId>
+    <version>5.0</version>
 
     <packaging>jar</packaging>
 

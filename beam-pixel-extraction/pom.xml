@@ -23,12 +23,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-pixel-extraction</artifactId>
-    <version>${beam.version}</version>
     <name>BEAM Pixel Extraction Tool</name>
+    <artifactId>beam-pixel-extraction</artifactId>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>

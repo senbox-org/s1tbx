@@ -24,13 +24,15 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <name>BEAM Core API</name>
     <artifactId>beam-core</artifactId>
+    <version>5.0</version>
 
     <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>com.bc.ceres</groupId>
