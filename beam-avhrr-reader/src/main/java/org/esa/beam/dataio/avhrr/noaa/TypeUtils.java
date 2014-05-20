@@ -12,34 +12,34 @@ import static com.bc.ceres.binio.TypeBuilder.SEQUENCE;
  *
  * @author Ralf Quast
  */
-class TypeUtils {
+public class TypeUtils {
 
     private TypeUtils() {
     }
 
-    static FormatMetadata META() {
+    public static FormatMetadata META() {
         return new FormatMetadata();
     }
 
-    static Type STRING(int length) {
+    public static Type STRING(int length) {
         return SEQUENCE(SimpleType.BYTE, length);
     }
 
-    static CompoundMember FILL_MEMBER(int bytes) {
+    public static CompoundMember FILL_MEMBER(int bytes) {
         return MEMBER("fill", STRING(bytes));
     }
 
-    static CompoundMember META_MEMBER(String name, Type type, FormatMetadata metadata) {
+    public static CompoundMember META_MEMBER(String name, Type type, FormatMetadata metadata) {
         CompoundMember member = MEMBER(name, type);
         member.setMetadata(metadata);
         return member;
     }
 
-    static CompoundMember STRING_MEMBER(String name, int length) {
+    public static CompoundMember STRING_MEMBER(String name, int length) {
         return STRING_MEMBER(name, length, META());
     }
 
-    static CompoundMember STRING_MEMBER(String name, int length, FormatMetadata metadata) {
+    public static CompoundMember STRING_MEMBER(String name, int length, FormatMetadata metadata) {
         CompoundMember member = MEMBER(name, STRING(length));
         metadata.setType("string");
         member.setMetadata(metadata);
