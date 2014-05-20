@@ -320,7 +320,6 @@ public class NewProductDialog extends ModalDialog {
     }
 
     private void updateUI() {
-        subsetButton.setEnabled(subsetRButton.isSelected());
         Product product = getSourceProduct();
         if (subsetDef == null) {
             subsetButton.setText("Define subset ...");
@@ -375,6 +374,7 @@ public class NewProductDialog extends ModalDialog {
         if (geocodingRButton.isSelected() && !geocodingAvailable) {
             subsetRButton.setSelected(true);
         }
+        subsetButton.setEnabled(subsetRButton.isSelected());
     }
 
     private ActionListener createSubsetButtonListener() {
