@@ -1,8 +1,9 @@
-package org.esa.beam.dataio.avhrr.noaa;
+package org.esa.beam.dataio.avhrr.noaa.pod;
 
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceData;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +22,7 @@ class PodFormatDetector {
         RandomAccessFile raf = null;
         try {
             raf = new RandomAccessFile(file, "r");
-            final DataFormat dataFormat = new DataFormat(PodTypes.tbmHeaderRecordType, ByteOrder.BIG_ENDIAN);
+            final DataFormat dataFormat = new DataFormat(PodTypes.TBM_HEADER_RECORD_TYPE, ByteOrder.BIG_ENDIAN);
             final DataContext context = dataFormat.createContext(raf);
             try {
                 return isTbmHeaderRecord(context.getData());
@@ -60,7 +61,15 @@ class PodFormatDetector {
 
     // package public for testing only
     static String getString(CompoundData data, int index) throws IOException {
-        return HeaderWrapper.getAsString(data.getSequence(index));
+        return toString(data.getSequence(index));
     }
 
+    // package public for testing only
+    static String toString(SequenceData valueSequence) throws IOException {
+        final byte[] data = new byte[valueSequence.getElementCount()];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = valueSequence.getByte(i);
+        }
+        return new String(data);
+    }
 }
