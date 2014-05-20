@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * @author Ralf Quast
  */
-public interface Validator {
+interface Validator {
 
     boolean isValid(int i) throws IOException;
 }
