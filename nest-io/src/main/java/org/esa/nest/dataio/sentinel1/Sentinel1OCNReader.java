@@ -207,6 +207,10 @@ public class Sentinel1OCNReader {
 
         int[] shape = variable.getShape();
 
+        if (shape[0] == 1 && shape[1] == 1) {
+            return;
+        }
+
         //  shape[1] is width, shape[0] is height
         final Band band = NetCDFUtils.createBand(variable, shape[1], shape[0]);
 
