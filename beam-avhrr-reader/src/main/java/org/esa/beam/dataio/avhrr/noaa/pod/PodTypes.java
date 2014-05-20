@@ -17,7 +17,6 @@ import static com.bc.ceres.binio.TypeBuilder.VAR_SEQUENCE;
 import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.FILL_MEMBER;
 import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.META;
 import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.META_MEMBER;
-import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.STRING_MEMBER;
 
 /**
  * Data types for the NOAA HRPT data format.
@@ -25,6 +24,11 @@ import static org.esa.beam.dataio.avhrr.noaa.TypeUtils.STRING_MEMBER;
  * @author Ralf Quast
  */
 final class PodTypes {
+
+    private static final CompoundType TIME_CODE_TYPE =
+            COMPOUND("TIME_CODE",
+                     MEMBER("YEAR_DAY", USHORT),
+                     MEMBER("MILLISECONDS", UINT));
 
     private static final CompoundType CALIBRATION_COEFFICIENTS_TYPE =
             COMPOUND("",
@@ -102,9 +106,9 @@ final class PodTypes {
                      // The members below are 'inlined', but nominally belong to the Dataset Header Record
                      // MEMBER("SPACECRAFT_ID", UBYTE),
                      // MEMBER("DATA_TYPE", UBYTE),
-                     // MEMBER("START_TIME", SEQUENCE(UBYTE, 6)),
+                     // MEMBER("START_TIME", TIME_CODE_TYPE),
                      // MEMBER("NUMBER_OF_SCANS", USHORT),
-                     // MEMBER("END_TIME", SEQUENCE(UBYTE, 6)),
+                     // MEMBER("END_TIME", TIME_CODE_TYPE),
                      TypeUtils.STRING_MEMBER("PROCESSING_BLOCK_ID", 7),
                      MEMBER("RAMP_AUTO_CALIBRATION", UBYTE),
                      MEMBER("NUMBER_OF_DATA_GAPS", USHORT),
@@ -131,7 +135,7 @@ final class PodTypes {
     static final CompoundType DATA_RECORD_TYPE =
             COMPOUND("DATA_RECORD",
                      MEMBER("SCAN_LINE_NUMBER", USHORT),
-                     MEMBER("TIME_CODE", SEQUENCE(UBYTE, 6)),
+                     MEMBER("TIME_CODE", TIME_CODE_TYPE),
                      MEMBER("QUALITY_INDICATORS", UINT),
                      MEMBER("CALIBRATION_COEFFICIENTS", SEQUENCE(CALIBRATION_COEFFICIENTS_TYPE, 5)),
                      MEMBER("NUMBER_OF_MEANINGFUL_ZENITH_ANGLES_AND_EARTH_LOCATION_POINTS", UBYTE),
@@ -150,9 +154,9 @@ final class PodTypes {
                      MEMBER("TBM_HEADER_RECORD", PodTypes.TBM_HEADER_RECORD_TYPE),
                      MEMBER("SPACECRAFT_ID", UBYTE),
                      MEMBER("DATA_TYPE", UBYTE),
-                     MEMBER("START_TIME", SEQUENCE(UBYTE, 6)),
+                     MEMBER("START_TIME", TIME_CODE_TYPE),
                      MEMBER("NUMBER_OF_SCANS", USHORT),
-                     MEMBER("END_TIME", SEQUENCE(UBYTE, 6)),
+                     MEMBER("END_TIME", TIME_CODE_TYPE),
                      MEMBER("DATASET_HEADER_RECORD", PodTypes.DATASET_HEADER_RECORD_TYPE),
                      MEMBER("DUMMY_RECORD", PodTypes.DUMMY_RECORD_TYPE),
                      MEMBER("DATA_RECORDS", VAR_SEQUENCE(PodTypes.DATA_RECORD_TYPE, "NUMBER_OF_SCANS"))

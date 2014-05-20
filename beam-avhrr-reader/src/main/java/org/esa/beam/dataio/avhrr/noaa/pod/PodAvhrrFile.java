@@ -6,8 +6,10 @@ import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
 import org.esa.beam.dataio.avhrr.AvhrrConstants;
 import org.esa.beam.dataio.avhrr.BandReader;
+import org.esa.beam.dataio.avhrr.HeaderUtil;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 
@@ -19,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Represents a NOAA POD AVHRR HRPT file.
+ *
  * @author Ralf Quast
  */
 final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoefficientsProvider {
@@ -114,7 +118,25 @@ final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoe
 
         addTiePointGridsAndGeoCoding(product);
 
+        final CompoundData startTimeCode = getDataRecord(0).getCompound("TIME_CODE");
+        final ProductData.UTC startTime = toUTC(startTimeCode);
+        product.setStartTime(startTime);
+
+        final CompoundData endTimeCode = getDataRecord(productHeight - 1).getCompound("TIME_CODE");
+        final ProductData.UTC endTime = toUTC(endTimeCode);
+        product.setEndTime(endTime);
+
         return product;
+    }
+
+    // package public for testing only
+    static ProductData.UTC toUTC(CompoundData timeCode) throws IOException {
+        final int yearDay = timeCode.getUShort(0);
+        final int year = 1900 + (yearDay >> 9);
+        final int dayOfYear = yearDay & 0b0000000111111111;
+        final int millisInDay = timeCode.getInt(1);
+
+        return HeaderUtil.createUTCDate(year, dayOfYear, millisInDay);
     }
 
     private Band addCountsBand(Product product, int channelIndex) {
