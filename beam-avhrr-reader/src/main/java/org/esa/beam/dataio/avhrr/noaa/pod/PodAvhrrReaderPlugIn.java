@@ -18,7 +18,7 @@ public final class PodAvhrrReaderPlugIn implements ProductReaderPlugIn {
 
     private static final String DESCRIPTION = "NOAA Polar Orbiter Data products (AVHRR HRPT)";
     private static final String[] FILE_EXTENSIONS = new String[]{".l1b"};
-    private static final String FORMAT_NAME = "NOAA_POD_AVHRR";
+    private static final String FORMAT_NAME = "NOAA_POD_AVHRR_HRPT";
     private static final String[] FORMAT_NAMES = new String[]{FORMAT_NAME};
     private static final Class[] INPUT_TYPES = new Class[]{String.class, File.class};
 
