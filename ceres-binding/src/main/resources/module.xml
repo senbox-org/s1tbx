@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>ceres-binding</symbolicName>
-    <version>0.14</version>
+    <version>0.15-SNAPSHOT</version>
     <name>Ceres Binding</name>
 
     <description>
@@ -31,7 +31,6 @@
     <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-
 
     <categories>Binding</categories>
 </module>

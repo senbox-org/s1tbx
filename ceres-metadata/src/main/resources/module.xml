@@ -2,8 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>ceres-metadata</symbolicName>
-    <version>0.14</version>
-    <name>Ceres Metadata handling Library</name>
+    <version>0.15-SNAPSHOT</version>    <name>Ceres Metadata handling Library</name>
 
     <categories>System,Library</categories>
 
