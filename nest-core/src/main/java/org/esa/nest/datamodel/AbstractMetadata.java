@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates a generic interface to metadata
@@ -368,6 +370,17 @@ public final class AbstractMetadata {
             }
         }
         return null;
+    }
+
+    public static MetadataElement[] getBandAbsMetadataList(final MetadataElement absRoot) {
+        final List<MetadataElement> bandMetadataList = new ArrayList<>();
+        final MetadataElement[] children = absRoot.getElements();
+        for (MetadataElement child : children) {
+            if (child.getName().startsWith(BAND_PREFIX)) {
+                bandMetadataList.add(child);
+            }
+        }
+        return bandMetadataList.toArray(new MetadataElement[bandMetadataList.size()]);
     }
 
     /**
