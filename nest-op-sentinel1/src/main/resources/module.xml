@@ -28,9 +28,14 @@
     <extension point="nest-graph-builder:OperatorUIs">
 
         <OperatorUI>
-            <id>org.esa.nest.gpf.Sentinel1DeburstTOPSAROpUI</id>
-            <class>org.esa.nest.gpf.Sentinel1DeburstTOPSAROpUI</class>
-            <operatorName>DeburstTOPSAR</operatorName>
+            <id>org.esa.nest.gpf.TOPSARDeburstOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARDeburstOpUI</class>
+            <operatorName>TOPSAR-Deburst</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARSplitOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARSplitOpUI</class>
+            <operatorName>TOPSAR-Split</operatorName>
         </OperatorUI>
     </extension>
 
@@ -45,16 +50,28 @@
         </action>
 
         <action>
-            <id>Sentinel1TOPSARDeburstOp</id>
-            <helpId>Sentinel1TOPSARDeburstOp</helpId>
+            <id>TOPSARDeburstOp</id>
+            <helpId>TOPSARDeburstOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>Sentinel1 TOPSAR Deburst</text>
-            <operatorName>DeburstTOPSAR</operatorName>
+            <operatorName>TOPSAR-Deburst</operatorName>
             <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
             <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
             <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TOPSARSplitOp</id>
+            <helpId>TOPSARSplitOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Sentinel1 TOPSAR Split</text>
+            <operatorName>TOPSAR-Split</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
+            <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
         </action>
 
         <action>
