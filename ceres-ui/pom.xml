@@ -6,13 +6,14 @@
     <parent>
         <groupId>com.bc.ceres</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.14</version>
+        <version>0.14.1</version>
     </parent>
 
-    <groupId>com.bc.ceres</groupId>
-    <artifactId>ceres-ui</artifactId>
-    <packaging>jar</packaging>
     <name>Ceres UI</name>
+    <artifactId>ceres-ui</artifactId>
+    <version>0.14</version>
+
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
