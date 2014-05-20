@@ -27,10 +27,11 @@ import java.awt.*;
 import java.util.Map;
 
 /**
- * User interface for S-1 Deburst
+ * User interface for S-1 TOPSAR Split
  */
 public class TOPSARSplitOpUI extends BaseOperatorUI {
 
+    private final JComboBox<String> subswathCombo = new JComboBox<String>();
     private final JList<String> polList = new JList<String>();
 
     @Override
@@ -47,6 +48,26 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
 
         if (sourceProducts != null && sourceProducts.length > 0) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+
+            final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            subswathCombo.removeAllItems();
+            if(acquisitionMode.equals("IW")) {
+                subswathCombo.addItem("IW1");
+                subswathCombo.addItem("IW2");
+                subswathCombo.addItem("IW3");
+            } else if(acquisitionMode.equals("EW")) {
+                subswathCombo.addItem("EW1");
+                subswathCombo.addItem("EW2");
+                subswathCombo.addItem("EW3");
+                subswathCombo.addItem("EW4");
+                subswathCombo.addItem("EW5");
+            }
+            String subswath = (String)paramMap.get("subswath");
+            if(subswath == null) {
+                subswath = acquisitionMode+'1';
+            }
+            subswathCombo.setSelectedItem(subswath);
+
             final String[] polarisations = Sentinel1Utils.getProductPolarizations(absRoot);
             polList.setListData(polarisations);
 
@@ -62,6 +83,10 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
+        String subswathValue = (String)subswathCombo.getSelectedItem();
+        if(subswathValue != null) {
+            paramMap.put("subswath", subswathValue);
+        }
         OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
     }
 
@@ -70,6 +95,8 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
+        DialogUtils.addComponent(contentPane, gbc, "Subswath:", subswathCombo);
+        ++gbc.gridy;
         DialogUtils.addComponent(contentPane, gbc, "Polarisations:", polList);
 
         DialogUtils.fillPanel(contentPane, gbc);

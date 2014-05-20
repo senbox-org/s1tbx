@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.Operator;
@@ -26,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +48,11 @@ public final class TOPSARSplitOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label = "Subswath")
-    private String subswath;
+    @Parameter(description = "The list of source bands.", label = "Subswath")
+    private String subswath = null;
+
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
+    private String[] selectedPolarisations;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -66,12 +70,24 @@ public final class TOPSARSplitOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            subswath = "IW3";
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            if(subswath == null) {
+                final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+                subswath = acquisitionMode+'1';
+            }
+
+            if (selectedPolarisations == null || selectedPolarisations.length == 0) {
+                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
+            }
 
             final List<Band> selectedBands = new ArrayList<>();
             for(Band srcBand : sourceProduct.getBands()) {
                 if(srcBand.getName().contains(subswath)) {
-                    selectedBands.add(srcBand);
+                    for(String pol : selectedPolarisations) {
+                        if(srcBand.getName().contains(pol)) {
+                            selectedBands.add(srcBand);
+                        }
+                    }
                 }
             }
 
