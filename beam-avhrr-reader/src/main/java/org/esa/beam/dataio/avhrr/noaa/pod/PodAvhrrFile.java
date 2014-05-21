@@ -31,6 +31,9 @@ final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoe
     private static final int TIE_POINT_SUB_SAMPLING = 40;
     private static final int TIE_POINT_GRID_WIDTH = 51;
 
+    // http://www.ncdc.noaa.gov/oa/pod-guide/ncdc/docs/podug/html/c3/sec3-1.htm#sec3-121 (Table 3.1.2.1-2)
+    private static final int QUALITY_INDICATOR_BIT_MASK = 0b11001100000000000000000000000000;
+
     private static final double SLOPE_SCALE_FACTOR = PodTypes.getSlopeMetadata().getScalingFactor();
     private static final double INTERCEPT_SCALE_FACTOR = PodTypes.getInterceptMetadata().getScalingFactor();
 
@@ -61,18 +64,18 @@ final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoe
     }
 
     @Override
-    public SequenceData getVideoData(int i) throws IOException {
-        return getDataRecord(i).getSequence(videoDataIndex);
+    public SequenceData getVideoData(int recordIndex) throws IOException {
+        return getDataRecord(recordIndex).getSequence(videoDataIndex);
     }
 
     @Override
-    public boolean isValid(int i) throws IOException {
-        return (getDataRecord(i).getInt(qualityDataIndex) & 0b11001100) == 0;
+    public boolean isValid(int recordIndex) throws IOException {
+        return (getDataRecord(recordIndex).getInt(qualityDataIndex) & QUALITY_INDICATOR_BIT_MASK) == 0;
     }
 
     @Override
-    public SequenceData getCalibrationCoefficients(int i) throws IOException {
-        return getDataRecord(i).getSequence(calibrationCofficientsIndex);
+    public SequenceData getCalibrationCoefficients(int recordIndex) throws IOException {
+        return getDataRecord(recordIndex).getSequence(calibrationCofficientsIndex);
     }
 
     @Override
@@ -161,6 +164,7 @@ final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoe
         band.setUnit(bandReader.getBandUnit());
         band.setDescription(bandReader.getBandDescription());
         band.setSpectralBandIndex(channelIndex + 1);
+        band.setValidPixelExpression(band.getName() + " != NaN");
 
         bandReaderMap.put(band, bandReader);
 
@@ -171,7 +175,7 @@ final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoe
         final int rasterHeight = product.getSceneRasterHeight();
         final int gridHeight = rasterHeight / TIE_POINT_SUB_SAMPLING + 1;
         final int tiePointCount = TIE_POINT_GRID_WIDTH * gridHeight;
-        float[][] gridData = new float[3][tiePointCount];
+        final float[][] gridData = new float[3][tiePointCount];
 
         for (int tiePointIndex = 0, y = 0; y < rasterHeight; y += TIE_POINT_SUB_SAMPLING) {
             final int[] rawAngles = new int[TIE_POINT_GRID_WIDTH];

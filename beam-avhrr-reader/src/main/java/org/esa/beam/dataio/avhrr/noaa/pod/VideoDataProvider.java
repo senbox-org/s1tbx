@@ -9,5 +9,5 @@ import java.io.IOException;
  */
 interface VideoDataProvider {
 
-    SequenceData getVideoData(int y) throws IOException;
+    SequenceData getVideoData(int recordIndex) throws IOException;
 }

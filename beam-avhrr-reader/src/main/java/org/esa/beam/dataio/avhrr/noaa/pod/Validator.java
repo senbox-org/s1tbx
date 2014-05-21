@@ -7,5 +7,5 @@ import java.io.IOException;
  */
 interface Validator {
 
-    boolean isValid(int i) throws IOException;
+    boolean isValid(int recordIndex) throws IOException;
 }
