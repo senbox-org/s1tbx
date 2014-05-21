@@ -61,7 +61,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             "The plot will be computed when you hit the 'Refresh View' button.\n" +
             HELP_TIP_MESSAGE + "\n" +
             ZOOM_TIP_MESSAGE;
-    private static final String CHART_TITLE = "H-a Alpha Plane Plot";
+    private static final String CHART_TITLE = "H-Alpha Plane Plot";
 
     public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
     public final static String PROPERTY_NAME_MIN = "min";
