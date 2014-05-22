@@ -473,7 +473,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
         calInfo.calculateVectors(targetBandName, x0, y0);
 
-        double dn, i, q, muX;
+        final float[] vec0LUT=calInfo.vec0LUT, vec1LUT=calInfo.vec1LUT;
+        final int[] vec0Pixels=calInfo.vec0Pixels;
+
+        double dn, i, q, muX, lutVal;
         int srcIdx, trgIdx;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -487,23 +490,22 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 srcIdx = srcIndex.getIndex(x);
                 trgIdx = trgIndex.getIndex(x);
 
-                if (x > calInfo.vec0Pixels[pixelIdx + 1]) {
+                if (x > vec0Pixels[pixelIdx + 1]) {
                     pixelIdx++;
                 }
-                muX = (double) (x - calInfo.vec0Pixels[pixelIdx]) / (double) (calInfo.vec0Pixels[pixelIdx + 1] - calInfo.vec0Pixels[pixelIdx]);
-                double lutVal = org.esa.nest.util.MathUtils.interpolationBiLinear(
-                        calInfo.vec0LUT[pixelIdx], calInfo.vec0LUT[pixelIdx + 1], calInfo.vec1LUT[pixelIdx], calInfo.vec1LUT[pixelIdx + 1], muX, muY);
+                muX = (x - vec0Pixels[pixelIdx]) / (double) (vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
+                //interpolationBiLinear
+                lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) + muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
 
                 // todo: check if lut should be squared
-                if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, (dn * dn) / lutVal);
-                } else if (complexData) {
+                if (complexData) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
                     trgData.setElemDoubleAt(trgIdx, (i * i + q * q) / lutVal);
                 } else {
-                    throw new OperatorException("Calibration: unhandled unit");
+                    // amplitude
+                    dn = srcData1.getElemDoubleAt(srcIdx);
+                    trgData.setElemDoubleAt(trgIdx, (dn * dn) / lutVal);
                 }
             }
         }
@@ -591,7 +593,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         targetTile.setRawSamples(sourceTile.getRawSamples());
     }
 
-    public static class CalibrationInfo {
+    public final static class CalibrationInfo {
         public final String subSwath;
         public final String polarization;
         public final double firstLineTime;
