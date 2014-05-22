@@ -40,6 +40,7 @@ import java.io.IOException;
 public class Sentinel1ProductReader extends SARReader {
 
     protected Sentinel1Directory dataDir = null;
+    private DataCache cache = new DataCache();
 
     /**
      * Constructs a new abstract product reader.
@@ -128,19 +129,14 @@ public class Sentinel1ProductReader extends SARReader {
                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                         bandInfo.imageID, bandInfo.bandSampleOffset);
             }
-        }
-
-        if (dataDir instanceof Sentinel1Level1Directory &&
-                ((Sentinel1Level1Directory) dataDir).getProductType().contains("OCN") ) {
-
-            //System.out.println("Sentinel1ProductReader.readBandRasterDataImpl: put OCN data into band " +
-            //                      destBand.getName());
+        } else if (dataDir.isOCN()) {
 
             final Sentinel1Level1Directory s1L1Dir = (Sentinel1Level1Directory) dataDir;
-            synchronized(s1L1Dir) {
-                s1L1Dir.readLevel2OCNBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                                          sourceStepX, sourceStepY, destBand, destOffsetX,
-                                          destOffsetY, destWidth, destHeight, destBuffer);
+            synchronized (s1L1Dir) {
+                readLevel2OCNBand(s1L1Dir.getOCNReader(),
+                        sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                        sourceStepX, sourceStepY, destBand, destOffsetX,
+                        destOffsetY, destWidth, destHeight, destBuffer);
             }
         }
     }
@@ -153,33 +149,74 @@ public class Sentinel1ProductReader extends SARReader {
                                   final ImageIOFile.BandInfo bandInfo) throws IOException {
 
         int length;
-        double[] srcArray;
-        synchronized (dataDir) {
-            final ImageReader reader = bandInfo.img.getReader();
-            final ImageReadParam param = reader.getDefaultReadParam();
-            param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+        int[] srcArray;
 
-            final RenderedImage image = reader.readAsRenderedImage(0, param);
-            final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        final Rectangle rect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
+        final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, rect);
+        final DataCache.Data cachedData = cache.get(datakey);
+        if (cachedData != null && cachedData.valid) {
+            srcArray = cachedData.intArray;
+            length = srcArray.length;
+        } else {
+            synchronized (dataDir) {
+                final ImageReader reader = bandInfo.img.getReader();
+                final ImageReadParam param = reader.getDefaultReadParam();
+                param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
 
-            final SampleModel sampleModel = data.getSampleModel();
-            destWidth = Math.min(destWidth, sampleModel.getWidth());
-            destHeight = Math.min(destHeight, sampleModel.getHeight());
+                final RenderedImage image = reader.readAsRenderedImage(0, param);
+                final Raster data = image.getData(rect);
 
-            length = destWidth * destHeight;
-            srcArray = new double[length];
-            sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
+                final SampleModel sampleModel = data.getSampleModel();
+                destWidth = Math.min(destWidth, sampleModel.getWidth());
+                destHeight = Math.min(destHeight, sampleModel.getHeight());
+
+                length = destWidth * destHeight;
+                srcArray = new int[length];
+                sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
+
+                cache.put(datakey, new DataCache.Data(srcArray));
+            }
         }
 
         final short[] destArray = (short[]) destBuffer.getElems();
         if (!bandInfo.isImaginary) {
-            for (int i = 0; i < length; i += sourceStepX) {
-                destArray[i] = (short) srcArray[i];
+            if (sourceStepX == 1) {
+                //System.arraycopy(srcArray, 0, destArray, 0, length);
+                int i = 0;
+                for (int srcVal : srcArray) {
+                    destArray[i++] = (short) srcVal;
+                }
+            } else {
+                for (int i = 0; i < length; i += sourceStepX) {
+                    destArray[i] = (short) srcArray[i];
+                }
             }
         } else {
-            for (int i = 0; i < length; i += sourceStepX) {
-                destArray[i] = (short) ((int) srcArray[i] >> 16);
+            if (sourceStepX == 1) {
+                int i = 0;
+                for (int srcVal : srcArray) {
+                    destArray[i++] = (short) (srcVal >> 16);
+                }
+            } else {
+                for (int i = 0; i < length; i += sourceStepX) {
+                    destArray[i] = (short) (srcArray[i] >> 16);
+                }
             }
         }
+    }
+
+    public void readLevel2OCNBand(Sentinel1OCNReader OCNReader,
+                                  int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                                  int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                                  int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) throws IOException {
+
+        if (OCNReader == null) {
+
+            throw new IOException("Sentinel1OCNReader not found");
+        }
+
+        OCNReader.readData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                sourceStepX, sourceStepY, destBand, destOffsetX,
+                destOffsetY, destWidth, destHeight, destBuffer);
     }
 }
