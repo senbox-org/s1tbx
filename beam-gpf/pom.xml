@@ -59,15 +59,6 @@
 
     <profiles>
         <profile>
-            <id>sun-tools</id>
-            <activation>
-                <property>
-                    <name>java.vendor</name>
-                    <value>Sun Microsystems Inc.</value>
-                </property>
-            </activation>
-        </profile>
-        <profile>
             <id>oracle-tools</id>
             <activation>
                 <property>
