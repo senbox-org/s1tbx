@@ -827,11 +827,18 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         return name;
     }
 
-    //protected String getProductType() {
-    public String getProductType() {
+    protected String getProductType() {
         if (OCNReader != null)
             return "Level-2 OCN";
         return "Level-1";
+    }
+
+    public boolean isOCN() {
+        return OCNReader != null;
+    }
+
+    public Sentinel1OCNReader getOCNReader() {
+        return OCNReader;
     }
 
     private static void getListInEvenlySpacedGrid(
@@ -927,19 +934,5 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         ReaderUtils.addMetadataProductSize(product);
 
         return product;
-    }
-
-    public void readLevel2OCNBand(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                  int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                  int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) throws IOException {
-
-        if (OCNReader == null) {
-
-            throw new IOException("Sentinel1OCNReader not found");
-        }
-
-        OCNReader.readData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                            sourceStepX, sourceStepY, destBand, destOffsetX,
-                            destOffsetY, destWidth, destHeight, destBuffer);
     }
 }
