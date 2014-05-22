@@ -51,6 +51,11 @@
             <artifactId>beam-netcdf</artifactId>
             <version>${beam.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+        </dependency>
         <!--dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-imageio-ext-gdal</artifactId>
