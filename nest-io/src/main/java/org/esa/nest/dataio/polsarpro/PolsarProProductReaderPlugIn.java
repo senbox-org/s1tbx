@@ -53,11 +53,18 @@ public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
             final File folder = selectedFile.getParentFile();
             final File[] files = folder.listFiles();
             if (files != null) {
+                boolean hasConfigFile = false;
+                boolean hasHeaderFile = false;
                 for (File file : files) {
                     final String name = file.getName().toLowerCase();
-                    if (name.equals("config.txt") || name.endsWith("bin.hdr")) {
-                        return DecodeQualification.INTENDED;
+                    if (name.equals("config.txt")) {
+                        hasConfigFile = true;
+                    } else if (name.endsWith("bin.hdr")) {
+                        hasHeaderFile = true;
                     }
+                }
+                if(hasConfigFile && hasHeaderFile) {
+                    return DecodeQualification.INTENDED;
                 }
             }
         }
