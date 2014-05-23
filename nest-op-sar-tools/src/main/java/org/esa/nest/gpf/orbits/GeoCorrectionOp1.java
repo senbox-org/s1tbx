@@ -38,6 +38,7 @@ import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
+import org.esa.nest.gpf.TileIndex;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
@@ -45,15 +46,14 @@ import org.jlinda.core.SLCImage;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * This operator computes latitude and longitude bands using DEM, orbit state vectors of the given SAR
- * image, and mathematical modeling of SAR imaging geometry.
- * <p/>
- * For each (lat, lon) coordinate in the SAR image, elevation for the point is first obtained from the DEM
- * model. Then the image position (x, y) for the point in the SAR image is computed based on the SAR model.
+ * image, and mathematical modeling of SAR imaging geometry. Finally the lat/lon bands are used in generating
+ * target product geocoding.
  */
 
 @OperatorMetadata(alias = "Geo-Correction-1",
@@ -99,7 +99,7 @@ public final class GeoCorrectionOp1 extends Operator {
 
     private MetadataElement absRoot = null;
     private ElevationModel dem = null;
-    private GeoCoding targetGeoCoding = null;
+    private GeoCoding sourceGeoCoding = null;
     private SLCImage meta = null;
     private Orbit orbit = null;
 
@@ -270,9 +270,9 @@ public final class GeoCorrectionOp1 extends Operator {
                 sourceImageWidth,
                 sourceImageHeight);
 
-        addSelectedBands();
-
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+
+        addSelectedBands();
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
@@ -288,7 +288,7 @@ public final class GeoCorrectionOp1 extends Operator {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
 
-        targetGeoCoding = targetProduct.getGeoCoding();
+        sourceGeoCoding = sourceProduct.getGeoCoding();
 
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
     }
@@ -328,6 +328,8 @@ public final class GeoCorrectionOp1 extends Operator {
         Band lonBand = new Band(LONGITUDE_BAND_NAME, ProductData.TYPE_FLOAT32, sourceImageWidth, sourceImageHeight);
         targetProduct.addBand(latBand);
         targetProduct.addBand(lonBand);
+
+        targetProduct.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6));
     }
 
     private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
@@ -342,7 +344,7 @@ public final class GeoCorrectionOp1 extends Operator {
         for (int y = y0; y < y0 + h; y += 20) {
             for (int x = x0; x < x0 + w; x += 20) {
                 pixPos.setLocation(x, y);
-                targetGeoCoding.getGeoPos(pixPos, geoPos);
+                sourceGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
                 GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
 
@@ -420,6 +422,12 @@ public final class GeoCorrectionOp1 extends Operator {
         final Tile lonTile = targetTiles.get(targetProduct.getBand(LONGITUDE_BAND_NAME));
         final ProductData latData = latTile.getDataBuffer();
         final ProductData lonData = lonTile.getDataBuffer();
+        final double[][] latArray = new double[h][w];
+        final double[][] lonArray = new double[h][w];
+        for (int r = 0; r < h; r++) {
+            Arrays.fill(latArray[r], -999.0);
+            Arrays.fill(lonArray[r], -999.0);
+        }
 
         final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
         final int ymax = y0 + h + (int) (tileSize * Math.abs(tileOverlapPercentage[0]));
@@ -468,16 +476,15 @@ public final class GeoCorrectionOp1 extends Operator {
                             continue;
                         }
 
-                        final int idx = latTile.getDataBufferIndex(ri, ai);
-                        latData.setElemDoubleAt(idx, lat);
-                        lonData.setElemDoubleAt(idx, lon);
+                        latArray[ai - y0][ri - x0] = lat;
+                        lonArray[ai - y0][ri - x0] = lon;
                     }
                 }
 
             } else {
 
                 final double[][] localDEM = new double[ymax - ymin + 2][w + 2];
-                final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, ymin, w, ymax - ymin);
+                final TileGeoreferencing tileGeoRef = new TileGeoreferencing(sourceProduct, x0, ymin, w, ymax - ymin);
 
                 final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, demResamplingMethod, tileGeoRef,
                         x0, ymin, w, ymax - ymin, sourceProduct, true, localDEM);
@@ -525,9 +532,30 @@ public final class GeoCorrectionOp1 extends Operator {
                             continue;
                         }
 
-                        final int idx = latTile.getDataBufferIndex(ri, ai);
-                        latData.setElemDoubleAt(idx, lat);
-                        lonData.setElemDoubleAt(idx, lon);
+                        latArray[ai - y0][ri - x0] = lat;
+                        lonArray[ai - y0][ri - x0] = lon;
+                    }
+                }
+            }
+
+            final TileIndex trgIndex = new TileIndex(latTile);
+            for (int y = y0; y < y0+h; y++) {
+                final int yy = y - y0;
+                trgIndex.calculateStride(y);
+                for (int x = x0; x < x0+w; x++) {
+                    final int xx = x - x0;
+                    final int index = trgIndex.getIndex(x);
+
+                    if (latArray[yy][xx] == -999.0) {
+                        latData.setElemFloatAt(index, (float) fillHole(xx, yy, latArray));
+                    } else {
+                        latData.setElemFloatAt(index, (float) latArray[yy][xx]);
+                    }
+
+                    if (lonArray[yy][xx] == -999.0) {
+                        lonData.setElemFloatAt(index, (float) fillHole(xx, yy, lonArray));
+                    } else {
+                        lonData.setElemFloatAt(index, (float) lonArray[yy][xx]);
                     }
                 }
             }
@@ -535,6 +563,40 @@ public final class GeoCorrectionOp1 extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private double fillHole(final int xx, final int yy, final double[][] srcArray) throws Exception {
+
+        try {
+            final int h = srcArray.length;
+            final int w = srcArray[0].length;
+            final int radius = Math.max(w, h);
+            for (int i = 1; i <= radius; i++) {
+                final int xSt = Math.max(xx - i, 0);
+                final int xEd = Math.min(xx + i, w - 1);
+                final int ySt = Math.max(yy - i, 0);
+                final int yEd = Math.min(yy + i, h - 1);
+
+                double v = 0.0;
+                int k = 0;
+                for (int y = ySt; y <= yEd; y++) {
+                    for (int x = xSt; x <= xEd; x++) {
+                        if (srcArray[y][x] != -999.0) {
+                            v += srcArray[y][x];
+                            k++;
+                        }
+                    }
+                }
+
+                if (k != 0) {
+                    return v / k;
+                }
+            }
+        } catch (Exception e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+
+        return 0.0;
     }
 
     private static class PositionData {
