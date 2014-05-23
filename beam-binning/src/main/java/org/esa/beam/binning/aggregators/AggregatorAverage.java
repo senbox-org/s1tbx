@@ -214,8 +214,8 @@ public final class AggregatorAverage extends AbstractAggregator {
         @Parameter(label = "Target band name prefix (optional)", description = "The name prefix for the resulting bands. If empty, the source band name is used.")
         String targetName;
         @Parameter(label = "Weight coefficient", defaultValue = "0.0",
-                   description = "The number of spatial observation to the power of this value \n" +
-                                 "will define the value for weighting the sums.")
+                   description = "The number of spatial observations to the power of this value \n" +
+                                 "will define the value for weighting the sums. Zero means observation count weighting is disabled.")
         Double weightCoeff;
         @Parameter(defaultValue = "false",
                    description = "If true, the result will include the count of all valid values.")
