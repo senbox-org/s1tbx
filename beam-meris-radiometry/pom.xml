@@ -23,12 +23,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.1</version>
     </parent>
 
     <artifactId>beam-meris-radiometry</artifactId>
     <name>BEAM MERIS L1b Radiometric Correction</name>
-    <version>${beam.version}</version>
+    <version>5.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
     </dependencies>
 

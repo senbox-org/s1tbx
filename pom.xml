@@ -24,16 +24,17 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
-    <version>5.0</version>
+    <version>5.1</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <beam.version>5.1</beam.version>
+        <beam.versionRange>[5.1-SNAPSHOT,)</beam.versionRange>
+        <ceres.version>[0.15-SNAPSHOT,)</ceres.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.21</netcdf.version>
-        <beam.version>5.0</beam.version>
-        <ceres.version>0.14</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.5.3</jide.version>
         <jpy.version>0.7</jpy.version>
@@ -178,37 +179,37 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-csv-dataio</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
 
             <!-- Miscellaneous 3rd party libraries ############################################# -->
@@ -681,7 +682,7 @@
 
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2-beta-3</version>
+                    <version>2.4</version>
                 </plugin>
 
                 <plugin>
@@ -700,7 +701,7 @@
 
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1.2</version>
+                    <version>2.2.1</version>
                     <executions>
                         <execution>
                             <phase>verify</phase>
@@ -730,7 +731,7 @@
 
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.16</version>
+                    <version>2.17</version>
                     <configuration>
                         <!-- TODO
                              If enabled some assertions in GeoTools fail.
@@ -782,32 +783,20 @@
 
                 <plugin>
                     <artifactId>maven-surefire-report-plugin</artifactId>
-                    <version>2.12</version>
-                </plugin>
-
-                <plugin>
-                    <artifactId>maven-idea-plugin</artifactId>
-                    <version>2.2</version>
-                    <configuration>
-                        <downloadSources>true</downloadSources>
-                        <downloadJavadocs>true</downloadJavadocs>
-                        <jdkName>1.7</jdkName>
-                        <jdkLevel>1.7</jdkLevel>
-                        <exclude>target</exclude>
-                    </configuration>
+                    <version>2.17</version>
                 </plugin>
 
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>2.4.1</version>
+                    <version>2.5</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.8</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.7</version>
+                    <version>2.8.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -847,7 +836,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>1.0-beta-7</version>
+                <version>2.6</version>
             </extension>
         </extensions>
     </build>
@@ -856,7 +845,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
+                <version>2.9.1</version>
             </plugin>
         </plugins>
     </reporting>

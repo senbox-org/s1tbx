@@ -26,7 +26,7 @@ import java.io.IOException;
 class CountReader16Bit extends CountReader {
     private short[] scanLineBuffer;
 
-    public CountReader16Bit(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
+    public CountReader16Bit(int channel, KlmAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
     	super(channel, noaaFile, calibrator, dataWidth);
         scanLineBuffer = new short[elementCount];
     }

@@ -25,14 +25,16 @@ import java.io.IOException;
 
 
 class CountReader10Bit extends CountReader {
-    private static final int[] first = {0, 0, 0, 1, 1};
-    private static final int[][] increment = {{1, 2, 2}, {2, 1, 2}, {2, 2, 1}, {1, 2, 2}, {2, 1, 2}};
-    private static final int[][] shift = {{20, 0, 10}, {10, 20, 0}, {0, 10, 20}, {20, 0, 10}, {10, 20, 0}};
+    private static final int TEN_BITS = 0b1111111111;
+
+    private static final int[] FIRST = {0, 0, 0, 1, 1};
+    private static final int[][] INCREMENT = {{1, 2, 2}, {2, 1, 2}, {2, 2, 1}, {1, 2, 2}, {2, 1, 2}};
+    private static final int[][] SHIFT = {{20, 0, 10}, {10, 20, 0}, {0, 10, 20}, {20, 0, 10}, {10, 20, 0}};
 
     private int[] scanLineBuffer;
     private final int elementCount;
 
-    public CountReader10Bit(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
+    public CountReader10Bit(int channel, KlmAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
     	super(channel, noaaFile, calibrator, dataWidth);
         this.elementCount = elementCount;
         scanLineBuffer = new int[elementCount];
@@ -51,10 +53,10 @@ class CountReader10Bit extends CountReader {
     private void extractCounts(int[] rawData) {
         int j = 0;
         int bandNo = AvhrrConstants.CH_DATASET_INDEXES[channel];
-        int indexRaw = first[bandNo];
+        int indexRaw = FIRST[bandNo];
         for (int i = 0; i < lineOfCounts.length; i++) {
-            lineOfCounts[i] = (rawData[indexRaw] & (0x3FF << shift[bandNo][j])) >> shift[bandNo][j];
-            indexRaw += increment[bandNo][j];
+            lineOfCounts[i] = (rawData[indexRaw] & (TEN_BITS << SHIFT[bandNo][j])) >> SHIFT[bandNo][j];
+            indexRaw += INCREMENT[bandNo][j];
             j = j == 2 ? 0 : j + 1;
         }
     }
@@ -72,9 +74,9 @@ class CountReader10Bit extends CountReader {
         for (int i = 0; i < elementCount; i++) {
 
             int rawValue = rawData[i];
-            c[0] = (rawValue & (0x3FF << 20)) >> 20;
-            c[1] = (rawValue & (0x3FF << 10)) >> 10;
-            c[2] = (rawValue & 0x3FF);
+            c[0] = (rawValue & (TEN_BITS << 20)) >> 20;
+            c[1] = (rawValue & (TEN_BITS << 10)) >> 10;
+            c[2] = (rawValue & TEN_BITS);
 
             for (int ci = 0; ci < 3; ci++) {
                 if (bandNum == bandNo) {

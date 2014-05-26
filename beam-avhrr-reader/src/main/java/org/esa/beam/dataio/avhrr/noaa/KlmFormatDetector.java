@@ -42,7 +42,7 @@ import static com.bc.ceres.binio.TypeBuilder.SEQUENCE;
 /**
  * Detects whether the AVHRR file starts with an ARS header or without it.
  */
-class FormatDetector {
+class KlmFormatDetector {
 
     private static final List<String> DATASET_CREATION_SITES = Arrays.asList("CMS", "DSS", "NSS", "UKM");
 
@@ -59,7 +59,7 @@ class FormatDetector {
     private RandomAccessFile raf;
     private IOHandler ioHandler;
 
-    FormatDetector(File file) throws FileNotFoundException {
+    KlmFormatDetector(File file) throws FileNotFoundException {
         raf = new RandomAccessFile(file, "r");
         ioHandler = new RandomAccessFileIOHandler(raf);
         detectArsHeader();
@@ -138,11 +138,11 @@ class FormatDetector {
         }
     }
 
-    public DecodeQualification getDecodeQualification() {
-        return decodeQualification;
+    public boolean canDecode() {
+        return decodeQualification == DecodeQualification.INTENDED;
     }
 
-    public boolean hasArsHeader() {
+    boolean hasArsHeader() {
         return hasArsHeader;
     }
 }

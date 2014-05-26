@@ -27,7 +27,7 @@ import java.io.IOException;
 class CountReader8Bit extends CountReader {
     private byte[] scanLineBuffer;
 
-    public CountReader8Bit(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
+    public CountReader8Bit(int channel, KlmAvhrrFile noaaFile, Calibrator calibrator, int elementCount, int dataWidth) {
     	super(channel, noaaFile, calibrator, dataWidth);
         scanLineBuffer = new byte[elementCount];
     }

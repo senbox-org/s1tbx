@@ -37,9 +37,9 @@ abstract class CountReader implements BandReader {
 
     protected final int channel;
 
-    protected final NoaaAvhrrFile noaaFile;
+    protected final KlmAvhrrFile noaaFile;
 
-    public CountReader(int channel, NoaaAvhrrFile noaaFile, Calibrator calibrator, int dataWidth) {
+    public CountReader(int channel, KlmAvhrrFile noaaFile, Calibrator calibrator, int dataWidth) {
         this.channel = channel;
         this.noaaFile = noaaFile;
         this.calibrator = calibrator;
@@ -63,8 +63,8 @@ abstract class CountReader implements BandReader {
     }
 
     @Override
-    public float getScalingFactor() {
-        return 1f;
+    public double getScalingFactor() {
+        return 1.0;
     }
 
     @Override
@@ -77,7 +77,7 @@ abstract class CountReader implements BandReader {
                                    int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
                                                                                                                  IOException {
 
-        AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordiantes(
+        AvhrrFile.RawCoordinates rawCoord = noaaFile.getRawCoordinates(
                 sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
 
         final float[] targetData = (float[]) destBuffer.getElems();
@@ -93,7 +93,7 @@ abstract class CountReader implements BandReader {
                 boolean validData = hasData(rawY);
                 if (validData) {
                     if (calibrator.requiresCalibrationData()) {
-                        readCalibCoefficients(rawY, calibrationData);
+                        readCalibrationCoefficients(rawY, calibrationData);
                         validData = calibrator.processCalibrationData(calibrationData);
                     }
                     if (validData) {
@@ -131,15 +131,15 @@ abstract class CountReader implements BandReader {
     }
 
     private boolean containsValidCounts() {
-        for (int i = 0; i < lineOfCounts.length; i++) {
-            if (lineOfCounts[i] <= 0 || lineOfCounts[i] >= 1024) {
+        for (final int i : lineOfCounts) {
+            if (i <= 0 || i >= 1024) {
                 return false;
             }
         }
         return true;
     }
 
-    private void readCalibCoefficients(int rawY, int[] calibCoeff) throws IOException {
+    private void readCalibrationCoefficients(int rawY, int[] calibCoeff) throws IOException {
         CompoundData dataRecord = noaaFile.getDataRecord(rawY);
         SequenceData calibration_coefficients = dataRecord.getSequence("CALIBRATION_COEFFICIENTS");
         for (int i = 0; i < calibCoeff.length; i++) {

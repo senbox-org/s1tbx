@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beampy-operator-example</symbolicName>
-    <version>5.0</version>
+    <version>5.1</version>
     <name>BEAM GPF Operator for Python Example</name>
     <packaging>dir</packaging>
 

@@ -32,31 +32,37 @@ public class FlagReader implements BandReader {
         this.inputStream = inputStream;
     }
 
+    @Override
     public String getBandName() {
         return AvhrrConstants.FLAGS_DS_NAME;
     }
 
+    @Override
     public String getBandUnit() {
         return null;
     }
 
+    @Override
     public String getBandDescription() {
         return null;
     }
 
-    public float getScalingFactor() {
-        return 1f;
+    @Override
+    public double getScalingFactor() {
+        return 1.0;
     }
 
+    @Override
     public int getDataType() {
         return ProductData.TYPE_UINT8;
     }
 
+    @Override
     public synchronized void readBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                    int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
                                                                                                                  IOException {
 
-        AvhrrFile.RawCoordinates rawCoord = avhrrFile.getRawCoordiantes(
+        AvhrrFile.RawCoordinates rawCoord = avhrrFile.getRawCoordinates(
                 sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
 
         final byte[] flagsData = (byte[]) destBuffer.getElems();

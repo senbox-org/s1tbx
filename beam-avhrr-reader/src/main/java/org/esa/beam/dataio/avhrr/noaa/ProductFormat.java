@@ -29,39 +29,39 @@ enum ProductFormat {
 
     HRPT_8BIT(12288, SimpleType.BYTE, 2048 * 5, ProductDimension.HRPT) {
         @Override
-        public BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator) {
-            return new CountReader8Bit(channel, noaaAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
+        public BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator) {
+            return new CountReader8Bit(channel, klmAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
         }
     },
     HRPT_10BIT(15872, SimpleType.INT, 3414, ProductDimension.HRPT) {
         @Override
-        public BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator) {
-            return new CountReader10Bit(channel, noaaAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
+        public BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator) {
+            return new CountReader10Bit(channel, klmAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
         }
     },
     HRPT_16BIT(22528, SimpleType.SHORT, 2048 * 5, ProductDimension.HRPT) {
         @Override
-        public BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator) {
-            return new CountReader16Bit(channel, noaaAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
+        public BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator) {
+            return new CountReader16Bit(channel, klmAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
         }
     },
 
     GAC_8BIT(3584, SimpleType.BYTE, 409 * 5, ProductDimension.GAC) {
         @Override
-        public BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator) {
-            return new CountReader8Bit(channel, noaaAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
+        public BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator) {
+            return new CountReader8Bit(channel, klmAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
         }
     },
     GAC_10BIT(4608, SimpleType.INT, 682, ProductDimension.GAC) {
         @Override
-        public BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator) {
-            return new CountReader10Bit(channel, noaaAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
+        public BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator) {
+            return new CountReader10Bit(channel, klmAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
         }
     },
     GAC_16BIT(5632, SimpleType.SHORT, 409 * 5, ProductDimension.GAC) {
         @Override
-        public BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator) {
-            return new CountReader16Bit(channel, noaaAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
+        public BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator) {
+            return new CountReader16Bit(channel, klmAvhrrFile, calibrator, getElementCount(), getProductDimension().getDataWidth());
         }
     };
 
@@ -94,7 +94,7 @@ enum ProductFormat {
         return elementCount;
     }
 
-    public abstract BandReader createCountReader(int channel, NoaaAvhrrFile noaaAvhrrFile, Calibrator calibrator);
+    public abstract BandReader createCountReader(int channel, KlmAvhrrFile klmAvhrrFile, Calibrator calibrator);
 
     public static ProductFormat findByBlockSize(int blockSize) throws ProductIOException {
         ProductFormat[] values = ProductFormat.values();

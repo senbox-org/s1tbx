@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.avhrr;
 
-import org.esa.beam.dataio.avhrr.noaa.NoaaAvhrrFile;
+import org.esa.beam.dataio.avhrr.noaa.KlmAvhrrFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -45,8 +45,11 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        File file = getInputFile(input);
-        return NoaaAvhrrFile.canDecode(file);
+        final File file = getInputFile(input);
+        if (KlmAvhrrFile.canDecode(file)) {
+            return DecodeQualification.INTENDED;
+        }
+        return DecodeQualification.UNABLE;
     }
 
     public static File getInputFile(Object input) {
@@ -59,25 +62,11 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
         return file;
     }
 
-    /**
-     * Returns an array containing the classes that represent valid input types for this reader.
-     * <p/>
-     * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
-     * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
-     * case).
-     *
-     * @return an array containing valid input types, never <code>null</code>
-     */
     @Override
     public Class[] getInputTypes() {
         return INPUT_TYPES;
     }
 
-    /**
-     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
-     *
-     * @return a new reader instance, never <code>null</code>
-     */
     @Override
     public ProductReader createReaderInstance() {
         return new AvhrrReader(this);
@@ -88,11 +77,6 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
         return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 
-    /**
-     * Gets the names of the product formats handled by this product I/O plug-in.
-     *
-     * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
-     */
     @Override
     public String[] getFormatNames() {
         return new String[]{
@@ -100,28 +84,11 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
         };
     }
 
-    /**
-     * Gets the default file extensions associated with each of the format names returned by the <code>{@link
-     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
-     * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
-     * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
-     *
-     * @return the default file extensions for this product I/O plug-in, never <code>null</code>
-     */
     @Override
     public String[] getDefaultFileExtensions() {
         return FILE_EXTENSIONS;
     }
 
-    /**
-     * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
-     * used.
-     * <p/>
-     * <p> In a GUI, the description returned could be used as tool-tip text.
-     *
-     * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     * @return a textual description of this product reader/writer
-     */
     @Override
     public String getDescription(Locale locale) {
         return DESCRIPTION;

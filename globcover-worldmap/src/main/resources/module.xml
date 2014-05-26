@@ -3,7 +3,7 @@
 
     <symbolicName>globcover-worldmap</symbolicName>
     <name>ESA GlobCover Worldmap</name>
-    <version>5.0</version>
+    <version>5.1</version>
     <description>
         This module provides the ESA GlobCover world map layer in WGS84.
     </description>

@@ -23,14 +23,14 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.1</version>
     </parent>
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.beam</groupId>
-    <artifactId>beam-help</artifactId>
     <name>BEAM Help</name>
+    <artifactId>beam-help</artifactId>
+    <version>5.1-SNAPSHOT</version>
 
     <description>Provides the software user manual.</description>
 

@@ -25,11 +25,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.1</version>
     </parent>
 
     <name>BEAM Graph Processing Framework (GPF)</name>
     <artifactId>beam-gpf</artifactId>
+    <version>5.1-SNAPSHOT</version>
+
     <packaging>jar</packaging>
 
     <dependencies>
@@ -56,15 +58,6 @@
     </dependencies>
 
     <profiles>
-        <profile>
-            <id>sun-tools</id>
-            <activation>
-                <property>
-                    <name>java.vendor</name>
-                    <value>Sun Microsystems Inc.</value>
-                </property>
-            </activation>
-        </profile>
         <profile>
             <id>oracle-tools</id>
             <activation>

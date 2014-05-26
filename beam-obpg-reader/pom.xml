@@ -22,18 +22,18 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.1</version>
     </parent>
 
     <artifactId>beam-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
-    <version>${beam.version}</version>
+    <version>5.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>1.5.5</version>
+            <version>1.6-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.esa.beam</groupId>

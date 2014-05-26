@@ -16,7 +16,7 @@
 package org.esa.beam.dataio.avhrr;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.avhrr.noaa.NoaaAvhrrFile;
+import org.esa.beam.dataio.avhrr.noaa.KlmAvhrrFile;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
@@ -69,7 +69,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         final File dataFile = AvhrrReaderPlugIn.getInputFile(getInput());
 
         try {
-            avhrrFile = new NoaaAvhrrFile(dataFile);
+            avhrrFile = new KlmAvhrrFile(dataFile);
             avhrrFile.readHeader();
             createProduct();
             product.setFileLocation(dataFile);
@@ -106,7 +106,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         }
 
         bandReader.readBandRasterData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                sourceStepX, sourceStepY, destBuffer, pm);
+                                      sourceStepX, sourceStepY, destBuffer, pm);
     }
 
     /**
@@ -135,7 +135,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     @SuppressWarnings("unchecked")
     protected void createProduct() throws IOException {
         product = new Product(avhrrFile.getProductName(), PRODUCT_TYPE,
-                avhrrFile.getProductWidth(), avhrrFile.getProductHeight(), this);
+                              avhrrFile.getProductWidth(), avhrrFile.getProductHeight(), this);
 
         product.setDescription(PRODUCT_DESCRIPTION);
         final int channel3ab = avhrrFile.getChannel3abState();
@@ -148,10 +148,10 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         if (channel3ab == CH_3A) {
             product.addBand(createVisibleRadianceBand(CH_3A));
             product.addBand(createZeroFilledBand(CH_3B,
-                    RADIANCE_BAND_NAME_PREFIX));
+                                                 RADIANCE_BAND_NAME_PREFIX));
         } else if (channel3ab == CH_3B) {
             product.addBand(createZeroFilledBand(CH_3A,
-                    RADIANCE_BAND_NAME_PREFIX));
+                                                 RADIANCE_BAND_NAME_PREFIX));
             product.addBand(createIrRadianceBand(CH_3B));
         } else {
             product.addBand(createVisibleRadianceBand(CH_3A));
@@ -168,10 +168,10 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         if (channel3ab == CH_3A) {
             product.addBand(createReflectanceFactorBand(CH_3A));
             product.addBand(createZeroFilledBand(CH_3B,
-                    TEMPERATURE_BAND_NAME_PREFIX));
+                                                 TEMPERATURE_BAND_NAME_PREFIX));
         } else if (channel3ab == CH_3B) {
             product.addBand(createZeroFilledBand(CH_3A,
-                    REFLECTANCE_BAND_NAME_PREFIX));
+                                                 REFLECTANCE_BAND_NAME_PREFIX));
             product.addBand(createIrTemperatureBand(CH_3B));
         } else {
             product.addBand(createReflectanceFactorBand(CH_3A));
@@ -215,7 +215,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     protected Band createBand(BandReader bandReader, int channel) {
         final Band band = new Band(bandReader.getBandName(), bandReader
                 .getDataType(), avhrrFile.getProductWidth(), avhrrFile
-                .getProductHeight());
+                                           .getProductHeight());
         band.setScalingFactor(bandReader.getScalingFactor());
         band.setUnit(bandReader.getBandUnit());
         band.setDescription(bandReader.getBandDescription());
@@ -232,11 +232,11 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     protected Band createZeroFilledBand(int channel, String namePrefix) {
         final String name = namePrefix + CH_STRINGS[channel];
         final VirtualBand band = new VirtualBand(name,
-                ProductData.TYPE_FLOAT32, avhrrFile.getProductWidth(),
-                avhrrFile.getProductHeight(), "0");
+                                                 ProductData.TYPE_FLOAT32, avhrrFile.getProductWidth(),
+                                                 avhrrFile.getProductHeight(), "0");
         band.setUnit("-");
         band.setDescription("Zero-filled placeholder for " + name
-                + ", no data available");
+                            + ", no data available");
         band.setSpectralBandIndex(channel);
         band.setSpectralBandwidth(CH_BANDWIDTHS[channel]);
         band.setSpectralWavelength(CH_WAVELENGTHS[channel]);
@@ -251,7 +251,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
 
         Band flagsBand = new Band(bandReader.getBandName(), bandReader
                 .getDataType(), avhrrFile.getProductWidth(), avhrrFile
-                .getProductHeight());
+                                          .getProductHeight());
 
         FlagCoding fc = new FlagCoding(bandReader.getBandName());
         fc.setDescription("Flag coding for AVHRR data quality");
@@ -274,8 +274,8 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         if (avhrrFile.hasCloudBand()) {
             BandReader cloudReader = avhrrFile.createCloudBandReader();
             Band cloudMaskBand = new Band(cloudReader.getBandName(),
-                    cloudReader.getDataType(), avhrrFile.getProductWidth(),
-                    avhrrFile.getProductHeight());
+                                          cloudReader.getDataType(), avhrrFile.getProductWidth(),
+                                          avhrrFile.getProductHeight());
 
             final String cloudBandName = cloudReader.getBandName();
             product.addMask("clear", cloudBandName + "==0", "", Color.LIGHT_GRAY, 0.4);
@@ -306,7 +306,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
     }
 
     protected void addTiePointGrids() throws IOException {
-        int tpSubsampling = avhrrFile.getTiePointSupsampling();
+        int tpSubsampling = avhrrFile.getTiePointSubsampling();
         final int gridHeight = avhrrFile.getProductHeight() / tpSubsampling + 1;
 
         String[] tiePointNames = avhrrFile.getTiePointNames();
@@ -317,16 +317,16 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
 
         for (int i = 0; i < grid.length; i++) {
             grid[i] = createTiePointGrid(tiePointNames[i], TP_GRID_WIDTH,
-                    gridHeight, TP_OFFSET_X, TP_OFFSET_Y, tpSubsampling, tpSubsampling,
-                    tiePointData[i]);
+                                         gridHeight, TP_OFFSET_X, TP_OFFSET_Y, tpSubsampling, tpSubsampling,
+                                         tiePointData[i]);
             grid[i].setUnit(UNIT_DEG);
             product.addTiePointGrid(grid[i]);
         }
 
         GeoCoding geoCoding = new TiePointGeoCoding(grid[numGrids - 2],
-                grid[numGrids - 1], Datum.WGS_72);
+                                                    grid[numGrids - 1], Datum.WGS_72);
         product.setGeoCoding(geoCoding);
-    }
+        }
 
     public static String format(String pattern, String arg) {
         return new MessageFormat(pattern).format(new Object[]{arg});
