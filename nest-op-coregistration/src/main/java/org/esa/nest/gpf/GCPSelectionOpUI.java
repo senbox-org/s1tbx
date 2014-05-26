@@ -120,10 +120,16 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         }
         enableComplexFields();
 
-        computeOffset = (Boolean) paramMap.get("computeOffset");
+        Boolean offsetValue = (Boolean) paramMap.get("computeOffset");
+        if(offsetValue != null) {
+            computeOffset = offsetValue;
+        }
         computeOffsetCheckBox.setSelected(computeOffset);
 
-        onlyGCPsOnLand = (Boolean) paramMap.get("onlyGCPsOnLand");
+        Boolean gcpOnLandValue = (Boolean) paramMap.get("onlyGCPsOnLand");
+        if(gcpOnLandValue != null) {
+            onlyGCPsOnLand = gcpOnLandValue;
+        }
         onlyGCPsOnLandCheckBox.setSelected(onlyGCPsOnLand);
     }
 
