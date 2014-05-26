@@ -18,8 +18,9 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
-		<beam.version>5.0-SNAPSHOT</beam.version>
-        <ceres.version>0.14-SNAPSHOT</ceres.version>
+		<beam.version>5.1</beam.version>
+        <beam.versionRange>[5.1-SNAPSHOT,)</beam.versionRange>
+        <ceres.version>[0.15-SNAPSHOT,)</ceres.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
@@ -246,22 +247,22 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
-				<version>${beam.version}</version>
+				<version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-				<version>${beam.version}</version>
+				<version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-				<version>${beam.version}</version>
+				<version>${beam.versionRange}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
-				<version>${beam.version}</version>
+				<version>${beam.versionRange}</version>
             </dependency>
 
             <!-- BEAM Modules ############################################# -->
@@ -269,19 +270,19 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envisat-reader</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-geotiff</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envi-reader</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
 
             <dependency>
@@ -305,7 +306,7 @@
 			<dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>${beam.version}</version>
+                <version>${beam.versionRange}</version>
             </dependency>
 			
 			<dependency>
