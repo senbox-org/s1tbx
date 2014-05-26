@@ -122,6 +122,9 @@ public class SARSimTerrainCorrectionOpUI extends RangeDopplerGeocodingOpUI {
         contentPane.add(saveDEMCheckBox, gbc);
         gbc.gridx = 0;
         gbc.gridy++;
+        contentPane.add(saveLatLonCheckBox, gbc);
+
+        gbc.gridy++;
         contentPane.add(applyRadiometricNormalizationCheckBox, gbc);
         gbc.gridy++;
         gbc.insets.left = 20;

@@ -117,6 +117,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
     @Parameter(defaultValue = "false", label = "Save DEM as band")
     private boolean saveDEM = false;
 
+    @Parameter(defaultValue = "false", label = "Save latitude and longitude as band")
+    private boolean saveLatLon = false;
+
     @Parameter(defaultValue = "false", label = "Save local incidence angle as band")
     private boolean saveLocalIncidenceAngle = false;
 
@@ -589,6 +592,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     "elevation", Unit.METERS, null, ProductData.TYPE_FLOAT32);
         }
 
+        if (saveLatLon) {
+            RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                    "latitude", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
+
+            RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                    "longitude", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
+        }
+
         if (saveLocalIncidenceAngle) {
             RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
                     "localIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
@@ -831,6 +842,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final int srcMaxRange = sourceImageWidth - 1;
         final int srcMaxAzimuth = sourceImageHeight - 1;
         ProductData demBuffer = null;
+        ProductData latBuffer = null;
+        ProductData lonBuffer = null;
         ProductData localIncidenceAngleBuffer = null;
         ProductData projectedLocalIncidenceAngleBuffer = null;
         ProductData layoverShadowingMasksBuffer = null;
@@ -848,6 +861,16 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             if (targetBand.getName().equals("elevation")) {
                 demBuffer = targetTiles.get(targetBand).getDataBuffer();
+                continue;
+            }
+
+            if (targetBand.getName().equals("latitude")) {
+                latBuffer = targetTiles.get(targetBand).getDataBuffer();
+                continue;
+            }
+
+            if (targetBand.getName().equals("longitude")) {
+                lonBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
 
@@ -923,6 +946,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     double lon = geoPos.lon;
                     if (lon >= 180.0) {
                         lon -= 360.0;
+                    }
+
+                    if (saveLatLon) {
+                        latBuffer.setElemDoubleAt(index, lat);
+                        lonBuffer.setElemDoubleAt(index, lon);
                     }
 
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
