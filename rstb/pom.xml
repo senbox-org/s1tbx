@@ -22,11 +22,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <context>s1tbx</context>
 
-        <jlinda.version>0.8</jlinda.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
         <rstb.version>6.0-SNAPSHOT</rstb.version>
-        <beam.version>5.0-SNAPSHOT</beam.version>
-        <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
 
         <outputdir>../../../${context}/output</outputdir>
