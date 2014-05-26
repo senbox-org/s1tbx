@@ -15,6 +15,7 @@
  */
 package org.csa.rstb.gpf.classifiers;
 
+import org.csa.rstb.gpf.HaAlphaDescriptor;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.gpf.decompositions.hAAlpha;
@@ -226,7 +227,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
                                 if (!Double.isNaN(data.entropy) && !Double.isNaN(data.anisotropy) && !Double.isNaN(data.alpha)) {
                                     synchronized (counter) {
-                                        final int zoneIndex = CloudePottier.getZoneIndex(data.entropy, data.alpha,
+                                        final int zoneIndex = HaAlphaDescriptor.getZoneIndex(data.entropy, data.alpha,
                                                 useLeeHAlphaPlaneDefinition);
                                         counter[zoneIndex - 1] += 1;
                                         computeSummationOfT3(zoneIndex, Tr, Ti, sumRe, sumIm);
