@@ -23,6 +23,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.csa.rstb.gpf.HaAlphaDescriptor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -35,13 +36,19 @@ import org.esa.nest.dat.utils.Palette;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -362,8 +369,6 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
                     densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
 
-                    drawOverlay(densityPlotImage);
-
                     toggleColorCheckBox.setSelected(false);
                     plotColorsInverted = false;
                     return densityPlotImage;
@@ -409,6 +414,9 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "Entropy", false));
                     plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Alpha", false));
                     toggleColorCheckBox.setEnabled(true);
+
+                    drawZoneOverlay();
+
                 } catch (InterruptedException | CancellationException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
@@ -433,15 +441,50 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         swingWorker.execute();
     }
 
-    private void drawOverlay(final BufferedImage image) {
-        Graphics g = image.getGraphics();
+    private void drawZoneOverlay() {
+        double minX = axisRangeControls[X_VAR].getMin();
+        double maxX = axisRangeControls[X_VAR].getMax();
+        double minY = axisRangeControls[Y_VAR].getMin();
+        double maxY = axisRangeControls[Y_VAR].getMax();
 
-        // g.setColor(Color.GREEN);
-        // g.drawLine(0, 0, 100, 100);
+        BasicStroke stroke = new BasicStroke(2.0f);
+        Color colour =  Color.WHITE;
+
+        XYLineAnnotation line = new XYLineAnnotation(
+                HaAlphaDescriptor.H1, minY, HaAlphaDescriptor.H1, maxY, stroke, colour);
+        plot.addAnnotation(line);
+        line = new XYLineAnnotation(
+                HaAlphaDescriptor.H2, minY, HaAlphaDescriptor.H2, maxY, stroke, colour);
+        plot.addAnnotation(line);
+
+        line = new XYLineAnnotation(
+                HaAlphaDescriptor.H1, HaAlphaDescriptor.Alpha1, maxX, HaAlphaDescriptor.Alpha1, stroke, colour);
+        plot.addAnnotation(line);
+        line = new XYLineAnnotation(
+                HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha2, HaAlphaDescriptor.H1, HaAlphaDescriptor.Alpha2, stroke, colour);
+        plot.addAnnotation(line);
+        line = new XYLineAnnotation(
+                minX, HaAlphaDescriptor.Alpha3, HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha3, stroke, colour);
+        plot.addAnnotation(line);
+        line = new XYLineAnnotation(
+                minX, HaAlphaDescriptor.Alpha4, HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha4, stroke, colour);
+        plot.addAnnotation(line);
+        line = new XYLineAnnotation(
+                HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha5, maxX, HaAlphaDescriptor.Alpha5, stroke, colour);
+        plot.addAnnotation(line);
+
+        //Arc2D.Double arc = new Arc2D.Double(
+        //        0, 0, 30, 2 * 30, 3.14, 3.14, Arc2D.OPEN);
+        //plot.addAnnotation(new XYShapeAnnotation(arc,
+        //        new BasicStroke(2.0f), Color.blue));
     }
 
     private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
         final AxisRangeControl axisRangeControl = axisRangeControls[varIndex];
+        if(varIndex == X_VAR) {
+            axisRangeControl.adjustComponents(0.0, 1.0, NUM_DECIMALS);
+            return;
+        }
         if (axisRangeControl.isAutoMinMax()) {
             Stx stx;
             if (mask == null) {
@@ -449,7 +492,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             } else {
                 stx = new StxFactory().withRoiMask(mask).create(raster, pm);
             }
-            axisRangeControl.adjustComponents(stx.getMinimum(), stx.getMaximum(), NUM_DECIMALS);
+            axisRangeControl.adjustComponents(Math.min(0, stx.getMinimum()), Math.max(90, stx.getMaximum()), NUM_DECIMALS);
         }
     }
 
