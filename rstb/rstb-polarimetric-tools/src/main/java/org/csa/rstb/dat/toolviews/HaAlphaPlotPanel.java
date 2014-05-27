@@ -36,19 +36,16 @@ import org.esa.nest.dat.utils.Palette;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYLineAnnotation;
-import org.jfree.chart.annotations.XYShapeAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -96,7 +93,10 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     private XYImagePlot plot;
     private static final Color backgroundColor = new Color(255, 255, 255, 0);
     private boolean plotColorsInverted;
-    private JCheckBox toggleColorCheckBox;
+    private JCheckBox toggleZoneOverlayCheckBox;
+
+    private final static Color annotColour =  Color.DARK_GRAY;
+    private final static Font annotFont = new Font("Ariel", Font.BOLD, 14);
 
     public HaAlphaPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, true);
@@ -153,7 +153,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             final Product product = getProduct();
             if (product != null) {
 
-                toggleColorCheckBox.setEnabled(false);
+                toggleZoneOverlayCheckBox.setEnabled(false);
                 Band entropyBand = product.getBand("Entropy");
                 Band alphaBand = product.getBand("Alpha");
                 if (entropyBand != null && alphaBand != null) {
@@ -250,21 +250,35 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     }
 
     private JPanel createOptionsPanel() {
-        toggleColorCheckBox = new JCheckBox("Invert plot colors");
-        toggleColorCheckBox.addActionListener(new ActionListener() {
+        toggleZoneOverlayCheckBox = new JCheckBox("Show Zones");
+        toggleZoneOverlayCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                toggleColor();
+                updateChartData();
             }
         });
-        toggleColorCheckBox.setEnabled(false);
+        toggleZoneOverlayCheckBox.setEnabled(false);
+        toggleZoneOverlayCheckBox.setSelected(true);
         final JPanel optionsPanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
         GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
         GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2,insets.left=0,insets.right=0");
         GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=4");
         GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=5,insets.left=4,insets.right=2");
-        //GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6,insets.left=0,insets.right=0");
+        GridBagUtils.addToPanel(optionsPanel, toggleZoneOverlayCheckBox, gbc, "gridy=6,insets.left=0,insets.right=0");
+
+        GridBagUtils.addToPanel(optionsPanel, new JLabel("Zones Descriptions:"), gbc, "gridy=8,insets.left=0,insets.right=0");
+        JTextArea textArea = new JTextArea(
+                "Z1 - Dihedral Reflector\n" +
+                "Z2 - Dipole\n" +
+                "Z3 - Bragg Surface\n" +
+                "Z4 - Double Reflection\n" +
+                "Z5 - Anisotropic Particles\n" +
+                "Z6 - Random Surface\n" +
+                "Z7 - Complex Structures\n" +
+                "Z8 - Random Anisotropic Scatterers\n" +
+                "Z9 - Non-feasible");
+        GridBagUtils.addToPanel(optionsPanel, textArea, gbc, "gridy=9,insets.left=0,insets.right=0");
         return optionsPanel;
     }
 
@@ -369,7 +383,6 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
                     densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
 
-                    toggleColorCheckBox.setSelected(false);
                     plotColorsInverted = false;
                     return densityPlotImage;
                 } finally {
@@ -415,9 +428,18 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 //                    plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Alpha", false));
                     plot.getDomainAxis().setLabel("Entropy");
                     plot.getRangeAxis().setLabel("Alpha");
-                    toggleColorCheckBox.setEnabled(true);
+                    toggleZoneOverlayCheckBox.setEnabled(true);
 
-                    drawZoneOverlay();
+
+                    // clear the list
+                    java.util.List<XYAnnotation> annotList = plot.getAnnotations();
+                    for(XYAnnotation an : annotList) {
+                        plot.removeAnnotation(an);
+                    }
+
+                    if(toggleZoneOverlayCheckBox.isSelected()) {
+                        drawZoneOverlay();
+                    }
 
                 } catch (InterruptedException | CancellationException e) {
                     e.printStackTrace();
@@ -448,37 +470,56 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         double maxX = axisRangeControls[X_VAR].getMax();
         double minY = axisRangeControls[Y_VAR].getMin();
         double maxY = axisRangeControls[Y_VAR].getMax();
+        double H1 = HaAlphaDescriptor.H1;
+        double H2 = HaAlphaDescriptor.H2;
+        double Alpha1 = HaAlphaDescriptor.Alpha1;
+        double Alpha2 = HaAlphaDescriptor.Alpha2;
+        double Alpha3 = HaAlphaDescriptor.Alpha3;
+        double Alpha4 = HaAlphaDescriptor.Alpha4;
+        double Alpha5 = HaAlphaDescriptor.Alpha5;
 
         BasicStroke stroke = new BasicStroke(2.0f);
-        Color colour =  Color.WHITE;
 
-        XYLineAnnotation line = new XYLineAnnotation(
-                HaAlphaDescriptor.H1, minY, HaAlphaDescriptor.H1, maxY, stroke, colour);
+        XYLineAnnotation line = new XYLineAnnotation(H1, minY, H1, maxY, stroke, annotColour);
         plot.addAnnotation(line);
-        line = new XYLineAnnotation(
-                HaAlphaDescriptor.H2, minY, HaAlphaDescriptor.H2, maxY, stroke, colour);
+        line = new XYLineAnnotation(H2, minY, H2, maxY, stroke, annotColour);
         plot.addAnnotation(line);
 
-        line = new XYLineAnnotation(
-                HaAlphaDescriptor.H1, HaAlphaDescriptor.Alpha1, maxX, HaAlphaDescriptor.Alpha1, stroke, colour);
+        line = new XYLineAnnotation(H1, Alpha1, maxX, Alpha1, stroke, annotColour);
         plot.addAnnotation(line);
-        line = new XYLineAnnotation(
-                HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha2, HaAlphaDescriptor.H1, HaAlphaDescriptor.Alpha2, stroke, colour);
+        line = new XYLineAnnotation(H2, Alpha2, H1, Alpha2, stroke, annotColour);
         plot.addAnnotation(line);
-        line = new XYLineAnnotation(
-                minX, HaAlphaDescriptor.Alpha3, HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha3, stroke, colour);
+        line = new XYLineAnnotation(minX, Alpha3, H2, Alpha3, stroke, annotColour);
         plot.addAnnotation(line);
-        line = new XYLineAnnotation(
-                minX, HaAlphaDescriptor.Alpha4, HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha4, stroke, colour);
+        line = new XYLineAnnotation(minX, Alpha4, H2, Alpha4, stroke, annotColour);
         plot.addAnnotation(line);
-        line = new XYLineAnnotation(
-                HaAlphaDescriptor.H2, HaAlphaDescriptor.Alpha5, maxX, HaAlphaDescriptor.Alpha5, stroke, colour);
+        line = new XYLineAnnotation(H2, Alpha5, maxX, Alpha5, stroke, annotColour);
         plot.addAnnotation(line);
+
+        addText("Z1", minX+(H2-minX)/2, Alpha3+(maxY-Alpha3)/2);
+        addText("Z2", minX+(H2-minX)/2, Alpha4+(Alpha3-Alpha4)/2);
+        addText("Z3", minX+(H2-minX)/2, minY+(Alpha4-minY)/2);
+
+        addText("Z4", H2+(H1-H2)/2, Alpha2+(maxY-Alpha2)/2);
+        addText("Z5", H2+(H1-H2)/2, Alpha5+(Alpha2-Alpha5)/2);
+        addText("Z6", H2+(H1-H2)/2, minY+(Alpha5-minY)/2);
+
+        addText("Z7", H1+(maxX-H1)/2, Alpha1+(maxY-Alpha1)/2);
+        addText("Z8", H1+(maxX-H1)/2, Alpha5+(Alpha1-Alpha5)/2);
+        addText("Z9", H1+(maxX-H1)/2, minY+(Alpha5-minY)/2);
 
         //Arc2D.Double arc = new Arc2D.Double(
         //        0, 0, 30, 2 * 30, 3.14, 3.14, Arc2D.OPEN);
         //plot.addAnnotation(new XYShapeAnnotation(arc,
         //        new BasicStroke(2.0f), Color.blue));
+    }
+
+    private void addText(final String text, final double x, final double y) {
+        final XYTextAnnotation annotation = new XYTextAnnotation(text, x, y);
+        annotation.setPaint(annotColour);
+        annotation.setBackgroundPaint(Color.WHITE);
+        annotation.setFont(annotFont);
+        plot.addAnnotation(annotation);
     }
 
     private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
