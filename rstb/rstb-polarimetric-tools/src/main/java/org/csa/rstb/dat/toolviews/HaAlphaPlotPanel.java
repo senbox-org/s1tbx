@@ -411,8 +411,10 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
                     axisRangeControls[X_VAR].adjustComponents(minX, maxX, NUM_DECIMALS);
                     axisRangeControls[Y_VAR].adjustComponents(minY, maxY, NUM_DECIMALS);
-                    plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "Entropy", false));
-                    plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Alpha", false));
+//                    plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "Entropy", false));
+//                    plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Alpha", false));
+                    plot.getDomainAxis().setLabel("Entropy");
+                    plot.getRangeAxis().setLabel("Alpha");
                     toggleColorCheckBox.setEnabled(true);
 
                     drawZoneOverlay();
