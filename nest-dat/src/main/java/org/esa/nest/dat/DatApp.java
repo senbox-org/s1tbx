@@ -315,6 +315,7 @@ public class DatApp extends VisatApp {
     protected HashSet<String> getExcludedToolbars() {
         final HashSet<String> excludedIds = super.getExcludedToolbars();
 
+        excludedIds.add("org.esa.beam.visat.toolviews.spectrum.SpectrumToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView");
         excludedIds.add("org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView");

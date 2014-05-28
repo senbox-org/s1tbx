@@ -42,21 +42,16 @@
             <frameIcon>/org/esa/nest/icons/dat.png</frameIcon>
             <image>/org/esa/nest/icons/dat.png</image>
             <excludedActions>
-                <id>orthorectificationAction</id>
                 <id>showDataSources</id>
                 <id>new</id>
                 <id>open</id>
                 <id>createAsarNrcsBands</id>
                 <id>showHomePage</id>
                 <id>about</id>
-                <id>createXYDisplacementBandsAction</id>
                 <id>productGrabber</id>
-                <id>createFilteredBand</id>
                 <id>mosaicAction</id>
                 <id>selectTool</id>
                 <id>PCAOp</id>
-                <id>importMermaid</id>
-                <id>importSeaDASTrack</id>
                 <id>openSession</id>
                 <id>saveSession</id>
                 <id>saveSessionAs</id>
@@ -64,7 +59,6 @@
                 <id>showImageView</id>
             </excludedActions>
             <excludedToolViews>
-                <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
                 <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->
             </excludedToolViews>
         </applicationDescriptor>
