@@ -151,7 +151,7 @@ public final class S1TBXApp extends DatApp {
 
     @Override
     protected String getMainFrameTitle() {
-        final String ver = System.getProperty("rstb.version");
+        final String ver = System.getProperty("s1tbx.version");
         return getAppName() + ' ' + ver;
     }
 
