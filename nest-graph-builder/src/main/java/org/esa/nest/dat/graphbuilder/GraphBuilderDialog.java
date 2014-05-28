@@ -565,12 +565,10 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
                     statusLabel.setText("Processing completed in " + diff + " seconds");
                 }
                 final List<File> fileList = graphEx.getProductsToOpenInDAT();
-                notifyMSG(ProcessingListener.MSG.DONE, fileList.toArray(new File[fileList.size()]));
-            }
+                final File[] files = fileList.toArray(new File[fileList.size()]);
+                notifyMSG(ProcessingListener.MSG.DONE, files);
 
-            if (!errorOccured) {
-                final List<File> fileList = graphEx.getProductsToOpenInDAT();
-                openTargetProducts(fileList.toArray(new File[fileList.size()]));
+                openTargetProducts(files);
             }
         }
 

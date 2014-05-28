@@ -47,7 +47,7 @@
             <class>org.esa.nest.dat.toolviews.nestwwview.FlatEarthWWToolView</class>
             <title>World Map</title>
             <tabTitle>World Map</tabTitle>
-            <description>Display product in a Flat Earth view.</description>
+            <description>Display WorldWind view.</description>
             <smallIcon>/org/esa/nest/icons/WorldMap16.png</smallIcon>
             <largeIcon>/org/esa/nest/icons/WorldMap24.png</largeIcon>
             <helpId>show3DMapWnd</helpId>
