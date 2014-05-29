@@ -19,8 +19,8 @@
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
 		<beam.version>5.1</beam.version>
-        <beam.versionRange>[5.1-SNAPSHOT,)</beam.versionRange>
-        <ceres.version>[0.15-SNAPSHOT,)</ceres.version>
+        <beam.versionRange>5.1-SNAPSHOT</beam.versionRange>
+        <ceres.version>0.15-SNAPSHOT</ceres.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
@@ -779,7 +779,7 @@
 
 			<!-- OpenImaj	#################################################-->
 			
-			<dependency>
+			<!--dependency>
 				<groupId>org.openimaj</groupId>
 				<artifactId>core</artifactId>
 				<version>1.0.6-SNAPSHOT</version>
@@ -834,7 +834,7 @@
 				<groupId>com.googlecode.matrix-toolkits-java</groupId>
 				<artifactId>mtj</artifactId>
 				<version>1.0.1</version>
-			</dependency>
+			</dependency-->
 			
 			<!-- World Wind   ###############################################-->
 			
