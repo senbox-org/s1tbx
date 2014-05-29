@@ -55,7 +55,7 @@
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Sentinel1 TOPSAR Deburst</text>
+            <text>Sentinel-1 TOPSAR Deburst</text>
             <operatorName>TOPSAR-Deburst</operatorName>
             <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
             <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
@@ -68,7 +68,7 @@
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Sentinel1 TOPSAR Split</text>
+            <text>Sentinel-1 TOPSAR Split</text>
             <operatorName>TOPSAR-Split</operatorName>
             <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
             <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
@@ -80,7 +80,7 @@
             <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Sentinel1 SLC to GRD</text>
+            <text>Sentinel-1 SLC to GRD</text>
             <shortDescr>Convert a Sentinel1 SLC product to a detected ground range product</shortDescr>
             <dialogTitle>Sentinel1 SLC to GRD</dialogTitle>
             <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>

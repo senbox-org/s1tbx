@@ -221,7 +221,7 @@
         <action>
             <id>oceanTools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Thematic Ocean Processing</text>
+            <text>Ocean Tools</text>
             <parent>classification</parent>
         </action>
 

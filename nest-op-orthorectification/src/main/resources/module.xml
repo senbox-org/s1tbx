@@ -318,6 +318,7 @@
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>sar-processing</parent>
+            <placeAfter>CoregistrationGraph</placeAfter>
             <text>Multilooking</text>
             <operatorName>Multilook</operatorName>
             <dialogTitle>Multilook</dialogTitle>
@@ -331,6 +332,7 @@
             <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>sar-processing</parent>
+            <placeAfter>CoregistrationGraph</placeAfter>
             <text>Complex to Detected GR</text>
             <shortDescr>Convert a SLC product to a detected ground range product</shortDescr>
             <dialogTitle>Complex to Detected Ground Range</dialogTitle>

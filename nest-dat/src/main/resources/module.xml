@@ -524,19 +524,6 @@
         </action>
 
         <action>
-            <id>launchPolsarPro</id>
-            <parent>polarimetrictools</parent>
-            <class>org.esa.nest.dat.actions.LaunchPolsarProAction</class>
-            <text>Launch PolSARPro</text>
-            <shortDescr>Start PolSARPro</shortDescr>
-            <separatorBefore>true</separatorBefore>
-            <separatorAfter>true</separatorAfter>
-            <smallIcon>/org/esa/nest/icons/esa.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/esa.png</largeIcon>
-            <placeLast>true</placeLast>
-        </action>
-
-        <action>
             <id>MetadataTools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Metadata</text>
