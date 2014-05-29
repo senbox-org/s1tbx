@@ -295,8 +295,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final File annotationFolder = new File(getBaseDir(), "annotation");
         final File[] files = annotationFolder.listFiles();
         if (files == null && OCNReader != null) {
-            // add netcdf metadata for OCN products
-            OCNReader.addNetCDFMetadata(product, annotationElement);
+            // add netcdf metadata for OCN product
+            OCNReader.addNetCDFMetadataAndBands(product, annotationElement);
             return;
         }
 
