@@ -87,6 +87,7 @@
             <shortDescr>Perform Automatic Coregistration</shortDescr>
             <dialogTitle>Automatic Coregistration</dialogTitle>
             <graphFile>CoregistrationGraph.xml</graphFile>
+            <placeAfter>Sentinel1</placeAfter>
         </action>
 
         <action>
