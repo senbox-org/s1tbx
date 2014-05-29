@@ -57,7 +57,7 @@
 		<module>nest-core</module>
 		<module>nest-dat</module>
 		<module>nest-graph-builder</module>
-		<module>nest-help</module>
+		<!--module>nest-help</module-->
 		<module>nest-io</module>
 		<module>nest-op-calibration</module>
 		<module>nest-op-coregistration</module>
@@ -163,7 +163,7 @@
 		<pluginRepository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://www.array.ca/nest-web/maven</url>
+            <url>http://www.array.ca/nest-web/mavenrepo</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -940,7 +940,7 @@
 	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
 	                    </links>
 	                    <subpackages>
-	                        org.esa.nest:com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+	                        org.esa.nest:org.csa.rstb:com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
 	                    </subpackages>
 	                    <quiet>false</quiet>
 					</configuration>

@@ -62,7 +62,9 @@
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
             <excludes>
+				<exclude>org.esa.beam:beam-bootstrap</exclude>
 				<exclude>org.esa.nest:nest-bootstrap</exclude>
+				<exclude>org.esa.nest:nest-benchmark</exclude>
 				<exclude>org.esa.nest:nest-src</exclude>
                 <exclude>com.bc.ceres:ceres-*</exclude>
             </excludes>
