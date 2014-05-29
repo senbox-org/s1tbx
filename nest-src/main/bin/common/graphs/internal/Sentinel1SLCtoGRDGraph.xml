@@ -7,20 +7,41 @@
       <file></file>
     </parameters>
   </node>
-  <node id="Write">
-    <operator>Write</operator>
-    <sources>
-      <sourceProduct refid="Speckle-Filter"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <formatName>BEAM-DIMAP</formatName>
-      <file></file>
-    </parameters>
-  </node>
-  <node id="DeburstTOPSAR">
-    <operator>DeburstTOPSAR</operator>
+    <node id="Calibration">
+    <operator>Calibration</operator>
     <sources>
       <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations></selectedPolarisations>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
+    </parameters>
+  </node>
+  <node id="ThermalNoiseRemoval">
+    <operator>ThermalNoiseRemoval</operator>
+    <sources>
+      <sourceProduct refid="Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <selectedPolarisations/>
+      <removeThermalNoise>true</removeThermalNoise>
+      <reIntroduceThermalNoise>false</reIntroduceThermalNoise>
+    </parameters>
+  </node>
+  <node id="TOPSAR-Deburst">
+    <operator>TOPSAR-Deburst</operator>
+    <sources>
+      <sourceProduct refid="ThermalNoiseRemoval"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <selectedPolarisations/>
@@ -29,7 +50,7 @@
   <node id="Multilook">
     <operator>Multilook</operator>
     <sources>
-      <sourceProduct refid="DeburstTOPSAR"/>
+      <sourceProduct refid="TOPSAR-Deburst"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
@@ -47,7 +68,7 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands>
-        <band>Intensity_HH</band>
+        <band></band>
       </sourceBands>
       <warpPolynomialOrder>4</warpPolynomialOrder>
       <interpolationMethod>Linear interpolation</interpolationMethod>
@@ -69,25 +90,41 @@
       <enl>1.0</enl>
     </parameters>
   </node>
+    <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Speckle-Filter"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file></file>
+    </parameters>
+  </node>
   <applicationData id="Presentation">
     <Description/>
     <node id="Read">
-      <displayPosition y="134.0" x="37.0"/>
+      <displayPosition y="34.0" x="20.0"/>
     </node>
-    <node id="Write">
-      <displayPosition y="134.0" x="556.0"/>
+	<node id="Calibration">
+      <displayPosition y="36.0" x="113.0"/>
     </node>
-    <node id="DeburstTOPSAR">
-      <displayPosition y="134.0" x="138.0"/>
+    <node id="ThermalNoiseRemoval">
+      <displayPosition y="35.0" x="196.0"/>
+    </node>
+    <node id="TOPSAR-Deburst">
+      <displayPosition y="85.0" x="209.0"/>
     </node>
     <node id="Multilook">
-      <displayPosition y="134.0" x="257.0"/>
+      <displayPosition y="138.0" x="97.0"/>
     </node>
     <node id="SRGR">
-      <displayPosition y="134.0" x="343.0"/>
+      <displayPosition y="136.0" x="213.0"/>
     </node>
     <node id="Speckle-Filter">
-      <displayPosition y="134.0" x="435.0"/>
+      <displayPosition y="137.0" x="302.0"/>
+    </node>
+	<node id="Write">
+      <displayPosition y="138.0" x="424.0"/>
     </node>
   </applicationData>
 </graph>

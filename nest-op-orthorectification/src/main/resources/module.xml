@@ -260,6 +260,20 @@
             <placeAfter>DEMTools</placeAfter>
         </action>
 
+        <action>
+            <id>UpdateGeoRefOp</id>
+            <helpId>UpdateGeoRefOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>rstbIcon</icon>
+            <parent>geometry</parent>
+            <text>Update Geo Reference</text>
+            <operatorName>Update-Geo-Reference</operatorName>
+            <dialogTitle>Update Geo Reference</dialogTitle>
+            <shortDescr>Update Geo Reference</shortDescr>
+            <targetProductNameSuffix>_GRU</targetProductNameSuffix>
+            <placeAfter>ALOSDeskewingOp</placeAfter>
+        </action>
+
         <!-- SAR Filtering -->
 
         <action>

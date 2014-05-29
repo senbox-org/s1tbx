@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.Operator;
@@ -26,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +48,11 @@ public final class TOPSARSplitOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label = "Subswath")
-    private String subswath;
+    @Parameter(description = "The list of source bands.", label = "Subswath")
+    private String subswath = null;
+
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
+    private String[] selectedPolarisations;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -66,16 +70,28 @@ public final class TOPSARSplitOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            subswath = "IW3";
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            if (subswath == null) {
+                final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+                subswath = acquisitionMode + '1';
+            }
+
+            if (selectedPolarisations == null || selectedPolarisations.length == 0) {
+                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
+            }
 
             final List<Band> selectedBands = new ArrayList<>();
-            for(Band srcBand : sourceProduct.getBands()) {
-                if(srcBand.getName().contains(subswath)) {
-                    selectedBands.add(srcBand);
+            for (Band srcBand : sourceProduct.getBands()) {
+                if (srcBand.getName().contains(subswath)) {
+                    for (String pol : selectedPolarisations) {
+                        if (srcBand.getName().contains(pol)) {
+                            selectedBands.add(srcBand);
+                        }
+                    }
                 }
             }
 
-            targetProduct = new Product(sourceProduct.getName()+'_'+subswath,
+            targetProduct = new Product(sourceProduct.getName() + '_' + subswath,
                     sourceProduct.getProductType(),
                     selectedBands.get(0).getSceneRasterWidth(),
                     selectedBands.get(0).getSceneRasterHeight());
@@ -84,7 +100,7 @@ public final class TOPSARSplitOp extends Operator {
                 ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
             }
             for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
-                if(srcTPG.getName().contains(subswath))  {
+                if (srcTPG.getName().contains(subswath)) {
                     targetProduct.addTiePointGrid(srcTPG.cloneTiePointGrid());
                 }
             }
@@ -98,8 +114,37 @@ public final class TOPSARSplitOp extends Operator {
             targetProduct.setStartTime(sourceProduct.getStartTime());
             targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
+
+            updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    /**
+     * Update the metadata in the target product.
+     */
+    private void updateTargetProductMetadata() {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+
+        final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
+        for (MetadataElement bandMeta : bandMetadataList) {
+            boolean include = false;
+
+            if (bandMeta.getName().contains(subswath)) {
+
+                for (String pol : selectedPolarisations) {
+                    if (bandMeta.getName().contains(pol)) {
+                        include = true;
+                        break;
+                    }
+                }
+            }
+            if (!include) {
+                // remove band metadata if polarization or subswath is not included
+                absRoot.removeElement(bandMeta);
+            }
         }
     }
 

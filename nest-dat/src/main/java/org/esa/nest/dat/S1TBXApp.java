@@ -46,7 +46,7 @@ public final class S1TBXApp extends DatApp {
     protected TabbedDesktopPane createDesktop() {
         final JDesktopPane desktopPane = new JDesktopPane() {
             //final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/desktop-pane.jpg");
-            final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/azure5.jpg");
+            final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/azure3.png");
             private final Image image = Toolkit.getDefaultToolkit().getImage(imgPath);
 
             protected void paintComponent(Graphics g) {
@@ -151,7 +151,7 @@ public final class S1TBXApp extends DatApp {
 
     @Override
     protected String getMainFrameTitle() {
-        final String ver = System.getProperty("rstb.version");
+        final String ver = System.getProperty("s1tbx.version");
         return getAppName() + ' ' + ver;
     }
 

@@ -315,6 +315,7 @@ public class DatApp extends VisatApp {
     protected HashSet<String> getExcludedToolbars() {
         final HashSet<String> excludedIds = super.getExcludedToolbars();
 
+        excludedIds.add("org.esa.beam.visat.toolviews.spectrum.SpectrumToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView");
         excludedIds.add("org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView");
@@ -379,22 +380,14 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
-        menuBar.add(createJMenu("data", "Analysis", 'A',
-                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX));
+        menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
         if (incImageProcessing)
             menuBar.add(createJMenu("image-processing", "Image Processing", 'I'));
         menuBar.add(createJMenu("classification", "Classification", 'C'));
-        menuBar.add(createJMenu("graphs", "Graphs", 'R'));
+        menuBar.add(createJMenu("Graphs", "Graphs", 'G'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));
 
@@ -402,7 +395,7 @@ public class DatApp extends VisatApp {
     }
 
     private void updateGraphMenu() {
-        final JMenu menu = findMenu("graphs");
+        final JMenu menu = findMenu("Graphs");
         if (menu == null) {
             return;
         }
@@ -410,6 +403,7 @@ public class DatApp extends VisatApp {
         final File graphPath = ResourceUtils.getGraphFolder("");
         if (!graphPath.exists()) return;
 
+        menu.add(new JSeparator());
         createGraphMenu(menu, graphPath);
     }
 
@@ -436,6 +430,21 @@ public class DatApp extends VisatApp {
                 });
                 menu.add(item);
             }
+        }
+    }
+
+    @Override
+    protected JMenu createAnalysisMenu() {
+        final JMenu menu = super.createAnalysisMenu();
+
+        addCommandToMenu(menu, "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX);
+        return menu;
+    }
+
+    protected void addCommandToMenu(final JMenu menu, final String cmdID) {
+        final Command command = getCommandManager().getCommand(cmdID);
+        if (command != null) {
+            menu.getPopupMenu().add(command.createMenuItem());
         }
     }
 

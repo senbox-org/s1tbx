@@ -49,16 +49,12 @@ public final class Sentinel1Utils {
      */
     public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
-//        String swath = absRoot.getAttributeString(AbstractMetadata.SWATH);
-//        if (swath.length() <= 1) {
-//            swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-//        }
-        String swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
         final MetadataElement[] elems = absRoot.getElements();
         final List<String> polarizations = new ArrayList<String>(4);
         for (MetadataElement elem : elems) {
-            if (elem.getName().contains(swath)) {
+            if (elem.getName().contains(mode)) {
                 final String pol = elem.getAttributeString("polarization");
                 if (!polarizations.contains(pol)) {
                     polarizations.add(pol);

@@ -483,6 +483,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return "Level-0";
     }
 
+    public boolean isOCN() { return false; }
+
     private static void getListInEvenlySpacedGrid(
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final float[] sourcePointList,

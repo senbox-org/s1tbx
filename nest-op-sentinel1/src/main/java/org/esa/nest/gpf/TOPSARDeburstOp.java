@@ -1152,8 +1152,8 @@ public final class TOPSARDeburstOp extends Operator {
     }
 
     private int getSampleIndexInSourceProduct(final int tx, final SubSwathInfo subSwath) {
-        final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
-                - subSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
+        final int sx = (int)((((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
+                - subSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime)+0.5);
         return sx < 0 ? 0 : sx > subSwath.numOfSamples - 1 ? subSwath.numOfSamples - 1 : sx;
     }
 
@@ -1167,7 +1167,7 @@ public final class TOPSARDeburstOp extends Operator {
         for (int i = 0; i < subSwath.numOfBursts; i++) {
             if (targetLineTime >= subSwath.burstFirstLineTime[i] && targetLineTime < subSwath.burstLastLineTime[i]) {
                 final int sy = i * subSwath.linesPerBurst +
-                        (int) Math.round((targetLineTime - subSwath.burstFirstLineTime[i]) / subSwath.azimuthTimeInterval);
+                        (int)(((targetLineTime - subSwath.burstFirstLineTime[i]) / subSwath.azimuthTimeInterval)+0.5);
                 if (k == 0) {
                     burstTimes.sy0 = sy;
                     burstTimes.burstNum0 = i;

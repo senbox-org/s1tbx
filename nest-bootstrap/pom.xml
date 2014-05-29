@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-bootstrap</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
 
         <dependency>

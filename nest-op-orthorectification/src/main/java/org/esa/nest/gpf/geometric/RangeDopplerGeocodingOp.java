@@ -133,6 +133,9 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(defaultValue = "false", label = "Save DEM as band")
     private boolean saveDEM = false;
 
+    @Parameter(defaultValue = "false", label = "Save latitude and longitude as band")
+    private boolean saveLatLon = false;
+
     @Parameter(defaultValue = "false", label = "Save incidence angle from ellipsoid as band")
     private boolean saveIncidenceAngleFromEllipsoid = false;
 
@@ -650,6 +653,11 @@ public class RangeDopplerGeocodingOp extends Operator {
             elevationBand = addTargetBand("elevation", Unit.METERS, null);
         }
 
+        if (saveLatLon) {
+            addTargetBand("latitude", Unit.DEGREES, null);
+            addTargetBand("longitude", Unit.DEGREES, null);
+        }
+
         if (saveLocalIncidenceAngle) {
             addTargetBand("localIncidenceAngle", Unit.DEGREES, null);
         }
@@ -823,6 +831,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             final int srcMaxRange = sourceImageWidth - 1;
             final int srcMaxAzimuth = sourceImageHeight - 1;
             ProductData demBuffer = null;
+            ProductData latBuffer = null;
+            ProductData lonBuffer = null;
             ProductData localIncidenceAngleBuffer = null;
             ProductData projectedLocalIncidenceAngleBuffer = null;
             ProductData incidenceAngleFromEllipsoidBuffer = null;
@@ -833,6 +843,16 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                 if (targetBand.getName().equals("elevation")) {
                     demBuffer = targetTiles.get(targetBand).getDataBuffer();
+                    continue;
+                }
+
+                if (targetBand.getName().equals("latitude")) {
+                    latBuffer = targetTiles.get(targetBand).getDataBuffer();
+                    continue;
+                }
+
+                if (targetBand.getName().equals("longitude")) {
+                    lonBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
 
@@ -890,6 +910,11 @@ public class RangeDopplerGeocodingOp extends Operator {
                     double lon = geoPos.lon;
                     if (lon >= 180.0) {
                         lon -= 360.0;
+                    }
+
+                    if (saveLatLon) {
+                        latBuffer.setElemDoubleAt(index, lat);
+                        lonBuffer.setElemDoubleAt(index, lon);
                     }
 
                     if (alt == demNoDataValue && !nodataValueAtSea) {

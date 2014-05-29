@@ -73,6 +73,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     final JCheckBox nodataValueAtSeaCheckBox = new JCheckBox("Mask out areas without elevation");
     final JCheckBox saveDEMCheckBox = new JCheckBox("DEM");
+    final JCheckBox saveLatLonCheckBox = new JCheckBox("Latitude & Longitude");
     final JCheckBox saveIncidenceAngleFromEllipsoidCheckBox = new JCheckBox("Incidence angle from ellipsoid");
     final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Local incidence angle");
     final JCheckBox saveProjectedLocalIncidenceAngleCheckBox = new JCheckBox("Projected local incidence angle");
@@ -89,6 +90,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     private Boolean nodataValueAtSea = true;
     private Boolean saveDEM = false;
+    private Boolean saveLatLon = false;
     private Boolean saveIncidenceAngleFromEllipsoid = false;
     private Boolean saveLocalIncidenceAngle = false;
     private Boolean saveProjectedLocalIncidenceAngle = false;
@@ -167,6 +169,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         saveDEMCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        saveLatLonCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveLatLon = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
         saveIncidenceAngleFromEllipsoidCheckBox.addItemListener(new ItemListener() {
@@ -357,6 +364,12 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveDEMCheckBox.setSelected(saveDEM);
         }
 
+        paramVal = (Boolean) paramMap.get("saveLatLon");
+        if (paramVal != null) {
+            saveLatLon = paramVal;
+            saveLatLonCheckBox.setSelected(saveLatLon);
+        }
+
         paramVal = (Boolean) paramMap.get("saveIncidenceAngleFromEllipsoid");
         if (paramVal != null) {
             saveIncidenceAngleFromEllipsoid = paramVal;
@@ -508,6 +521,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         paramMap.put("nodataValueAtSea", nodataValueAtSea);
         paramMap.put("saveDEM", saveDEM);
+        paramMap.put("saveLatLon", saveLatLon);
         paramMap.put("saveIncidenceAngleFromEllipsoid", saveIncidenceAngleFromEllipsoid);
         paramMap.put("saveLocalIncidenceAngle", saveLocalIncidenceAngle);
         paramMap.put("saveProjectedLocalIncidenceAngle", saveProjectedLocalIncidenceAngle);
@@ -577,6 +591,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveBandsPanel.add(saveSelectedSourceBandCheckBox, gbc2);
             gbc2.gridx = 1;
             saveBandsPanel.add(saveDEMCheckBox, gbc2);
+            gbc2.gridx = 2;
+            saveBandsPanel.add(saveLatLonCheckBox, gbc2);
             gbc2.gridy++;
             gbc2.gridx = 0;
             saveBandsPanel.add(saveIncidenceAngleFromEllipsoidCheckBox, gbc2);

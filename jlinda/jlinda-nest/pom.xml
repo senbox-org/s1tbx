@@ -25,12 +25,12 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat-rcp</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>

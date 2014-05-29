@@ -235,24 +235,23 @@ public class ImageIOFile {
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
         final int dataBufferType = dataBuffer.getDataType();
-        final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
+        final Object dest = destBuffer.getElems();
 
-        if (dataBufferType == DataBuffer.TYPE_FLOAT && destBuffer.getElems() instanceof float[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[]) destBuffer.getElems(), dataBuffer);
-        } else if (dataBufferType == DataBuffer.TYPE_DOUBLE && destBuffer.getElems() instanceof double[]) {
-            final double[] dArray = new double[destSize];
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
-
-            //noinspection SuspiciousSystemArraycopy
-            System.arraycopy(dArray, 0, destBuffer.getElems(), 0, dArray.length);
+        if (dest instanceof int[] && (dataBufferType == DataBuffer.TYPE_USHORT || dataBufferType == DataBuffer.TYPE_SHORT
+                || dataBufferType == DataBuffer.TYPE_INT)) {
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[]) dest, dataBuffer);
+        } else if (dataBufferType == DataBuffer.TYPE_FLOAT && dest instanceof float[]) {
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[]) dest, dataBuffer);
+        } else if (dataBufferType == DataBuffer.TYPE_DOUBLE && dest instanceof double[]) {
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (double[]) dest, dataBuffer);
         } else {
+            final double[] dArray = new double[destWidth * destHeight];
+            sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), sampleOffset, dArray, dataBuffer);
 
-            int Offset = 0;
-            for (int i = 0; i < destHeight; i++) {
-                for (int j = 0; j < destWidth; j++) {
-                    destBuffer.setElemDoubleAt(Offset++, sampleModel.getSample(j, i, sampleOffset, dataBuffer));
-                }
+            int i = 0;
+            for (double value : dArray) {
+                destBuffer.setElemDoubleAt(i++, value);
             }
         }
     }
