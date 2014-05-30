@@ -386,4 +386,21 @@ public final class MathUtils {
         return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     }
 
+    public static double[] polyFit(final double[]t, final double[] y, final int degree) {
+
+        final Matrix A = MathUtils.createVandermondeMatrix(t, degree);
+        final Matrix b = new Matrix(y, y.length);
+        final Matrix x = A.solve(b);
+        return x.getColumnPackedCopy();
+    }
+
+    public static double polyVal(final double t, final double[] coeff) {
+
+        double val = 0.0;
+        for (int i = coeff.length - 1; i >= 0; i--) {
+            val = val*t + coeff[i];
+        }
+        return val;
+    }
+
 }
