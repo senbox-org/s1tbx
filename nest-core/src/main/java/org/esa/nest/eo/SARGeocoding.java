@@ -27,110 +27,6 @@ public class SARGeocoding {
         return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);
     }
 
-    /**
-     * Compute sensor position and velocity for each range line from the orbit state vectors using
-     * cubic WARP polynomial.
-     *
-     * @param orbitStateVectors The orbit state vectors.
-     * @param timeArray         Array holding zeros Doppler times for all state vectors.
-     * @param xPosArray         Array holding x coordinates for sensor positions in all state vectors.
-     * @param yPosArray         Array holding y coordinates for sensor positions in all state vectors.
-     * @param zPosArray         Array holding z coordinates for sensor positions in all state vectors.
-     * @param sensorPosition    Sensor positions for all range lines.
-     * @param sensorVelocity    Sensor velocities for all range lines.
-     * @param firstLineUTC      The zero Doppler time for the first range line.
-     * @param lineTimeInterval  The line time interval.
-     * @param sourceImageHeight The source image height.
-     */
-    public static void computeSensorPositionsAndVelocities(AbstractMetadata.OrbitStateVector[] orbitStateVectors,
-                                                           double[] timeArray, double[] xPosArray,
-                                                           double[] yPosArray, double[] zPosArray,
-                                                           double[][] sensorPosition, double[][] sensorVelocity,
-                                                           double firstLineUTC, double lineTimeInterval,
-                                                           int sourceImageHeight) {
-
-        final int numVectors = orbitStateVectors.length;
-        final int numVectorsUsed = timeArray.length;
-        final int d = numVectors / numVectorsUsed;
-
-        final double[] xVelArray = new double[numVectorsUsed];
-        final double[] yVelArray = new double[numVectorsUsed];
-        final double[] zVelArray = new double[numVectorsUsed];
-
-        for (int i = 0; i < numVectorsUsed; i++) {
-            timeArray[i] = orbitStateVectors[i * d].time_mjd;
-            xPosArray[i] = orbitStateVectors[i * d].x_pos; // m
-            yPosArray[i] = orbitStateVectors[i * d].y_pos; // m
-            zPosArray[i] = orbitStateVectors[i * d].z_pos; // m
-            xVelArray[i] = orbitStateVectors[i * d].x_vel; // m/s
-            yVelArray[i] = orbitStateVectors[i * d].y_vel; // m/s
-            zVelArray[i] = orbitStateVectors[i * d].z_vel; // m/s
-        }
-
-        final PosVector pos = new PosVector();
-
-        // Lagrange polynomial interpolation
-        for (int i = 0; i < sourceImageHeight; i++) {
-            final double time = firstLineUTC + i * lineTimeInterval; // zero Doppler time (in days) for each range line
-
-            final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
-            MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
-
-            sensorPosition[i][0] = pos.x;
-            sensorPosition[i][1] = pos.y;
-            sensorPosition[i][2] = pos.z;
-
-            MathUtils.lagrangeInterpolatingPolynomial(xVelArray, yVelArray, zVelArray, weight, pos);
-
-            sensorVelocity[i][0] = pos.x;
-            sensorVelocity[i][1] = pos.y;
-            sensorVelocity[i][2] = pos.z;
-        }
-    }
-
-    public static void computeSensorPositionsAndVelocities(AbstractMetadata.OrbitStateVector[] orbitStateVectors,
-                                                           double[] timeArray, double[] xPosArray,
-                                                           double[] yPosArray, double[] zPosArray,
-                                                           double[] xVelArray, double[] yVelArray, double[] zVelArray,
-                                                           double[][] sensorPosition, double[][] sensorVelocity,
-                                                           double firstLineUTC, double lineTimeInterval,
-                                                           int sourceImageHeight) {
-
-        final int numVectors = orbitStateVectors.length;
-        final int numVectorsUsed = timeArray.length;
-        final int d = numVectors / numVectorsUsed;
-
-        for (int i = 0; i < numVectorsUsed; i++) {
-            timeArray[i] = orbitStateVectors[i * d].time_mjd;
-            xPosArray[i] = orbitStateVectors[i * d].x_pos; // m
-            yPosArray[i] = orbitStateVectors[i * d].y_pos; // m
-            zPosArray[i] = orbitStateVectors[i * d].z_pos; // m
-            xVelArray[i] = orbitStateVectors[i * d].x_vel; // m/s
-            yVelArray[i] = orbitStateVectors[i * d].y_vel; // m/s
-            zVelArray[i] = orbitStateVectors[i * d].z_vel; // m/s
-        }
-
-        final PosVector pos = new PosVector();
-
-        // Lagrange polynomial interpolation
-        for (int i = 0; i < sourceImageHeight; i++) {
-            final double time = firstLineUTC + i * lineTimeInterval; // zero Doppler time (in days) for each range line
-
-            final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
-            MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
-
-            sensorPosition[i][0] = pos.x;
-            sensorPosition[i][1] = pos.y;
-            sensorPosition[i][2] = pos.z;
-
-            MathUtils.lagrangeInterpolatingPolynomial(xVelArray, yVelArray, zVelArray, weight, pos);
-
-            sensorVelocity[i][0] = pos.x;
-            sensorVelocity[i][1] = pos.y;
-            sensorVelocity[i][2] = pos.z;
-        }
-    }
-
     public static double getEarthPointZeroDopplerTimeNewton(final double firstLineUTC,
                                                             final double lineTimeInterval, final double wavelength,
                                                             final double[] earthPoint, final double[][] sensorPosition,
@@ -261,24 +157,20 @@ public class SARGeocoding {
      * Compute slant range distance for given earth point and given time.
      *
      * @param time       The given time in days.
-     * @param timeArray  Array holding zeros Doppler times for all state vectors.
-     * @param xPosArray  Array holding x coordinates for sensor positions in all state vectors.
-     * @param yPosArray  Array holding y coordinates for sensor positions in all state vectors.
-     * @param zPosArray  Array holding z coordinates for sensor positions in all state vectors.
+     * @param xPosCoeff  Polynomial fitting coefficient for X coordinate of sensor position
+     * @param yPosCoeff  Polynomial fitting coefficient for Y coordinate of sensor position
+     * @param zPosCoeff  Polynomial fitting coefficient for Z coordinate of sensor position
      * @param earthPoint The earth point in xyz coordinate.
      * @param sensorPos  The sensor position.
      * @return The slant range distance in meters.
      */
-    public static double computeSlantRange(final double time, final double[] timeArray, final double[] xPosArray,
-                                           final double[] yPosArray, final double[] zPosArray,
-                                           final double[] earthPoint, final double[] sensorPos) {
+    public static double computeSlantRange(
+            final double time, final double[] xPosCoeff, final double[] yPosCoeff, final double[] zPosCoeff,
+            final double[] earthPoint, final double[] sensorPos) {
 
-        final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
-        final PosVector pos = new PosVector();
-        MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
-        sensorPos[0] = pos.x;
-        sensorPos[1] = pos.y;
-        sensorPos[2] = pos.z;
+        sensorPos[0] = MathUtils.polyVal(time, xPosCoeff);
+        sensorPos[1] = MathUtils.polyVal(time, yPosCoeff);
+        sensorPos[2] = MathUtils.polyVal(time, zPosCoeff);
 
         final double xDiff = sensorPos[0] - earthPoint[0];
         final double yDiff = sensorPos[1] - earthPoint[1];
@@ -789,4 +681,70 @@ public class SARGeocoding {
         lookDirectionElem.setAttributeDouble("tail_lon", longitude.getPixelDouble(xTail, y));
         lookDirectionListElem.addElement(lookDirectionElem);
     }
+
+
+    public static class Orbit {
+
+        public AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+        public int polyDegree;            // degree of fitting polynomial
+        public double[] xPosCoeff = null; // polynomial fitting coefficient for X coordinate of sensor position
+        public double[] yPosCoeff = null; // polynomial fitting coefficient for Y coordinate of sensor position
+        public double[] zPosCoeff = null; // polynomial fitting coefficient for Z coordinate of sensor position
+        public double[] xVelCoeff = null; // polynomial fitting coefficient for X coordinate of sensor velocity
+        public double[] yVelCoeff = null; // polynomial fitting coefficient for Y coordinate of sensor velocity
+        public double[] zVelCoeff = null; // polynomial fitting coefficient for Z coordinate of sensor velocity
+        public double[][] sensorPosition = null; // sensor position for all range lines
+        public double[][] sensorVelocity = null; // sensor velocity for all range lines
+
+        public Orbit(AbstractMetadata.OrbitStateVector[] orbitStateVectors,
+                     final int polyDegree, double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
+
+            this.polyDegree = polyDegree;
+
+            if (orbitStateVectors.length < polyDegree + 1) {
+                throw new OperatorException("Not enough orbit state vectors for polynomial fitting");
+            }
+
+            double[] timeArray = new double[orbitStateVectors.length];
+            double[] xPosArray = new double[orbitStateVectors.length];
+            double[] yPosArray = new double[orbitStateVectors.length];
+            double[] zPosArray = new double[orbitStateVectors.length];
+            double[] xVelArray = new double[orbitStateVectors.length];
+            double[] yVelArray = new double[orbitStateVectors.length];
+            double[] zVelArray = new double[orbitStateVectors.length];
+
+            sensorPosition = new double[sourceImageHeight][3];
+            sensorVelocity = new double[sourceImageHeight][3];
+
+            for (int i = 0; i < orbitStateVectors.length; i++) {
+                timeArray[i] = orbitStateVectors[i].time_mjd - firstLineUTC;
+                xPosArray[i] = orbitStateVectors[i].x_pos; // m
+                yPosArray[i] = orbitStateVectors[i].y_pos; // m
+                zPosArray[i] = orbitStateVectors[i].z_pos; // m
+                xVelArray[i] = orbitStateVectors[i].x_vel; // m/s
+                yVelArray[i] = orbitStateVectors[i].y_vel; // m/s
+                zVelArray[i] = orbitStateVectors[i].z_vel; // m/s
+            }
+
+            this.xPosCoeff = MathUtils.polyFit(timeArray, xPosArray, polyDegree);
+            this.yPosCoeff = MathUtils.polyFit(timeArray, yPosArray, polyDegree);
+            this.zPosCoeff = MathUtils.polyFit(timeArray, zPosArray, polyDegree);
+            this.xVelCoeff = MathUtils.polyFit(timeArray, xVelArray, polyDegree);
+            this.yVelCoeff = MathUtils.polyFit(timeArray, yVelArray, polyDegree);
+            this.zVelCoeff = MathUtils.polyFit(timeArray, zVelArray, polyDegree);
+
+            for (int i = 0; i < sourceImageHeight; i++) {
+                final double time = i * lineTimeInterval;
+
+                this.sensorPosition[i][0] = MathUtils.polyVal(time, xPosCoeff);
+                this.sensorPosition[i][1] = MathUtils.polyVal(time, yPosCoeff);
+                this.sensorPosition[i][2] = MathUtils.polyVal(time, zPosCoeff);
+
+                this.sensorVelocity[i][0] = MathUtils.polyVal(time, xVelCoeff);
+                this.sensorVelocity[i][1] = MathUtils.polyVal(time, yVelCoeff);
+                this.sensorVelocity[i][2] = MathUtils.polyVal(time, zVelCoeff);
+            }
+        }
+    }
+
 }
