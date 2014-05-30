@@ -106,12 +106,9 @@ public final class TerrainFlatteningOp extends Operator {
     private double nearEdgeSlantRange = 0.0; // in m
     private double wavelength = 0.0; // in m
     private float demNoDataValue = 0; // no data value for DEM
-    private double[][] sensorPosition = null; // sensor position for all range lines
-    private double[][] sensorVelocity = null; // sensor velocity for all range lines
-    private double[] timeArray = null;
-    private double[] xPosArray = null;
-    private double[] yPosArray = null;
-    private double[] zPosArray = null;
+    private SARGeocoding.Orbit orbit = null;
+    private int polyDegree = 2; // degree of fitting polynomial
+
     private double noDataValue = 0;
     private double beta0 = 0;
 
@@ -218,6 +215,14 @@ public final class TerrainFlatteningOp extends Operator {
     }
 
     /**
+     * Compute sensor position and velocity for each range line.
+     */
+    private void computeSensorPositionsAndVelocities() {
+
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+    }
+
+    /**
      * Get incidence angle and slant range time tie point grids.
      */
     private void getTiePointGrid() {
@@ -231,25 +236,6 @@ public final class TerrainFlatteningOp extends Operator {
             throw new OperatorException("Product without longitude tie point grid");
         }
 
-    }
-
-    /**
-     * Compute sensor position and velocity for each range line from the orbit state vectors using
-     * Lagrange interpolation.
-     */
-    private void computeSensorPositionsAndVelocities() {
-
-        final int numVectorsUsed = Math.min(orbitStateVectors.length, 5);
-        timeArray = new double[numVectorsUsed];
-        xPosArray = new double[numVectorsUsed];
-        yPosArray = new double[numVectorsUsed];
-        zPosArray = new double[numVectorsUsed];
-        sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
-        sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
-
-        SARGeocoding.computeSensorPositionsAndVelocities(
-                orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray,
-                sensorPosition, sensorVelocity, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**
@@ -393,18 +379,18 @@ public final class TerrainFlatteningOp extends Operator {
 
                     final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                             firstLineUTC, lineTimeInterval, wavelength, earthPoint,
-                            sensorPosition, sensorVelocity);
+                            orbit.sensorPosition, orbit.sensorVelocity);
 
                     double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
                     final double zeroDopplerTimeWithoutBias =
                             zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
                     azimuthIndex[i] = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
 
-                    slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias,
-                            timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                    slantRange = SARGeocoding.computeSlantRange(
+                            zeroDopplerTimeWithoutBias - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
                     rangeIndex[i] = SARGeocoding.computeRangeIndex(
                             srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
@@ -587,10 +573,10 @@ public final class TerrainFlatteningOp extends Operator {
         GeoUtils.geo2xyzWGS84(latitudeTPG.getPixelDouble(x, y), longitudeTPG.getPixelDouble(x, y), alt, earthPoint);
 
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                firstLineUTC, lineTimeInterval, wavelength, earthPoint, sensorPosition, sensorVelocity);
+                firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
         final double slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
         final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 

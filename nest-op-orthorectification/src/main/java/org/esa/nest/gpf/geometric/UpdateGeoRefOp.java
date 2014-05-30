@@ -102,7 +102,7 @@ public final class UpdateGeoRefOp extends Operator {
     private ElevationModel dem = null;
     private GeoCoding sourceGeoCoding = null;
     private SLCImage meta = null;
-    private Orbit orbit = null;
+    private Orbit jOrbit = null;
 
     private int tileSize = 400;
     private int sourceImageWidth = 0;
@@ -121,12 +121,8 @@ public final class UpdateGeoRefOp extends Operator {
     private double delLat = 0.0;
     private double delLon = 0.0;
 
-    private double[][] sensorPosition = null; // sensor position for all range lines
-    private double[][] sensorVelocity = null; // sensor velocity for all range lines
-    private double[] timeArray = null;
-    private double[] xPosArray = null;
-    private double[] yPosArray = null;
-    private double[] zPosArray = null;
+    private SARGeocoding.Orbit orbit = null;
+    private int polyDegree = 2; // degree of fitting polynomial
 
     private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -171,7 +167,7 @@ public final class UpdateGeoRefOp extends Operator {
                 computeDEMTraversalSampleInterval();
             } else if (orbitMethod) {
                 meta = new SLCImage(absRoot);
-                orbit = new Orbit(absRoot, 3);
+                jOrbit = new Orbit(absRoot, 3);
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -212,6 +208,14 @@ public final class UpdateGeoRefOp extends Operator {
     }
 
     /**
+     * Compute sensor position and velocity for each range line.
+     */
+    private void computeSensorPositionsAndVelocities() {
+
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+    }
+
+    /**
      * Get source image width and height.
      */
     private void getSourceImageDimension() {
@@ -240,25 +244,6 @@ public final class UpdateGeoRefOp extends Operator {
             t.printStackTrace();
         }
         isElevationModelAvailable = true;
-    }
-
-    /**
-     * Compute sensor position and velocity for each range line from the orbit state vectors using
-     * cubic WARP polynomial.
-     */
-    private void computeSensorPositionsAndVelocities() {
-
-        final int numVectorsUsed = Math.min(orbitStateVectors.length, 5);
-        timeArray = new double[numVectorsUsed];
-        xPosArray = new double[numVectorsUsed];
-        yPosArray = new double[numVectorsUsed];
-        zPosArray = new double[numVectorsUsed];
-        sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
-        sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
-
-        SARGeocoding.computeSensorPositionsAndVelocities(
-                orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray,
-                sensorPosition, sensorVelocity, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**
@@ -350,14 +335,14 @@ public final class UpdateGeoRefOp extends Operator {
                 GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
 
                 final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                        firstLineUTC, lineTimeInterval, wavelength, earthPoint, sensorPosition, sensorVelocity);
+                        firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
                 if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
                     continue;
                 }
 
                 final double slantRange = SARGeocoding.computeSlantRange(
-                        zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                        zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
                 final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
@@ -517,7 +502,7 @@ public final class UpdateGeoRefOp extends Operator {
                         }
 
                         if (orbitMethod) {
-                            double[] latlon = orbit.lp2ell(new Point(x + 0.5, y + 0.5), meta);
+                            double[] latlon = jOrbit.lp2ell(new Point(x + 0.5, y + 0.5), meta);
                             lat = latlon[0] * MathUtils.RTOD;
                             lon = latlon[1] * MathUtils.RTOD;
                             alt = dem.getElevation(new GeoPos((float) lat, (float) lon));
@@ -616,14 +601,14 @@ public final class UpdateGeoRefOp extends Operator {
 
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
                 firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-                sensorPosition, sensorVelocity);
+                orbit.sensorPosition, orbit.sensorVelocity);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
             return false;
         }
 
         data.slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, data.earthPoint, data.sensorPos);
+                zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, data.earthPoint, data.sensorPos);
 
         final double zeroDopplerTimeWithoutBias =
                 zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
@@ -634,8 +619,8 @@ public final class UpdateGeoRefOp extends Operator {
             return false;
         }
 
-        data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias,
-                timeArray, xPosArray, yPosArray, zPosArray, data.earthPoint, data.sensorPos);
+        data.slantRange = SARGeocoding.computeSlantRange(
+                zeroDopplerTimeWithoutBias - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, data.earthPoint, data.sensorPos);
 
         if (!srgrFlag) {
             data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
