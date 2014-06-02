@@ -1,6 +1,8 @@
 import unittest
 import array
 
+import sys
+
 import numpy as np
 
 import beampy
@@ -65,16 +67,17 @@ class TestBeamIO(unittest.TestCase):
 
 
     def test_readPixels_with_python_array(self):
-        if sys.version >= (3, 0,):
-            w = self.product.getSceneRasterWidth()
-            h = self.product.getSceneRasterHeight()
-            b = self.product.getBand('radiance_13')
-            a = array.array('f', w * [0])
-            b.readPixels(0, 0, w, 1, a)
-            self.assertAlmostEqual(a[0], 0.0, places=5)
-            self.assertAlmostEqual(a[100], expected_a100, places=5)
-        else:
-            print("Test skipped as the Python 2.7 array type does not support the new buffer interface")
+        if sys.version < (3, 0,):
+            # Test only on Python 3.x, as the 2.x array type does not support the new buffer interface
+            return
+            
+        w = self.product.getSceneRasterWidth()
+        h = self.product.getSceneRasterHeight()
+        b = self.product.getBand('radiance_13')
+        a = array.array('f', w * [0])
+        b.readPixels(0, 0, w, 1, a)
+        self.assertAlmostEqual(a[0], 0.0, places=5)
+        self.assertAlmostEqual(a[100], expected_a100, places=5)
 
 
     def test_readPixels_with_numpy_array(self):
@@ -91,11 +94,10 @@ class TestBeamIO(unittest.TestCase):
         w = self.product.getSceneRasterWidth()
         h = self.product.getSceneRasterHeight()
         b = self.product.getBand('radiance_13')
-        a = np.zeros(w, dtype=np.bool)
+        a = np.zeros(w, dtype=np.int8)
         b.readValidMask(0, 0, w, 1, a)
         self.assertEqual(a[0], 0)
         self.assertEqual(a[100], 1)
-
 
 
 if __name__ == '__main__':
