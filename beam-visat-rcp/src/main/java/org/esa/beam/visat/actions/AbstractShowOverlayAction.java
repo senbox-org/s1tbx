@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-abstract class AbstractShowOverlayAction extends ExecCommand {
+public abstract class AbstractShowOverlayAction extends ExecCommand {
     private AtomicBoolean initialized = new AtomicBoolean();
 
     @Override
