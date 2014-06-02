@@ -57,7 +57,7 @@
 		<module>nest-core</module>
 		<module>nest-dat</module>
 		<module>nest-graph-builder</module>
-		<!--module>nest-help</module-->
+		<module>nest-help</module>
 		<module>nest-io</module>
 		<module>nest-op-calibration</module>
 		<module>nest-op-coregistration</module>
