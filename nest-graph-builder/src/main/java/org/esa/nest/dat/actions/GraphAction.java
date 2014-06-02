@@ -18,6 +18,8 @@ package org.esa.nest.dat.actions;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.command.CommandEvent;
+import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
 
 import java.io.File;
@@ -31,6 +33,7 @@ import java.io.File;
  * file name suffix for the target product can be given via the {@code targetProductNameSuffix} property.</p>
  */
 public class GraphAction extends OperatorAction {
+
     private String graphFileName;
     private boolean enableEditing = false;
 
