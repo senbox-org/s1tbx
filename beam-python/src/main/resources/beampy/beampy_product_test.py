@@ -65,13 +65,16 @@ class TestBeamIO(unittest.TestCase):
 
 
     def test_readPixels_with_python_array(self):
-        w = self.product.getSceneRasterWidth()
-        h = self.product.getSceneRasterHeight()
-        b = self.product.getBand('radiance_13')
-        a = array.array('f', w * [0])
-        b.readPixels(0, 0, w, 1, a)
-        self.assertAlmostEqual(a[0], 0.0, places=5)
-        self.assertAlmostEqual(a[100], expected_a100, places=5)
+        if sys.version >= (3, 0,):
+            w = self.product.getSceneRasterWidth()
+            h = self.product.getSceneRasterHeight()
+            b = self.product.getBand('radiance_13')
+            a = array.array('f', w * [0])
+            b.readPixels(0, 0, w, 1, a)
+            self.assertAlmostEqual(a[0], 0.0, places=5)
+            self.assertAlmostEqual(a[100], expected_a100, places=5)
+        else:
+            print("Test skipped as the Python 2.7 array type does not support the new buffer interface")
 
 
     def test_readPixels_with_numpy_array(self):

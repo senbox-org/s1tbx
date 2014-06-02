@@ -19,13 +19,20 @@ You can place beampy.ini next to <python3>/site-packages/beampy.py or put it in 
 __author__ = "Norman Fomferra, Brockmann Consult GmbH"
 
 import os
-import configparser
+import sys
+
+if sys.version_info >= (3, 0, 0,):
+    import configparser as cp
+else:
+    import ConfigParser as cp
 
 module_dir = os.path.dirname(os.path.realpath(__file__))
-config = configparser.ConfigParser()
+config = cp.ConfigParser()
 config.read(['./beampy.ini', os.path.join(module_dir, 'beampy.ini')])
 
-debug = config.getboolean('DEFAULT', 'debug', fallback=False)
+debug = False
+if config.has_option('DEFAULT', 'debug'):
+    debug = config.getboolean('DEFAULT', 'debug')
 
 # todo - find a way to determine path to JVM shared library and extend PATH / LD_LIBRARY_PATH env vars so that jpy
 # can load it without any further configuration
@@ -72,10 +79,10 @@ def _create_classpath(searchpath):
 def _get_jvm_options():
     global beam_home, searchpath, classpath, extra_classpath, max_mem, options, extra_options
 
-    beam_home = config.get('DEFAULT', 'beam_home',
-                           fallback=os.getenv('BEAM_HOME',
-                                              os.getenv('BEAM4_HOME',
-                                                        os.getenv('BEAM5_HOME'))))
+    if config.has_option('DEFAULT', 'beam_home'):
+        beam_home = config.get('DEFAULT', 'beam_home')
+    else:
+        beam_home = os.getenv('BEAM_HOME', os.getenv('BEAM4_HOME', os.getenv('BEAM5_HOME')))
 
     if beam_home is None or not os.path.exists(beam_home):
         raise RuntimeError('environment variable "BEAM_HOME" must be set to a valid BEAM installation directory')
@@ -87,19 +94,22 @@ def _get_jvm_options():
 
     classpath = _create_classpath(searchpath)
 
-    extra_classpath = config.get('DEFAULT', 'extra_classpath', fallback=None)
-    if extra_classpath:
+    if config.has_option('DEFAULT', 'extra_classpath'):
+        extra_classpath = config.get('DEFAULT', 'extra_classpath')
         classpath += extra_classpath.split(sep=os.pathsep)
+
     #pprint.pprint(classpath)
 
-    max_mem = config.get('DEFAULT', 'max_mem', fallback='512M')
+    max_mem = '512M'
+    if config.has_option('DEFAULT', 'extra_options'):
+        max_mem = config.get('DEFAULT', 'max_mem')
 
     options = ['-Djava.awt.headless=true',
                '-Djava.class.path=' + os.pathsep.join(classpath), 
                '-Xmx' + max_mem]
 
-    extra_options = config.get('DEFAULT', 'extra_options', fallback=None)
-    if extra_options:
+    if config.has_option('DEFAULT', 'extra_options'):
+        extra_options = config.get('DEFAULT', 'extra_options')
         options += extra_options.split(sep='|')
 
     return options
@@ -178,4 +188,3 @@ try:
 except Exception:
     jpy.destroy_jvm()
     raise
-
