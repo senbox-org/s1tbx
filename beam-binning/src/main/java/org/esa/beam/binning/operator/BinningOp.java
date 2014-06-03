@@ -473,7 +473,7 @@ public class BinningOp extends Operator {
             throw new OperatorException("Operator parameter 'numRows' must be greater than 0 and even");
         }
         if (aggregatorConfigs == null || aggregatorConfigs.length == 0) {
-            throw new OperatorException("No aggregator have been defined");
+            throw new OperatorException("No aggregators have been defined");
         }
         if (formatterConfig.getOutputFile() == null) {
             throw new OperatorException("Missing operator parameter 'formatterConfig.outputFile'");

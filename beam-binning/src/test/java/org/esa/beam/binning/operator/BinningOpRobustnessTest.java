@@ -24,7 +24,8 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Norman Fomferra
@@ -61,7 +62,7 @@ public class BinningOpRobustnessTest {
         final BinningOp binningOp = new BinningOp();
         binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
         binningOp.setNumRows(2);
-        testThatOperatorExceptionIsThrown(binningOp, "No aggregator have been defined");
+        testThatOperatorExceptionIsThrown(binningOp, "No aggregators have been defined");
     }
 
 //    @Test
