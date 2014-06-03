@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.jpy</groupId>
             <artifactId>jpy</artifactId>
-            <version>${jpy.version}</version>
+            <version>0.7.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

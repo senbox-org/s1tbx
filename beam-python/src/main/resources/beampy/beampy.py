@@ -16,8 +16,6 @@ You can place beampy.ini next to <python3>/site-packages/beampy.py or put it in 
 
 """
 
-__author__ = "Norman Fomferra, Brockmann Consult GmbH"
-
 import os
 import sys
 
@@ -28,7 +26,7 @@ else:
 
 module_dir = os.path.dirname(os.path.realpath(__file__))
 config = cp.ConfigParser()
-config.read(['./beampy.ini', os.path.join(module_dir, 'beampy.ini')])
+config.read(['beampy.ini', os.path.join(module_dir, 'beampy.ini')])
 
 debug = False
 if config.has_option('DEFAULT', 'debug'):
@@ -128,21 +126,34 @@ del _collect_classpath
 
 def annotate_RasterDataNode_methods(type, method):
     index = -1
+    
+    if sys.version_info >= (3, 0, 0,):
+        arr_z_type_str = "<class '[Z'>"
+        arr_i_type_str = "<class '[I'>"
+        arr_f_type_str = "<class '[F'>"
+        arr_d_type_str = "<class '[D'>"
+    else:
+        arr_z_type_str = "<type '[Z'>"
+        arr_i_type_str = "<type '[I'>"
+        arr_f_type_str = "<type '[F'>"
+        arr_d_type_str = "<type '[D'>"
 
     if method.name == 'readPixels' and method.param_count >= 5:
         index = 4
         param_type_str = str(method.get_param_type(index))
-        if param_type_str == "<class '[I'>"\
-            or param_type_str == "<class '[F'>" \
-            or param_type_str == "<class '[D'>":
+        if param_type_str == arr_i_type_str \
+            or param_type_str == arr_f_type_str \
+            or param_type_str == arr_d_type_str:
             method.set_param_mutable(index, True)
+            method.set_param_output(index, True)
             method.set_param_return(index, True)
 
     if method.name == 'readValidMask' and method.param_count == 5:
         index = 4
-        param_type_str = str(method.get_param_type(index))
-        if param_type_str == "<class '[Z'>":
+        param_type_str = str(method.get_param_type(index))   
+        if param_type_str == arr_z_type_str:
             method.set_param_mutable(index, True)
+            method.set_param_output(index, True)
             method.set_param_return(index, True)
 
     if index >= 0 and debug:
