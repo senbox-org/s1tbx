@@ -30,7 +30,7 @@
 
     <name>BEAM Graph Processing Framework (GPF)</name>
     <artifactId>beam-gpf</artifactId>
-    <version>5.0</version>
+    <version>5.0.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

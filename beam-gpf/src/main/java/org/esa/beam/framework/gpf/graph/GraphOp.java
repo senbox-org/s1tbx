@@ -32,6 +32,10 @@ import java.util.Map;
                   internal = true)
 public class GraphOp extends Operator {
 
+    public GraphOp() {
+        super(false);
+    }
+
     @Override
     public void initialize() throws OperatorException {
         try {

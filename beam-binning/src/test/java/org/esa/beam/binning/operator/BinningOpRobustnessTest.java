@@ -42,27 +42,17 @@ public class BinningOpRobustnessTest {
         FileUtils.deleteTree(BinningOpTest.TESTDATA_DIR);
     }
 
-
     @Test
     public void testNoSourceProductSet() throws Exception {
         final BinningOp binningOp = new BinningOp();
-        testThatOperatorExceptionIsThrown(binningOp, ".*or parameter 'sourceProductPaths' must be.*");
-    }
-
-    @Test
-    public void testNumRowsNotSet() throws Exception {
-        final BinningOp binningOp = new BinningOp();
-        binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
-        // not ok, numRows == 0
-        testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'numRows'.*");
+        assertGetTargetProductThrowsException(binningOp, ".*or parameter 'sourceProductPaths' must be.*");
     }
 
     @Test
     public void testBinningConfigNotSet() throws Exception {
         final BinningOp binningOp = new BinningOp();
         binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
-        binningOp.setNumRows(2);
-        testThatOperatorExceptionIsThrown(binningOp, "No aggregators have been defined");
+        assertGetTargetProductThrowsException(binningOp, "No aggregators have been defined");
     }
 
 //    @Test
@@ -84,13 +74,13 @@ public class BinningOpRobustnessTest {
 //        testThatOperatorExceptionIsThrown(binningOp, ".*determine 'endDate'.*");
 //    }
 
-    private void testThatOperatorExceptionIsThrown(BinningOp binningOp, String regex) {
+    private void assertGetTargetProductThrowsException(BinningOp binningOp, String regex) {
         String message = "OperatorException expected with message regex: " + regex;
         try {
             binningOp.getTargetProduct();
             fail(message);
         } catch (OperatorException e) {
-            System.out.println("e = " + e);
+            //System.out.println("e = " + e);
             assertTrue(message + ", got [" + e.getMessage() + "]", Pattern.matches(regex, e.getMessage()));
         }
     }
