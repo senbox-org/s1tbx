@@ -219,6 +219,19 @@
         </action>
 
         <action>
+            <id>ChangeDetection</id>
+            <helpId>ChangeDetectionOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtractionGroup</parent>
+            <text>Change Detection</text>
+            <shortDescr>Change Detection</shortDescr>
+	        <operatorName>Change-Detection</operatorName>
+            <dialogTitle>Change Detection</dialogTitle>
+            <targetProductNameSuffix>_change</targetProductNameSuffix>
+        </action>
+
+        <action>
             <id>oceanTools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Ocean Tools</text>
