@@ -24,14 +24,11 @@ final class PodBandReader implements BandReader {
 
     private final VideoDataProvider videoDataProvider;
     private final int channelIndex;
-    private final Validator validator;
     private final CalibratorFactory calibratorFactory;
 
-    public PodBandReader(int channelIndex, VideoDataProvider videoDataProvider, Validator validator,
-                         CalibratorFactory calibratorFactory) {
+    public PodBandReader(int channelIndex, VideoDataProvider videoDataProvider, CalibratorFactory calibratorFactory) {
         this.channelIndex = channelIndex;
         this.videoDataProvider = videoDataProvider;
-        this.validator = validator;
         this.calibratorFactory = calibratorFactory;
     }
 
@@ -86,7 +83,7 @@ final class PodBandReader implements BandReader {
                 if (pm.isCanceled()) {
                     break;
                 }
-                boolean valid = validator.isValid(y);
+                boolean valid = videoDataProvider.isValid(y);
                 if (valid) {
                     readVideoData(y, videoData);
                     decodeVideoData(channelIndex, videoData, countData);
@@ -111,10 +108,6 @@ final class PodBandReader implements BandReader {
         } finally {
             pm.done();
         }
-    }
-
-    private boolean isValid(int y) {
-        return true;
     }
 
     private void readVideoData(int y, int[] videoData) throws IOException {

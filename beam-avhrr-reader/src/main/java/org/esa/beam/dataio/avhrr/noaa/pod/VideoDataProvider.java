@@ -9,5 +9,7 @@ import java.io.IOException;
  */
 interface VideoDataProvider {
 
-    SequenceData getVideoData(int recordIndex) throws IOException;
+    SequenceData getVideoData(int i) throws IOException;
+
+    boolean isValid(int i) throws IOException;
 }

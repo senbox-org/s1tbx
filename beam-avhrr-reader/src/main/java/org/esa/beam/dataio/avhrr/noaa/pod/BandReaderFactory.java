@@ -7,21 +7,19 @@ import org.esa.beam.dataio.avhrr.BandReader;
  */
 class BandReaderFactory {
 
-    static BandReader createCountBandReader(int channelIndex, VideoDataProvider videoDataProvider,
-                                            Validator validator) {
-        return new PodBandReader(channelIndex, videoDataProvider, validator, new CountsCalibratorFactory(channelIndex));
+    static BandReader createCountBandReader(int channelIndex, VideoDataProvider videoDataProvider) {
+        return new PodBandReader(channelIndex, videoDataProvider, new CountsCalibratorFactory(channelIndex));
     }
 
-    static BandReader createAlbedoBandReader(int channelIndex, VideoDataProvider videoDataProvider, Validator validator,
+    static BandReader createAlbedoBandReader(int channelIndex, VideoDataProvider videoDataProvider,
                                              CalibrationCoefficientsProvider calibrationCoefficientsProvider) {
-        return new PodBandReader(channelIndex, videoDataProvider, validator,
+        return new PodBandReader(channelIndex, videoDataProvider,
                                  new AlbedoCalibratorFactory(channelIndex, calibrationCoefficientsProvider));
     }
 
     static BandReader createRadianceBandReader(int channelIndex, VideoDataProvider videoDataProvider,
-                                               Validator validator,
                                                CalibrationCoefficientsProvider calibrationCoefficientsProvider) {
-        return new PodBandReader(channelIndex, videoDataProvider, validator,
+        return new PodBandReader(channelIndex, videoDataProvider,
                                  new RadianceCalibratorFactory(channelIndex, calibrationCoefficientsProvider));
     }
 }
