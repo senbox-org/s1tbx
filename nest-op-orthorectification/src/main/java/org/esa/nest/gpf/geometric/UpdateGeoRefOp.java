@@ -32,6 +32,7 @@ import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
@@ -124,7 +125,7 @@ public final class UpdateGeoRefOp extends Operator {
     private SARGeocoding.Orbit orbit = null;
     private int polyDegree = 2; // degree of fitting polynomial
 
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
 
     public static String LATITUDE_BAND_NAME = "lat_band";

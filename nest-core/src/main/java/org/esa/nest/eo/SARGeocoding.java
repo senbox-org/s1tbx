@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
@@ -685,7 +686,7 @@ public class SARGeocoding {
 
     public static class Orbit {
 
-        public AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+        public OrbitStateVector[] orbitStateVectors = null;
         public int polyDegree;            // degree of fitting polynomial
         public double[] xPosCoeff = null; // polynomial fitting coefficient for X coordinate of sensor position
         public double[] yPosCoeff = null; // polynomial fitting coefficient for Y coordinate of sensor position
@@ -696,7 +697,7 @@ public class SARGeocoding {
         public double[][] sensorPosition = null; // sensor position for all range lines
         public double[][] sensorVelocity = null; // sensor velocity for all range lines
 
-        public Orbit(AbstractMetadata.OrbitStateVector[] orbitStateVectors,
+        public Orbit(OrbitStateVector[] orbitStateVectors,
                      final int polyDegree, double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
 
             this.polyDegree = polyDegree;

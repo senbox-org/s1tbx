@@ -23,7 +23,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.*;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.AbstractMetadataIO;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;

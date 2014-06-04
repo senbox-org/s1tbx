@@ -318,7 +318,7 @@ public class BatchGraphDialog extends ModelessDialog {
             assignParameters();
 
             // first graph must pass
-            result = graphExecutorList.get(0).InitGraph();
+            result = true;//graphExecutorList.get(0).InitGraph();
 
         } catch (Exception e) {
             statusLabel.setText(e.getMessage());

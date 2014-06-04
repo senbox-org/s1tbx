@@ -18,9 +18,9 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
-		<beam.version>5.1</beam.version>
-        <beam.versionRange>5.1-SNAPSHOT</beam.versionRange>
-        <ceres.version>0.15-SNAPSHOT</ceres.version>
+		<beam.version>5.0</beam.version>
+        <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
+        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
@@ -57,7 +57,7 @@
 		<module>nest-core</module>
 		<module>nest-dat</module>
 		<module>nest-graph-builder</module>
-		<!--module>nest-help</module-->
+		<module>nest-help</module>
 		<module>nest-io</module>
 		<module>nest-op-calibration</module>
 		<module>nest-op-coregistration</module>
@@ -197,49 +197,49 @@
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binding</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
 			<dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binio</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-jai</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-metadata</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 			
             <!-- BEAM System Level Modules ############################################# -->

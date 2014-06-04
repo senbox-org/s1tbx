@@ -30,6 +30,7 @@ import org.esa.nest.dataio.orbits.DorisOrbitFile;
 import org.esa.nest.dataio.orbits.OrbitFile;
 import org.esa.nest.dataio.orbits.PrareOrbitFile;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.Orbits;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
@@ -386,10 +387,10 @@ public final class ApplyOrbitFileOp extends Operator {
     private void updateOrbitStateVectors() throws Exception {
 
         // get original orbit state vectors
-        final AbstractMetadata.OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(tgtAbsRoot);
+        final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(tgtAbsRoot);
 
         // compute new orbit state vectors
-        for (AbstractMetadata.OrbitStateVector orbitStateVector : orbitStateVectors) {
+        for (OrbitStateVector orbitStateVector : orbitStateVectors) {
             final double time = orbitStateVector.time_mjd;
             final Orbits.OrbitData orbitData = orbitProvider.getOrbitData(time);
             orbitStateVector.x_pos = orbitData.xPos; // m

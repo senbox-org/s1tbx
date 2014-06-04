@@ -28,6 +28,8 @@ import org.esa.nest.util.DialogUtils;
 import org.esa.nest.util.ProductFunctions;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +41,7 @@ import java.util.ArrayList;
  * User: lveci
  * Date: Feb 5, 2009
  */
-public class ProductSetPanel extends JPanel {
+public class ProductSetPanel extends JPanel implements TableModelListener {
 
     private final FileTable productSetTable;
     private final TargetFolderSelector targetProductSelector;
@@ -90,6 +92,7 @@ public class ProductSetPanel extends JPanel {
         } else {
             targetProductSelector = null;
         }
+        fileTable.getModel().addTableModelListener(this);
 
         updateComponents();
     }
@@ -161,7 +164,6 @@ public class ProductSetPanel extends JPanel {
                             tableModel.addFile(file);
                         }
                     }
-                    updateComponents();
                 }
             }
         });
@@ -177,7 +179,6 @@ public class ProductSetPanel extends JPanel {
                         tableModel.addFile(file);
                     }
                 }
-                updateComponents();
             }
         });
 
@@ -194,8 +195,6 @@ public class ProductSetPanel extends JPanel {
                                 tableModel.addFile(entry);
                         }
                     }
-
-                    updateComponents();
                 } catch (Exception ex) {
                     appContext.handleError("Unable to query DB", ex);
                 }
@@ -206,6 +205,11 @@ public class ProductSetPanel extends JPanel {
         removeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
+                final int rowCount = productSetTable.getFileCount();
+                if(rowCount == 1) {
+                    tableModel.clear();
+                    return;
+                }
                 final int[] selRows = table.getSelectedRows();
                 final java.util.List<File> filesToRemove = new ArrayList<File>(selRows.length);
                 for (int row : selRows) {
@@ -215,7 +219,6 @@ public class ProductSetPanel extends JPanel {
                     int index = tableModel.getIndexOf(file);
                     tableModel.removeFile(index);
                 }
-                updateComponents();
             }
 
         });
@@ -263,7 +266,6 @@ public class ProductSetPanel extends JPanel {
 
             public void actionPerformed(final ActionEvent e) {
                 tableModel.clear();
-                updateComponents();
             }
         });
 
@@ -277,6 +279,14 @@ public class ProductSetPanel extends JPanel {
         panel.add(countLabel);
 
         return panel;
+    }
+
+    /**
+     * This fine grain notification tells listeners the exact range
+     * of cells, rows, or columns that changed.
+     */
+    public void tableChanged(TableModelEvent e) {
+        updateComponents();
     }
 
     private static File[] GetFilePath(Component component, String title) {

@@ -103,16 +103,18 @@ public class Radarsat2ProductReader extends SARReader {
             dataDir = createDirectory(fileFromInput);
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
+
+            final MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(product);
+            isAscending = absMeta.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+            isAntennaPointingRight = absMeta.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
             addCalibrationLUT(product, fileFromInput.getParentFile());
+
             product.getGcpGroup();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
             product.setModified(false);
             setQuicklookBandName(product);
 
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-            isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
         } catch (Exception e) {
             Debug.trace(e.toString());
             final IOException ioException = new IOException(e.getMessage());
@@ -134,11 +136,8 @@ public class Radarsat2ProductReader extends SARReader {
      * @param folder  the folder containing the input
      * @throws IOException if can't read lut
      */
-    private static void addCalibrationLUT(final Product product, final File folder) throws IOException {
+    private void addCalibrationLUT(final Product product, final File folder) throws IOException {
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
         final boolean flipLUT = flipToSARGeometry && ((isAscending && !isAntennaPointingRight) || (!isAscending && isAntennaPointingRight));
 
         final File sigmaLUT = new File(folder, lutsigma + ".xml");

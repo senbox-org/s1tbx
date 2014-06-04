@@ -19,6 +19,7 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
+import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.beam.visat.actions.DefaultOperatorAction;
 import org.esa.nest.dat.dialogs.NestSingleTargetProductDialog;
 import org.esa.nest.util.ResourceUtils;
@@ -33,7 +34,12 @@ import javax.swing.*;
  * name of the operator will be used instead. Also optional the
  * file name suffix for the target product can be given via the {@code targetProductNameSuffix} property.</p>
  */
-public class OperatorAction extends DefaultOperatorAction {
+public class OperatorAction extends AbstractVisatAction {
+    private ModelessDialog dialog;
+    protected String operatorName;
+    protected String dialogTitle;
+    protected String targetProductNameSuffix;
+
     private String iconName;
     private boolean disable = false;
 
@@ -45,12 +51,16 @@ public class OperatorAction extends DefaultOperatorAction {
 
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
-        super.configure(config);
+        operatorName = getConfigString(config, "operatorName");
+        dialogTitle = getValue(config, "dialogTitle", operatorName);
+        targetProductNameSuffix = getConfigString(config, "targetProductNameSuffix");
+
         iconName = getConfigString(config, "icon");
         String disableStr = getConfigString(config, "disable");
         if (disableStr != null) {
             disable = disableStr.equalsIgnoreCase("true");
         }
+        super.configure(config);
     }
 
     @Override
@@ -59,7 +69,6 @@ public class OperatorAction extends DefaultOperatorAction {
             setEnabled(false);
     }
 
-    @Override
     protected ModelessDialog createOperatorDialog() {
         final NestSingleTargetProductDialog dialog = new NestSingleTargetProductDialog(operatorName,
                 getAppContext(), dialogTitle, getHelpId());

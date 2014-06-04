@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;
@@ -87,7 +88,7 @@ public final class Orbit {
     // TODO: refactor this one, split in definition and interpolation
     public Orbit(MetadataElement nestMetadataElement, int degree) throws Exception {
 
-        final AbstractMetadata.OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(nestMetadataElement);
+        final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(nestMetadataElement);
 
         numStateVectors = orbitStateVectors.length;
 

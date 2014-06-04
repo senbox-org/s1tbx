@@ -19,7 +19,9 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.actions.ShowMetadataViewAction;
 import org.esa.nest.datamodel.AbstractMetadata;
 
 /**
@@ -37,7 +39,7 @@ public class EditMetadataAction extends ExecCommand {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         if (absRoot != null) {
-            VisatApp.getApp().createProductMetadataView(absRoot);
+            createProductMetadataView(absRoot);
         } else {
             // no attributes found
             VisatApp.getApp().showErrorDialog("Edit Metadata", "No editable metadata found.");
@@ -48,5 +50,14 @@ public class EditMetadataAction extends ExecCommand {
     public void updateState(final CommandEvent event) {
         final int n = VisatApp.getApp().getProductManager().getProductCount();
         setEnabled(n > 0);
+    }
+
+    /**
+     * Creates a new product metadata view and opens an internal frame for it.
+     */
+    public synchronized static ProductMetadataView createProductMetadataView(final MetadataElement element) {
+        final ShowMetadataViewAction command = (ShowMetadataViewAction) VisatApp.getApp().getCommandManager().getCommand(
+                ShowMetadataViewAction.ID);
+        return command.openMetadataView(element);
     }
 }
