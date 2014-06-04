@@ -36,9 +36,12 @@ public class DBSearch {
         dbQuery.setFreeQuery(AbstractMetadata.PRODUCT + " <> '" + master.getName() + '\'');
         dbQuery.setSelectionRect(new GeoPos[]{centerGeoPos});
         dbQuery.setSelectedPass(master.getPass());
+        dbQuery.setStartEndDate(null, master.getFirstLineTime().getAsCalendar());
         dbQuery.setSelectedProductTypes(new String[]{master.getProductType()});
 
         final ProductEntry[] entries = dbQuery.queryDatabase(db);
+        if(entries.length == 0)
+            return entries;
         return getClosestDatePairs(entries, master, dbQuery, maxSlaves, anyDate);
     }
 
@@ -60,9 +63,11 @@ public class DBSearch {
         for (ProductEntry entry : entries) {
             final double entryTime = entry.getFirstLineTime().getMJD();
             if (anyDate || entryTime < cutoffTime) {
-                final double diff = Math.abs(masterTime - entryTime);
-                timesMap.put(diff, entry);
-                diffList.add(diff);
+                final double diff = masterTime - entryTime;
+                if(diff > 0 && diff > 1) {
+                    timesMap.put(diff, entry);
+                    diffList.add(diff);
+                }
             }
         }
         Collections.sort(diffList);
