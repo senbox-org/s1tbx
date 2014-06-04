@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +42,8 @@ public class NestEnviProductReader extends EnviProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, product.getSceneRasterHeight());
 
-        if (!AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile))
-            AbstractMetadata.loadExternalMetadata(product, absRoot, new File(inputFile.getParentFile(), "PolSARPro_NEST_metadata.xml"));
+        if (!AbstractMetadataIO.loadExternalMetadata(product, absRoot, inputFile))
+            AbstractMetadataIO.loadExternalMetadata(product, absRoot, new File(inputFile.getParentFile(), "PolSARPro_NEST_metadata.xml"));
 
         // set name from metadata if found
         product.setName(absRoot.getAttributeString(AbstractMetadata.PRODUCT, product.getName()));

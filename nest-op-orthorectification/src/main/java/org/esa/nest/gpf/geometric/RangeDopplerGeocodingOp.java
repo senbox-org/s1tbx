@@ -34,10 +34,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.CalibrationFactory;
-import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
+import org.esa.nest.datamodel.*;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.LocalGeometry;
@@ -210,7 +207,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private SARGeocoding.Orbit orbit = null;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private final HashMap<String, Band[]> targetBandNameToSourceBand = new HashMap<String, Band[]>();
     private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<String, Boolean>();
     private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<String, Boolean>();

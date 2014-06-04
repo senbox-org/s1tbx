@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.ReaderUtils;
 
 import javax.imageio.IIOImage;
@@ -88,7 +89,7 @@ public class ImageIOWriter extends AbstractProductWriter {
         writer.setOutput(_outputStream);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
-        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, file);
+        AbstractMetadataIO.saveExternalMetadata(getSourceProduct(), absRoot, file);
 
         setIncrementalMode(false);
     }

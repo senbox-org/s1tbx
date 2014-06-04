@@ -28,6 +28,7 @@ import org.esa.nest.dataio.ceos.CEOSImageFile;
 import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.Orbits;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
@@ -696,7 +697,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final double latMid = sceneRec.getAttributeDouble("scene centre geodetic latitude");
         final double lonMid = sceneRec.getAttributeDouble("scene centre geodetic longitude");
 
-        AbstractMetadata.OrbitStateVector[] orbitStateVectors;
+        OrbitStateVector[] orbitStateVectors;
         try {
             orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
         } catch (Exception e) {
@@ -792,7 +793,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         product.setGeoCoding(tpGeoCoding);
     }
 
-    private static boolean checkStateVectorValidity(AbstractMetadata.OrbitStateVector[] orbitStateVectors) {
+    private static boolean checkStateVectorValidity(OrbitStateVector[] orbitStateVectors) {
 
         if (orbitStateVectors == null) {
             return false;

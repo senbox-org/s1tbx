@@ -31,6 +31,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
@@ -84,7 +85,7 @@ public class ALOSDeskewingOp extends Operator {
     private double absShift = 0;
     private double fracShift = 0.0;
 
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private double firstLineTime = 0.0;
     private double lineTimeInterval = 0.0;
     private double lastLineTime = 0.0;
@@ -442,8 +443,8 @@ public class ALOSDeskewingOp extends Operator {
      * @param time The given time.
      * @return The interpolated vector.
      */
-    private static stateVector vectorInterpolation(final AbstractMetadata.OrbitStateVector v1,
-                                                   final AbstractMetadata.OrbitStateVector v2,
+    private static stateVector vectorInterpolation(final OrbitStateVector v1,
+                                                   final OrbitStateVector v2,
                                                    final double time) {
 
         final double[] pos1 = {v1.x_pos, v1.y_pos, v1.z_pos};

@@ -22,7 +22,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.StringSelectorDialog;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.AbstractMetadataIO;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.ReplaceMetadataOp;
 import org.esa.nest.util.ResourceUtils;
 

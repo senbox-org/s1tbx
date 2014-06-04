@@ -17,6 +17,7 @@ package org.esa.nest.datamodel;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 
 import java.io.File;
 import java.io.IOException;
@@ -575,31 +576,6 @@ public final class AbstractMetadata {
         return val;
     }
 
-    public static boolean loadExternalMetadata(final Product product, final MetadataElement absRoot,
-                                               final File productFile) throws IOException {
-        // load metadata xml file if found
-        final String inputStr = productFile.getAbsolutePath();
-        final String metadataStr = inputStr.substring(0, inputStr.lastIndexOf('.')) + ".xml";
-        File metadataFile = new File(metadataStr);
-        if (metadataFile.exists() && AbstractMetadataIO.Load(product, absRoot, metadataFile)) {
-            return true;
-        } else {
-            metadataFile = new File(productFile.getParentFile(), "metadata.xml");
-            return metadataFile.exists() && AbstractMetadataIO.Load(product, absRoot, metadataFile);
-        }
-    }
-
-    public static void saveExternalMetadata(final Product product, final MetadataElement absRoot, final File productFile) {
-        // load metadata xml file if found
-        final String inputStr = productFile.getAbsolutePath();
-        int dotPos = inputStr.lastIndexOf('.');
-        if (dotPos < 0)
-            dotPos = inputStr.length();
-        final String metadataStr = inputStr.substring(0, dotPos) + ".xml";
-        final File metadataFile = new File(metadataStr);
-        AbstractMetadataIO.Save(product, absRoot, metadataFile);
-    }
-
     /**
      * Check if abstracted metadata exists.
      *
@@ -673,23 +649,6 @@ public final class AbstractMetadata {
             targetRoot.addElement(targetSlaveMetadataRoot);
         }
         return targetSlaveMetadataRoot;
-    }
-
-    /**
-     * Create sub-metadata element.
-     *
-     * @param root The root metadata element.
-     * @param tag  The sub-metadata element name.
-     * @return The sub-metadata element.
-     */
-    public static MetadataElement addElement(final MetadataElement root, final String tag) {
-
-        MetadataElement subElemRoot = root.getElement(tag);
-        if (subElemRoot == null) {
-            subElemRoot = new MetadataElement(tag);
-            root.addElement(subElemRoot);
-        }
-        return subElemRoot;
     }
 
     /**
@@ -836,27 +795,6 @@ public final class AbstractMetadata {
             dopCoefficientList[k++] = dopList;
         }
         return dopCoefficientList;
-    }
-
-    public static class OrbitStateVector {
-
-        public final ProductData.UTC time;
-        public final double time_mjd;
-        public double x_pos, y_pos, z_pos;
-        public double x_vel, y_vel, z_vel;
-
-        public OrbitStateVector(final ProductData.UTC t,
-                                final double xpos, final double ypos, final double zpos,
-                                final double xvel, final double yvel, final double zvel) {
-            this.time = t;
-            time_mjd = t.getMJD();
-            this.x_pos = xpos;
-            this.y_pos = ypos;
-            this.z_pos = zpos;
-            this.x_vel = xvel;
-            this.y_vel = yvel;
-            this.z_vel = zvel;
-        }
     }
 
     public static class SRGRCoefficientList {

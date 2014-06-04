@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.AbstractMetadataIO;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
@@ -175,7 +175,7 @@ public class XMLProductDirectory {
 
     protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
 
-        AbstractMetadata.addAbstractedMetadataHeader(root);
+        AbstractMetadata.getAbstractedMetadata(product);
     }
 
     protected String getProductName() {

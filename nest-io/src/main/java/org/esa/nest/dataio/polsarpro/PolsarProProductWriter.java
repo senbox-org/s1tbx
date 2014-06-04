@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.FileImageOutputStreamExtImpl;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.PolBandUtils;
 
 import javax.imageio.stream.ImageOutputStream;
@@ -62,7 +63,7 @@ public class PolsarProProductWriter extends EnviProductWriter {
         writeConfigFile(getSourceProduct(), getOutputDir());
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
-        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(getOutputDir(), "metadata.xml"));
+        AbstractMetadataIO.saveExternalMetadata(getSourceProduct(), absRoot, new File(getOutputDir(), "metadata.xml"));
     }
 
     protected void writeEnviHeader(Band band) throws IOException {
