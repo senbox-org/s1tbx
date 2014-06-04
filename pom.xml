@@ -24,20 +24,18 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
-    <version>5.1</version>
+    <version>5.0.1</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <beam.version>5.1</beam.version>
-        <beam.versionRange>[5.1-SNAPSHOT,)</beam.versionRange>
-        <ceres.version>[0.15-SNAPSHOT,)</ceres.version>
+        <beam.version>5.0</beam.version>
+        <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
+        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.21</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
-        <jide.version>3.5.3</jide.version>
-        <jpy.version>0.7</jpy.version>
         <jide.version>3.5.3</jide.version>
     </properties>
 
@@ -129,49 +127,49 @@
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binding</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binio</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-jai</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-metadata</artifactId>
-                <version>${ceres.version}</version>
+                <version>${ceres.versionRange}</version>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->

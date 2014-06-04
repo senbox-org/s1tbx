@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 interface CalibrationCoefficientsProvider {
 
-    SequenceData getCalibrationCoefficients(int i) throws IOException;
+    SequenceData getCalibrationCoefficients(int recordIndex) throws IOException;
 
     double getSlopeScaleFactor();
 

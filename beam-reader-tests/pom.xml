@@ -7,12 +7,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.1</version>
+        <version>5.0.1</version>
     </parent>
 
     <artifactId>beam-reader-tests</artifactId>
     <name>BEAM Product Readers Integration Tests</name>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>
@@ -63,12 +63,12 @@
         <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>1.6-SNAPSHOT</version>
+            <version>1.5.5</version>
         </dependency>
         <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>1.6-SNAPSHOT</version>
+            <version>1.5.5</version>
             <type>test-jar</type>
         </dependency>
         <dependency>

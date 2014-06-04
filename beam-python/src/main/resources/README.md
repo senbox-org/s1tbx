@@ -18,6 +18,9 @@ depends on a *bi-directional* Java-Python bridge *jpy* that enables calls from P
 and, at the same time, the other way round. This bridge is implemented by the [jpy Project](https://github.com/bcdev/jpy)
 and is independent from the beampy module.
 
+beampy has been tested with Python 2.7 and 3.3 with a Java 7 JDK. It will presumably also work with Python 2.6 or 3.2 
+and a Java 6 JDK.
+
 Before you can start using the BEAM API or developing BEAM operator plugins with Python you need
 to install jpy and beampy. Unfortunately this has to be done manually, so be prepared to invest at least half an hour
 for setting up things correctly.

@@ -24,12 +24,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.1</version>
+        <version>5.0.1</version>
     </parent>
 
     <name>BEAM MERIS SMAC Atmospheric Correction</name>
     <artifactId>beam-meris-smac</artifactId>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>

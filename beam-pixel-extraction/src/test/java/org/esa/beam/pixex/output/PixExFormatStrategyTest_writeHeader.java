@@ -29,12 +29,10 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 public class PixExFormatStrategyTest_writeHeader {
 
@@ -56,7 +54,7 @@ public class PixExFormatStrategyTest_writeHeader {
         assertThat(reader.readLine(), equalTo("# Window size: 9"));
         assertThat(reader.readLine(), equalTo("# Expression: expression"));
         assertThat(reader.readLine(), startsWith(
-                "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
+                "# Created on:\t" + ProductData.UTC.createDateFormat("yyyy-MM-dd").format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(),
                    equalTo("Expression result\tProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\trad_1\trad_2\tuncert"));
@@ -81,7 +79,7 @@ public class PixExFormatStrategyTest_writeHeader {
         assertThat(reader.readLine(), equalTo("# Window size: 9"));
         assertThat(reader.readLine(), equalTo("# Expression: expression"));
         assertThat(reader.readLine(), startsWith(
-                "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
+                "# Created on:\t" + ProductData.UTC.createDateFormat("yyyy-MM-dd").format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(),
                    equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\trad_1\trad_2\tuncert"));
@@ -104,7 +102,7 @@ public class PixExFormatStrategyTest_writeHeader {
         assertThat(reader.readLine(), equalTo("#"));
         assertThat(reader.readLine(), equalTo("# Window size: 3"));
         assertThat(reader.readLine(), startsWith(
-                "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
+                "# Created on:\t" + ProductData.UTC.createDateFormat("yyyy-MM-dd").format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(),
                    equalTo("ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH_mm_ss)\tvarA\tvarB\tvar C"));
@@ -134,7 +132,7 @@ public class PixExFormatStrategyTest_writeHeader {
         assertThat(reader.readLine(), equalTo("#"));
         assertThat(reader.readLine(), equalTo("# Window size: 3"));
         assertThat(reader.readLine(), startsWith(
-                "# Created on:\t" + new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date())));
+                "# Created on:\t" + ProductData.UTC.createDateFormat("yyyy-MM-dd").format(new Date())));
         assertThat(reader.readLine(), equalTo(""));
         assertThat(reader.readLine(), startsWith("# Wavelength:\t \t \t \t \t \t \t \t \t500.0\t501.0\t502.0"));
         assertThat(reader.readLine(),

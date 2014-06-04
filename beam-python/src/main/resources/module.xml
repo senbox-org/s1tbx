@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-python</symbolicName>
-    <version>5.1</version>
+    <version>5.0.1</version>
     <name>BEAM Python Interface</name>
     <packaging>dir</packaging>
 
@@ -35,6 +35,9 @@
 
     <changelog>
         <![CDATA[
+                <p>Changes in 5.0.1<br/>
+                [BEAM-1671] beampy: provide python 2.x support<br/>
+                </p>
                 ]]>
     </changelog>
 

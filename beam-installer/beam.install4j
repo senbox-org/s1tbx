@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.8" transformSequenceNumber="4">
   <directoryPresets config="../../../../Desktop" />
-  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="5.0" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.7" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="5.0.1-alpha-01" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.7" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -276,7 +276,7 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                       <void property="script">
                         <object class="com.install4j.api.beans.ScriptProperty">
                           <void property="value">
-                            <string>(int)Math.max(1024, context.getMediaName().contains("32") || context.getMediaName().contains("Unix") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.5f) / (1024 * 1024)) + "M"</string>
+                            <string>(int)Math.max(1024, context.getMediaName().contains("32") || context.getMediaName().contains("Unix") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.75f) / (1024 * 1024)) + "M"</string>
                           </void>
                         </object>
                       </void>
