@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.bc.ceres</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.15</version>
+        <version>0.14.1</version>
     </parent>
 
     <name>Ceres GLayer Library</name>
     <artifactId>ceres-glayer</artifactId>
-    <version>0.15-SNAPSHOT</version>
+    <version>0.14</version>
 
     <packaging>jar</packaging>
 

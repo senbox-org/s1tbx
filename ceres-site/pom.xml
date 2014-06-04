@@ -8,12 +8,12 @@
     <parent>
         <artifactId>ceres</artifactId>
         <groupId>com.bc.ceres</groupId>
-        <version>0.15</version>
+        <version>0.14.1</version>
     </parent>
 
     <name>Ceres Site Generation</name>
     <artifactId>ceres-site</artifactId>
-    <version>0.15-SNAPSHOT</version>
+    <version>0.14</version>
 
     <dependencies>
         <dependency>

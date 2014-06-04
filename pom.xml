@@ -6,7 +6,7 @@
 
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres</artifactId>
-    <version>0.15</version>
+    <version>0.14.1</version>
     <name>Ceres</name>
     <url>http://www.brockmann-consult.de/</url>
 
@@ -19,7 +19,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ceres.versionRange>[0.15-SNAPSHOT,]</ceres.versionRange>
+        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
     </properties>
 
     <organization>
