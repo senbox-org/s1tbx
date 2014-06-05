@@ -30,9 +30,6 @@
 
     <changelog>
         <![CDATA[
-         <b>Changes in 5.0.1</b><br/>
-            [BEAM-1680] Operators should initialise their parameter values<br/>
-
          <b>Changes in 5.0</b><br/>
             [BEAM-1648] Add processing time to metadata<br/>
             [BEAM-1598] GPF operators shall be able to prevent GPT automatic writing<br/>

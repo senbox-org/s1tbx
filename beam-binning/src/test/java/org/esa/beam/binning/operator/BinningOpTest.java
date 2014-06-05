@@ -96,20 +96,6 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testParameterDefaultValues() throws Exception {
-        final BinningOp binningOp = new BinningOp();
-        assertEquals(2160, binningOp.getNumRows());
-        assertEquals(new Integer(1), binningOp.getSuperSampling());
-        assertEquals(null, binningOp.getStartDateTime());
-        assertEquals(null, binningOp.getPeriodDuration());
-        assertEquals(null, binningOp.getMinDataHour());
-        assertEquals(null, binningOp.getRegion());
-        assertEquals(null, binningOp.getMaskExpr());
-        assertArrayEquals(null, binningOp.getVariableConfigs());
-        assertArrayEquals(null, binningOp.getAggregatorConfigs());
-    }
-
-    @Test
     public void testMetadataGeneration() throws Exception {
         BinningOp binningOp = createBinningOp();
 

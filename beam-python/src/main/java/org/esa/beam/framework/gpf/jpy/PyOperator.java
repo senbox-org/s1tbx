@@ -3,11 +3,13 @@ package org.esa.beam.framework.gpf.jpy;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.jpy.PyLib;
 import org.jpy.PyModule;
 import org.jpy.PyObject;
@@ -23,7 +25,7 @@ import java.util.Map;
  */
 @OperatorMetadata(alias = "PyOp",
                   description = "Uses Python code to process data products",
-                  version = "1.0",
+                  version = "0.5",
                   authors = "N. Fomferra",
                   internal = true)
 public class PyOperator extends Operator {
@@ -43,12 +45,6 @@ public class PyOperator extends Operator {
     private transient PyModule pyModule;
     private transient PythonProcessor pythonProcessor;
 
-    public PyOperator() {
-        super(false);
-        pythonModulePath = ".";
-        pythonModuleName = null;
-        pythonClassName = null;
-    }
 
     public String getPythonModulePath() {
         return pythonModulePath;

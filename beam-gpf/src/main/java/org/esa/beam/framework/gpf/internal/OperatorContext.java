@@ -76,15 +76,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -508,7 +512,7 @@ public class OperatorContext {
             if (operatorSpi == null) {
                 PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
                 parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
-            } else {
+            }else {
                 OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
                 PropertySetDescriptor propertySetDescriptor;
                 try {

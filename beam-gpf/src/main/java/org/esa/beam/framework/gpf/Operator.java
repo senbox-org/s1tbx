@@ -84,17 +84,7 @@ public abstract class Operator {
      * Constructs a new operator.
      */
     protected Operator() {
-        this(true);
-    }
-
-    /**
-     * Constructs a new operator.
-     */
-    protected Operator(boolean initParameterValues) {
         context = new OperatorContext(this);
-        if (initParameterValues) {
-            context.getParameterSet().setDefaultValues();
-        }
     }
 
     /**
