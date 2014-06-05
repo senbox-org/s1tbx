@@ -87,7 +87,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
     public void testFindGraphNode() {
         GraphNode lostNode = graphEx.addOperator("lostOp");
 
-        GraphNode foundNode = graphEx.findGraphNode(lostNode.getID());
+        GraphNode foundNode = graphEx.getGraphNodeList().findGraphNode(lostNode.getID());
         assertTrue(foundNode.equals(lostNode));
 
         graphEx.ClearGraph();
