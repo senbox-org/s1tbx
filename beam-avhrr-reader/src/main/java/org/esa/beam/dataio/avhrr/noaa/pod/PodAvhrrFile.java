@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author Ralf Quast
  */
-final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoefficientsProvider {
+final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsProvider {
 
     private static final int PRODUCT_WIDTH = 2001;
     private static final int TIE_POINT_SUB_SAMPLING = 40;
@@ -143,17 +143,17 @@ final class PodAvhrrFile implements VideoDataProvider, Validator, CalibrationCoe
     }
 
     private Band addCountsBand(Product product, int channelIndex) {
-        final BandReader bandReader = BandReaderFactory.createCountBandReader(channelIndex, this, this);
+        final BandReader bandReader = BandReaderFactory.createCountBandReader(channelIndex, this);
         return addBand(product, bandReader, channelIndex);
     }
 
     private Band addAlbedoBand(Product product, int channelIndex) {
-        final BandReader bandReader = BandReaderFactory.createAlbedoBandReader(channelIndex, this, this, this);
+        final BandReader bandReader = BandReaderFactory.createAlbedoBandReader(channelIndex, this, this);
         return addBand(product, bandReader, channelIndex);
     }
 
     private Band addRadianceBand(Product product, int channelIndex) {
-        final BandReader bandReader = BandReaderFactory.createRadianceBandReader(channelIndex, this, this, this);
+        final BandReader bandReader = BandReaderFactory.createRadianceBandReader(channelIndex, this, this);
         return addBand(product, bandReader, channelIndex);
     }
 
