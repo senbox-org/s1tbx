@@ -10,7 +10,7 @@
 
     <name>Ceres GLayer Library</name>
     <artifactId>ceres-glayer</artifactId>
-    <version>0.14</version>
+    <version>0.14.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

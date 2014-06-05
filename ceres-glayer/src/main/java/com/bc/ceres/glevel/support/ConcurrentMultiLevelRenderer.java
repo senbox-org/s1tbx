@@ -62,7 +62,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
-    private final AscendingLevelsComparator ascendingLevelsComparator = new AscendingLevelsComparator();
     private final DescendingLevelsComparator descendingLevelsComparator = new DescendingLevelsComparator();
 
     public ConcurrentMultiLevelRenderer() {
@@ -104,27 +103,27 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         final Graphics2D graphics = rendering.getGraphics();
         final Viewport viewport = rendering.getViewport();
 
-        // Check clipping rectangle, required for this renderer
-        final Rectangle clipBounds = graphics.getClipBounds();
-        final Rectangle viewBounds = clipBounds != null ? clipBounds : viewport.getViewBounds();
-
         // Check that color model is available, required for this renderer
         final ColorModel colorModel = planarImage.getColorModel();
         if (colorModel == null) {
             throw new IllegalStateException("colorModel == null");
         }
 
+        // Current view's bounds in view (pixel) coordinates
+        final Rectangle viewBounds = viewport.getViewBounds();
+        // Check clipping rectangle in view (pixel) coordinates, required for this renderer
+        final Rectangle clipBounds = graphics.getClipBounds();
         // Create set of required tile indexes
-        final Rectangle clippedImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewBounds);
+        final Rectangle clippedImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, clipBounds != null ? clipBounds : viewBounds);
         final Set<TileIndex> requiredTileIndexes = getTileIndexes(planarImage, multiLevelSource.getImageShape(currentLevel), currentLevel, clippedImageRegion);
         if (requiredTileIndexes.isEmpty()) {
             return; // nothing to render
         }
 
         // Create lists of available and missing tile indexes
-        final ArrayList<TileIndex> availableTileIndexList = new ArrayList<TileIndex>(requiredTileIndexes.size());
-        final ArrayList<TileIndex> missingTileIndexList = new ArrayList<TileIndex>(requiredTileIndexes.size());
-        final ArrayList<TileIndex> notScheduledTileIndexList = new ArrayList<TileIndex>(requiredTileIndexes.size());
+        final List<TileIndex> availableTileIndexList = new ArrayList<>(requiredTileIndexes.size());
+        final List<TileIndex> missingTileIndexList = new ArrayList<>(requiredTileIndexes.size());
+        final List<TileIndex> notScheduledTileIndexList = new ArrayList<>(requiredTileIndexes.size());
         for (TileIndex requiredTileIndex : requiredTileIndexes) {
             if (localTileCache.contains(requiredTileIndex)) {
                 availableTileIndexList.add(requiredTileIndex);
@@ -146,7 +145,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                                                                         getPoints(notScheduledTileIndexList),
                                                                         new TileComputationListener[]{
                                                                                 tileComputationHandler
-                                                                        });
+                                                                        }
+            );
             for (TileIndex tileIndex : notScheduledTileIndexList) {
                 scheduledTileRequests.put(tileIndex, tileRequest);
             }
@@ -165,20 +165,33 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         if (DEBUG) {
             // Draw tile frames
             final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(currentLevel);
-            //drawTileImageFrames(graphics, viewport, availableTileIndexList, i2m, Color.YELLOW);
+            drawTileImageFrames(graphics, viewport, availableTileIndexList, i2m, Color.YELLOW);
             drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
             drawTileFrames(graphics, viewport, planarImage, availableTileIndexList, i2m, Color.BLUE);
         }
 
         // Cancel any pending tile requests that are not in the visible region
-        final Rectangle visibleImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewport.getViewBounds());
+        final Rectangle visibleImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewBounds);
         final Set<TileIndex> visibleTileIndexSet = getTileIndexes(planarImage, multiLevelSource.getImageShape(currentLevel), currentLevel, visibleImageRegion);
         if (!visibleTileIndexSet.isEmpty()) {
             cancelTileRequests(visibleTileIndexSet);
         }
 
+        // todo: clippedImageRegion is not the correct region (nf)
+        long oneMiB = 1024L * 1024L;
+        long imageRegionSize = 4L * clippedImageRegion.width * clippedImageRegion.height;
+        localTileCache.trimSize = Math.min((4 * imageRegionSize / oneMiB) * oneMiB, localTileCache.maxSize);
+
+        if (DEBUG) {
+            System.out.println("ConcurrentMultiLevelRenderer:");
+            System.out.println("    imageRegion = " + clippedImageRegion);
+            System.out.println("    localTileCache.size = " + localTileCache.currentSize / oneMiB);
+            System.out.println("    localTileCache.trimSize = " + localTileCache.trimSize / oneMiB);
+            System.out.println("    localTileCache.maxSize = " + localTileCache.maxSize / oneMiB);
+        }
+
         // Remove any tile images that are older than the retention period.
-        localTileCache.trim(currentLevel);
+        localTileCache.trim(currentLevel, visibleTileIndexSet);
     }
 
     private void drawTentativeTileImages(Graphics2D g,
@@ -193,7 +206,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             final Rectangle tileRect = planarImage.getTileRect(tileIndex.tileX, tileIndex.tileY);
             final Rectangle2D bounds = i2m.createTransformedShape(tileRect).getBounds2D();
 
-            final TreeSet<TileImage> tentativeTileImageSet = new TreeSet<TileImage>(descendingLevelsComparator);
+            final TreeSet<TileImage> tentativeTileImageSet = new TreeSet<>(descendingLevelsComparator);
             final Collection<TileImage> tileImages = localTileCache.getAll();
 
             // Search for a tile image at the nearest higher resolution which is contained by bounds
@@ -202,8 +215,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             for (TileImage tileImage : tileImages) {
                 final int someLevel = tileImage.tileIndex.level;
                 if (someLevel > level
-                        && someLevel < containedLevel
-                        && tileImage.bounds.contains(bounds)) {
+                    && someLevel < containedLevel
+                    && tileImage.bounds.contains(bounds)) {
                     containedTileImage = tileImage;
                     containedLevel = someLevel;
                 }
@@ -213,7 +226,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 // Search for intersecting tile images at a higher resolution
                 for (TileImage tileImage : tileImages) {
                     if (tileImage.tileIndex.level < level
-                            && tileImage.bounds.intersects(bounds)) {
+                        && tileImage.bounds.intersects(bounds)) {
                         tentativeTileImageSet.add(tileImage);
                     }
                 }
@@ -221,7 +234,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 // Search for intersecting tile images at any resolution
                 for (TileImage tileImage : tileImages) {
                     if (tileImage.tileIndex.level != level
-                            && tileImage.bounds.intersects(bounds)) {
+                        && tileImage.bounds.intersects(bounds)) {
                         tentativeTileImageSet.add(tileImage);
                     }
                 }
@@ -252,7 +265,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         if (indices == null || indices.length == 0) {
             return Collections.emptySet();
         }
-        final Set<TileIndex> indexes = new HashSet<TileIndex>((3 * indices.length) / 2);
+        final Set<TileIndex> indexes = new HashSet<>((3 * indices.length) / 2);
         for (Point point : indices) {
             Rectangle tileRect = planarImage.getTileRect(point.x, point.y);
             if (imageShape == null || imageShape.intersects(tileRect)) {
@@ -267,11 +280,11 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         t.preConcatenate(ti.i2m);
         t.preConcatenate(vp.getModelToViewTransform());
         g.drawRenderedImage(ti.image, t);
-        ti.timeStamp = System.currentTimeMillis();
+        ti.lastAccessTime = System.currentTimeMillis();
     }
 
     private void drawTileImageFrames(Graphics2D g, Viewport vp, List<TileIndex> tileIndices,
-                                            AffineTransform i2m, Color frameColor) {
+                                     AffineTransform i2m, Color frameColor) {
         final AffineTransform m2v = vp.getModelToViewTransform();
         final AffineTransform oldTransform = g.getTransform();
         final Color oldColor = g.getColor();
@@ -280,8 +293,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         t.preConcatenate(i2m);
         t.preConcatenate(m2v);
         g.setTransform(t);
-        g.setColor(frameColor);
-        g.setStroke(new BasicStroke(3.0f));
+        g.setColor(new Color(frameColor.getRed(), frameColor.getGreen(), frameColor.getBlue(), 127));
+        g.setStroke(new BasicStroke(5.0f));
         for (final TileIndex tileIndex : tileIndices) {
             final TileImage tileImage = localTileCache.get(tileIndex);
             final Rectangle tileRect = new Rectangle(tileImage.x, tileImage.y, tileImage.image.getWidth(), tileImage.image.getHeight());
@@ -291,7 +304,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         g.setStroke(oldStroke);
         g.setColor(oldColor);
         g.setTransform(oldTransform);
-
     }
 
 
@@ -308,8 +320,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         g.setTransform(t);
         g.setColor(frameColor);
         g.setStroke(new BasicStroke(1.0f));
-        for (TileIndex tileIndice : tileIndices) {
-            g.draw(planarImage.getTileRect(tileIndice.tileX, tileIndice.tileY));
+        for (TileIndex tileIndex : tileIndices) {
+            g.draw(planarImage.getTileRect(tileIndex.tileX, tileIndex.tileY));
         }
         g.setStroke(oldStroke);
         g.setColor(oldColor);
@@ -321,7 +333,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     private void cancelTileRequests(Set<TileIndex> visibleTileIndexSet) {
         final Map<TileIndex, TileRequest> scheduledTileRequestsCopy;
         synchronized (scheduledTileRequests) {
-            scheduledTileRequestsCopy = new HashMap<TileIndex, TileRequest>(scheduledTileRequests);
+            scheduledTileRequestsCopy = new HashMap<>(scheduledTileRequests);
         }
         // scan through the scheduled tiles list cancelling any that are no longer in view
         for (Map.Entry<TileIndex, TileRequest> entry : scheduledTileRequestsCopy.entrySet()) {
@@ -340,7 +352,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     private void cancelTileRequests(int currentLevel) {
         final Map<TileIndex, TileRequest> scheduledTileRequestsCopy;
         synchronized (scheduledTileRequests) {
-            scheduledTileRequestsCopy = new HashMap<TileIndex, TileRequest>(scheduledTileRequests);
+            scheduledTileRequestsCopy = new HashMap<>(scheduledTileRequests);
         }
         for (Map.Entry<TileIndex, TileRequest> entry : scheduledTileRequestsCopy.entrySet()) {
             TileIndex tileIndex = entry.getKey();
@@ -379,8 +391,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         final BufferedImage bi = new BufferedImage(cm, wr, cm.isAlphaPremultiplied(), null);
         //System.out.println("bi = " + bi);
         if (r.width == tile.getWidth()
-                && r.height == tile.getHeight()
-                && deviceConfiguration.getColorModel().isCompatibleRaster(wr)) {
+            && r.height == tile.getHeight()
+            && deviceConfiguration.getColorModel().isCompatibleRaster(wr)) {
             return bi;
         }
         // todo: Optimize me!
@@ -536,17 +548,18 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     }
 
     private final class TileImageCache {
+
         private final Map<TileIndex, TileImage> cache;
-        private long size;
-        private final long capacity;
+        private long currentSize;
+        private long trimSize;
         private final long maxSize;
         private final long retentionPeriod;
 
         public TileImageCache() {
-            cache = new HashMap<TileIndex, TileImage>(37);
+            cache = new HashMap<>(37);
             retentionPeriod = Long.parseLong(System.getProperty("ceres.renderer.cache.retentionPeriod", "10000"));
-            capacity = Long.parseLong(System.getProperty("ceres.renderer.cache.capacity", "16")) * (1024 * 1024);
-            maxSize = Math.round(0.75 * capacity);
+            maxSize = Long.parseLong(System.getProperty("ceres.renderer.cache.capacity", "16")) * (1024 * 1024);
+            trimSize = maxSize;
         }
 
         public synchronized boolean contains(TileIndex tileIndex) {
@@ -558,77 +571,58 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
 
         public synchronized Collection<TileImage> getAll() {
-            return new ArrayList<TileImage>(cache.values());
+            return new ArrayList<>(cache.values());
         }
 
         public synchronized void add(TileImage tileImage) {
             final TileImage oldTileImage = cache.put(tileImage.tileIndex, tileImage);
             if (oldTileImage != null) {
-                size -= oldTileImage.size;
+                currentSize -= oldTileImage.size;
             }
-            size += tileImage.size;
+            currentSize += tileImage.size;
             if (DEBUG) {
-                System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, size);
+                System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, currentSize);
             }
         }
 
         public synchronized void remove(TileIndex tileIndex) {
             final TileImage oldTileImage = cache.remove(tileIndex);
             if (oldTileImage != null) {
-                size -= oldTileImage.size;
+                currentSize -= oldTileImage.size;
                 if (DEBUG) {
-                    System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, size);
+                    System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, currentSize);
                 }
             }
         }
 
         public synchronized void clear() {
             cache.clear();
-            size = 0L;
+            currentSize = 0L;
         }
 
-        public synchronized void trim(int currentLevel) {
-            if (size > capacity) {
+        public synchronized void trim(int currentLevel, Set<TileIndex> visibleTileIndexes) {
+            if (currentSize > trimSize) {
                 long now = System.currentTimeMillis();
-                removeOld(now, currentLevel);
-                
-                // If, still too big, because the tiles are all too new:
-                // remove some older ones, but not as aggressive
-                if (size > (2 * maxSize)) {
-                    final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(new AgeComparator());
-                    treeSet.addAll(cache.values());
-                    for (TileImage image : treeSet) {
-                        if (size > (2 * maxSize)) {
-                            remove(image.tileIndex);
-                        }
+                Collection<TileImage> tileImages = new ArrayList<>(cache.values());
+                for (TileImage tileImage : tileImages) {
+                    if (!visibleTileIndexes.contains(tileImage.tileIndex)
+                        && tileImage.tileIndex.level != currentLevel) {
+                        maybeRemove(tileImage, now);
+                    }
+                }
+                for (TileImage tileImage : tileImages) {
+                    if (!visibleTileIndexes.contains(tileImage.tileIndex)
+                        && tileImage.tileIndex.level == currentLevel) {
+                        maybeRemove(tileImage, now);
                     }
                 }
             }
         }
 
-        private void removeOld(final long now, int currentLevel) {
-            final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(ascendingLevelsComparator);
-            treeSet.addAll(cache.values());
-            // try to remove "old" tiles from other levels first
-            for (TileImage image : treeSet) {
-                if (image.tileIndex.level != currentLevel) {
-                    maybeRemove(image, now);
-                }
-            }
-            // If we still need clean up, remove "old" tiles from current level as well
-            for (TileImage image : treeSet) {
-                if (image.tileIndex.level == currentLevel) {
-                    maybeRemove(image, now);
-                }
-            }
-        }
-
         private void maybeRemove(TileImage image, long now) {
-            if (size > maxSize) {
-                final long age = now - image.timeStamp;
-                if (age > retentionPeriod) {
-                    remove(image.tileIndex);
-                }
+            final long age = now - image.lastAccessTime;
+            if (age > retentionPeriod) {
+                remove(image.tileIndex);
             }
         }
     }
@@ -644,6 +638,9 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
          * y offset in image CS
          */
         private final int y;
+        /**
+         * image-to-model transformation
+         */
         private final AffineTransform i2m;
         /**
          * tile bounds in model CS
@@ -656,7 +653,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         /**
          * last access time stamp
          */
-        private long timeStamp;
+        private long lastAccessTime;
 
         private TileImage(RenderedImage image, TileIndex tileIndex, int x, int y, AffineTransform i2m) {
             this.image = image;
@@ -666,7 +663,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             this.i2m = new AffineTransform(i2m);
             this.bounds = i2m.createTransformedShape(new Rectangle(x, y, image.getWidth(), image.getHeight())).getBounds2D();
             this.size = image.getWidth() * image.getHeight() * (image.getSampleModel().getNumBands() * image.getSampleModel().getSampleSize(0)) / 8;
-            this.timeStamp = System.currentTimeMillis();
+            this.lastAccessTime = System.currentTimeMillis();
         }
 
         @Override
@@ -718,8 +715,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             }
             TileIndex tileIndex = (TileIndex) object;
             return level == tileIndex.level
-                    && tileY == tileIndex.tileY
-                    && tileX == tileIndex.tileX;
+                   && tileY == tileIndex.tileY
+                   && tileX == tileIndex.tileX;
         }
 
         @Override
@@ -730,26 +727,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         @Override
         public String toString() {
             return String.format("TileIndex[tileX=%d,tileY=%d,level=%d]", tileX, tileY, level);
-        }
-    }
-
-    private static class AgeComparator implements Comparator<TileImage> {
-        @Override
-        public int compare(TileImage ti1, TileImage ti2) {
-            long d = ti1.timeStamp - ti2.timeStamp;
-            if (d > 0) {
-                return 1;
-            } else if (d < 0) {
-                return -1;
-            }
-            return 0;
-        }
-    }
-    
-    private static class AscendingLevelsComparator implements Comparator<TileImage> {
-        @Override
-        public int compare(TileImage ti1, TileImage ti2) {
-            return compareAscending(ti1, ti2);
         }
     }
 
