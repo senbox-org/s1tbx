@@ -18,13 +18,14 @@
 
     <changelog>
         <![CDATA[
-                todo: optimising image tile rendering for high resolution displays
-                ]]>
+            <b>Changes in 0.14.1</b><br/>
+            [CERES-60] flashing tiles (optimised image tile rendering for high resolution data on high resolution displays)<br/>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://www.brockmann-consult.de/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 

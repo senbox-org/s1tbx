@@ -177,18 +177,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             cancelTileRequests(visibleTileIndexSet);
         }
 
-        // todo: clippedImageRegion is not the correct region (nf)
-        long oneMiB = 1024L * 1024L;
-        long imageRegionSize = 4L * clippedImageRegion.width * clippedImageRegion.height;
-        localTileCache.trimSize = Math.min((4 * imageRegionSize / oneMiB) * oneMiB, localTileCache.maxSize);
-
-        if (DEBUG) {
-            System.out.println("ConcurrentMultiLevelRenderer:");
-            System.out.println("    imageRegion = " + clippedImageRegion);
-            System.out.println("    localTileCache.size = " + localTileCache.currentSize / oneMiB);
-            System.out.println("    localTileCache.trimSize = " + localTileCache.trimSize / oneMiB);
-            System.out.println("    localTileCache.maxSize = " + localTileCache.maxSize / oneMiB);
-        }
+        localTileCache.adjustTrimSize(planarImage, visibleTileIndexSet.size());
 
         // Remove any tile images that are older than the retention period.
         localTileCache.trim(currentLevel, visibleTileIndexSet);
@@ -336,14 +325,14 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             scheduledTileRequestsCopy = new HashMap<>(scheduledTileRequests);
         }
         // scan through the scheduled tiles list cancelling any that are no longer in view
-        for (Map.Entry<TileIndex, TileRequest> entry : scheduledTileRequestsCopy.entrySet()) {
-            TileIndex tileIndex = entry.getKey();
-            if (!visibleTileIndexSet.contains(tileIndex)) {
-                TileRequest request = entry.getValue();
+        for (Map.Entry<TileIndex, TileRequest> scheduledTileEntry : scheduledTileRequestsCopy.entrySet()) {
+            TileIndex scheduledTileIndex = scheduledTileEntry.getKey();
+            if (!visibleTileIndexSet.contains(scheduledTileIndex)) {
+                TileRequest request = scheduledTileEntry.getValue();
                 // if tile not already removed (concurrently)
                 if (request != null) {
-                    scheduledTileRequests.remove(tileIndex);
-                    request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
+                    scheduledTileRequests.remove(scheduledTileIndex);
+                    request.cancelTiles(new Point[]{new Point(scheduledTileIndex.tileX, scheduledTileIndex.tileY)});
                 }
             }
         }
@@ -463,7 +452,9 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                                  int tileX, int tileY,
                                  Raster tile) {
             if (tile == null) {
-                System.out.println("WARNING: tileComputed: tile == null!");
+                if (DEBUG) {
+                    System.out.println("WARNING: tileComputed: tile == null!");
+                }
                 return;
             }
 
@@ -552,13 +543,20 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         private final Map<TileIndex, TileImage> cache;
         private long currentSize;
         private long trimSize;
+        private final boolean adaptive;
+        private final double tileFactor;
+        private final long minSize;
         private final long maxSize;
         private final long retentionPeriod;
 
         public TileImageCache() {
             cache = new HashMap<>(37);
             retentionPeriod = Long.parseLong(System.getProperty("ceres.renderer.cache.retentionPeriod", "10000"));
-            maxSize = Long.parseLong(System.getProperty("ceres.renderer.cache.capacity", "16")) * (1024 * 1024);
+            adaptive = Boolean.parseBoolean(System.getProperty("ceres.renderer.cache.adaptive", "true"));
+            tileFactor = Double.parseDouble(System.getProperty("ceres.renderer.cache.tileFactor", "2.5"));
+            minSize = Long.parseLong(System.getProperty("ceres.renderer.cache.minSize", "0")) * (1024 * 1024);
+            maxSize = Long.parseLong(System.getProperty("ceres.renderer.cache.maxSize", System.getProperty("ceres.renderer.cache.capacity", "64"))) * (1024 * 1024);
+            currentSize = 0;
             trimSize = maxSize;
         }
 
@@ -600,7 +598,37 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             currentSize = 0L;
         }
 
+        public void adjustTrimSize(PlanarImage image, int numRequiredTiles) {
+            if (adaptive) {
+                SampleModel sm = image.getSampleModel();
+                long pixelSize = (long) (sm.getNumBands() * sm.getSampleSize(0)) / 8;
+                long tileSize = (long) sm.getWidth() * (long) sm.getHeight() * pixelSize;
+                long trimSize = Math.round(tileFactor * numRequiredTiles) * tileSize;
+                if (minSize >= 0 && trimSize < minSize) {
+                    trimSize = minSize;
+                }
+                if (maxSize >= 0 && trimSize > maxSize) {
+                    trimSize = maxSize;
+                }
+                this.trimSize = trimSize;
+            } else {
+                this.trimSize = maxSize;
+            }
+        }
+
         public synchronized void trim(int currentLevel, Set<TileIndex> visibleTileIndexes) {
+
+            if (DEBUG) {
+                long oneMiB = 1024L * 1024L;
+                System.out.println("ConcurrentMultiLevelRenderer.TileImageCache:");
+                System.out.printf("    currentSize     = %10d%n", localTileCache.currentSize / oneMiB);
+                System.out.printf("    trimSize        = %10d%n", localTileCache.trimSize / oneMiB);
+                System.out.printf("    minSize         = %10d%n", localTileCache.minSize / oneMiB);
+                System.out.printf("    maxSize         = %10d%n", localTileCache.maxSize / oneMiB);
+                System.out.printf("    tileFactor      = %f%n", localTileCache.tileFactor);
+                System.out.printf("    retentionPeriod = %d%n", localTileCache.retentionPeriod);
+            }
+
             if (currentSize > trimSize) {
                 long now = System.currentTimeMillis();
                 Collection<TileImage> tileImages = new ArrayList<>(cache.values());
