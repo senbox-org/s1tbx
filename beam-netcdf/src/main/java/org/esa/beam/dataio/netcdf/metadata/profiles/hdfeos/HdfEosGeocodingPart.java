@@ -25,7 +25,6 @@ import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.jdom2.Element;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
@@ -44,7 +43,7 @@ import java.util.List;
 
 public class HdfEosGeocodingPart extends ProfilePartIO {
 
-    private static final double PIXEL_CENTER = 0.5;
+    private static final double PIXEL_CENTER = 0.0;
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
@@ -82,7 +81,7 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
         AffineTransform transform = new AffineTransform();
         transform.translate(upperLeftLon, upperLeftLat);
         transform.scale(pixelSizeX, -pixelSizeY);
-        transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
+        transform.translate(PIXEL_CENTER, PIXEL_CENTER);
         Rectangle imageBounds = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
 
         if (projection.equals("GCTP_GEO")) {
