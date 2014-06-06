@@ -82,7 +82,7 @@ public class CfGeocodingPart extends ProfilePartIO {
         double lowerRightLon = cfHdfEosGeoInfoExtractor.getLrLon();
         double lowerRightLat = cfHdfEosGeoInfoExtractor.getLrLat();
 
-        HdfEosGeocodingPart.attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+        HdfEosGeocodingPart.attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection, null);
     }
 
     private boolean hasHdfMetadataOrigin(List<Attribute> netcdfAttributes) {

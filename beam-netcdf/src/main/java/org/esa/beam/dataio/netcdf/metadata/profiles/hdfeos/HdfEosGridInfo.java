@@ -19,6 +19,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 import org.jdom2.Element;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,6 +33,7 @@ class HdfEosGridInfo {
     final double lowerRightLon;
     final double lowerRightLat;
     final String projection;
+    private double[] projectionParameter;
 
     HdfEosGridInfo(String gridName,
                    double upperLeftLon, double upperLeftLat,
@@ -52,6 +54,7 @@ class HdfEosGridInfo {
         if (Double.compare(that.lowerRightLon, lowerRightLon) != 0) return false;
         if (Double.compare(that.upperLeftLat, upperLeftLat) != 0) return false;
         if (Double.compare(that.upperLeftLon, upperLeftLon) != 0) return false;
+        if (!Arrays.equals(that.projectionParameter, projectionParameter)) return false;
         if (!projection.equals(that.projection)) return false;
 
         return true;
@@ -94,6 +97,8 @@ class HdfEosGridInfo {
         Element projectionElem = gridElem.getChild("Projection");
         Element ulPointElem = gridElem.getChild("UpperLeftPointMtrs");
         Element lrPointElem = gridElem.getChild("LowerRightMtrs");
+        Element projParamsElem = gridElem.getChild("ProjParams");
+
         if (gridNameElem == null || projectionElem == null || ulPointElem == null || lrPointElem == null) {
             return null;
         }
@@ -114,6 +119,28 @@ class HdfEosGridInfo {
         double lowerRightLat = Double.parseDouble(lrLat);
 
         String projection = projectionElem.getValue();
-        return new HdfEosGridInfo(gridName, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+        HdfEosGridInfo hdfEosGridInfo = new HdfEosGridInfo(gridName, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+        if (projParamsElem != null) {
+            List<Element> children = projParamsElem.getChildren();
+            double[] projParameterValues = new double[children.size()];
+            for (int i = 0; i < children.size(); i++) {
+                Element child = children.get(i);
+                projParameterValues[i] = Double.parseDouble(child.getValue());
+            }
+            hdfEosGridInfo.setProjectionParameter(projParameterValues);
+        }
+        return hdfEosGridInfo;
+    }
+
+    public void setProjectionParameter(double[] projectionParameter) {
+        if (projectionParameter != null) {
+            this.projectionParameter = projectionParameter.clone();
+        }else {
+            this.projectionParameter = null;
+        }
+    }
+
+    public double[] getProjectionParameter() {
+        return projectionParameter;
     }
 }
