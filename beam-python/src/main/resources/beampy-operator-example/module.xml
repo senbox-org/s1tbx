@@ -17,14 +17,14 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beampy-operator-example</symbolicName>
-    <version>5.1</version>
+    <version>5.0</version>
     <name>BEAM GPF Operator for Python Example</name>
     <packaging>dir</packaging>
 
     <description>Example of how to implement a BEAM GPF operator in Python</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
