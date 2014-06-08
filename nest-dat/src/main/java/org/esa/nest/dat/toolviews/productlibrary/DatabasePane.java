@@ -384,6 +384,7 @@ public final class DatabasePane extends JPanel {
 
     public void setSelectionRect(final GeoPos[] selectionBox) {
         dbQuery.setSelectionRect(selectionBox);
+        dbQuery.setReturnAllIfNoIntersection(true);
         queryDatabase();
     }
 

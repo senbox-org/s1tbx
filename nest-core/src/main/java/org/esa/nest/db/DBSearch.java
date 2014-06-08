@@ -34,7 +34,8 @@ public class DBSearch {
 
         final DBQuery dbQuery = new DBQuery();
         dbQuery.setFreeQuery(AbstractMetadata.PRODUCT + " <> '" + master.getName() + '\'');
-        dbQuery.setSelectionRect(new GeoPos[]{centerGeoPos});
+        dbQuery.setSelectionRect(new GeoPos[]{centerGeoPos,centerGeoPos,centerGeoPos,centerGeoPos});
+        dbQuery.setReturnAllIfNoIntersection(false);
         dbQuery.setSelectedPass(master.getPass());
         dbQuery.setStartEndDate(null, master.getFirstLineTime().getAsCalendar());
         dbQuery.setSelectedProductTypes(new String[]{master.getProductType()});

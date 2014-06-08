@@ -16,8 +16,8 @@
 package org.esa.nest.db;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.SQLUtils;
 import org.esa.nest.util.XMLSupport;
@@ -67,8 +67,9 @@ public class DBQuery {
     private Calendar startDate = null;
     private Calendar endDate = null;
     private String freeQuery = "";
+    private boolean returnAllIfNoIntersection = true;
 
-    private final Map<String, String> metadataQueryMap = new HashMap<String, String>();
+    private final Map<String, String> metadataQueryMap = new HashMap<>();
 
     public DBQuery() {
     }
@@ -189,6 +190,10 @@ public class DBQuery {
         return freeQuery;
     }
 
+    public void setReturnAllIfNoIntersection(final boolean flag) {
+        returnAllIfNoIntersection = flag;
+    }
+
     public ProductEntry[] queryDatabase(final ProductDB db) throws SQLException {
 
         if (StringUtils.contains(selectedMissions, ALL_MISSIONS))
@@ -294,10 +299,10 @@ public class DBQuery {
         }
 
         if (queryStr.length() > 0) {
-            Debug.trace("Query=" + queryStr);
-            return instersectMapSelection(db.queryProduct(queryStr.toString()));
+            BeamLogManager.getSystemLogger().info("Query=" + queryStr);
+            return intersectMapSelection(db.queryProduct(queryStr.toString()), returnAllIfNoIntersection);
         } else {
-            return instersectMapSelection(db.getProductEntryList(false));
+            return intersectMapSelection(db.getProductEntryList(false), returnAllIfNoIntersection);
         }
     }
 
@@ -322,12 +327,12 @@ public class DBQuery {
         selectionRectangle = getBoundingRect(selectionBox);
     }
 
-    private ProductEntry[] instersectMapSelection(final ProductEntry[] resultsList) {
+    private ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
 
         if (selectionRectangle == null)
             return resultsList;
 
-        final List<ProductEntry> intersectList = new ArrayList<ProductEntry>(resultsList.length);
+        final List<ProductEntry> intersectList = new ArrayList<>(resultsList.length);
         final int mult = 100000; //float to integer
         final Rectangle selRect = new Rectangle((int) (selectionRectangle.x * mult), (int) (selectionRectangle.y * mult),
                 (int) (selectionRectangle.width * mult), (int) (selectionRectangle.height * mult));
@@ -364,7 +369,7 @@ public class DBQuery {
             }
         }
 
-        if (singlePointSelection && intersectList.isEmpty())
+        if (singlePointSelection && returnAllIfNoIntersection && intersectList.isEmpty())
             return resultsList;
 
         return intersectList.toArray(new ProductEntry[intersectList.size()]);
