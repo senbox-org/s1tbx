@@ -363,15 +363,19 @@ public class GCPSelectionOp extends Operator {
 
             final Map<Band, Band> bandList = new HashMap<Band, Band>();
             for (Band targetBand : targetProduct.getBands()) {
+
                 final Band slaveBand = sourceRasterMap.get(targetBand);
-                if (gcpsCalculated && slaveBand == primarySlaveBand) {
-                    bandList.put(targetBand, slaveBand);
+                if (gcpsComputedMap.get(slaveBand)) {
+                    bandList.put(targetBand, primarySlaveBand);
                     break;
                 }
+
                 if (slaveBand == masterBand1 || slaveBand == masterBand2 ||
-                        StringUtils.contains(masterBandNames, slaveBand.getName()))
+                        StringUtils.contains(masterBandNames, slaveBand.getName())) {
                     continue;
-                if (!useAllPolarimetricBands) {
+                }
+
+                if (collocatedStack && !useAllPolarimetricBands) {
                     final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
                     final String slvProductName = StackUtils.getSlaveProductName(targetProduct, targetBand, mstPol);
                     if (slvProductName == null || singleSlvBandMap.get(slvProductName) != null) {
@@ -379,9 +383,11 @@ public class GCPSelectionOp extends Operator {
                     }
                     singleSlvBandMap.put(slvProductName, targetBand);
                 }
+
                 final String unit = slaveBand.getUnit();
-                if (unit != null && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.BIT)))
+                if (unit != null && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.BIT))) {
                     continue;
+                }
                 bandList.put(targetBand, slaveBand);
             }
 
@@ -407,9 +413,11 @@ public class GCPSelectionOp extends Operator {
                 }
 
                 // copy slave data to target
-                final Tile targetTile = targetTileMap.get(targetBand);
-                if (targetTile != null) {
-                    targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+                if (slaveBand == primarySlaveBand) {
+                    final Tile targetTile = targetTileMap.get(targetBand);
+                    if (targetTile != null) {
+                        targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+                    }
                 }
             }
             setGCPsCalculated();
@@ -433,8 +441,11 @@ public class GCPSelectionOp extends Operator {
     private synchronized void computeSlaveGCPs(final Band slaveBand, final Band slaveBand2, final Band targetBand,
                                                final String bandCountStr) throws OperatorException {
 
-        if (gcpsComputedMap.get(slaveBand))
+        if (gcpsComputedMap.get(slaveBand)) {
             return;
+        }
+
+        gcpsComputedMap.put(slaveBand, true);
         try {
 
             final ProductNodeGroup<Placemark> targetGCPGroup = targetProduct.getGcpGroup(targetBand);
@@ -513,8 +524,6 @@ public class GCPSelectionOp extends Operator {
             }
 
             threadManager.finish();
-
-            gcpsComputedMap.put(slaveBand, true);
 
             MemUtils.tileCacheFreeOldTiles();
 
