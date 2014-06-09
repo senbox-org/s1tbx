@@ -482,11 +482,12 @@ public class BatchGraphDialog extends ModelessDialog {
             LoadGraph(cloneGraphEx, graphFile, false);
             graphExecutorList.add(cloneGraphEx);
 
+            // copy UI parameter to clone
             final List<GraphNode> cloneGraphNodes = cloneGraphEx.GetGraphNodes();
             for (GraphNode cloneNode : cloneGraphNodes) {
                 final GraphNode node = graphEx.getGraphNodeList().findGraphNode(cloneNode.getID());
-                if (node != null)
-                    cloneNode.setOperatorUI(node.GetOperatorUI());
+ //               if (node != null)
+ //                   cloneNode.setOperatorUI(node.GetOperatorUI());
             }
         }
     }
