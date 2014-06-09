@@ -45,6 +45,9 @@ public class DBQuery {
     public static final String ANY = "Any";
     public static final String DUALPOL = "Dual-Pol";
     public static final String QUADPOL = "Quad-Pol";
+    public static final String HHVV = "HH+VV";
+    public static final String HHHV = "HH+HV";
+    public static final String VVVH = "VV+VH";
     public static final String CALIBRATED = "Calibrated";
     public static final String NOT_CALIBRATED = "Not_Calibrated";
     public static final String ORBIT_PRELIMINARY = "Preliminary";
@@ -227,24 +230,55 @@ public class DBQuery {
         }
         if (!selectedPolarization.isEmpty() && !selectedPolarization.equals(ANY)) {
             SQLUtils.addAND(queryStr);
-            if (selectedPolarization.equals(DUALPOL)) {
-                queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='' )");
-            } else if (selectedPolarization.equals(QUADPOL)) {
-                queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='' )");
-            } else {
-                queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='" + selectedPolarization + '\'' + " )");
+            switch (selectedPolarization) {
+                case HHVV:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " ) " + " AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " ) )");
+                    break;
+                case HHHV:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HV'" + " ) " + " AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HV'" + " ) )");
+                    break;
+                case VVVH:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VH'" + " ) " + " AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VH'" + " ) )");
+                    break;
+                case DUALPOL:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='' )");
+                    break;
+                case QUADPOL:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='' )");
+                    break;
+                default:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='" + selectedPolarization + '\'' + " )");
+                    break;
             }
         }
         if (!selectedCalibration.isEmpty() && !selectedCalibration.equals(ANY)) {
@@ -308,18 +342,22 @@ public class DBQuery {
 
     private void formOrbitCorrectionQuery(final StringBuilder queryStr) {
         SQLUtils.addAND(queryStr);
-        if (selectedOrbitCorrection.equals(ORBIT_VERIFIED)) {
-            queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Verified%'");
-        } else if (selectedOrbitCorrection.equals(ORBIT_PRECISE)) {
-            queryStr.append("( " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Precise%' OR " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DELFT Precise%' OR " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'PRARE Precise%'" + " )");
-        } else if (selectedOrbitCorrection.equals(ORBIT_PRELIMINARY)) {
-            queryStr.append("( " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DORIS%' AND " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DELFT%' AND " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'PRARE%'" + " )");
+        switch (selectedOrbitCorrection) {
+            case ORBIT_VERIFIED:
+                queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Verified%'");
+                break;
+            case ORBIT_PRECISE:
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Precise%' OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DELFT Precise%' OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'PRARE Precise%'" + " )");
+                break;
+            case ORBIT_PRELIMINARY:
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DORIS%' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DELFT%' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'PRARE%'" + " )");
+                break;
         }
     }
 
