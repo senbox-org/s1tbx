@@ -62,7 +62,7 @@ public class DefaultUI extends BaseOperatorUI {
                     try {
                         if(descriptor.getType().isArray()) {
                             if(p.getValue() == null)
-                                p.setValue(new String[] {bandNames[0]});
+                                p.setValue(bandNames);//new String[] {bandNames[0]});
                         } else {
                             p.setValue(bandNames[0]);
                         }
