@@ -59,11 +59,15 @@ public class ChangeDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
+    @Parameter(description = "Include source bands", defaultValue = "false", label = "Include source bands")
+    private boolean includeSourceBands = false;
+
     @Parameter(description = "Output Log Ratio", defaultValue = "false", label = "Output Log Ratio")
     private boolean outputLogRatio = false;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
+    private String ratioBandName;
 
     private static String RATIO_BAND_NAME = "ratio";
     private static String LOG_RATIO_BAND_NAME = "log_ratio";
@@ -110,8 +114,21 @@ public class ChangeDetectionOp extends Operator {
             final Band[] bands = sourceProduct.getBands();
             final java.util.List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if (band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
+                if (band.getUnit() != null && band.getUnit().contains(Unit.INTENSITY))
                     bandNameList.add(band.getName());
+            }
+            bandNameList.clear();
+            if(bandNameList.size() < 2) {
+                for (Band band : bands) {
+                    if (band.getUnit() != null && band.getUnit().contains(Unit.AMPLITUDE))
+                        bandNameList.add(band.getName());
+                }
+            }
+            bandNameList.clear();
+            if(bandNameList.size() < 2) {
+                for (Band band : bands) {
+                    bandNameList.add(band.getName());
+                }
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
         }
@@ -120,12 +137,18 @@ public class ChangeDetectionOp extends Operator {
             throw new OperatorException("Please select two source bands");
         }
 
-        String bandName = RATIO_BAND_NAME;
-        if (outputLogRatio) {
-            bandName = LOG_RATIO_BAND_NAME;
+        if(includeSourceBands) {
+            for(String srcBandName : sourceBandNames) {
+                ProductUtils.copyBand(srcBandName, sourceProduct, targetProduct, true);
+            }
         }
 
-        final Band targetRatioBand = new Band(bandName,
+        ratioBandName = RATIO_BAND_NAME;
+        if (outputLogRatio) {
+            ratioBandName = LOG_RATIO_BAND_NAME;
+        }
+
+        final Band targetRatioBand = new Band(ratioBandName,
                 ProductData.TYPE_FLOAT32,
                 sourceImageWidth,
                 sourceImageHeight);
@@ -168,7 +191,7 @@ public class ChangeDetectionOp extends Operator {
             final double noDataValueN = nominatorBand.getNoDataValue();
             final double noDataValueD = denominatorBand.getNoDataValue();
 
-            final Band targetRatioBand = targetProduct.getBandAt(0);
+            final Band targetRatioBand = targetProduct.getBand(ratioBandName);
             final Tile targetRatioTile = targetTiles.get(targetRatioBand);
             final ProductData ratioData = targetRatioTile.getDataBuffer();
 
