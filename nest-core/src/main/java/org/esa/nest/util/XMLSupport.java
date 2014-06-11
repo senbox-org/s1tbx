@@ -62,8 +62,6 @@ public final class XMLSupport {
 
     public static Document LoadXML(final String filePath) throws IOException {
 
-        System.out.println("CW_DEBUG: XMLSupport.LoadXML called for " + filePath);
-
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         org.w3c.dom.Document w3cDocument = null;
 
