@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Update Geo Reference Operator</title>
+
+
+    
+    <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Update Geo Reference Operator</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<h3>Update Geo Reference Operator</h3>
+
+<p> &nbsp;&nbsp; This operator updates the Geo reference of the source
+product. The geocoding generated from the latitude and logitude tie
+point grids of the source product is generally not accurate. This is
+because topography was not taking into consideration when latitude and
+longitude tie point grids were generated. This operator generates a new
+geocoding for a given source product using DEM, orbit state vectors of
+the source image, and mathematical modeling of SAR imaging geometry.<br>
+</p><h4>Interpolation Methods Supported</h4>&nbsp;&nbsp; The operator supports the following interpolation methods:
+<ul>
+    <li>Nearest-Neighbour interpolation</li>
+    <li>Bilinear interpolation</li>
+    <li>Cubic Convolution interpolation</li>
+    <li>Bicubic interpolation</li>
+    <li>Bisinc interpolation</li>
+</ul>
+<h4>DEM Supported</h4>
+
+
+<p>Right now only the DEMs with geographic coordinates <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">(</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">h</span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">)</span>&nbsp;referred to global
+    geodetic ellipsoid reference WGS84 in meters are properly supported.&nbsp;</p>
+
+
+<p>By default the&nbsp;following DEMs are available:</p>
+
+<ul>
+<li> ACE</li><li>GETASSE30</li><li> SRTM 3Sec GeoTiff</li><li>ASTER GDEM</li>
+</ul>
+
+<p>Since
+    the&nbsp;height information in ACE and SRTM is referred to geoid EGM96, not&nbsp;WGS84
+    ellipsoid,&nbsp;correction has been applied to obtain height
+    relative to the WGS84 ellipsoid.&nbsp;</p>
+
+
+<p>User can also use external DEM file which, as specified above, must be WGS84 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">(</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488; </span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB">&#1488;</span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">, P</span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">h</span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB">)</span>&nbsp;DEM in meters.</p>
+<h4>Parameters Used</h4>
+&nbsp;&nbsp;&nbsp;The following parameters are used by the operator:
+<ol>
+  <li> Source Band: All bands (real or virtual) of the source product. User can select one
+        or more bands for target product. If no bands are selected, then by default all
+        bands are selected. The selected bands together with lat_band and lon_band are output.
+    </li>
+  <li> Digital Elevation Model: DEM types. Choose from the automatically
+        tiled DEMs or specify using a single external DEM file by selecting
+        "External DEM".
+    </li>
+  <li> DEM Resampling Method: Interpolation method for obtaining
+        elevation values from the
+        original DEM file.
+    </li>
+  <li> External DEM: User specified external DEM file. Currently only WGS84-latlong
+        DEM&nbsp;in meters is accepted as geographic system.
+    </li>
+  <li>DEM No Data Value: Place holder for no data cell in DEM.</li>
+  <li>Re-grid method: Checkbox indicating selection of one of the two
+methods for defining lat/lon grid. By default, this checkbox is
+unselected and source geocoding is used as the starting point in
+computing the new geocoding. If this checkbox is selected, then a
+lat/lon grid that covers the imaged area is used in computing the new
+geocoding.<br>
+  </li>
+</ol>
+<img style="width: 450px; height: 450px;" alt="" src="images/UpdateGeoRefOp.jpg"><br>
+
+<hr>
+</body></html>

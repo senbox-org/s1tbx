@@ -31,6 +31,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
@@ -84,7 +85,7 @@ public class ALOSDeskewingOp extends Operator {
     private double absShift = 0;
     private double fracShift = 0.0;
 
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private double firstLineTime = 0.0;
     private double lineTimeInterval = 0.0;
     private double lastLineTime = 0.0;
@@ -93,15 +94,8 @@ public class ALOSDeskewingOp extends Operator {
     private double azimuthSpacing = 0.0;
     private double slantRangeToFirstPixel = 0.0;
     private double radarWaveLength = 0.0;
-    private double[][] sensorPosition = null;
-    private double[][] sensorVelocity = null;
-    private double[] timeArray = null;
-    private double[] xPosArray = null;
-    private double[] yPosArray = null;
-    private double[] zPosArray = null;
-    private double[] xVelArray = null;
-    private double[] yVelArray = null;
-    private double[] zVelArray = null;
+    private SARGeocoding.Orbit orbit = null;
+    private int polyDegree = 2; // degree of fitting polynomial
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
 
@@ -193,6 +187,14 @@ public class ALOSDeskewingOp extends Operator {
     }
 
     /**
+     * Compute sensor position and velocity for each range line.
+     */
+    private void computeSensorPositionsAndVelocities() {
+
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineTime, lineTimeInterval, sourceImageHeight);
+    }
+
+    /**
      * Create target product.
      */
     private void createTargetProduct() {
@@ -227,24 +229,6 @@ public class ALOSDeskewingOp extends Operator {
         final double newSlantRangeToFirstPixel = FastMath.cos(FastMath.asin(fd * radarWaveLength / (2.0 * vel))) * slantRangeToFirstPixel;
 
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.slant_range_to_first_pixel, newSlantRangeToFirstPixel);
-    }
-
-    private void computeSensorPositionsAndVelocities() {
-
-        final int numVectorsUsed = Math.min(orbitStateVectors.length, 5);
-        timeArray = new double[numVectorsUsed];
-        xPosArray = new double[numVectorsUsed];
-        yPosArray = new double[numVectorsUsed];
-        zPosArray = new double[numVectorsUsed];
-        xVelArray = new double[numVectorsUsed];
-        yVelArray = new double[numVectorsUsed];
-        zVelArray = new double[numVectorsUsed];
-        sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
-        sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
-
-        SARGeocoding.computeSensorPositionsAndVelocities(
-                orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray, xVelArray, yVelArray, zVelArray,
-                sensorPosition, sensorVelocity, firstLineTime, lineTimeInterval, sourceImageHeight);
     }
 
     /**
@@ -411,14 +395,14 @@ public class ALOSDeskewingOp extends Operator {
             GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
 
             final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                    firstLineTime, lineTimeInterval, radarWaveLength, earthPoint, sensorPosition, sensorVelocity);
+                    firstLineTime, lineTimeInterval, radarWaveLength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
             if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
                 continue;
             }
 
             final double slantRange = SARGeocoding.computeSlantRange(
-                    zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                    zeroDopplerTime - firstLineTime, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
             final double zeroDopplerTimeWithoutBias =
                     zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
@@ -438,13 +422,15 @@ public class ALOSDeskewingOp extends Operator {
      */
     private stateVector getOrbitStateVector(final double time) {
 
-        final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
-
         final PosVector pos = new PosVector();
-        MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
-
         final PosVector vel = new PosVector();
-        MathUtils.lagrangeInterpolatingPolynomial(xVelArray, yVelArray, zVelArray, weight, vel);
+
+        pos.x = MathUtils.polyVal(time - firstLineTime, orbit.xPosCoeff);
+        pos.y = MathUtils.polyVal(time - firstLineTime, orbit.yPosCoeff);
+        pos.z = MathUtils.polyVal(time - firstLineTime, orbit.zPosCoeff);
+        vel.x = MathUtils.polyVal(time - firstLineTime, orbit.xVelCoeff);
+        vel.y = MathUtils.polyVal(time - firstLineTime, orbit.yVelCoeff);
+        vel.z = MathUtils.polyVal(time - firstLineTime, orbit.zVelCoeff);
 
         return new stateVector(time, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
@@ -457,8 +443,8 @@ public class ALOSDeskewingOp extends Operator {
      * @param time The given time.
      * @return The interpolated vector.
      */
-    private static stateVector vectorInterpolation(final AbstractMetadata.OrbitStateVector v1,
-                                                   final AbstractMetadata.OrbitStateVector v2,
+    private static stateVector vectorInterpolation(final OrbitStateVector v1,
+                                                   final OrbitStateVector v2,
                                                    final double time) {
 
         final double[] pos1 = {v1.x_pos, v1.y_pos, v1.z_pos};

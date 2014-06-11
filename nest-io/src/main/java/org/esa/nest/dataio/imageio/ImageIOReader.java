@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
@@ -123,7 +124,7 @@ public class ImageIOReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, imgIOFile.getSceneWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, imgIOFile.getSceneHeight());
 
-        AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile);
+        AbstractMetadataIO.loadExternalMetadata(product, absRoot, inputFile);
     }
 
     /**

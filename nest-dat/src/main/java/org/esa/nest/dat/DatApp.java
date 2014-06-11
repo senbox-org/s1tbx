@@ -145,7 +145,9 @@ public class DatApp extends VisatApp {
     protected void disableOperatorPlugins() {
 
         removeOperator("org.esa.beam.gpf.operators.standard.MergeOp$Spi");
-        removeOperator("org.esa.beam.gpf.operators.standard.MosaicOp$Spi");
+        removeOperator("org.esa.beam.pixex.PixExOp$Spi");
+        removeOperator("org.esa.beam.statistics.StatisticsOp$Spi");
+        removeOperator("org.esa.beam.gpf.operators.meris.N1PatcherOp$Spi");
     }
 
     protected void disableIOPlugins() {

@@ -23,10 +23,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.BaseCalibrator;
-import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
+import org.esa.nest.datamodel.*;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.util.Settings;
@@ -86,7 +83,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
     private int numMPPRecords; // number of MPP ADSR records
     private String swath;
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
 
     private static final int numOfGains = 201; // number of antenna pattern gain values for a given swath and
@@ -1226,7 +1223,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param orbitStateVectors The orbit state vectors.
      * @return The distance.
      */
-    public static double computeSatelliteHeight(double zeroDopplerTime, AbstractMetadata.OrbitStateVector[] orbitStateVectors) {
+    public static double computeSatelliteHeight(final double zeroDopplerTime, final OrbitStateVector[] orbitStateVectors) {
 
         // todo should use the 3rd state vector as suggested by the doc?
         int idx = 0;

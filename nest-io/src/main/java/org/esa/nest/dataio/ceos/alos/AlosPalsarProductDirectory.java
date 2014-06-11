@@ -28,6 +28,7 @@ import org.esa.nest.dataio.ceos.CEOSImageFile;
 import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.Orbits;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
@@ -833,7 +834,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final double lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
         final double lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
 
-        AbstractMetadata.OrbitStateVector[] orbitStateVectors;
+        OrbitStateVector[] orbitStateVectors;
         try {
             orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
         } catch (Exception e) {
@@ -955,7 +956,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return geoPos;
     }
 
-    private static boolean checkStateVectorValidity(AbstractMetadata.OrbitStateVector[] orbitStateVectors) {
+    private static boolean checkStateVectorValidity(OrbitStateVector[] orbitStateVectors) {
 
         if (orbitStateVectors == null) {
             return false;

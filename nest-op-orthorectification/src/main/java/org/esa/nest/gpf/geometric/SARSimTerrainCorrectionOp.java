@@ -35,10 +35,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.CalibrationFactory;
-import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
+import org.esa.nest.datamodel.*;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.LocalGeometry;
@@ -198,16 +195,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private float demNoDataValue = 0; // no data value for DEM
     private double delLat = 0.0;
     private double delLon = 0.0;
-
-    private double[][] sensorPosition = null; // sensor position for all range lines
-    private double[][] sensorVelocity = null; // sensor velocity for all range lines
-    private double[] timeArray = null;
-    private double[] xPosArray = null;
-    private double[] yPosArray = null;
-    private double[] zPosArray = null;
+    private SARGeocoding.Orbit orbit = null;
+    private int polyDegree = 2; // degree of fitting polynomial
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
     private final Map<String, Boolean> targetBandapplyRadiometricNormalizationFlag = new HashMap<String, Boolean>();
     private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<String, Boolean>();
@@ -507,6 +499,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
         addLayoverShadowBitmasks(targetProduct);
     }
 
+    /**
+     * Compute sensor position and velocity for each range line.
+     */
+    private void computeSensorPositionsAndVelocities() {
+
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+    }
+
     private static void addLayoverShadowBitmasks(final Product product) {
         final Band layoverShadowBand = product.getBand(SARSimulationOp.layoverShadowMaskBandName);
         if (layoverShadowBand != null) {
@@ -798,24 +798,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
     }
 
     /**
-     * Compute sensor position and velocity for each range line from the orbit state vectors using
-     * cubic WARP polynomial.
-     */
-    private void computeSensorPositionsAndVelocities() {
-
-        final int numVectorsUsed = Math.min(orbitStateVectors.length, 5);
-        timeArray = new double[numVectorsUsed];
-        xPosArray = new double[numVectorsUsed];
-        yPosArray = new double[numVectorsUsed];
-        zPosArray = new double[numVectorsUsed];
-        sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
-        sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
-
-        SARGeocoding.computeSensorPositionsAndVelocities(orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray,
-                sensorPosition, sensorVelocity, firstLineUTC, lineTimeInterval, sourceImageHeight);
-    }
-
-    /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
@@ -963,7 +945,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     }
 
                     double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
                     double zeroDoppler = zeroDopplerTime;
                     if (!skipBistaticCorrection) {
@@ -971,7 +953,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
                         slantRange = SARGeocoding.computeSlantRange(
-                                zeroDoppler, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                                zeroDoppler - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
                     }
 
                     final double azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;
@@ -1093,7 +1075,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         // binary search is used in finding the zero doppler time
         int lowerBound = 0;
-        int upperBound = sensorPosition.length - 1;
+        int upperBound = orbit.sensorPosition.length - 1;
         double lowerBoundFreq = getDopplerFrequency(lowerBound, earthPoint);
         double upperBoundFreq = getDopplerFrequency(upperBound, earthPoint);
 
@@ -1139,12 +1121,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
             throw new OperatorException("Invalid range line index: " + y);
         }
 
-        final double xVel = sensorVelocity[y][0];
-        final double yVel = sensorVelocity[y][1];
-        final double zVel = sensorVelocity[y][2];
-        final double xDiff = earthPoint[0] - sensorPosition[y][0];
-        final double yDiff = earthPoint[1] - sensorPosition[y][1];
-        final double zDiff = earthPoint[2] - sensorPosition[y][2];
+        final double xVel = orbit.sensorVelocity[y][0];
+        final double yVel = orbit.sensorVelocity[y][1];
+        final double zVel = orbit.sensorVelocity[y][2];
+        final double xDiff = earthPoint[0] - orbit.sensorPosition[y][0];
+        final double yDiff = earthPoint[1] - orbit.sensorPosition[y][1];
+        final double zDiff = earthPoint[2] - orbit.sensorPosition[y][2];
         final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 
         return 2.0 * (xVel * xDiff + yVel * yDiff + zVel * zDiff) / (distance * wavelength);

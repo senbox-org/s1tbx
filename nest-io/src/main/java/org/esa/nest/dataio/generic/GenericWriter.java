@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -70,7 +71,7 @@ public class GenericWriter extends AbstractProductWriter {
         _outputStream.setByteOrder(ByteOrder.nativeOrder());
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
-        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, file);
+        AbstractMetadataIO.saveExternalMetadata(getSourceProduct(), absRoot, file);
 
         // Get number of Real (not Virtual) bands
         final int numOfBands = getSourceProduct().getNumBands();

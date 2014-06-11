@@ -318,7 +318,7 @@ public class BatchGraphDialog extends ModelessDialog {
             assignParameters();
 
             // first graph must pass
-            result = graphExecutorList.get(0).InitGraph();
+            result = true;//graphExecutorList.get(0).InitGraph();
 
         } catch (Exception e) {
             statusLabel.setText(e.getMessage());
@@ -430,13 +430,13 @@ public class BatchGraphDialog extends ModelessDialog {
                               final String readID, final File readPath,
                               final String writeID, final File writePath,
                               final String format) {
-        final GraphNode readNode = graphEx.findGraphNodeByOperator(readID);
+        final GraphNode readNode = graphEx.getGraphNodeList().findGraphNodeByOperator(readID);
         if (readNode != null) {
             graphEx.setOperatorParam(readNode.getID(), "file", readPath.getAbsolutePath());
         }
 
         if (writeID != null) {
-            final GraphNode writeNode = graphEx.findGraphNodeByOperator(writeID);
+            final GraphNode writeNode = graphEx.getGraphNodeList().findGraphNodeByOperator(writeID);
             if (writeNode != null) {
                 if (format != null)
                     graphEx.setOperatorParam(writeNode.getID(), "formatName", format);
@@ -455,7 +455,7 @@ public class BatchGraphDialog extends ModelessDialog {
      */
     private static void setSlaveIO(final GraphExecuter graphEx, final String productSetID,
                                    final File masterFile, final File[] slaveFiles) {
-        final GraphNode productSetNode = graphEx.findGraphNodeByOperator(productSetID);
+        final GraphNode productSetNode = graphEx.getGraphNodeList().findGraphNodeByOperator(productSetID);
         if (productSetNode != null) {
             StringBuilder str = new StringBuilder(masterFile.getAbsolutePath());
             for (File slaveFile : slaveFiles) {
@@ -482,11 +482,12 @@ public class BatchGraphDialog extends ModelessDialog {
             LoadGraph(cloneGraphEx, graphFile, false);
             graphExecutorList.add(cloneGraphEx);
 
+            // copy UI parameter to clone
             final List<GraphNode> cloneGraphNodes = cloneGraphEx.GetGraphNodes();
             for (GraphNode cloneNode : cloneGraphNodes) {
-                final GraphNode node = graphEx.findGraphNode(cloneNode.getID());
-                if (node != null)
-                    cloneNode.setOperatorUI(node.GetOperatorUI());
+                final GraphNode node = graphEx.getGraphNodeList().findGraphNode(cloneNode.getID());
+ //               if (node != null)
+ //                   cloneNode.setOperatorUI(node.GetOperatorUI());
             }
         }
     }

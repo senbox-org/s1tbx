@@ -32,6 +32,7 @@ import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
@@ -62,7 +63,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
     private JComponent parametersPanel;
 
     public NestSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
-        super(operatorName, appContext, title, helpID);
+        super(operatorName, appContext, title, helpID, ID_APPLY_CLOSE_HELP);
 
         opUI = GraphExecuter.CreateOperatorUI(operatorName);
 
@@ -112,6 +113,17 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                         new PropertyDescriptor[rdnTypeProperties.size()]);
             }
         }
+    }
+
+    @Override
+    public int show() {
+        ioParametersPanel.initSourceProductSelectors();
+        if (form == null) {
+            initForm();
+            // do not include menu
+        }
+        setContent(form);
+        return super.show();
     }
 
     protected void initForm() {

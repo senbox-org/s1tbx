@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-arcbingrid-reader</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
@@ -125,7 +125,7 @@
             <artifactId>geonames</artifactId>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.jaitools</groupId>
             <artifactId>jt-all</artifactId>
         </dependency>
@@ -182,7 +182,7 @@
         <dependency>
             <groupId>com.googlecode.matrix-toolkits-java</groupId>
             <artifactId>mtj</artifactId>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>net.sf.sevenzipjbinding</groupId>

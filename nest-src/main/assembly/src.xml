@@ -17,6 +17,7 @@
                 <exclude>**/.project</exclude>
                 <exclude>**/.classpath</exclude>
                 <exclude>**/.settings</exclude>
+				<exclude>**/.idea/**</exclude>
                 <exclude>**/target/**</exclude>
 				<exclude>**/output/**</exclude>
                 <exclude>**/CVS/**</exclude>

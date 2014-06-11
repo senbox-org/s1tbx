@@ -15,6 +15,7 @@
  */
 package org.esa.nest.gpf.geometric;
 
+import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
@@ -33,10 +34,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.CalibrationFactory;
-import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
+import org.esa.nest.datamodel.*;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.LocalGeometry;
@@ -45,6 +43,7 @@ import org.esa.nest.gpf.CalibrationOp;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
+import org.esa.nest.util.MathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -204,16 +203,11 @@ public class RangeDopplerGeocodingOp extends Operator {
     private CoordinateReferenceSystem targetCRS;
     private double delLat = 0.0;
     private double delLon = 0.0;
-
-    private double[][] sensorPosition = null; // sensor position for all range lines
-    private double[][] sensorVelocity = null; // sensor velocity for all range lines
-    private double[] timeArray = null;
-    private double[] xPosArray = null;
-    private double[] yPosArray = null;
-    private double[] zPosArray = null;
+    private int polyDegree = 2; // degree of fitting polynomial
+    private SARGeocoding.Orbit orbit = null;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
-    private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
+    private OrbitStateVector[] orbitStateVectors = null;
     private final HashMap<String, Band[]> targetBandNameToSourceBand = new HashMap<String, Band[]>();
     private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<String, Boolean>();
     private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<String, Boolean>();
@@ -535,6 +529,14 @@ public class RangeDopplerGeocodingOp extends Operator {
     }
 
     /**
+     * Compute sensor position and velocity for each range line.
+     */
+    private void computeSensorPositionsAndVelocities() {
+
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+    }
+
+    /**
      * Add the user selected bands to target product.
      *
      * @throws OperatorException The exceptions.
@@ -767,24 +769,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     }
 
     /**
-     * Compute sensor position and velocity for each range line from the orbit state vectors.
-     */
-    private void computeSensorPositionsAndVelocities() {
-
-        final int numVectorsUsed = Math.min(orbitStateVectors.length, 5);
-        timeArray = new double[numVectorsUsed];
-        xPosArray = new double[numVectorsUsed];
-        yPosArray = new double[numVectorsUsed];
-        zPosArray = new double[numVectorsUsed];
-        sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
-        sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
-
-        SARGeocoding.computeSensorPositionsAndVelocities(
-                orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray,
-                sensorPosition, sensorVelocity, firstLineUTC, lineTimeInterval, sourceImageHeight);
-    }
-
-    /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
@@ -925,7 +909,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
 
                     final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(firstLineUTC,
-                            lineTimeInterval, wavelength, earthPoint, sensorPosition, sensorVelocity);
+                            lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
                     if (Double.compare(zeroDopplerTime, SARGeocoding.NonValidZeroDopplerTime) == 0) {
                         //saveNoDataValueToTarget(index, trgTiles);
@@ -933,7 +917,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     }
 
                     double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
                     double azimuthIndex = 0.0;
                     double rangeIndex = 0.0;
@@ -944,7 +928,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     }
 
                     slantRange = SARGeocoding.computeSlantRange(
-                            zeroDoppler, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+                            zeroDoppler - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
 
                     rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
                             rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);

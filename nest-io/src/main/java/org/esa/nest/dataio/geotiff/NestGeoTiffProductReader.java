@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class NestGeoTiffProductReader extends GeoTiffProductReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, product.getSceneRasterWidth());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, product.getSceneRasterHeight());
 
-            AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile);
+            AbstractMetadataIO.loadExternalMetadata(product, absRoot, inputFile);
         }
     }
 }

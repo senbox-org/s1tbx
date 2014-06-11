@@ -17,6 +17,7 @@
             <tocitem text="Mosaic" target="MosaicOp"/>
             <tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
             <tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
+            <tocitem text="Update-Geo-Reference" target="UpdateGeoRefOp"/>
         </tocitem>
     </tocitem>
 

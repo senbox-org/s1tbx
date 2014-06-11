@@ -363,7 +363,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      * @param productFileList the product files
      */
     public void setInputFiles(final File[] productFileList) {
-        final GraphNode productSetNode = graphEx.findGraphNodeByOperator(
+        final GraphNode productSetNode = graphEx.getGraphNodeList().findGraphNodeByOperator(
                 ProductSetReaderOp.Spi.getOperatorAlias(ProductSetReaderOp.class));
         if (productSetNode != null) {
             ProductSetReaderOpUI ui = (ProductSetReaderOpUI) productSetNode.GetOperatorUI();
@@ -377,7 +377,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      * @param product the product files
      */
     public void setInputFile(final Product product) {
-        final GraphNode readerNode = graphEx.findGraphNodeByOperator(
+        final GraphNode readerNode = graphEx.getGraphNodeList().findGraphNodeByOperator(
                 ReadOp.Spi.getOperatorAlias(ReadOp.class));
         if (readerNode != null) {
             SourceUI ui = (SourceUI) readerNode.GetOperatorUI();

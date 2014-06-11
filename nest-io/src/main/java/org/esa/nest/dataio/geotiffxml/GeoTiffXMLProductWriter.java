@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
@@ -56,7 +57,7 @@ public class GeoTiffXMLProductWriter extends GeoTiffProductWriter {
     private void writeMetadataXML() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
         File file = ReaderUtils.getFileFromInput(getOutput());
-        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(outputFile.getParentFile(),
+        AbstractMetadataIO.saveExternalMetadata(getSourceProduct(), absRoot, new File(outputFile.getParentFile(),
                 FileUtils.getFilenameWithoutExtension(file.getName()) + ".xml"));
     }
 }

@@ -43,11 +43,6 @@
             <operatorName>PCA</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.esa.nest.gpf.TimeSeriesReaderOpUI</id>
-            <class>org.esa.nest.gpf.TimeSeriesReaderOpUI</class>
-            <operatorName>Time-Series-Reader</operatorName>
-        </OperatorUI>
-        <OperatorUI>
             <id>org.esa.nest.gpf.WarpOpUI</id>
             <class>org.esa.nest.gpf.WarpOpUI</class>
             <operatorName>Warp</operatorName>
@@ -87,6 +82,7 @@
             <shortDescr>Perform Automatic Coregistration</shortDescr>
             <dialogTitle>Automatic Coregistration</dialogTitle>
             <graphFile>CoregistrationGraph.xml</graphFile>
+            <placeAfter>Sentinel1</placeAfter>
         </action>
 
         <action>
