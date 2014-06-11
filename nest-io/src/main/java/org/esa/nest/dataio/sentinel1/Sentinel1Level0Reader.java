@@ -183,17 +183,17 @@ public class Sentinel1Level0Reader {
 
             if (dataFilename.contains(ANNOT_PREFIX)) {
 
-                componentElem = new MetadataElement(extractPolarization(dataFilename) + "_annotation");
+                componentElem = new MetadataElement(extractPolarization(dataFilename) + "annotation");
                 annotElem.addElement(componentElem);
 
             } else if (dataFilename.contains(INDEX_PREFIX)) {
 
-                componentElem = new MetadataElement(extractPolarization(dataFilename) + "_index");
+                componentElem = new MetadataElement(extractPolarization(dataFilename) + "index");
                 indexElem.addElement(componentElem);
 
             } else {
 
-                componentElem = new MetadataElement(extractPolarization(dataFilename) + "_measurement_data");
+                componentElem = new MetadataElement(extractPolarization(dataFilename) + "measurement_data");
                 measurementDataElem.addElement(componentElem);
             }
 
@@ -754,8 +754,15 @@ public class Sentinel1Level0Reader {
 
     private static String extractPolarization(String filename) {
 
-        final int idx = filename.lastIndexOf("s1")+13;
-        return filename.substring(idx, idx+2);
+        final int idx = filename.lastIndexOf("raw")+6;
+
+        final String pp = filename.substring(idx, idx+2);
+
+        if (pp.equals("hh") || pp.equals("hv") || pp.equals("vv") || pp.equals("vh")) {
+            return pp + "_";
+        } else {
+            return "";
+        }
     }
 
     private int getTotalNumberOfBytes(ArrayList<DataElement> elemList) {
