@@ -1,12 +1,12 @@
 """
-This module represents the BEAM Python API.
+The beampy module provides access to the BEAM Java APIs.
 
-In order to use beampy the module jpy must be installed first.
+In order to use beampy the module 'jpy' must be installed first.
 
 You can configure beampy by using a file named beampy.ini as follows:
 
     [DEFAULT]
-    beam_home: C:\Program Files\beam-4.11
+    beam_home: C:\Program Files\beam-5
     extra_classpath: target/classes
     extra_options: -Djava.awt.headless=false
     max_mem: 4G
