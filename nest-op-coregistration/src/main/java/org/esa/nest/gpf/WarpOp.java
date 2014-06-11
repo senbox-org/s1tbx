@@ -289,11 +289,10 @@ public class WarpOp extends Operator {
                 complexSrcMap.put(srcBandQ, srcBand);
                 final String suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBand.getName());
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetBand, targetBandQ, suffix);
-                ReaderUtils.createVirtualPhaseBand(targetProduct, targetBand, targetBandQ, suffix);
             }
         }
 
-        // coregistrated image should have the same geo-coding as the master image
+        // co-registered image should have the same geo-coding as the master image
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
         updateTargetProductMetadata();
     }
