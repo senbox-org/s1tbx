@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>BEAM Core Library</name>
 
 
@@ -41,6 +41,8 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.1</b><br/>
+        [BEAM-1683] Opening a MERIS FSG product with pixel geo-coding attached takes very long<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1634] Use IF,THEN,ELSE in band maths expressions<br/>
         [BEAM-1455] Flag-Coding remains when subsetting<br/>
