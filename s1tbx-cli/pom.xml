@@ -51,5 +51,15 @@
             <artifactId>nest-op-feature-extraction</artifactId>
             <version>${nest.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-classification</artifactId>
+            <version>${rstb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-polarimetric-tools</artifactId>
+            <version>${rstb.version}</version>
+        </dependency>
     </dependencies>
 </project>

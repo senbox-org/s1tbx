@@ -45,9 +45,13 @@ public final class StatusProgressMonitor {
         worked(workInc);
     }
 
+    private boolean hasGUI() {
+        return statusPresenter != null || !ProgressMonitorList.instance().isEmpty();
+    }
+
     public synchronized void worked(final int i) {
 
-        if (statusPresenter != null) {
+        if (hasGUI()) {
             final int pct = (int) ((i / max) * 100);
             if (pct >= lastPct + 1) {
                 setText(msg + pct + '%');
@@ -66,13 +70,13 @@ public final class StatusProgressMonitor {
     }
 
     public void working() {
-        if (statusPresenter != null) {
+        if (hasGUI()) {
             setText(msg);
         }
     }
 
     public void done() {
-        if (statusPresenter != null) {
+        if (hasGUI()) {
             setText(" ");
         } else if (allowStdOut) {
             System.out.println(" 100%");
