@@ -35,7 +35,7 @@ public class FileListSelection extends AbstractSelection implements Transferable
             DataFlavor.javaFileListFlavor
     };
 
-    private final List<File> fileList = new ArrayList<File>();
+    private final List<File> fileList = new ArrayList<>();
 
     public FileListSelection(File[] fileList) {
         this.fileList.addAll(Arrays.asList(fileList));

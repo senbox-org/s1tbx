@@ -32,7 +32,7 @@ public class MetadataTable implements TableInterface {
     public static final String TABLE = "APP.METADATA";
 
     private final Connection dbConnection;
-    private final static List<String> metadataNamesList = new ArrayList<String>();
+    private final static List<String> metadataNamesList = new ArrayList<>();
 
     private PreparedStatement stmtSaveNewRecord;
     private PreparedStatement stmtDeleteProduct;

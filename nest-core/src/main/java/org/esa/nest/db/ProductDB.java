@@ -110,6 +110,11 @@ public class ProductDB extends DAO {
         return productTable.getProductEntry(path);
     }
 
+    public ProductEntry[] getProductEntryInPath(final File baseDir) throws SQLException {
+        final String queryStr = AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + "%'";
+        return queryProduct(queryStr);
+    }
+
     public MetadataElement getProductMetadata(final int id) throws SQLException {
         return metadataTable.getProductMetadata(id);
     }
@@ -177,7 +182,7 @@ public class ProductDB extends DAO {
             return productTable.getProductEntryList();
 
         final ProductEntry[] entries = productTable.getProductEntryList();
-        final List<ProductEntry> list = new ArrayList<ProductEntry>(entries.length);
+        final List<ProductEntry> list = new ArrayList<>(entries.length);
         for (ProductEntry entry : entries) {
             if (entry.getFile().exists()) {
                 list.add(entry);
@@ -189,7 +194,7 @@ public class ProductDB extends DAO {
     }
 
     public ProductEntry[] queryProduct(final String queryStr) throws SQLException {
-        final List<ProductEntry> listEntries = new ArrayList<ProductEntry>();
+        final List<ProductEntry> listEntries = new ArrayList<>();
 
         final Statement queryStatement = dbConnection.createStatement();
         String whereStr = strGetProductsWhere;
