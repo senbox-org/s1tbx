@@ -103,6 +103,17 @@ public final class StackUtils {
         return new String[]{};
     }
 
+    public static String getBandNameWithoutDate(final String bandName) {
+        if(bandName.contains("_mst")) {
+            return bandName.substring(0, bandName.lastIndexOf("_mst"));
+        } else if(bandName.contains("_slv")) {
+            return bandName.substring(0, bandName.lastIndexOf("_slv"));
+        } else if(bandName.contains("_")) {
+            return bandName.substring(0, bandName.lastIndexOf('_'));
+        }
+        return bandName;
+    }
+
     public static String getSlaveProductName(final Product sourceProduct, final Band slvBand, final String mstPol) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
                 AbstractMetadata.SLAVE_METADATA_ROOT);

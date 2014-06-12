@@ -4,7 +4,6 @@ org.esa.nest.gpf.UndersamplingOp$Spi
 org.esa.nest.gpf.ConvertDataTypeOp$Spi
 org.esa.nest.gpf.orbits.ApplyOrbitFileOp$Spi
 org.esa.nest.gpf.FilterOperator$Spi
-org.esa.nest.gpf.AveragingOp$Spi
 org.esa.nest.gpf.ReplaceMetadataOp$Spi
 org.esa.nest.gpf.LinearTodBOp$Spi
 org.esa.nest.gpf.BandSelectOp$Spi

@@ -20,19 +20,16 @@ import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.GPFProcessor;
-import org.esa.nest.gpf.ProductSetReaderOp;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.ui.DefaultUI;
 import org.esa.nest.gpf.ui.OperatorUI;
@@ -55,7 +52,7 @@ public class GraphExecuter extends Observable {
     private File lastLoadedGraphFile = null;
 
     private int idCount = 0;
-    private final List<GraphNode> nodeList = new ArrayList<GraphNode>(10);
+    private final GraphNodeList graphNodeList = new GraphNodeList();
 
     public enum events {ADD_EVENT, REMOVE_EVENT, SELECT_EVENT}
 
@@ -68,33 +65,17 @@ public class GraphExecuter extends Observable {
     }
 
     public List<GraphNode> GetGraphNodes() {
-        return nodeList;
+        return graphNodeList.getGraphNodes();
     }
+
+    public GraphNodeList getGraphNodeList() { return graphNodeList; }
 
     public void ClearGraph() {
         graph = null;
         graph = new Graph("Graph");
         lastLoadedGraphFile = null;
-        nodeList.clear();
+        graphNodeList.clear();
         idCount = 0;
-    }
-
-    public GraphNode findGraphNode(String id) {
-        for (GraphNode n : nodeList) {
-            if (n.getID().equals(id)) {
-                return n;
-            }
-        }
-        return null;
-    }
-
-    public GraphNode findGraphNodeByOperator(String operatorName) {
-        for (GraphNode n : nodeList) {
-            if (n.getOperatorName().equals(operatorName)) {
-                return n;
-            }
-        }
-        return null;
     }
 
     public void setSelectedNode(GraphNode node) {
@@ -133,11 +114,11 @@ public class GraphExecuter extends Observable {
 
         String id = opName;
         int cnt = 1;
-        while (findGraphNode(id) != null) {
+        while (graphNodeList.findGraphNode(id) != null) {
             ++cnt;
             id = opName + '(' + cnt + ')';
         }
-        final GraphNode newGraphNode = createNewGraphNode(opName, id);
+        final GraphNode newGraphNode = createNewGraphNode(graph, graphNodeList, opName, id);
 
         setChanged();
         notifyObservers(new GraphEvent(events.ADD_EVENT, newGraphNode));
@@ -146,7 +127,8 @@ public class GraphExecuter extends Observable {
         return newGraphNode;
     }
 
-    private GraphNode createNewGraphNode(final String opName, final String id) {
+    static GraphNode createNewGraphNode(final Graph graph, final GraphNodeList graphNodeList,
+                                        final String opName, final String id) {
         final Node newNode = new Node(id, opName);
 
         final XppDomElement parameters = new XppDomElement("parameters");
@@ -155,7 +137,7 @@ public class GraphExecuter extends Observable {
         graph.addNode(newNode);
 
         final GraphNode newGraphNode = new GraphNode(newNode);
-        nodeList.add(newGraphNode);
+        graphNodeList.add(newGraphNode);
 
         newGraphNode.setOperatorUI(CreateOperatorUI(newGraphNode.getOperatorName()));
 
@@ -185,13 +167,8 @@ public class GraphExecuter extends Observable {
     }
 
     private void removeNode(final GraphNode node) {
-        // remove as a source from all nodes
-        for (GraphNode n : nodeList) {
-            n.disconnectOperatorSources(node.getID());
-        }
-
+        graphNodeList.remove(node);
         graph.removeNode(node.getID());
-        nodeList.remove(node);
     }
 
     public void setOperatorParam(final String id, final String paramName, final String value) {
@@ -213,58 +190,27 @@ public class GraphExecuter extends Observable {
         descXML.setValue(graphDescription);
         presentationXML.addChild(descXML);
 
-        for (GraphNode n : nodeList) {
-            if (n.GetOperatorUI() != null) {
-                n.AssignParameters(presentationXML);
-            }
-        }
-
+        graphNodeList.assignParameters(presentationXML);
         graph.setAppData("Presentation", presentationXML);
     }
 
-    boolean IsGraphComplete() {
-        int nodesWithoutSources = 0;
-        for (GraphNode n : nodeList) {
-            if (!n.HasSources()) {
-                ++nodesWithoutSources;
-                if (!IsNodeASource(n))
-                    return false;
-            }
-        }
-        return nodesWithoutSources != nodeList.size();
-    }
-
-    private boolean IsNodeASource(final GraphNode sourceNode) {
-        for (GraphNode n : nodeList) {
-            if (n.isNodeSource(sourceNode))
-                return true;
-        }
-        return false;
-    }
-
-    private GraphNode[] findConnectedNodes(final GraphNode sourceNode) {
-        final List<GraphNode> connectedNodes = new ArrayList<GraphNode>();
-        for (GraphNode n : nodeList) {
-            if (n.isNodeSource(sourceNode))
-                connectedNodes.add(n);
-        }
-        return connectedNodes.toArray(new GraphNode[connectedNodes.size()]);
-    }
-
     public boolean InitGraph() throws GraphException {
-        if (IsGraphComplete()) {
+        if (graphNodeList.isGraphComplete()) {
             AssignAllParameters();
-            final GraphNode[] savedProductSetList = replaceProductSetReaders();
+
+            ProductSetHandler productSetHandler = new ProductSetHandler(graph, graphNodeList);
+            SubGraphHandler subGraphHandler = new SubGraphHandler(graph, graphNodeList);
 
             try {
                 recreateGraphContext();
-                updateGraphNodes();
+                graphNodeList.updateGraphNodes(graphContext);
                 //todo recreateGraphContext();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new GraphException(e.getMessage());
             } finally {
-                restoreProductSetReaders(savedProductSetList);
+                subGraphHandler.restore();
+                productSetHandler.restore();
             }
             return true;
         }
@@ -277,16 +223,6 @@ public class GraphExecuter extends Observable {
 
         processor = new GraphProcessor();
         graphContext = new GraphContext(graph);
-    }
-
-    private void updateGraphNodes() throws GraphException {
-        if (graphContext != null) {
-            for (GraphNode n : nodeList) {
-                final NodeContext context = graphContext.getNodeContext(n.getNode());
-                n.setSourceProducts(context.getSourceProducts());
-                n.updateParameters();
-            }
-        }
     }
 
     public void disposeGraphContext() {
@@ -351,7 +287,7 @@ public class GraphExecuter extends Observable {
     public void setGraph(final Graph graphFromFile, final boolean addUI) throws GraphException {
         if (graphFromFile != null) {
             graph = graphFromFile;
-            nodeList.clear();
+            graphNodeList.clear();
 
             final XppDom presentationXML = graph.getApplicationData("Presentation");
             if (presentationXML != null) {
@@ -367,7 +303,7 @@ public class GraphExecuter extends Observable {
                 final GraphNode newGraphNode = new GraphNode(n);
                 if (presentationXML != null)
                     newGraphNode.setDisplayParameters(presentationXML);
-                nodeList.add(newGraphNode);
+                graphNodeList.add(newGraphNode);
 
                 if (addUI) {
                     OperatorUI ui = CreateOperatorUI(newGraphNode.getOperatorName());
@@ -390,97 +326,6 @@ public class GraphExecuter extends Observable {
 
     public void setGraphDescription(final String text) {
         graphDescription = text;
-    }
-
-    private ProductSetData[] findProductSets(final String readerName) {
-        final String SEPARATOR = ",";
-        final String SEPARATOR_ESC = "\\u002C"; // Unicode escape repr. of ','
-        final List<ProductSetData> productSetDataList = new ArrayList<ProductSetData>();
-
-        for (Node n : graph.getNodes()) {
-            if (n.getOperatorName().equalsIgnoreCase(readerName)) {
-                final ProductSetData psData = new ProductSetData();
-                psData.nodeID = n.getId();
-
-                final DomElement config = n.getConfiguration();
-                final DomElement[] params = config.getChildren();
-                for (DomElement p : params) {
-                    if (p.getName().equals("fileList") && p.getValue() != null) {
-
-                        final StringTokenizer st = new StringTokenizer(p.getValue(), SEPARATOR);
-                        int length = st.countTokens();
-                        for (int i = 0; i < length; i++) {
-                            final String str = st.nextToken().replace(SEPARATOR_ESC, SEPARATOR);
-                            psData.fileList.add(str);
-                        }
-                        break;
-                    }
-                }
-                productSetDataList.add(psData);
-            }
-        }
-        return productSetDataList.toArray(new ProductSetData[productSetDataList.size()]);
-    }
-
-    private GraphNode[] replaceProductSetReaders() {
-        final ProductSetData[] productSetDataList =
-                findProductSets(OperatorSpi.getOperatorAlias(ProductSetReaderOp.class));
-        final List<GraphNode> savedProductSetList = new ArrayList<GraphNode>();
-
-        int cnt = 0;
-        for (ProductSetData psData : productSetDataList) {
-            final GraphNode sourceNode = findGraphNode(psData.nodeID);
-            for (String filePath : psData.fileList) {
-
-                replaceProductSetWithReaders(sourceNode, "inserted--" + sourceNode.getID() + "--" + cnt++, filePath);
-            }
-            if (!psData.fileList.isEmpty()) {
-                removeNode(sourceNode);
-                savedProductSetList.add(sourceNode);
-            }
-        }
-        return savedProductSetList.toArray(new GraphNode[savedProductSetList.size()]);
-    }
-
-    private void restoreProductSetReaders(GraphNode[] savedProductSetList) {
-        for (GraphNode multiSrcNode : savedProductSetList) {
-
-            final List<GraphNode> nodesToRemove = new ArrayList<GraphNode>();
-            for (GraphNode n : nodeList) {
-                final String id = n.getID();
-                if (id.startsWith("inserted") && id.contains(multiSrcNode.getID())) {
-
-                    switchConnections(n, multiSrcNode.getID());
-                    nodesToRemove.add(n);
-                }
-            }
-            for (GraphNode r : nodesToRemove) {
-                removeNode(r);
-            }
-
-            nodeList.add(multiSrcNode);
-            graph.addNode(multiSrcNode.getNode());
-        }
-    }
-
-    private void replaceProductSetWithReaders(final GraphNode sourceNode, final String id, final String value) {
-
-        GraphNode newReaderNode = createNewGraphNode(OperatorSpi.getOperatorAlias(ReadOp.class), id);
-        newReaderNode.setOperatorUI(null);
-        newReaderNode.getNode().getConfiguration();
-        final DomElement config = newReaderNode.getNode().getConfiguration();
-        final DomElement fileParam = new XppDomElement("file");
-        fileParam.setValue(value);
-        config.addChild(fileParam);
-
-        switchConnections(sourceNode, newReaderNode.getID());
-    }
-
-    private void switchConnections(final GraphNode oldNode, final String newNodeID) {
-        final GraphNode[] connectedNodes = findConnectedNodes(oldNode);
-        for (GraphNode node : connectedNodes) {
-            node.connectOperatorSource(newNodeID);
-        }
     }
 
     public List<File> getProductsToOpenInDAT() {
@@ -531,23 +376,18 @@ public class GraphExecuter extends Observable {
                                   final String readID, final File readPath,
                                   final String writeID, final File writePath,
                                   final String format) {
-        final GraphNode readNode = graphEx.findGraphNode(readID);
+        final GraphNode readNode = graphEx.getGraphNodeList().findGraphNode(readID);
         if (readNode != null) {
             graphEx.setOperatorParam(readNode.getID(), "file", readPath.getAbsolutePath());
         }
 
         if (writeID != null) {
-            final GraphNode writeNode = graphEx.findGraphNode(writeID);
+            final GraphNode writeNode = graphEx.getGraphNodeList().findGraphNode(writeID);
             if (writeNode != null) {
                 graphEx.setOperatorParam(writeNode.getID(), "formatName", format);
                 graphEx.setOperatorParam(writeNode.getID(), "file", writePath.getAbsolutePath());
             }
         }
-    }
-
-    private static class ProductSetData {
-        String nodeID = null;
-        final List<String> fileList = new ArrayList<String>(10);
     }
 
     public static class GraphEvent {

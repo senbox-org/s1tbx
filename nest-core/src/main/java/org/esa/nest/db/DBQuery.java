@@ -16,8 +16,8 @@
 package org.esa.nest.db;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.SQLUtils;
 import org.esa.nest.util.XMLSupport;
@@ -45,6 +45,9 @@ public class DBQuery {
     public static final String ANY = "Any";
     public static final String DUALPOL = "Dual-Pol";
     public static final String QUADPOL = "Quad-Pol";
+    public static final String HHVV = "HH+VV";
+    public static final String HHHV = "HH+HV";
+    public static final String VVVH = "VV+VH";
     public static final String CALIBRATED = "Calibrated";
     public static final String NOT_CALIBRATED = "Not_Calibrated";
     public static final String ORBIT_PRELIMINARY = "Preliminary";
@@ -67,8 +70,9 @@ public class DBQuery {
     private Calendar startDate = null;
     private Calendar endDate = null;
     private String freeQuery = "";
+    private boolean returnAllIfNoIntersection = true;
 
-    private final Map<String, String> metadataQueryMap = new HashMap<String, String>();
+    private final Map<String, String> metadataQueryMap = new HashMap<>();
 
     public DBQuery() {
     }
@@ -189,6 +193,10 @@ public class DBQuery {
         return freeQuery;
     }
 
+    public void setReturnAllIfNoIntersection(final boolean flag) {
+        returnAllIfNoIntersection = flag;
+    }
+
     public ProductEntry[] queryDatabase(final ProductDB db) throws SQLException {
 
         if (StringUtils.contains(selectedMissions, ALL_MISSIONS))
@@ -222,24 +230,55 @@ public class DBQuery {
         }
         if (!selectedPolarization.isEmpty() && !selectedPolarization.equals(ANY)) {
             SQLUtils.addAND(queryStr);
-            if (selectedPolarization.equals(DUALPOL)) {
-                queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='' )");
-            } else if (selectedPolarization.equals(QUADPOL)) {
-                queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='' )");
-            } else {
-                queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='" + selectedPolarization + '\'' + " )");
+            switch (selectedPolarization) {
+                case HHVV:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " ) " + " AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " ) )");
+                    break;
+                case HHHV:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HV'" + " ) " + " AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HV'" + " ) )");
+                    break;
+                case VVVH:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VH'" + " ) " + " AND " +
+                            " ( "+MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VH'" + " ) )");
+                    break;
+                case DUALPOL:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='' )");
+                    break;
+                case QUADPOL:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='' AND " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='' )");
+                    break;
+                default:
+                    queryStr.append("( " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='" + selectedPolarization + '\'' + " OR " +
+                            MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='" + selectedPolarization + '\'' + " )");
+                    break;
             }
         }
         if (!selectedCalibration.isEmpty() && !selectedCalibration.equals(ANY)) {
@@ -294,27 +333,31 @@ public class DBQuery {
         }
 
         if (queryStr.length() > 0) {
-            Debug.trace("Query=" + queryStr);
-            return instersectMapSelection(db.queryProduct(queryStr.toString()));
+            BeamLogManager.getSystemLogger().info("Query=" + queryStr);
+            return intersectMapSelection(db.queryProduct(queryStr.toString()), returnAllIfNoIntersection);
         } else {
-            return instersectMapSelection(db.getProductEntryList(false));
+            return intersectMapSelection(db.getProductEntryList(false), returnAllIfNoIntersection);
         }
     }
 
     private void formOrbitCorrectionQuery(final StringBuilder queryStr) {
         SQLUtils.addAND(queryStr);
-        if (selectedOrbitCorrection.equals(ORBIT_VERIFIED)) {
-            queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Verified%'");
-        } else if (selectedOrbitCorrection.equals(ORBIT_PRECISE)) {
-            queryStr.append("( " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Precise%' OR " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DELFT Precise%' OR " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'PRARE Precise%'" + " )");
-        } else if (selectedOrbitCorrection.equals(ORBIT_PRELIMINARY)) {
-            queryStr.append("( " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DORIS%' AND " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DELFT%' AND " +
-                    MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'PRARE%'" + " )");
+        switch (selectedOrbitCorrection) {
+            case ORBIT_VERIFIED:
+                queryStr.append(MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Verified%'");
+                break;
+            case ORBIT_PRECISE:
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DORIS Precise%' OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'DELFT Precise%' OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " LIKE 'PRARE Precise%'" + " )");
+                break;
+            case ORBIT_PRELIMINARY:
+                queryStr.append("( " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DORIS%' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'DELFT%' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.orbit_state_vector_file + " NOT LIKE 'PRARE%'" + " )");
+                break;
         }
     }
 
@@ -322,12 +365,12 @@ public class DBQuery {
         selectionRectangle = getBoundingRect(selectionBox);
     }
 
-    private ProductEntry[] instersectMapSelection(final ProductEntry[] resultsList) {
+    private ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
 
         if (selectionRectangle == null)
             return resultsList;
 
-        final List<ProductEntry> intersectList = new ArrayList<ProductEntry>(resultsList.length);
+        final List<ProductEntry> intersectList = new ArrayList<>(resultsList.length);
         final int mult = 100000; //float to integer
         final Rectangle selRect = new Rectangle((int) (selectionRectangle.x * mult), (int) (selectionRectangle.y * mult),
                 (int) (selectionRectangle.width * mult), (int) (selectionRectangle.height * mult));
@@ -364,7 +407,7 @@ public class DBQuery {
             }
         }
 
-        if (singlePointSelection && intersectList.isEmpty())
+        if (singlePointSelection && returnAllIfNoIntersection && intersectList.isEmpty())
             return resultsList;
 
         return intersectList.toArray(new ProductEntry[intersectList.size()]);

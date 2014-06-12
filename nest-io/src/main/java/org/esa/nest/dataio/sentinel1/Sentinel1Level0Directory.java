@@ -41,8 +41,15 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
+    private File productFolder = null;
+
     public Sentinel1Level0Directory(final File headerFile, final File imageFolder) {
+
         super(headerFile, imageFolder);
+        productFolder = imageFolder;
+
+        //System.out.println("Sentinel1Level0Directory: headerFile = " + headerFile.getAbsolutePath());
+        //System.out.println("Sentinel1Level0Directory: imageFolder = " + imageFolder.getAbsolutePath());
     }
 
     protected void addImageFile(final File file) throws IOException {
@@ -561,14 +568,26 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
     }
 
+    private void addBinaryDataToProduct(final Product product) {
+
+        final Sentinel1Level0Reader reader = new Sentinel1Level0Reader(product);
+        reader.readData();
+    }
+
     @Override
     public Product createProduct() throws IOException {
+
+        //System.out.println("Sentinel1Level0Directory.createProduct: called for " + getProductName());
 
         final Product product = new Product(getProductName(),
                 getProductType(),
                 sceneWidth, sceneHeight);
 
+        product.setFileLocation(productFolder);
+
         addMetaData(product);
+        addBinaryDataToProduct(product);
+
         addTiePointGrids(product); // empty
 
         addBands(product, sceneWidth, sceneHeight);

@@ -156,14 +156,14 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
 
     void RemoveSourceAction(String id) {
         if (selectedNode != null) {
-            final GraphNode source = graphEx.findGraphNode(id);
+            final GraphNode source = graphEx.getGraphNodeList().findGraphNode(id);
             selectedNode.disconnectOperatorSources(source.getID());
             repaint();
         }
     }
 
     void AutoConnectGraph() {
-        if (!graphEx.IsGraphComplete()) {
+        if (!graphEx.getGraphNodeList().isGraphComplete()) {
             final List<GraphNode> nodes = graphEx.GetGraphNodes();
             Collections.sort(nodes, new GraphNodePosComparator());
 
@@ -215,7 +215,7 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
                 }
             }
 
-            if (!graphEx.IsGraphComplete()) {
+            if (!graphEx.getGraphNodeList().isGraphComplete()) {
                 final JMenuItem connectItem = new JMenuItem("Connect Graph", null);
                 connectItem.setHorizontalTextPosition(JMenuItem.RIGHT);
                 connectItem.addActionListener(connectListener);
@@ -285,7 +285,7 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
             g.setColor(Color.red);
             final NodeSource[] nSources = n.getNode().getSources();
             for (NodeSource nSource : nSources) {
-                final GraphNode srcNode = graphEx.findGraphNode(nSource.getSourceNodeId());
+                final GraphNode srcNode = graphEx.getGraphNodeList().findGraphNode(nSource.getSourceNodeId());
                 if (srcNode != null)
                     n.drawConnectionLine(g, srcNode);
             }
