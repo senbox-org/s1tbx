@@ -43,11 +43,6 @@
             <operatorName>PCA</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.esa.nest.gpf.TimeSeriesReaderOpUI</id>
-            <class>org.esa.nest.gpf.TimeSeriesReaderOpUI</class>
-            <operatorName>Time-Series-Reader</operatorName>
-        </OperatorUI>
-        <OperatorUI>
             <id>org.esa.nest.gpf.WarpOpUI</id>
             <class>org.esa.nest.gpf.WarpOpUI</class>
             <operatorName>Warp</operatorName>
@@ -103,6 +98,26 @@
             <helpId>PCA</helpId>
         </action>
 
+        <action>
+            <id>stack-utilities</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Stack Utilities</text>
+            <parent>sar-processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
+        </action>
+
+        <action>
+            <id>StackAveraging</id>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Stack Averaging</text>
+            <operatorName>Stack-Averaging</operatorName>
+            <dialogTitle>Stack Averaging</dialogTitle>
+            <targetProductNameSuffix>_avg</targetProductNameSuffix>
+            <shortDescr>Stack Averaging</shortDescr>
+            <parent>stack-utilities</parent>
+            <helpId>StackAveraging</helpId>
+        </action>
     </extension>
 
     <extension point="beam-ui:helpSets">
