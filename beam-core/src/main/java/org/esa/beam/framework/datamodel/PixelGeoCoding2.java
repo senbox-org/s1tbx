@@ -61,7 +61,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     private final DataProvider dataProvider;
     private final GeoCoding formerGeocoding;
 
-    private final PixelPosEstimatorFactory pixelPosEstimatorFactory;
+//    private final PixelPosEstimatorFactory pixelPosEstimatorFactory;
     private transient PixelPosEstimator pixelPosEstimator;
     private transient final PixelFinder pixelFinder;
 
@@ -159,8 +159,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelSizeY = pixelDimension.getHeight();
         pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
 
-        pixelPosEstimatorFactory = new PixelPosEstimatorFactory(lonImage, latImage, maskImage, 0.5);
-//        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
+//        pixelPosEstimatorFactory = new PixelPosEstimatorFactory(lonImage, latImage, maskImage, 0.5);
+        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
         pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage);
 
         boolean disableTiling = "false".equalsIgnoreCase(System.getProperty(SYSPROP_PIXEL_GEO_CODING_USE_TILING));
@@ -245,15 +245,15 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             pixelPos = new PixelPos();
         }
         if (geoPos.isValid()) {
-            ensurePixelPosEstimatorExist();
-            if (pixelPosEstimator.canGetPixelPos()) {
+//            ensurePixelPosEstimatorExist();
+//            if (pixelPosEstimator.canGetPixelPos()) {
                 pixelPosEstimator.getPixelPos(geoPos, pixelPos);
                 if (pixelPos.isValid()) {
                     pixelFinder.findPixelPos(geoPos, pixelPos);
                 }
-            } else {
-                pixelPos.setInvalid();
-            }
+//            } else {
+//                pixelPos.setInvalid();
+//            }
         } else {
             pixelPos.setInvalid();
         }
@@ -297,7 +297,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 if (formerGeocoding != null && formerGeocoding.canGetGeoPos()) {
                     formerGeocoding.getGeoPos(pixelPos, geoPos);
                 } else {
-                    ensurePixelPosEstimatorExist();
+//                    ensurePixelPosEstimatorExist();
                     pixelPosEstimator.getGeoPos(pixelPos, geoPos);
                 }
             }
@@ -423,13 +423,13 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         return Datum.WGS_84;
     }
 
-    private void ensurePixelPosEstimatorExist() {
-        synchronized (pixelPosEstimatorFactory) {
-            if (pixelPosEstimator == null) {
-                pixelPosEstimator = pixelPosEstimatorFactory.create();
-            }
-        }
-    }
+//    private void ensurePixelPosEstimatorExist() {
+//        synchronized (pixelPosEstimatorFactory) {
+//            if (pixelPosEstimator == null) {
+//                pixelPosEstimator = pixelPosEstimatorFactory.create();
+//            }
+//        }
+//    }
 
     private class DefaultPixelFinder implements PixelFinder {
 
