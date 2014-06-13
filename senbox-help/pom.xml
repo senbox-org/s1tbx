@@ -4,6 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <lucene.version>4.7.0</lucene.version>
+    </properties>
 
     <parent>
         <artifactId>senbox</artifactId>
@@ -14,5 +17,28 @@
     <name>Senbox Context Help</name>
     <artifactId>senbox-help</artifactId>
     <version>0.5-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+    </dependencies>
     
 </project>
