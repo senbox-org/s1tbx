@@ -492,7 +492,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
-        paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
+        final String properDEMName = (DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
+        paramMap.put("demName", properDEMName);
         paramMap.put("demResamplingMethod", demResamplingMethod.getSelectedItem());
         paramMap.put("imgResamplingMethod", imgResamplingMethod.getSelectedItem());
         paramMap.put("incidenceAngleForGamma0", incidenceAngleForGamma0.getSelectedItem());
@@ -509,11 +510,12 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             paramMap.put("pixelSpacingInDegree", Double.parseDouble(pixelSpacingInDegree.getText()));
         }
 
-        final String extFileStr = externalDEMFile.getText();
-        if (!extFileStr.isEmpty()) {
-            paramMap.put("externalDEMFile", new File(extFileStr));
-            paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+        String extFileStr = externalDEMFile.getText();
+        if(!properDEMName.equals(externalDEMStr)) {
+            extFileStr = "";
         }
+        paramMap.put("externalDEMFile", new File(extFileStr));
+        paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
 
         if (mapProjHandler.getCRS() != null) {
             paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
@@ -640,6 +642,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private void enableExternalDEM(boolean flag) {
         DialogUtils.enableComponents(externalDEMFileLabel, externalDEMFile, flag);
         DialogUtils.enableComponents(externalDEMNoDataValueLabel, externalDEMNoDataValue, flag);
+        if(!flag) {
+            externalDEMFile.setText("");
+        }
         externalDEMBrowseButton.setVisible(flag);
     }
 
