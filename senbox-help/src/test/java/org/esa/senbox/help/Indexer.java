@@ -23,7 +23,6 @@ import java.util.Locale;
  */
 public class Indexer {
 
-
     public static final Version LUCENE_VERSION = Version.LUCENE_47;
     //public static final Analyzer LUCENE_ANALYZER = new SimpleAnalyzer(LUCENE_VERSION);
     public static final Analyzer LUCENE_ANALYZER = new ProductNameAnalyzer(LUCENE_VERSION);
@@ -32,8 +31,8 @@ public class Indexer {
     private IndexWriter indexWriter;
     private long docID;
 
-    private int maxThreadCount;
-    private String indexName;
+    private int maxThreadCount = IndexWriterConfig.DEFAULT_MAX_THREAD_STATES;
+    private String indexName = DEFAULT_INDEX_NAME;
 
 
     public static void main(String[] args) {
@@ -76,14 +75,6 @@ public class Indexer {
             return Character.isLetter(c) || Character.isDigit(c);
         }
     }
-
-    public Indexer() {
-
-        maxThreadCount = IndexWriterConfig.DEFAULT_MAX_THREAD_STATES;
-        indexName = DEFAULT_INDEX_NAME;
-
-    }
-
 
     private int run(String[] args) throws Exception {
         String csvFilePath = args[0];
