@@ -1,6 +1,4 @@
-######
-Senbox
-######
+# Senbox
 
 Senbox is the common software platform for the three Sentinel Toolboxes which are developed 
 by the European Space Agency (ESA) for the scientific exploitation 
@@ -26,8 +24,8 @@ The project will run through the next two years with releases every four months.
 first public release of the software will be available in September 2014 and be 
 released under GNU GPL open source license.
 
-This work is funded through the “Scientific Exploitation of Operational Missions(SEOM)”, 
-a new program element of ESA’s fourth period of the Earth Observation Envelope Programme 
+This work is funded through the *Scientific Exploitation of Operational Missions* (SEOM)
+a new program element of ESA's fourth period of the Earth Observation Envelope Programme 
 (2013-2017), referred to as EOEP-4.
 
 EOEP-4 will pursue a long-term exploitation strategy and address the broad and growing 
