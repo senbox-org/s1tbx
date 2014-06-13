@@ -75,11 +75,12 @@ public class PropertiesProvider implements DataProvider {
 
         private static final int ROW_HEIGHT = 68;
         private final JPanel centeringPanel = new JPanel(new BorderLayout());
-        private final Font valueFont;
+        private final Font valueFont, boldFont;
 
         public ProductPropertiesRenderer() {
             final DefaultTableModel dataModel = new DefaultTableModel();
             dataModel.setColumnCount(2);
+            setRowHeight(14);
             dataModel.setRowCount(propertyLables.length);
 
             for (int i = 0; i < propertyLables.length; i++) {
@@ -88,8 +89,10 @@ public class PropertiesProvider implements DataProvider {
             }
 
             setModel(dataModel);
-            valueFont = getFont().deriveFont(Font.BOLD);
-            getColumnModel().getColumn(1).setCellRenderer(new PropertyValueCellRenderer(valueFont));
+            valueFont = getFont().deriveFont(Font.PLAIN, 12); //getFont().deriveFont(Font.BOLD);
+            boldFont = valueFont.deriveFont(Font.BOLD);
+            getColumnModel().getColumn(0).setCellRenderer(new PropertyValueCellRenderer(valueFont, boldFont));
+            getColumnModel().getColumn(1).setCellRenderer(new PropertyValueCellRenderer(valueFont, boldFont));
             getColumnModel().getColumn(0).setMaxWidth(80);
 
             //this.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -213,10 +216,11 @@ public class PropertiesProvider implements DataProvider {
 
         private class PropertyValueCellRenderer extends DefaultTableCellRenderer {
 
-            private final Font _font;
+            private final Font font, boldFont;
 
-            public PropertyValueCellRenderer(final Font font) {
-                _font = font;
+            public PropertyValueCellRenderer(final Font font, final Font boldFont) {
+                this.font = font;
+                this.boldFont = boldFont;
             }
 
             @Override
@@ -228,8 +232,10 @@ public class PropertiesProvider implements DataProvider {
                             row, column);
                     if (jLabel != null) {
                         jLabel.setHorizontalAlignment(JLabel.LEFT);
-                        if (row == 0)
-                            jLabel.setFont(_font);
+                        if (row == 0 && column == 1)
+                            jLabel.setFont(boldFont);
+                        else
+                            jLabel.setFont(font);
                         return jLabel;
                     }
                 } catch (Throwable e) {

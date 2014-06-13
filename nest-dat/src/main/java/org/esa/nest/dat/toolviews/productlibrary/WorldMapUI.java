@@ -16,6 +16,7 @@
 package org.esa.nest.dat.toolviews.productlibrary;
 
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPaneDataModel;
 import org.esa.nest.db.GeoPosList;
@@ -34,7 +35,7 @@ public class WorldMapUI {
     private final NestWorldMapPaneDataModel worldMapDataModel;
     private final NestWorldMapPane worlMapPane;
 
-    private final List<DatabaseQueryListener> listenerList = new ArrayList<DatabaseQueryListener>(1);
+    private final List<DatabaseQueryListener> listenerList = new ArrayList<>(1);
 
     public WorldMapUI() {
 

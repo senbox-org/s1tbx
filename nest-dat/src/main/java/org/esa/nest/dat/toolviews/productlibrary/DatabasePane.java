@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.db.DBQuery;
 import org.esa.nest.db.ProductDB;
 import org.esa.nest.db.ProductEntry;
@@ -71,7 +72,7 @@ public final class DatabasePane extends JPanel {
     private ProductEntry[] productEntryList = null;
     boolean modifyingCombos = false;
 
-    private final List<DatabaseQueryListener> listenerList = new ArrayList<DatabaseQueryListener>(1);
+    private final List<DatabaseQueryListener> listenerList = new ArrayList<>(1);
 
     public DatabasePane() {
         try {
@@ -156,7 +157,7 @@ public final class DatabasePane extends JPanel {
 
     private void notifyQuery() {
         for (final DatabaseQueryListener listener : listenerList) {
-            listener.notifyNewProductEntryListAvailable();
+            listener.notifyNewProductEntryListAvailable(getProductEntryList());
         }
     }
 
@@ -425,7 +426,7 @@ public final class DatabasePane extends JPanel {
 
     private static int[] findIndices(final JList list, final String[] values) {
         final int size = list.getModel().getSize();
-        final List<Integer> indices = new ArrayList<Integer>(size);
+        final List<Integer> indices = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             final String str = (String) list.getModel().getElementAt(i);
             if (StringUtils.contains(values, str)) {

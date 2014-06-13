@@ -46,7 +46,7 @@ public class SortingDecorator extends AbstractTableModel {
     private final ProductEntryTableModel _tableModel;
     private final JTableHeader _tableHeader;
 
-    private final List<Directive> sortingColumns = new ArrayList<Directive>();
+    private final List<Directive> sortingColumns = new ArrayList<>();
     private Row[] viewToModel = null;
     private boolean doSortBy = false;
 
