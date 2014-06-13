@@ -29,7 +29,7 @@ public class Indexer {
     public static final String DEFAULT_INDEX_NAME = "lucene-index";
 
     private IndexWriter indexWriter;
-    private long docID;
+    private long docId;
 
     private int maxThreadCount = IndexWriterConfig.DEFAULT_MAX_THREAD_STATES;
     private String indexName = DEFAULT_INDEX_NAME;
@@ -84,10 +84,12 @@ public class Indexer {
         config.setMaxThreadStates(maxThreadCount);
 
 
+        File indexDir = new File(indexName);
+
         long t1, t2;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(csvFilePath))) {
-            try (Directory indexDirectory = FSDirectory.open(new File(indexName))) {
+            try (Directory indexDirectory = FSDirectory.open(indexDir)) {
                 indexWriter = new IndexWriter(indexDirectory, config);
                 try {
                     t1 = System.currentTimeMillis();
@@ -103,13 +105,14 @@ public class Indexer {
             }
         }
 
-        System.out.println(docID + "(s) patches added to index within " + ((t2 - t1) / 1000) + " seconds");
+        System.out.println(docId + "(s) patches added to index within " + ((t2 - t1) / 1000) + " seconds");
         return 0;
     }
 
     private void addPatchToIndex(String sensor, String productType, String nodeId, String nodeName, String uri) throws IOException {
 
         Document doc = new Document();
+        doc.add(new TextField("docId", Long.toHexString(docId), Field.Store.YES));
         doc.add(new TextField("sensor", sensor, Field.Store.YES));
         doc.add(new TextField("productType", productType, Field.Store.YES));
         doc.add(new TextField("nodeId", nodeId, Field.Store.YES));
@@ -117,8 +120,8 @@ public class Indexer {
         doc.add(new TextField("uri", uri, Field.Store.YES));
 
         indexWriter.addDocument(doc);
-        System.out.printf("[%5d]: sensor:\"%s\", productType:\"%s\", nodeId:\"%s\", nodeName:\"%s\", uri:\"%s\"\n", docID, sensor, productType, nodeId, nodeName, uri);
+        System.out.printf("[%5d]: sensor:\"%s\", productType:\"%s\", nodeId:\"%s\", nodeName:\"%s\", uri:\"%s\"\n", docId, sensor, productType, nodeId, nodeName, uri);
 //        System.out.printf("[%5d]: product:\"%s\", px:%d, py:%d\n", docID, productName, patchX, patchY);
-        docID++;
+        docId++;
     }
 }

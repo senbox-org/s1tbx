@@ -27,7 +27,7 @@ public class Finder {
 
     int maxThreadCount = 1;
     int maxHitCount = 100;
-    String defaultField = "product";
+    String defaultField = "nodeName";
     String indexName = Indexer.DEFAULT_INDEX_NAME;
 
     public static void main(String[] args) {
@@ -103,14 +103,11 @@ public class Finder {
             } else {
                 System.out.println("found " + topDocs.totalHits + " documents(s) within " + (t2 - t1) + " ms:");
                 ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-                for (int i = 0; i < scoreDocs.length; i++) {
-                    ScoreDoc scoreDoc = scoreDocs[i];
-                    int docID = scoreDoc.doc;
-                    Document doc = indexSearcher.doc(docID);
-                    String productName = doc.getValues("product")[0];
-                    String patchX = doc.getValues("px")[0];
-                    String patchY = doc.getValues("py")[0];
-                    System.out.printf("[%5d]: product:\"%s\", px:%s, py:%s\n", i + 1, productName, patchX, patchY);
+                for (ScoreDoc scoreDoc : scoreDocs) {
+                    int docId = scoreDoc.doc;
+                    Document doc = indexSearcher.doc(docId);
+                    String uri = doc.getValues("uri")[0];
+                    System.out.printf("[%5d]: uri:\"%s\"\n\n", docId, uri);
                 }
             }
         } catch (RuntimeException | Error e) {
