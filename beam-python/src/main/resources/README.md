@@ -22,14 +22,14 @@ beampy has been tested with Python 2.7 and 3.3 with a Java 7 JDK. It will presum
 and a Java 6 JDK.
 
 Before you can start using the BEAM API or developing BEAM operator plugins with Python you need
-to install jpy and beampy. Unfortunately this has to be done manually, so be prepared to invest at least half an hour
-for setting up things correctly.
+to install the `jpy` and `beampy` Python modules. Unfortunately this has to be done manually, so be 
+prepared to invest at least half an hour for setting up things correctly.
 
 Installation
 ------------
 
 The first step is to properly install `jpy` as described in the [jpy documentation](http://jpy.readthedocs.org/en/latest/install.html).
-After successful installation of `jpy`, you will need to install `beampy` as follows:
+(Be sure use `jpy` version 0.7.2 or higher.) After successful installation of `jpy`, you will need to install `beampy` as follows:
 
 On Darwin / Linux type:
 
