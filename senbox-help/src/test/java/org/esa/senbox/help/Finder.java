@@ -107,7 +107,7 @@ public class Finder {
                     int docId = scoreDoc.doc;
                     Document doc = indexSearcher.doc(docId);
                     String uri = doc.getValues("uri")[0];
-                    System.out.printf("[%5d]: uri:\"%s\"\n\n", docId, uri);
+                    System.out.printf("[%5d]: uri:\"%s\"\n", docId, uri);
                 }
             }
         } catch (RuntimeException | Error e) {
