@@ -6,44 +6,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>ceres</artifactId>
-        <groupId>com.bc.ceres</groupId>
-        <version>0.14.1</version>
+        <artifactId>senbox</artifactId>
+        <groupId>org.esa.senbox</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>Ceres Site Generation</name>
-    <artifactId>ceres-site</artifactId>
-    <version>0.14</version>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-launcher</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.bc.ceres.site.SiteCreator</mainClass>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <name>Senbox Context Help</name>
+    <artifactId>senbox-help</artifactId>
+    <version>0.5-SNAPSHOT</version>
+    
 </project>
