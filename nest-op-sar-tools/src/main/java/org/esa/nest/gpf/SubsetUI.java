@@ -277,7 +277,7 @@ public class SubsetUI extends BaseOperatorUI {
 
     private class MapListener implements DatabaseQueryListener {
 
-        public void notifyNewProductEntryListAvailable(final ProductEntry[] list) {
+        public void notifyNewEntryListAvailable() {
 
         }
 

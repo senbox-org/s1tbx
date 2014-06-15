@@ -17,10 +17,13 @@ package org.esa.nest.dat.toolviews.productlibrary;
 
 import com.jidesoft.combobox.DateComboBox;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.DBQuery;
 import org.esa.nest.db.ProductDB;
 import org.esa.nest.db.ProductEntry;
@@ -66,6 +69,7 @@ public final class DatabasePane extends JPanel {
     private final JTextArea metadataArea = new JTextArea();
     private final JButton addMetadataButton = new JButton("+");
     private final JButton updateButton = new JButton(UIUtils.loadImageIcon("icons/ViewRefresh16.png"));
+    private final JTextArea productText = new JTextArea();
 
     private ProductDB db;
     private DBQuery dbQuery = new DBQuery();
@@ -157,7 +161,7 @@ public final class DatabasePane extends JPanel {
 
     private void notifyQuery() {
         for (final DatabaseQueryListener listener : listenerList) {
-            listener.notifyNewProductEntryListAvailable(getProductEntryList());
+            listener.notifyNewEntryListAvailable();
         }
     }
 
@@ -212,18 +216,38 @@ public final class DatabasePane extends JPanel {
         label.setHorizontalAlignment(JLabel.RIGHT);
         gbc.gridy++;
         gbc.gridx = 0;
-        this.add(metadataNameCombo, gbc);
-        metadataNameCombo.setPrototypeDisplayValue("1234567890123456789");
+        gbc.gridwidth = 2;
+        this.add(createFreeSearchPanel(), gbc);
+
+        gbc.gridy++;
+        final JPanel productDetailsPanel = new JPanel(new BorderLayout());
+        productDetailsPanel.setBorder(BorderFactory.createTitledBorder("Product Details"));
+        productText.setLineWrap(true);
+        productText.setRows(4);
+        productText.setBackground(getBackground());
+        productDetailsPanel.add(productText, BorderLayout.CENTER);
+        this.add(productDetailsPanel, gbc);
+
+        //DialogUtils.fillPanel(this, gbc);
+    }
+
+    private JPanel createFreeSearchPanel() {
+        final JPanel freeSearchPanel = new JPanel(new GridBagLayout());
+        freeSearchPanel.setBorder(BorderFactory.createTitledBorder("Metadata SQL Query"));
+        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
+
+        freeSearchPanel.add(metadataNameCombo, gbc);
+        metadataNameCombo.setPrototypeDisplayValue("123456789012");
         gbc.gridx = 1;
-        this.add(metdataValueField, gbc);
+        freeSearchPanel.add(metdataValueField, gbc);
+        metdataValueField.setColumns(10);
         gbc.gridx = 2;
-        this.add(addMetadataButton, gbc);
-        addMetadataButton.setMaximumSize(new Dimension(3, 3));
+        freeSearchPanel.add(addMetadataButton, gbc);
 
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        this.add(metadataArea, gbc);
+        freeSearchPanel.add(metadataArea, gbc);
         metadataArea.setBorder(new LineBorder(Color.BLACK));
         metadataArea.setLineWrap(true);
         metadataArea.setRows(4);
@@ -231,10 +255,10 @@ public final class DatabasePane extends JPanel {
         gbc.gridx = 2;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(updateButton, gbc);
-        updateButton.setMaximumSize(new Dimension(3, 3));
+        freeSearchPanel.add(updateButton, gbc);
 
-        DialogUtils.fillPanel(this, gbc);
+        DialogUtils.fillPanel(freeSearchPanel, gbc);
+        return freeSearchPanel;
     }
 
     private void connectToDatabase() throws Exception {
@@ -438,5 +462,47 @@ public final class DatabasePane extends JPanel {
             intIndices[i] = indices.get(i);
         }
         return intIndices;
+    }
+
+    public void updateProductSelectionText(final ProductEntry[] selections) {
+        if (selections != null && selections.length == 1) {
+            final ProductEntry entry = selections[0];
+            final StringBuilder text = new StringBuilder(255);
+
+            final MetadataElement absRoot = entry.getMetadata();
+            final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING);
+            final ProductData.UTC acqTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
+            final int absOrbit = absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, AbstractMetadata.NO_METADATA);
+            final int relOrbit = absRoot.getAttributeInt(AbstractMetadata.REL_ORBIT, AbstractMetadata.NO_METADATA);
+            final String map = absRoot.getAttributeString(AbstractMetadata.map_projection, AbstractMetadata.NO_METADATA_STRING).trim();
+            final int cal = absRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, AbstractMetadata.NO_METADATA);
+            final int tc = absRoot.getAttributeInt(AbstractMetadata.is_terrain_corrected, AbstractMetadata.NO_METADATA);
+            final int coreg = absRoot.getAttributeInt(AbstractMetadata.coregistered_stack, AbstractMetadata.NO_METADATA);
+
+            text.append(entry.getName());
+            text.append("\n\n");
+            text.append(entry.getAcquisitionMode() + "   " + sampleType + '\n');
+            text.append(acqTime.format());
+            text.append('\n');
+
+            text.append("Orbit: " + absOrbit);
+            if (relOrbit != AbstractMetadata.NO_METADATA)
+                text.append("  Track: " + relOrbit);
+            text.append('\n');
+            if (!map.isEmpty()) {
+                text.append(map);
+                text.append('\n');
+            }
+            if (cal == 1)
+                text.append("Calibrated ");
+            if (coreg == 1)
+                text.append("Coregistered ");
+            if (tc == 1)
+                text.append("Terrain Corrected ");
+
+            productText.setText(text.toString());
+        } else {
+            productText.setText("");
+        }
     }
 }

@@ -15,14 +15,12 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary.model;
 
-import org.esa.nest.db.ProductEntry;
-
 /**
 
  */
 public interface DatabaseQueryListener {
 
-    public void notifyNewProductEntryListAvailable(final ProductEntry[] list);
+    public void notifyNewEntryListAvailable();
 
     public void notifyNewMapSelectionAvailable();
 }
