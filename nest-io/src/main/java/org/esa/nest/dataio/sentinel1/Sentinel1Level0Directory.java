@@ -214,7 +214,14 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, orbitNumber.getAttributeInt("orbitNumber", defInt));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, relativeOrbitNumber.getAttributeInt("relativeOrbitNumber", defInt));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, orbitReference.getAttributeString("pass", defStr));
+
+                //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, orbitReference.getAttributeString("pass", defStr));
+                String passStr = "";
+                final MetadataElement orbitRef = getMetadataObject(product, "measurementOrbitReference");
+                if (orbitRef != null) {
+                    passStr = orbitRef.getElement("metadataWrap").getElement("xmlData").getElement("orbitReference").getElement("extension").getElement("orbitProperties").getAttributeString("pass");
+                }
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, orbitReference.getAttributeString("pass", passStr));
             } else if (id.equals("measurementFrameSet")) {
 
             } else if (id.equals("generalProductInformation")) {
@@ -222,10 +229,12 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 if (generalProductInformation == null)
                     generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
 
+                /*
                 String productType = "unknown";
                 if (generalProductInformation != null)
                     productType = generalProductInformation.getAttributeString("productType", defStr);
-
+                */
+                final String productType = "Raw"; // Level 0 products are all raw data
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if (productType.contains("SLC")) {
@@ -581,85 +590,96 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         reader.readData();
     }
 
+    private MetadataElement getMetadataObject(final Product product, final String metadataObjectName) {
+
+        final MetadataElement metadataSection = product.getMetadataRoot().getElement("Original_Product_Metadata").getElement("XFDU").getElement("metadataSection");
+        final MetadataElement[] metadataObjects = metadataSection.getElements();
+
+        for (MetadataElement elem : metadataObjects) {
+
+            if (elem.getAttribute("ID").getData().getElemString().equals(metadataObjectName)) {
+
+                return elem;
+            }
+        }
+
+        return null;
+    }
+
     private void addGeoCodingForLevel0Products(final Product product) {
 
         final float[] latCorners = new float[4];
         final float[] lonCorners = new float[latCorners.length];
 
-        final MetadataElement metadataSection = product.getMetadataRoot().getElement("Original_Product_Metadata").getElement("XFDU").getElement("metadataSection");
+        final MetadataElement elem = getMetadataObject(product, "measurementFrameSet");
 
-        final MetadataElement[] metadataObjects = metadataSection.getElements();
+        if (elem != null) {
 
-        for (MetadataElement elem : metadataObjects) {
+            final MetadataElement footprint = elem.getElement("metadataWrap").getElement("xmlData").getElement("frameSet").getElement("frame").getElement("footprint");
 
-            if (elem.getAttribute("ID").getData().getElemString().equals("measurementFrameSet")) {
+            final MetadataAttribute coordinates = footprint.getAttribute("coordinates");
 
-                final MetadataElement footprint = elem.getElement("metadataWrap").getElement("xmlData").getElement("frameSet").getElement("frame").getElement("footprint");
+            final String coordinatesStr = coordinates.getData().getElemString();
 
-                final MetadataAttribute coordinates = footprint.getAttribute("coordinates");
+            //System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: " + coordinatesStr);
 
-                final String coordinatesStr = coordinates.getData().getElemString();
+            final String[] latLonPairsStr = coordinatesStr.split(" ");
 
-                //System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: " + coordinatesStr);
+            final int numLatLonPairs = latLonPairsStr.length;
 
-                final String[] latLonPairsStr = coordinatesStr.split(" ");
+            final ArrayList<float[]> latLonList = new ArrayList<>();
 
-                final int numLatLonPairs = latLonPairsStr.length;
+            for (String s : latLonPairsStr) {
 
-                final ArrayList<float[]> latLonList = new ArrayList<>();
+                //System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: " + s);
 
-                for (String s : latLonPairsStr) {
+                String[] latStrLonStr = s.split(",");
 
-                    //System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: " + s);
-
-                    String[] latStrLonStr = s.split(",");
-
-                    if (latStrLonStr.length != 2) {
-                        System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: ERROR in footprint coordinates");
-                        continue;
-                    }
-
-                    float[] latLon = new float[2];
-                    latLon[0] = Float.parseFloat(latStrLonStr[0]);
-                    latLon[1] = Float.parseFloat(latStrLonStr[1]);
-                    latLonList.add(latLon);
+                if (latStrLonStr.length != 2) {
+                    System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: ERROR in footprint coordinates");
+                    continue;
                 }
+
+                float[] latLon = new float[2];
+                latLon[0] = Float.parseFloat(latStrLonStr[0]);
+                latLon[1] = Float.parseFloat(latStrLonStr[1]);
+                latLonList.add(latLon);
+            }
                 /*
                 for (float[] latLon : latLonList) {
                     System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: lat = " + latLon[0] + " lon = " + latLon[1]);
                 }
                 */
-                // The footprint coordinates are counter clockwise with the last coordinates being a repeat of the first.
-                // So we remove the last pair of lat/lon if it is the same as the first pair.
-                final float[] latLonFirst = latLonList.get(0);
-                final float[] latLonLast = latLonList.get(numLatLonPairs - 1);
-                if (latLonFirst[0] == latLonLast[0] && latLonFirst[1] == latLonLast[1]) {
-                    latLonList.remove(numLatLonPairs - 1);
-                }
+            // The footprint coordinates are counter clockwise with the last coordinates being a repeat of the first.
+            // So we remove the last pair of lat/lon if it is the same as the first pair.
+            final float[] latLonFirst = latLonList.get(0);
+            final float[] latLonLast = latLonList.get(numLatLonPairs - 1);
+            if (latLonFirst[0] == latLonLast[0] && latLonFirst[1] == latLonLast[1]) {
+                latLonList.remove(numLatLonPairs - 1);
+            }
 
-                if (latLonList.size() != latCorners.length) {
-                    return;
-                }
+            if (latLonList.size() != latCorners.length) {
+                return;
+            }
                 /*
                 for (float[] latLon : latLonList) {
                     System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: (after removing duplicate) lat = " + latLon[0] + " lon = " + latLon[1]);
                 }
                 */
-                for (int i = 0; i < latCorners.length; i++) {
+            for (int i = 0; i < latCorners.length; i++) {
 
-                    latCorners[i] = latLonList.get(i)[0];
-                    lonCorners[i] = latLonList.get(i)[1];
-                }
-
-                // The lat/lon from the product are counter clockwise
-                // Swap the first two pairs of lat/lon
-                float tmp = latCorners[0];
-                latCorners[0] = latCorners[1];
-                latCorners[1] = tmp;
-                tmp = lonCorners[0];
-                lonCorners[0] = lonCorners[1];
-                lonCorners[1] = tmp;
+                latCorners[i] = latLonList.get(i)[0];
+                lonCorners[i] = latLonList.get(i)[1];
             }
+
+            // The lat/lon from the product are counter clockwise
+            // Swap the first two pairs of lat/lon
+            float tmp = latCorners[0];
+            latCorners[0] = latCorners[1];
+            latCorners[1] = tmp;
+            tmp = lonCorners[0];
+            lonCorners[0] = lonCorners[1];
+            lonCorners[1] = tmp;
         }
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
