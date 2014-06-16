@@ -18,6 +18,7 @@ package org.esa.nest.dataio.sentinel1;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.Array;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
@@ -30,6 +31,7 @@ import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -259,6 +261,10 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     @Override
     protected void addGeoCoding(final Product product) {
 
+        addGeoCodingForLevel0Products(product);
+
+        // TODO Don't know if this code is needed...
+        /*
         TiePointGrid latGrid = product.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
         if (latGrid != null && lonGrid != null) {
@@ -332,6 +338,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
+        */
     }
 
     @Override
@@ -574,10 +581,98 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         reader.readData();
     }
 
+    private void addGeoCodingForLevel0Products(final Product product) {
+
+        final float[] latCorners = new float[4];
+        final float[] lonCorners = new float[latCorners.length];
+
+        final MetadataElement metadataSection = product.getMetadataRoot().getElement("Original_Product_Metadata").getElement("XFDU").getElement("metadataSection");
+
+        final MetadataElement[] metadataObjects = metadataSection.getElements();
+
+        for (MetadataElement elem : metadataObjects) {
+
+            if (elem.getAttribute("ID").getData().getElemString().equals("measurementFrameSet")) {
+
+                final MetadataElement footprint = elem.getElement("metadataWrap").getElement("xmlData").getElement("frameSet").getElement("frame").getElement("footprint");
+
+                final MetadataAttribute coordinates = footprint.getAttribute("coordinates");
+
+                final String coordinatesStr = coordinates.getData().getElemString();
+
+                //System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: " + coordinatesStr);
+
+                final String[] latLonPairsStr = coordinatesStr.split(" ");
+
+                final int numLatLonPairs = latLonPairsStr.length;
+
+                final ArrayList<float[]> latLonList = new ArrayList<>();
+
+                for (String s : latLonPairsStr) {
+
+                    //System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: " + s);
+
+                    String[] latStrLonStr = s.split(",");
+
+                    if (latStrLonStr.length != 2) {
+                        System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: ERROR in footprint coordinates");
+                        continue;
+                    }
+
+                    float[] latLon = new float[2];
+                    latLon[0] = Float.parseFloat(latStrLonStr[0]);
+                    latLon[1] = Float.parseFloat(latStrLonStr[1]);
+                    latLonList.add(latLon);
+                }
+                /*
+                for (float[] latLon : latLonList) {
+                    System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: lat = " + latLon[0] + " lon = " + latLon[1]);
+                }
+                */
+                // The footprint coordinates are counter clockwise with the last coordinates being a repeat of the first.
+                // So we remove the last pair of lat/lon if it is the same as the first pair.
+                final float[] latLonFirst = latLonList.get(0);
+                final float[] latLonLast = latLonList.get(numLatLonPairs - 1);
+                if (latLonFirst[0] == latLonLast[0] && latLonFirst[1] == latLonLast[1]) {
+                    latLonList.remove(numLatLonPairs - 1);
+                }
+
+                if (latLonList.size() != latCorners.length) {
+                    return;
+                }
+                /*
+                for (float[] latLon : latLonList) {
+                    System.out.println("Sentinel1Level0Directory.addGeoCodingForLevel0Products: (after removing duplicate) lat = " + latLon[0] + " lon = " + latLon[1]);
+                }
+                */
+                for (int i = 0; i < latCorners.length; i++) {
+
+                    latCorners[i] = latLonList.get(i)[0];
+                    lonCorners[i] = latLonList.get(i)[1];
+                }
+
+                // The lat/lon from the product are counter clockwise
+                // Swap the first two pairs of lat/lon
+                float tmp = latCorners[0];
+                latCorners[0] = latCorners[1];
+                latCorners[1] = tmp;
+                tmp = lonCorners[0];
+                lonCorners[0] = lonCorners[1];
+                lonCorners[1] = tmp;
+            }
+        }
+
+        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+    }
+
     @Override
     public Product createProduct() throws IOException {
 
         //System.out.println("Sentinel1Level0Directory.createProduct: called for " + getProductName());
+
+        // TODO Raster scene height and width are set to 5000 for now.
+        sceneHeight = 5000;
+        sceneWidth = 5000;
 
         final Product product = new Product(getProductName(),
                 getProductType(),
