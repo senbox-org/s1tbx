@@ -57,11 +57,11 @@
             <artifactId>commons-compress</artifactId>
             <version>1.8</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>compile</scope>
-        </dependency>
+        </dependency-->
     </dependencies>
 
 </project>

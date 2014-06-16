@@ -21,11 +21,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.nest.db.ProductEntry;
 import org.esa.nest.gpf.ui.BaseOperatorUI;
 import org.esa.nest.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.toolviews.productlibrary.DatabaseQueryListener;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.WorldMapUI;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
 import org.esa.nest.util.DialogUtils;
@@ -276,7 +277,7 @@ public class SubsetUI extends BaseOperatorUI {
 
     private class MapListener implements DatabaseQueryListener {
 
-        public void notifyNewProductEntryListAvailable() {
+        public void notifyNewEntryListAvailable() {
 
         }
 

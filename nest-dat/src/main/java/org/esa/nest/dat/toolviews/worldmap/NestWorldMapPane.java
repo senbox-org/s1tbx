@@ -72,7 +72,7 @@ public class NestWorldMapPane extends JPanel {
         layerCanvas.addOverlay(new BoundaryOverlay());
         final Layer rootLayer = layerCanvas.getLayer();
 
-        final Dimension dimension = new Dimension(400, 200);
+        final Dimension dimension = new Dimension(400, 150);
         final Viewport viewport = layerCanvas.getViewport();
         viewport.setViewBounds(new Rectangle(dimension));
 

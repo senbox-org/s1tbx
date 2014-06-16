@@ -124,6 +124,7 @@ public final class LinearTodBOp extends Operator {
             }
 
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+            final double nodatavalue = sourceBand1.getNoDataValue();
 
             final ProductData trgData = targetTile.getDataBuffer();
 
@@ -148,7 +149,10 @@ public final class LinearTodBOp extends Operator {
                     } else {
                         value = srcData1.getElemDoubleAt(index);
                     }
-                    if (value < underFlowFloat) {
+                    if(value == nodatavalue) {
+                        trgData.setElemDoubleAt(index, value);
+                        continue;
+                    } else if (value < underFlowFloat) {
                         value = -underFlowFloat;
                     } else {
                         value = 10.0 * Math.log10(value);
@@ -248,6 +252,9 @@ public final class LinearTodBOp extends Operator {
                         srcBand.getSceneRasterHeight());
 
                 targetBand.setUnit(targetUnit);
+                targetBand.setDescription(srcBand.getDescription());
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
+                targetBand.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBand);
             }
         }

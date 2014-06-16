@@ -75,7 +75,7 @@ public class ProductLibraryConfig {
      * @return the stored repositories.
      */
     public File[] getBaseDirs() {
-        final List<File> dirList = new ArrayList<File>();
+        final List<File> dirList = new ArrayList<>();
         final Set keys = properties.getProperties().keySet();
         for (Object o : keys) {
             if (o instanceof String) {

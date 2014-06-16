@@ -43,9 +43,11 @@ public class StackAveragingOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {"Mean Average", "Minimum", "Maximum", "Standard Deviation"},
+    @Parameter(valueSet = {"Mean Average", "Minimum", "Maximum", "Standard Deviation", "Coefficient of Variation"},
             defaultValue = "Mean Average", label = "Statistic")
     private String statistic = "Mean Average";
+
+    private String[] nameSet;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -63,7 +65,7 @@ public class StackAveragingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if(!StackUtils.isCoregisteredStack(sourceProduct)) {
+            if (!StackUtils.isCoregisteredStack(sourceProduct)) {
                 throw new OperatorException("Input should be a coregistered stack");
             }
 
@@ -74,9 +76,9 @@ public class StackAveragingOp extends Operator {
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-            final String[] nameSet = getBandGroupNames();
+            nameSet = getBandGroupNames();
 
-            for(String name_prefix : nameSet) {
+            for (String name_prefix : nameSet) {
                 final Band[] sourceBands = getSourceBands(name_prefix);
                 final String unit = sourceBands[0].getUnit();
                 final double nodatavalue = sourceBands[0].getNoDataValue();
@@ -94,13 +96,30 @@ public class StackAveragingOp extends Operator {
                     case "Standard Deviation":
                         addVirtualBand("stddev", name_prefix, stddev(sourceBands), unit, nodatavalue);
                         break;
+                    case "Coefficient of Variation":
+                        addVirtualBand("coefVar", name_prefix, coefVar(sourceBands), unit, nodatavalue);
+                        break;
                 }
             }
+
+            // add virtual intensity bands
+            addOriginalVirtualBands();
 
             updateMetadata(targetProduct);
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    @Override
+    public void dispose() {
+        for (String name : nameSet) {
+            final Band srcBand = sourceProduct.getBand(name);
+            if (srcBand != null) {
+                sourceProduct.removeBand(srcBand);
+            }
+        }
+        sourceProduct.setModified(false);
     }
 
     private void updateMetadata(final Product targetProduct) {
@@ -153,6 +172,40 @@ public class StackAveragingOp extends Operator {
         ProductUtils.copyBand(name_prefix, sourceProduct, targetProduct, true);
     }
 
+    private void addOriginalVirtualBands() {
+        List<String> nameList = Arrays.asList(nameSet);
+        final Band[] bands = sourceProduct.getBands();
+        for (Band band : bands) {
+            if (band instanceof VirtualBand) {
+                final String trgBandName = StackUtils.getBandNameWithoutDate(band.getName());
+                if(targetProduct.getBand(trgBandName) != null || nameList.contains(band.getName()))
+                    continue;
+
+                final VirtualBand srcBand = (VirtualBand) band;
+                String expression = srcBand.getExpression();
+
+                for(Band b : bands) {
+                    final String bName = b.getName();
+                    if(expression.contains(bName) && !nameList.contains(bName)) {
+                        final String newName = StackUtils.getBandNameWithoutDate(bName);
+                        expression = expression.replaceAll(bName, newName);
+                    }
+                }
+
+                final VirtualBand virtBand = new VirtualBand(trgBandName,
+                        srcBand.getDataType(),
+                        srcBand.getSceneRasterWidth(),
+                        srcBand.getSceneRasterHeight(),
+                        expression);
+                virtBand.setUnit(srcBand.getUnit());
+                virtBand.setDescription(srcBand.getDescription());
+                virtBand.setNoDataValue(srcBand.getNoDataValue());
+                virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                targetProduct.addBand(virtBand);
+            }
+        }
+    }
+
     private static String mean(final Band[] sourceBands) {
         final StringBuilder expression = new StringBuilder("( ");
         int cnt = 0;
@@ -174,13 +227,13 @@ public class StackAveragingOp extends Operator {
         for (Band band : sourceBands) {
             if (cnt > 0) {
                 expression.append(", ");
-                if(cnt < sourceBands.length-1)
+                if (cnt < sourceBands.length - 1)
                     expression.append("min( ");
             }
             expression.append(band.getName());
             ++cnt;
         }
-        for (int i=0; i < sourceBands.length-1; ++i) {
+        for (int i = 0; i < sourceBands.length - 1; ++i) {
             expression.append(")");
         }
 
@@ -193,13 +246,13 @@ public class StackAveragingOp extends Operator {
         for (Band band : sourceBands) {
             if (cnt > 0) {
                 expression.append(", ");
-                if(cnt < sourceBands.length-1)
+                if (cnt < sourceBands.length - 1)
                     expression.append("max( ");
             }
             expression.append(band.getName());
             ++cnt;
         }
-        for (int i=0; i < sourceBands.length-1; ++i) {
+        for (int i = 0; i < sourceBands.length - 1; ++i) {
             expression.append(")");
         }
 
@@ -223,9 +276,30 @@ public class StackAveragingOp extends Operator {
         return expression.toString();
     }
 
-    private static String stddev(final Band[] sourceBands) {
+    private static String mean4(final Band[] sourceBands) {
+        final StringBuilder expression = new StringBuilder("( ");
+        int cnt = 0;
+        for (Band band : sourceBands) {
+            if (cnt > 0)
+                expression.append(" + ");
+            expression.append("pow(");
+            expression.append(band.getName());
+            expression.append(", 4)");
+            ++cnt;
+        }
+        expression.append(") / ");
+        expression.append(sourceBands.length);
 
+        return expression.toString();
+    }
+
+    private static String stddev(final Band[] sourceBands) {
         return "sqrt( " + mean2(sourceBands) + " - " + "sqr(" + mean(sourceBands) + "))";
+    }
+
+    private static String coefVar(final Band[] sourceBands) {
+        final String m2 = mean2(sourceBands);
+        return "sqrt( " + mean4(sourceBands) + " - " + "sqr(" + m2 + ")) / " + m2;
     }
 
     /**
