@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -27,6 +27,8 @@
 
     <changelog>
         <![CDATA[
+          <b>Changes in 5.0.1</b><br/>
+          Harmonisation with NEST: Allow JIDE license to be overridden<br/>
           <b>Changes in 5.0</b><br/>
           [BEAM-1509]  Mosaic tool does not initiate the download of the selected DEM <br/>
           [BEAM-1642] Create geometry from WKT<br/>
