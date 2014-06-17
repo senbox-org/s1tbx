@@ -8,10 +8,10 @@ $NEST_HOME/jre/bin/java \
     -server -Xms512M -Xmx800M -Xverify:none \
     -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
     -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate -XX:+UseStringCache \
-    -Dceres.context=nest \
-    "-Dnest.mainClass=org.esa.beam.framework.gpf.main.Main" \
-    "-Dnest.home=$NEST_HOME" \
-	"-Dnest.debug=false" \
+    -Dceres.context=s1tbx \
+    "-Ds1tbx.mainClass=org.esa.beam.framework.gpf.main.Main" \
+    "-Ds1tbx.home=$NEST_HOME" \
+	"-Ds1tbx.debug=false" \
     "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$NEST_HOME/libjhdf.so" \
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$NEST_HOME/libjhdf5.so" \
     -jar $NEST_HOME/bin/ceres-launcher.jar "$@"

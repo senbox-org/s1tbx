@@ -32,8 +32,8 @@ import java.util.List;
 public class ProductEntryTableModel extends AbstractTableModel {
 
     private final ProductEntry[] productEntryList;
-    final List<DataProvider> dataProviders = new ArrayList<DataProvider>(5);
-    private final List<TableColumn> columnList = new ArrayList<TableColumn>();
+    final List<DataProvider> dataProviders = new ArrayList<>(5);
+    private final List<TableColumn> columnList = new ArrayList<>();
 
     public ProductEntryTableModel(final ProductEntry[] productList) {
         this.productEntryList = productList;

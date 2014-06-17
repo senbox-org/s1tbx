@@ -18,7 +18,7 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
-		<beam.version>5.0</beam.version>
+		<beam.version>5.0.1</beam.version>
         <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
         <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>

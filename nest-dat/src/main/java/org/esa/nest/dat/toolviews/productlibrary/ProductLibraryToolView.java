@@ -15,9 +15,7 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary;
 
-import com.jidesoft.swing.JideSplitPane;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.ProductData;
+import com.alee.laf.splitpane.WebSplitPane;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -26,17 +24,16 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.BatchGraphDialog;
 import org.esa.nest.dat.dialogs.CheckListDialog;
 import org.esa.nest.dat.toolviews.Projects.Project;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.model.ProductEntryTableModel;
 import org.esa.nest.dat.toolviews.productlibrary.model.ProductLibraryConfig;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
 import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.dat.utils.ProductOpener;
-import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.db.DBQuery;
 import org.esa.nest.db.DBScanner;
 import org.esa.nest.db.ProductEntry;
 import org.esa.nest.util.ClipboardUtils;
-import org.esa.nest.util.DialogUtils;
 import org.esa.nest.util.ResourceUtils;
 
 import javax.swing.*;
@@ -83,7 +80,6 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private WorldMapUI worldMapUI = null;
     private DatabasePane dbPane;
-    private final JTextArea productText = new JTextArea();
 
     public ProductLibraryToolView() {
     }
@@ -141,7 +137,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         setOpenProductButtonsEnabled(selections.length > 0);
 
         updateContextMenu(selections);
-        updateProductSelectionText(selections);
+        dbPane.updateProductSelectionText(selections);
         worldMapUI.setSelectedProductEntryList(selections);
     }
 
@@ -156,48 +152,6 @@ public class ProductLibraryToolView extends AbstractToolView {
         copyToItem.setEnabled(allValid);
         moveToItem.setEnabled(allValid);
         deleteItem.setEnabled(allValid);
-    }
-
-    private void updateProductSelectionText(final ProductEntry[] selections) {
-        if (selections.length == 1) {
-            final ProductEntry entry = selections[0];
-            final StringBuilder text = new StringBuilder(255);
-
-            final MetadataElement absRoot = entry.getMetadata();
-            final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING);
-            final ProductData.UTC acqTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
-            final int absOrbit = absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, AbstractMetadata.NO_METADATA);
-            final int relOrbit = absRoot.getAttributeInt(AbstractMetadata.REL_ORBIT, AbstractMetadata.NO_METADATA);
-            final String map = absRoot.getAttributeString(AbstractMetadata.map_projection, AbstractMetadata.NO_METADATA_STRING).trim();
-            final int cal = absRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, AbstractMetadata.NO_METADATA);
-            final int tc = absRoot.getAttributeInt(AbstractMetadata.is_terrain_corrected, AbstractMetadata.NO_METADATA);
-            final int coreg = absRoot.getAttributeInt(AbstractMetadata.coregistered_stack, AbstractMetadata.NO_METADATA);
-
-            text.append(entry.getName());
-            text.append("\n\n");
-            text.append(entry.getAcquisitionMode() + "   " + sampleType + '\n');
-            text.append(acqTime.format());
-            text.append('\n');
-
-            text.append("Orbit: " + absOrbit);
-            if (relOrbit != AbstractMetadata.NO_METADATA)
-                text.append("  Track: " + relOrbit);
-            text.append('\n');
-            if (!map.isEmpty()) {
-                text.append(map);
-                text.append('\n');
-            }
-            if (cal == 1)
-                text.append("Calibrated ");
-            if (coreg == 1)
-                text.append("Coregistered ");
-            if (tc == 1)
-                text.append("Terrain Corrected ");
-
-            productText.setText(text.toString());
-        } else {
-            productText.setText("");
-        }
     }
 
     private void performOpenAction() {
@@ -459,7 +413,7 @@ public class ProductLibraryToolView extends AbstractToolView {
             return;
         }
 
-        final Map<String, Boolean> checkBoxMap = new HashMap<String, Boolean>(3);
+        final Map<String, Boolean> checkBoxMap = new HashMap<>(3);
         checkBoxMap.put("Generate quicklooks?", true);
         checkBoxMap.put("Search folder recursively?", true);
 
@@ -587,129 +541,23 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private void initUI() {
-        final JPanel northPanel = new JPanel(new BorderLayout(4, 4));
-        northPanel.add(createHeaderPanel(), BorderLayout.CENTER);
 
-        addToProjectButton = new JButton();
-        setComponentName(addToProjectButton, "addToProject");
-        addToProjectButton.setText("Import to Project");
-        addToProjectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                Project.instance().ImportFileList(getSelectedFiles());
-            }
-        });
+        final JPanel northPanel = createHeaderPanel();
+        final JPanel southPanel = createButtonPanel();
 
-        openAllSelectedButton = new JButton();
-        setComponentName(openAllSelectedButton, "openAllSelectedButton");
-        openAllSelectedButton.setText("Open Selected");
-        openAllSelectedButton.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                performOpenAction();
-            }
-        });
+        final WebSplitPane splitPaneV = new WebSplitPane(WebSplitPane.VERTICAL_SPLIT);
+        splitPaneV.setOneTouchExpandable(true);
+        splitPaneV.add(createCentrePanel());
 
-        batchProcessButton = new JButton();
-        setComponentName(batchProcessButton, "batchProcessButton");
-        batchProcessButton.setText("Batch Process");
-        batchProcessButton.setToolTipText("Right click to select a graph");
-        batchProcessButton.setComponentPopupMenu(createGraphPopup());
-        batchProcessButton.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                batchProcess(getSelectedProductEntries(), null);
-            }
-        });
-
-        final JPanel openPanel = new JPanel(new BorderLayout(4, 4));
-        openPanel.add(addToProjectButton, BorderLayout.WEST);
-        openPanel.add(openAllSelectedButton, BorderLayout.CENTER);
-        openPanel.add(batchProcessButton, BorderLayout.EAST);
-
-        final JPanel southPanel = new JPanel(new BorderLayout(4, 4));
-        statusLabel = new JLabel("");
-        southPanel.add(statusLabel, BorderLayout.CENTER);
-        southPanel.add(openPanel, BorderLayout.WEST);
-
-        progressBar = new JProgressBar();
-        setComponentName(progressBar, "progressBar");
-        progressBar.setStringPainted(true);
-        progressPanel = new JPanel();
-        progressPanel.setLayout(new BorderLayout());
-        progressPanel.add(progressBar);
-        progressPanel.setVisible(false);
-        southPanel.add(progressPanel, BorderLayout.EAST);
+        //final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
+        //splitPaneV.add(new TimelinePane(stats));
+        //splitPaneV.setDividerLocation(0.9);
 
         mainPanel = new JPanel(new BorderLayout(4, 4));
         mainPanel.add(northPanel, BorderLayout.NORTH);
-        mainPanel.add(createCentrePanel(), BorderLayout.CENTER);
+        mainPanel.add(splitPaneV, BorderLayout.CENTER);
         mainPanel.add(southPanel, BorderLayout.SOUTH);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-    }
-
-    private JPanel createCentrePanel() {
-        final JideSplitPane splitPane1H = new JideSplitPane(JideSplitPane.HORIZONTAL_SPLIT);
-        final MyDatabaseQueryListener dbQueryListener = new MyDatabaseQueryListener();
-        dbPane = new DatabasePane();
-        dbPane.addListener(dbQueryListener);
-        final JPanel leftPanel = new JPanel(new GridBagLayout());
-        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
-        final JScrollPane dbScroll = new JScrollPane(dbPane);
-        leftPanel.add(dbScroll, gbc);
-        dbScroll.setBorder(BorderFactory.createLineBorder(Color.RED, 0));
-
-        gbc.gridy++;
-        productText.setLineWrap(true);
-        productText.setRows(4);
-        productText.setBackground(dbPane.getBackground());
-        leftPanel.add(productText, gbc);
-        DialogUtils.fillPanel(leftPanel, gbc);
-        splitPane1H.add(new JScrollPane(leftPanel));
-
-        productEntryTable = new JTable();
-        productEntryTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-        productEntryTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        productEntryTable.setComponentPopupMenu(createEntryTablePopup());
-        productEntryTable.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                final int clickCount = e.getClickCount();
-                if (clickCount == 2) {
-                    performOpenAction();
-                } else if (clickCount == 1) {
-                    performSelectAction();
-                }
-            }
-        });
-        splitPane1H.add(new JScrollPane(productEntryTable));
-
-        final JideSplitPane splitPane1V = new JideSplitPane(JideSplitPane.VERTICAL_SPLIT);
-        splitPane1V.setShowGripper(true);
-        splitPane1V.add(splitPane1H);
-
-        worldMapUI = new WorldMapUI();
-        worldMapUI.addListener(dbQueryListener);
-        splitPane1V.add(worldMapUI.getWorlMapPane());
-
-        return splitPane1V;
-    }
-
-    private void setComponentName(JComponent button, String name) {
-        button.setName(getClass().getName() + name);
-    }
-
-   /* JComponent createRepositoryTreeControl() {
-        final JScrollPane prjScrollPane = new JideScrollPane(createTree());
-        prjScrollPane.setPreferredSize(new Dimension(320, 480));
-        prjScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        prjScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        return prjScrollPane;
-    }*/
-
-    public void UpdateUI() {
-        dbPane.refresh();
-        productEntryTable.updateUI();
-        //updateWorldMap();
     }
 
     private JPanel createHeaderPanel() {
@@ -780,6 +628,112 @@ public class ProductLibraryToolView extends AbstractToolView {
         return headerBar;
     }
 
+    private JPanel createButtonPanel() {
+        addToProjectButton = new JButton();
+        setComponentName(addToProjectButton, "addToProject");
+        addToProjectButton.setText("Import to Project");
+        addToProjectButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                Project.instance().ImportFileList(getSelectedFiles());
+            }
+        });
+
+        openAllSelectedButton = new JButton();
+        setComponentName(openAllSelectedButton, "openAllSelectedButton");
+        openAllSelectedButton.setText("Open Selected");
+        openAllSelectedButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                performOpenAction();
+            }
+        });
+
+        batchProcessButton = new JButton();
+        setComponentName(batchProcessButton, "batchProcessButton");
+        batchProcessButton.setText("Batch Process");
+        batchProcessButton.setToolTipText("Right click to select a graph");
+        batchProcessButton.setComponentPopupMenu(createGraphPopup());
+        batchProcessButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                batchProcess(getSelectedProductEntries(), null);
+            }
+        });
+
+        final JPanel openPanel = new JPanel(new BorderLayout(4, 4));
+        openPanel.add(addToProjectButton, BorderLayout.WEST);
+        openPanel.add(openAllSelectedButton, BorderLayout.CENTER);
+        openPanel.add(batchProcessButton, BorderLayout.EAST);
+
+        final JPanel southPanel = new JPanel(new BorderLayout(4, 4));
+        statusLabel = new JLabel("");
+        southPanel.add(statusLabel, BorderLayout.CENTER);
+        southPanel.add(openPanel, BorderLayout.WEST);
+
+        progressBar = new JProgressBar();
+        setComponentName(progressBar, "progressBar");
+        progressBar.setStringPainted(true);
+        progressPanel = new JPanel();
+        progressPanel.setLayout(new BorderLayout());
+        progressPanel.add(progressBar);
+        progressPanel.setVisible(false);
+        southPanel.add(progressPanel, BorderLayout.EAST);
+
+        return southPanel;
+    }
+
+    private JPanel createCentrePanel() {
+
+        final MyDatabaseQueryListener dbQueryListener = new MyDatabaseQueryListener();
+        dbPane = new DatabasePane();
+        dbPane.addListener(dbQueryListener);
+
+        final JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setMinimumSize(new Dimension(200, 577));
+        leftPanel.add(dbPane, BorderLayout.NORTH);
+
+        productEntryTable = new JTable();
+        productEntryTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        productEntryTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        productEntryTable.setComponentPopupMenu(createEntryTablePopup());
+        productEntryTable.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                final int clickCount = e.getClickCount();
+                if (clickCount == 2) {
+                    performOpenAction();
+                } else if (clickCount == 1) {
+                    performSelectAction();
+                }
+            }
+        });
+
+        final WebSplitPane splitPaneV = new WebSplitPane(WebSplitPane.VERTICAL_SPLIT);
+        splitPaneV.setOneTouchExpandable(true);
+        final JScrollPane tablePane = new JScrollPane(productEntryTable);
+        tablePane.setMinimumSize(new Dimension(400, 400));
+        splitPaneV.add(tablePane);
+
+        worldMapUI = new WorldMapUI();
+        worldMapUI.addListener(dbQueryListener);
+        splitPaneV.add(worldMapUI.getWorlMapPane());
+
+        final JPanel centrePanel = new JPanel(new BorderLayout());
+        centrePanel.add(leftPanel, BorderLayout.WEST);
+        centrePanel.add(splitPaneV, BorderLayout.CENTER);
+
+        return centrePanel;
+    }
+
+    private void setComponentName(JComponent button, String name) {
+        button.setName(getClass().getName() + name);
+    }
+
+    public void UpdateUI() {
+        dbPane.refresh();
+        productEntryTable.updateUI();
+        //updateWorldMap();
+    }
+
     private void rescanFolder() {
         if (repositoryListCombo.getSelectedIndex() != 0) {
             updateRepostitory((File) repositoryListCombo.getSelectedItem(), true, true);
@@ -806,7 +760,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         if (selecteRows > 0)
             selectedText = ", " + selecteRows + " Selected";
         else
-            productText.setText("");
+            dbPane.updateProductSelectionText(null);
         statusLabel.setText(productEntryTable.getRowCount() + " Products" + selectedText);
     }
 
@@ -883,7 +837,7 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private class MyDatabaseQueryListener implements DatabaseQueryListener {
 
-        public void notifyNewProductEntryListAvailable() {
+        public void notifyNewEntryListAvailable() {
             ShowRepository(dbPane.getProductEntryList());
         }
 

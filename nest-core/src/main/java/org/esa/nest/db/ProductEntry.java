@@ -184,8 +184,8 @@ public class ProductEntry {
         final int max = Math.min(height, 6000);
 
         final int size = 2 * (max - min) / stepY;
-        final List<GeoPos> geoPoints = new ArrayList<GeoPos>(size);
-        final List<GeoPos> geoPoints2 = new ArrayList<GeoPos>(size);
+        final List<GeoPos> geoPoints = new ArrayList<>(size);
+        final List<GeoPos> geoPoints2 = new ArrayList<>(size);
         try {
             for (int y = min; y < max; y += stepY) {
                 band.readPixels(0, y, width, 1, line, ProgressMonitor.NULL);
@@ -227,7 +227,7 @@ public class ProductEntry {
         final GeoCoding gc = product.getGeoCoding();
         if (gc == null)
             return new GeoPos[0];
-        final int step = Math.max(300, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 20);
+        final int step = Math.max(100, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 20);
         final GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step, true);
         ProductUtils.normalizeGeoPolygon(geoPoints);
         return geoPoints;
@@ -255,7 +255,7 @@ public class ProductEntry {
     }
 
     private static GeoPos[] parseGeoBoundaryStr(final String str) {
-        final List<GeoPos> geoPos = new ArrayList<GeoPos>(100);
+        final List<GeoPos> geoPos = new ArrayList<>(100);
         if (str != null && !str.isEmpty()) {
             final StringTokenizer st = new StringTokenizer(str, ",");
             while (st.hasMoreTokens()) {
@@ -407,7 +407,7 @@ public class ProductEntry {
     }
 
     public static ProductEntry[] createProductEntryList(final File[] fileList) {
-        final List<ProductEntry> entryList = new ArrayList<ProductEntry>(fileList.length);
+        final List<ProductEntry> entryList = new ArrayList<>(fileList.length);
         for (File file : fileList) {
             try {
                 final Product prod = ProductIO.readProduct(file);
@@ -421,7 +421,7 @@ public class ProductEntry {
     }
 
     public static ProductEntry[] createProductEntryList(final Product[] productList) {
-        final List<ProductEntry> entryList = new ArrayList<ProductEntry>(productList.length);
+        final List<ProductEntry> entryList = new ArrayList<>(productList.length);
         for (Product prod : productList) {
             entryList.add(new ProductEntry(prod));
         }

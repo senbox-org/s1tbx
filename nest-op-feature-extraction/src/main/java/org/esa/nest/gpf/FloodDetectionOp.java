@@ -163,10 +163,7 @@ public class FloodDetectionOp extends Operator {
         mask.setNoDataValue(0);
         mask.setNoDataValueUsed(true);
         targetProduct.getMaskGroup().add(mask);
-
-
     }
-
 
     /**
      * Operator SPI.

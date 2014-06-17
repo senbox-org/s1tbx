@@ -42,7 +42,7 @@ public class LabelBarProgressMonitor implements ProgressMonitor {
     private int lastWorkUI;
     private boolean cancelRequested;
 
-    private final List<ProgressBarListener> listenerList = new ArrayList<ProgressBarListener>(1);
+    private final List<ProgressBarListener> listenerList = new ArrayList<>(1);
 
     public LabelBarProgressMonitor(JProgressBar progressBar, JLabel messageLabel) {
         this.progressBar = progressBar;

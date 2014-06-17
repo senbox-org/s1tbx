@@ -22,9 +22,7 @@ import org.esa.nest.util.ProductFunctions;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Scans folders for products to add or update into the database
@@ -36,8 +34,8 @@ public final class DBScanner extends SwingWorker {
     private final boolean doRecursive;
     private final boolean generateQuicklooks;
     private final com.bc.ceres.core.ProgressMonitor pm;
-    private final List<DBScannerListener> listenerList = new ArrayList<DBScannerListener>(1);
-    private final List<ErrorFile> errorList = new ArrayList<ErrorFile>();
+    private final List<DBScannerListener> listenerList = new ArrayList<>(1);
+    private final List<ErrorFile> errorList = new ArrayList<>();
 
     public DBScanner(final ProductDB database, final File baseDir, final boolean doRecursive,
                      final boolean doQuicklooks, final com.bc.ceres.core.ProgressMonitor pm) {
@@ -68,7 +66,7 @@ public final class DBScanner extends SwingWorker {
     protected Boolean doInBackground() throws Exception {
         errorList.clear();
 
-        final List<File> dirList = new ArrayList<File>(20);
+        final List<File> dirList = new ArrayList<>(20);
         dirList.add(baseDir);
         if (doRecursive) {
             final File[] subDirs = collectAllSubDirs(baseDir);
@@ -76,13 +74,19 @@ public final class DBScanner extends SwingWorker {
         }
 
         final ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
-        final List<File> fileList = new ArrayList<File>(dirList.size());
+        final List<File> fileList = new ArrayList<>(dirList.size());
         for (File file : dirList) {
             fileList.addAll(Arrays.asList(file.listFiles(fileFilter)));
         }
 
-        final List<File> qlProductFiles = new ArrayList<File>(fileList.size());
-        final List<Integer> qlIDs = new ArrayList<Integer>(fileList.size());
+        final List<File> qlProductFiles = new ArrayList<>(fileList.size());
+        final List<Integer> qlIDs = new ArrayList<>(fileList.size());
+
+        final ProductEntry[] entriesInPath = db.getProductEntryInPath(baseDir);
+        final Map<File, ProductEntry> fileMap = new HashMap<>(entriesInPath.length);
+        for(ProductEntry entry : entriesInPath) {
+            fileMap.put(entry.getFile(), entry);
+        }
 
         final int total = fileList.size();
         pm.beginTask("Scanning Files...", total);
@@ -93,12 +97,14 @@ public final class DBScanner extends SwingWorker {
                 ++i;
                 String taskMsg = "Scanning " + i + " of " + total + " files ";
                 if (prodCount > 0)
-                    taskMsg += "(" + prodCount + " products)";
+                    taskMsg += "(" + prodCount + " new products)";
                 pm.setTaskName(taskMsg);
                 pm.worked(1);
 
                 // check if already exists in db
-                final ProductEntry existingEntry = db.getProductEntry(file);
+                //final ProductEntry existingEntry = db.getProductEntry(file);
+                final ProductEntry existingEntry = fileMap.get(file);
+
                 if (existingEntry != null) {
                     // check for missing quicklook
                     if (generateQuicklooks && !existingEntry.quickLookExists()) {
@@ -187,7 +193,7 @@ public final class DBScanner extends SwingWorker {
     }
 
     private static File[] collectAllSubDirs(final File dir) {
-        final List<File> dirList = new ArrayList<File>(20);
+        final List<File> dirList = new ArrayList<>(20);
         final ProductFunctions.DirectoryFileFilter dirFilter = new ProductFunctions.DirectoryFileFilter();
 
         final File[] subDirs = dir.listFiles(dirFilter);

@@ -77,11 +77,8 @@ public class QuickLookGenerator {
         BufferedImage bufferedImage = null;
         if (file.canRead()) {
             try {
-                final BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file));
-                try {
+                try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file))) {
                     bufferedImage = ImageIO.read(fis);
-                } finally {
-                    fis.close();
                 }
             } catch (Exception e) {
                 //

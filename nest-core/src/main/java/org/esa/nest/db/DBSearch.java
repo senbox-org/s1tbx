@@ -57,9 +57,9 @@ public class DBSearch {
                 cutoffTime = endTime;
         }
 
-        final List<ProductEntry> resultList = new ArrayList<ProductEntry>(maxSlaves);
-        final Map<Double, ProductEntry> timesMap = new HashMap<Double, ProductEntry>();
-        final List<Double> diffList = new ArrayList<Double>();
+        final List<ProductEntry> resultList = new ArrayList<>(maxSlaves);
+        final Map<Double, ProductEntry> timesMap = new HashMap<>();
+        final List<Double> diffList = new ArrayList<>();
         // find all before masterTime
         for (ProductEntry entry : entries) {
             final double entryTime = entry.getFirstLineTime().getMJD();

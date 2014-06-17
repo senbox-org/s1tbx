@@ -156,17 +156,17 @@ public class Sentinel1Level0Reader {
         //  Metadata > Original_Product_Metadata > XFDU > dataObjectSection >
         //       dataObject > byteStream > fileLocation
 
-        final MetadataElement root = product.getMetadataRoot();
-        final MetadataElement dataObjectSection = root.getElement("Original_Product_Metadata").getElement("XFDU").getElement("dataObjectSection");
+        final MetadataElement originalProductMetadata = product.getMetadataRoot().getElement("Original_Product_Metadata");
+        final MetadataElement dataObjectSection = originalProductMetadata.getElement("XFDU").getElement("dataObjectSection");
 
         final MetadataElement annotElem = new MetadataElement("Annotation Data Components");
-        root.addElement(annotElem);
+        originalProductMetadata.addElement(annotElem);
 
         final MetadataElement indexElem = new MetadataElement("Index Data Components");
-        root.addElement(indexElem);
+        originalProductMetadata.addElement(indexElem);
 
         final MetadataElement measurementDataElem = new MetadataElement("Measurement Data Components");
-        root.addElement(measurementDataElem);
+        originalProductMetadata.addElement(measurementDataElem);
 
         int numElem = dataObjectSection.getNumElements();
 
