@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0.2</b><br/>
+        Harmonisation with NEST: Extended Envi header to set byte ordering and handle UTM projection<br/>
         Harmonisation with NEST: Added method CrsGeoCoding.getPixels()<br/>
         Harmonisation with NEST: ProductNode.setOwner() is now public<br/>
         <b>Changes in 5.0.1</b><br/>

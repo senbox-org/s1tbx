@@ -75,6 +75,33 @@ public class ImageGeometry {
         pixelSizeY = -pixelSizeY;
     }
 
+    public double getReferencePixelX() {
+        return referencePixelX;
+    }
+
+    public double getReferencePixelY() {
+        return referencePixelY;
+    }
+
+    public double getEasting() {
+        return easting;
+    }
+
+    public double getNorthing() {
+        return northing;
+    }
+
+    public double getOrientation() {
+        return orientation;
+    }
+
+    public double getPixelSizeX() {
+        return pixelSizeX;
+    }
+
+    public double getPixelSizeY() {
+        return pixelSizeY;
+    }
 
     public static Point2D calculateEastingNorthing(Product sourceProduct, CoordinateReferenceSystem targetCrs,
                                                    double referencePixelX, double referencePixelY,

@@ -15,13 +15,12 @@
  */
 package org.esa.beam.dataio.dimap;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.ImageGeometry;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -31,14 +30,19 @@ import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
 import org.esa.beam.framework.dataop.maptransf.UTMProjection;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * This utility class is used to write ENVI header files.
  *
  * @author Tom Block
- * @version $Revision$ $Date$
  */
-class EnviHeader {
+public class EnviHeader {
 
     /**
      * The extension used for ENVI header files.
@@ -77,13 +81,30 @@ class EnviHeader {
      * @param rasterDataNode the <code>RasterDataNode</code>
      * @param width          the nodes's width in pixels
      * @param height         the nodes's height in pixels
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public static void createPhysicalFile(File headerFile,
                                           RasterDataNode rasterDataNode,
                                           int width,
                                           int height) throws IOException {
+        createPhysicalFile(headerFile, rasterDataNode, width, height, _enviMSFOrder);
+    }
+
+    /**
+     * Writes the header for the <code>RasterDataNode</code> to the <code>File</code>.
+     *
+     * @param headerFile     - the <code>File</code> destination
+     * @param rasterDataNode the <code>RasterDataNode</code>
+     * @param width          the nodes's width in pixels
+     * @param height         the nodes's height in pixels
+     * @param byteorder      the byte ordering
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    public static void createPhysicalFile(File headerFile,
+                                          RasterDataNode rasterDataNode,
+                                          int width,
+                                          int height,
+                                          int byteorder) throws IOException {
         FileWriter fileWriter = new FileWriter(headerFile);
         PrintWriter out = new PrintWriter(fileWriter);
         writeFileMagic(out);
@@ -94,7 +115,8 @@ class EnviHeader {
         writeFileType(out);
         writeDataType(out, rasterDataNode.getDataType());
         writeInterleave(out);
-        writeByteOrder(out);
+        writeByteOrder(out, byteorder);
+        writeBandNames(out, rasterDataNode);
         writeMapProjectionInfo(out, rasterDataNode);
         writeWavelength(out, rasterDataNode);
         writeScalingFactor(out, rasterDataNode);
@@ -123,14 +145,14 @@ class EnviHeader {
             }
         }
         if (description == null || description.trim().length() == 0) {
-            description = "none description";
+            description = rasterDataNode.getProduct().getDescription();
         }
         out.println("description = {"
-                    + description
-                    + unit
-                    + wavelength
+                + description
+                + unit
+                + wavelength
 //                    + bandwidth
-                    + "}");
+                + "}");
     }
 
     /**
@@ -171,6 +193,13 @@ class EnviHeader {
         out.println(1);
     }
 
+    private static void writeBandNames(PrintWriter out, RasterDataNode rasterDataNode) {
+        assert rasterDataNode != null;
+        out.println("band names = { "
+                + rasterDataNode.getName()
+                + " }");
+    }
+
     /**
      * Writes the header offset to the out stream. Currently we have NO offset.
      *
@@ -198,47 +227,45 @@ class EnviHeader {
      *
      * @param dataType one of <code>ProductData.TYPE_<i>X</i></code>
      * @param out      the stream to write to
-     *
      * @throws java.lang.IllegalArgumentException
-     *
      */
     private static void writeDataType(PrintWriter out, int dataType) {
         int enviType;
         switch (dataType) {
-        case ProductData.TYPE_INT8:
-            enviType = _enviTypeByte;
-            break;
+            case ProductData.TYPE_INT8:
+                enviType = _enviTypeByte;
+                break;
 
-        case ProductData.TYPE_UINT8:
-            enviType = _enviTypeByte;
-            break;
+            case ProductData.TYPE_UINT8:
+                enviType = _enviTypeByte;
+                break;
 
-        case ProductData.TYPE_INT16:
-            enviType = _enviTypeShort;
-            break;
+            case ProductData.TYPE_INT16:
+                enviType = _enviTypeShort;
+                break;
 
-        case ProductData.TYPE_UINT16:
-            enviType = _enviTypeUShort;
-            break;
+            case ProductData.TYPE_UINT16:
+                enviType = _enviTypeUShort;
+                break;
 
-        case ProductData.TYPE_INT32:
-            enviType = _enviTypeInt;
-            break;
+            case ProductData.TYPE_INT32:
+                enviType = _enviTypeInt;
+                break;
 
-        case ProductData.TYPE_UINT32:
-            enviType = _enviTypeInt;
-            break;
+            case ProductData.TYPE_UINT32:
+                enviType = _enviTypeInt;
+                break;
 
-        case ProductData.TYPE_FLOAT32:
-            enviType = _enviTypeFloat;
-            break;
+            case ProductData.TYPE_FLOAT32:
+                enviType = _enviTypeFloat;
+                break;
 
-        case ProductData.TYPE_FLOAT64:
-            enviType = _enviTypeDouble;
-            break;
+            case ProductData.TYPE_FLOAT64:
+                enviType = _enviTypeDouble;
+                break;
 
-        default:
-            throw new IllegalArgumentException("invalid data type ID: " + dataType);
+            default:
+                throw new IllegalArgumentException("invalid data type ID: " + dataType);
         }
 
         out.print(_enviDataTypeTag);
@@ -262,10 +289,10 @@ class EnviHeader {
      *
      * @param out the stream to write to
      */
-    private static void writeByteOrder(PrintWriter out) {
+    private static void writeByteOrder(PrintWriter out, int order) {
         out.print(_enviByteOrderTag);
         out.print(" = ");
-        out.println(_enviMSFOrder);
+        out.println(order);
     }
 
     /**
@@ -279,67 +306,111 @@ class EnviHeader {
         if (product == null) {
             return;
         }
-        MapGeoCoding mapGeoCoding = null;
-        if (product.getGeoCoding() instanceof MapGeoCoding) {
-            mapGeoCoding = (MapGeoCoding) product.getGeoCoding();
-        }
-        if (mapGeoCoding == null) {
-            return;
-        }
-        MapInfo info = mapGeoCoding.getMapInfo();
-        if (info == null) {
-            return;
-        }
-        final MapProjection mapProjection = info.getMapProjection();
 
-        final String mapProjectionName;
-        if (mapProjection instanceof UTMProjection) {
-            mapProjectionName = "UTM";
-        } else if (mapProjection.isPreDefined()) {
-            mapProjectionName = mapProjection.getName();
-        } else {
-            mapProjectionName = "User-Defined " + mapProjection.getName();
-        }
+        String mapProjectionName = "Arbitrary";
+        String mapUnits = "Meters";
+        double referencePixelX = 0, referencePixelY = 0;
+        double easting = 0, northing = 0;
+        double pixelSizeX = 0, pixelSizeY = 0;
+        String datumName = "";
+        int utmZone = -1;
+        String utmHemisphere = "";
+        MapProjection mapProjection = null;
 
-        final String mapUnits;
-        if ("meter".equals(mapProjection.getMapUnit())) {
-            mapUnits = "Meters";
-        } else if ("degree".equals(mapProjection.getMapUnit())) {
-            mapUnits = "Degrees";
+        if (product.getGeoCoding() instanceof CrsGeoCoding) {
+            final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) product.getGeoCoding();
+            final CoordinateReferenceSystem crs = crsGeoCoding.getMapCRS();
+
+            final ImageGeometry imgGeom = ImageGeometry.createTargetGeometry(product, crs,
+                    null, null, null, null,
+                    null, null, null, null, null);
+
+            final String crsName = crs.getName().toString().toUpperCase();
+            if (crsName.equals("WGS84(DD)")) {
+                mapProjectionName = "Geographic Lat/Lon";
+                mapUnits = "Degrees";
+            } else if (crsName.contains("UTM")) {
+                mapProjectionName = "UTM";
+                String zoneStr = crsName.substring(crsName.indexOf("ZONE") + 5, crsName.length()).trim();
+                int i = 0;
+                String zoneNumStr = "";
+                while (Character.isDigit(zoneStr.charAt(i))) {
+                    zoneNumStr += zoneStr.charAt(i++);
+                }
+                utmZone = Integer.parseInt(zoneNumStr);
+
+                GeoPos centrePos = crsGeoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth() / 2,
+                        product.getSceneRasterHeight() / 2), null);
+                utmHemisphere = centrePos.getLat() > 0 ? "North" : "South";
+            }
+            referencePixelX = imgGeom.getReferencePixelX();
+            referencePixelY = imgGeom.getReferencePixelY();
+            easting = imgGeom.getEasting();
+            northing = imgGeom.getNorthing();
+            pixelSizeX = imgGeom.getPixelSizeX();
+            pixelSizeY = imgGeom.getPixelSizeY();
+            datumName = crsGeoCoding.getDatum().getName();
+
+        } else if (product.getGeoCoding() instanceof MapGeoCoding) {
+            final MapGeoCoding mapGeoCoding = (MapGeoCoding) product.getGeoCoding();
+
+            final MapInfo info = mapGeoCoding.getMapInfo();
+            if (info == null) {
+                return;
+            }
+            mapProjection = info.getMapProjection();
+
+            if (mapProjection instanceof UTMProjection) {
+                mapProjectionName = "UTM";
+                final UTMProjection utmProjection = (UTMProjection) mapProjection;
+                utmZone = utmProjection.getZone();
+                utmHemisphere = utmProjection.isNorth() ? "North" : "South";
+            } else if (mapProjection.isPreDefined()) {
+                mapProjectionName = mapProjection.getName();
+            }
+
+            if ("meter".equals(mapProjection.getMapUnit())) {
+                mapUnits = "Meters";
+            } else if ("degree".equals(mapProjection.getMapUnit())) {
+                mapUnits = "Degrees";
+            } else {
+                mapUnits = mapProjection.getMapUnit();
+            }
+
+            datumName = mapGeoCoding.getDatum().getName();
         } else {
-            mapUnits = mapProjection.getMapUnit();
+            return;
         }
 
         out.print(_enviMapInfo);
         out.print(" = {");
         out.print(mapProjectionName);
         out.print(",");
-        out.print(info.getPixelX() + 1.0f);
+        out.print(referencePixelX + 1.0f);
         out.print(",");
-        out.print(info.getPixelY() + 1.0f);
+        out.print(referencePixelY + 1.0f);
         out.print(",");
-        out.print(info.getEasting());
+        out.print(easting);
         out.print(",");
-        out.print(info.getNorthing());
+        out.print(northing);
         out.print(",");
-        out.print(info.getPixelSizeX());
+        out.print(pixelSizeX);
         out.print(",");
-        out.print(info.getPixelSizeY());
+        out.print(pixelSizeY);
         out.print(",");
-        if (mapProjection instanceof UTMProjection) {
-            UTMProjection utmProjection = (UTMProjection) mapProjection;
-            out.print(utmProjection.getZone());
+        if (utmZone != -1) {
+            out.print(utmZone);
             out.print(",");
-            out.print(utmProjection.isNorth() ? "North" : "South");
+            out.print(utmHemisphere);
             out.print(",");
         }
-        out.print(info.getDatum().getName());
+        out.print(datumName);
         out.print(",");
         out.print("units=" + mapUnits);
         out.print("}");
         out.println();
 
-        if (!mapProjection.isPreDefined()) {
+        if (mapProjection != null && !mapProjection.isPreDefined()) {
             final MapTransform mapTransform = mapProjection.getMapTransform();
             final double[] parameterValues = mapTransform.getParameterValues();
             final String transformName = mapTransform.getDescriptor().getName();
