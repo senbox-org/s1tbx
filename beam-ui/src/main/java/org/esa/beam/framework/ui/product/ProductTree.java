@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,18 +16,9 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.TreeCellExtender;
+import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.SampleCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
@@ -36,10 +27,7 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.product.tree.AbstractTN;
 import org.esa.beam.framework.ui.product.tree.ProductTreeModel;
 
-import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
-import javax.swing.JTree;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -48,31 +36,19 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetAdapter;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 /**
  * A tree-view component for multiple <code>Product</code>s. Clients can register one or more
@@ -118,6 +94,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         setCellRenderer(new PTCellRenderer());
         setRootVisible(false);
         setShowsRootHandles(true);
+        setDragEnabled(true);
+        setTransferHandler(new TreeTransferHandler());
         setToggleClickCount(2);
         setAutoscrolls(true);
         putClientProperty("JTree.lineStyle", "Angled");
@@ -332,7 +310,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private class PTCellRenderer extends DefaultTreeCellRenderer {
 
-        private ImageIcon productIcon;
+        private ImageIcon productIcon, productIconModified, productIconOrigFormat;
         private ImageIcon metadataIcon;
         private ImageIcon tiePointGridVisibleIcon;
         private ImageIcon tiePointGridInvisibleIcon;
@@ -354,6 +332,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
         private PTCellRenderer() {
             productIcon = UIUtils.loadImageIcon("icons/RsProduct16.gif");
+            productIconModified = UIUtils.loadImageIcon("icons/RsProduct16-red.gif");
+            productIconOrigFormat = UIUtils.loadImageIcon("icons/RsProduct16-yellow.gif");
             metadataIcon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
             bandVisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
             bandInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
@@ -424,7 +404,15 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 if (productNode instanceof Product) {
                     text = productNode.getDisplayName();
                     Product product = (Product) productNode;
-                    this.setIcon(productIcon);
+
+                    if(product.isModified())
+                        this.setIcon(productIconModified);
+                    else {
+                        if(product.getProductReader() instanceof DimapProductReader)
+                            this.setIcon(productIcon);
+                        else
+                            this.setIcon(productIconOrigFormat);
+                    }
                     toolTipBuffer.append(", ");
                     toolTipBuffer.append(product.getSceneRasterWidth());
                     toolTipBuffer.append(" x ");
@@ -766,6 +754,39 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 }
             }
             return list;
+        }
+    }
+	
+    public static class TreeTransferHandler extends TransferHandler {
+
+        @Override
+        public boolean canImport(TransferHandler.TransferSupport info) {
+            return false;
+        }
+
+        @Override
+        public int getSourceActions(JComponent c) {
+            return TransferHandler.COPY;
+        }
+
+        //Bundle up the selected items in a single list for export.
+        //Each line is separated by a newline.
+        @Override
+        protected Transferable createTransferable(JComponent c) {
+            final JTree tree = (JTree)c;
+            final TreePath path = tree.getSelectionPath();
+
+            final AbstractTN node = (AbstractTN) path.getLastPathComponent();
+            final Object context = node.getContent();
+            if (context != null) {
+                if(context instanceof Product) {
+                    final Product product = (Product)context;
+                    if(product.getFileLocation() != null) {
+                        return new StringSelection(product.getFileLocation().getAbsolutePath());
+                    }
+                }
+            }
+            return null;
         }
     }
 }
