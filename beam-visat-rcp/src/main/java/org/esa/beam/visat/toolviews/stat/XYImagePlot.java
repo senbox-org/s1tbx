@@ -35,7 +35,7 @@ import java.awt.image.BufferedImage;
  *
  * @author Norman Fomferra
  */
-class XYImagePlot extends XYPlot {
+public class XYImagePlot extends XYPlot {
 
     private BufferedImage image;
     private Rectangle2D imageDataBounds;

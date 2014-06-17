@@ -51,7 +51,7 @@ public class WorldMapToolView extends AbstractToolView {
     public static final String ID = WorldMapToolView.class.getName();
 
     private VisatApp visatApp;
-    private WorldMapPaneDataModel worldMapDataModel;
+    protected WorldMapPaneDataModel worldMapDataModel;
 
 
     public WorldMapToolView() {
@@ -102,9 +102,9 @@ public class WorldMapToolView extends AbstractToolView {
         getPaneWindow().pack();
     }
 
-    private class WorldMapPTL extends ProductTreeListenerAdapter {
+    public class WorldMapPTL extends ProductTreeListenerAdapter {
 
-        private WorldMapPTL() {
+        public WorldMapPTL() {
         }
 
         @Override
