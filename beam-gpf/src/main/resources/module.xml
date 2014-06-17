@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-gpf</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
 
     <description>The basic framework for processing using Operators and the GPT.</description>
@@ -30,6 +30,8 @@
 
     <changelog>
         <![CDATA[
+         <b>Changes in 5.0.1</b><br/>
+            Harmonisation with NEST: Operator registry now checks for conflicting operator aliases<br/>
          <b>Changes in 5.0</b><br/>
             [BEAM-1648] Add processing time to metadata<br/>
             [BEAM-1598] GPF operators shall be able to prevent GPT automatic writing<br/>
