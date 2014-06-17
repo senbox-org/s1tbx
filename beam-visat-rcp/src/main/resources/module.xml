@@ -249,6 +249,21 @@
         </toolView>
 
         <toolView>
+            <id>org.esa.beam.visat.toolviews.imageinfo.UncertaintyManipulationToolView</id>
+            <class>org.esa.beam.visat.toolviews.imageinfo.UncertaintyManipulationToolView</class>
+            <title>Uncertainty Manipulation</title>
+            <mnemonic>U</mnemonic>
+            <accelerator>ctrl alt U</accelerator>
+            <description>Image uncertainty composite manipulation.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/UncertaintyStretch16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/UncertaintyStretch24.png</largeIcon>
+            <helpId>showUncertaintyManipulationWnd</helpId>
+            <initState>DOCKED</initState>
+            <initSide>WEST</initSide>
+            <initIndex>1</initIndex>
+        </toolView>
+
+        <toolView>
             <id>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</class>
             <title>Layer Manager</title>

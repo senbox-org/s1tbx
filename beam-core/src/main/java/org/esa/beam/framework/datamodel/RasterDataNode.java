@@ -42,6 +42,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
@@ -138,6 +140,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private ROI validMaskROI;
 
+    private Map<String, RasterDataNode> ancillaryBands = new HashMap<>();
+
+
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
      *
@@ -173,6 +178,31 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         overlayMasks = new ProductNodeGroup<Mask>(this, "overlayMasks", false);
         roiMasks = new ProductNodeGroup<Mask>(this, "roiMasks", false);
+    }
+
+
+    /**
+     * Gets an associated ancillary band.
+     * @param role The association role, may be {@code "mean"}, @code "variance"}, etc.
+     * @return The associated ancillary band or {@code null}.
+     * @since BEAM 5.1
+     */
+    public RasterDataNode getAncillaryBand(String role) {
+        return ancillaryBands.get(role);
+    }
+
+    /**
+     * Sets or removes an associated ancillary band.
+     * @param role The association role, may be {@code "mean"}, @code "variance"}, etc.
+     * @param band The associated ancillary band. May be {@code null} in order to remove the role.
+     * @since BEAM 5.1
+     */
+    public void setAncillaryBand(String role, RasterDataNode band) {
+        if (band != null) {
+            ancillaryBands.put(role, band);
+        } else {
+            ancillaryBands.remove(role);
+        }
     }
 
     /**
@@ -840,6 +870,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         overlayMasks.clearRemovedList();
         roiMasks.removeAll();
         roiMasks.clearRemovedList();
+
+        // don't dispose bands in ancillaryBands, they are only references
+        ancillaryBands.clear();
+
         super.dispose();
     }
 

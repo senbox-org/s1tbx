@@ -34,6 +34,7 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.PageComponentDescriptor;
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
@@ -94,7 +95,7 @@ class ColorManipulationForm {
     private final ProductNodeListener productNodeListener;
     private boolean defaultColorPalettesInstalled;
     private JPanel contentPanel;
-    private final ColorManipulationToolView toolView;
+    private final AbstractToolView toolView;
     private ColorManipulationChildForm childForm;
     private ColorManipulationChildForm continuous1BandSwitcherForm;
     private ColorManipulationChildForm discrete1BandTabularForm;
@@ -108,7 +109,7 @@ class ColorManipulationForm {
     private SceneViewImageInfoChangeListener sceneViewChangeListener;
     private final String titlePrefix;
 
-    public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
+    public ColorManipulationForm(AbstractToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
         visatApp = VisatApp.getApp();
         preferences = visatApp.getPreferences();
