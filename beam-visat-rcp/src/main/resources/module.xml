@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
           <b>Changes in 5.0.1</b><br/>
+          Harmonisation with NEST: Convert computed band: only clone image info, if it exists<br/>
           Harmonisation with NEST: Allow JIDE license to be overridden<br/>
           <b>Changes in 5.0</b><br/>
           [BEAM-1509]  Mosaic tool does not initiate the download of the selected DEM <br/>
@@ -1256,7 +1257,8 @@
             <text>Create Elevation Bands from DEM...</text>
             <placeAfter>convertComputedBand2Band</placeAfter>
             <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
-            <shortDescr>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</shortDescr>
+            <shortDescr>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM
+            </shortDescr>
             <context>product</context>
             <helpId>createDemRelatedBands</helpId>
         </action>
