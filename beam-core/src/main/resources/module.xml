@@ -43,6 +43,7 @@
         <![CDATA[
         <b>Changes in 5.0.2</b><br/>
         Harmonisation with NEST: Added method CrsGeoCoding.getPixels()<br/>
+        Harmonisation with NEST: ProductNode.setOwner() is now public<br/>
         <b>Changes in 5.0.1</b><br/>
         [BEAM-1683] Opening a MERIS FSG product with pixel geo-coding attached takes very long<br/>
         <b>Changes in 5.0</b><br/>
