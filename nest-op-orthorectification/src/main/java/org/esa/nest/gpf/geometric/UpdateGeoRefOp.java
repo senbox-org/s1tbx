@@ -36,6 +36,7 @@ import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.eo.SARUtils;
 import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
@@ -191,7 +192,7 @@ public final class UpdateGeoRefOp extends Operator {
     private void getMetadata() throws Exception {
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
-        wavelength = OperatorUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
         lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
