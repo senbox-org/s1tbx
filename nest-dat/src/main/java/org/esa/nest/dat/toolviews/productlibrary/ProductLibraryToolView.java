@@ -15,7 +15,6 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary;
 
-import com.alee.laf.splitpane.WebSplitPane;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -24,10 +23,8 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.BatchGraphDialog;
 import org.esa.nest.dat.dialogs.CheckListDialog;
 import org.esa.nest.dat.toolviews.Projects.Project;
-import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
-import org.esa.nest.dat.toolviews.productlibrary.model.ProductEntryTableModel;
-import org.esa.nest.dat.toolviews.productlibrary.model.ProductLibraryConfig;
-import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
+import org.esa.nest.dat.toolviews.productlibrary.model.*;
+import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePane;
 import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.nest.db.DBQuery;
@@ -80,6 +77,7 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private WorldMapUI worldMapUI = null;
     private DatabasePane dbPane;
+    private final MyDatabaseQueryListener dbQueryListener = new MyDatabaseQueryListener();
 
     public ProductLibraryToolView() {
     }
@@ -414,7 +412,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         }
 
         final Map<String, Boolean> checkBoxMap = new HashMap<>(3);
-        checkBoxMap.put("Generate quicklooks?", true);
+        checkBoxMap.put("Generate quicklooks?", false);
         checkBoxMap.put("Search folder recursively?", true);
 
         final CheckListDialog dlg = new CheckListDialog("Scan Folder Options", checkBoxMap);
@@ -542,20 +540,21 @@ public class ProductLibraryToolView extends AbstractToolView {
 
     private void initUI() {
 
+        dbPane = new DatabasePane();
+        dbPane.addListener(dbQueryListener);
+
         final JPanel northPanel = createHeaderPanel();
         final JPanel southPanel = createButtonPanel();
 
-        final WebSplitPane splitPaneV = new WebSplitPane(WebSplitPane.VERTICAL_SPLIT);
-        splitPaneV.setOneTouchExpandable(true);
-        splitPaneV.add(createCentrePanel());
-
-        //final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
-        //splitPaneV.add(new TimelinePane(stats));
-        //splitPaneV.setDividerLocation(0.9);
+        final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
+        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                createCentrePanel(), new TimelinePane(stats, dbPane));
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setResizeWeight(0.99);
 
         mainPanel = new JPanel(new BorderLayout(4, 4));
         mainPanel.add(northPanel, BorderLayout.NORTH);
-        mainPanel.add(splitPaneV, BorderLayout.CENTER);
+        mainPanel.add(splitPane, BorderLayout.CENTER);
         mainPanel.add(southPanel, BorderLayout.SOUTH);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
     }
@@ -665,6 +664,7 @@ public class ProductLibraryToolView extends AbstractToolView {
 
         final JPanel southPanel = new JPanel(new BorderLayout(4, 4));
         statusLabel = new JLabel("");
+        statusLabel.setMinimumSize(new Dimension(100, 10));
         southPanel.add(statusLabel, BorderLayout.CENTER);
         southPanel.add(openPanel, BorderLayout.WEST);
 
@@ -673,7 +673,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         progressBar.setStringPainted(true);
         progressPanel = new JPanel();
         progressPanel.setLayout(new BorderLayout());
-        progressPanel.add(progressBar);
+        progressPanel.add(progressBar, BorderLayout.CENTER);
         progressPanel.setVisible(false);
         southPanel.add(progressPanel, BorderLayout.EAST);
 
@@ -681,10 +681,6 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private JPanel createCentrePanel() {
-
-        final MyDatabaseQueryListener dbQueryListener = new MyDatabaseQueryListener();
-        dbPane = new DatabasePane();
-        dbPane.addListener(dbQueryListener);
 
         final JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setMinimumSize(new Dimension(200, 577));
@@ -707,15 +703,16 @@ public class ProductLibraryToolView extends AbstractToolView {
             }
         });
 
-        final WebSplitPane splitPaneV = new WebSplitPane(WebSplitPane.VERTICAL_SPLIT);
-        splitPaneV.setOneTouchExpandable(true);
+
         final JScrollPane tablePane = new JScrollPane(productEntryTable);
         tablePane.setMinimumSize(new Dimension(400, 400));
-        splitPaneV.add(tablePane);
 
         worldMapUI = new WorldMapUI();
         worldMapUI.addListener(dbQueryListener);
-        splitPaneV.add(worldMapUI.getWorlMapPane());
+
+        final JSplitPane splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tablePane, worldMapUI.getWorlMapPane());
+        splitPaneV.setOneTouchExpandable(true);
+        splitPaneV.setResizeWeight(0.8);
 
         final JPanel centrePanel = new JPanel(new BorderLayout());
         centrePanel.add(leftPanel, BorderLayout.WEST);
@@ -731,7 +728,6 @@ public class ProductLibraryToolView extends AbstractToolView {
     public void UpdateUI() {
         dbPane.refresh();
         productEntryTable.updateUI();
-        //updateWorldMap();
     }
 
     private void rescanFolder() {

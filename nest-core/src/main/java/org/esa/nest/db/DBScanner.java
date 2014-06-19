@@ -23,6 +23,7 @@ import org.esa.nest.util.ProductFunctions;
 import javax.swing.*;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Scans folders for products to add or update into the database
@@ -83,7 +84,7 @@ public final class DBScanner extends SwingWorker {
         final List<Integer> qlIDs = new ArrayList<>(fileList.size());
 
         final ProductEntry[] entriesInPath = db.getProductEntryInPath(baseDir);
-        final Map<File, ProductEntry> fileMap = new HashMap<>(entriesInPath.length);
+        final Map<File, ProductEntry> fileMap = new ConcurrentHashMap<>(entriesInPath.length);
         for(ProductEntry entry : entriesInPath) {
             fileMap.put(entry.getFile(), entry);
         }

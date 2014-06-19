@@ -259,6 +259,8 @@ public class ProductTable implements TableInterface {
     }
 
     public String[] getAllMissions() throws SQLException {
+        if(stmtAllMissions == null)
+            return new String[] {};
         final List<String> listEntries = new ArrayList<>();
         final ResultSet results = stmtAllMissions.executeQuery();
         while (results.next()) {

@@ -276,6 +276,9 @@ public final class DatabasePane extends JPanel {
 
     public void refresh() {
         try {
+            if(!db.isReady())
+                return;
+
             boolean origState = lockCombos(true);
 
             if (metadataNameCombo.getItemCount() == 0) {
@@ -314,7 +317,7 @@ public final class DatabasePane extends JPanel {
             productTypeJList.removeAll();
             acquisitionModeCombo.removeAllItems();
 
-            final String selectedMissions[] = toStringArray(missionJList.getSelectedValues());
+            final String selectedMissions[] = toStringArray(missionJList.getSelectedValuesList());
             String[] productTypeList;
             String[] acquisitionModeList;
             if (StringUtils.contains(selectedMissions, DBQuery.ALL_MISSIONS)) {
@@ -335,6 +338,10 @@ public final class DatabasePane extends JPanel {
         } finally {
             lockCombos(origState);
         }
+    }
+
+    private static String[] toStringArray(List<String> list) {
+        return list.toArray(new String[list.size()]);
     }
 
     private static String[] toStringArray(Object[] objects) {
@@ -370,8 +377,8 @@ public final class DatabasePane extends JPanel {
     }
 
     private void setData() {
-        dbQuery.setSelectedMissions(toStringArray(missionJList.getSelectedValues()));
-        dbQuery.setSelectedProductTypes(toStringArray(productTypeJList.getSelectedValues()));
+        dbQuery.setSelectedMissions(toStringArray(missionJList.getSelectedValuesList()));
+        dbQuery.setSelectedProductTypes(toStringArray(productTypeJList.getSelectedValuesList()));
         dbQuery.setSelectedAcquisitionMode((String) acquisitionModeCombo.getSelectedItem());
         dbQuery.setSelectedPass((String) passCombo.getSelectedItem());
         dbQuery.setSelectedTrack(trackField.getText());
@@ -393,18 +400,23 @@ public final class DatabasePane extends JPanel {
                 handleException(t);
             }
         }
+        if(metadataNameCombo.getItemCount() == 0) {
+            refresh();
+        }
+
         setData();
 
         if (productEntryList != null) {
             ProductEntry.dispose(productEntryList);
         }
         try {
-            productEntryList = dbQuery.queryDatabase(db);
+            if(db.isReady()) {
+                productEntryList = dbQuery.queryDatabase(db);
+                notifyQuery();
+            }
         } catch (Throwable t) {
             handleException(t);
         }
-
-        notifyQuery();
     }
 
     public void setSelectionRect(final GeoPos[] selectionBox) {

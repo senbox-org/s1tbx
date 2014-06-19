@@ -1,6 +1,8 @@
 package org.esa.nest.dat.toolviews.productlibrary.timeline;
 
 import com.alee.laf.panel.WebPanel;
+import org.esa.nest.dat.toolviews.productlibrary.DatabasePane;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseStatistics;
 import org.esa.nest.util.DialogUtils;
 
@@ -12,17 +14,19 @@ import java.awt.event.ActionListener;
 /**
  * shows products on a time line
  */
-public class TimelinePane extends WebPanel {
+public class TimelinePane extends WebPanel implements DatabaseQueryListener {
 
     private final DatabaseStatistics stats;
+    private JPanel currentPanel = null;
     private JPanel timelinePanel;
     private JPanel yearsPanel;
     private JPanel monthsPanel;
 
-    public TimelinePane(final DatabaseStatistics stats) {
+    public TimelinePane(final DatabaseStatistics stats, final DatabasePane dbPane) {
         this.stats = stats;
         createPanel();
         setMaximumSize(new Dimension(500, 30));
+        dbPane.addListener(this);
     }
 
     private void createPanel() {
@@ -32,16 +36,15 @@ public class TimelinePane extends WebPanel {
         final JPanel centrePanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
-        timelinePanel = new TimelinePanel(stats);
-        yearsPanel = new YearsPanel(stats);
-        monthsPanel = new MonthsPanel(stats);
+        timelinePanel = new TimelinePlot(stats);
+        yearsPanel = new YearsPlot(stats);
+        monthsPanel = new MonthsPlot(stats);
         gbc.weightx = 10;
         gbc.weighty = 10;
         centrePanel.add(timelinePanel, gbc);
         centrePanel.add(yearsPanel, gbc);
         centrePanel.add(monthsPanel, gbc);
-        timelinePanel.setVisible(false);
-        monthsPanel.setVisible(false);
+        hideShowPanels(timelinePanel);
 
         this.add(centrePanel, BorderLayout.CENTER);
         this.add(createControlPanel(), BorderLayout.WEST);
@@ -50,8 +53,8 @@ public class TimelinePane extends WebPanel {
     private JPanel createControlPanel() {
         final WebPanel controlPanel = new WebPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
-        final JRadioButton timelineButton = new JRadioButton("Timeline", false);
-        final JRadioButton yearsButton = new JRadioButton("Years", true);
+        final JRadioButton timelineButton = new JRadioButton("Timeline", true);
+        final JRadioButton yearsButton = new JRadioButton("Years", false);
         final JRadioButton monthsButton = new JRadioButton("Months", false);
 
         final ButtonGroup group = new ButtonGroup();
@@ -62,27 +65,21 @@ public class TimelinePane extends WebPanel {
         timelineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                timelinePanel.setVisible(true);
-                yearsPanel.setVisible(false);
-                monthsPanel.setVisible(false);
+                hideShowPanels(timelinePanel);
             }
         });
 
         yearsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                timelinePanel.setVisible(false);
-                yearsPanel.setVisible(true);
-                monthsPanel.setVisible(false);
+                hideShowPanels(yearsPanel);
             }
         });
 
         monthsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                timelinePanel.setVisible(false);
-                yearsPanel.setVisible(false);
-                monthsPanel.setVisible(true);
+                hideShowPanels(monthsPanel);
             }
         });
 
@@ -91,5 +88,20 @@ public class TimelinePane extends WebPanel {
         controlPanel.add(monthsButton);
 
         return controlPanel;
+    }
+
+    private void hideShowPanels(final JPanel selectedPanel) {
+        currentPanel = selectedPanel;
+        timelinePanel.setVisible(currentPanel.equals(timelinePanel));
+        yearsPanel.setVisible(currentPanel.equals(yearsPanel));
+        monthsPanel.setVisible(currentPanel.equals(monthsPanel));
+    }
+
+    public void notifyNewEntryListAvailable() {
+        currentPanel.updateUI();
+    }
+
+    public void notifyNewMapSelectionAvailable() {
+
     }
 }
