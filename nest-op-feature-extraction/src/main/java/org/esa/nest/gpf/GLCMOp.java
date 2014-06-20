@@ -480,9 +480,8 @@ public final class GLCMOp extends Operator {
                 for (int tx = tx0; tx < maxX; tx++) {
                     final int idx = trgIndex.getIndex(tx);
 
-                    ArrayList<GLCMElem> GLCMElemList = computeGLCM(tx, ty, sourceTile, srcData, noDataValue);
-
-                    TextureFeatures tf = computeTextureFeatures(GLCMElemList);
+                    final GLCMElem[] GLCMElemList = computeGLCM(tx, ty, sourceTile, srcData, noDataValue);
+                    final TextureFeatures tf = computeTextureFeatures(GLCMElemList);
 
                     for (final TileData tileData : tileDataList) {
 
@@ -553,7 +552,7 @@ public final class GLCMOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private ArrayList<GLCMElem> computeGLCM(final int tx, final int ty, final Tile sourceTile,
+    private GLCMElem[] computeGLCM(final int tx, final int ty, final Tile sourceTile,
                                             final ProductData srcData, final double noDataValue) {
 
         final int x0 = Math.max(tx - halfWindowSize, 0);
@@ -646,20 +645,19 @@ public final class GLCMOp extends Operator {
             }
         }
 
-        ArrayList<GLCMElem> GLCMElemList = new ArrayList<GLCMElem>();
+        final ArrayList<GLCMElem> GLCMElemList = new ArrayList<GLCMElem>();
 
         if (counter > 0) {
             for (int i = 0; i < numQuantLevels; i++) {
                 for (int j = 0; j < numQuantLevels; j++) {
                     if (GLCM[i][j] > 0.0) {
-                        final GLCMElem ele = new GLCMElem(i, j, GLCM[i][j] / counter);
-                        GLCMElemList.add(ele);
+                        GLCMElemList.add(new GLCMElem(i, j, GLCM[i][j] / counter));
                     }
                 }
             }
         }
 
-        return GLCMElemList;
+        return GLCMElemList.toArray(new GLCMElem[GLCMElemList.size()]);
     }
 
     private int[][] computeQuantizedImage(final int x0, final int y0, final int w, final int h, final Tile sourceTile,
@@ -702,7 +700,7 @@ public final class GLCMOp extends Operator {
         return data;
     }
 
-    private TextureFeatures computeTextureFeatures(ArrayList<GLCMElem> GLCMElemList) {
+    private TextureFeatures computeTextureFeatures(final GLCMElem[] GLCMElemList) {
 
         double Contrast = 0.0, Dissimilarity = 0.0, Homogeneity = 0.0, ASM = 0.0, MAX = 0.0, Entropy = 0.0,
                 GLCMMeanX = 0.0, GLCMMeanY = 0.0;
