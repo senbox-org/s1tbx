@@ -392,7 +392,7 @@ public class ImageManager {
         Assert.notNull(imageInfo, "imageInfo");
         RenderedImage sourceImage = getSourceImage(raster, level);
         RenderedImage validMaskImage = getValidMaskImage(raster, level);
-        RenderedImage uncertaintyImage = getUncertaintyImage(raster, level);
+        RenderedImage uncertaintyImage = getUncertaintyImage2(raster, level);
         PlanarImage image = createByteIndexedImage(raster, sourceImage, imageInfo);
         image = createMatchCdfImage(image, imageInfo.getHistogramMatching(), new Stx[]{raster.getStx()});
         image = createLookupRgbImage(raster, image, imageInfo);
@@ -418,6 +418,15 @@ public class ImageManager {
         RasterDataNode confidenceBand = raster.getAncillaryBand("confidence");
         if (confidenceBand != null) {
             return getLevelImage(confidenceBand.getGeophysicalImage(), level);
+        }
+        return null;
+    }
+
+    private RenderedImage getUncertaintyImage2(RasterDataNode raster, int level) {
+        RasterDataNode varianceBand = raster.getAncillaryBand("variance");
+        if (varianceBand != null) {
+            RenderedImage sourceImage = getSourceImage(varianceBand, level);
+            return createByteIndexedImage(varianceBand, sourceImage, varianceBand.getImageInfo(ProgressMonitor.NULL));
         }
         return null;
     }

@@ -74,7 +74,7 @@ public class UncertaintyManipulationToolView extends AbstractToolView {
 
         @Override
         public void applyModifiedImageInfo() {
-            // not applicable
+            getProductSceneView().updateImage();
         }
     }
 }

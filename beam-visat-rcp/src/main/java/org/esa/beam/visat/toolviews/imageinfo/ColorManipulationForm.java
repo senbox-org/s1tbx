@@ -708,7 +708,7 @@ class ColorManipulationForm {
     }
 
     Stx getStx(RasterDataNode raster) {
-        return raster.getStx(false, ProgressMonitor.NULL); // todo - use PM
+        return raster.getStx(false, ProgressMonitor.NULL);
     }
 
     private class ColorManipulationPNL extends ProductNodeListenerAdapter {
@@ -772,8 +772,12 @@ class ColorManipulationForm {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
-                getFormModel().setModifiedImageInfo((ImageInfo) evt.getNewValue());
-                childForm.updateFormModel(getFormModel());
+                boolean correctFormForRaster = getFormModel().getRaster() == getFormModel().getProductSceneView().getRaster();
+                if (correctFormForRaster) {
+                    ImageInfo modifiedImageInfo = (ImageInfo) evt.getNewValue();
+                    getFormModel().setModifiedImageInfo(modifiedImageInfo);
+                    childForm.updateFormModel(getFormModel());
+                }
             }
         }
     }

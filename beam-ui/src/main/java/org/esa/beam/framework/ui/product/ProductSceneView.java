@@ -1203,6 +1203,7 @@ public class ProductSceneView extends BasicView
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
+            System.out.printf("ProductSceneView.RasterChangeHandler: %s.%s: %s --> %s%n", event.getSourceNode().getName(), event.getPropertyName(), event.getOldValue(), event.getNewValue());
             repaintView();
         }
 
