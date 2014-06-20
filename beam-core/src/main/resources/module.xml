@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0.2</b><br/>
+        [BEAM-1685] Product saved with attached PixelGeocoding can not be loaded when using the alternate PixelGeocoding<br/>
         Harmonisation with NEST: Dimapheader bug: When bands have their own geocoding, the dimap header reader expects
           a band index in order to add a geocoding to a band.
           In the header writer, the band index is missing for the tiepoint geocoding.<br/>
