@@ -29,7 +29,7 @@
 
     <artifactId>beam-collocation</artifactId>
     <name>BEAM Geographic Collocation Tool</name>
-    <version>5.0</version>
+    <version>5.0.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

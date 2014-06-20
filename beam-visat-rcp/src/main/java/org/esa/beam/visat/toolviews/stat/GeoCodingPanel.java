@@ -391,8 +391,9 @@ class GeoCodingPanel extends PagePanel {
         sb.append(String.format("%1$-35s \t%2$d \t%3$s\n",
                                 "Search radius:", gc.getSearchRadius(), "pixels"));
 
+        final String validMask = gc.getValidMask();
         sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Valid pixel mask:", gc.getValidMask()));
+                                "Valid pixel mask:", validMask != null ? validMask : ""));
 
         sb.append(String.format("%1$-35s \t%2$s\n",
                                 "Crossing 180 degree meridian:",
