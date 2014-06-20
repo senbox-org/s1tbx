@@ -24,7 +24,7 @@ import org.esa.nest.dat.dialogs.BatchGraphDialog;
 import org.esa.nest.dat.dialogs.CheckListDialog;
 import org.esa.nest.dat.toolviews.Projects.Project;
 import org.esa.nest.dat.toolviews.productlibrary.model.*;
-import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePane;
+import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePanel;
 import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.nest.db.DBQuery;
@@ -548,7 +548,7 @@ public class ProductLibraryToolView extends AbstractToolView {
 
         final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                createCentrePanel(), new TimelinePane(stats, dbPane));
+                createCentrePanel(), new TimelinePanel(stats, dbPane));
         splitPane.setOneTouchExpandable(true);
         splitPane.setResizeWeight(0.99);
 

@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
 /**
  * shows products on a time line
  */
-public class TimelinePane extends WebPanel implements DatabaseQueryListener {
+public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
 
     private final DatabaseStatistics stats;
     private JPanel currentPanel = null;
@@ -22,7 +22,7 @@ public class TimelinePane extends WebPanel implements DatabaseQueryListener {
     private JPanel yearsPanel;
     private JPanel monthsPanel;
 
-    public TimelinePane(final DatabaseStatistics stats, final DatabasePane dbPane) {
+    public TimelinePanel(final DatabaseStatistics stats, final DatabasePane dbPane) {
         this.stats = stats;
         createPanel();
         setMaximumSize(new Dimension(500, 30));
