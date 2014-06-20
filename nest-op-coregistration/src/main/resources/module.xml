@@ -38,9 +38,9 @@
             <operatorName>GCP-Selection</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.esa.nest.gpf.PCAStatisticsOpUI</id>
-            <class>org.esa.nest.gpf.PCAStatisticsOpUI</class>
-            <operatorName>PCA</operatorName>
+            <id>org.esa.nest.gpf.PCAOpUI</id>
+            <class>org.esa.nest.gpf.PCAOpUI</class>
+            <operatorName>Principle-Component-Analysis</operatorName>
         </OperatorUI>
         <OperatorUI>
             <id>org.esa.nest.gpf.WarpOpUI</id>
@@ -90,7 +90,7 @@
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Principal Component Analysis</text>
-            <operatorName>PCA</operatorName>
+            <operatorName>Principle-Component-Analysis</operatorName>
             <dialogTitle>Principal Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>
             <shortDescr>Principal Component Analysis</shortDescr>

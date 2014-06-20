@@ -48,7 +48,7 @@ import java.util.Map;
  * The operator performs principle component analysis for user selected master/slave pairs.
  */
 
-@OperatorMetadata(alias = "PCA", description = "Principle Component Analysis", internal = false,
+@OperatorMetadata(alias = "Principle-Component-Analysis", description = "Principle Component Analysis", internal = false,
         category = "Classification\\Primitive Features")
 public class PCAOp extends Operator {
 
