@@ -114,7 +114,7 @@ class MoreOptionsForm {
     }
 
     private ImageInfo getImageInfo() {
-        return getParentForm().getImageInfo();
+        return  getParentForm().getFormModel().getModifiedImageInfo();
     }
 
     public ColorManipulationForm getParentForm() {

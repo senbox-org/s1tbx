@@ -29,10 +29,8 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Kernel;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -417,76 +415,11 @@ public class ImageManager {
     }
 
     private RenderedImage getUncertaintyImage(RasterDataNode raster, int level) {
-        _addUncertaintyBands1(raster.getProduct());
-        //_addUncertaintyBands2(raster.getProduct());
         RasterDataNode confidenceBand = raster.getAncillaryBand("confidence");
         if (confidenceBand != null) {
             return getLevelImage(confidenceBand.getGeophysicalImage(), level);
         }
         return null;
-    }
-
-    private void _addUncertaintyBands1(Product product) {
-        if (Boolean.getBoolean("uncertainty.test")) {
-            Band[] bands = product.getBands();
-            for (Band band : bands) {
-                String bandName = band.getName();
-                if (bandName.startsWith("radiance")
-                    && !bandName.endsWith("_blur")
-                    && !bandName.endsWith("_variance")
-                    && !bandName.endsWith("_confidence")) {
-                    Band confidenceBand = product.getBand(bandName + "_confidence");
-                    if (confidenceBand == null) {
-                        ConvolutionFilterBand blurredBand = new ConvolutionFilterBand(bandName + "_blur", band, new Kernel(11, 11, new double[]{
-                                0 / 720.0, 0 / 720.0, 1 / 720.0, 1 / 720.0, 2 / 720.0, 2 / 720.0, 2 / 720.0, 1 / 720.0, 1 / 720.0, 0 / 720.0, 0 / 720.0,
-                                0 / 720.0, 1 / 720.0, 2 / 720.0, 3 / 720.0, 4 / 720.0, 5 / 720.0, 4 / 720.0, 3 / 720.0, 2 / 720.0, 1 / 720.0, 0 / 720.0,
-                                1 / 720.0, 2 / 720.0, 4 / 720.0, 6 / 720.0, 9 / 720.0, 9 / 720.0, 9 / 720.0, 6 / 720.0, 4 / 720.0, 2 / 720.0, 1 / 720.0,
-                                1 / 720.0, 3 / 720.0, 6 / 720.0, 11 / 720.0, 14 / 720.0, 16 / 720.0, 14 / 720.0, 11 / 720.0, 6 / 720.0, 3 / 720.0, 1 / 720.0,
-                                2 / 720.0, 4 / 720.0, 9 / 720.0, 14 / 720.0, 20 / 720.0, 22 / 720.0, 20 / 720.0, 14 / 720.0, 9 / 720.0, 4 / 720.0, 2 / 720.0,
-                                2 / 720.0, 5 / 720.0, 9 / 720.0, 16 / 720.0, 22 / 720.0, 24 / 720.0, 22 / 720.0, 16 / 720.0, 9 / 720.0, 5 / 720.0, 2 / 720.0,
-                                2 / 720.0, 4 / 720.0, 9 / 720.0, 14 / 720.0, 20 / 720.0, 22 / 720.0, 20 / 720.0, 14 / 720.0, 9 / 720.0, 4 / 720.0, 2 / 720.0,
-                                1 / 720.0, 3 / 720.0, 6 / 720.0, 11 / 720.0, 14 / 720.0, 16 / 720.0, 14 / 720.0, 11 / 720.0, 6 / 720.0, 3 / 720.0, 1 / 720.0,
-                                1 / 720.0, 2 / 720.0, 4 / 720.0, 6 / 720.0, 9 / 720.0, 9 / 720.0, 9 / 720.0, 6 / 720.0, 4 / 720.0, 2 / 720.0, 1 / 720.0,
-                                0 / 720.0, 1 / 720.0, 2 / 720.0, 3 / 720.0, 4 / 720.0, 5 / 720.0, 4 / 720.0, 3 / 720.0, 2 / 720.0, 1 / 720.0, 0 / 720.0,
-                                0 / 720.0, 0 / 720.0, 1 / 720.0, 1 / 720.0, 2 / 720.0, 2 / 720.0, 2 / 720.0, 1 / 720.0, 1 / 720.0, 0 / 720.0, 0 / 720.0,
-                        }), 1);
-                        product.addBand(blurredBand);
-
-                        Band varianceBand = product.addBand(bandName + "_variance", String.format("0.1 * (1 + 0.1 * min(max(random_gaussian(), 0), 10)) * %s", blurredBand.getName()), ProductData.TYPE_FLOAT32);
-                        Stx varStx = varianceBand.getStx();
-                        double minVar = Math.max(varStx.getMean() - 3 * varStx.getStandardDeviation(), varStx.getMinimum());
-                        double maxVar = Math.min(varStx.getMean() + 3 * varStx.getStandardDeviation(), varStx.getMaximum());
-                        double absVar = maxVar - minVar;
-
-                        confidenceBand = product.addBand(bandName + "_confidence", String.format("255 * min(max((1 - (%s - %s) / %s), 0), 1)", varianceBand.getName(), minVar, absVar), ProductData.TYPE_UINT8);
-                    }
-                    band.setAncillaryBand("confidence", confidenceBand);
-                }
-            }
-        }
-    }
-
-    private void _addUncertaintyBands2(Product product) {
-        if (Boolean.getBoolean("uncertainty.test")) {
-            Band confidenceIntermBand;
-            Band confidenceBand;
-            if (!product.containsBand("confidence")) {
-                int w2 = product.getSceneRasterWidth() / 2;
-                int h2 = product.getSceneRasterHeight() / 2;
-                int s = Math.min(w2, h2);
-                confidenceIntermBand = product.addBand("confidence_interm", String.format("sqrt(sqr(X-%d) + sqr(Y-%d)) / %d", w2, h2, s), ProductData.TYPE_FLOAT32);
-                confidenceBand = product.addBand("confidence", String.format("confidence_interm < 1 ? 255*(1-confidence_interm) : 0"), ProductData.TYPE_UINT8);
-            } else {
-                confidenceIntermBand = product.getBand("confidence_interm");
-                confidenceBand = product.getBand("confidence");
-            }
-            Band[] bands = product.getBands();
-            for (Band band : bands) {
-                if (band != confidenceIntermBand && band != confidenceBand) {
-                    band.setAncillaryBand("confidence", confidenceBand);
-                }
-            }
-        }
     }
 
     private PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo rgbImageInfo, int level) {

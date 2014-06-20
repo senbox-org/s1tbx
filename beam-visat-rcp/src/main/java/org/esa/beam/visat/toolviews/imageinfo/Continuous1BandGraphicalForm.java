@@ -25,7 +25,6 @@ import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JPanel;
@@ -64,17 +63,17 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
             public void actionPerformed(ActionEvent e) {
                 final boolean shouldLog10Display = logDisplayButton.isSelected();
                 if (shouldLog10Display) {
-                    final ImageInfo imageInfo = parentForm.getImageInfo();
+                    final ImageInfo imageInfo = parentForm.getFormModel().getModifiedImageInfo();
                     final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
                     if (LogDisplay.checkApplicability(cpd)) {
-                        setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), shouldLog10Display);
+                        setLogarithmicDisplay(parentForm.getFormModel().getRaster(), shouldLog10Display);
                         parentForm.applyChanges();
                     } else {
                         LogDisplay.showNotApplicableInfo(parentForm.getContentPanel());
                         logDisplayButton.setSelected(false);
                     }
                 } else {
-                    setLogarithmicDisplay(parentForm.getProductSceneView().getRaster(), shouldLog10Display);
+                    setLogarithmicDisplay(parentForm.getFormModel().getRaster(), shouldLog10Display);
                     parentForm.applyChanges();
                 }
             }
@@ -98,25 +97,25 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void handleFormShown(FormModel formModel) {
+        updateFormModel(formModel);
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
+    public void handleFormHidden(FormModel formModel) {
         if (imageInfoEditor.getModel() != null) {
             imageInfoEditor.setModel(null);
         }
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
+    public void updateFormModel(FormModel formModel) {
         final ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
-        final ImageInfo imageInfo = parentForm.getImageInfo();
+        final ImageInfo imageInfo = parentForm.getFormModel().getModifiedImageInfo();
         final ImageInfoEditorModel newModel = new ImageInfoEditorModel1B(imageInfo);
         imageInfoEditor.setModel(newModel);
 
-        final RasterDataNode raster = productSceneView.getRaster();
+        final RasterDataNode raster = formModel.getRaster();
         setLogarithmicDisplay(raster, newModel.getImageInfo().isLogScaled());
         if (oldModel != null) {
             newModel.setHistogramViewGain(oldModel.getHistogramViewGain());
@@ -134,8 +133,8 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void resetFormModel(FormModel formModel) {
+        updateFormModel(formModel);
         imageInfoEditor.computeZoomOutToFullHistogramm();
         parentForm.revalidateToolViewPaneControl();
     }
@@ -145,7 +144,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         final ImageInfoEditorModel model = imageInfoEditor.getModel();
         if (model != null) {
             if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
-                updateFormModel(parentForm.getProductSceneView());
+                updateFormModel(parentForm.getFormModel());
             } else {
                 setLogarithmicDisplay(raster, model.getImageInfo().isLogScaled());
             }
@@ -154,7 +153,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public RasterDataNode[] getRasters() {
-        return parentForm.getProductSceneView().getRasters();
+        return parentForm.getFormModel().getRasters();
     }
 
     @Override

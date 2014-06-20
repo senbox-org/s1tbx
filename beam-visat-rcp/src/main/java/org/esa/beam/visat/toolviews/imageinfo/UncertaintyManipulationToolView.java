@@ -15,6 +15,7 @@
  */
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 
 import javax.swing.JComponent;
@@ -32,7 +33,48 @@ public class UncertaintyManipulationToolView extends AbstractToolView {
 
     @Override
     protected JComponent createControl() {
-        ColorManipulationForm cmf = new ColorManipulationForm(this);
+        ColorManipulationForm cmf = new ColorManipulationForm(this, new MyFormModel());
         return cmf.getContentPanel();
+    }
+
+    private static class MyFormModel extends FormModel {
+        @Override
+        public boolean isValid() {
+            return super.isValid() && getRaster() != null;
+        }
+
+        @Override
+        public RasterDataNode getRaster() {
+            RasterDataNode raster = getProductSceneView().getRaster();
+            RasterDataNode uncertaintyBand;
+            uncertaintyBand = raster.getAncillaryBand("uncertainty");
+            if (uncertaintyBand != null) {
+                return uncertaintyBand;
+            }
+            uncertaintyBand = raster.getAncillaryBand("variance");
+            if (uncertaintyBand != null) {
+                return uncertaintyBand;
+            }
+            return null;
+        }
+
+        @Override
+        public RasterDataNode[] getRasters() {
+            RasterDataNode raster = getRaster();
+            if (raster != null) {
+                return new RasterDataNode[] {raster};
+            }
+            return null;
+        }
+
+        @Override
+        public void setRasters(RasterDataNode[] rasters) {
+            // not applicable
+        }
+
+        @Override
+        public void applyModifiedImageInfo() {
+            // not applicable
+        }
     }
 }

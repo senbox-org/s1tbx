@@ -27,14 +27,12 @@ import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Color;
@@ -71,23 +69,23 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void handleFormShown(FormModel formModel) {
+        updateFormModel(formModel);
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
+    public void handleFormHidden(FormModel formModel) {
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
-        parentForm.getStx(productSceneView.getRaster());
+    public void updateFormModel(FormModel formModel) {
+        parentForm.getStx(formModel.getRaster());
         tableModel.fireTableDataChanged();
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void resetFormModel(FormModel formModel) {
+        updateFormModel(formModel);
     }
 
     @Override
@@ -106,7 +104,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
 
     @Override
     public RasterDataNode[] getRasters() {
-        return parentForm.getProductSceneView().getRasters();
+        return parentForm.getFormModel().getRasters();
     }
 
     @Override
@@ -137,7 +135,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         }
 
         public ImageInfo getImageInfo() {
-            return parentForm.getImageInfo();
+            return  parentForm.getFormModel().getModifiedImageInfo();
         }
 
         @Override
@@ -174,7 +172,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
             } else if (columnIndex == 2) {
                 return Double.isNaN(point.getSample()) ? "Uncoded" : (int) point.getSample();
             } else if (columnIndex == 3) {
-                final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
+                final RasterDataNode raster = parentForm.getFormModel().getRaster();
                 final Stx stx = raster.getStx();
                 Assert.notNull(stx, "stx");
                 final int[] frequencies = stx.getHistogramBins();
@@ -193,7 +191,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 }
                 return 0.0;
             } else if (columnIndex == 4) {
-                final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
+                final RasterDataNode raster = parentForm.getFormModel().getRaster();
                 if (raster instanceof Band) {
                     Band band = (Band) raster;
                     final IndexCoding indexCoding = band.getIndexCoding();

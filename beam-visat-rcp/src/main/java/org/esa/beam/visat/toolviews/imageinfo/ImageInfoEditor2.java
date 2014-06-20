@@ -25,7 +25,6 @@ import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.JComponent;
@@ -194,9 +193,8 @@ class ImageInfoEditor2 extends ImageInfoEditor {
         @Override
         protected Object doInBackground(ProgressMonitor pm) throws Exception {
             UIUtils.setRootFrameWaitCursor(ImageInfoEditor2.this);
-            final ProductSceneView view = parentForm.getProductSceneView();
-            if (view != null) {
-                final RasterDataNode[] rasters = view.getRasters();
+            if (parentForm.getFormModel().isValid()) {
+                final RasterDataNode[] rasters = parentForm.getFormModel().getRasters();
                 try {
                     pm.beginTask("Computing statistics", rasters.length);
                     for (RasterDataNode raster : rasters) {
