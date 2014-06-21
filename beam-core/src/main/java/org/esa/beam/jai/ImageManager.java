@@ -27,21 +27,7 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RGBChannelDef;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Scene;
-import org.esa.beam.framework.datamodel.SceneFactory;
-import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
@@ -55,45 +41,15 @@ import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
-import javax.media.jai.Histogram;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.LookupTableJAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.BandMergeDescriptor;
-import javax.media.jai.operator.ClampDescriptor;
-import javax.media.jai.operator.CompositeDescriptor;
-import javax.media.jai.operator.CompositeDestAlpha;
-import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.InvertDescriptor;
-import javax.media.jai.operator.LookupDescriptor;
-import javax.media.jai.operator.MatchCDFDescriptor;
-import javax.media.jai.operator.MaxDescriptor;
-import javax.media.jai.operator.MinDescriptor;
-import javax.media.jai.operator.MultiplyConstDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
+import javax.media.jai.*;
+import javax.media.jai.operator.*;
+import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
+import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -392,7 +348,7 @@ public class ImageManager {
         Assert.notNull(imageInfo, "imageInfo");
         RenderedImage sourceImage = getSourceImage(raster, level);
         RenderedImage validMaskImage = getValidMaskImage(raster, level);
-        RenderedImage uncertaintyImage = getUncertaintyImage2(raster, level);
+        RenderedImage uncertaintyImage = getUncertaintyImage(raster, level);
         PlanarImage image = createByteIndexedImage(raster, sourceImage, imageInfo);
         image = createMatchCdfImage(image, imageInfo.getHistogramMatching(), new Stx[]{raster.getStx()});
         image = createLookupRgbImage(raster, image, imageInfo);
@@ -415,18 +371,15 @@ public class ImageManager {
     }
 
     private RenderedImage getUncertaintyImage(RasterDataNode raster, int level) {
-        RasterDataNode confidenceBand = raster.getAncillaryBand("confidence");
-        if (confidenceBand != null) {
-            return getLevelImage(confidenceBand.getGeophysicalImage(), level);
-        }
-        return null;
-    }
-
-    private RenderedImage getUncertaintyImage2(RasterDataNode raster, int level) {
         RasterDataNode varianceBand = raster.getAncillaryBand("variance");
         if (varianceBand != null) {
             RenderedImage sourceImage = getSourceImage(varianceBand, level);
-            return createByteIndexedImage(varianceBand, sourceImage, varianceBand.getImageInfo(ProgressMonitor.NULL));
+            ImageInfo imageInfo = varianceBand.getImageInfo(ProgressMonitor.NULL);
+            ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
+            final double minSample = colorPaletteDef.getMinDisplaySample();
+            final double maxSample = colorPaletteDef.getMaxDisplaySample();
+            return createByteIndexedImage(varianceBand, sourceImage, maxSample, minSample, 1.0);
+            //return createByteIndexedImage(varianceBand, sourceImage, imageInfo);
         }
         return null;
     }
