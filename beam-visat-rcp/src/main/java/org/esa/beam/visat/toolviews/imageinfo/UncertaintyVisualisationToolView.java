@@ -18,17 +18,17 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 
 
 /**
  * The color manipulation tool window.
  */
-public class UncertaintyManipulationToolView extends AbstractToolView {
+public class UncertaintyVisualisationToolView extends AbstractToolView {
 
-    public static final String ID = UncertaintyManipulationToolView.class.getName();
+    public static final String ID = UncertaintyVisualisationToolView.class.getName();
 
-    public UncertaintyManipulationToolView() {
+    public UncertaintyVisualisationToolView() {
     }
 
     @Override

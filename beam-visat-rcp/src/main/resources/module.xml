@@ -249,12 +249,12 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.imageinfo.UncertaintyManipulationToolView</id>
-            <class>org.esa.beam.visat.toolviews.imageinfo.UncertaintyManipulationToolView</class>
-            <title>Uncertainty Manipulation</title>
+            <id>org.esa.beam.visat.toolviews.imageinfo.UncertaintyVisualisationToolView</id>
+            <class>org.esa.beam.visat.toolviews.imageinfo.UncertaintyVisualisationToolView</class>
+            <title>Uncertainty Visualisation</title>
             <mnemonic>U</mnemonic>
             <accelerator>ctrl alt U</accelerator>
-            <description>Image uncertainty composite manipulation.</description>
+            <description>Image uncertainty visualisation.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/UncertaintyStretch16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/UncertaintyStretch24.png</largeIcon>
             <helpId>showUncertaintyManipulationWnd</helpId>
