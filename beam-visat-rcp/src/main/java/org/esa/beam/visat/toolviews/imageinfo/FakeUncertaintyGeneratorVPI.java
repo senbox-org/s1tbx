@@ -68,8 +68,7 @@ public class FakeUncertaintyGeneratorVPI implements VisatPlugIn {
 
                         String varianceExpr = String.format("0.1 * (1 + 0.1 * min(max(random_gaussian(), 0), 10)) * %s", blurredBand.getName());
                         varianceBand = addVarianceBand(product, band, varianceExpr);
-                        //confidenceBand = addConfidenceBand(product, band, varianceBand);
-
+                        confidenceBand = addConfidenceBand(product, band, varianceBand);
                     } else if (bandCount % UNCERTAINTY_KIND_COUNT == 1) {
                         int w2 = product.getSceneRasterWidth() / 2;
                         int h2 = product.getSceneRasterHeight() / 2;
@@ -77,9 +76,11 @@ public class FakeUncertaintyGeneratorVPI implements VisatPlugIn {
 
                         String varianceExpr = String.format("100 * 0.5 * (1 + sin(4 * PI * sqrt(sqr(X-%d) + sqr(Y-%d)) / %d))", w2, h2, s);
                         varianceBand = addVarianceBand(product, band, varianceExpr);
+                        confidenceBand = addConfidenceBand(product, band, varianceBand);
                     }
                 }
                 band.setAncillaryBand("variance", varianceBand);
+                band.setAncillaryBand("confidence", confidenceBand);
             }
         }
     }
@@ -92,5 +93,16 @@ public class FakeUncertaintyGeneratorVPI implements VisatPlugIn {
         return varianceBand;
     }
 
+    private Band addConfidenceBand(Product product, Band sourceBand, Band varianceBand) {
+        Band confidenceBand;
+        Stx varStx = varianceBand.getStx();
+        double minVar = Math.max(varStx.getMean() - 3 * varStx.getStandardDeviation(), varStx.getMinimum());
+        double maxVar = Math.min(varStx.getMean() + 3 * varStx.getStandardDeviation(), varStx.getMaximum());
+        double absVar = maxVar - minVar;
+
+        confidenceBand = product.addBand(sourceBand.getName() + "_confidence", String.format("min(max((1 - (%s - %s) / %s), 0), 1)", varianceBand.getName(), minVar, absVar), ProductData.TYPE_FLOAT32);
+        confidenceBand.setUnit("dl");
+        return confidenceBand;
+    }
 }
 
