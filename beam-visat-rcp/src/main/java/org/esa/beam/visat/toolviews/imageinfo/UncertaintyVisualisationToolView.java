@@ -15,6 +15,8 @@
  */
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 
@@ -70,6 +72,11 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
         @Override
         public void setRasters(RasterDataNode[] rasters) {
             // not applicable
+        }
+
+        @Override
+        public ImageInfo getOriginalImageInfo() {
+            return getRaster().getImageInfo(ProgressMonitor.NULL);
         }
 
         @Override
