@@ -28,7 +28,7 @@ import org.esa.nest.db.DBQuery;
 import org.esa.nest.db.ProductDB;
 import org.esa.nest.db.ProductEntry;
 import org.esa.nest.util.DialogUtils;
-import org.esa.nest.util.SQLUtils;
+import org.esa.nest.db.SQLUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

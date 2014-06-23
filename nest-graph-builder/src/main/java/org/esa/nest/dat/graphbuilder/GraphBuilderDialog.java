@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.util.SystemUtils;
 import org.esa.nest.gpf.ui.SourceUI;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AppContext;
@@ -71,19 +72,15 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     private final GraphExecuter graphEx;
     private boolean isProcessing = false;
     private boolean allowGraphBuilding = true;
-    private final List<ProcessingListener> listenerList = new ArrayList<ProcessingListener>(1);
+    private final List<ProcessingListener> listenerList = new ArrayList<>(1);
+
+    private final static String LAST_GRAPH_PATH = "graphbuilder.last_graph_path";
 
     //TabbedPanel
     private JTabbedPane tabbedPanel = null;
 
     public GraphBuilderDialog(final AppContext theAppContext, final String title, final String helpID) {
-        super(theAppContext.getApplicationWindow(), title, 0, helpID);
-
-        appContext = theAppContext;
-        graphEx = new GraphExecuter();
-        graphEx.addObserver(this);
-
-        initUI();
+        this(theAppContext, title, helpID, true);
     }
 
     public GraphBuilderDialog(final AppContext theAppContext, final String title, final String helpID, final boolean allowGraphBuilding) {
@@ -93,6 +90,12 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         appContext = theAppContext;
         graphEx = new GraphExecuter();
         graphEx.addObserver(this);
+
+        String lastDir = VisatApp.getApp().getPreferences().getPropertyString(LAST_GRAPH_PATH,
+                ResourceUtils.getGraphFolder("").getAbsolutePath());
+        if(new File(lastDir).exists()) {
+            VisatApp.getApp().getPreferences().setPropertyString(LAST_GRAPH_PATH, lastDir);
+        }
 
         initUI();
     }
@@ -308,8 +311,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
      */
     private void LoadGraph() {
         final BeamFileFilter fileFilter = new BeamFileFilter("XML", "xml", "Graph");
-        final File file = VisatApp.getApp().showFileOpenDialog("Load Graph", false, fileFilter,
-                GraphExecuter.LAST_GRAPH_PATH);
+        final File file = VisatApp.getApp().showFileOpenDialog("Load Graph", false, fileFilter, LAST_GRAPH_PATH);
         if (file == null) return;
 
         LoadGraph(file);

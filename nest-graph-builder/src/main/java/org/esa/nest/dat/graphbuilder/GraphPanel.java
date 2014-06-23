@@ -49,7 +49,6 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
     private static final Font font = new Font("Ariel", Font.BOLD, 10);
     private static final Color opColor = new Color(0, 177, 255, 128);
     private static final Color selColor = new Color(200, 255, 200, 150);
-    private static final Color helpColor = new Color(250, 255, 250, 150);
     private static final char[] folderDelim = new char[]{'\\'};
 
     private GraphNode selectedNode = null;
@@ -247,15 +246,13 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
     @Override
     protected void paintComponent(java.awt.Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D)g;
 
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        DrawGraph(g, graphEx.GetGraphNodes());
+        DrawGraph(g2, graphEx.GetGraphNodes());
     }
 
     /**
@@ -264,11 +261,11 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
      * @param g        the Graphics
      * @param nodeList the list of graphNodes
      */
-    private void DrawGraph(Graphics g, List<GraphNode> nodeList) {
+    private void DrawGraph(Graphics2D g, List<GraphNode> nodeList) {
 
         g.setFont(font);
         if (showRightClickHelp) {
-            drawHelp(g, helpColor);
+            drawHelp(g);
         }
 
         for (GraphNode n : nodeList) {
@@ -320,7 +317,7 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         showRightClickHelp = flag;
     }
 
-    private static void drawHelp(final Graphics g, final Color col) {
+    private static void drawHelp(final Graphics g) {
         final int x = (int) (g.getClipBounds().getWidth() / 2);
         final int y = (int) (g.getClipBounds().getHeight() / 2);
 

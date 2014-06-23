@@ -43,7 +43,7 @@ import java.util.Map;
 public class GraphNode {
 
     private final Node node;
-    private final Map<String, Object> parameterMap = new HashMap<String, Object>(10);
+    private final Map<String, Object> parameterMap = new HashMap<>(10);
     private OperatorUI operatorUI = null;
 
     private int nodeWidth = 60;
@@ -57,7 +57,7 @@ public class GraphNode {
     private Point displayPosition = new Point(0, 0);
 
     private XppDom displayParameters;
-    private Color shadowColor = new Color(0, 0, 0, 128);
+    private static Color shadowColor = new Color(0, 0, 0, 64);
 
     GraphNode(final Node n) throws IllegalArgumentException {
         node = n;
@@ -289,7 +289,6 @@ public class GraphNode {
         }
     }
 
-
     boolean isNodeSource(final GraphNode source) {
 
         for (NodeSource ns : node.getSources()) {
@@ -334,29 +333,35 @@ public class GraphNode {
      * @param g   The Java2D Graphics
      * @param col The color to draw
      */
-    public void drawNode(final Graphics g, final Color col) {
+    public void drawNode(final Graphics2D g, final Color col) {
         final int x = displayPosition.x;
         final int y = displayPosition.y;
 
+        g.setFont(g.getFont().deriveFont(Font.BOLD, 11));
         final FontMetrics metrics = g.getFontMetrics();
-        final String name = node.getId(); //getOperatorName();
+        final String name = node.getId();
         final Rectangle2D rect = metrics.getStringBounds(name, g);
         final int stringWidth = (int) rect.getWidth();
         setSize(Math.max(stringWidth, 50) + 10, 25);
 
-        g.setColor(Color.BLACK);
-        g.drawLine(x + 1, y + nodeHeight, x + nodeWidth, y + nodeHeight);
-        g.drawLine(x + nodeWidth, y + 1, x + nodeWidth, y + nodeHeight);
-        g.setColor(shadowColor);
-        g.drawLine(x + 2, y + nodeHeight + 1, x + nodeWidth, y + nodeHeight + 1);
-        g.drawLine(x + nodeWidth + 1, y + 2, x + nodeWidth + 1, y + nodeHeight + 1);
+        int step = 4;
+        int alpha = 96;
+        for(int i=0; i < step; ++i) {
+            g.setColor(new Color(0,0,0,alpha-(32*i)));
+            g.drawLine(x + i+1, y + nodeHeight + i, x + nodeWidth+i-1, y + nodeHeight + i);
+            g.drawLine(x + nodeWidth + i, y + i, x + nodeWidth + i, y + nodeHeight + i);
+        }
 
-        g.setColor(col);
-        g.fill3DRect(x, y, nodeWidth - 1, nodeHeight - 1, true);
+        Shape clipShape = new Rectangle(x,y,nodeWidth, nodeHeight);
+
+        g.setComposite(AlphaComposite.SrcAtop);
+        g.setPaint(new GradientPaint(x, y, col, x+nodeWidth, y+nodeHeight, col.darker()));
+        g.fill(clipShape);
+
         g.setColor(Color.blue);
         g.draw3DRect(x, y, nodeWidth - 1, nodeHeight - 1, true);
 
-        g.setColor(Color.black);
+        g.setColor(Color.BLACK);
         g.drawString(name, x + (nodeWidth - stringWidth) / 2, y + 15);
     }
 

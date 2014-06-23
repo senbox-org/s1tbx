@@ -16,7 +16,6 @@
 package org.esa.nest.db;
 
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.util.SQLUtils;
 
 import java.io.File;
 import java.sql.*;

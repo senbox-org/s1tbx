@@ -1,5 +1,7 @@
 package org.esa.nest.dat.layers;
 
+import org.esa.nest.dat.graphics.GraphicText;
+
 import java.awt.*;
 import java.awt.geom.Line2D;
 
@@ -106,7 +108,7 @@ public class ArrowOverlay {
     }
 
     private void paintText(final Graphics2D g) {
-        GraphicsUtils.outlineText(g, bodyColour, text, textPoint.x, textPoint.y);
+        GraphicText.outlineText(g, bodyColour, text, textPoint.x, textPoint.y);
     }
 
     public Point getHead() {

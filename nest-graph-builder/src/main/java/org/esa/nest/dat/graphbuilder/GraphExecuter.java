@@ -42,8 +42,6 @@ import java.util.*;
 
 public class GraphExecuter extends Observable {
 
-    public final static String LAST_GRAPH_PATH = "graphbuilder.last_graph_path";
-
     private final GPF gpf;
     private Graph graph;
     private GraphContext graphContext = null;

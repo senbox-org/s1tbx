@@ -10,7 +10,7 @@ import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.MemUtils;
-import org.esa.nest.util.ProcessTimeMonitor;
+import org.esa.nest.gpf.ProcessTimeMonitor;
 import org.esa.nest.util.TestUtils;
 
 import java.io.File;
