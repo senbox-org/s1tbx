@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
           <b>Changes in 5.0.1</b><br/>
+          Fixed NPE with missing histogram matching in Colour Manipulation tool window<br/>
           Harmonisation with NEST: Convert computed band: only clone image info, if it exists<br/>
           Harmonisation with NEST: Allow JIDE license to be overridden<br/>
           <b>Changes in 5.0</b><br/>

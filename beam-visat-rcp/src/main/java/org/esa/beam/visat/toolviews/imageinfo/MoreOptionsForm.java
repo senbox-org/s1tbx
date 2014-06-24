@@ -84,11 +84,11 @@ class MoreOptionsForm {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final ImageInfo.HistogramMatching matching = getHistogramMatching();
-                if (matching != ImageInfo.HistogramMatching.None) {
+                if (matching != null && matching != ImageInfo.HistogramMatching.None) {
                     final String message = "<html>Histogram matching will be applied to the currently displayed image.<br/>" +
                                            "Sample values of the colour palette will not longer translate into<br/>" +
                                            "their associated colours.</html>";
-                    VisatApp.getApp().showInfoDialog("Histogramm Matching", message, "warningHistogramMatching");
+                    VisatApp.getApp().showInfoDialog("Histogram Matching", message, "warningHistogramMatching");
                 }
                 updateModel();
             }
@@ -177,10 +177,14 @@ class MoreOptionsForm {
     }
 
     private ImageInfo.HistogramMatching getHistogramMatching() {
-        return (ImageInfo.HistogramMatching) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getPropertyValue();
+        Binding binding = getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY);
+        return  binding != null ? (ImageInfo.HistogramMatching) binding.getPropertyValue() : null;
     }
 
     private void setHistogramMatching(ImageInfo.HistogramMatching histogramMatching) {
-        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setPropertyValue(histogramMatching);
+        Binding binding = getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY);
+        if (binding != null) {
+            binding.setPropertyValue(histogramMatching);
+        }
     }
 }
