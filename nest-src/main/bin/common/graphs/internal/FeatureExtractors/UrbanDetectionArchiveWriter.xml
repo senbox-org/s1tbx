@@ -1,14 +1,14 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-Read">
+  <node id="Read">
     <operator>Read</operator>
     <sources/>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
   </node>
-  <node id="3-Calibration">
+  <node id="Calibration">
     <operator>Calibration</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
@@ -20,10 +20,10 @@
       <createBetaBand>false</createBetaBand>
     </parameters>
   </node>
-  <node id="4-Land-Sea-Mask">
+  <node id="Land-Sea-Mask">
     <operator>Land-Sea-Mask</operator>
     <sources>
-      <sourceProduct refid="3-Calibration"/>
+      <sourceProduct refid="Calibration"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
@@ -34,10 +34,10 @@
       <byPass>false</byPass>
     </parameters>
   </node>
-  <node id="5-Terrain-Mask">
+  <node id="Terrain-Mask">
     <operator>Terrain-Mask</operator>
     <sources>
-      <sourceProduct refid="4-Land-Sea-Mask"/>
+      <sourceProduct refid="Land-Sea-Mask"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
@@ -48,10 +48,10 @@
       <thresholdInMeter>30.0</thresholdInMeter>
     </parameters>
   </node>
-  <node id="6-Speckle-Divergence">
+  <node id="Speckle-Divergence">
     <operator>Speckle-Divergence</operator>
     <sources>
-      <sourceProduct refid="5-Terrain-Mask"/>
+      <sourceProduct refid="Terrain-Mask"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
@@ -61,7 +61,7 @@
   <node id="UrbanAreaFeatureWriter">
     <operator>UrbanAreaFeatureWriter</operator>
     <sources>
-      <sourceProduct refid="6-Speckle-Divergence"/>
+      <sourceProduct refid="Speckle-Divergence"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <targetPath/>
@@ -70,6 +70,7 @@
       <skipFeaturesOutput>false</skipFeaturesOutput>
       <skipQuicklookOutput>false</skipQuicklookOutput>
       <skipProductOutput>true</skipProductOutput>
+	  <patchWriterFactoryClassName>org.esa.pfa.fe.op.out.DefaultPatchWriterFactory</patchWriterFactoryClassName>
       <patchSizeKm>12.0</patchSizeKm>
       <minValidPixels>0.1</minValidPixels>
     </parameters>
@@ -79,19 +80,19 @@
     <node id="UrbanAreaFeatureWriter">
       <displayPosition y="228.0" x="372.0"/>
     </node>
-    <node id="6-Speckle-Divergence">
+    <node id="Speckle-Divergence">
       <displayPosition y="226.0" x="230.0"/>
     </node>
-    <node id="5-Terrain-Mask">
+    <node id="Terrain-Mask">
       <displayPosition y="222.0" x="119.0"/>
     </node>
-    <node id="4-Land-Sea-Mask">
+    <node id="Land-Sea-Mask">
       <displayPosition y="178.0" x="112.0"/>
     </node>
-    <node id="3-Calibration">
+    <node id="Calibration">
       <displayPosition y="134.0" x="112.0"/>
     </node>
-    <node id="1-Read">
+    <node id="Read">
       <displayPosition y="134.0" x="37.0"/>
     </node>
   </applicationData>
