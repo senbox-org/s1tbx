@@ -400,7 +400,7 @@ public class GraphNode {
      * @param g   The Java2D Graphics
      * @param src the source GraphNode
      */
-    public void drawConnectionLine(final Graphics g, final GraphNode src) {
+    public void drawConnectionLine(final Graphics2D g, final GraphNode src) {
 
         final Point nodePos = displayPosition;
         final Point srcPos = src.displayPosition;
@@ -460,7 +460,7 @@ public class GraphNode {
      * @param headX position X on source node
      * @param headY position Y on source node
      */
-    private static void drawArrow(final Graphics g, final int tailX, final int tailY, final int headX, final int headY) {
+    private static void drawArrow(final Graphics2D g, final int tailX, final int tailY, final int headX, final int headY) {
 
         final double t1 = Math.abs(headY - tailY);
         final double t2 = Math.abs(headX - tailX);
@@ -488,9 +488,12 @@ public class GraphNode {
         p2.translate(tailX, tailY);
         p3.translate(tailX, tailY);
 
+        Stroke oldStroke = g.getStroke();
+        g.setStroke(new BasicStroke(2));
         g.drawLine(tailX, tailY, headX, headY);
         g.drawLine(tailX, tailY, p2.x, p2.y);
         g.drawLine(p3.x, p3.y, tailX, tailY);
+        g.setStroke(oldStroke);
     }
 
 }
