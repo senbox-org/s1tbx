@@ -108,9 +108,10 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(editorPanel, BorderLayout.NORTH);
-        moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
+        parentForm.getFormModel().modifyMoreOptionsForm(moreOptionsForm);
 
         logDisplayButton = LogDisplay.createButton();
         logDisplayButton.addActionListener(new ActionListener() {

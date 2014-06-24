@@ -55,9 +55,10 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
                 tableModel.addTableModelListener(tableModelListener);
             }
         };
-        moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
+        parentForm.getFormModel().modifyMoreOptionsForm(moreOptionsForm);
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();

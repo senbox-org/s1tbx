@@ -81,5 +81,11 @@ class FormModel {
         return isValid() && getRaster() instanceof Band && ((Band) getRaster()).getIndexCoding() != null;
     }
 
+    public boolean canUseHistogramMatching() {
+        return true;
+    }
 
+    // todo - bit weird to let the mode return a form, try to change this later, e.g. adapter pattern (nf)
+    public void modifyMoreOptionsForm(MoreOptionsForm moreOptionsForm) {
+    }
 }
