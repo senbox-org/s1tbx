@@ -40,6 +40,7 @@ public class FakeUncertaintyGeneratorVPI implements VisatPlugIn {
 
     private void addUncertaintyBands(Product product) {
         Band[] bands = product.getBands();
+        product.setAutoGrouping("radiance_*_variance:radiance_*_confidence:radiance_*_blur:radiance");
         for (Band band : bands) {
             bandCount++;
             String bandName = band.getName();
