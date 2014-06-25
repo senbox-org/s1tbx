@@ -36,6 +36,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
+            <version>5.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>

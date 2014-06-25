@@ -15,7 +15,6 @@ final class PodBandReader implements BandReader {
 
     private static final int POINTS_PER_SCAN = 2048;
     private static final int WORDS_PER_SCAN = 3414;
-    private static final int RASTER_SKIP_X = 25;
 
     private static final int TEN_BITS = 0b1111111111;
     private static final int[] FIRST = {0, 0, 0, 1, 1};
@@ -65,8 +64,8 @@ final class PodBandReader implements BandReader {
                                    int sourceStepX,
                                    int sourceStepY,
                                    ProductData targetBuffer, ProgressMonitor pm) throws IOException {
-        final int minX = sourceOffsetX + RASTER_SKIP_X;
-        final int maxX = sourceOffsetX + sourceWidth - 1 + RASTER_SKIP_X;
+        final int minX = sourceOffsetX;
+        final int maxX = sourceOffsetX + sourceWidth - 1;
         final int minY = sourceOffsetY;
         final int maxY = sourceOffsetY + sourceHeight - 1;
         final int targetStart = 0;

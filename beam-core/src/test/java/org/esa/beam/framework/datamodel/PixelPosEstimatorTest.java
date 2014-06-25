@@ -88,11 +88,15 @@ public class PixelPosEstimatorTest {
         final Raster latData = latImage.getData();
 
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
-        final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
+        final Stepping stepping = new DefaultSteppingFactory().createStepping(
                 rectangle, 1000);
 
-        final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
-        final PixelPosEstimator.Approximation a = PixelPosEstimator.Approximation.create(data, 0.5, rectangle);
+        final double[][] data = GeoApproximation.extractWarpPoints(
+                new PixelPosEstimator.PlanarImageSampleSource(lonImage),
+                new PixelPosEstimator.PlanarImageSampleSource(latImage),
+                new PixelPosEstimator.PlanarImageSampleSource(maskImage),
+                stepping);
+        final GeoApproximation a = GeoApproximation.create(data, 0.5, rectangle);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
 
@@ -123,7 +127,7 @@ public class PixelPosEstimatorTest {
     @Test
     public void testStepping() {
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
-        final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
+        final Stepping stepping = new DefaultSteppingFactory().createStepping(
                 rectangle, 1000);
 
         assertEquals(0, stepping.getMinX());
@@ -156,10 +160,14 @@ public class PixelPosEstimatorTest {
         assertEquals(0.0, latData.getSampleDouble(nx / 2, ny / 2, 0), 0.0);
 
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
-        final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
+        final Stepping stepping = new DefaultSteppingFactory().createStepping(
                 rectangle, 1000);
 
-        final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
+        final double[][] data = GeoApproximation.extractWarpPoints(
+                new PixelPosEstimator.PlanarImageSampleSource(lonImage),
+                new PixelPosEstimator.PlanarImageSampleSource(latImage),
+                new PixelPosEstimator.PlanarImageSampleSource(maskImage),
+                stepping);
         assertEquals(stepping.getPointCount(), data.length);
 
         final double[] upperLeft = data[0];

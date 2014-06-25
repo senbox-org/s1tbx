@@ -32,13 +32,13 @@ class SimplePixelDimensionEstimator implements PixelDimensionEstimator {
             if (Double.isNaN(pixelSizeX)) {
                 final int x0 = w / i;
                 final int y0 = h / i;
-                if (getSampleBoolean(maskImage, x0, y0)) {
+                if (maskImage == null || getSampleBoolean(maskImage, x0, y0)) {
                     final double lat0 = getSampleDouble(latImage, x0, y0, -90.0, 90.0);
                     final double lon0 = getSampleDouble(lonImage, x0, y0, -180.0, 180.0);
                     final DistanceMeasure calculator = new SphericalDistance(lon0, lat0);
                     final int x1 = ((i - 1) * w) / i;
 
-                    if (getSampleBoolean(maskImage, x1, y0)) {
+                    if (maskImage == null || getSampleBoolean(maskImage, x1, y0)) {
                         final double latX = getSampleDouble(latImage, x1, y0, -90.0, 90.0);
                         final double lonX = getSampleDouble(lonImage, x1, y0, -180.0, 180.0);
                         pixelSizeX = Math.toDegrees(calculator.distance(lonX, latX)) / ((w * (i - 2)) / i);

@@ -10,9 +10,9 @@ import org.esa.beam.dataio.avhrr.HeaderUtil;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,8 +27,7 @@ import java.util.Map;
  */
 final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsProvider {
 
-    private static final int PRODUCT_WIDTH = 2001;
-    private static final int TIE_POINT_SUB_SAMPLING = 40;
+    private static final int PRODUCT_WIDTH = 2048;
     private static final int TIE_POINT_GRID_WIDTH = 51;
 
     // http://www.ncdc.noaa.gov/oa/pod-guide/ncdc/docs/podug/html/c3/sec3-1.htm#sec3-121 (Table 3.1.2.1-2)
@@ -100,24 +99,20 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
         final String productName = file.getName();
         final String productType = "NOAA_POD_AVHRR_HRPT";
         final int dataRecordCount = data.getUShort("NUMBER_OF_SCANS");
-        int toSkip = (dataRecordCount % TIE_POINT_SUB_SAMPLING) - 1;
-        if (toSkip < 0) {
-            toSkip += TIE_POINT_SUB_SAMPLING;
-        }
-        final int productHeight = (dataRecordCount - toSkip);
-        final Product product = new Product(productName, productType, PRODUCT_WIDTH, productHeight);
+        final Product product = new Product(productName, productType, PRODUCT_WIDTH, dataRecordCount);
+        product.setPreferredTileSize(new Dimension(1024, 1024));
 
-        addCountsBand(product, 0);
-        addCountsBand(product, 1);
-        addCountsBand(product, 2);
-        addCountsBand(product, 3);
-        addCountsBand(product, 4);
+        //addCountsBand(product, 0);
+        //addCountsBand(product, 1);
+        //addCountsBand(product, 2);
+        //addCountsBand(product, 3);
+        //addCountsBand(product, 4);
 
         addAlbedoBand(product, 0);
-        addAlbedoBand(product, 1);
-        addRadianceBand(product, 2);
-        addRadianceBand(product, 3);
-        addRadianceBand(product, 4);
+        //addAlbedoBand(product, 1);
+        //addRadianceBand(product, 2);
+        //addRadianceBand(product, 3);
+        //addRadianceBand(product, 4);
 
         addTiePointGridsAndGeoCoding(product);
 
@@ -125,7 +120,7 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
         final ProductData.UTC startTime = toUTC(startTimeCode);
         product.setStartTime(startTime);
 
-        final CompoundData endTimeCode = getDataRecord(productHeight - 1).getCompound("TIME_CODE");
+        final CompoundData endTimeCode = getDataRecord(dataRecordCount - 1).getCompound("TIME_CODE");
         final ProductData.UTC endTime = toUTC(endTimeCode);
         product.setEndTime(endTime);
 
@@ -172,12 +167,11 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
     }
 
     private void addTiePointGridsAndGeoCoding(Product product) throws IOException {
-        final int rasterHeight = product.getSceneRasterHeight();
-        final int gridHeight = rasterHeight / TIE_POINT_SUB_SAMPLING + 1;
-        final int tiePointCount = TIE_POINT_GRID_WIDTH * gridHeight;
+        final int tiePointGridHeight = product.getSceneRasterHeight();
+        final int tiePointCount = TIE_POINT_GRID_WIDTH * tiePointGridHeight;
         final float[][] gridData = new float[3][tiePointCount];
 
-        for (int tiePointIndex = 0, y = 0; y < rasterHeight; y += TIE_POINT_SUB_SAMPLING) {
+        for (int tiePointIndex = 0, y = 0; y < tiePointGridHeight; y++) {
             final int[] rawAngles = new int[TIE_POINT_GRID_WIDTH];
             final int[] rawLat = new int[TIE_POINT_GRID_WIDTH];
             final int[] rawLon = new int[TIE_POINT_GRID_WIDTH];
@@ -203,27 +197,20 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
             }
         }
 
+        addTiePointGrid(product, AvhrrConstants.SZA_DS_NAME, PodTypes.getSolarZenithAnglesMetadata().getUnits(),
+                        tiePointGridHeight, gridData[0]);
         final TiePointGrid latGrid = addTiePointGrid(product, AvhrrConstants.LAT_DS_NAME,
                                                      PodTypes.getLatMetadata().getUnits(),
-                                                     gridHeight, gridData[1]);
+                                                     tiePointGridHeight, gridData[1]);
         final TiePointGrid lonGrid = addTiePointGrid(product, AvhrrConstants.LON_DS_NAME,
                                                      PodTypes.getLonMetadata().getUnits(),
-                                                     gridHeight, gridData[2]);
-        addTiePointGrid(product, AvhrrConstants.SZA_DS_NAME, PodTypes.getSolarZenithAnglesMetadata().getUnits(),
-                        gridHeight, gridData[0]);
+                                                     tiePointGridHeight, gridData[2]);
 
-        // TODO: inverse approximation in tie point geo-coding works incorrect with wide-swath data rq-20140520
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setGeoCoding(new PodGeoCoding(latGrid, lonGrid));
     }
 
-    private TiePointGrid addTiePointGrid(Product product, String gridName, String units, int gridHeight,
-                                         float[] gridData) {
-        final TiePointGrid grid = new TiePointGrid(gridName,
-                                                   TIE_POINT_GRID_WIDTH,
-                                                   gridHeight,
-                                                   0.5f, 0.5f,
-                                                   TIE_POINT_SUB_SAMPLING,
-                                                   TIE_POINT_SUB_SAMPLING, gridData);
+    private TiePointGrid addTiePointGrid(Product product, String name, String units, int height, float[] data) {
+        final TiePointGrid grid = new TiePointGrid(name, TIE_POINT_GRID_WIDTH, height, 25.5f, 0.5f, 40, 1, data);
         grid.setUnit(units);
         product.addTiePointGrid(grid);
         return grid;
