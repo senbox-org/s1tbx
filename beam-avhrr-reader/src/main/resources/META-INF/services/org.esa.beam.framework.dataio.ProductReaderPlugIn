@@ -1,1 +1,2 @@
 org.esa.beam.dataio.avhrr.AvhrrReaderPlugIn
+org.esa.beam.dataio.avhrr.noaa.pod.PodAvhrrReaderPlugIn

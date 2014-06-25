@@ -1,12 +1,12 @@
 """
-This module represents the BEAM Python API.
+The beampy module provides access to the BEAM Java APIs.
 
-In order to use beampy the module jpy must be installed first.
+In order to use beampy the module 'jpy' must be installed first.
 
 You can configure beampy by using a file named beampy.ini as follows:
 
     [DEFAULT]
-    beam_home: C:\Program Files\beam-4.11
+    beam_home: C:\Program Files\beam-5
     extra_classpath: target/classes
     extra_options: -Djava.awt.headless=false
     max_mem: 4G
@@ -16,16 +16,21 @@ You can place beampy.ini next to <python3>/site-packages/beampy.py or put it in 
 
 """
 
-__author__ = "Norman Fomferra, Brockmann Consult GmbH"
-
 import os
-import configparser
+import sys
+
+if sys.version_info >= (3, 0, 0,):
+    import configparser as cp
+else:
+    import ConfigParser as cp
 
 module_dir = os.path.dirname(os.path.realpath(__file__))
-config = configparser.ConfigParser()
-config.read(['./beampy.ini', os.path.join(module_dir, 'beampy.ini')])
+config = cp.ConfigParser()
+config.read(['beampy.ini', os.path.join(module_dir, 'beampy.ini')])
 
-debug = config.getboolean('DEFAULT', 'debug', fallback=False)
+debug = False
+if config.has_option('DEFAULT', 'debug'):
+    debug = config.getboolean('DEFAULT', 'debug')
 
 # todo - find a way to determine path to JVM shared library and extend PATH / LD_LIBRARY_PATH env vars so that jpy
 # can load it without any further configuration
@@ -72,10 +77,10 @@ def _create_classpath(searchpath):
 def _get_jvm_options():
     global beam_home, searchpath, classpath, extra_classpath, max_mem, options, extra_options
 
-    beam_home = config.get('DEFAULT', 'beam_home',
-                           fallback=os.getenv('BEAM_HOME',
-                                              os.getenv('BEAM4_HOME',
-                                                        os.getenv('BEAM5_HOME'))))
+    if config.has_option('DEFAULT', 'beam_home'):
+        beam_home = config.get('DEFAULT', 'beam_home')
+    else:
+        beam_home = os.getenv('BEAM_HOME', os.getenv('BEAM4_HOME', os.getenv('BEAM5_HOME')))
 
     if beam_home is None or not os.path.exists(beam_home):
         raise RuntimeError('environment variable "BEAM_HOME" must be set to a valid BEAM installation directory')
@@ -87,19 +92,22 @@ def _get_jvm_options():
 
     classpath = _create_classpath(searchpath)
 
-    extra_classpath = config.get('DEFAULT', 'extra_classpath', fallback=None)
-    if extra_classpath:
+    if config.has_option('DEFAULT', 'extra_classpath'):
+        extra_classpath = config.get('DEFAULT', 'extra_classpath')
         classpath += extra_classpath.split(sep=os.pathsep)
+
     #pprint.pprint(classpath)
 
-    max_mem = config.get('DEFAULT', 'max_mem', fallback='512M')
+    max_mem = '512M'
+    if config.has_option('DEFAULT', 'extra_options'):
+        max_mem = config.get('DEFAULT', 'max_mem')
 
     options = ['-Djava.awt.headless=true',
                '-Djava.class.path=' + os.pathsep.join(classpath), 
                '-Xmx' + max_mem]
 
-    extra_options = config.get('DEFAULT', 'extra_options', fallback=None)
-    if extra_options:
+    if config.has_option('DEFAULT', 'extra_options'):
+        extra_options = config.get('DEFAULT', 'extra_options')
         options += extra_options.split(sep='|')
 
     return options
@@ -118,21 +126,34 @@ del _collect_classpath
 
 def annotate_RasterDataNode_methods(type, method):
     index = -1
+    
+    if sys.version_info >= (3, 0, 0,):
+        arr_z_type_str = "<class '[Z'>"
+        arr_i_type_str = "<class '[I'>"
+        arr_f_type_str = "<class '[F'>"
+        arr_d_type_str = "<class '[D'>"
+    else:
+        arr_z_type_str = "<type '[Z'>"
+        arr_i_type_str = "<type '[I'>"
+        arr_f_type_str = "<type '[F'>"
+        arr_d_type_str = "<type '[D'>"
 
     if method.name == 'readPixels' and method.param_count >= 5:
         index = 4
         param_type_str = str(method.get_param_type(index))
-        if param_type_str == "<class '[I'>"\
-            or param_type_str == "<class '[F'>" \
-            or param_type_str == "<class '[D'>":
+        if param_type_str == arr_i_type_str \
+            or param_type_str == arr_f_type_str \
+            or param_type_str == arr_d_type_str:
             method.set_param_mutable(index, True)
+            method.set_param_output(index, True)
             method.set_param_return(index, True)
 
     if method.name == 'readValidMask' and method.param_count == 5:
         index = 4
-        param_type_str = str(method.get_param_type(index))
-        if param_type_str == "<class '[Z'>":
+        param_type_str = str(method.get_param_type(index))   
+        if param_type_str == arr_z_type_str:
             method.set_param_mutable(index, True)
+            method.set_param_output(index, True)
             method.set_param_return(index, True)
 
     if index >= 0 and debug:
@@ -178,4 +199,3 @@ try:
 except Exception:
     jpy.destroy_jvm()
     raise
-

@@ -23,12 +23,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-examples</artifactId>
-    <groupId>org.esa.beam</groupId>
     <name>BEAM Examples</name>
+    <artifactId>beam-examples</artifactId>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>

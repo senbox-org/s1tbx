@@ -24,20 +24,19 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <name>BEAM Installer Resources</name>
     <artifactId>beam-installer</artifactId>
+    <version>5.0</version>
 
     <dependencies>
-
         <dependency>
             <groupId>com.install4j</groupId>
             <artifactId>i4jruntime</artifactId>
             <version>5.1.5</version>
         </dependency>
-
     </dependencies>
 
     <build>

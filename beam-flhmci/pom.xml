@@ -24,12 +24,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <name>BEAM MERIS FLH/MCI Processor</name>
     <artifactId>beam-flhmci</artifactId>
-    <version>${beam.version}</version>
+    <version>5.0</version>
 
     <packaging>jar</packaging>
 

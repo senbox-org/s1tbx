@@ -22,7 +22,7 @@
     <description>A module for reading and writing GeoTIFF Data Products</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 

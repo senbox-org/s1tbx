@@ -98,13 +98,13 @@ public abstract class SelectableCommand extends Command {
     }
 
     /**
-     * Configures this command with the properties (if any) found in the given recource bundle. Overrides the base class
+     * Configures this command with the properties (if any) found in the given resource bundle. Overrides the base class
      * implementation in order to configure the following extra properties:<p> <ld>
      * <li><code>command.</code><i>command-ID</i><code>.selected = true</code> or <code>false</code></li> </ld>
      *
      * @param resourceBundle the resource bundle from which the properties are received
      *
-     * @throws IllegalArgumentException if the recource bundle is null
+     * @throws IllegalArgumentException if the resource bundle is null
      */
     @Override
     public void configure(ResourceBundle resourceBundle) {
@@ -140,7 +140,7 @@ public abstract class SelectableCommand extends Command {
 
     @Override
     protected Action createAction() {
-        final AbstractAction action = new AbstractAction() {
+        return new AbstractAction() {
 
             /**
              * Invoked when an action occurs.
@@ -149,7 +149,6 @@ public abstract class SelectableCommand extends Command {
                 fireActionPerformed(actionEvent, null);
             }
         };
-        return action;
     }
 }
 

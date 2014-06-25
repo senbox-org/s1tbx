@@ -19,22 +19,24 @@
 
     <symbolicName>beam-help</symbolicName>
     <name>BEAM Help</name>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <packaging>dir</packaging>
 
 
     <description>Provides the software user manual.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.1</b><br/>
+        [BEAM-1678] What's New page is not updated for 5.0<br/>
         <b>Changes in 5.0</b><br/>
-        [BEAM-1643] Improve 'Accuracy' option in Statistics tool window
+        [BEAM-1643] Improve 'Accuracy' option in Statistics tool window<br/>
         [BEAM-1547] BEAM Help documentation for "Define Subset" dialog has not been updated<br/>
         [BEAM-1550] Link in help to general.html does not work<br/>
         ]]>

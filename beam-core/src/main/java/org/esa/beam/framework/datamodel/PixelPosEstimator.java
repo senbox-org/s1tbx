@@ -1,6 +1,5 @@
-package org.esa.beam.framework.datamodel;
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,6 +13,8 @@ package org.esa.beam.framework.datamodel;
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
+
+package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.math.CosineDistance;
 import org.esa.beam.util.math.DistanceMeasure;
@@ -262,8 +263,8 @@ public class PixelPosEstimator {
 
             final int[] lonIndices = new int[]{X, Y, LON};
             final int[] latIndices = new int[]{X, Y, LAT};
-            final RationalFunctionModel fLon = findBestModel(data, lonIndices, 0.0);
-            final RationalFunctionModel fLat = findBestModel(data, latIndices, 0.0);
+            final RationalFunctionModel fLon = findBestModel(data, lonIndices, accuracy);
+            final RationalFunctionModel fLat = findBestModel(data, latIndices, accuracy);
 
             return new Approximation(fX, fY, fLon, fLat, maxDistance, rotator, new CosineDistance(centerLon, centerLat),
                                      range);

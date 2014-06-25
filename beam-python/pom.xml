@@ -6,13 +6,14 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <name>BEAM Python Integration</name>
     <artifactId>beam-python</artifactId>
+    <version>5.0.1</version>
 
     <dependencies>
         <dependency>
@@ -22,7 +23,7 @@
         <dependency>
             <groupId>org.jpy</groupId>
             <artifactId>jpy</artifactId>
-            <version>${jpy.version}</version>
+            <version>0.7.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

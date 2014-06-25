@@ -22,12 +22,12 @@
 
     <description>
         The BEAM AATSR SST Processor is aimed to enable the user to calculate the sea-surface temperature
-        from (A)ATSR brightness temperatures. The BEAM implementation is explicitely opened for the addition of
+        from (A)ATSR brightness temperatures. The BEAM implementation is explicitly opened for the addition of
         new coefficient sets.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>

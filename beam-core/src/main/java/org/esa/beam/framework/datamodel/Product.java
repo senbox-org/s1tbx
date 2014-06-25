@@ -451,7 +451,7 @@ public class Product extends ProductNode {
      * since products currently cannot have an owner.
      */
     @Override
-    protected void setOwner(final ProductNode owner) {
+    public void setOwner(final ProductNode owner) {
         throw new IllegalStateException("a product can not have an owner");
     }
 

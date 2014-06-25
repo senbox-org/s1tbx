@@ -18,7 +18,7 @@ package org.esa.beam.dataio.avhrr.noaa;
 import java.util.HashMap;
 import java.util.Map;
 
-class FormatMetadata {
+public class FormatMetadata {
 
     private String type;
     private String description;

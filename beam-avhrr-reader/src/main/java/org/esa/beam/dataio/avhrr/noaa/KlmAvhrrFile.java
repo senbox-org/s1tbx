@@ -29,20 +29,18 @@ import org.esa.beam.dataio.avhrr.calibration.IrRadianceCalibrator;
 import org.esa.beam.dataio.avhrr.calibration.IrTemperatureCalibrator;
 import org.esa.beam.dataio.avhrr.calibration.ReflectanceFactorCalibrator;
 import org.esa.beam.dataio.avhrr.calibration.VisibleRadianceCalibrator;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
 /**
  * Represent a single NOAA AVHRR file.
  */
-public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
+public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
 
     private final File file;
     private CompoundData noaaData;
@@ -51,24 +49,24 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
     private ProductFormat productFormat;
     private boolean hasArsHeader;
 
-    public NoaaAvhrrFile(File file) {
+    public KlmAvhrrFile(File file) {
         this.file = file;
     }
 
     @Override
     public void readHeader() throws IOException {
-        FormatDetector detector = new FormatDetector(file);
-        Assert.argument(detector.getDecodeQualification().equals(DecodeQualification.INTENDED), "DecodeQualification.INTENDED");
+        KlmFormatDetector detector = new KlmFormatDetector(file);
+        Assert.state(detector.canDecode());
         productFormat = detector.getProductFormat();
         hasArsHeader = detector.hasArsHeader();
         detector.dispose();
 
-        Debug.trace("ProductFormat="+productFormat);
-        Debug.trace("hasArsHeader="+hasArsHeader);
+        Debug.trace("ProductFormat=" + productFormat);
+        Debug.trace("hasArsHeader=" + hasArsHeader);
 
         int blockSize = productFormat.getBlockSize();
         int dataRecordCount = getDataRecordCount(blockSize);
-        CompoundType type = NoaaTypes.getFileType(hasArsHeader, productFormat, dataRecordCount);
+        CompoundType type = KlmTypes.getFileType(hasArsHeader, productFormat, dataRecordCount);
 
         DataFormat dataFormat = new DataFormat(type, ByteOrder.BIG_ENDIAN);
         context = dataFormat.createContext(file, "r");
@@ -82,39 +80,39 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
         productHeight = (dataRecordCount - toSkip);
 
         if (getFormatVersion() >= 4 &&
-                getHeader().getInt("CLAVR_STATUS") == 1) {
+            getHeader().getInt("CLAVR_STATUS") == 1) {
             hasCloudBand = true;
         }
         analyzeScanLineBitfield();
     }
 
     int getScanlineBitfield(int yIndex) throws IOException {
-		return getDataRecord(yIndex).getInt("SCANLINE_BIT_FIELD");
+        return getDataRecord(yIndex).getInt("SCANLINE_BIT_FIELD");
     }
 
     private void analyzeScanLineBitfield() throws IOException {
-		final int first = getScanlineBitfield(0);
-		final int last = getScanlineBitfield(getProductHeight() - 1);
+        final int first = getScanlineBitfield(0);
+        final int last = getScanlineBitfield(getProductHeight() - 1);
 
-		final boolean isFirstSouthBound = ((first & (1 << 15)) >> 15) == 1;
-		final boolean isLastSouthBound = ((last & (1 << 15)) >> 15) == 1;
+        final boolean isFirstSouthBound = ((first & (1 << 15)) >> 15) == 1;
+        final boolean isLastSouthBound = ((last & (1 << 15)) >> 15) == 1;
 
-		if (isFirstSouthBound && isLastSouthBound) {
-			northbound = false;
-		} else {
+        if (isFirstSouthBound && isLastSouthBound) {
+            northbound = false;
+        } else {
             northbound = !isFirstSouthBound && !isLastSouthBound;
         }
 
-		final int firstChannel3ab = first & 3;
-		final int lastChannel3ab = last & 3;
-		if (firstChannel3ab == 1 && lastChannel3ab == 1) {
-			channel3ab = AvhrrConstants.CH_3A;
-		} else if (firstChannel3ab == 0 && lastChannel3ab == 0) {
-			channel3ab = AvhrrConstants.CH_3B;
-		} else {
-			channel3ab = -1;
-		}
-	}
+        final int firstChannel3ab = first & 3;
+        final int lastChannel3ab = last & 3;
+        if (firstChannel3ab == 1 && lastChannel3ab == 1) {
+            channel3ab = AvhrrConstants.CH_3A;
+        } else if (firstChannel3ab == 0 && lastChannel3ab == 0) {
+            channel3ab = AvhrrConstants.CH_3B;
+        } else {
+            channel3ab = -1;
+        }
+    }
 
     private int getDataRecordCount(long blockSize) throws IOException {
         long realFileSize = file.length() - blockSize;
@@ -175,8 +173,10 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
         final VisibleRadianceCalibrator calibrator = new VisibleRadianceCalibrator(channel);
         String channelString = CH_STRINGS[channel].toUpperCase();
         calibrator.setHeaderConstants(
-                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"), String.format("CHANNEL_%s_EQUIVALENT_WIDTH", channelString)),
-                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"), String.format("CHANNEL_%s_SOLAR_IRRADIANCE", channelString)),
+                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"),
+                                       String.format("CHANNEL_%s_EQUIVALENT_WIDTH", channelString)),
+                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"),
+                                       String.format("CHANNEL_%s_SOLAR_IRRADIANCE", channelString)),
                 HeaderWrapper.getValue(getHeader().getCompound("NAVIGATION"), "EARTH_SUN_DISTANCE_RATIO")
         );
         return productFormat.createCountReader(channel, this, calibrator);
@@ -195,9 +195,12 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
         calibrator.setFormatVersion(getFormatVersion());
         String channelString = CH_STRINGS[channel].toUpperCase();
         calibrator.setHeaderConstants(
-                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"), String.format("CHANNEL_%s_CONSTANT_1", channelString)),
-                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"), String.format("CHANNEL_%s_CONSTANT_2", channelString)),
-                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"), String.format("CHANNEL_%s_CENTRAL_WAVENUMBER", channelString))
+                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"),
+                                       String.format("CHANNEL_%s_CONSTANT_1", channelString)),
+                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"),
+                                       String.format("CHANNEL_%s_CONSTANT_2", channelString)),
+                HeaderWrapper.getValue(getHeader().getCompound("RADIANCE_CONVERSION"),
+                                       String.format("CHANNEL_%s_CENTRAL_WAVENUMBER", channelString))
         );
         return productFormat.createCountReader(channel, this, calibrator);
     }
@@ -226,25 +229,25 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
 
     @Override
     public float[][] getTiePointData() throws IOException {
-        final int tiePointSupsampling = getTiePointSupsampling();
-        final int gridHeight = getProductHeight() / tiePointSupsampling + 1;
-		final int numTiePoints = TP_GRID_WIDTH * gridHeight;
+        final int tiePointSubsampling = getTiePointSubsampling();
+        final int gridHeight = getProductHeight() / tiePointSubsampling + 1;
+        final int numTiePoints = TP_GRID_WIDTH * gridHeight;
 
-		float[][] tiePointData = new float[5][numTiePoints];
-		final int numRawAngles = TP_GRID_WIDTH * 3;
-		final int numRawLatLon = TP_GRID_WIDTH * 2;
+        float[][] tiePointData = new float[5][numTiePoints];
+        final int numRawAngles = TP_GRID_WIDTH * 3;
+        final int numRawLatLon = TP_GRID_WIDTH * 2;
 
-		short[] rawAngles = new short[numRawAngles];
-		int[] rawLatLon = new int[numRawLatLon];
+        short[] rawAngles = new short[numRawAngles];
+        int[] rawLatLon = new int[numRawLatLon];
 
-		int targetIndex = 0;
-		int targetIncr = 1;
-		if (northbound) {
-			targetIndex = TP_GRID_WIDTH * ((productHeight / tiePointSupsampling) + 1) - 1;
-			targetIncr = -1;
-		}
+        int targetIndex = 0;
+        int targetIncr = 1;
+        if (northbound) {
+            targetIndex = TP_GRID_WIDTH * ((productHeight / tiePointSubsampling) + 1) - 1;
+            targetIncr = -1;
+        }
 
-		for (int scanLine = 0; scanLine < productHeight; scanLine += tiePointSupsampling) {
+        for (int scanLine = 0; scanLine < productHeight; scanLine += tiePointSubsampling) {
             CompoundData dataRecord = getDataRecord(scanLine);
             SequenceData angularRelationships = dataRecord.getSequence("ANGULAR_RELATIONSHIPS");
             for (int i = 0; i < numRawAngles; i++) {
@@ -255,16 +258,16 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
                 rawLatLon[i] = earthLocation.getInt(i);
             }
 
-			for (int scanPoint = 0; scanPoint < AvhrrConstants.TP_GRID_WIDTH; scanPoint++) {
-				tiePointData[0][targetIndex] = rawAngles[scanPoint * 3] * 1E-2f;
-				tiePointData[1][targetIndex] = rawAngles[scanPoint * 3 + 1] * 1E-2f;
-				tiePointData[2][targetIndex] = rawAngles[scanPoint * 3 + 2] * 1E-2f;
-				tiePointData[3][targetIndex] = rawLatLon[scanPoint * 2] * 1E-4f;
-				tiePointData[4][targetIndex] = rawLatLon[scanPoint * 2 + 1] * 1E-4f;
-				targetIndex += targetIncr;
-			}
-		}
-		return tiePointData;
+            for (int scanPoint = 0; scanPoint < AvhrrConstants.TP_GRID_WIDTH; scanPoint++) {
+                tiePointData[0][targetIndex] = rawAngles[scanPoint * 3] * 1E-2f;
+                tiePointData[1][targetIndex] = rawAngles[scanPoint * 3 + 1] * 1E-2f;
+                tiePointData[2][targetIndex] = rawAngles[scanPoint * 3 + 2] * 1E-2f;
+                tiePointData[3][targetIndex] = rawLatLon[scanPoint * 2] * 1E-4f;
+                tiePointData[4][targetIndex] = rawLatLon[scanPoint * 2 + 1] * 1E-4f;
+                targetIndex += targetIncr;
+            }
+        }
+        return tiePointData;
     }
 
     @Override
@@ -283,7 +286,7 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
     }
 
     @Override
-    public int getTiePointSupsampling() {
+    public int getTiePointSubsampling() {
         return productFormat.getProductDimension().getTpSubsampling();
     }
 
@@ -301,13 +304,13 @@ public class NoaaAvhrrFile extends AvhrrFile implements AvhrrConstants {
         noaaData = null;
     }
 
-    public static DecodeQualification canDecode(File file) {
-        FormatDetector formatDetector = null;
+    public static boolean canDecode(File file) {
+        KlmFormatDetector formatDetector = null;
         try {
-            formatDetector = new FormatDetector(file);
-            return formatDetector.getDecodeQualification();
+            formatDetector = new KlmFormatDetector(file);
+            return formatDetector.canDecode();
         } catch (Throwable e) {
-            return DecodeQualification.UNABLE;
+            return false;
         } finally {
             if (formatDetector != null) {
                 formatDetector.dispose();

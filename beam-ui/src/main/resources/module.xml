@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-ui</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>BEAM User Interface Library</name>
     <activator>org.esa.beam.BeamUiActivator</activator>
 
@@ -25,6 +25,10 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.1</b><br/>
+        [BEAM-1669] The button 'Define Subset...' is disabled in certain cases<br/>
+        Harmonisation with NEST: Add drag and drop transfer handling to product browser<br/>
+        Harmonisation with NEST: Add product identification to product browser<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1059] User-defined band sets shall be saved/restored<br/>
         [BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus<br/>
@@ -37,7 +41,7 @@
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>

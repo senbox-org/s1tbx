@@ -17,14 +17,14 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>5.0</version>
+    <version>5.0.2</version>
     <name>BEAM Core Library</name>
 
 
     <description>This is the base module of BEAM containing its core functionalities.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
@@ -41,6 +41,16 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.2</b><br/>
+        [BEAM-1685] Product saved with attached PixelGeocoding can not be loaded when using the alternate PixelGeocoding<br/>
+        Harmonisation with NEST: Dimapheader bug: When bands have their own geocoding, the dimap header reader expects
+          a band index in order to add a geocoding to a band.
+          In the header writer, the band index is missing for the tiepoint geocoding.<br/>
+        Harmonisation with NEST: Extended Envi header to set byte ordering and handle UTM projection<br/>
+        Harmonisation with NEST: Added method CrsGeoCoding.getPixels()<br/>
+        Harmonisation with NEST: ProductNode.setOwner() is now public<br/>
+        <b>Changes in 5.0.1</b><br/>
+        [BEAM-1683] Opening a MERIS FSG product with pixel geo-coding attached takes very long<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1634] Use IF,THEN,ELSE in band maths expressions<br/>
         [BEAM-1455] Flag-Coding remains when subsetting<br/>

@@ -256,7 +256,7 @@ public class VisatApp extends BasicApp implements AppContext {
     /**
      * default value for preference save product annotations (ADS) or not
      */
-    public static final boolean DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS = false;
+    public static boolean DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS = false;
     /**
      * default value for preference incremental mode at save
      */
@@ -282,7 +282,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * The one and only visat instance
      */
     private static VisatApp instance;
-    private static final String SHOW_TOOLVIEW_CMD_POSTFIX = ".showCmd";
+    protected static final String SHOW_TOOLVIEW_CMD_POSTFIX = ".showCmd";
 
     /**
      * VISAT's plug-in manager
@@ -370,7 +370,7 @@ public class VisatApp extends BasicApp implements AppContext {
             getMainFrame().getDockingManager().setHideFloatingFramesOnSwitchOutOfApplication(true);
             getMainFrame().getDockingManager().setHideFloatingFramesWhenDeactivate(false);
 
-            desktopPane = new TabbedDesktopPane();
+            desktopPane = createDesktop();
 
             applicationPage = new VisatApplicationPage(getMainFrame(),
                                                        getCommandManager(),
@@ -395,6 +395,13 @@ public class VisatApp extends BasicApp implements AppContext {
         } finally {
             pm.done();
         }
+    }
+
+	/**
+		Allow desktop pane to be overridden
+	*/
+    protected TabbedDesktopPane createDesktop() {
+        return new TabbedDesktopPane();
     }
 
     private void loadCommands() {
@@ -1615,7 +1622,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return saveOk;
     }
 
-    private boolean writeProductImpl(final Product product, final File file, final String formatName,
+    public boolean writeProductImpl(final Product product, final File file, final String formatName,
                                      final boolean incremental) {
         Debug.assertNotNull(product);
 
@@ -1777,8 +1784,9 @@ public class VisatApp extends BasicApp implements AppContext {
         }
     }
 
-    private void configureJaiTileCache() {
-        final int tileCacheCapacity = getPreferences().getPropertyInt(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 512);
+    protected void configureJaiTileCache() {
+        final int tileCacheCapacity = getPreferences().getPropertyInt(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY,
+                Integer.parseInt(System.getProperty("jai.tileCache.memoryCapacity", "512")));
         JAIUtils.setDefaultTileCacheCapacity(tileCacheCapacity);
     }
 
@@ -1903,6 +1911,11 @@ public class VisatApp extends BasicApp implements AppContext {
             return;
         }
         final RasterDataNode raster = sceneView.getRaster();
+
+        super.setStatusBarMessage(raster.getDisplayName() + " - " + getCSName(raster));
+    }
+
+    protected String getCSName(final RasterDataNode raster) {
         final String csName;
         final GeoCoding geoCoding = raster.getGeoCoding();
         if (geoCoding instanceof MapGeoCoding || geoCoding instanceof CrsGeoCoding) {
@@ -1910,7 +1923,7 @@ public class VisatApp extends BasicApp implements AppContext {
         } else {
             csName = "Satellite coordinates";
         }
-        super.setStatusBarMessage(raster.getDisplayName() + " - " + csName);
+        return csName;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1955,7 +1968,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return toolBar;
     }
 
-    private CommandBar createLayersToolBar() {
+    protected CommandBar createLayersToolBar() {
         final CommandBar toolBar = createToolBar(LAYERS_TOOL_BAR_ID, "Layers");
         ArrayList<String> commandIdList = new ArrayList<>(Arrays.asList(
                 "showNoDataOverlay",
@@ -1972,7 +1985,19 @@ public class VisatApp extends BasicApp implements AppContext {
         return toolBar;
     }
 
-    private CommandBar createAnalysisToolBar() {
+    protected JMenu createAnalysisMenu() {
+        return createJMenu("analysis", "Analysis", 'A',
+                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
+        );
+    }
+
+    protected CommandBar createAnalysisToolBar() {
         final CommandBar toolBar = createToolBar(ANALYSIS_TOOL_BAR_ID, "Analysis");
         addCommandsToToolBar(toolBar, new String[]{
                 InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
@@ -1986,7 +2011,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return toolBar;
     }
 
-    private CommandBar createInteractionsToolBar() {
+    protected CommandBar createInteractionsToolBar() {
         final CommandBar toolBar = createToolBar(INTERACTIONS_TOOL_BAR_ID, "Interactions");
         addCommandsToToolBar(toolBar, new String[]{
                 // These IDs are defined in the module.xml
@@ -2007,10 +2032,9 @@ public class VisatApp extends BasicApp implements AppContext {
         return toolBar;
     }
 
+    protected HashSet<String> getExcludedToolbars() {
 
-    private CommandBar[] createViewsToolBars() {
-
-        final HashSet<String> excludedIds = new HashSet<>(8);
+        final HashSet<String> excludedIds = new HashSet<String>(8);
         // todo - remove bad forward dependencies to tool views (nf - 30.10.2008)
         excludedIds.add(TileCacheDiagnosisToolView.ID);
         excludedIds.add(InformationToolView.ID);
@@ -2022,6 +2046,16 @@ public class VisatApp extends BasicApp implements AppContext {
         excludedIds.add(ProfilePlotToolView.ID);
         excludedIds.add("org.esa.beam.scripting.visat.ScriptConsoleToolView");
         excludedIds.add("org.esa.beam.visat.toolviews.layermanager.LayerEditorToolView");
+
+        return excludedIds;
+    }
+
+    protected void addDefaultToolViewCommands(final List<String> commandIds) {
+    }
+
+    private CommandBar[] createViewsToolBars() {
+
+        final HashSet<String> excludedIds = getExcludedToolbars();
 
         ToolViewDescriptor[] toolViewDescriptors = VisatActivator.getInstance().getToolViewDescriptors();
 
@@ -2072,7 +2106,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return viewToolBars.toArray(new CommandBar[viewToolBars.size()]);
     }
 
-    private void addCommandsToToolBar(final CommandBar toolBar, final String[] commandIDs) {
+    protected void addCommandsToToolBar(final CommandBar toolBar, final String[] commandIDs) {
         for (final String commandID : commandIDs) {
             if (commandID == null) {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
@@ -2122,6 +2156,7 @@ public class VisatApp extends BasicApp implements AppContext {
         gc.setPreferredWidth(100);
         gc.setUpdateInterval(1000);
         gc.setGcIcon(UIUtils.loadImageIcon("icons/GC18.gif"));
+        gc.setToolTipText("Java Memory Heap");
         statusBar.add(gc, JideBoxLayout.FLEXIBLE);
 
         final ResizeStatusBarItem resize = new ResizeStatusBarItem();
@@ -2198,15 +2233,7 @@ public class VisatApp extends BasicApp implements AppContext {
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
-        menuBar.add(createJMenu("analysis", "Analysis", 'A',
-                                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
-        ));
+        menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Processing", 'P'));
         menuBar.add(createJMenu("window", "Window", 'W'));

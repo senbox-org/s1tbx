@@ -23,12 +23,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <artifactId>beam-alos-reader</artifactId>
     <name>BEAM AVNIR-2/PRISM Product Reader</name>
-    <version>${beam.version}</version>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>

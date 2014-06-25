@@ -24,12 +24,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <artifactId>blue-marble-worldmap</artifactId>
     <name>BEAM NASA Blue Marble Worldmap</name>
-    <version>${beam.version}</version>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>

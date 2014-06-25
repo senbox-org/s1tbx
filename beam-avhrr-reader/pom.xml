@@ -23,12 +23,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
     <artifactId>beam-avhrr-reader</artifactId>
     <name>BEAM AVHRR Product Reader</name>
-    <version>${beam.version}</version>
+    <version>5.0.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

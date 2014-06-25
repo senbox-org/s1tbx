@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
@@ -10,7 +10,7 @@
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
@@ -29,6 +29,8 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.1</b><br/>
+        Fixed typo in error message<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1584] Binner should include used source products in metadata<br/>
         [BEAM-1580] Binned Level 3 products from the oc-cci project should be readable<br/>

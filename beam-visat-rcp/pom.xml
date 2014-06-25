@@ -21,12 +21,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-visat-rcp</artifactId>
-    <packaging>jar</packaging>
     <name>BEAM VISAT Rich Client Platform</name>
+    <artifactId>beam-visat-rcp</artifactId>
+    <version>5.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -46,7 +47,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-statistics-op</artifactId>
-            <version>${beam.version}</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>

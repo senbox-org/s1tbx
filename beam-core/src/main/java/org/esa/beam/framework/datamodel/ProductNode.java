@@ -71,7 +71,7 @@ public abstract class ProductNode extends ExtensibleObject {
      *
      * @param owner the new owner
      */
-    protected void setOwner(ProductNode owner) {
+    public void setOwner(ProductNode owner) {
         if (owner != this.owner) {
             this.owner = owner;
             product = null;

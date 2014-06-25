@@ -49,7 +49,7 @@ import java.io.IOException;
  * @author Marcoz
  * @author Tonio
  */
-abstract class ChartPagePanel extends PagePanel {
+public abstract class ChartPagePanel extends PagePanel {
 
     protected static final String HELP_TIP_MESSAGE = "For more information about this plot\n" +
             "hit the help button at the bottom right.";
@@ -68,7 +68,7 @@ abstract class ChartPagePanel extends PagePanel {
         theme.setPlotBackgroundPaint(new Color(225, 225, 225));
     }
 
-    ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix, boolean refreshButtonEnabled) {
+    public ChartPagePanel(ToolView parentDialog, String helpId, String titlePrefix, boolean refreshButtonEnabled) {
         super(parentDialog, helpId, titlePrefix);
         this.refreshButtonEnabled = refreshButtonEnabled;
     }
@@ -200,7 +200,7 @@ abstract class ChartPagePanel extends PagePanel {
         return buttonPanel;
     }
 
-    void createUI(final ChartPanel chartPanel, final JPanel optionsPanel, BindingContext bindingContext) {
+    protected void createUI(final ChartPanel chartPanel, final JPanel optionsPanel, BindingContext bindingContext) {
         roiMaskSelector = new RoiMaskSelector(bindingContext);
 
         final JPanel extendedOptionsPanel = GridBagUtils.createPanel();

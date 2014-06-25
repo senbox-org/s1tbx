@@ -24,12 +24,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>5.0</version>
+        <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-unmix</artifactId>
     <name>BEAM Spectral Unmixing</name>
-    <version>${beam.version}</version>
+    <artifactId>beam-unmix</artifactId>
+    <version>5.0</version>
 
     <dependencies>
         <dependency>

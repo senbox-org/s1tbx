@@ -422,7 +422,8 @@ class GeoCodingTablePanel extends TablePagePanel {
         addRow("Name of longitude band", gc.getLonBand().getName());
 
         addRow("Search radius", gc.getSearchRadius() + " pixels");
-        addRow("Valid pixel mask", gc.getValidMask());
+        final String validMask = gc.getValidMask();
+        addRow("Valid pixel mask", validMask != null ? validMask : "");
         addRow("Crossing 180 degree meridian", String.valueOf(gc.isCrossingMeridianAt180()));
 
         addEmptyRow();

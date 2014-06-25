@@ -132,7 +132,7 @@ public class VectorDataNode extends ProductNode {
      * @param owner the new owner
      */
     @Override
-    protected synchronized void setOwner(ProductNode owner) {
+    public synchronized void setOwner(ProductNode owner) {
         super.setOwner(owner);
         if (getProduct() != null) {
             updateFeatureCollectionByPlacemarkGroup();

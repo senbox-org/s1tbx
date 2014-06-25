@@ -88,21 +88,21 @@ public class OperatorDoclet extends Doclet {
                                "./beam-unmix/src/main/java",
 
                 "-classpath", "" +
-                              "./modules/beam-core-5.0-SNAPSHOT;" +
-                              "./modules/beam-gpf-5.0-SNAPSHOT;" +
-                              "./modules/beam-aatsr-sst-5.0-SNAPSHOT;" +
-                              "./modules/beam-binning-5.0-SNAPSHOT;" +
-                              "./modules/beam-cluster-analysis-5.0-SNAPSHOT;" +
-                              "./modules/beam-collocation-5.0-SNAPSHOT;" +
-                              "./modules/beam-flhmci-5.0-SNAPSHOT;" +
-                              "./modules/beam-meris-radiometry-5.0-SNAPSHOT;" +
-                              "./modules/beam-meris-smac-5.0-SNAPSHOT;" +
-                              "./modules/beam-meris-cloud-5.0-SNAPSHOT;" +
-                              "./modules/beam-pixel-extraction-5.0-SNAPSHOT;" +
-                              "./modules/beam-statistics-op-5.0-SNAPSHOT;" +
-                              "./modules/beam-temporal-percentile-op-5.0-SNAPSHOT;" +
-                              "./modules/beam-ndvi-5.0-SNAPSHOT;" +
-                              "./modules/beam-unmix-5.0-SNAPSHOT",
+                              "./modules/beam-core-5.0.1;" +
+                              "./modules/beam-gpf-5.0;" +
+                              "./modules/beam-aatsr-sst-5.0;" +
+                              "./modules/beam-binning-5.0.1;" +
+                              "./modules/beam-cluster-analysis-5.0;" +
+                              "./modules/beam-collocation-5.0;" +
+                              "./modules/beam-flhmci-5.0;" +
+                              "./modules/beam-meris-radiometry-5.0;" +
+                              "./modules/beam-meris-smac-5.0;" +
+                              "./modules/beam-meris-cloud-5.0;" +
+                              "./modules/beam-pixel-extraction-5.0;" +
+                              "./modules/beam-statistics-op-5.0;" +
+                              "./modules/beam-temporal-percentile-op-5.0;" +
+                              "./modules/beam-ndvi-5.0;" +
+                              "./modules/beam-unmix-5.0",
 
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",

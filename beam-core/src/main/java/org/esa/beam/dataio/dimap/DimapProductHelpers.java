@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -510,7 +510,10 @@ public class DimapProductHelpers {
         final Band latBand = product.getBand(latBandName);
         final Band lonBand = product.getBand(lonBandName);
         final Element searchRadiusElem = geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS);
-        final int searchRadius = Integer.parseInt(searchRadiusElem.getTextTrim());
+        int searchRadius = Integer.parseInt(searchRadiusElem.getTextTrim());
+        if (searchRadius == 0) {
+            searchRadius = 6;
+        }
         String validMask = null;
         if (geoPosElem.getChild(DimapProductConstants.TAG_VALID_MASK_EXPRESSION) != null) {
             validMask = geoPosElem.getChildTextTrim(DimapProductConstants.TAG_VALID_MASK_EXPRESSION);

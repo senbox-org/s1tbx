@@ -30,7 +30,8 @@ import org.esa.beam.visat.actions.session.OpenSessionAction;
 
 import javax.media.jai.JAI;
 import javax.media.jai.util.ImagingListener;
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -65,7 +66,8 @@ public class VisatMain implements RuntimeRunnable {
 
         Locale.setDefault(Locale.UK); // Force usage of British English locale
 
-        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
+        verifyJideLicense();
+
         if (SystemInfo.isMacOSX()) {
             if (System.getProperty("com.apple.macos.useScreenMenuBar") == null) {
                 System.setProperty("com.apple.macos.useScreenMenuBar", "true");
@@ -128,6 +130,10 @@ public class VisatMain implements RuntimeRunnable {
                 }
             }
         });
+    }
+
+    protected void verifyJideLicense() {
+        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
     }
 
     protected VisatApp createApplication(ApplicationDescriptor applicationDescriptor) {

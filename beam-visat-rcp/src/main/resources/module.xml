@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -27,6 +27,10 @@
 
     <changelog>
         <![CDATA[
+          <b>Changes in 5.0.1</b><br/>
+          Fixed NPE with missing histogram matching in Colour Manipulation tool window<br/>
+          Harmonisation with NEST: Convert computed band: only clone image info, if it exists<br/>
+          Harmonisation with NEST: Allow JIDE license to be overridden<br/>
           <b>Changes in 5.0</b><br/>
           [BEAM-1509]  Mosaic tool does not initiate the download of the selected DEM <br/>
           [BEAM-1642] Create geometry from WKT<br/>
@@ -55,7 +59,7 @@
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
-    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
@@ -1254,7 +1258,8 @@
             <text>Create Elevation Bands from DEM...</text>
             <placeAfter>convertComputedBand2Band</placeAfter>
             <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
-            <shortDescr>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</shortDescr>
+            <shortDescr>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM
+            </shortDescr>
             <context>product</context>
             <helpId>createDemRelatedBands</helpId>
         </action>

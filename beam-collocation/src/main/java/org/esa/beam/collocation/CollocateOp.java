@@ -219,7 +219,7 @@ public class CollocateOp extends Operator {
         ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
 
         for (final Band sourceBand : masterProduct.getBands()) {
-            final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct, false);
+            final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct, true);
             setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
             sourceRasterMap.put(targetBand, sourceBand);
         }
@@ -292,14 +292,8 @@ public class CollocateOp extends Operator {
                 final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
                 final Tile targetTile = targetTileMap.get(targetBand);
 
-                if (sourceRaster.getProduct() == slaveProduct) {
-                    collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile,
-                                        SubProgressMonitor.create(pm, 1));
-                } else {
-                    targetTile.setRawSamples(
-                            getSourceTile(sourceRaster, targetTile.getRectangle()).getRawSamples());
-                    pm.worked(1);
-                }
+                collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile,
+                                    SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();
