@@ -514,8 +514,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         if(!properDEMName.equals(externalDEMStr)) {
             extFileStr = "";
         }
-        paramMap.put("externalDEMFile", new File(extFileStr));
-        paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+
+        if (!extFileStr.isEmpty()) {
+            paramMap.put("externalDEMFile", new File(extFileStr));
+            paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+        }
 
         if (mapProjHandler.getCRS() != null) {
             paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
