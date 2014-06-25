@@ -102,17 +102,17 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
         final Product product = new Product(productName, productType, PRODUCT_WIDTH, dataRecordCount);
         product.setPreferredTileSize(new Dimension(1024, 1024));
 
-        //addCountsBand(product, 0);
-        //addCountsBand(product, 1);
-        //addCountsBand(product, 2);
-        //addCountsBand(product, 3);
-        //addCountsBand(product, 4);
+        addCountsBand(product, 0);
+        addCountsBand(product, 1);
+        addCountsBand(product, 2);
+        addCountsBand(product, 3);
+        addCountsBand(product, 4);
 
         addAlbedoBand(product, 0);
-        //addAlbedoBand(product, 1);
-        //addRadianceBand(product, 2);
-        //addRadianceBand(product, 3);
-        //addRadianceBand(product, 4);
+        addAlbedoBand(product, 1);
+        addRadianceBand(product, 2);
+        addRadianceBand(product, 3);
+        addRadianceBand(product, 4);
 
         addTiePointGridsAndGeoCoding(product);
 
