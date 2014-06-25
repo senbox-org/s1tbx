@@ -231,7 +231,7 @@ public class MetadataElement extends ProductNode {
 
 
     /**
-     * Returns the number of attributes attaached to this node.
+     * Returns the number of attributes attached to this node.
      *
      * @return the number of attributes
      */
