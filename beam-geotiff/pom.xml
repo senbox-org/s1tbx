@@ -26,7 +26,7 @@
 
     <artifactId>beam-geotiff</artifactId>
     <name>BEAM GeoTIFF Product Reader/Writer</name>
-    <version>5.0</version>
+    <version>5.0.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

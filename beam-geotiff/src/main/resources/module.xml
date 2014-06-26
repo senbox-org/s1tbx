@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>GeoTIFF Product Module</name>
     <description>A module for reading and writing GeoTIFF Data Products</description>
 
@@ -28,6 +28,8 @@
 
     <changelog>
         <![CDATA[
+         <b>Changes in 5.0.1</b><br/>
+         [BEAM-1687] GeoTiff scenes have shift of half pixel if PixelIsPoint is set<br/>
          <b>Changes in 5.0</b><br/>
          [BEAM-1525] Incorrect Geo-Coding Read from Geo-Tiff<br/>
          [BEAM-1523] GeoTIFF Product Reader performance poor<br/>
