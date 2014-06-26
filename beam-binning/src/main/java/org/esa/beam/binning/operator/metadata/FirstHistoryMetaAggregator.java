@@ -1,26 +1,34 @@
 package org.esa.beam.binning.operator.metadata;
 
+
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 
-class ProductNameMetaAggregator implements MetadataAggregator {
+class FirstHistoryMetaAggregator implements MetadataAggregator {
 
     private final MetadataElement source_products;
     private int aggregatedCount;
 
-    ProductNameMetaAggregator() {
+    FirstHistoryMetaAggregator() {
         source_products = new MetadataElement("source_products");
         aggregatedCount = 0;
     }
 
-    public MetadataElement getMetadata() {
-        return source_products;
-    }
-
+    @Override
     public void aggregateMetadata(Product product) {
         final MetadataElement productElement = Utilities.createProductMetaElement(product, aggregatedCount);
 
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement processingGraphElement = metadataRoot.getElement("Processing_Graph");
+        if (processingGraphElement != null && aggregatedCount == 0) {
+            productElement.addElement(processingGraphElement.createDeepClone());
+        }
         source_products.addElementAt(productElement, aggregatedCount);
         ++aggregatedCount;
+    }
+
+    @Override
+    public MetadataElement getMetadata() {
+        return source_products;
     }
 }

@@ -4,6 +4,7 @@ package org.esa.beam.binning.operator.metadata;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class MetadataAggregatorFactoryTest {
@@ -12,6 +13,11 @@ public class MetadataAggregatorFactoryTest {
     public void testCreate() {
         MetadataAggregator aggregator = MetadataAggregatorFactory.create("NAME");
         assertNotNull(aggregator);
+        assertTrue(aggregator instanceof ProductNameMetaAggregator);
+
+        aggregator = MetadataAggregatorFactory.create("FIRST_HISTORY");
+        assertNotNull(aggregator);
+        assertTrue(aggregator instanceof FirstHistoryMetaAggregator);
     }
 
     @SuppressWarnings("EmptyCatchBlock")

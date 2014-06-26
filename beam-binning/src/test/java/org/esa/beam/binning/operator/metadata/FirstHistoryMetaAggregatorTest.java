@@ -1,5 +1,6 @@
 package org.esa.beam.binning.operator.metadata;
 
+
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.junit.Before;
@@ -8,16 +9,15 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ProductNameMetaAggregatorTest {
+public class FirstHistoryMetaAggregatorTest {
 
-    private ProductNameMetaAggregator aggregator;
+    private FirstHistoryMetaAggregator aggregator;
 
     @Before
     public void setUp() {
-        aggregator = new ProductNameMetaAggregator();
+        aggregator = new FirstHistoryMetaAggregator();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void testInterfaceImplemented() {
         assertTrue(aggregator instanceof MetadataAggregator);
@@ -31,7 +31,7 @@ public class ProductNameMetaAggregatorTest {
     }
 
     @Test
-    public void testAggregateOneProduct() {
+    public void testAggregateOneProductWithoutProcessingInfo() {
         final Product product = TestHelper.createProduct(1);
 
         aggregator.aggregateMetadata(product);
@@ -44,22 +44,37 @@ public class ProductNameMetaAggregatorTest {
     }
 
     @Test
-    public void testAggregateThreeProducts() {
-        Product product = TestHelper.createProduct(1);
+    public void testAggregateOneProductWithProcessingInfo() {
+        final Product product = TestHelper.createProduct(1);
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        metadataRoot.addElement(new MetadataElement("Processing_Graph"));
+
         aggregator.aggregateMetadata(product);
 
-        product = TestHelper.createProduct(2);
+        final MetadataElement metadataElement = aggregator.getMetadata();
+        TestHelper.assertCorrectNameAndNoAttributes(metadataElement);
+
+        assertEquals(1, metadataElement.getNumElements());
+        TestHelper.assertProductElementWithGraphtAt(0, metadataElement);
+    }
+
+    @Test
+    public void testAggregateThreeProductWithProcessingInfo() {
+        Product product = TestHelper.createProductWithProcessingGraph(1);
         aggregator.aggregateMetadata(product);
 
-        product = TestHelper.createProduct(3);
+        product = TestHelper.createProductWithProcessingGraph(2);
+        aggregator.aggregateMetadata(product);
+
+        product = TestHelper.createProductWithProcessingGraph(3);
         aggregator.aggregateMetadata(product);
 
         final MetadataElement metadataElement = aggregator.getMetadata();
         TestHelper.assertCorrectNameAndNoAttributes(metadataElement);
 
         assertEquals(3, metadataElement.getNumElements());
-        TestHelper.assertProductElementAt(0, metadataElement);
-        TestHelper.assertProductElementAt(1, metadataElement);
-        TestHelper.assertProductElementAt(2, metadataElement);
+        TestHelper.assertProductElementWithGraphtAt(0, metadataElement);
+        TestHelper.assertProductElementWithoutGraphtAt(1, metadataElement);
+        TestHelper.assertProductElementWithoutGraphtAt(2, metadataElement);
     }
 }

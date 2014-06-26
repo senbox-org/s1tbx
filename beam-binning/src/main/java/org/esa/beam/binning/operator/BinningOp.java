@@ -197,8 +197,9 @@ public class BinningOp extends Operator {
             defaultValue = ".")
     File metadataTemplateDir;
 
-    @Parameter(description = "The type of metadata aggregation to be used. Posible values are:\n" +
-            "'NAME': aggregate the name of each input product",
+    @Parameter(description = "The type of metadata aggregation to be used. Possible values are:\n" +
+            "'NAME': aggregate the name of each input product\n" +
+            "'FIRST_HISTORY': aggregates all input product names and the processing history of the first product",
             defaultValue = "NAME")
     private String metadataAggregatorName;
 
