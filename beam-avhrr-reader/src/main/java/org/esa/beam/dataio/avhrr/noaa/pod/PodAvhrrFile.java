@@ -27,12 +27,13 @@ import java.util.Map;
  */
 final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsProvider {
 
-    private static final int PRODUCT_WIDTH = 2048;
-    private static final int TIE_POINT_GRID_WIDTH = 51;
+    static final int PRODUCT_WIDTH = 2048;
+    static final int TIE_POINT_GRID_WIDTH = 51;
+    static final int TIE_POINT_SAMPLING_X = 40;
+    static final int TIE_POINT_OFFSET_X = 25;
 
     // http://www.ncdc.noaa.gov/oa/pod-guide/ncdc/docs/podug/html/c3/sec3-1.htm#sec3-121 (Table 3.1.2.1-2)
     private static final int QUALITY_INDICATOR_BIT_MASK = 0b11001100000000000000000000000000;
-
     private static final double SLOPE_SCALE_FACTOR = PodTypes.getSlopeMetadata().getScalingFactor();
     private static final double INTERCEPT_SCALE_FACTOR = PodTypes.getInterceptMetadata().getScalingFactor();
 
@@ -100,7 +101,7 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
         final String productType = "NOAA_POD_AVHRR_HRPT";
         final int dataRecordCount = data.getUShort("NUMBER_OF_SCANS");
         final Product product = new Product(productName, productType, PRODUCT_WIDTH, dataRecordCount);
-        product.setPreferredTileSize(new Dimension(1024, 1024));
+        product.setPreferredTileSize(new Dimension(PRODUCT_WIDTH / 2, PRODUCT_WIDTH / 2));
 
         addCountsBand(product, 0);
         addCountsBand(product, 1);
@@ -210,7 +211,11 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
     }
 
     private TiePointGrid addTiePointGrid(Product product, String name, String units, int height, float[] data) {
-        final TiePointGrid grid = new TiePointGrid(name, TIE_POINT_GRID_WIDTH, height, 25.5f, 0.5f, 40, 1, data);
+        final TiePointGrid grid = new TiePointGrid(name,
+                                                   TIE_POINT_GRID_WIDTH, height,
+                                                   TIE_POINT_OFFSET_X + 0.5f, 0.5f,
+                                                   TIE_POINT_SAMPLING_X, 1,
+                                                   data);
         grid.setUnit(units);
         product.addTiePointGrid(grid);
         return grid;
