@@ -23,11 +23,7 @@ import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductFilter;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
@@ -44,18 +40,9 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import static java.lang.Math.sqrt;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -100,8 +87,8 @@ public class BinningOpTest {
         BinningOp binningOp = createBinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, 0.1F),
-                                    createSourceProduct(2, 0.2F),
-                                    createSourceProduct(3, 0.3F));
+                createSourceProduct(2, 0.2F),
+                createSourceProduct(3, 0.3F));
 
         binningOp.setStartDateTime("2002-01-01");
         binningOp.setPeriodDuration(10.0);
@@ -111,6 +98,7 @@ public class BinningOpTest {
         binningOp.setOutputFile(getTestFile("target-1.dim").getPath());
         binningOp.setOutputType("Product");
         binningOp.setOutputFormat("BEAM-DIMAP");
+        binningOp.setMetadataAggregatorName("NAME");
 
         binningOp.setParameter("metadataTemplateDir", TESTDATA_DIR);
 
@@ -122,7 +110,7 @@ public class BinningOpTest {
             SortedMap<String, String> metadataProperties = binningOp.getMetadataProperties();
             assertNotNull(metadataProperties);
 
-            assertEquals(6, metadataProperties.size());
+            assertEquals(5, metadataProperties.size());
             Set<String> strings = metadataProperties.keySet();
             String[] names = strings.toArray(new String[strings.size()]);
             String[] expectedNames = {
@@ -131,7 +119,6 @@ public class BinningOpTest {
                     "software_name",
                     "software_qualified_name",
                     "software_version",
-                    "source_products",
             };
             assertArrayEquals(expectedNames, names);
 
@@ -140,9 +127,12 @@ public class BinningOpTest {
             assertEquals("Binning", metadataProperties.get("software_name"));
             assertEquals("org.esa.beam.binning.operator.BinningOp", metadataProperties.get("software_qualified_name"));
             assertEquals("1.0", metadataProperties.get("software_version"));
-            assertThat(metadataProperties.get("source_products"), containsString("P1"));
-            assertThat(metadataProperties.get("source_products"), containsString("P2"));
-            assertThat(metadataProperties.get("source_products"), containsString("P3"));
+
+            final MetadataElement metadataRoot = targetProduct.getMetadataRoot();
+            final MetadataElement globalAttributes = metadataRoot.getElement("Global_Attributes");
+            final MetadataElement sourceProductsElement = globalAttributes.getElement("source_products");
+            assertNotNull(sourceProductsElement);
+            assertEquals(3, sourceProductsElement.getNumElements());
         } finally {
             targetProduct.dispose();
         }
@@ -233,10 +223,10 @@ public class BinningOpTest {
         binningOp.setNumRows(180);
         binningOp.setMaskExpr("true");
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
-                                    createSourceProduct(2, obs2),
-                                    createSourceProduct(3, obs3),
-                                    createSourceProduct(4, obs4),
-                                    createSourceProduct(5, obs5));
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setOutputFile(targetFile.getPath());
@@ -282,10 +272,10 @@ public class BinningOpTest {
         binningOp.setOutputType("Product");
         binningOp.setOutputFormat("BEAM-DIMAP");
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
-                                    createSourceProduct(2, obs2),
-                                    createSourceProduct(3, obs3),
-                                    createSourceProduct(4, obs4),
-                                    createSourceProduct(5, obs5));
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
 
         GeometryFactory gf = new GeometryFactory();
         binningOp.setRegion(gf.createPolygon(gf.createLinearRing(new Coordinate[]{
@@ -337,11 +327,11 @@ public class BinningOpTest {
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
-                                                        createSourceProduct(1, obs1),
-                                                        createSourceProduct(2, obs2),
-                                                        createSourceProduct(3, obs3),
-                                                        createSourceProduct(4, obs4),
-                                                        createSourceProduct(5, obs5));
+                createSourceProduct(1, obs1),
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
 
         assertNotNull(targetProduct);
         try {
@@ -380,12 +370,12 @@ public class BinningOpTest {
         parameters.put("outputFormat", "BEAM-DIMAP");
 
         final Product targetProduct = GPF.createProduct("Binning",
-                                                        parameters,
-                                                        createSourceProduct(1, obs1),
-                                                        createSourceProduct(2, obs2),
-                                                        createSourceProduct(3, obs3),
-                                                        createSourceProduct(4, obs4),
-                                                        createSourceProduct(5, obs5));
+                parameters,
+                createSourceProduct(1, obs1),
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
