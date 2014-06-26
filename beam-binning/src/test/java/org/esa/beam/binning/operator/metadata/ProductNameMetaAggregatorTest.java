@@ -1,4 +1,4 @@
-package org.esa.beam.binning.operator;
+package org.esa.beam.binning.operator.metadata;
 
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;

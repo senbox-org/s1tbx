@@ -1,11 +1,11 @@
-package org.esa.beam.binning.operator;
+package org.esa.beam.binning.operator.metadata;
 
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
-class ProductNameMetaAggregator {
+class ProductNameMetaAggregator implements MetadataAggregator {
 
     private final MetadataElement source_products;
     private int aggregatedCount;
@@ -15,11 +15,11 @@ class ProductNameMetaAggregator {
         aggregatedCount = 0;
     }
 
-    MetadataElement getMetadata() {
+    public MetadataElement getMetadata() {
         return source_products;
     }
 
-    void aggregateMetadata(Product product) {
+    public void aggregateMetadata(Product product) {
         final MetadataElement productElement = new MetadataElement("source_product." + Integer.toString(aggregatedCount));
         final MetadataAttribute nameAttribute = new MetadataAttribute("name", new ProductData.ASCII(product.getName()), true);
         productElement.addAttribute(nameAttribute);
