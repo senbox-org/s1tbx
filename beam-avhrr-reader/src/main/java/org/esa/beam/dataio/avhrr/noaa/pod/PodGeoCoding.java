@@ -1,18 +1,19 @@
 package org.esa.beam.dataio.avhrr.noaa.pod;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.beam.framework.datamodel.GeoApproximation;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelFinder;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PixelPosEstimator;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 
 /**
+ * This geo-coding improves the inverse approximations used in the {@code TiePointGeoCoding} in order
+ * to facilitate accurate re-projections and graticule drawing.
+ * <p/>
+ * Limitation: this geo-coding is not transferred when making subsets and is not saved when a product
+ * is written to disk.
+ *
  * @author Ralf Quast
  */
 final class PodGeoCoding extends TiePointGeoCoding {
@@ -55,5 +56,18 @@ final class PodGeoCoding extends TiePointGeoCoding {
 
     private static GeoApproximation[] createApproximations(PlanarImage lonImage, PlanarImage latImage) {
         return GeoApproximation.createApproximations(lonImage, latImage, null, 0.5);
+    }
+
+    @Override
+    public boolean transferGeoCoding(Scene sourceScene, Scene targetScene, ProductSubsetDef subsetDef) {
+        return false;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        pixelFinder = null;
+        pixelPosEstimator = null;
     }
 }
