@@ -8,12 +8,12 @@ import java.awt.image.Raster;
 
 /**
  * The default implementation of {@code PixelFinder}.
- * <p>
+ * <p/>
  * This class does not belong to the public API.
  *
  * @author Ralf Quast
  */
-public class DefaultPixelFinder implements PixelFinder {
+class DefaultPixelFinder implements PixelFinder {
 
     private static final int MAX_SEARCH_CYCLE_COUNT = 30; // enough for MERIS FSG where we have duplicated pixels
 
@@ -24,8 +24,8 @@ public class DefaultPixelFinder implements PixelFinder {
     private final int imageW;
     private final int imageH;
 
-    public DefaultPixelFinder(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
-                              double pixelDiagonalSquared) {
+    DefaultPixelFinder(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
+                       double pixelDiagonalSquared) {
         this.lonImage = lonImage;
         this.latImage = latImage;
         this.maskImage = maskImage;
