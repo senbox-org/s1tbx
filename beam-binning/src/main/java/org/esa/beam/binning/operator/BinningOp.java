@@ -24,6 +24,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.esa.beam.binning.*;
 import org.esa.beam.binning.cellprocessor.CellProcessorChain;
+import org.esa.beam.binning.operator.metadata.GlobalMetadata;
 import org.esa.beam.binning.operator.metadata.MetadataAggregator;
 import org.esa.beam.binning.operator.metadata.MetadataAggregatorFactory;
 import org.esa.beam.binning.support.SpatialDataPeriod;
@@ -41,7 +42,6 @@ import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.converters.JtsGeometryConverter;
-import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.geotools.geometry.jts.JTS;
 
@@ -49,7 +49,6 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.io.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -210,7 +209,7 @@ public class BinningOp extends Operator {
     private transient int numProductsAggregated;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
-    private transient SortedMap<String, String> metadataProperties;
+    private transient GlobalMetadata globalMetadata;
     private transient BinWriter binWriter;
     private transient Area regionArea;
     private transient MetadataAggregator metadataAggregator;
@@ -323,7 +322,10 @@ public class BinningOp extends Operator {
     }
 
     SortedMap<String, String> getMetadataProperties() {
-        return metadataProperties;
+        if (globalMetadata == null) {
+            return null;
+        }
+        return globalMetadata.asSortedMap();
     }
 
     public void setBinWriter(BinWriter binWriter) {
@@ -388,7 +390,6 @@ public class BinningOp extends Operator {
                 endDateUtc,
                 region);
 
-        metadataProperties = new TreeMap<>();
         metadataAggregator = MetadataAggregatorFactory.create(metadataAggregatorName);
         numProductsAggregated = 0;
 
@@ -528,6 +529,7 @@ public class BinningOp extends Operator {
             return;
         }
 
+        final SortedMap<String, String> metadataProperties = globalMetadata.asSortedMap();
         VelocityContext vc = new VelocityContext(metadataProperties);
 
         vc.put("operator", this);
@@ -540,49 +542,23 @@ public class BinningOp extends Operator {
     }
 
     private void processMetadataTemplate(File templateFile, VelocityEngine ve, VelocityContext vc) {
-        String templateName = templateFile.getName();
-        String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
-        try {
-            getLogger().info(String.format("Writing metadata file '%s'...", outputName));
-            try (Writer writer = new FileWriter(outputName)) {
-                ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
-            }
+        final String templateName = templateFile.getName();
+        final String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
+        getLogger().info(String.format("Writing metadata file '%s'...", outputName));
+
+        try (Writer writer = new FileWriter(outputName)) {
+            ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
         } catch (Exception e) {
-            String msgPattern = "Failed to generate metadata file from template '%s': %s";
+            final String msgPattern = "Failed to generate metadata file from template '%s': %s";
             getLogger().log(Level.SEVERE, String.format(msgPattern, templateName, e.getMessage()), e);
         }
 
     }
 
     private void initMetadataProperties() {
-        final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN, Locale.ENGLISH);
-
-        OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
-        metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(new File(outputFile)));
-        metadataProperties.put("software_qualified_name", operatorDescriptor.getName());
-        metadataProperties.put("software_name", operatorDescriptor.getAlias());
-        metadataProperties.put("software_version", operatorDescriptor.getVersion());
-        metadataProperties.put("processing_time", dateFormat.format(new Date()));
-
-        if (metadataPropertiesFile != null) {
-            if (!metadataPropertiesFile.exists()) {
-                getLogger().warning(String.format("Metadata properties file '%s' not found", metadataPropertiesFile));
-            } else {
-                try {
-                    getLogger().info(String.format("Reading metadata properties file '%s'...", metadataPropertiesFile));
-                    try (FileReader reader = new FileReader(metadataPropertiesFile)) {
-                        final Properties properties = new Properties();
-                        properties.load(reader);
-                        for (String name : properties.stringPropertyNames()) {
-                            metadataProperties.put(name, properties.getProperty(name));
-                        }
-                    }
-                } catch (IOException e) {
-                    String msgPattern = "Failed to load metadata properties file '%s': %s";
-                    getLogger().warning(String.format(msgPattern, metadataPropertiesFile, e.getMessage()));
-                }
-            }
-        }
+        final OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
+        globalMetadata = GlobalMetadata.create(operatorDescriptor, new File(outputFile));
+        globalMetadata.load(metadataPropertiesFile, getLogger());
     }
 
     private static Product copyProduct(Product writtenProduct) {
@@ -776,6 +752,7 @@ public class BinningOp extends Operator {
 
     private MetadataElement createGlobalAttributesElement() {
         final MetadataElement globalAttributes = new MetadataElement("Global_Attributes");
+        final SortedMap<String, String> metadataProperties = globalMetadata.asSortedMap();
         for (String name : metadataProperties.keySet()) {
             final String value = metadataProperties.get(name);
             globalAttributes.addAttribute(new MetadataAttribute(name, ProductData.createInstance(value), true));
@@ -791,7 +768,7 @@ public class BinningOp extends Operator {
                                     ProductData.UTC stopTime) throws IOException {
         initBinWriter(startTime, stopTime);
         getLogger().info(String.format("Writing binned data to '%s'...", binWriter.getTargetFilePath()));
-        binWriter.write(metadataProperties, temporalBins);
+        binWriter.write(globalMetadata.asSortedMap(), temporalBins);
         getLogger().info(String.format("Writing binned data to '%s' done.", binWriter.getTargetFilePath()));
 
     }
