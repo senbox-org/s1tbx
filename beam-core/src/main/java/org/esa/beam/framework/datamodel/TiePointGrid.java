@@ -17,7 +17,6 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
@@ -61,14 +60,14 @@ public class TiePointGrid extends RasterDataNode {
      */
     public static int DISCONT_AT_360 = 360;
 
-    private final float _offsetX;
-    private final float _offsetY;
-    private final float _subSamplingX;
-    private final float _subSamplingY;
+    private final float offsetX;
+    private final float offsetY;
+    private final float subSamplingX;
+    private final float subSamplingY;
 
-    private int _discontinuity;
-    private volatile TiePointGrid _sinGrid;
-    private volatile TiePointGrid _cosGrid;
+    private int discontinuity;
+    private volatile TiePointGrid sinGrid;
+    private volatile TiePointGrid cosGrid;
 
     /**
      * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
@@ -126,7 +125,7 @@ public class TiePointGrid extends RasterDataNode {
         if (discontinuity != DISCONT_NONE && discontinuity != DISCONT_AT_180 && discontinuity != DISCONT_AT_360) {
             throw new IllegalArgumentException("unsupported discontinuity mode");
         }
-        _discontinuity = discontinuity;
+        this.discontinuity = discontinuity;
 
         if (tiePoints.length != gridWidth * gridHeight) {
             throw new IllegalArgumentException("data array size does not match 'gridWidth' x 'gridHeight'");
@@ -137,10 +136,10 @@ public class TiePointGrid extends RasterDataNode {
         if (subSamplingY <= 0.0F) {
             throw new IllegalArgumentException("'subSamplingY' is less or equal zero");
         }
-        _offsetX = offsetX;
-        _offsetY = offsetY;
-        _subSamplingX = subSamplingX;
-        _subSamplingY = subSamplingY;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.subSamplingX = subSamplingX;
+        this.subSamplingY = subSamplingY;
 
         setData(ProductData.createInstance(tiePoints));
     }
@@ -195,7 +194,7 @@ public class TiePointGrid extends RasterDataNode {
      *         {@link #DISCONT_AT_360}
      */
     public int getDiscontinuity() {
-        return _discontinuity;
+        return discontinuity;
     }
 
     /**
@@ -208,7 +207,7 @@ public class TiePointGrid extends RasterDataNode {
         if (discontinuity != DISCONT_NONE && discontinuity != DISCONT_AT_180 && discontinuity != DISCONT_AT_360) {
             throw new IllegalArgumentException("unsupported discontinuity mode");
         }
-        _discontinuity = discontinuity;
+        this.discontinuity = discontinuity;
     }
 
     /**
@@ -294,14 +293,14 @@ public class TiePointGrid extends RasterDataNode {
      * Retrieves the x co-ordinate of the first (upper-left) tie-point in pixels.
      */
     public float getOffsetX() {
-        return _offsetX;
+        return offsetX;
     }
 
     /**
      * Retrieves the y co-ordinate of the first (upper-left) tie-point in pixels.
      */
     public float getOffsetY() {
-        return _offsetY;
+        return offsetY;
     }
 
     /**
@@ -311,7 +310,7 @@ public class TiePointGrid extends RasterDataNode {
      * @return the sub-sampling in X-direction, never less than one.
      */
     public float getSubSamplingX() {
-        return _subSamplingX;
+        return subSamplingX;
     }
 
     /**
@@ -321,7 +320,7 @@ public class TiePointGrid extends RasterDataNode {
      * @return the sub-sampling in Y-direction, never less than one.
      */
     public float getSubSamplingY() {
-        return _subSamplingY;
+        return subSamplingY;
     }
 
     /**
@@ -352,13 +351,13 @@ public class TiePointGrid extends RasterDataNode {
 
     @Override
     public void dispose() {
-        if (_cosGrid != null) {
-            _cosGrid.dispose();
-            _cosGrid = null;
+        if (cosGrid != null) {
+            cosGrid.dispose();
+            cosGrid = null;
         }
-        if (_sinGrid != null) {
-            _sinGrid.dispose();
-            _sinGrid = null;
+        if (sinGrid != null) {
+            sinGrid.dispose();
+            sinGrid = null;
         }
         super.dispose();
     }
@@ -393,20 +392,20 @@ public class TiePointGrid extends RasterDataNode {
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public float getPixelFloat(float x, float y) {
-        if (_discontinuity != DISCONT_NONE) {
+        if (discontinuity != DISCONT_NONE) {
             if (isDiscontNotInit()) {
                 initDiscont();
             }
-            final float sinAngle = _sinGrid.getPixelFloat(x, y);
-            final float cosAngle = _cosGrid.getPixelFloat(x, y);
+            final float sinAngle = sinGrid.getPixelFloat(x, y);
+            final float cosAngle = cosGrid.getPixelFloat(x, y);
             final float v = (float) (MathUtils.RTOD * Math.atan2(sinAngle, cosAngle));
-            if (_discontinuity == DISCONT_AT_360 && v < 0.0) {
+            if (discontinuity == DISCONT_AT_360 && v < 0.0) {
                 return 360.0F + v;  // = 180 + (180 - abs(v))
             }
             return v;
         }
-        float fi = (x - _offsetX) / _subSamplingX;
-        float fj = (y - _offsetY) / _subSamplingY;
+        float fi = (x - offsetX) / subSamplingX;
+        float fj = (y - offsetY) / subSamplingY;
         final int i = MathUtils.floorAndCrop(fi, 0, getRasterWidth() - 2);
         final int j = MathUtils.floorAndCrop(fj, 0, getRasterHeight() - 2);
         return interpolate(fi - i, fj - j, i, j);
@@ -492,7 +491,7 @@ public class TiePointGrid extends RasterDataNode {
     @Override
     public float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) {
         pixels = ensureMinLengthArray(pixels, w * h);
-        if (_discontinuity != DISCONT_NONE) {
+        if (discontinuity != DISCONT_NONE) {
             if (isDiscontNotInit()) {
                 initDiscont();
             }
@@ -504,8 +503,8 @@ public class TiePointGrid extends RasterDataNode {
                 }
             }
         } else {
-            final float x0 = 0.5f - _offsetX;
-            final float y0 = 0.5f - _offsetY;
+            final float x0 = 0.5f - offsetX;
+            final float y0 = 0.5f - offsetY;
             final int x1 = x;
             final int y1 = y;
             final int x2 = x + w - 1;
@@ -517,11 +516,11 @@ public class TiePointGrid extends RasterDataNode {
             float wi, wj;
             int pos = 0;
             for (y = y1; y <= y2; y++) {
-                fj = (y + y0) / _subSamplingY;
+                fj = (y + y0) / subSamplingY;
                 j = MathUtils.floorAndCrop(fj, 0, nj - 2);
                 wj = fj - j;
                 for (x = x1; x <= x2; x++) {
-                    fi = (x + x0) / _subSamplingX;
+                    fi = (x + x0) / subSamplingX;
                     i = MathUtils.floorAndCrop(fi, 0, ni - 2);
                     wi = fi - i;
                     pixels[pos++] = interpolate(wi, wj, i, j);
@@ -722,17 +721,15 @@ public class TiePointGrid extends RasterDataNode {
     
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this); 
-        MultiLevelImage multiLevelImage = 
-            new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+        final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
             public RenderedImage createImage(int level) {
-                return new TiePointGridOpImage(TiePointGrid.this, 
+                return new TiePointGridOpImage(TiePointGrid.this,
                                                ResolutionLevel.create(getModel(), level));
             }
         });
-        return multiLevelImage;
     }
 
     // ////////////////////////////////////////////////////////////////////////
@@ -813,7 +810,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     private boolean isDiscontNotInit() {
-        return _sinGrid == null || _cosGrid == null;
+        return sinGrid == null || cosGrid == null;
     }
 
     private void initDiscont() {
@@ -826,7 +823,7 @@ public class TiePointGrid extends RasterDataNode {
             sinTiePoints[i] = (float) Math.sin(MathUtils.DTOR * tiePoint);
             cosTiePoints[i] = (float) Math.cos(MathUtils.DTOR * tiePoint);
         }
-        _sinGrid = new TiePointGrid(base.getName(),
+        sinGrid = new TiePointGrid(base.getName(),
                                     base.getRasterWidth(),
                                     base.getRasterHeight(),
                                     base.getOffsetX(),
@@ -834,7 +831,7 @@ public class TiePointGrid extends RasterDataNode {
                                     base.getSubSamplingX(),
                                     base.getSubSamplingY(),
                                     sinTiePoints);
-        _cosGrid = new TiePointGrid(base.getName(),
+        cosGrid = new TiePointGrid(base.getName(),
                                     base.getRasterWidth(),
                                     base.getRasterHeight(),
                                     base.getOffsetX(),
@@ -874,18 +871,6 @@ public class TiePointGrid extends RasterDataNode {
         return array;
     }
 
-
-    private static int convertCycleToDiscont(final float cycleMin, final float cycleMax) {
-        int discontinuity = DISCONT_NONE;
-        if (cycleMin == -180.0f && cycleMax == 180.0f) {
-            discontinuity = DISCONT_AT_180;
-        } else if (cycleMin == 0.0f && cycleMax == 360.0f) {
-            discontinuity = DISCONT_AT_360;
-        } else if (cycleMin != cycleMax) {
-            throw new IllegalArgumentException("unsupported discontinuity mode");
-        }
-        return discontinuity;
-    }
 
     public static TiePointGrid createSubset(TiePointGrid sourceTiePointGrid, ProductSubsetDef subsetDef) {
         final int srcTPGRasterWidth = sourceTiePointGrid.getRasterWidth();
