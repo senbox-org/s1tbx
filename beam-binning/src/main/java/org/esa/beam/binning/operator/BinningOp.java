@@ -503,6 +503,7 @@ public class BinningOp extends Operator {
         }
     }
 
+    // @todo 1 tb/tb move to GlobalMetadata class tb 2014-06-27
     private void processMetadataTemplates() {
         final File absTemplateDir = metadataTemplateDir.getAbsoluteFile();
         File[] files = absTemplateDir.listFiles(new FilenameFilter() {
@@ -722,7 +723,7 @@ public class BinningOp extends Operator {
 
         if (outputTargetProduct) {
             getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
-            final MetadataElement globalAttributes = createGlobalAttributesElement();
+            final MetadataElement globalAttributes = globalMetadata.asMetadataElement();
             globalAttributes.addElement(metadataAggregator.getMetadata());
             Formatter.format(binningContext.getPlanetaryGrid(),
                     getTemporalBinSource(temporalBins),
@@ -748,16 +749,6 @@ public class BinningOp extends Operator {
         } else {
             this.targetProduct = new Product("Dummy", "t", 10, 10);
         }
-    }
-
-    private MetadataElement createGlobalAttributesElement() {
-        final MetadataElement globalAttributes = new MetadataElement("Global_Attributes");
-        final SortedMap<String, String> metadataProperties = globalMetadata.asSortedMap();
-        for (String name : metadataProperties.keySet()) {
-            final String value = metadataProperties.get(name);
-            globalAttributes.addAttribute(new MetadataAttribute(name, ProductData.createInstance(value), true));
-        }
-        return globalAttributes;
     }
 
     private TemporalBinSource getTemporalBinSource(List<TemporalBin> temporalBins) throws IOException {

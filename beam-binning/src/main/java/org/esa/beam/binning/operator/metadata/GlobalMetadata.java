@@ -1,5 +1,8 @@
 package org.esa.beam.binning.operator.metadata;
 
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.util.io.FileUtils;
 
@@ -22,6 +25,15 @@ public class GlobalMetadata {
 
     public SortedMap<String, String> asSortedMap() {
         return metaProperties;
+    }
+
+    public MetadataElement asMetadataElement() {
+        final MetadataElement globalAttributes = new MetadataElement("Global_Attributes");
+        for (final String name : metaProperties.keySet()) {
+            final String value = metaProperties.get(name);
+            globalAttributes.addAttribute(new MetadataAttribute(name, ProductData.createInstance(value), true));
+        }
+        return globalAttributes;
     }
 
     public void load(File propertiesFile, Logger logger) {

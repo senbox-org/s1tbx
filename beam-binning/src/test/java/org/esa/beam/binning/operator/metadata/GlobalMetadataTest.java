@@ -1,5 +1,7 @@
 package org.esa.beam.binning.operator.metadata;
 
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.Test;
@@ -88,6 +90,36 @@ public class GlobalMetadataTest {
         } finally {
             deletePropertiesFile();
         }
+    }
+
+    @Test
+    public void testAsMetadataElement() {
+        final File file = new File("the.file");
+        final OperatorDescriptor descriptor = mock(OperatorDescriptor.class);
+        when(descriptor.getName()).thenReturn("Veronica");
+        when(descriptor.getAlias()).thenReturn("Vero");
+        when(descriptor.getVersion()).thenReturn("2.1.1");
+
+        final GlobalMetadata globalMetadata = GlobalMetadata.create(descriptor, file);
+
+        final MetadataElement metadataElement = globalMetadata.asMetadataElement();
+        assertNotNull(metadataElement);
+        assertEquals("Global_Attributes", metadataElement.getName());
+        assertEquals(5, metadataElement.getNumAttributes());
+
+        final MetadataAttribute software_qualified_name = metadataElement.getAttribute("software_qualified_name");
+        assertNotNull(software_qualified_name);
+        assertEquals("Veronica", software_qualified_name.getData().getElemString());
+    }
+
+    @Test
+    public void testAsMetadataElement_noMetadataContained() {
+        final GlobalMetadata globalMetadata = new GlobalMetadata();
+
+        final MetadataElement metadataElement = globalMetadata.asMetadataElement();
+        assertNotNull(metadataElement);
+        assertEquals("Global_Attributes", metadataElement.getName());
+        assertEquals(0, metadataElement.getNumAttributes());
     }
 
     private void deletePropertiesFile() {
