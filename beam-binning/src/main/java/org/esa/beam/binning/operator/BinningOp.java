@@ -199,7 +199,8 @@ public class BinningOp extends Operator {
 
     @Parameter(description = "The type of metadata aggregation to be used. Possible values are:\n" +
             "'NAME': aggregate the name of each input product\n" +
-            "'FIRST_HISTORY': aggregates all input product names and the processing history of the first product",
+            "'FIRST_HISTORY': aggregates all input product names and the processing history of the first product\n" +
+            "'ALL_HISTORIES': aggregates all input product names and processing histories",
             defaultValue = "NAME")
     private String metadataAggregatorName;
 
@@ -388,7 +389,6 @@ public class BinningOp extends Operator {
                 region);
 
         metadataProperties = new TreeMap<>();
-
         metadataAggregator = MetadataAggregatorFactory.create(metadataAggregatorName);
         numProductsAggregated = 0;
 

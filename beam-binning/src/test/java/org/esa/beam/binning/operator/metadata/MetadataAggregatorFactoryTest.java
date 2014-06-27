@@ -18,6 +18,10 @@ public class MetadataAggregatorFactoryTest {
         aggregator = MetadataAggregatorFactory.create("FIRST_HISTORY");
         assertNotNull(aggregator);
         assertTrue(aggregator instanceof FirstHistoryMetaAggregator);
+
+        aggregator = MetadataAggregatorFactory.create("ALL_HISTORIES");
+        assertNotNull(aggregator);
+        assertTrue(aggregator instanceof AllHistoriesMetaAggregator);
     }
 
     @SuppressWarnings("EmptyCatchBlock")

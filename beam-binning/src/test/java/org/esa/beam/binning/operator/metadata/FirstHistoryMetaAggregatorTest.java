@@ -18,6 +18,7 @@ public class FirstHistoryMetaAggregatorTest {
         aggregator = new FirstHistoryMetaAggregator();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void testInterfaceImplemented() {
         assertTrue(aggregator instanceof MetadataAggregator);
@@ -45,9 +46,7 @@ public class FirstHistoryMetaAggregatorTest {
 
     @Test
     public void testAggregateOneProductWithProcessingInfo() {
-        final Product product = TestHelper.createProduct(1);
-        final MetadataElement metadataRoot = product.getMetadataRoot();
-        metadataRoot.addElement(new MetadataElement("Processing_Graph"));
+        final Product product = TestHelper.createProductWithProcessingGraph(1);
 
         aggregator.aggregateMetadata(product);
 

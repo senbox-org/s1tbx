@@ -3,15 +3,15 @@ package org.esa.beam.binning.operator.metadata;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 
-class ProductNameMetaAggregator implements MetadataAggregator {
+class ProductNameMetaAggregator extends AbstractMetadataAggregator {
 
-    private final MetadataElement source_products;
-    private int aggregatedCount;
-
-    ProductNameMetaAggregator() {
-        source_products = new MetadataElement("source_products");
-        aggregatedCount = 0;
-    }
+//    private final MetadataElement source_products;
+//    private int aggregatedCount;
+//
+//    ProductNameMetaAggregator() {
+//        source_products = new MetadataElement("source_products");
+//        aggregatedCount = 0;
+//    }
 
     public MetadataElement getMetadata() {
         return source_products;
