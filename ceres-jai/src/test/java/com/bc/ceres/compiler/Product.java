@@ -23,9 +23,8 @@ public class Product {
     HashMap<String,Band> bandMap;
 
     public Product(Band[] bands) {
-        bandMap  = new HashMap<String, Band>();
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        bandMap  = new HashMap<>();
+        for (Band band : bands) {
             bandMap.put(band.getName(), band);
         }
     }
