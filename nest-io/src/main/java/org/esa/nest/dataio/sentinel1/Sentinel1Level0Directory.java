@@ -50,12 +50,12 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return Sentinel1Constants.PRODUCT_HEADER_NAME;
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
 
     }
 
     @Override
-    protected void addBands(final Product product, final int productWidth, final int productHeight) {
+    protected void addBands(final Product product) {
 
         String bandName;
         boolean real = true;
@@ -692,10 +692,11 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         addMetaData(product);
         addBinaryDataToProduct(product);
-
+        findImages(product);
         addTiePointGrids(product); // empty
 
-        addBands(product, sceneWidth, sceneHeight);
+
+        addBands(product);
         addGeoCoding(product);
 
         product.setName(getProductName());

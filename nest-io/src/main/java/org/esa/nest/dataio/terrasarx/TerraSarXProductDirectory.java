@@ -400,7 +400,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
         if (imgPath.toUpperCase().endsWith("COS")) {
            throw new IOException("not supported yet");
         } else {
@@ -413,24 +413,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                 final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
                 bandImageFileMap.put(img.getName(), img);
-
-                setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
             }
         }
-    }
-
-    private void setSceneDimensionsFromXML() throws IOException {
-
-        final Element root = getXMLRootElement();
-        final Element productInfo = XMLSupport.getElement(root, "productInfo");
-        final Element imageDataInfo = XMLSupport.getElement(productInfo, "imageDataInfo");
-        final Element imageRaster = XMLSupport.getElement(imageDataInfo, "imageRaster");
-        final Element numRows = XMLSupport.getElement(imageRaster, "numberOfRows");
-        final Element numColumns = XMLSupport.getElement(imageRaster, "numberOfColumns");
-
-        final int height = Integer.parseInt(XMLSupport.getElementText(numRows).getValue());
-        final int width = Integer.parseInt(XMLSupport.getElementText(numColumns).getValue());
-        setSceneWidthHeight(width, height);
     }
 
     @Override
@@ -751,7 +735,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
 
     @Override
-    protected void addBands(final Product product, final int width, final int height) {
+    protected void addBands(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
         final Set<String> ImageKeys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : ImageKeys) {
             final ImageIOFile img = bandImageFileMap.get(key);
@@ -772,9 +760,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         if (!cosarFileList.isEmpty()) {
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            final int h = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line, 0);
-            final int w = absRoot.getAttributeInt(AbstractMetadata.num_output_lines, 0);
 
             final boolean polsUnique = arePolarizationsUnique();
             String extraInfo = "";         // if pols not unique add the extra info
@@ -788,11 +773,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
                 }
 
-                final Band realBand = new Band("i_" + pol + extraInfo, ProductData.TYPE_INT16, w, h);
+                final Band realBand = new Band("i_" + pol + extraInfo, ProductData.TYPE_INT16, width, height);
                 realBand.setUnit(Unit.REAL);
                 product.addBand(realBand);
 
-                final Band imaginaryBand = new Band("q_" + pol + extraInfo, ProductData.TYPE_INT16, w, h);
+                final Band imaginaryBand = new Band("q_" + pol + extraInfo, ProductData.TYPE_INT16, width, height);
                 imaginaryBand.setUnit(Unit.IMAGINARY);
                 product.addBand(imaginaryBand);
 
@@ -806,6 +791,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 }
             }
         }
+
+        setSceneWidthHeight(product, width, height);
     }
 
     private boolean arePolarizationsUnique() {

@@ -100,25 +100,17 @@ public abstract class XMLProductDirectory {
     }
 
     public void readProductDirectory() throws IOException {
-
         xmlDoc = XMLSupport.LoadXML(productDir.getInputStream(getRootFolder() + getHeaderFileName()));
-
-        final String parentPath = getRelativePathToImageFolder();
-        final String[] listing = productDir.list(parentPath);
-        if (listing != null) {
-            for (String imgPath : listing) {
-                addImageFile(parentPath + imgPath);
-            }
-        }
     }
 
     protected abstract String getHeaderFileName();
 
-    protected abstract void addImageFile(final String imgPath) throws IOException;
+    protected abstract void addImageFile(final Product product, final String imgPath) throws IOException;
 
-    public void setSceneWidthHeight(final int width, final int height) {
+    public void setSceneWidthHeight(final Product product, final int width, final int height) {
         sceneWidth = width;
         sceneHeight = height;
+        product.setSceneDimensions(width, height);
     }
 
     public boolean isSLC() {
@@ -133,16 +125,27 @@ public abstract class XMLProductDirectory {
         return productDir.isCompressed();
     }
 
+    protected void findImages(final Product product) throws IOException {
+        final String parentPath = getRelativePathToImageFolder();
+        final String[] listing = productDir.list(parentPath);
+        if (listing != null) {
+            for (String imgPath : listing) {
+                addImageFile(product, parentPath + imgPath);
+            }
+        }
+    }
+
     public Product createProduct() throws Exception {
         final Product product = new Product(getProductName(),
                 getProductType(),
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
+        findImages(product);
+        addBands(product);
+
         addGeoCoding(product);
         addTiePointGrids(product);
-
-        addBands(product, sceneWidth, sceneHeight);
 
         product.setName(getProductName());
         product.setProductType(getProductType());
@@ -166,7 +169,7 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected abstract void addBands(final Product product, final int width, final int height);
+    protected abstract void addBands(final Product product);
 
     protected abstract void addGeoCoding(final Product product);
 

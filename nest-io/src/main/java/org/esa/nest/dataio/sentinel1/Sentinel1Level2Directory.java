@@ -58,7 +58,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         return getRootFolder() + "measurement" + '/';
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
         if (name.endsWith(".nc")) {
             if (OCNReader == null)
@@ -66,12 +66,12 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
             if(isCompressed()) {
                 throw new IOException("Compressed format is not supported for level-2");
             }
-            OCNReader.addImageFile(new File(getBaseDir(), imgPath), name);
+            OCNReader.addImageFile(product, new File(getBaseDir(), imgPath), name);
         }
     }
 
     @Override
-    protected void addBands(final Product product, final int productWidth, final int productHeight) {
+    protected void addBands(final Product product) {
 
         String bandName;
         boolean real = true;
@@ -506,9 +506,10 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
+        findImages(product);
         addTiePointGrids(product); // empty
 
-        addBands(product, sceneWidth, sceneHeight);
+        addBands(product);
         addGeoCoding(product);
 
         product.setName(getProductName());

@@ -61,7 +61,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         return getRootFolder() + "measurement" + '/';
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
         if ((name.endsWith("tiff"))) {
             final InputStream inStream = getInputStream(imgPath);
@@ -69,15 +69,20 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             if (imgStream == null)
                 throw new IOException("Unable to open " + imgPath);
 
-            final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+            final ImageIOFile img;
+            if(isSLC()) {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 1, ProductData.TYPE_INT32);
+            } else {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 1, ProductData.TYPE_INT32);
+            }
             bandImageFileMap.put(img.getName(), img);
-
-            setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
         }
     }
 
     @Override
-    protected void addBands(final Product product, final int productWidth, final int productHeight) {
+    protected void addBands(final Product product) {
 
         String bandName;
         boolean real = true;
@@ -171,8 +176,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         addBandAbstractedMetadata(product, absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
-
-        determineProductDimensions(product, absRoot);
     }
 
     static void addManifestMetadata(final Product product, final MetadataElement absRoot,
@@ -278,9 +281,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    private void determineProductDimensions(final Product product, final MetadataElement absRoot) throws IOException {
+    private void determineProductDimensions(final Product product) throws IOException {
         int width = 0, height = 0;
         int totalWidth = 0, maxHeight = 0;
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
@@ -924,9 +929,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
-        addTiePointGrids(product); // empty
+        findImages(product);
+        determineProductDimensions(product);
 
-        addBands(product, sceneWidth, sceneHeight);
+        addBands(product);
         addGeoCoding(product);
 
         product.setName(getProductName());

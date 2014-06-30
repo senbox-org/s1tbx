@@ -57,7 +57,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         return Radarsat2Constants.PRODUCT_HEADER_NAME;
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf("/") + 1, imgPath.length()).toLowerCase();
         if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
             final InputStream inStream = getInputStream(imgPath);
@@ -65,20 +65,29 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             if (imgStream == null)
                 throw new IOException("Unable to open " + imgPath);
 
-            final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+            final ImageIOFile img;
+            if(isSLC()) {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 2, ProductData.TYPE_INT32);
+            } else {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+            }
             bandImageFileMap.put(img.getName(), img);
-
-            setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
         }
     }
 
     @Override
-    protected void addBands(final Product product, final int width, final int height) {
+    protected void addBands(final Product product) {
 
         String bandName;
         boolean real = true;
         Band lastRealBand = null;
         String unit;
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        setSceneWidthHeight(product, width, height);
 
         final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : keys) {

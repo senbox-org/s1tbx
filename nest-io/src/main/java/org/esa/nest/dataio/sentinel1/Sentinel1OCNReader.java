@@ -73,16 +73,16 @@ public class Sentinel1OCNReader {
         this.dataDir = dataDir;
     }
 
-    public void addImageFile(final File file, final String name) throws IOException {
+    public void addImageFile(final Product product, final File file, final String name) throws IOException {
 
         // The image file here is the MDS .nc file.
 
         final NetcdfFile netcdfFile = NetcdfFile.open(file.getPath());
-        readNetCDF(netcdfFile);
+        readNetCDF(product, netcdfFile);
         bandNCFileMap.put(name, netcdfFile);
     }
 
-    private void readNetCDF(final NetcdfFile netcdfFile) {
+    private void readNetCDF(final Product product, final NetcdfFile netcdfFile) {
 
         // TODO Does this make sense?
 
@@ -92,7 +92,7 @@ public class Sentinel1OCNReader {
 
             final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
 
-            dataDir.setSceneWidthHeight(rasterDim.getDimX().getLength(), rasterDim.getDimY().getLength());
+            dataDir.setSceneWidthHeight(product, rasterDim.getDimX().getLength(), rasterDim.getDimY().getLength());
         }
     }
 
