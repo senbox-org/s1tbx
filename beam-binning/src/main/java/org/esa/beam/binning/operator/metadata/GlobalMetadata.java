@@ -1,16 +1,20 @@
 package org.esa.beam.binning.operator.metadata;
 
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.util.io.FileUtils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GlobalMetadata {
@@ -21,6 +25,28 @@ public class GlobalMetadata {
 
     public static GlobalMetadata create(OperatorDescriptor descriptor, File file) {
         return new GlobalMetadata(descriptor, file);
+    }
+
+    public void processMetadataTemplates(File metadataTemplateDir, BinningOp operator, Product targetProduct, Logger logger) {
+        final File absTemplateDir = metadataTemplateDir.getAbsoluteFile();
+        final File[] files = absTemplateDir.listFiles(new VelocityTemplateFilter());
+        if (files == null || files.length == 0) {
+            return;
+        }
+
+        final VelocityEngine ve = createVelocityEngine(absTemplateDir, logger);
+        if (ve == null){
+            return;
+        }
+
+        final VelocityContext vc = new VelocityContext(metaProperties);
+        vc.put("operator", operator);
+        vc.put("targetProduct", targetProduct);
+        vc.put("metadataProperties", metaProperties);
+
+        for (File file : files) {
+            processMetadataTemplate(file, ve, vc, logger);
+        }
     }
 
     public SortedMap<String, String> asSortedMap() {
@@ -58,6 +84,36 @@ public class GlobalMetadata {
         }
     }
 
+    private static VelocityEngine createVelocityEngine(File absTemplateDir, Logger logger) {
+        final Properties veConfig = new Properties();
+        if (absTemplateDir.equals(new File(".").getAbsoluteFile())) {
+            veConfig.setProperty("file.resource.loader.path", absTemplateDir.getPath());
+        }
+
+        final VelocityEngine ve = new VelocityEngine();
+        try {
+            ve.init(veConfig);
+        } catch (Exception e) {
+            final String msgPattern = "Can't generate metadata file(s): Failed to initialise Velocity engine: %s";
+            logger.log(Level.SEVERE, String.format(msgPattern, e.getMessage()), e);
+            return null;
+        }
+        return ve;
+    }
+
+    private static void processMetadataTemplate(File templateFile, VelocityEngine ve, VelocityContext vc, Logger logger) {
+        final String templateName = templateFile.getName();
+        final String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
+        logger.info(String.format("Writing metadata file '%s'...", outputName));
+
+        try (Writer writer = new FileWriter(outputName)) {
+            ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
+        } catch (Exception e) {
+            final String msgPattern = "Failed to generate metadata file from template '%s': %s";
+            logger.log(Level.SEVERE, String.format(msgPattern, templateName, e.getMessage()), e);
+        }
+    }
+
     GlobalMetadata() {
         metaProperties = new TreeMap<>();
     }
@@ -71,5 +127,12 @@ public class GlobalMetadata {
         metaProperties.put("software_version", descriptor.getVersion());
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN, Locale.ENGLISH);
         metaProperties.put("processing_time", dateFormat.format(new Date()));
+    }
+
+    private static class VelocityTemplateFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".vm");
+        }
     }
 }

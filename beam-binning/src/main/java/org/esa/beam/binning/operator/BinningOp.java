@@ -19,9 +19,6 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.esa.beam.binning.*;
 import org.esa.beam.binning.cellprocessor.CellProcessorChain;
 import org.esa.beam.binning.operator.metadata.GlobalMetadata;
@@ -29,7 +26,10 @@ import org.esa.beam.binning.operator.metadata.MetadataAggregator;
 import org.esa.beam.binning.operator.metadata.MetadataAggregatorFactory;
 import org.esa.beam.binning.support.SpatialDataPeriod;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -47,7 +47,8 @@ import org.geotools.geometry.jts.JTS;
 
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Level;
@@ -427,7 +428,7 @@ public class BinningOp extends Operator {
 
         stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", numProductsAggregated));
 
-        processMetadataTemplates();
+        globalMetadata.processMetadataTemplates(metadataTemplateDir, this, targetProduct, getLogger());
     }
 
     @Override
@@ -501,59 +502,6 @@ public class BinningOp extends Operator {
                 entry.getKey().removeBand(band);
             }
         }
-    }
-
-    // @todo 1 tb/tb move to GlobalMetadata class tb 2014-06-27
-    private void processMetadataTemplates() {
-        final File absTemplateDir = metadataTemplateDir.getAbsoluteFile();
-        File[] files = absTemplateDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".vm");
-            }
-        });
-        if (files == null || files.length == 0) {
-            return;
-        }
-
-        final Properties veConfig = new Properties();
-        if (absTemplateDir.equals(new File(".").getAbsoluteFile())) {
-            veConfig.setProperty("file.resource.loader.path", absTemplateDir.getPath());
-        }
-
-        VelocityEngine ve = new VelocityEngine();
-        try {
-            ve.init(veConfig);
-        } catch (Exception e) {
-            String msgPattern = "Can't generate metadata file(s): Failed to initialise Velocity engine: %s";
-            getLogger().log(Level.SEVERE, String.format(msgPattern, e.getMessage()), e);
-            return;
-        }
-
-        final SortedMap<String, String> metadataProperties = globalMetadata.asSortedMap();
-        VelocityContext vc = new VelocityContext(metadataProperties);
-
-        vc.put("operator", this);
-        vc.put("targetProduct", targetProduct);
-        vc.put("metadataProperties", metadataProperties);
-
-        for (File file : files) {
-            processMetadataTemplate(file, ve, vc);
-        }
-    }
-
-    private void processMetadataTemplate(File templateFile, VelocityEngine ve, VelocityContext vc) {
-        final String templateName = templateFile.getName();
-        final String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
-        getLogger().info(String.format("Writing metadata file '%s'...", outputName));
-
-        try (Writer writer = new FileWriter(outputName)) {
-            ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
-        } catch (Exception e) {
-            final String msgPattern = "Failed to generate metadata file from template '%s': %s";
-            getLogger().log(Level.SEVERE, String.format(msgPattern, templateName, e.getMessage()), e);
-        }
-
     }
 
     private void initMetadataProperties() {
