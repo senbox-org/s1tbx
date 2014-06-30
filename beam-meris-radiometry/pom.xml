@@ -28,7 +28,7 @@
 
     <artifactId>beam-meris-radiometry</artifactId>
     <name>BEAM MERIS L1b Radiometric Correction</name>
-    <version>5.0</version>
+    <version>5.0.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

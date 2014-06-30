@@ -51,7 +51,8 @@ public enum ReprocessingVersion {
         if (dsdElement != null) {
             MetadataElement[] dsdElements = dsdElement.getElements();
             for (MetadataElement element : dsdElements) {
-                if (element.getAttributeString("DATASET_NAME", "").startsWith("Radiometric calibration")) {
+                String datasetName = element.getAttributeString("DATASET_NAME", "").toLowerCase();
+                if (datasetName.startsWith("radiometric") && datasetName.contains("calibration")) {
                     final String calibrationFileName = element.getAttributeString(ATTRIBUTE_FILE_NAME);
                     if (StringUtils.isNotNullAndNotEmpty(calibrationFileName)) {
                         final boolean reduced = product.getProductType().startsWith(REDUCED_RESOLUTION_PREFIX);

@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-radiometry</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>MERIS L1b Radiometric Correction</name>
 
     <description>
@@ -26,6 +26,8 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.1</b><br/>
+        [BEAM-1688] Detection of reprocessing version fails<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1647] Detection of reprocessing is wrong for FSG products<br/>
         [BEAM-1460] Component enablement in Radiometry Processor Dialog is wrong<br/>
