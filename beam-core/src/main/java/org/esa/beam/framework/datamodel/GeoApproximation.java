@@ -421,7 +421,7 @@ public final class GeoApproximation {
                     if (!Double.isNaN(lon) && lat >= -90.0 && lat <= 90.0) {
                         final double[] point = new double[4];
                         point[LAT] = lat;
-                        point[LON] = lon;
+                        point[LON] = normalizeLon(lon);
                         point[X] = x + 0.5;
                         point[Y] = y + 0.5;
                         pointList.add(point);
@@ -432,4 +432,17 @@ public final class GeoApproximation {
 
         return pointList.toArray(new double[pointList.size()][4]);
     }
+
+    static double normalizeLon(double lon) {
+        if (lon < -360.0 || lon > 360.0) {
+            lon %= 360.0;
+        }
+        if (lon < -180.0) {
+            lon += 360.0;
+        } else if (lon > 180.0) {
+            lon -= 360.0;
+        }
+        return lon;
+    }
+
 }

@@ -66,13 +66,15 @@ class DefaultPixelFinder implements PixelFinder {
             @SuppressWarnings("UnnecessaryLocalVariable")
             final int rasterMaxY = y2;
 
+            final double lon0 = GeoApproximation.normalizeLon(geoPos.lon);
             final double lat0 = geoPos.lat;
-            final double lon0 = geoPos.lon;
             final DistanceMeasure dc = new SinusoidalDistance(lon0, lat0);
 
             double minDistance;
             if (maskImage == null || getSample(x0, y0, maskImage) != 0) {
-                minDistance = dc.distance(getSampleDouble(x0, y0, lonImage), getSampleDouble(x0, y0, latImage));
+                final double lon = GeoApproximation.normalizeLon(getSampleDouble(x0, y0, lonImage));
+                final double lat = getSampleDouble(x0, y0, latImage);
+                minDistance = dc.distance(lon, lat);
             } else {
                 minDistance = Double.POSITIVE_INFINITY;
             }
@@ -110,8 +112,8 @@ class DefaultPixelFinder implements PixelFinder {
                     for (int x = minX; x <= maxX; x++) {
                         if (y != y0 || x != x0) {
                             if (maskImage == null || getSample(x, y, maskImage) != 0) {
+                                final double lon = GeoApproximation.normalizeLon(getSampleDouble(x, y, lonImage));
                                 final double lat = getSampleDouble(x, y, latImage);
-                                final double lon = getSampleDouble(x, y, lonImage);
                                 final double d = dc.distance(lon, lat);
                                 if (d < minDistance) {
                                     x1 = x;
