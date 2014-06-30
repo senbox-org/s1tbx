@@ -33,9 +33,11 @@ import org.esa.nest.util.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -55,8 +57,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private final List<File> cosarFileList = new ArrayList<File>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<String, ImageInputStream>(1);
 
-    public TerraSarXProductDirectory(final File headerFile, final File imageFolder) {
-        super(headerFile, imageFolder);
+    public TerraSarXProductDirectory(final File inputFile) {
+        super(inputFile);
+    }
+
+    protected String getHeaderFileName() { return ""; }
+
+    protected String getRelativePathToImageFolder() {
+        return getRootFolder()+"IMAGEDATA" + '/';
     }
 
     @Override
@@ -392,16 +400,22 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    @Override
-    protected void addImageFile(final File file) throws IOException {
-        if (file.getName().toUpperCase().endsWith("COS")) {
-
-            cosarFileList.add(file);
-            setSLC(true);
-
-            setSceneDimensionsFromXML();
+    protected void addImageFile(final String imgPath) throws IOException {
+        if (imgPath.toUpperCase().endsWith("COS")) {
+           throw new IOException("not supported yet");
         } else {
-            super.addImageFile(file);
+            final String name = imgPath.toLowerCase();
+            if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
+                final InputStream inStream = getInputStream(imgPath);
+                final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+                if (imgStream == null)
+                    throw new IOException("Unable to open " + imgPath);
+
+                final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+                bandImageFileMap.put(img.getName(), img);
+
+                setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
+            }
         }
     }
 

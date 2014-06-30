@@ -15,7 +15,6 @@
  */
 package org.esa.nest.dataio.sentinel1;
 
-import com.bc.jexp.impl.AbstractFunction;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -42,6 +41,7 @@ import java.util.List;
 
 
 //import org.w3c.dom.Node;
+
 /**
  * TBD
  */
@@ -82,11 +82,11 @@ public class Sentinel1Level0Reader {
     private final String DOUBLE_TAG_NAME = "xs:double"; // 8 bytes
 
     private final List<String> baseTypeTagNameList = Arrays.asList(BOOLEAN_TAG_NAME,
-                                                                    UNSIGNED_BYTE_TAG_NAME,
-                                                                    UNSIGNED_SHORT_TAG_NAME,
-                                                                    UNSIGNED_INT_TAG_NAME,
-                                                                    UNSIGNED_LONG_TAG_NAME,
-                                                                    DOUBLE_TAG_NAME);
+            UNSIGNED_BYTE_TAG_NAME,
+            UNSIGNED_SHORT_TAG_NAME,
+            UNSIGNED_INT_TAG_NAME,
+            UNSIGNED_LONG_TAG_NAME,
+            DOUBLE_TAG_NAME);
     private final String BIT_BASE_TYPE = "BIT_BASE_TYPE";
 
     // Attributes in tags
@@ -103,7 +103,7 @@ public class Sentinel1Level0Reader {
         private final String baseType; // must be one of what are in baseTypeTagNameList or BIT_BASE_TYPE
 
         private final int numBytes; // number of bytes in this data element (should agree with baseType);
-                                    // if baseType == BIT_BASE_TYPE, then numBytes is number of bits
+        // if baseType == BIT_BASE_TYPE, then numBytes is number of bits
 
         private final int startBit; // applicable only if baseType == BIT_BASE_TYPE
 
@@ -238,12 +238,12 @@ public class Sentinel1Level0Reader {
 
             if (binDataFilename.contains(ANNOT_PREFIX)) {
 
-                numRecs = filesize/getTotalNumberOfBytes(annotElemList);
+                numRecs = filesize / getTotalNumberOfBytes(annotElemList);
                 dataComponent = new DataComponent(binaryReader, annotElemList, metadataElement, numRecs);
 
             } else if (binDataFilename.contains(INDEX_PREFIX)) {
 
-                numRecs = filesize/getTotalNumberOfBytes(indexElemList);
+                numRecs = filesize / getTotalNumberOfBytes(indexElemList);
                 dataComponent = new DataComponent(binaryReader, indexElemList, metadataElement, numRecs);
             }
 
@@ -582,7 +582,7 @@ public class Sentinel1Level0Reader {
 
     private String stripNamespace(final String name) {
 
-        return name.substring(name.lastIndexOf(":")+1);
+        return name.substring(name.lastIndexOf(":") + 1);
     }
 
     private void dumpElemList(final String listName, final ArrayList<DataElement> elemList) {
@@ -626,7 +626,7 @@ public class Sentinel1Level0Reader {
                     productData.setElemInt(val);
                     parentMetadataElem.addAttribute(attr);
                 }
-                    break;
+                break;
                 case UNSIGNED_SHORT_TAG_NAME: {
                     final int val = reader.readUB2();
                     //System.out.println(elem.name + " = " + val + "; " + elem.baseType + " (unsigned short); pos = " + reader.getCurrentPos());
@@ -635,7 +635,7 @@ public class Sentinel1Level0Reader {
                     productData.setElemInt(val);
                     parentMetadataElem.addAttribute(attr);
                 }
-                    break;
+                break;
                 case UNSIGNED_INT_TAG_NAME: {
                     final long val = getUnsignedInt(reader.readB4());
                     //System.out.println(elem.name + " = " + val + "; " + elem.baseType + " (unsigned int); pos = " + reader.getCurrentPos());
@@ -644,7 +644,7 @@ public class Sentinel1Level0Reader {
                     productData.setElemUInt(val);
                     parentMetadataElem.addAttribute(attr);
                 }
-                    break;
+                break;
                 case UNSIGNED_LONG_TAG_NAME: {
                     final byte[] bytes = new byte[8];
                     reader.read(bytes);
@@ -658,16 +658,16 @@ public class Sentinel1Level0Reader {
                     // To get back the unsigned long value, one can get the String back and create a BigInteger with it.
                     // Constructor of BigInteger takes a String.
                 }
-                    break;
+                break;
                 case DOUBLE_TAG_NAME: {
-                    final double val = (double)reader.readB8();
+                    final double val = (double) reader.readB8();
                     //System.out.println(elem.name + " = " + val + "; " + elem.baseType + " (double); pos" + reader.getCurrentPos());
                     MetadataAttribute attr = new MetadataAttribute(elem.name, ProductData.TYPE_FLOAT64);
                     ProductData productData = attr.getData();
                     productData.setElemDouble(val);
                     parentMetadataElem.addAttribute(attr);
                 }
-                    break;
+                break;
                 case BIT_BASE_TYPE: {
                     if (prevElem == null || elem.startBit == 0) {
                         final byte[] oneByte = new byte[1];
@@ -685,11 +685,11 @@ public class Sentinel1Level0Reader {
                     productData.setElemInt(getInteger(val));
                     parentMetadataElem.addAttribute(attr);
                 }
-                    break;
+                break;
                 default: {
                     System.out.println("Sentinel1Level0Reader.readOneBinaryElement: ERROR Unknown baseType = " + elem.baseType);
                 }
-                    break;
+                break;
             }
 
         } catch (IOException e) {
@@ -713,7 +713,7 @@ public class Sentinel1Level0Reader {
         for (long i = 0; i < dataComponent.numRecords; i++) {
 
             final String parentName = parentMetadataElem.getName();
-            final MetadataElement recMetaElem = new MetadataElement(parentName.substring(0, parentName.length()-1) + i);
+            final MetadataElement recMetaElem = new MetadataElement(parentName.substring(0, parentName.length() - 1) + i);
             parentMetadataElem.addElement(recMetaElem);
             /*
             try {
@@ -749,14 +749,14 @@ public class Sentinel1Level0Reader {
         int result = getInteger(b) << startBit + 24;
         result = result >>> (32 - numBits);
 
-        return (byte)result;
+        return (byte) result;
     }
 
     private static String extractPolarization(String filename) {
 
-        final int idx = filename.lastIndexOf("raw")+6;
+        final int idx = filename.lastIndexOf("raw") + 6;
 
-        final String pp = filename.substring(idx, idx+2);
+        final String pp = filename.substring(idx, idx + 2);
 
         if (pp.equals("hh") || pp.equals("hv") || pp.equals("vv") || pp.equals("vh")) {
             return pp + "_";

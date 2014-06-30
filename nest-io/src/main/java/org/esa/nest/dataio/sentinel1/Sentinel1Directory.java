@@ -20,6 +20,4 @@ public interface Sentinel1Directory {
     public ImageIOFile.BandInfo getBandInfo(final Band destBand);
 
     public boolean isSLC();
-
-    public boolean isOCN();
 }

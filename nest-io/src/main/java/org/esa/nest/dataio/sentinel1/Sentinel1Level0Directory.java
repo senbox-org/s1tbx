@@ -18,7 +18,6 @@ package org.esa.nest.dataio.sentinel1;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.Array;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
@@ -43,23 +42,16 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
-    private File productFolder = null;
-
-    public Sentinel1Level0Directory(final File headerFile, final File imageFolder) {
-
-        super(headerFile, imageFolder);
-        productFolder = imageFolder;
-
-        //System.out.println("Sentinel1Level0Directory: headerFile = " + headerFile.getAbsolutePath());
-        //System.out.println("Sentinel1Level0Directory: imageFolder = " + imageFolder.getAbsolutePath());
+    public Sentinel1Level0Directory(final File headerFile) {
+        super(headerFile);
     }
 
-    protected void addImageFile(final File file) throws IOException {
-        final String name = file.getName().toLowerCase();
-        if (name.endsWith("tiff")) {
-            final ImageIOFile img = new ImageIOFile(file);
-            bandImageFileMap.put(img.getName(), img);
-        }
+    protected String getHeaderFileName() {
+        return Sentinel1Constants.PRODUCT_HEADER_NAME;
+    }
+
+    protected void addImageFile(final String imgPath) throws IOException {
+
     }
 
     @Override
@@ -506,8 +498,6 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return "Level-0";
     }
 
-    public boolean isOCN() { return false; }
-
     private static void getListInEvenlySpacedGrid(
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final float[] sourcePointList,
@@ -698,7 +688,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 getProductType(),
                 sceneWidth, sceneHeight);
 
-        product.setFileLocation(productFolder);
+        product.setFileLocation(getBaseDir());
 
         addMetaData(product);
         addBinaryDataToProduct(product);

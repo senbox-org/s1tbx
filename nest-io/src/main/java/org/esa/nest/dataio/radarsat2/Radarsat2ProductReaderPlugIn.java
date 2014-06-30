@@ -22,9 +22,8 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
-import java.util.Enumeration;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
+import java.util.Optional;
 import java.util.zip.ZipFile;
 
 /**
@@ -41,49 +40,48 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
         final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
-            return DecodeQualification.UNABLE;
-        }
-        final String filename = file.getName().toLowerCase();
-        if (filename.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-                filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
+        if (file != null) {
+            final String filename = file.getName().toLowerCase();
+            if (filename.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
+                    filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
 
-            final File[] files = file.getParentFile().listFiles();
-            for (File f : files) {
-                if (f.getName().toLowerCase().endsWith("ntf")) {
-                    return DecodeQualification.SUITABLE;
+                final File[] files = file.getParentFile().listFiles();
+                for (File f : files) {
+                    if (f.getName().toLowerCase().endsWith("ntf")) {
+                        return DecodeQualification.SUITABLE;
+                    }
                 }
+                return DecodeQualification.INTENDED;
             }
-            return DecodeQualification.INTENDED;
-        }
-       /* if(filename.endsWith(".zip")) {
             if (isZippedRS2(file)) {
                 return DecodeQualification.INTENDED;
             }
-        }   */
+        }
+        //todo zip stream
+
         return DecodeQualification.UNABLE;
     }
 
-    private static boolean isZippedRS2(final File file) {
+    static boolean isZippedRS2(final File file) {
         try {
-            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
-            final Enumeration<? extends ZipEntry> entries = productZip.entries();
+            if (file.getName().toLowerCase().endsWith(".zip")) {
+                final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
 
-            while (entries.hasMoreElements()) {
-                final ZipEntry zipEntry = entries.nextElement();
-                if (zipEntry.getName().endsWith("product.xml")) {
-                    return true;
-                }
+                final Optional result = productZip.stream()
+                        .filter(ze -> !ze.isDirectory())
+                        .filter(ze -> ze.getName().toLowerCase().endsWith(Radarsat2Constants.PRODUCT_HEADER_NAME))
+                        .findFirst();
+                return result.isPresent();
             }
         } catch (Exception e) {
-            //
+            e.printStackTrace();
         }
         return false;
     }
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p/>
+     * <p>
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
@@ -131,7 +129,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
+     * <p>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
@@ -160,8 +158,10 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
          */
         public boolean accept(final File file) {
             if (super.accept(file)) {
-                if (file.isDirectory() || (file.getName().toUpperCase().startsWith(Radarsat2Constants.PRODUCT_HEADER_PREFIX) &&
-                        file.getName().toUpperCase().endsWith(Radarsat2Constants.getIndicationKey()))) {
+                final String name = file.getName().toUpperCase();
+                if (file.isDirectory() ||
+                        (name.startsWith(Radarsat2Constants.PRODUCT_HEADER_PREFIX) && name.endsWith(Radarsat2Constants.getIndicationKey())) ||
+                        (name.startsWith("RS2") && name.endsWith(".ZIP"))) {
                     return true;
                 }
             }

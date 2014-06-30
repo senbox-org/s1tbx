@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -125,5 +126,9 @@ public abstract class SARReader extends AbstractProductReader {
                 elem.dispose();
             }
         }
+    }
+
+    public static boolean isZip(final File inputFile) {
+        return inputFile.getName().toLowerCase().endsWith(".zip");
     }
 }

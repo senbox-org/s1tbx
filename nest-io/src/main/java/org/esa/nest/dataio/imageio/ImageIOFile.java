@@ -35,9 +35,7 @@ import java.util.Iterator;
  */
 public class ImageIOFile {
 
-    private final File inputFile;
     private final String name;
-
     private int sceneWidth = 0;
     private int sceneHeight = 0;
     private int dataType;
@@ -50,23 +48,43 @@ public class ImageIOFile {
     private ImageInputStream stream = null;
     private ImageReader reader;
 
-    public ImageIOFile(final File inputFile) {
-        this.inputFile = inputFile;
-        this.name = inputFile.getName();
-    }
-
     public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
 
-        this.inputFile = inputFile;
-        this.name = inputFile.getName();
+        name = inputFile.getName();
+        stream = ImageIO.createImageInputStream(inputFile);
+        if (stream == null)
+            throw new IOException("Unable to open "+name);
 
         createReader(iioReader);
     }
 
-    private synchronized void createReader(final ImageReader iioReader) throws IOException {
-        stream = ImageIO.createImageInputStream(inputFile);
+    public ImageIOFile(final String name, final ImageInputStream inputStream, final ImageReader iioReader) throws IOException {
+
+        this.name = name;
+        this.stream = inputStream;
         if (stream == null)
-            throw new IOException("Unable to open " + inputFile.toString());
+            throw new IOException("Unable to open ");
+
+        createReader(iioReader);
+    }
+
+    public ImageIOFile(final String name, final ImageInputStream inputStream, final ImageReader iioReader,
+                       final int numImages, final int numBands, final int dataType) throws IOException {
+
+        this.name = name;
+        this.stream = inputStream;
+        if (stream == null)
+            throw new IOException("Unable to open ");
+
+        reader = iioReader;
+        reader.setInput(stream);
+
+        this.numImages = numImages;
+        this.numBands = numBands;
+        this.dataType = dataType;
+    }
+
+    private synchronized void createReader(final ImageReader iioReader) throws IOException {
 
         reader = iioReader;
         reader.setInput(stream);
@@ -87,6 +105,8 @@ public class ImageIOFile {
         }
     }
 
+    public String getName() { return name; }
+
     public static ImageReader getIIOReader(final File inputFile) throws IOException {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
         if (stream == null)
@@ -103,7 +123,10 @@ public class ImageIOFile {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
         if (stream == null)
             throw new IOException("Unable to open " + inputFile.toString());
+        return getTiffIIOReader(stream);
+    }
 
+    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
         ImageReader reader = null;
         final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
         while (imageReaders.hasNext()) {
@@ -114,13 +137,13 @@ public class ImageIOFile {
             }
         }
         if (reader == null)
-            throw new IOException("Unable to open " + inputFile.toString());
+            throw new IOException("Unable to open " + stream.toString());
         return reader;
     }
 
     public ImageReader getReader() throws IOException {
         if (reader == null) {
-            createReader(getTiffIIOReader(inputFile));
+            throw new IOException("no reader created");
         }
         return reader;
     }
@@ -182,10 +205,6 @@ public class ImageIOFile {
             reader.dispose();
     }
 
-    public String getName() {
-        return name;
-    }
-
     public int getSceneWidth() throws IOException {
         if (sceneWidth == 0) {
             sceneWidth = reader.getWidth(0);
@@ -219,18 +238,12 @@ public class ImageIOFile {
                                       final int destWidth, final int destHeight,
                                       final int imageID,
                                       final int bandSampleOffset) throws IOException {
-        final Raster data;
+        final ImageReadParam param = reader.getDefaultReadParam();
+        param.setSourceSubsampling(sourceStepX, sourceStepY,
+                sourceOffsetX % sourceStepX,
+                sourceOffsetY % sourceStepY);
+        final Raster data = getData(param, destOffsetX, destOffsetY, destWidth, destHeight);
 
-        synchronized (inputFile) {
-            final ImageReader reader = getReader();
-            final ImageReadParam param = reader.getDefaultReadParam();
-            param.setSourceSubsampling(sourceStepX, sourceStepY,
-                    sourceOffsetX % sourceStepX,
-                    sourceOffsetY % sourceStepY);
-
-            final RenderedImage image = reader.readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
-        }
 
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
@@ -254,6 +267,13 @@ public class ImageIOFile {
                 destBuffer.setElemDoubleAt(i++, value);
             }
         }
+    }
+
+    private synchronized Raster getData(final ImageReadParam param,
+                                        final int destOffsetX, final int destOffsetY,
+                                        final int destWidth, final int destHeight) throws IOException {
+        final RenderedImage image = reader.readAsRenderedImage(0, param);
+        return image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
     }
 
     public static class BandInfo {

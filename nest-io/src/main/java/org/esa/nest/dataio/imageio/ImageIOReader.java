@@ -68,7 +68,7 @@ public class ImageIOReader extends AbstractProductReader {
 
         productType = imgIOFile.getReader().getFormatName();
 
-        final Product product = new Product(imgIOFile.getName(),
+        final Product product = new Product(inputFile.getName(),
                 productType,
                 imgIOFile.getSceneWidth(), imgIOFile.getSceneHeight());
         product.setFileLocation(inputFile);
@@ -110,16 +110,12 @@ public class ImageIOReader extends AbstractProductReader {
         imgIOFile.close();
     }
 
-    static DecodeQualification checkProductQualification(File file) {
-        return DecodeQualification.SUITABLE;
-    }
-
     private void addMetaData(final Product product, final File inputFile) throws IOException {
         final MetadataElement root = product.getMetadataRoot();
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, imgIOFile.getName());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, inputFile.getName());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, imgIOFile.getSceneWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, imgIOFile.getSceneHeight());

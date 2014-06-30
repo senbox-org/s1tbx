@@ -19,11 +19,11 @@ import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.netcdf.NcRasterDim;
 import org.esa.nest.dataio.netcdf.NetCDFUtils;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
-
-import ucar.ma2.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,14 +61,14 @@ public class Sentinel1OCNReader {
     // This maps the MDS .nc file name to the NetcdfFile
     private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<String, NetcdfFile>(1);
 
-    private final Sentinel1Level1Directory dataDir;
+    private final Sentinel1Level2Directory dataDir;
 
     // For WV, there can be more than one MDS .nc file. See Table 4-3 in Product Spec v2/7 (S1-RS-MDA-52-7441).
     // Each MDS has the same variables, so we want unique band names for variables of same name from different .nc file.
     // Given a band name, we want to map back to the .nc file.
     private final Map<String, NetcdfFile> bandNameNCFileMap = new HashMap<String, NetcdfFile>(1);
 
-    public Sentinel1OCNReader(final Sentinel1Level1Directory dataDir) {
+    public Sentinel1OCNReader(final Sentinel1Level2Directory dataDir) {
 
         this.dataDir = dataDir;
     }
@@ -108,8 +108,8 @@ public class Sentinel1OCNReader {
 
             // Add Global Attributes as Metadata
             final MetadataElement bandElem = NetCDFUtils.addAttributes(annotationElement,
-                                                                       file,
-                                                                       netcdfFile.getGlobalAttributes());
+                    file,
+                    netcdfFile.getGlobalAttributes());
 
             // Add dimensions as Metadata
             final MetadataElement dimElem = new MetadataElement("Dimensions");
@@ -135,13 +135,13 @@ public class Sentinel1OCNReader {
             // Find index of 3rd '-'
             int idx = -1;
             for (int i = 0; i < 3; i++) {
-                idx = file.indexOf('-', idx+1);
+                idx = file.indexOf('-', idx + 1);
             }
 
-            final String pol = file.substring(idx+1, idx+3);
+            final String pol = file.substring(idx + 1, idx + 3);
 
             idx = file.lastIndexOf('-');
-            final String imageNum = file.substring(idx+1, idx+4);
+            final String imageNum = file.substring(idx + 1, idx + 4);
 
             for (Variable variable : variableList) {
 
@@ -166,8 +166,7 @@ public class Sentinel1OCNReader {
                     case 1:
                         // The data has been added as part of annotation for the variable under "Values".
                         break;
-                    case 2:
-                    {
+                    case 2: {
                         addBand(product, bandName, variable, shape[1], shape[0]);
                         bandNameNCFileMap.put(bandName, netcdfFile);
                         /*
@@ -176,19 +175,19 @@ public class Sentinel1OCNReader {
                         }
                         */
                     }
-                        break;
+                    break;
                     case 3:
-                    // When the rank is 3, there is an "outer" grid of cells and each cell contains a vector of values.
-                    // The "outer" grid is oswAzSize (rows) by oswRaSize (cols) of cells.
-                    // Each cell is a vector of values.
-                    // For owsSpecRes, the dimensions are oswAzSize x oswRaSize x oswAngularBinSize
-                    // So it is more natural to have the band be (oswAzSize*oswAngularBinSize) rows by oswRaSize columns.
-                    // All other rank 3 variables are oswAzSize x oswRaSize x oswPartitions
-                    // To be consistent, the bands will be (oswAzSize*oswPartitions) rows by oswRaSize columns.
+                        // When the rank is 3, there is an "outer" grid of cells and each cell contains a vector of values.
+                        // The "outer" grid is oswAzSize (rows) by oswRaSize (cols) of cells.
+                        // Each cell is a vector of values.
+                        // For owsSpecRes, the dimensions are oswAzSize x oswRaSize x oswAngularBinSize
+                        // So it is more natural to have the band be (oswAzSize*oswAngularBinSize) rows by oswRaSize columns.
+                        // All other rank 3 variables are oswAzSize x oswRaSize x oswPartitions
+                        // To be consistent, the bands will be (oswAzSize*oswPartitions) rows by oswRaSize columns.
                     {
                         // Tbe band will have dimensions: shape[0]*shape[2] (rows) by shape[1] (cols).
                         // So band width = shape[1] and band height = shape[0]*shape[2]
-                        addBand(product, bandName, variable, shape[1], shape[0]*shape[2]);
+                        addBand(product, bandName, variable, shape[1], shape[0] * shape[2]);
                         bandNameNCFileMap.put(bandName, netcdfFile);
                         /*
                         if (bandName.contains("oswSpecRes")) {
@@ -196,20 +195,20 @@ public class Sentinel1OCNReader {
                         }
                         */
                     }
-                        break;
+                    break;
 
                     case 4:
-                    // When the rank is 4, there is an "outer" grid of cells and each cell contains an "inner" grid of bins.
-                    // The "outer" grid is oswAzSize (rows) by oswRaSize (cols) of cells.
-                    // Each cell is oswAngularBinSize (rows) by oswWaveNumberBinSize (cols) of bins.
-                    // shape[0] is height of "outer" grid.
-                    // shape[1] is width of "outer" grid.
-                    // shape[2] is height of "inner" grid.
-                    // shape[3] is width of "inner" grid.
+                        // When the rank is 4, there is an "outer" grid of cells and each cell contains an "inner" grid of bins.
+                        // The "outer" grid is oswAzSize (rows) by oswRaSize (cols) of cells.
+                        // Each cell is oswAngularBinSize (rows) by oswWaveNumberBinSize (cols) of bins.
+                        // shape[0] is height of "outer" grid.
+                        // shape[1] is width of "outer" grid.
+                        // shape[2] is height of "inner" grid.
+                        // shape[3] is width of "inner" grid.
                     {
                         // Tbe band will have dimensions: shape[0]*shape[2] (rows) by shape[1]*shape[3] (cols).
                         // So band width = shape[1]*shape[3] and band height = shape[0]*shape[2]
-                        addBand(product, bandName, variable, shape[1]*shape[3], shape[0]*shape[2]);
+                        addBand(product, bandName, variable, shape[1] * shape[3], shape[0] * shape[2]);
                         bandNameNCFileMap.put(bandName, netcdfFile);
                         /*
                         if (bandName.contains("oswPolSpec")) {
@@ -217,7 +216,7 @@ public class Sentinel1OCNReader {
                         }
                         */
                     }
-                        break;
+                    break;
                     default:
                         System.out.println("SentinelOCNReader.addNetCDFMetadataAndBands: ERROR invalid variable rank " + variable.getRank() + " for " + variable.getFullName());
                         break;
@@ -251,8 +250,8 @@ public class Sentinel1OCNReader {
     }
 
     public void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                        int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                        int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) {
+                         int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                         int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) {
 
         /*
         System.out.println("Sentinel1OCNReader.readData: sourceOffsetX = " + sourceOffsetX +
@@ -288,7 +287,7 @@ public class Sentinel1OCNReader {
         final NetcdfFile netcdfFile = bandNameNCFileMap.get(bandName);
 
         final int idx = bandName.lastIndexOf('_');
-        final String varFullName = bandName.substring(idx+1);
+        final String varFullName = bandName.substring(idx + 1);
 
         //System.out.println("Sentinel1OCNReader.readData: bandName = " + bandName + " varFullName = " + varFullName);
 
@@ -297,7 +296,7 @@ public class Sentinel1OCNReader {
         switch (var.getRank()) {
             case 2:
                 readDataForRank2Variable(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                                         sourceStepX, sourceStepY, var, destWidth, destHeight, destBuffer);
+                        sourceStepX, sourceStepY, var, destWidth, destHeight, destBuffer);
                 break;
             case 3:
                 readDataForRank3Variable(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
@@ -305,7 +304,7 @@ public class Sentinel1OCNReader {
                 break;
             case 4:
                 readDataForRank4Variable(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                                         sourceStepX, sourceStepY, var, destWidth, destHeight, destBuffer);
+                        sourceStepX, sourceStepY, var, destWidth, destHeight, destBuffer);
                 break;
         }
     }
@@ -315,7 +314,7 @@ public class Sentinel1OCNReader {
                                          int destWidth, int destHeight, ProductData destBuffer) {
 
         final int[] origin = {sourceOffsetY, sourceOffsetX};
-        final int[] shape = {(sourceHeight-1)*sourceStepY+1, (sourceWidth-1)*sourceStepX+1};
+        final int[] shape = {(sourceHeight - 1) * sourceStepY + 1, (sourceWidth - 1) * sourceStepX + 1};
 
         try {
 
@@ -325,8 +324,8 @@ public class Sentinel1OCNReader {
 
                 for (int j = 0; j < destWidth; j++) {
 
-                    final int destIdx = i*destWidth + j;
-                    final int srcIdx = i*sourceStepY*shape[1] + j*sourceStepX;
+                    final int destIdx = i * destWidth + j;
+                    final int srcIdx = i * sourceStepY * shape[1] + j * sourceStepX;
                     destBuffer.setElemFloatAt(destIdx, srcArray.getFloat(srcIdx));
 
                     //System.out.println("Sentinel1OCNReader.readData:  i = " + i + " j = " + j + " destIdx = " + destIdx + " srcIdx = " + srcIdx);
@@ -353,12 +352,12 @@ public class Sentinel1OCNReader {
         // shape0[1] is width of "outer" grid.
         // shape0[2] is height of the column in each cell in the "outer" grid.
 
-        final int[] origin = {sourceOffsetY/shape0[2], sourceOffsetX, 0};
+        final int[] origin = {sourceOffsetY / shape0[2], sourceOffsetX, 0};
 
-        final int outerYEnd = (sourceOffsetY + (sourceHeight-1)*sourceStepY)/shape0[2];
-        final int outerXEnd = (sourceOffsetX + (sourceWidth-1)*sourceStepX);
+        final int outerYEnd = (sourceOffsetY + (sourceHeight - 1) * sourceStepY) / shape0[2];
+        final int outerXEnd = (sourceOffsetX + (sourceWidth - 1) * sourceStepX);
 
-        final int[] shape = {outerYEnd-origin[0]+1, outerXEnd-origin[1]+1, shape0[2]};
+        final int[] shape = {outerYEnd - origin[0] + 1, outerXEnd - origin[1] + 1, shape0[2]};
 
         try {
 
@@ -367,23 +366,23 @@ public class Sentinel1OCNReader {
             for (int i = 0; i < destHeight; i++) {
 
                 // srcY is wrt to what is read in srcArray
-                final int srcY = (sourceOffsetY - shape0[2]*origin[0])+ i*sourceStepY;
+                final int srcY = (sourceOffsetY - shape0[2] * origin[0]) + i * sourceStepY;
 
                 for (int j = 0; j < destWidth; j++) {
 
                     // srcX is wrt to what is read in srcArray
-                    final int srcX = j*sourceStepX;
+                    final int srcX = j * sourceStepX;
 
                     final int[] idx = new int[3];
-                    idx[0] = srcY/shape[2];
+                    idx[0] = srcY / shape[2];
                     idx[1] = srcX;
-                    idx[2] = srcY - idx[0]*shape[2];
+                    idx[2] = srcY - idx[0] * shape[2];
 
-                    final int srcIdx = (idx[0] * shape[1]*shape[2]) +
-                                       (idx[1] * shape[2]) +
-                                        idx[2];
+                    final int srcIdx = (idx[0] * shape[1] * shape[2]) +
+                            (idx[1] * shape[2]) +
+                            idx[2];
 
-                    final int destIdx = i*destWidth + j;
+                    final int destIdx = i * destWidth + j;
 
                     destBuffer.setElemFloatAt(destIdx, srcArray.getFloat(srcIdx));
                 }
@@ -410,18 +409,18 @@ public class Sentinel1OCNReader {
         // shape0[2] is height of "inner" grid.
         // shape0[3] is width of "inner" grid.
 
-        final int[] origin = {sourceOffsetY/shape0[2], sourceOffsetX/shape0[3], 0, 0};
+        final int[] origin = {sourceOffsetY / shape0[2], sourceOffsetX / shape0[3], 0, 0};
 
         //System.out.println("sourceOffsetY = " + sourceOffsetY + " shape0[2] = " + shape0[2] + " sourceOffsetX = " + sourceOffsetX + " shape0[3] = " + shape0[3]);
         //System.out.println("origin " + origin[0] + " " + origin[1]);
 
-        final int outerYEnd = (sourceOffsetY + (sourceHeight-1)*sourceStepY)/shape0[2];
-        final int outerXEnd = (sourceOffsetX + (sourceWidth-1)*sourceStepX)/shape0[3];
+        final int outerYEnd = (sourceOffsetY + (sourceHeight - 1) * sourceStepY) / shape0[2];
+        final int outerXEnd = (sourceOffsetX + (sourceWidth - 1) * sourceStepX) / shape0[3];
 
         //System.out.println("sourceHeight = " + sourceHeight + " sourceStepY = " + sourceStepY + " outerYEnd = " + outerYEnd);
         //System.out.println("sourceWidth = " + sourceWidth + " sourceStepX = " + sourceStepX + " outerXEnd = " + outerXEnd);
 
-        final int[] shape = {outerYEnd-origin[0]+1, outerXEnd-origin[1]+1, shape0[2], shape0[3]};
+        final int[] shape = {outerYEnd - origin[0] + 1, outerXEnd - origin[1] + 1, shape0[2], shape0[3]};
 
         try {
 
@@ -430,25 +429,25 @@ public class Sentinel1OCNReader {
             for (int i = 0; i < destHeight; i++) {
 
                 // srcY is wrt to what is read in srcArray
-                final int srcY = (sourceOffsetY - shape0[2]*origin[0])+ i*sourceStepY;
+                final int srcY = (sourceOffsetY - shape0[2] * origin[0]) + i * sourceStepY;
 
                 for (int j = 0; j < destWidth; j++) {
 
                     // srcX is wrt to what is read in srcArray
-                    final int srcX = (sourceOffsetX - shape0[3]*origin[1])+ j*sourceStepX;
+                    final int srcX = (sourceOffsetX - shape0[3] * origin[1]) + j * sourceStepX;
 
                     final int[] idx = new int[4];
-                    idx[0] = srcY/shape[2];
-                    idx[1] = srcX/shape[3];
-                    idx[2] = srcY - idx[0]*shape[2];
-                    idx[3] = srcX - idx[1]*shape[3];
+                    idx[0] = srcY / shape[2];
+                    idx[1] = srcX / shape[3];
+                    idx[2] = srcY - idx[0] * shape[2];
+                    idx[3] = srcX - idx[1] * shape[3];
 
-                    final int srcIdx = (idx[0] * shape[1]*shape[2]*shape[3]) +
-                                       (idx[1] * shape[2]*shape[3]) +
-                                       (idx[2] * shape[3]) +
-                                        idx[3];
+                    final int srcIdx = (idx[0] * shape[1] * shape[2] * shape[3]) +
+                            (idx[1] * shape[2] * shape[3]) +
+                            (idx[2] * shape[3]) +
+                            idx[3];
 
-                    final int destIdx = i*destWidth + j;
+                    final int destIdx = i * destWidth + j;
 
                     destBuffer.setElemFloatAt(destIdx, srcArray.getFloat(srcIdx));
                 }
@@ -456,11 +455,11 @@ public class Sentinel1OCNReader {
 
         } catch (IOException e) {
 
-              System.out.println("Sentinel1OCNReader.readDataForRank4Variable: IOException when reading variable " + var.getFullName());
+            System.out.println("Sentinel1OCNReader.readDataForRank4Variable: IOException when reading variable " + var.getFullName());
 
         } catch (InvalidRangeException e) {
 
-              System.out.println("Sentinel1OCNReader.readDataForRank4Variable: InvalidRangeException when reading variable " + var.getFullName());
+            System.out.println("Sentinel1OCNReader.readDataForRank4Variable: InvalidRangeException when reading variable " + var.getFullName());
         }
     }
 
@@ -476,7 +475,7 @@ public class Sentinel1OCNReader {
             }
         }
 
-        return cnt+1 >= shape.length;
+        return cnt + 1 >= shape.length;
     }
 
     private void dumpVariableValues(final Variable variable, final String bandName) {

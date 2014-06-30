@@ -27,8 +27,11 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
 
@@ -44,10 +47,29 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
 
-    private final transient Map<String, String> polarizationMap = new HashMap<String, String>(4);
+    private final transient Map<String, String> polarizationMap = new HashMap<>(4);
 
-    public Radarsat2ProductDirectory(final File headerFile, final File imageFolder) {
-        super(headerFile, imageFolder);
+    public Radarsat2ProductDirectory(final File headerFile) {
+        super(headerFile);
+    }
+
+    protected String getHeaderFileName() {
+        return Radarsat2Constants.PRODUCT_HEADER_NAME;
+    }
+
+    protected void addImageFile(final String imgPath) throws IOException {
+        final String name = imgPath.substring(imgPath.lastIndexOf("/") + 1, imgPath.length()).toLowerCase();
+        if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
+            final InputStream inStream = getInputStream(imgPath);
+            final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+            if (imgStream == null)
+                throw new IOException("Unable to open " + imgPath);
+
+            final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+            bandImageFileMap.put(img.getName(), img);
+
+            setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
+        }
     }
 
     @Override
