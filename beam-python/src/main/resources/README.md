@@ -29,7 +29,7 @@ Installation
 ------------
 
 The first step is to properly install `jpy` as described in the [jpy documentation](http://jpy.readthedocs.org/en/latest/install.html).
-(Be sure use `jpy` version 0.7.2 or higher.) After successful installation of `jpy`, you will need to install `beampy` as follows:
+(Be sure use `jpy` version 0.7.3 or higher.) After successful installation of `jpy`, you will need to install `beampy` as follows:
 
 On Darwin / Linux type:
 

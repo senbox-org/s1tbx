@@ -35,8 +35,10 @@
 
     <changelog>
         <![CDATA[
-                <p>Changes in 5.02<br/>
-                [BEAM-1686] Installation fails when setuptools is not installed<br/>
+                <p>Changes in 5.0.2<br/>
+                [BEAM-1691] BEAM Python tests require specific test product<br/>
+                [BEAM-1690] BEAM Python examples often generate zero-valued output<br/>
+                [BEAM-1686] BEAM Python setup fails without setuptools installed<br/>
                 <p>Changes in 5.0.1<br/>
                 [BEAM-1671] beampy: provide python 2.x support<br/>
                 </p>

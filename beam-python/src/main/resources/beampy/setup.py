@@ -4,22 +4,15 @@ BEAMPY_NAME = 'beampy'
 BEAMPY_VERSION = '5.0.2'
 BEAMPY_SUMMARY = 'BEAM Python API'
 BEAMPY_AUTHOR = 'Norman Fomferra, Brockmann Consult GmbH'
-BEAMPY_JPY = 'jpy>=0.7.2'
+BEAMPY_JPY = 'jpy>=0.7.3'
 
 try:
     import setuptools
-    use_distutils = False
+    has_setuptools = True
 except ImportError:
-    use_distutils = True
+    has_setuptools = False
 
-if use_distutils:
-    from distutils.core import setup
-    setup(name=BEAMPY_NAME,
-          version=BEAMPY_VERSION,
-          description=BEAMPY_SUMMARY,
-          author=BEAMPY_AUTHOR,
-          py_modules=[BEAMPY_NAME])
-else:
+if has_setuptools:
     from setuptools import setup
     setup(name=BEAMPY_NAME,
           version=BEAMPY_VERSION,
@@ -27,3 +20,10 @@ else:
           author=BEAMPY_AUTHOR,
           py_modules=[BEAMPY_NAME],
           install_requires=[BEAMPY_JPY])
+else:
+    from distutils.core import setup
+    setup(name=BEAMPY_NAME,
+          version=BEAMPY_VERSION,
+          description=BEAMPY_SUMMARY,
+          author=BEAMPY_AUTHOR,
+          py_modules=[BEAMPY_NAME])
