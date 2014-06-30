@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.*;
@@ -23,8 +24,8 @@ public class GlobalMetadata {
 
     private final SortedMap<String, String> metaProperties;
 
-    public static GlobalMetadata create(OperatorDescriptor descriptor, File file) {
-        return new GlobalMetadata(descriptor, file);
+    public static GlobalMetadata create(GlobalMetaParameter parameter) {
+        return new GlobalMetadata(parameter);
     }
 
     public void processMetadataTemplates(File metadataTemplateDir, BinningOp operator, Product targetProduct, Logger logger) {
@@ -35,7 +36,7 @@ public class GlobalMetadata {
         }
 
         final VelocityEngine ve = createVelocityEngine(absTemplateDir, logger);
-        if (ve == null){
+        if (ve == null) {
             return;
         }
 
@@ -114,19 +115,37 @@ public class GlobalMetadata {
         }
     }
 
-    GlobalMetadata() {
-        metaProperties = new TreeMap<>();
-    }
-
-    private GlobalMetadata(OperatorDescriptor descriptor, File file) {
+    private GlobalMetadata(GlobalMetaParameter parameter) {
         this();
 
-        metaProperties.put("product_name", FileUtils.getFilenameWithoutExtension(file));
-        metaProperties.put("software_qualified_name", descriptor.getName());
-        metaProperties.put("software_name", descriptor.getAlias());
-        metaProperties.put("software_version", descriptor.getVersion());
+        final File outputFile = parameter.getOutputFile();
+        if (outputFile != null) {
+            metaProperties.put("product_name", FileUtils.getFilenameWithoutExtension(outputFile));
+        }
+
+        final OperatorDescriptor descriptor = parameter.getDescriptor();
+        if (descriptor != null) {
+            metaProperties.put("software_qualified_name", descriptor.getName());
+            metaProperties.put("software_name", descriptor.getAlias());
+            metaProperties.put("software_version", descriptor.getVersion());
+        }
+
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN, Locale.ENGLISH);
         metaProperties.put("processing_time", dateFormat.format(new Date()));
+
+        final String startDateTime = parameter.getStartDateTime();
+        if (StringUtils.isNotNullAndNotEmpty(startDateTime)) {
+            metaProperties.put("aggregation_period_start", startDateTime);
+        }
+
+        final Double periodDuration = parameter.getPeriodDuration();
+        if (periodDuration != null) {
+            metaProperties.put("aggregation_period_duration", Double.toString(periodDuration) + " day(s)");
+        }
+    }
+
+    GlobalMetadata() {
+        metaProperties = new TreeMap<>();
     }
 
     private static class VelocityTemplateFilter implements FilenameFilter {

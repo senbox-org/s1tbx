@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.*;
 import org.esa.beam.binning.cellprocessor.CellProcessorChain;
+import org.esa.beam.binning.operator.metadata.GlobalMetaParameter;
 import org.esa.beam.binning.operator.metadata.GlobalMetadata;
 import org.esa.beam.binning.operator.metadata.MetadataAggregator;
 import org.esa.beam.binning.operator.metadata.MetadataAggregatorFactory;
@@ -37,7 +38,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
@@ -505,8 +505,14 @@ public class BinningOp extends Operator {
     }
 
     private void initMetadataProperties() {
-        final OperatorDescriptor operatorDescriptor = getSpi().getOperatorDescriptor();
-        globalMetadata = GlobalMetadata.create(operatorDescriptor, new File(outputFile));
+        final GlobalMetaParameter parameter = new GlobalMetaParameter();
+
+        parameter.setDescriptor(getSpi().getOperatorDescriptor());
+        parameter.setOutputFile(new File(outputFile));
+        parameter.setStartDateTime(startDateTime);
+        parameter.setPeriodDuration(periodDuration);
+
+        globalMetadata = GlobalMetadata.create(parameter);
         globalMetadata.load(metadataPropertiesFile, getLogger());
     }
 

@@ -30,7 +30,13 @@ public class GlobalMetadataTest {
         when(descriptor.getAlias()).thenReturn("operator_alias");
         when(descriptor.getVersion()).thenReturn("1.0.9");
 
-        final GlobalMetadata metadata = GlobalMetadata.create(descriptor, file);
+        final GlobalMetaParameter parameter = new GlobalMetaParameter();
+        parameter.setDescriptor(descriptor);
+        parameter.setOutputFile(file);
+        parameter.setStartDateTime("2013-05-01");
+        parameter.setPeriodDuration(15.56);
+
+        final GlobalMetadata metadata = GlobalMetadata.create(parameter);
         assertNotNull(metadata);
 
         final SortedMap<String, String> metaProperties = metadata.asSortedMap();
@@ -40,7 +46,11 @@ public class GlobalMetadataTest {
         assertEquals("operator_alias", metaProperties.get("software_name"));
         assertEquals("1.0.9", metaProperties.get("software_version"));
         assertNotNull(metaProperties.get("processing_time"));
+        assertEquals("2013-05-01", metaProperties.get("aggregation_period_start"));
+        assertEquals("15.56 day(s)", metaProperties.get("aggregation_period_duration"));
     }
+
+    // @todo 2 tb/tb tests with missing parameters - check no Excptions thrown tb 2014-06-30
 
     @Test
     public void testLoad_fileIsNull() throws IOException {
@@ -100,7 +110,11 @@ public class GlobalMetadataTest {
         when(descriptor.getAlias()).thenReturn("Vero");
         when(descriptor.getVersion()).thenReturn("2.1.1");
 
-        final GlobalMetadata globalMetadata = GlobalMetadata.create(descriptor, file);
+        final GlobalMetaParameter parameter = new GlobalMetaParameter();
+        parameter.setDescriptor(descriptor);
+        parameter.setOutputFile(file);
+
+        final GlobalMetadata globalMetadata = GlobalMetadata.create(parameter);
 
         final MetadataElement metadataElement = globalMetadata.asMetadataElement();
         assertNotNull(metadataElement);
