@@ -33,6 +33,8 @@ import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -750,15 +752,20 @@ public class OperatorContext {
                 // The WriteOp needs to be called for VirtualBands in order to write them as real bands, where necessary (NetCDF-CF).
                 // For other operators it should not be called
                 if (operator instanceof WriteOp) {
-                    targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
-                        @Override
-                        protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
-                            Band targetBand = getTargetBand();
-                            tile.setRect(targetBand.getGeophysicalImage().getData(destRect));
-                            TileImpl targetTile = new TileImpl(targetBand, tile, destRect, false);
-                            operator.computeTile(targetBand, targetTile, ProgressMonitor.NULL);
-                        }
-                    });
+                    WriteOp writer = (WriteOp)operator;
+                    ProductWriter productWriter = ProductIO.getProductWriter(writer.getFormatName());
+
+                    if(productWriter.shouldWrite(targetBand)) {
+                        targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
+                            @Override
+                            protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+                                Band targetBand = getTargetBand();
+                                tile.setRect(targetBand.getGeophysicalImage().getData(destRect));
+                                TileImpl targetTile = new TileImpl(targetBand, tile, destRect, false);
+                                operator.computeTile(targetBand, targetTile, ProgressMonitor.NULL);
+                            }
+                        });
+                    }
                 }
             }
 
