@@ -208,7 +208,7 @@ public class ExportGeometryAction extends ExecCommand {
         if (!CRS.equalsIgnoreMetadata(crs, modelCrs)) { // we have to reproject the features
             featureCollection = new ReprojectingFeatureCollection(featureCollection, crs, modelCrs);
         }
-        Map<Class<?>, List<SimpleFeature>> featureListMap = new HashMap<Class<?>, List<SimpleFeature>>();
+        Map<Class<?>, List<SimpleFeature>> featureListMap = new HashMap<>();
         final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
         while (featureIterator.hasNext()) {
             SimpleFeature feature = featureIterator.next();
@@ -217,7 +217,7 @@ public class ExportGeometryAction extends ExecCommand {
 
             List<SimpleFeature> featureList = featureListMap.get(geometryType);
             if (featureList == null) {
-                featureList = new ArrayList<SimpleFeature>();
+                featureList = new ArrayList<>();
                 featureListMap.put(geometryType, featureList);
             }
             featureList.add(feature);
