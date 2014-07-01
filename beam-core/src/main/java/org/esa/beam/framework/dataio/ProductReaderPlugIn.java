@@ -41,7 +41,7 @@ public interface ProductReaderPlugIn extends ProductIOPlugIn {
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
      * <p/>
-     * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
+     * <p> Instances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
      *
