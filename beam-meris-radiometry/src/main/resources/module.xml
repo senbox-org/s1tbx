@@ -27,6 +27,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0.1</b><br/>
+        [BEAM-1692] Option radiance-to-reflectance conversion is disabled<br/>
         [BEAM-1688] Detection of reprocessing version fails<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1647] Detection of reprocessing is wrong for FSG products<br/>

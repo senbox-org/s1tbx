@@ -114,7 +114,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Parameter(defaultValue = "false",
                label = "Perform radiance-to-reflectance conversion",
-               description = "Whether to perform radiance-to-reflectance conversion.")
+               description = "Whether to perform radiance-to-reflectance conversion. " +
+                             "When selecting ENVISAT as target format, the radiance to reflectance conversion can not be performed.")
     private boolean doRadToRefl;
 
     @SourceProduct(alias = "source", label = "Name", description = "The source product.",
