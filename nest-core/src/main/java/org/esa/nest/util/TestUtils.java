@@ -57,6 +57,7 @@ public class TestUtils {
     public final static String rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
     public final static String rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
     public final static String rootPathRadarsat1 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat1");
+    public final static String rootPathSentinel1 = testPreferences.getPropertyString(contextID + ".test.rootPathSentinel1");
     public final static String rootPathERS = testPreferences.getPropertyString(contextID + ".test.rootPathERS");
     public final static String rootPathJERS = testPreferences.getPropertyString(contextID + ".test.rootPathJERS");
     public final static String rootPathALOS = testPreferences.getPropertyString(contextID + ".test.rootPathALOS");
@@ -556,12 +557,12 @@ public class TestUtils {
         return iterations;
     }
 
-    public static boolean skipTest(final TestCase obj) throws Exception {
+    public static boolean skipTest(final Object obj) throws Exception {
         if (DEBUG) {
-            System.out.println(obj.getClass().getName() + ':' + obj.getName() + " skipped");
+            System.out.println(obj.getClass().getName() + ':' + obj.getClass().getEnclosingMethod().getName() + " skipped");
         }
         if (FailOnSkip) {
-            throw new Exception(obj.getClass().getName() + ':' + obj.getName() + " skipped");
+            throw new Exception(obj.getClass().getName() + ':' + obj.getClass().getEnclosingMethod().getName() + " skipped");
         }
         return true;
     }

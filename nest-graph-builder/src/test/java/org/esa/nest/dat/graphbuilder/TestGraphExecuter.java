@@ -17,6 +17,7 @@ package org.esa.nest.dat.graphbuilder;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.nest.util.TestUtils;
 
 import java.util.List;
 import java.util.Observer;
@@ -39,6 +40,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
     }
 
     public void setUp() throws Exception {
+        TestUtils.initTestEnvironment();
         graphEx = new GraphExecuter();
         graphEx.addObserver(this);
     }

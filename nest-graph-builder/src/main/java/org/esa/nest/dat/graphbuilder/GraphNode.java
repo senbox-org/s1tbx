@@ -43,7 +43,7 @@ import java.util.Map;
 public class GraphNode {
 
     private final Node node;
-    private final Map<String, Object> parameterMap = new HashMap<String, Object>(10);
+    private final Map<String, Object> parameterMap = new HashMap<>(10);
     private OperatorUI operatorUI = null;
 
     private int nodeWidth = 60;
@@ -57,7 +57,7 @@ public class GraphNode {
     private Point displayPosition = new Point(0, 0);
 
     private XppDom displayParameters;
-    private Color shadowColor = new Color(0, 0, 0, 128);
+    private static Color shadowColor = new Color(0, 0, 0, 64);
 
     GraphNode(final Node n) throws IllegalArgumentException {
         node = n;
@@ -289,7 +289,6 @@ public class GraphNode {
         }
     }
 
-
     boolean isNodeSource(final GraphNode source) {
 
         for (NodeSource ns : node.getSources()) {
@@ -334,29 +333,35 @@ public class GraphNode {
      * @param g   The Java2D Graphics
      * @param col The color to draw
      */
-    public void drawNode(final Graphics g, final Color col) {
+    public void drawNode(final Graphics2D g, final Color col) {
         final int x = displayPosition.x;
         final int y = displayPosition.y;
 
+        g.setFont(g.getFont().deriveFont(Font.BOLD, 11));
         final FontMetrics metrics = g.getFontMetrics();
-        final String name = node.getId(); //getOperatorName();
+        final String name = node.getId();
         final Rectangle2D rect = metrics.getStringBounds(name, g);
         final int stringWidth = (int) rect.getWidth();
         setSize(Math.max(stringWidth, 50) + 10, 25);
 
-        g.setColor(Color.BLACK);
-        g.drawLine(x + 1, y + nodeHeight, x + nodeWidth, y + nodeHeight);
-        g.drawLine(x + nodeWidth, y + 1, x + nodeWidth, y + nodeHeight);
-        g.setColor(shadowColor);
-        g.drawLine(x + 2, y + nodeHeight + 1, x + nodeWidth, y + nodeHeight + 1);
-        g.drawLine(x + nodeWidth + 1, y + 2, x + nodeWidth + 1, y + nodeHeight + 1);
+        int step = 4;
+        int alpha = 96;
+        for(int i=0; i < step; ++i) {
+            g.setColor(new Color(0,0,0,alpha-(32*i)));
+            g.drawLine(x + i+1, y + nodeHeight + i, x + nodeWidth+i-1, y + nodeHeight + i);
+            g.drawLine(x + nodeWidth + i, y + i, x + nodeWidth + i, y + nodeHeight + i);
+        }
 
-        g.setColor(col);
-        g.fill3DRect(x, y, nodeWidth - 1, nodeHeight - 1, true);
+        Shape clipShape = new Rectangle(x,y,nodeWidth, nodeHeight);
+
+        g.setComposite(AlphaComposite.SrcAtop);
+        g.setPaint(new GradientPaint(x, y, col, x+nodeWidth, y+nodeHeight, col.darker()));
+        g.fill(clipShape);
+
         g.setColor(Color.blue);
         g.draw3DRect(x, y, nodeWidth - 1, nodeHeight - 1, true);
 
-        g.setColor(Color.black);
+        g.setColor(Color.BLACK);
         g.drawString(name, x + (nodeWidth - stringWidth) / 2, y + 15);
     }
 
@@ -395,7 +400,7 @@ public class GraphNode {
      * @param g   The Java2D Graphics
      * @param src the source GraphNode
      */
-    public void drawConnectionLine(final Graphics g, final GraphNode src) {
+    public void drawConnectionLine(final Graphics2D g, final GraphNode src) {
 
         final Point nodePos = displayPosition;
         final Point srcPos = src.displayPosition;
@@ -455,7 +460,7 @@ public class GraphNode {
      * @param headX position X on source node
      * @param headY position Y on source node
      */
-    private static void drawArrow(final Graphics g, final int tailX, final int tailY, final int headX, final int headY) {
+    private static void drawArrow(final Graphics2D g, final int tailX, final int tailY, final int headX, final int headY) {
 
         final double t1 = Math.abs(headY - tailY);
         final double t2 = Math.abs(headX - tailX);
@@ -483,9 +488,12 @@ public class GraphNode {
         p2.translate(tailX, tailY);
         p3.translate(tailX, tailY);
 
+        Stroke oldStroke = g.getStroke();
+        g.setStroke(new BasicStroke(2));
         g.drawLine(tailX, tailY, headX, headY);
         g.drawLine(tailX, tailY, p2.x, p2.y);
         g.drawLine(p3.x, p3.y, tailX, tailY);
+        g.setStroke(oldStroke);
     }
 
 }

@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * UI for PCA operator
  */
-public class PCAStatisticsOpUI extends BaseOperatorUI {
+public class PCAOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 

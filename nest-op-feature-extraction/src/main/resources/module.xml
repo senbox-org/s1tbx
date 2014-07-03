@@ -119,8 +119,8 @@
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
-            <text>Speckle-Divergence</text>
-            <shortDescr>Speckle-Divergence</shortDescr>
+            <text>Speckle Divergence</text>
+            <shortDescr>Speckle Divergence</shortDescr>
             <operatorName>Speckle-Divergence</operatorName>
             <dialogTitle>Urban Area Detection</dialogTitle>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
@@ -223,7 +223,7 @@
             <helpId>ChangeDetectionOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>FeatureExtractionGroup</parent>
+            <parent>PrimitiveFeatureGroup</parent>
             <text>Change Detection</text>
             <shortDescr>Change Detection</shortDescr>
 	        <operatorName>Change-Detection</operatorName>

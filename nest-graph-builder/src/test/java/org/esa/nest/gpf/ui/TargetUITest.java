@@ -56,16 +56,6 @@ public class TargetUITest extends TestCase {
         assertNotNull(component);
     }
 
-    public void testValidateParameters() {
-
-        targetUI.CreateOpTab("testOp", parameterMap, appContext);
-        UIValidation valid = targetUI.validateParameters();
-        assertFalse(valid.getState() == UIValidation.State.OK);
-
-        targetUI.targetProductSelector.getModel().setProductName("abc");
-        //todo need an existing file?
-    }
-
     public void testUpdateParameters() {
 
         targetUI.CreateOpTab("testOp", parameterMap, appContext);

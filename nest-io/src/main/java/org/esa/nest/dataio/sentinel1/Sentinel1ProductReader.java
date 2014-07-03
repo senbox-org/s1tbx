@@ -55,10 +55,10 @@ public class Sentinel1ProductReader extends SARReader {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
+     * <p>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
+     * <p>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -75,7 +75,7 @@ public class Sentinel1ProductReader extends SARReader {
     /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p/>
+     * <p>
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -86,11 +86,12 @@ public class Sentinel1ProductReader extends SARReader {
         Product product;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            final File baseFolder = fileFromInput.getParentFile();
-            if (Sentinel1ProductReaderPlugIn.isLevel1(baseFolder) || Sentinel1ProductReaderPlugIn.isLevel2(baseFolder)) {
-                dataDir = new Sentinel1Level1Directory(fileFromInput, new File(baseFolder, "measurement"));
-            } else if (Sentinel1ProductReaderPlugIn.isLevel0(baseFolder)) {
-                dataDir = new Sentinel1Level0Directory(fileFromInput, baseFolder);
+            if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
+                dataDir = new Sentinel1Level1Directory(fileFromInput);
+            } else if(Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {
+                dataDir = new Sentinel1Level2Directory(fileFromInput);
+            } else if (Sentinel1ProductReaderPlugIn.isLevel0(fileFromInput)) {
+                dataDir = new Sentinel1Level0Directory(fileFromInput);
             }
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
@@ -129,9 +130,9 @@ public class Sentinel1ProductReader extends SARReader {
                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                         bandInfo.imageID, bandInfo.bandSampleOffset);
             }
-        } else if (dataDir.isOCN()) {
+        } else if (dataDir instanceof Sentinel1Level2Directory) {
 
-            final Sentinel1Level1Directory s1L1Dir = (Sentinel1Level1Directory) dataDir;
+            final Sentinel1Level2Directory s1L1Dir = (Sentinel1Level2Directory) dataDir;
             synchronized (s1L1Dir) {
                 readLevel2OCNBand(s1L1Dir.getOCNReader(),
                         sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,

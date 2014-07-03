@@ -93,7 +93,7 @@ public class TerraSarXProductReader extends SARReader {
         Product product;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            dataDir = new TerraSarXProductDirectory(fileFromInput, new File(fileFromInput.getParentFile(), "IMAGEDATA"));
+            dataDir = new TerraSarXProductDirectory(fileFromInput);
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
             product.setFileLocation(fileFromInput);

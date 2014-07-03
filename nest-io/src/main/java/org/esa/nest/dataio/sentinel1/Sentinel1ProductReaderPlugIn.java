@@ -19,10 +19,13 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.nest.dataio.SARReader;
 import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.zip.ZipFile;
 
 /**
  * The ReaderPlugIn for Sentinel1 products.
@@ -38,35 +41,69 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
         final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
-            return DecodeQualification.UNABLE;
-        }
-        final String filename = file.getName().toUpperCase();
-        if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
-                filename.endsWith(Sentinel1Constants.getIndicationKey())) {
-            final File baseFolder = file.getParentFile();
-            if (isLevel1(baseFolder) || isLevel2(baseFolder) || isLevel0(baseFolder))
+        if (file != null) {
+            final String filename = file.getName().toUpperCase();
+            if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
+                    filename.endsWith(Sentinel1Constants.getIndicationKey())) {
+                if (isLevel1(file) || isLevel2(file) || isLevel0(file))
+                    return DecodeQualification.INTENDED;
+            }
+            if (SARReader.isZip(file) && findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
+            }
         }
+        //todo zip stream
+
         return DecodeQualification.UNABLE;
     }
 
-    public static boolean isLevel1(final File baseFolder) {
-        final File annotationFolder = new File(baseFolder, "annotation");
-        if (annotationFolder.exists()) {
-            return checkFolder(annotationFolder, ".xml");
+    static boolean findInZip(final File file, final String prefix, final String suffix) {
+        try {
+            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+
+            final Optional result = productZip.stream()
+                    .filter(ze -> !ze.isDirectory())
+                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix))
+                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix))
+                    .findFirst();
+            return result.isPresent();
+        } catch (Exception e) {
+            //
         }
-        final File measurementFolder = new File(baseFolder, "measurement");
-        return measurementFolder.exists() && checkFolder(measurementFolder, ".tiff");
+        return false;
     }
 
-    public static boolean isLevel2(final File baseFolder) {
-        final File measurementFolder = new File(baseFolder, "measurement");
-        return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
+    public static boolean isLevel1(final File file) {
+        if (SARReader.isZip(file)) {
+            return findInZip(file, "s1", ".tiff");
+        } else {
+            final File baseFolder = file.getParentFile();
+            final File annotationFolder = new File(baseFolder, "annotation");
+            if (annotationFolder.exists()) {
+                return checkFolder(annotationFolder, ".xml");
+            }
+            final File measurementFolder = new File(baseFolder, "measurement");
+            return measurementFolder.exists() && checkFolder(measurementFolder, ".tiff");
+        }
     }
 
-    public static boolean isLevel0(final File baseFolder) {
-        return checkFolder(baseFolder, ".dat");
+    public static boolean isLevel2(final File file) {
+        if (SARReader.isZip(file)) {
+            return findInZip(file, "s1", ".nc");
+        } else {
+            final File baseFolder = file.getParentFile();
+            final File measurementFolder = new File(baseFolder, "measurement");
+            return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
+        }
+    }
+
+    public static boolean isLevel0(final File file) {
+        if (SARReader.isZip(file)) {
+            return findInZip(file, "s1", ".dat");
+        } else {
+            final File baseFolder = file.getParentFile();
+            return checkFolder(baseFolder, ".dat");
+        }
     }
 
     private static boolean checkFolder(final File folder, final String extension) {
@@ -86,7 +123,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p/>
+     * <p>
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
@@ -134,7 +171,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
+     * <p>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
@@ -163,8 +200,10 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
          */
         public boolean accept(final File file) {
             if (super.accept(file)) {
-                if (file.isDirectory() || (file.getName().toUpperCase().startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
-                        file.getName().toUpperCase().endsWith(Sentinel1Constants.getIndicationKey()))) {
+                final String name = file.getName().toUpperCase();
+                if (file.isDirectory() || (name.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
+                        name.endsWith(Sentinel1Constants.getIndicationKey())) ||
+                        (name.startsWith("S1") && name.endsWith(".ZIP"))) {
                     return true;
                 }
             }

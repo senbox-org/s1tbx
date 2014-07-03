@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dataio;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -22,7 +23,6 @@ import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
-import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
 import org.jdom2.Document;
@@ -30,21 +30,20 @@ import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.InputStream;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * This class represents a product directory.
- * <p/>
- * <p>This class is public for the benefit of the implementation of another (internal) class and its API may
- * change in future releases of the software.</p>
  */
-public class XMLProductDirectory {
+public abstract class XMLProductDirectory {
 
-    private final File xmlHeader;
-    private final File baseDir;
-    private final File imgFolder;
+    private VirtualDir productDir = null;
+    private final String baseName;
+    private File baseDir;
+    private String rootFolder = null;
     private Document xmlDoc = null;
 
     private boolean isSLC = false;
@@ -54,41 +53,64 @@ public class XMLProductDirectory {
     protected transient final Map<String, ImageIOFile> bandImageFileMap = new HashMap<>(1);
     protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
 
-    protected XMLProductDirectory(final File headerFile, final File imageFolder) {
-        Guardian.assertNotNull("headerFile", headerFile);
+    protected XMLProductDirectory(final File inputFile) {
+        Guardian.assertNotNull("inputFile", inputFile);
 
-        xmlHeader = headerFile;
-        baseDir = headerFile.getParentFile();
-        imgFolder = imageFolder;
+        if (SARReader.isZip(inputFile)) {
+            productDir = VirtualDir.create(inputFile);
+            baseDir = inputFile;
+            baseName = inputFile.getName();
+        } else {
+            productDir = VirtualDir.create(inputFile.getParentFile());
+            baseDir = inputFile.getParentFile();
+            baseName = inputFile.getParentFile().getName();
+        }
+    }
+
+    protected final String getRootFolder() {
+        if (rootFolder != null)
+            return rootFolder;
+        try {
+            if (productDir.isCompressed()) {
+                final ZipFile productZip = new ZipFile(baseDir, ZipFile.OPEN_READ);
+
+                final Optional result = productZip.stream()
+                        .filter(ze -> !ze.isDirectory())
+                        .filter(ze -> ze.getName().toLowerCase().endsWith(getHeaderFileName()))
+                        .findFirst();
+                ZipEntry ze = (ZipEntry) result.get();
+                String path = ze.toString();
+                int sepIndex = path.lastIndexOf('/');
+                if (sepIndex > 0) {
+                    rootFolder = path.substring(0, sepIndex) + '/';
+                } else {
+                    rootFolder = "";
+                }
+            } else {
+                rootFolder = "";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rootFolder;
+    }
+
+    protected String getRelativePathToImageFolder() {
+        return getRootFolder();
     }
 
     public void readProductDirectory() throws IOException {
-
-        xmlDoc = XMLSupport.LoadXML(xmlHeader.getAbsolutePath());
-
-        final File[] fileList = imgFolder.listFiles();
-        if (fileList != null) {
-            for (File file : fileList) {
-                if (file.isFile()) {
-                    addImageFile(file);
-                }
-            }
-        }
+        xmlDoc = XMLSupport.LoadXML(productDir.getInputStream(getRootFolder() + getHeaderFileName()));
     }
 
-    protected void addImageFile(final File file) throws IOException {
-        final String name = file.getName().toLowerCase();
-        if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
-            final ImageIOFile img = new ImageIOFile(file, ImageIOFile.getTiffIIOReader(file));
-            bandImageFileMap.put(img.getName(), img);
+    protected abstract String getHeaderFileName();
 
-            setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
-        }
-    }
+    protected abstract void addImageFile(final Product product, final String imgPath) throws IOException;
 
-    public void setSceneWidthHeight(final int width, final int height) {
+    public void setSceneWidthHeight(final Product product, final int width, final int height) {
         sceneWidth = width;
         sceneHeight = height;
+        product.setSceneDimensions(width, height);
     }
 
     public boolean isSLC() {
@@ -99,16 +121,31 @@ public class XMLProductDirectory {
         isSLC = flag;
     }
 
+    protected boolean isCompressed() {
+        return productDir.isCompressed();
+    }
+
+    protected void findImages(final Product product) throws IOException {
+        final String parentPath = getRelativePathToImageFolder();
+        final String[] listing = productDir.list(parentPath);
+        if (listing != null) {
+            for (String imgPath : listing) {
+                addImageFile(product, parentPath + imgPath);
+            }
+        }
+    }
+
     public Product createProduct() throws Exception {
         final Product product = new Product(getProductName(),
                 getProductType(),
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
+        findImages(product);
+        addBands(product);
+
         addGeoCoding(product);
         addTiePointGrids(product);
-
-        addBands(product, sceneWidth, sceneHeight);
 
         product.setName(getProductName());
         product.setProductType(getProductType());
@@ -132,29 +169,20 @@ public class XMLProductDirectory {
         }
     }
 
-    protected void addBands(final Product product, final int width, final int height) {
-        int bandCnt = 1;
-        final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
-        for (String key : keys) {
-            final ImageIOFile img = bandImageFileMap.get(key);
+    protected abstract void addBands(final Product product);
 
-            for (int i = 0; i < img.getNumImages(); ++i) {
+    protected abstract void addGeoCoding(final Product product);
 
-                for (int b = 0; b < img.getNumBands(); ++b) {
-                    final Band band = new Band(img.getName() + bandCnt++, img.getDataType(), width, height);
-                    band.setUnit(Unit.AMPLITUDE);
-                    product.addBand(band);
-                    bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
-                }
-            }
-        }
-    }
+    protected abstract void addTiePointGrids(final Product product);
 
-    protected void addGeoCoding(final Product product) {
-    }
+    protected abstract void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException;
 
-    protected void addTiePointGrids(final Product product) {
+    protected abstract String getProductName();
 
+    protected abstract String getProductType();
+
+    protected String getProductDescription() {
+        return "";
     }
 
     protected void addMetaData(final Product product) throws IOException {
@@ -169,25 +197,44 @@ public class XMLProductDirectory {
         return xmlDoc.getRootElement();
     }
 
+    protected String[] listFiles(final String path) throws IOException {
+        final String[] listing = productDir.list(path);
+        final List<String> files = new ArrayList<>(listing.length);
+        for (String listEntry : listing) {
+            if (!isDirectory(path + '/' + listEntry)) {
+                files.add(listEntry);
+            }
+        }
+        return files.toArray(new String[files.size()]);
+    }
+
+    private boolean isDirectory(final String path) throws IOException {
+        if (productDir.isCompressed()) {
+            if (path.contains(".")) {
+                int sepIndex = path.lastIndexOf('/');
+                int dotIndex = path.lastIndexOf('.');
+                return dotIndex < sepIndex;
+            } else {
+                final ZipFile productZip = new ZipFile(baseDir, ZipFile.OPEN_READ);
+
+                final Optional result = productZip.stream()
+                        .filter(ze -> ze.isDirectory()).filter(ze -> ze.getName().equals(path)).findFirst();
+                return result.isPresent();
+            }
+        } else {
+            return productDir.getFile(path).isDirectory();
+        }
+    }
+
+    protected InputStream getInputStream(final String path) throws IOException {
+        return productDir.getInputStream(path);
+    }
+
     protected File getBaseDir() {
         return baseDir;
     }
 
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
-
-        AbstractMetadata.getAbstractedMetadata(product);
+    protected String getBaseName() {
+        return baseName;
     }
-
-    protected String getProductName() {
-        return xmlHeader.getName();
-    }
-
-    protected String getProductDescription() {
-        return "";
-    }
-
-    protected String getProductType() {
-        return "XML-based Product";
-    }
-
 }

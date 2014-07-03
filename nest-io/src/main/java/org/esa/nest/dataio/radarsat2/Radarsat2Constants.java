@@ -23,14 +23,12 @@ import java.io.File;
 public class Radarsat2Constants {
 
     private final static String[] FORMAT_NAMES = new String[]{"RADARSAT-2"};
-    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"xml"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"xml", "zip"};
     private final static String PLUGIN_DESCRIPTION = "RADARSAT-2 Products";      /*I18N*/
 
     public final static String PRODUCT_HEADER_NAME = "product.xml";
     public final static String RSM_SIM_PRODUCT_HEADER_NAME = "NEST_product.xml";
     public final static String PRODUCT_HEADER_PREFIX = "PRODUCT";
-
-    final static String PRODUCT_DESCRIPTION_PREFIX = "Radarsat2 product ";
 
     private final static String INDICATION_KEY = "XML";
 

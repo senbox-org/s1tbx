@@ -15,38 +15,29 @@
  */
 package org.esa.nest.dataio.orbits;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.Assert;
 
 /**
  * OrbitalDataRecordReader Tester.
  *
  * @author lveci
  */
-public class TestOrbitalDataRecordReader extends TestCase {
+public class TestOrbitalDataRecordReader {
 
     String envisatOrbitFilePath = "org/esa/nest/data/envisat_ODR.051";
     String ers1OrbitFilePath = "org/esa/nest/data/ers1_ODR.079";
     String ers2OrbitFilePath = "org/esa/nest/data/ers2_ODR.015";
 
-    public TestOrbitalDataRecordReader(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testOpenFile() {
 
         OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
-        assertTrue(reader.OpenOrbitFile(envisatOrbitFilePath));
+        Assert.assertTrue(reader.OpenOrbitFile(envisatOrbitFilePath));
     }
 
+    @Test
     public void testReadHeader() {
 
         OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
@@ -55,29 +46,34 @@ public class TestOrbitalDataRecordReader extends TestCase {
 
             reader.parseHeader1();
             reader.parseHeader2();
-        } else
-            assertTrue(false);
+        } else {
+            Assert.assertTrue(false);
+        }
     }
 
+    @Test
     public void testReadERS1OrbitFiles() throws Exception {
         System.out.print("ERS1 ORD ");
         readOrbitFile(ers1OrbitFilePath);
     }
 
+    @Test
     public void testReadERS2OrbitFile() throws Exception {
         System.out.print("ERS2 ORD ");
         readOrbitFile(ers2OrbitFilePath);
     }
 
+    @Test
     public void testReadEnvisatOrbitFile() throws Exception {
         System.out.print("Envisat ORD ");
         readOrbitFile(envisatOrbitFilePath);
     }
 
+    @Test
     public static void readOrbitFile(String path) throws Exception {
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
         boolean res = reader.readOrbitFile(path);
-        assertTrue(res);
+        assert(res);
 
         OrbitalDataRecordReader.OrbitDataRecord[] orbits = reader.getDataRecords();
         System.out.print("Num Orbits " + orbits.length);

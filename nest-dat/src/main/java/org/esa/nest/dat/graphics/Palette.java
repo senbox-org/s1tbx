@@ -1,4 +1,4 @@
-package org.esa.nest.dat.utils;
+package org.esa.nest.dat.graphics;
 
 import java.awt.*;
 
