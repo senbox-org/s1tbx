@@ -18,6 +18,8 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Test;
@@ -57,6 +59,37 @@ public class Nc4ReaderTest {
 
         testStartTime(product);
         testEndTime(product);
+    }
+
+    @Test
+    public void testVariableAttributes() throws Exception {
+        final URL url = Nc4ReaderTest.class.getResource("test.nc");
+        final String path = URLDecoder.decode(url.getPath(), "UTF-8");
+        final File file = new File(path);
+        final ProductReader reader = new CfNetCdfReaderPlugIn().createReaderInstance();
+
+        // default case: up to 100 values are read
+        final Product defaultProduct = reader.readProductNodes(file.getPath(), null);
+        MetadataElement defaultLonElement = defaultProduct.getMetadataRoot().getElement("Variable_Attributes").getElement("lon");
+        MetadataAttribute defaultLonValues = defaultLonElement.getElement("Values").getAttribute("data");
+        long defaultLonValueCount = defaultLonValues.getNumDataElems();
+        assertEquals(5, defaultLonValueCount);
+
+        // constraining number of read values
+        System.setProperty("beam.netcdf.metadataElementLimit", "3");
+        final Product constrainedProduct = reader.readProductNodes(file.getPath(), null);
+        MetadataElement constrainedLonElement = constrainedProduct.getMetadataRoot().getElement("Variable_Attributes").getElement("lon");
+        MetadataAttribute constrainedLonValues = constrainedLonElement.getElement("Values").getAttribute("data");
+        long constrainedLonValueCount = constrainedLonValues.getNumDataElems();
+        assertEquals(3, constrainedLonValueCount);
+                
+        // removing constrains of number of read values
+        System.setProperty("beam.netcdf.metadataElementLimit", "-1");
+        final Product unconstrainedProduct = reader.readProductNodes(file.getPath(), null);
+        MetadataElement unconstrainedLonElement = unconstrainedProduct.getMetadataRoot().getElement("Variable_Attributes").getElement("lon");
+        MetadataAttribute unconstrainedLonValues = unconstrainedLonElement.getElement("Values").getAttribute("data");
+        long unconstrainedLonValueCount = unconstrainedLonValues.getNumDataElems();
+        assertEquals(5, unconstrainedLonValueCount);
     }
 
     private void testStartTime(final Product product) {

@@ -32,6 +32,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0.1</b><br/>
+        [BEAM-1695] Add configuration of metadata values limitation for NetCDF reader<br/>
         [BEAM-1681] Modis MOD09 product used wrong semi_major and semi_minor values<br/>
         <b>Changes in 5.0</b><br/>
         [BEAM-1506] Scalar variables are wrongly written to NetCDF4<br/>

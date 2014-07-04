@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -40,13 +41,14 @@ public class MetadataUtils {
 
     public static final String GLOBAL_ATTRIBUTES = "Global_Attributes";
     public static final String VARIABLE_ATTRIBUTES = "Variable_Attributes";
-    private static final int DEFAULT_MAX_NUM_VALUES_READ = 100;
+    private static final String PROPERTY_KEY_METADATA_ELEMENT_LIMIT = "beam.netcdf.metadataElementLimit";
+    private static final String DEFAULT_MAX_NUM_VALUES_READ = "100";
 
     private MetadataUtils() {
     }
 
     public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root) {
-        readNetcdfMetadata(netcdfFile, root, DEFAULT_MAX_NUM_VALUES_READ);
+        readNetcdfMetadata(netcdfFile, root, getMaxNumValuesRead());
     }
 
     public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root, int maxNumValuesRead) {
@@ -94,7 +96,7 @@ public class MetadataUtils {
 
     public static MetadataElement readVariableDescriptions(final List<Variable> variableList,
                                                            String elementName) {
-        return readVariableDescriptions(variableList, elementName, DEFAULT_MAX_NUM_VALUES_READ);
+        return readVariableDescriptions(variableList, elementName, getMaxNumValuesRead());
     }
 
     public static MetadataElement readVariableDescriptions(final List<Variable> variableList,
@@ -104,6 +106,15 @@ public class MetadataUtils {
             metadataElement.addElement(createMetadataElement(variable, maxNumValuesRead));
         }
         return metadataElement;
+    }
+
+    private static int getMaxNumValuesRead() {
+        String maxNumValuesRead = System.getProperty(PROPERTY_KEY_METADATA_ELEMENT_LIMIT);
+        if (maxNumValuesRead == null) {
+            BeamLogManager.getSystemLogger().warning("Missing system property '" + PROPERTY_KEY_METADATA_ELEMENT_LIMIT + ". Falling back to default");
+            maxNumValuesRead = DEFAULT_MAX_NUM_VALUES_READ;
+        }
+        return Integer.parseInt(maxNumValuesRead);
     }
 
     private static MetadataElement createMetadataElement(Variable variable, int maxNumValuesRead) {
@@ -138,7 +149,7 @@ public class MetadataUtils {
         final Array values;
         try {
             long variableSize = variable.getSize();
-            if (variable.getRank() == 1 && variableSize >= maxNumValuesRead) {
+            if (variableSize >= maxNumValuesRead && maxNumValuesRead >= 0) {
                 values = variable.read(new int[]{0}, new int[]{maxNumValuesRead});
                 valuesElem.setDescription("Showing " + maxNumValuesRead + " of " + variableSize + " values.");
             } else {
@@ -147,9 +158,7 @@ public class MetadataUtils {
             final ProductData pd = ReaderUtils.createProductData(productDataType, values);
             final MetadataAttribute attribute = new MetadataAttribute("data", pd, true);
             valuesElem.addAttribute(attribute);
-        } catch (IOException e) {
-            Debug.trace(e);
-        } catch (InvalidRangeException e) {
+        } catch (IOException | InvalidRangeException e) {
             Debug.trace(e);
         }
     }
