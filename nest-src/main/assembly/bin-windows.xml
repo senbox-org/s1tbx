@@ -102,6 +102,7 @@
 							<exclude>org.jlinda:jlinda-core</exclude>
 							<exclude>org.esa.pfa:pfa-core</exclude>
 							<exclude>org.esa.pfa:pfa-database</exclude>
+							<exclude>org.csa.rstb:rstb-classification</exclude>
 							<exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                         </excludes>
