@@ -122,16 +122,20 @@ public class DatApp extends VisatApp {
         super.configureJaiTileCache();
     }
 
+    protected void loadLayout() {
+        final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
+        if (getStarted == null || getStarted.equals("true")) {
+            LoadTabbedLayoutAction.loadTabbedLayout();
+
+            HelpSys.showTheme("top");
+            VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
+        } else {
+            getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
+        }
+    }
+
     protected void postInit() {
         try {
-            final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
-            if (getStarted == null || getStarted.equals("true")) {
-                LoadTabbedLayoutAction.loadTabbedLayout();
-
-                HelpSys.showTheme("top");
-                VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
-            }
-
             //disable JAI media library
             System.setProperty("com.sun.media.jai.disableMediaLib", "true");
 
