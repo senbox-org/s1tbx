@@ -1015,7 +1015,7 @@
 						<descriptor>nest-src/main/assembly/bin-mac.xml</descriptor>
 						<descriptor>nest-src/main/assembly/repository.xml</descriptor>
 						<descriptor>nest-src/main/assembly/web-help.xml</descriptor>
-                        <descriptor>nest-src/main/assembly/src.xml</descriptor>
+                        <!--descriptor>nest-src/main/assembly/src.xml</descriptor-->
                     </descriptors>
                 </configuration>
             </plugin>
