@@ -52,7 +52,7 @@
         </fileSet>
 		
 		<fileSet>
-            <directory>../../dist/jdk7/win64/jre</directory>
+            <directory>../../dist/jdk8/win64/jre</directory>
             <outputDirectory>jre</outputDirectory>
         </fileSet>
     </fileSets>

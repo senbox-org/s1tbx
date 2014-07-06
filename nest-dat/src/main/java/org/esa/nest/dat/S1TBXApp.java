@@ -130,7 +130,11 @@ public final class S1TBXApp extends DatApp {
     @Override
     protected void initClientUI(ProgressMonitor pm) {
         super.initClientUI(pm);
-        getMainFrame().setIconImage(ResourceUtils.s1Icon.getImage());
+        try {
+            getMainFrame().setIconImage(ResourceUtils.s1Icon.getImage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void loadJideExtension() {

@@ -55,7 +55,7 @@
         </fileSet>
 		
 		<fileSet>
-            <directory>../../dist/jdk7/linux/jre</directory>
+            <directory>../../dist/jdk8/linux32/jre</directory>
             <outputDirectory>jre</outputDirectory>
 			<fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
