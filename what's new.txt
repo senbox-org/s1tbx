@@ -2,7 +2,14 @@
 ### New in S1TBX 0.1
 #################################################
 
-* Everything!
+Harmonized common Sentinel code base from BEAM and NEST
+Polarimetric tools from the RADARSAT-2 Toolbox
+Reading of S1 level=0, level-1 and level-2
+TOPSAR deburst and merge
+S-1 Calibration and de-noising
+Performance improvements and more...
+
+Please note, this is an ESA internal release. The first public stable release of the toolbox will be in September.
 
 
 
