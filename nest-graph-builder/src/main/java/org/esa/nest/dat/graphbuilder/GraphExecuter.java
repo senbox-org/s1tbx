@@ -42,8 +42,6 @@ import java.util.*;
 
 public class GraphExecuter extends Observable {
 
-    public final static String LAST_GRAPH_PATH = "graphbuilder.last_graph_path";
-
     private final GPF gpf;
     private Graph graph;
     private GraphContext graphContext = null;
@@ -146,13 +144,16 @@ public class GraphExecuter extends Observable {
 
     public static OperatorUI CreateOperatorUI(final String operatorName) {
 
-        OperatorUIDescriptor desc = OperatorUIRegistry.getInstance().getOperatorUIDescriptor(operatorName);
-        if(desc != null) {
-            return desc.createOperatorUI();
-        }
-        desc = OperatorUIRegistry.getInstance().getOperatorUIDescriptor("DefaultUI");
-        if(desc != null) {
-            return desc.createOperatorUI();
+        final OperatorUIRegistry reg = OperatorUIRegistry.getInstance();
+        if(reg != null) {
+            OperatorUIDescriptor desc = reg.getOperatorUIDescriptor(operatorName);
+            if (desc != null) {
+                return desc.createOperatorUI();
+            }
+            desc = OperatorUIRegistry.getInstance().getOperatorUIDescriptor("DefaultUI");
+            if (desc != null) {
+                return desc.createOperatorUI();
+            }
         }
         return new DefaultUI();
     }

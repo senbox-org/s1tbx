@@ -35,6 +35,7 @@ import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.eo.SARUtils;
 import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileIndex;
@@ -183,7 +184,7 @@ public class ALOSDeskewingOp extends Operator {
 
         slantRangeToFirstPixel = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.slant_range_to_first_pixel);
 
-        radarWaveLength = OperatorUtils.getRadarFrequency(absRoot);
+        radarWaveLength = SARUtils.getRadarFrequency(absRoot);
     }
 
     /**

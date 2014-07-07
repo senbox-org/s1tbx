@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.nest.gpf.GPFProcessor;
 import org.esa.nest.util.MemUtils;
-import org.esa.nest.util.ProcessTimeMonitor;
+import org.esa.nest.gpf.ProcessTimeMonitor;
 import org.esa.nest.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;

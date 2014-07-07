@@ -36,10 +36,7 @@ import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.eo.LocalGeometry;
-import org.esa.nest.eo.SARGeocoding;
+import org.esa.nest.eo.*;
 import org.esa.nest.gpf.*;
 import org.esa.nest.util.ResourceUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -358,7 +355,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
-        wavelength = OperatorUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarFrequency(absRoot);
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);

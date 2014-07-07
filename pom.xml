@@ -880,8 +880,8 @@
 	                <artifactId>maven-compiler-plugin</artifactId>
 					<version>3.1</version>
 	                <configuration>
-	                    <source>1.7</source>
-	                    <target>1.7</target>
+	                    <source>1.8</source>
+	                    <target>1.8</target>
 	                    <debug>true</debug>
 	                    <encoding>ISO-8859-1</encoding>
 						<optimize>true</optimize>
@@ -1015,7 +1015,7 @@
 						<descriptor>nest-src/main/assembly/bin-mac.xml</descriptor>
 						<descriptor>nest-src/main/assembly/repository.xml</descriptor>
 						<descriptor>nest-src/main/assembly/web-help.xml</descriptor>
-                        <descriptor>nest-src/main/assembly/src.xml</descriptor>
+                        <!--descriptor>nest-src/main/assembly/src.xml</descriptor-->
                     </descriptors>
                 </configuration>
             </plugin>

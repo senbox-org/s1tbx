@@ -26,10 +26,11 @@ import java.text.DateFormat;
 public class Sentinel1Constants {
 
     private final static String[] FORMAT_NAMES = new String[]{"SENTINEL-1"};
-    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe", "zip"};
     private final static String PLUGIN_DESCRIPTION = "SENTINEL-1 Products";      /*I18N*/
 
     public final static String PRODUCT_HEADER_PREFIX = "MANIFEST";
+    public final static String PRODUCT_HEADER_NAME = "manifest.safe";
 
     private final static String INDICATION_KEY = "SAFE";
 

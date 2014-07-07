@@ -7,9 +7,8 @@
     </formats>
     <fileSets>
         <fileSet>
+			<directory>../s1tbx</directory>
             <excludes>
-				<exclude>**/.svnignore</exclude>
-                <exclude>**/.cvsignore</exclude>
 				<exclude>**/.gitignore</exclude>
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iml</exclude>
@@ -20,14 +19,7 @@
 				<exclude>**/.idea/**</exclude>
                 <exclude>**/target/**</exclude>
 				<exclude>**/output/**</exclude>
-                <exclude>**/CVS/**</exclude>
-				<exclude>**/.svn/**</exclude>
 				<exclude>**/.git/**</exclude>
-				<exclude>Algorithms/**</exclude>
-                <exclude>beam/modules/**</exclude>
-                <exclude>beam/testdata/**</exclude>
-                <exclude>beam/log/**</exclude>
-                <exclude>beam/beam-integration-tests/**</exclude>
             </excludes>
         </fileSet>
     </fileSets>

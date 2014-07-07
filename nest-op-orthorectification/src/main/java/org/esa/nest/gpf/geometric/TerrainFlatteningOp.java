@@ -37,6 +37,7 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.eo.SARUtils;
 import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileIndex;
@@ -186,7 +187,7 @@ public final class TerrainFlatteningOp extends Operator {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
-        wavelength = OperatorUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days

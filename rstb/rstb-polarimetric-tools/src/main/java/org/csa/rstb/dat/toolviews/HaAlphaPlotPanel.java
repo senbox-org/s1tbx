@@ -32,7 +32,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.toolviews.stat.*;
-import org.esa.nest.dat.utils.Palette;
+import org.esa.nest.dat.graphics.Palette;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

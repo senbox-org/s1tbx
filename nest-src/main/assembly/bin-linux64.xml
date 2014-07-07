@@ -56,7 +56,7 @@
         </fileSet>
 		
 		<fileSet>
-            <directory>../../dist/jdk7/linux64/jre</directory>
+            <directory>../../dist/jdk8/linux64/jre</directory>
             <outputDirectory>jre</outputDirectory>
 			<fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
@@ -108,6 +108,7 @@
 							<exclude>org.jlinda:jlinda-core</exclude>
 							<exclude>org.esa.pfa:pfa-core</exclude>
 							<exclude>org.esa.pfa:pfa-database</exclude>
+							<exclude>org.csa.rstb:rstb-classification</exclude>
 							<exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                         </excludes>

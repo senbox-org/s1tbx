@@ -23,8 +23,8 @@ import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
@@ -32,8 +32,11 @@ import org.esa.nest.util.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -44,27 +47,42 @@ import java.util.StringTokenizer;
 public class Sentinel1Level1Directory extends XMLProductDirectory implements Sentinel1Directory {
 
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
-    private Sentinel1OCNReader OCNReader = null;
     private String acqMode = "";
 
-    public Sentinel1Level1Directory(final File headerFile, final File imageFolder) {
-        super(headerFile, imageFolder);
+    public Sentinel1Level1Directory(final File inputFile) {
+        super(inputFile);
     }
 
-    protected void addImageFile(final File file) throws IOException {
-        final String name = file.getName().toLowerCase();
-        if (name.endsWith("tiff")) {
-            final ImageIOFile img = new ImageIOFile(file);
+    protected String getHeaderFileName() {
+        return Sentinel1Constants.PRODUCT_HEADER_NAME;
+    }
+
+    protected String getRelativePathToImageFolder() {
+        return getRootFolder() + "measurement" + '/';
+    }
+
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
+        final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
+        if ((name.endsWith("tiff"))) {
+            final InputStream inStream = getInputStream(imgPath);
+            final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+            if (imgStream == null)
+                throw new IOException("Unable to open " + imgPath);
+
+            final ImageIOFile img;
+            if(isSLC()) {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 1, ProductData.TYPE_INT32);
+            } else {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 1, ProductData.TYPE_INT32);
+            }
             bandImageFileMap.put(img.getName(), img);
-        } else if (name.endsWith(".nc")) {
-            if (OCNReader == null)
-                OCNReader = new Sentinel1OCNReader(this);
-            OCNReader.addImageFile(file, name);
         }
     }
 
     @Override
-    protected void addBands(final Product product, final int productWidth, final int productHeight) {
+    protected void addBands(final Product product) {
 
         String bandName;
         boolean real = true;
@@ -150,6 +168,18 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(product);
 
+        addManifestMetadata(product, absRoot, origProdRoot, false);
+        acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
+
+        // get metadata for each band
+        addBandAbstractedMetadata(product, absRoot, origProdRoot);
+        addCalibrationAbstractedMetadata(origProdRoot);
+        addNoiseAbstractedMetadata(origProdRoot);
+    }
+
+    static void addManifestMetadata(final Product product, final MetadataElement absRoot,
+                                     final MetadataElement origProdRoot, boolean isOCN) {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
@@ -157,7 +187,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final MetadataElement informationPackageMap = XFDU.getElement("informationPackageMap");
         final MetadataElement contentUnit = informationPackageMap.getElement("contentUnit");
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, product.getName());
         final String descriptor = contentUnit.getAttributeString("textInfo", defStr);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
         product.setDescription(descriptor);
@@ -200,7 +230,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                 final MetadataElement instrument = platform.getElement("instrument");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, instrument.getAttributeString("swath", defStr));
-                acqMode = instrument.getAttributeString("mode", defStr);
+                String acqMode = instrument.getAttributeString("mode", defStr);
                 if (acqMode == null || acqMode.equals(defStr)) {
                     final MetadataElement extensionElem = instrument.getElement("extension");
                     if (extensionElem != null) {
@@ -219,7 +249,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
 
                 String pass = orbitReference.getAttributeString("pass", defStr);
-                if(pass.equals(defStr)) {
+                if (pass.equals(defStr)) {
                     final MetadataElement extension = orbitReference.getElement("extension");
                     final MetadataElement orbitProperties = extension.getElement("orbitProperties");
                     pass = orbitProperties.getAttributeString("pass", defStr);
@@ -233,7 +263,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
 
                 String productType = "unknown";
-                if (OCNReader != null) {
+                if (isOCN) {
                     productType = "OCN";
                 } else {
                     if (generalProductInformation != null)
@@ -242,7 +272,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if (productType.contains("SLC")) {
-                    setSLC(true);
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "COMPLEX");
                 } else {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
@@ -250,18 +279,13 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 }
             }
         }
-
-        // get metadata for each band
-        addBandAbstractedMetadata(product, absRoot, origProdRoot);
-        addCalibrationAbstractedMetadata(origProdRoot);
-        addNoiseAbstractedMetadata(origProdRoot);
-
-        determineProductDimensions(product, absRoot);
     }
 
-    private void determineProductDimensions(final Product product, final MetadataElement absRoot) throws IOException {
+    private void determineProductDimensions(final Product product) throws IOException {
         int width = 0, height = 0;
         int totalWidth = 0, maxHeight = 0;
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
@@ -273,7 +297,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
             totalWidth += width;
-            if(height > maxHeight) {
+            if (height > maxHeight) {
                 maxHeight = height;
             }
         }
@@ -292,13 +316,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             annotationElement = new MetadataElement("annotation");
             origProdRoot.addElement(annotationElement);
         }
-        final File annotationFolder = new File(getBaseDir(), "annotation");
-        final File[] files = annotationFolder.listFiles();
-        if (files == null && OCNReader != null) {
-            // add netcdf metadata for OCN product
-            OCNReader.addNetCDFMetadataAndBands(product, annotationElement);
-            return;
-        }
 
         // collect range and azimuth spacing
         double rangeSpacingTotal = 0;
@@ -306,13 +323,13 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         boolean commonMetadataRetrieved = false;
 
         int numBands = 0;
-        for (File metadataFile : files) {
-            if (!metadataFile.isFile())
-                continue;
+        final String annotFolder = getRootFolder() + "annotation";
+        final String[] filenames = listFiles(annotFolder);
+        for (String metadataFile : filenames) {
 
-            Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+            final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder+'/'+metadataFile));
             final Element rootElement = xmlDoc.getRootElement();
-            final MetadataElement nameElem = new MetadataElement(metadataFile.getName());
+            final MetadataElement nameElem = new MetadataElement(metadataFile);
             annotationElement.addElement(nameElem);
             AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
 
@@ -327,12 +344,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
             final String bandRootName = AbstractMetadata.BAND_PREFIX + swath + '_' + pol;
             final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
-            final String imgName = FileUtils.exchangeExtension(metadataFile.getName(), ".tiff");
+            final String imgName = FileUtils.exchangeExtension(metadataFile, ".tiff");
             imgBandMetadataMap.put(imgName, bandRootName);
 
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile.getName());
+            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile);
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
 
@@ -410,16 +427,15 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             calibrationElement = new MetadataElement("calibration");
             origProdRoot.addElement(calibrationElement);
         }
-        final File calFolder = new File(getBaseDir(), "annotation" + File.separator + "calibration");
-        final File[] files = calFolder.listFiles();
-        if (files == null) return;
+        final String calibFolder = getRootFolder() + "annotation" +'/'+"calibration";
+        final String[] filenames = listFiles(calibFolder);
 
-        for (File metadataFile : files) {
-            if (metadataFile.getName().startsWith("calibration")) {
+        for (String metadataFile : filenames) {
+            if (metadataFile.startsWith("calibration")) {
 
-                Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+                final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder+'/'+metadataFile));
                 final Element rootElement = xmlDoc.getRootElement();
-                final String name = metadataFile.getName().replace("calibration-", "");
+                final String name = metadataFile.replace("calibration-", "");
                 final MetadataElement nameElem = new MetadataElement(name);
                 calibrationElement.addElement(nameElem);
                 AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
@@ -434,16 +450,15 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             noiseElement = new MetadataElement("noise");
             origProdRoot.addElement(noiseElement);
         }
-        final File calFolder = new File(getBaseDir(), "annotation" + File.separator + "calibration");
-        final File[] files = calFolder.listFiles();
-        if (files == null) return;
+        final String calibFolder = getRootFolder() + "annotation" +'/'+"calibration";
+        final String[] filenames = listFiles(calibFolder);
 
-        for (File metadataFile : files) {
-            if (metadataFile.getName().startsWith("noise")) {
+        for (String metadataFile : filenames) {
+            if (metadataFile.startsWith("noise")) {
 
-                Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+                final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder+'/'+metadataFile));
                 final Element rootElement = xmlDoc.getRootElement();
-                final String name = metadataFile.getName().replace("noise-", "");
+                final String name = metadataFile.replace("noise-", "");
                 final MetadataElement nameElem = new MetadataElement(name);
                 noiseElement.addElement(nameElem);
                 AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
@@ -599,6 +614,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         TiePointGrid lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
         if (latGrid != null && lonGrid != null) {
             setLatLongMetadata(product, latGrid, lonGrid);
+
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            product.setGeoCoding(tpGeoCoding);
             return;
         }
 
@@ -821,24 +839,16 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     @Override
     protected String getProductName() {
-        String name = getBaseDir().getName();
+        String name = getBaseName();
         if (name.toUpperCase().endsWith(".SAFE"))
             return name.substring(0, name.length() - 5);
+        else if (name.toUpperCase().endsWith(".ZIP"))
+            return name.substring(0, name.length() - 4);
         return name;
     }
 
     protected String getProductType() {
-        if (OCNReader != null)
-            return "Level-2 OCN";
         return "Level-1";
-    }
-
-    public boolean isOCN() {
-        return OCNReader != null;
-    }
-
-    public Sentinel1OCNReader getOCNReader() {
-        return OCNReader;
     }
 
     private static void getListInEvenlySpacedGrid(
@@ -922,9 +932,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
-        addTiePointGrids(product); // empty
+        findImages(product);
+        determineProductDimensions(product);
 
-        addBands(product, sceneWidth, sceneHeight);
+        addBands(product);
         addGeoCoding(product);
 
         product.setName(getProductName());

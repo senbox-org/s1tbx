@@ -16,10 +16,12 @@
 package org.esa.nest.dat;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import com.jidesoft.status.LabelStatusBarItem;
+import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.dataio.ProductCache;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -32,6 +34,8 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.util.ResourceInstaller;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.stat.*;
 import org.esa.nest.dat.actions.LoadTabbedLayoutAction;
@@ -49,10 +53,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 public class DatApp extends VisatApp {
 
@@ -116,16 +122,20 @@ public class DatApp extends VisatApp {
         super.configureJaiTileCache();
     }
 
+    protected void loadLayout() {
+        final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
+        if (getStarted == null || getStarted.equals("true")) {
+            LoadTabbedLayoutAction.loadTabbedLayout();
+
+            HelpSys.showTheme("top");
+            VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
+        } else {
+            getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
+        }
+    }
+
     protected void postInit() {
         try {
-            final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
-            if (getStarted == null || getStarted.equals("true")) {
-                LoadTabbedLayoutAction.loadTabbedLayout();
-
-                HelpSys.showTheme("top");
-                VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
-            }
-
             //disable JAI media library
             System.setProperty("com.sun.media.jai.disableMediaLib", "true");
 
@@ -136,10 +146,37 @@ public class DatApp extends VisatApp {
 
             UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
 
+            installDefaultColorPalettes();
+
             backgroundInitTasks();
         } catch (Throwable t) {
             VisatApp.getApp().showErrorDialog("PostInit failed. " + t.toString());
         }
+    }
+
+    private void installDefaultColorPalettes() {
+        final URL codeSourceUrl = this.getClass().getProtectionDomain().getCodeSource().getLocation();
+        final File auxdataDir = new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/color-palettes");
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/",
+                auxdataDir);
+        ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(getMainFrame(),
+                "Installing Auxdata...") {
+            @Override
+            protected Object doInBackground(ProgressMonitor progressMonitor) throws Exception {
+                resourceInstaller.install(".*.cpd", progressMonitor);
+                return Boolean.TRUE;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                } catch (Exception e) {
+                    getLogger().log(Level.SEVERE, "Could not install auxdata", e);
+                }
+            }
+        };
+        swingWorker.executeWithBlocking();
     }
 
     protected void disableOperatorPlugins() {

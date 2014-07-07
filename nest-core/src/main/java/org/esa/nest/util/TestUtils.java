@@ -57,6 +57,7 @@ public class TestUtils {
     public final static String rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
     public final static String rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
     public final static String rootPathRadarsat1 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat1");
+    public final static String rootPathSentinel1 = testPreferences.getPropertyString(contextID + ".test.rootPathSentinel1");
     public final static String rootPathERS = testPreferences.getPropertyString(contextID + ".test.rootPathERS");
     public final static String rootPathJERS = testPreferences.getPropertyString(contextID + ".test.rootPathJERS");
     public final static String rootPathALOS = testPreferences.getPropertyString(contextID + ".test.rootPathALOS");
@@ -139,13 +140,29 @@ public class TestUtils {
         product.setGeoCoding(tpGeoCoding);
     }
 
-    public static void verifyProduct(final Product product, final boolean verifyTimes,
-                                     final boolean verifyGeoCoding) throws Exception {
-        ReaderUtils.verifyProduct(product, verifyTimes, verifyGeoCoding);
-
-        // readPixels: execute computeTiles()
-        final float[] floatValues = new float[100];
-        product.getBandAt(0).readPixels(0, 0, 10, 10, floatValues, ProgressMonitor.NULL);
+    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding) throws Exception {
+        if (product == null)
+            throw new Exception("product is null");
+        if (verifyGeoCoding && product.getGeoCoding() == null) {
+            System.out.println("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
+            //throw new Exception("geocoding is null");
+        }
+        if (product.getMetadataRoot() == null)
+            throw new Exception("metadataroot is null");
+        if (product.getNumBands() == 0)
+            throw new Exception("numbands is zero");
+        if (product.getProductType() == null || product.getProductType().isEmpty())
+            throw new Exception("productType is null");
+        if (verifyTimes) {
+            if (product.getStartTime() == null)
+                throw new Exception("startTime is null");
+            if (product.getEndTime() == null)
+                throw new Exception("endTime is null");
+        }
+        for (Band b : product.getBands()) {
+            if (b.getUnit() == null || b.getUnit().isEmpty())
+                throw new Exception("band " + b.getName() + " has null unit");
+        }
     }
 
     public static void attributeEquals(final MetadataElement elem, final String name,
@@ -280,7 +297,7 @@ public class TestUtils {
     public static void executeOperator(final Operator op) throws Exception {
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        verifyProduct(targetProduct, false, false);
 
         final Band targetBand = targetProduct.getBandAt(0);
         if (targetBand == null)
@@ -394,7 +411,7 @@ public class TestUtils {
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))
                         continue;
 
-                    TestUtils.verifyProduct(sourceProduct, false, false);
+                    verifyProduct(sourceProduct, false, false);
 
                     final Operator op = spi.createOperator();
                     op.setSourceProduct(sourceProduct);
@@ -514,7 +531,7 @@ public class TestUtils {
                     final Product product = reader.readProductNodes(file, null);
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
                         continue;
-                    ReaderUtils.verifyProduct(product, true);
+                    verifyProduct(product, true, true);
                     ++iterations;
 
                     if (maxIteration > 0 && iterations >= maxIteration)
@@ -540,12 +557,12 @@ public class TestUtils {
         return iterations;
     }
 
-    public static boolean skipTest(final TestCase obj) throws Exception {
+    public static boolean skipTest(final Object obj) throws Exception {
         if (DEBUG) {
-            System.out.println(obj.getClass().getName() + ':' + obj.getName() + " skipped");
+            System.out.println(obj.getClass().getName() + ':' + obj.getClass().getEnclosingMethod().getName() + " skipped");
         }
         if (FailOnSkip) {
-            throw new Exception(obj.getClass().getName() + ':' + obj.getName() + " skipped");
+            throw new Exception(obj.getClass().getName() + ':' + obj.getClass().getEnclosingMethod().getName() + " skipped");
         }
         return true;
     }

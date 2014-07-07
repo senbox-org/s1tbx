@@ -52,7 +52,7 @@
         </fileSet>
 		
 		<fileSet>
-            <directory>../../dist/jdk7/win/jre</directory>
+            <directory>../../dist/jdk8/win32/jre</directory>
             <outputDirectory>jre</outputDirectory>
         </fileSet>
     </fileSets>
@@ -102,6 +102,7 @@
 							<exclude>org.jlinda:jlinda-core</exclude>
 							<exclude>org.esa.pfa:pfa-core</exclude>
 							<exclude>org.esa.pfa:pfa-database</exclude>
+							<exclude>org.csa.rstb:rstb-classification</exclude>
 							<exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                         </excludes>

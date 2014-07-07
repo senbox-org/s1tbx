@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf.geometric;
 
-import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
@@ -35,15 +34,11 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.eo.LocalGeometry;
-import org.esa.nest.eo.SARGeocoding;
+import org.esa.nest.eo.*;
 import org.esa.nest.gpf.CalibrationOp;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
-import org.esa.nest.util.MathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -368,7 +363,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
-        wavelength = OperatorUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarFrequency(absRoot);
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         if (rangeSpacing <= 0.0) {

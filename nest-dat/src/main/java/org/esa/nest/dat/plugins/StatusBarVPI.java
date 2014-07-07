@@ -25,7 +25,7 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.layers.GraphicsUtils;
+import org.esa.nest.dat.graphics.GraphicText;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 
 import javax.swing.event.InternalFrameAdapter;
@@ -135,7 +135,7 @@ public class StatusBarVPI extends AbstractVisatPlugIn {
                         PixelPos pixelPos = ScreenPixelConverter.computeLevelZeroPixelPos(imageLayer,
                                 pixelX, pixelY, currentLevel);
 
-                        valueStatusBarItem.setText(GraphicsUtils.padString(
+                        valueStatusBarItem.setText(GraphicText.padString(
                                 band.getPixelString((int) pixelPos.getX(), (int) pixelPos.getY()), 15));
                     }
                 }

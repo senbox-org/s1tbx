@@ -76,6 +76,10 @@ public class ProductDB extends DAO {
         super(DEFAULT_PRODUCT_DATABASE_NAME);
     }
 
+    public boolean isReady() {
+        return productTable != null;
+    }
+
     @Override
     protected boolean createTables(final Connection connection) throws SQLException {
         this.dbConnection = connection;
@@ -209,6 +213,9 @@ public class ProductDB extends DAO {
     }
 
     public String[] getAllMissions() throws SQLException {
+        if(productTable == null) {
+            return new String[] {};
+        }
         return productTable.getAllMissions();
     }
 

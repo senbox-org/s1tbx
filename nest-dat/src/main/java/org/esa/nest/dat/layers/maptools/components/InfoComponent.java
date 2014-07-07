@@ -17,7 +17,7 @@ package org.esa.nest.dat.layers.maptools.components;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.nest.dat.layers.GraphicsUtils;
+import org.esa.nest.dat.graphics.GraphicText;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.datamodel.AbstractMetadata;
 
@@ -70,7 +70,7 @@ public class InfoComponent implements MapToolsComponent {
         int y = pt[0].y;
 
         for (String str : infoList) {
-            GraphicsUtils.outlineText(g, Color.YELLOW, str, x, y);
+            GraphicText.outlineText(g, Color.YELLOW, str, x, y);
             y += h;
         }
     }

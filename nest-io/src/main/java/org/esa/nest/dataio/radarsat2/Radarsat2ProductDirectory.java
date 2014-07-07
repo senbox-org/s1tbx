@@ -27,8 +27,11 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
 
@@ -44,19 +47,47 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
 
-    private final transient Map<String, String> polarizationMap = new HashMap<String, String>(4);
+    private final transient Map<String, String> polarizationMap = new HashMap<>(4);
 
-    public Radarsat2ProductDirectory(final File headerFile, final File imageFolder) {
-        super(headerFile, imageFolder);
+    public Radarsat2ProductDirectory(final File headerFile) {
+        super(headerFile);
+    }
+
+    protected String getHeaderFileName() {
+        return Radarsat2Constants.PRODUCT_HEADER_NAME;
+    }
+
+    protected void addImageFile(final Product product, final String imgPath) throws IOException {
+        final String name = imgPath.substring(imgPath.lastIndexOf("/") + 1, imgPath.length()).toLowerCase();
+        if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
+            final InputStream inStream = getInputStream(imgPath);
+            final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+            if (imgStream == null)
+                throw new IOException("Unable to open " + imgPath);
+
+            final ImageIOFile img;
+            if(isSLC()) {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 2, ProductData.TYPE_INT32);
+            } else {
+                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+            }
+            bandImageFileMap.put(img.getName(), img);
+        }
     }
 
     @Override
-    protected void addBands(final Product product, final int width, final int height) {
+    protected void addBands(final Product product) {
 
         String bandName;
         boolean real = true;
         Band lastRealBand = null;
         String unit;
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        setSceneWidthHeight(product, width, height);
 
         final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : keys) {

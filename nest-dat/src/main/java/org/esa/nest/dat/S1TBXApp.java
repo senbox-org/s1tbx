@@ -16,7 +16,6 @@
 package org.esa.nest.dat;
 
 import com.alee.laf.WebLookAndFeel;
-import com.alee.managers.notification.NotificationManager;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -131,7 +130,11 @@ public final class S1TBXApp extends DatApp {
     @Override
     protected void initClientUI(ProgressMonitor pm) {
         super.initClientUI(pm);
-        getMainFrame().setIconImage(ResourceUtils.s1Icon.getImage());
+        try {
+            getMainFrame().setIconImage(ResourceUtils.s1Icon.getImage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void loadJideExtension() {
@@ -157,7 +160,6 @@ public final class S1TBXApp extends DatApp {
 
     @Override
     protected ModalDialog createAboutBox() {
-        NotificationManager.showNotification("Simple notification");
         return new DatAboutBox();
     }
 

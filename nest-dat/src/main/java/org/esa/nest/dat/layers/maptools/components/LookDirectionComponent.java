@@ -16,7 +16,7 @@
 package org.esa.nest.dat.layers.maptools.components;
 
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dat.layers.GraphicsUtils;
+import org.esa.nest.dat.graphics.GraphicShape;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.datamodel.AbstractMetadata;
 
@@ -98,12 +98,12 @@ public class LookDirectionComponent implements MapToolsComponent {
 
             g.setColor(Color.BLACK);
             g.setStroke(thickStroke);
-            GraphicsUtils.drawArrow(g, screenPixel,
+            GraphicShape.drawArrow(g, screenPixel,
                     (int) tails.get(i).getX(), (int) tails.get(i).getY(),
                     (int) heads.get(i).getX(), (int) heads.get(i).getY());
             g.setColor(Color.CYAN);
             g.setStroke(thinStroke);
-            GraphicsUtils.drawArrow(g, screenPixel,
+            GraphicShape.drawArrow(g, screenPixel,
                     (int) tails.get(i).getX(), (int) tails.get(i).getY(),
                     (int) heads.get(i).getX(), (int) heads.get(i).getY());
         }

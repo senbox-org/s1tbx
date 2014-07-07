@@ -47,22 +47,6 @@ public final class OperatorUtils {
     public static final String TPG_LONGITUDE = "longitude";
 
     /**
-     * Get radar frequency from the abstracted metadata (in Hz).
-     *
-     * @param absRoot the AbstractMetadata
-     * @return wavelength
-     * @throws Exception The exceptions.
-     */
-    public static double getRadarFrequency(final MetadataElement absRoot) throws Exception {
-        final double radarFreq = AbstractMetadata.getAttributeDouble(absRoot,
-                AbstractMetadata.radar_frequency) * Constants.oneMillion; // Hz
-        if (Double.compare(radarFreq, 0.0) <= 0) {
-            throw new OperatorException("Invalid radar frequency: " + radarFreq);
-        }
-        return Constants.lightSpeed / radarFreq;
-    }
-
-    /**
      * Get incidence angle tie point grid.
      *
      * @param sourceProduct    The source product.

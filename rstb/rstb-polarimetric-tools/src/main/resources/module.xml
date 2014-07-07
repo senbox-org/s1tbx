@@ -131,6 +131,21 @@
 
     </extension>
 
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>T3</name>
+            <red>T11</red>
+            <green>T22</green>
+            <blue>T33</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>C3</name>
+            <red>C11</red>
+            <green>C22</green>
+            <blue>C33</blue>
+        </rgbProfile>
+    </extension>
+
     <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
