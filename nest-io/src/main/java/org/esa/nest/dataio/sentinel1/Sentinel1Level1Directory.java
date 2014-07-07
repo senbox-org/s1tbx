@@ -614,6 +614,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         TiePointGrid lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
         if (latGrid != null && lonGrid != null) {
             setLatLongMetadata(product, latGrid, lonGrid);
+
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            product.setGeoCoding(tpGeoCoding);
             return;
         }
 
