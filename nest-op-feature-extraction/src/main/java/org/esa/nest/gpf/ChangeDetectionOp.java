@@ -34,6 +34,7 @@ import org.esa.nest.eo.Constants;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * The change detection operator.
@@ -112,22 +113,30 @@ public class ChangeDetectionOp extends Operator {
 
         if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
             final Band[] bands = sourceProduct.getBands();
-            final java.util.List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if (band.getUnit() != null && band.getUnit().contains(Unit.INTENSITY))
+                if (band.getUnit() != null && band.getUnit().contains(Unit.INTENSITY)) {
                     bandNameList.add(band.getName());
-            }
-            bandNameList.clear();
-            if(bandNameList.size() < 2) {
-                for (Band band : bands) {
-                    if (band.getUnit() != null && band.getUnit().contains(Unit.AMPLITUDE))
-                        bandNameList.add(band.getName());
+                    if(bandNameList.size() == 2)
+                        break;
                 }
             }
-            bandNameList.clear();
             if(bandNameList.size() < 2) {
+                bandNameList.clear();
+                for (Band band : bands) {
+                    if (band.getUnit() != null && band.getUnit().contains(Unit.AMPLITUDE)) {
+                        bandNameList.add(band.getName());
+                        if(bandNameList.size() == 2)
+                            break;
+                    }
+                }
+            }
+            if(bandNameList.size() < 2) {
+                bandNameList.clear();
                 for (Band band : bands) {
                     bandNameList.add(band.getName());
+                    if(bandNameList.size() == 2)
+                        break;
                 }
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
