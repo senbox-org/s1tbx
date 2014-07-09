@@ -152,8 +152,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
-                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
-
                         // add tiepointgrids and geocoding for band
                         addTiePointGrids(band, imgName, tpgPrefix);
                     }
