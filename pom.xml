@@ -4,10 +4,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.esa.senbox</groupId>
-    <artifactId>senbox</artifactId>
+    <groupId>org.esa.snap</groupId>
+    <artifactId>snap</artifactId>
     <version>0.5-SNAPSHOT</version>
-    <name>Senbox</name>
+    <name>ESA SNAP</name>
     <url>http://www.brockmann-consult.de/</url>
 
     <description>ESA Sentinel Toolbox Platform</description>
