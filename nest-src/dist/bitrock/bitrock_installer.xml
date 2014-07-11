@@ -1,28 +1,28 @@
 <project>
-    <shortName>NEST</shortName>
-    <fullName>NEST</fullName>
-    <version>6.0</version>
+    <shortName>S1TBX</shortName>
+    <fullName>NEST-S1TBX</fullName>
+    <version>0.1</version>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
-    <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
+    <splashImage>../../main/bin/common/res/sentinel_toolboxes_banner.png</splashImage>
     <componentList>
         <component>
-            <name>NEST</name>
-            <description>Next ESA SAR Toolbox</description>
+            <name>S1TBX</name>
+            <description>Sentinel-1 Toolbox</description>
             <canBeEdited>1</canBeEdited>
             <selected>1</selected>
             <show>1</show>
             <desktopShortcutList>
                 <shortcut>
-                    <comment>NEST Display and Analysis Tool</comment>
+                    <comment>Sentinel-1 Toolbox</comment>
                     <exec>${installdir}/dat.sh</exec>
                     <icon>${installdir}/res/dat.png</icon>
-                    <name>Next ESA SAR Toolbox</name>
+                    <name>Sentinel-1 Toolbox</name>
                     <path>${installdir}</path>
                     <platforms>all</platforms>
                     <runAsAdmin>1</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
-                    <windowsExec>${installdir}/nest-dat.exe</windowsExec>
+                    <windowsExec>${installdir}/s1tbx-dat.exe</windowsExec>
                     <windowsExecArgs></windowsExecArgs>
                     <windowsIcon></windowsIcon>
                     <windowsPath>${installdir}</windowsPath>
@@ -36,37 +36,37 @@
                     <platforms>all</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/auxdata</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/auxdata</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/bin</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/bin</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/commandline</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/commandline</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/config</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/config</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/graphs</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/graphs</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/images</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/images</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/lib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/lib</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/licenses</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/licenses</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/modules</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/modules</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/res</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/res</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win64/readme.txt</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win64/readme.md</origin>
                         </distributionFile>
                     </distributionFileList>
                     <shortcutList>
@@ -93,28 +93,28 @@
                     <platforms>linux</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/dat.sh</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/dat.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/gpt.sh</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/gpt.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/libgluegen-rt.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/libgluegen-rt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/libjogl.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/libjogl.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/libjogl_awt.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/libjogl_awt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/libjogl_cg.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/libjogl_cg.so</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/jre</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux/autoupdate-linux.run</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux/autoupdate-linux.run</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -125,58 +125,58 @@
                     <platforms>windows</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/cli.bat</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/cli.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/clib_jiio.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/clib_jiio.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/clib_jiio_sse2.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/clib_jiio_sse2.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/clib_jiio_util.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/clib_jiio_util.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/dat.bat</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/dat.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/gluegen-rt.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/gluegen-rt.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/gpt.bat</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/gpt.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/jhdf5.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/jhdf5.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/jhdf.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/jhdf.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/jogl.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/jogl.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/jogl_awt.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/jogl_awt.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/jogl_cg.dll</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/jogl_cg.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/nest-dat.exe</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/s1tbx-dat.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/post-uninstall.bat</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/post-uninstall.bat</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/jre</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/nest-dat.l4j.ini</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/s1tbx-dat.l4j.ini</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/nest-clean.bat</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/nest-clean.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-win/autoupdate-windows.exe</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-win/autoupdate-windows.exe</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -187,31 +187,31 @@
                     <platforms>linux-x64</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/dat.sh</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/dat.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/gpt.sh</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/gpt.sh</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/jre</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/libclib_jiio.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/libclib_jiio.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/libgluegen-rt.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/libgluegen-rt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/libjogl.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/libjogl.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/libjogl_awt.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/libjogl_awt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/libjogl_cg.so</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/libjogl_cg.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-linux64/autoupdate-linux-x64.run</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-linux64/autoupdate-linux-x64.run</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -222,40 +222,40 @@
                     <platforms>osx</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/dat.command</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/dat.command</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/gpt.command</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/gpt.command</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/libgluegen-rt.jnilib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/libgluegen-rt.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/libjhdf.jnilib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/libjhdf.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/libjhdf5.jnilib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/libjhdf5.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/libjogl.jnilib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/libjogl.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/libjogl_awt.jnilib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/libjogl_awt.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/libjogl_cg.jnilib</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/libjogl_cg.jnilib</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/NEST.app</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/NEST.app</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/__MACOSX</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/__MACOSX</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/autoupdate-osx.app</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/autoupdate-osx.app</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-6.0-SNAPSHOT-bin-mac/jre</origin>
+                            <origin>../../../target/s1tbx-0.1-SNAPSHOT-bin-mac/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
                 </folder>
@@ -272,25 +272,25 @@
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
                 <startMenuShortcut>
-                    <comment>NEST Display and Anlaysis Tool</comment>
-                    <name>Next ESA SAR Toolbox</name>
+                    <comment>Sentinel-1 Toolbox</comment>
+                    <name>Sentinel-1 Toolbox</name>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
-                    <windowsExec>${installdir}/nest-dat.exe</windowsExec>
+                    <windowsExec>${installdir}/s1tbx-dat.exe</windowsExec>
                     <windowsExecArgs></windowsExecArgs>
                     <windowsIcon></windowsIcon>
                     <windowsPath>${installdir}</windowsPath>
                 </startMenuShortcut>
                 <startMenuLinkShortcut>
-                    <comment>NEST website</comment>
-                    <name>NEST HomePage</name>
+                    <comment>Website</comment>
+                    <name>HomePage</name>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
                     <url>http://www.array.ca/nest</url>
                     <windowsIcon></windowsIcon>
                 </startMenuLinkShortcut>
                 <startMenuLinkShortcut>
-                    <comment>NEST Documentation</comment>
+                    <comment>Documentation</comment>
                     <name>Online Help</name>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
@@ -307,56 +307,9 @@
                     <windowsIcon></windowsIcon>
                     <windowsPath>${installdir}</windowsPath>
                 </startMenuShortcut>
-                <startMenuLinkShortcut>
-                    <comment>User Help Forum on the website</comment>
-                    <name>User Help Forum</name>
-                    <runAsAdmin>0</runAsAdmin>
-                    <runInTerminal>0</runInTerminal>
-                    <url>http://nest.array.ca/web/nest/forum</url>
-                    <windowsIcon></windowsIcon>
-                </startMenuLinkShortcut>
             </startMenuShortcutList>
         </component>
     </componentList>
-    <initializationActionList>
-        <showInfo>
-            <ruleEvaluationLogic>or</ruleEvaluationLogic>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4C-1.1\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4C-1.0\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files\NEST\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files\NEST4C-1.1\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files\NEST4C-1.0\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-    </initializationActionList>
     <preInstallationActionList>
         <deleteEnvironmentVariable>
             <abortOnError>0</abortOnError>
@@ -365,144 +318,14 @@ This installer will optionally remove the older version before installing a new 
             <show>0</show>
             <showMessageOnError>0</showMessageOnError>
         </deleteEnvironmentVariable>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files\NEST4B-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files\NEST4B-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files\NEST4C-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4C-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files\NEST4C-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4C-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST4C-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4C-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST4C-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4C-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files\NEST\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
     </preInstallationActionList>
     <postInstallationActionList>
         <associateWindowsFileExtension>
             <extensions>N1 E1 E2</extensions>
             <friendlyName>Envisat</friendlyName>
-            <icon>C:\build\4C\nest\nest\nest-src\main\assembly\dat.ico</icon>
+            <icon>C:\build\5.0\nest\nest\nest-src\main\assembly\dat.ico</icon>
             <mimeType></mimeType>
-            <progID>NEST</progID>
+            <progID>S1TBX</progID>
             <scope>user</scope>
         </associateWindowsFileExtension>
         <addEnvironmentVariable>
@@ -520,7 +343,7 @@ This installer will optionally remove the older version before installing a new 
             <scope>user</scope>
         </addDirectoryToPath>
         <createSymLink>
-            <linkName>~/Desktop/NEST_DAT</linkName>
+            <linkName>~/Desktop/S1TBX</linkName>
             <target>${installdir}/dat.command</target>
             <ruleList>
                 <platformTest>
@@ -606,7 +429,7 @@ check_for_updates = 1
     <enableTimestamp>1</enableTimestamp>
     <outputDirectory>../../../target</outputDirectory>
     <saveRelativePaths>1</saveRelativePaths>
-    <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
+    <startMenuGroupName>Sentinel-1 Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
     <customLanguageFileList>
         <language>

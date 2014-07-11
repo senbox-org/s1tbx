@@ -95,6 +95,7 @@ public final class MultilookOp extends Operator {
 
     private double rangeSpacing;
     private double azimuthSpacing;
+    private boolean isPolsar = false;
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
 
@@ -120,6 +121,8 @@ public final class MultilookOp extends Operator {
             }
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
+            isPolsar = absRoot.getAttributeInt(AbstractMetadata.polsarData, 0) == 1;
 
             getRangeAzimuthSpacing();
 
@@ -221,7 +224,8 @@ public final class MultilookOp extends Operator {
                 for (int ty = ty0; ty < maxy; ty++) {
                     trgIndex.calculateStride(ty);
                     for (int tx = tx0; tx < maxx; tx++) {
-                        meanValue = getMeanValue(tx, ty, srcData1, srcData2, srcIndex, nRgLooks, nAzLooks, isdB, isComplex);
+                        meanValue = getMeanValue(
+                                tx, ty, srcData1, srcData2, srcIndex, nRgLooks, nAzLooks, isdB, isComplex, isPolsar);
                         trgData.setElemDoubleAt(trgIndex.getIndex(tx), meanValue);
                     }
                 }
@@ -378,7 +382,7 @@ public final class MultilookOp extends Operator {
                                        final ProductData srcData1, final ProductData srcData2,
                                        final TileIndex srcIndex,
                                        final int nRgLooks, final int nAzLooks,
-                                       final boolean isdB, final boolean isComplex) {
+                                       final boolean isdB, final boolean isComplex, final boolean isPolsar) {
 
         final int xStart = tx * nRgLooks;
         final int yStart = ty * nAzLooks;
@@ -397,7 +401,7 @@ public final class MultilookOp extends Operator {
 
             meanValue /= (nRgLooks * nAzLooks);
             return 10.0 * Math.log10(meanValue); // linear to dB
-        } else if (isComplex) { // COMPLEX
+        } else if (isComplex && !isPolsar) { // COMPLEX
             double i, q;
             int index;
             for (int y = yStart; y < yEnd; y++) {

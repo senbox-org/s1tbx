@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.nest.dat.layers.GraphicsUtils;
+import org.esa.nest.dat.graphics.GraphicText;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.eo.GeoUtils;
 
@@ -120,17 +120,17 @@ public class ScaleComponent implements MapToolsComponent {
             g.drawLine(pt[9].x, y - h, pt[9].x, y - h - tick); // 500
 
         //labels
-        GraphicsUtils.outlineText(g, Color.YELLOW, "1km", pt[1].x + 2, y - h - tick);
+        GraphicText.outlineText(g, Color.YELLOW, "1km", pt[1].x + 2, y - h - tick);
         if (use5k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "5km", pt[5].x + 2, y - h - tick);
+            GraphicText.outlineText(g, Color.YELLOW, "5km", pt[5].x + 2, y - h - tick);
         if (use10k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "10km", pt[6].x + 2, y - h - tick);
+            GraphicText.outlineText(g, Color.YELLOW, "10km", pt[6].x + 2, y - h - tick);
         if (use50k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "50km", pt[7].x + 2, y - h - tick);
+            GraphicText.outlineText(g, Color.YELLOW, "50km", pt[7].x + 2, y - h - tick);
         if (use100k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "100km", pt[8].x + 2, y - h - tick);
+            GraphicText.outlineText(g, Color.YELLOW, "100km", pt[8].x + 2, y - h - tick);
         if (use500k)
-            GraphicsUtils.outlineText(g, Color.YELLOW, "500km", pt[9].x + 2, y - h - tick);
+            GraphicText.outlineText(g, Color.YELLOW, "500km", pt[9].x + 2, y - h - tick);
 
         //fill rects
         g.setColor(Color.BLACK);

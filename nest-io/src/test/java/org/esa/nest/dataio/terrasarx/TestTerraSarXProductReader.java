@@ -15,9 +15,10 @@
  */
 package org.esa.nest.dataio.terrasarx;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.nest.util.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 
@@ -26,29 +27,16 @@ import java.io.File;
  *
  * @author lveci
  */
-public class TestTerraSarXProductReader extends TestCase {
+public class TestTerraSarXProductReader {
 
     private TerraSarXProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    public TestTerraSarXProductReader(String name) {
-        super(name);
-    }
-
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
+        TestUtils.initTestEnvironment();
         readerPlugin = new TerraSarXProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        reader = null;
-        readerPlugin = null;
     }
 
     /**
@@ -56,6 +44,7 @@ public class TestTerraSarXProductReader extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathTerraSarX);
         if (!folder.exists()) {

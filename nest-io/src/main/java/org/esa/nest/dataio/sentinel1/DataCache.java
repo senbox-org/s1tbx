@@ -47,11 +47,11 @@ public class DataCache {
         public boolean equals(Object obj) {
 
             DataKey key = (DataKey) obj;
-            return (key != null && img == key.img &&
-                    (rect.x == key.rect.x) &&
-                    (rect.y == key.rect.y) &&
-                    (rect.width == key.rect.width) &&
-                    (rect.height == key.rect.height));
+            return (rect.x == key.rect.x &&
+                    rect.y == key.rect.y &&
+                    rect.width == key.rect.width &&
+                    rect.height == key.rect.height &&
+                    img == key.img);
         }
 
         @Override

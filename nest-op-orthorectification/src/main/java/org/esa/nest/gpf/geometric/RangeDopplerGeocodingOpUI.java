@@ -28,6 +28,7 @@ import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.gpf.CalibrationOp;
 import org.esa.nest.gpf.OperatorUIUtils;
 import org.esa.nest.util.DialogUtils;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -510,15 +511,15 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             paramMap.put("pixelSpacingInDegree", Double.parseDouble(pixelSpacingInDegree.getText()));
         }
 
-        String extFileStr = externalDEMFile.getText();
-        if(!properDEMName.equals(externalDEMStr)) {
-            extFileStr = "";
+        if(properDEMName.equals(externalDEMStr)) {
+            String extFileStr = externalDEMFile.getText();
+            paramMap.put("externalDEMFile", new File(extFileStr));
+            paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
-        paramMap.put("externalDEMFile", new File(extFileStr));
-        paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
 
         if (mapProjHandler.getCRS() != null) {
-            paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
+            CoordinateReferenceSystem crs = mapProjHandler.getCRS();
+            paramMap.put("mapProjection", crs.toWKT());
         }
 
         paramMap.put("nodataValueAtSea", nodataValueAtSea);

@@ -30,7 +30,7 @@ import org.esa.nest.dat.graphbuilder.GraphNode;
 import org.esa.nest.dat.graphbuilder.ProgressBarProgressMonitor;
 import org.esa.nest.db.ProductEntry;
 import org.esa.nest.util.MemUtils;
-import org.esa.nest.util.ProcessTimeMonitor;
+import org.esa.nest.gpf.ProcessTimeMonitor;
 import org.esa.nest.util.ResourceUtils;
 
 import javax.swing.*;

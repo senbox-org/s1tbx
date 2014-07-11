@@ -24,7 +24,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.nest.dat.layers.GraphicsUtils;
+import org.esa.nest.dat.graphics.GraphicShape;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.datamodel.AbstractMetadata;
 
@@ -92,7 +92,7 @@ public class GCPVectorLayer extends Layer {
 
         graphics.setColor(Color.RED);
         for (GCPData gcp : gcpList) {
-            GraphicsUtils.drawArrow(graphics, screenPixel,
+            GraphicShape.drawArrow(graphics, screenPixel,
                     (int) gcp.slvX, (int) gcp.slvY,
                     (int) gcp.mstX, (int) gcp.mstY);
         }

@@ -16,7 +16,6 @@
 package org.esa.nest.db;
 
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.util.SQLUtils;
 
 import java.io.File;
 import java.sql.*;
@@ -259,6 +258,8 @@ public class ProductTable implements TableInterface {
     }
 
     public String[] getAllMissions() throws SQLException {
+        if(stmtAllMissions == null)
+            return new String[] {};
         final List<String> listEntries = new ArrayList<>();
         final ResultSet results = stmtAllMissions.executeQuery();
         while (results.next()) {

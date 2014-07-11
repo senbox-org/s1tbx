@@ -28,7 +28,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.gpf.PolBandUtils;
-import org.esa.nest.util.ProcessTimeMonitor;
+import org.esa.nest.gpf.ProcessTimeMonitor;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 

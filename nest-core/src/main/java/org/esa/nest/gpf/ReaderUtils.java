@@ -193,35 +193,6 @@ public final class ReaderUtils {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, Math.max(inc1, inc2));
     }
 
-    public static void verifyProduct(final Product product, final boolean verifyTimes) throws Exception {
-        verifyProduct(product, verifyTimes, true);
-    }
-
-    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding) throws Exception {
-        if (product == null)
-            throw new Exception("product is null");
-        if (verifyGeoCoding && product.getGeoCoding() == null) {
-            System.out.println("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
-            //throw new Exception("geocoding is null");
-        }
-        if (product.getMetadataRoot() == null)
-            throw new Exception("metadataroot is null");
-        if (product.getNumBands() == 0)
-            throw new Exception("numbands is zero");
-        if (product.getProductType() == null || product.getProductType().isEmpty())
-            throw new Exception("productType is null");
-        if (verifyTimes) {
-            if (product.getStartTime() == null)
-                throw new Exception("startTime is null");
-            if (product.getEndTime() == null)
-                throw new Exception("endTime is null");
-        }
-        for (Band b : product.getBands()) {
-            if (b.getUnit() == null || b.getUnit().isEmpty())
-                throw new Exception("band " + b.getName() + " has null unit");
-        }
-    }
-
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
         if (elem == null)
             return AbstractMetadata.NO_METADATA_UTC;

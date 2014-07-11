@@ -32,6 +32,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,36 @@ public final class XMLSupport {
             writer.close();
         } catch (java.io.IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static Document LoadXML(final InputStream filePath) throws IOException {
+
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        org.w3c.dom.Document w3cDocument = null;
+
+        final DOMBuilder domBuilder = new DOMBuilder();
+
+        try {
+            final DocumentBuilder builder = factory.newDocumentBuilder();
+            w3cDocument = builder.parse(filePath);
+
+            return domBuilder.build(w3cDocument);
+        } catch (MalformedURLException e) {
+            final String msg = "Cannot parse xml file path : " + e.getMessage() +
+                    '\n' + filePath +
+                    "\n\nPlease check the characters being used and if your operating system locale is set correctly";
+            System.out.println(msg);
+            throw new IOException(msg);
+        } catch (IOException e) {
+            System.out.println("Path to xml is not valid: " + e.getMessage());
+            throw e;
+        } catch (SAXException e) {
+            System.out.println("cannot parse xml : " + e.getMessage());
+            throw new IOException(e.getMessage());
+        } catch (ParserConfigurationException e) {
+            System.out.println("cannot parse xml : " + e.getMessage());
+            throw new IOException(e.getMessage());
         }
     }
 

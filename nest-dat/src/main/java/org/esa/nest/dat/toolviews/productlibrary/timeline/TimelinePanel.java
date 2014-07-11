@@ -1,65 +1,107 @@
 package org.esa.nest.dat.toolviews.productlibrary.timeline;
 
 import com.alee.laf.panel.WebPanel;
+import org.esa.nest.dat.toolviews.productlibrary.DatabasePane;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseStatistics;
+import org.esa.nest.util.DialogUtils;
 
+import javax.swing.*;
 import java.awt.*;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
- * Shows product counts over time
+ * shows products on a time line
  */
-class TimelinePanel extends WebPanel {
+public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
 
     private final DatabaseStatistics stats;
+    private JPanel currentPanel = null;
+    private JPanel timelinePanel;
+    private JPanel yearsPanel;
+    private JPanel monthsPanel;
 
-    TimelinePanel(final DatabaseStatistics stats) {
+    public TimelinePanel(final DatabaseStatistics stats, final DatabasePane dbPane) {
         this.stats = stats;
+        createPanel();
+        setMaximumSize(new Dimension(500, 30));
+        dbPane.addListener(this);
     }
 
-    /**
-     * Paints the panel component
-     *
-     * @param g The Graphics
-     */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
+    private void createPanel() {
+        setLayout(new BorderLayout());
+        setUndecorated(false);
 
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
+        final JPanel centrePanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        timelinePanel = new TimelinePlot(stats);
+        yearsPanel = new YearsPlot(stats);
+        monthsPanel = new MonthsPlot(stats);
+        gbc.weightx = 10;
+        gbc.weighty = 10;
+        centrePanel.add(timelinePanel, gbc);
+        centrePanel.add(yearsPanel, gbc);
+        centrePanel.add(monthsPanel, gbc);
+        hideShowPanels(timelinePanel);
 
-        final Map<Integer, DatabaseStatistics.YearData> yearData = stats.getYearData();
-        final SortedSet<Integer> years = new TreeSet<>(yearData.keySet());
-        final int numYears = years.size();
+        this.add(centrePanel, BorderLayout.CENTER);
+        this.add(createControlPanel(), BorderLayout.WEST);
+    }
 
-        final int w = getWidth();
-        final float yearInterval = w / numYears;
-        final float pct = 1 / (float) (numYears * 365);
-        final float dayInterval = w * pct;
-        final int yH = getHeight() - 10;
+    private JPanel createControlPanel() {
+        final WebPanel controlPanel = new WebPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
+        final JRadioButton timelineButton = new JRadioButton("Timeline", true);
+        final JRadioButton yearsButton = new JRadioButton("Years", false);
+        final JRadioButton monthsButton = new JRadioButton("Months", false);
 
-        int yX = 0;
-        for (Integer year : years) {
-            g2d.drawString(String.valueOf(year), (float) yX, yH);
-            yX += yearInterval;
+        final ButtonGroup group = new ButtonGroup();
+        group.add(timelineButton);
+        group.add(yearsButton);
+        group.add(monthsButton);
 
-            int dX = 0;
-            final DatabaseStatistics.YearData data = yearData.get(year);
-            for (int d = 1; d < 366; d++) {
-                g2d.fillRect(dX, yH, (int) (dX + dayInterval), data.dayOfYearMap.get(d));
-                dX += dayInterval;
+        timelineButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hideShowPanels(timelinePanel);
             }
-        }
+        });
 
-        //g.setColor(Color.yellow);
-        //g.fill3DRect(0, 0, getWidth(), getHeight(), true);
+        yearsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hideShowPanels(yearsPanel);
+            }
+        });
+
+        monthsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hideShowPanels(monthsPanel);
+            }
+        });
+
+        controlPanel.add(timelineButton);
+        controlPanel.add(yearsButton);
+        controlPanel.add(monthsButton);
+
+        return controlPanel;
+    }
+
+    private void hideShowPanels(final JPanel selectedPanel) {
+        currentPanel = selectedPanel;
+        timelinePanel.setVisible(currentPanel.equals(timelinePanel));
+        yearsPanel.setVisible(currentPanel.equals(yearsPanel));
+        monthsPanel.setVisible(currentPanel.equals(monthsPanel));
+    }
+
+    public void notifyNewEntryListAvailable() {
+        currentPanel.updateUI();
+    }
+
+    public void notifyNewMapSelectionAvailable() {
+
     }
 }

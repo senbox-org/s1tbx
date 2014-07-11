@@ -35,10 +35,7 @@ import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.OrbitStateVector;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.eo.LocalGeometry;
-import org.esa.nest.eo.SARGeocoding;
+import org.esa.nest.eo.*;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileGeoreferencing;
 import org.jlinda.core.Ellipsoid;
@@ -246,7 +243,7 @@ public final class SARSimulationOp extends Operator {
     private void getMetadata() throws Exception {
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
-        wavelength = OperatorUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
         lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
