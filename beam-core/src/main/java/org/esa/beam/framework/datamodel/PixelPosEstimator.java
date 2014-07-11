@@ -60,7 +60,7 @@ public class PixelPosEstimator {
     /**
      * Returns an approximate pixel position for a given geographic position.
      *
-     * @param g the geograpgic position.
+     * @param g the geographic position.
      * @param p the pixel position.
      *
      * @return an approximate pixel position.
