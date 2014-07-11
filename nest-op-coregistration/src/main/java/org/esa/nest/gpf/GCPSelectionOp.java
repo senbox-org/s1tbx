@@ -162,7 +162,6 @@ public class GCPSelectionOp extends Operator {
     private final Map<Band, Band> complexSrcMap = new HashMap<Band, Band>(10);
     private final Map<Band, Boolean> gcpsComputedMap = new HashMap<Band, Boolean>(10);
     private Band primarySlaveBand = null;    // the slave band to process
-    private boolean gcpsCalculated = false;
     private boolean collocatedStack = false;
 
     private ElevationModel dem = null;
@@ -420,15 +419,10 @@ public class GCPSelectionOp extends Operator {
                     }
                 }
             }
-            setGCPsCalculated();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    private synchronized void setGCPsCalculated() {
-        gcpsCalculated = true;
     }
 
     /**
