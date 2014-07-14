@@ -15,6 +15,10 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.MathUtils;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,10 +30,6 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
-
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.math.MathUtils;
 
 // @todo 2 nf/** - if orientation is vertical, sample values should increase from bottom to top
 // @todo 1 nf/** - make PALETTE_HEIGHT a fixed value, fill space into gaps instead
@@ -257,17 +257,17 @@ public class ImageLegend {
         final int labelTextSpace = LABEL_GAP + textHeight;
         if (orientation == HORIZONTAL) {
             paletteRect = new Rectangle(GAP,
-                                         GAP + headerTextSpace,
-                                         legendSize.width - (GAP + GAP),
-                                         legendSize.height - (GAP + headerTextSpace + labelTextSpace + GAP));
+                                        GAP + headerTextSpace,
+                                        legendSize.width - (GAP + GAP),
+                                        legendSize.height - (GAP + headerTextSpace + labelTextSpace + GAP));
             int paletteGap = Math.max(labelWidths[0], labelWidths[n - 1]) / 2;
             palettePos1 = paletteRect.x + paletteGap;
             palettePos2 = paletteRect.x + paletteRect.width - paletteGap;
         } else {
             paletteRect = new Rectangle(GAP,
-                                         GAP + headerTextSpace,
-                                         legendSize.width - (GAP + labelTextSpace + maxLabelWidth + GAP),
-                                         legendSize.height - (GAP + headerTextSpace + GAP));
+                                        GAP + headerTextSpace,
+                                        legendSize.width - (GAP + labelTextSpace + maxLabelWidth + GAP),
+                                        legendSize.height - (GAP + headerTextSpace + GAP));
             int paletteGap = Math.max(textHeight, SLIDER_WIDTH) / 2;
             palettePos1 = paletteRect.y + paletteGap;
             palettePos2 = paletteRect.y + paletteRect.height - paletteGap;
@@ -395,9 +395,14 @@ public class ImageLegend {
     }
 
     private double normalizeSample(double sample) {
-        final double minDisplaySample = getRaster().scaleInverse(getImageInfo().getColorPaletteDef().getMinDisplaySample());
-        final double maxDisplaySample = getRaster().scaleInverse(getImageInfo().getColorPaletteDef().getMaxDisplaySample());
-        sample = getRaster().scaleInverse(sample);
+        double minDisplaySample = getImageInfo().getColorPaletteDef().getMinDisplaySample();
+        double maxDisplaySample = getImageInfo().getColorPaletteDef().getMaxDisplaySample();
+        if (imageInfo.isLogScaled()) {
+            minDisplaySample = Math.log10(imageInfo.getColorPaletteDef().getMinDisplaySample());
+            maxDisplaySample = Math.log10(imageInfo.getColorPaletteDef().getMaxDisplaySample());
+            sample = Math.log10(sample);
+        }
+
         double delta = maxDisplaySample - minDisplaySample;
         if (delta == 0 || Double.isNaN(delta)) {
             delta = 1;
