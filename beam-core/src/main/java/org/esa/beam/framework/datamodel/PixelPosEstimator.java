@@ -38,13 +38,13 @@ public class PixelPosEstimator {
     private final Rectangle bounds;
 
 
-    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy) {
-        this(lonImage, latImage, maskImage, accuracy, new DefaultSteppingFactory());
-    }
-
     public PixelPosEstimator(GeoApproximation[] approximations, Rectangle bounds) {
         this.approximations = approximations;
         this.bounds = bounds;
+    }
+
+    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy) {
+        this(lonImage, latImage, maskImage, accuracy, new DefaultSteppingFactory());
     }
 
     private PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
@@ -154,7 +154,7 @@ public class PixelPosEstimator {
     }
 
 
-    public static class PlanarImageSampleSource implements SampleSource {
+    static class PlanarImageSampleSource implements SampleSource {
 
         private final PlanarImage image;
 

@@ -68,46 +68,6 @@ public final class GeoApproximation {
     }
 
     /**
-     * Creates an array of approximations for given set of (x, y) rectangles.
-     *
-     * @param lonSamples  The longitude samples.
-     * @param latSamples  The latitude samples.
-     * @param maskSamples The mask samples.
-     * @param accuracy    The accuracy goal.
-     * @param rectangles  The (x, y) rectangles.
-     *
-     * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
-     */
-    public static GeoApproximation[] createApproximations(SampleSource lonSamples,
-                                                          SampleSource latSamples,
-                                                          SampleSource maskSamples,
-                                                          double accuracy,
-                                                          Rectangle[] rectangles) {
-        return createApproximations(lonSamples, latSamples, maskSamples, accuracy, rectangles,
-                                    new DefaultSteppingFactory());
-    }
-
-    /**
-     * Creates a new instance of this class.
-     *
-     * @param lonSamples  The longitude samples.
-     * @param latSamples  The latitude samples.
-     * @param maskSamples The mask samples.
-     * @param accuracy    The accuracy goal.
-     * @param range       The range of the x(lat, lon) and y(lat, lon) functions.
-     *
-     * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
-     */
-    public static GeoApproximation create(SampleSource lonSamples,
-                                          SampleSource latSamples,
-                                          SampleSource maskSamples,
-                                          double accuracy,
-                                          Rectangle range) {
-        return create(lonSamples, latSamples, maskSamples, accuracy, range,
-                      new DefaultSteppingFactory());
-    }
-
-    /**
      * Creates a new instance of this class.
      *
      * @param lonSamples      The longitude samples.
@@ -119,12 +79,12 @@ public final class GeoApproximation {
      *
      * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
      */
-    public static GeoApproximation create(SampleSource lonSamples,
-                                          SampleSource latSamples,
-                                          SampleSource maskSamples,
-                                          double accuracy,
-                                          Rectangle range,
-                                          SteppingFactory steppingFactory) {
+    private static GeoApproximation create(SampleSource lonSamples,
+                                           SampleSource latSamples,
+                                           SampleSource maskSamples,
+                                           double accuracy,
+                                           Rectangle range,
+                                           SteppingFactory steppingFactory) {
         final Stepping stepping = steppingFactory.createStepping(range, MAX_POINT_COUNT_PER_TILE);
         final double[][] data = extractWarpPoints(lonSamples, latSamples, maskSamples, stepping);
         return GeoApproximation.create(data, accuracy, range);
@@ -141,7 +101,7 @@ public final class GeoApproximation {
      *
      * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
      */
-    public static GeoApproximation create(double[][] data, double accuracy, Rectangle range) {
+    static GeoApproximation create(double[][] data, double accuracy, Rectangle range) {
         final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
         final double centerLon = centerPoint.getX();
         final double centerLat = centerPoint.getY();
@@ -179,7 +139,7 @@ public final class GeoApproximation {
      * @return the approximation that is most suitable for the given (lat, lon) point,
      * or {@code null}, if none is suitable.
      */
-    public static GeoApproximation findMostSuitable(GeoApproximation[] approximations, double lat, double lon) {
+    static GeoApproximation findMostSuitable(GeoApproximation[] approximations, double lat, double lon) {
         GeoApproximation bestApproximation = null;
         if (approximations.length == 1) {
             GeoApproximation a = approximations[0];

@@ -1,7 +1,6 @@
 package org.esa.beam.dataio.avhrr.noaa.pod;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelFinder;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.util.math.CosineDistance;
 import org.esa.beam.util.math.DistanceMeasure;
@@ -14,9 +13,11 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 /**
+ * A strategy for finding a pixel position for a given geographic position.
+ *
  * @author Ralf Quast
  */
-class PodPixelFinder implements PixelFinder {
+class PodPixelFinder {
 
     private static final int R = 128;
     private static final boolean ROUGH = false;
@@ -39,8 +40,13 @@ class PodPixelFinder implements PixelFinder {
         imageH = lonImage.getHeight();
     }
 
-    @Override
-    public void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+    /**
+     * Returns the pixel position for a given geographic position.
+     *
+     * @param geoPos   the geographic position.
+     * @param pixelPos the pixel position.
+     */
+    void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         int x = (int) Math.floor(pixelPos.x);
         int y = (int) Math.floor(pixelPos.y);
 

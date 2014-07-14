@@ -54,7 +54,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     //    private final PixelPosEstimatorFactory pixelPosEstimatorFactory;
     private transient PixelPosEstimator pixelPosEstimator;
-    private transient PixelFinder pixelFinder;
+    private transient DefaultPixelFinder pixelFinder;
 
     /**
      * Constructs a new pixel-based geo-coding.

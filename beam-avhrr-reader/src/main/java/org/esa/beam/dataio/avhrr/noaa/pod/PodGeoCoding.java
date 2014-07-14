@@ -3,7 +3,6 @@ package org.esa.beam.dataio.avhrr.noaa.pod;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.GeoApproximation;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelFinder;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PixelPosEstimator;
 import org.esa.beam.framework.datamodel.Scene;
@@ -25,7 +24,7 @@ import java.awt.Rectangle;
 final class PodGeoCoding extends TiePointGeoCoding {
 
     private transient PixelPosEstimator pixelPosEstimator;
-    private transient PixelFinder pixelFinder;
+    private transient PodPixelFinder pixelFinder;
 
     PodGeoCoding(TiePointGrid latGrid, TiePointGrid lonGrid) {
         super(latGrid, lonGrid);

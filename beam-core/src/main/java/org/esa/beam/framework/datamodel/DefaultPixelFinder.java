@@ -7,13 +7,11 @@ import javax.media.jai.PlanarImage;
 import java.awt.image.Raster;
 
 /**
- * The default implementation of {@code PixelFinder}.
- * <p/>
- * This class does not belong to the public API.
+ * A strategy for finding a pixel position for a given geographic position.
  *
  * @author Ralf Quast
  */
-class DefaultPixelFinder implements PixelFinder {
+class DefaultPixelFinder {
 
     private static final int MAX_SEARCH_CYCLE_COUNT = 30; // enough for MERIS FSG where we have duplicated pixels
 
@@ -35,8 +33,13 @@ class DefaultPixelFinder implements PixelFinder {
         imageH = lonImage.getHeight();
     }
 
-    @Override
-    public void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+    /**
+     * Returns the pixel position for a given geographic position.
+     *
+     * @param geoPos   the geographic position.
+     * @param pixelPos the pixel position.
+     */
+    void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         final int searchRadius = 2 * MAX_SEARCH_CYCLE_COUNT;
 
         int x0 = (int) Math.floor(pixelPos.x);
