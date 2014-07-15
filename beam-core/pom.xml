@@ -29,7 +29,7 @@
 
     <name>BEAM Core API</name>
     <artifactId>beam-core</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.0.2</version>
 
     <packaging>jar</packaging>
 
