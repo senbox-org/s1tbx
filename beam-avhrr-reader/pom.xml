@@ -28,7 +28,7 @@
 
     <artifactId>beam-avhrr-reader</artifactId>
     <name>BEAM AVHRR Product Reader</name>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.1</version>
 
     <packaging>jar</packaging>
 
@@ -36,7 +36,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
-            <version>5.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>
