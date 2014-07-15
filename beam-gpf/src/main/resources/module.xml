@@ -31,6 +31,7 @@
     <changelog>
         <![CDATA[
          <b>Changes in 5.0.1</b><br/>
+            Only compute virtual band by the WriteOp if shouldWrite property is set<br/>
             Harmonisation with NEST: Operator registry now checks for conflicting operator aliases<br/>
          <b>Changes in 5.0</b><br/>
             [BEAM-1648] Add processing time to metadata<br/>

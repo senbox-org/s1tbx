@@ -11,7 +11,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0.1</b><br/>
-        NPE fixed in mask expression string in Geocoding display panel; slight simplification in CollocateOp
+        NPE fixed in mask expression string in Geocoding display panel; slight simplification in CollocateOp <br/>
         ]]>
     </changelog>
 

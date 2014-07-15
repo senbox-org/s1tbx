@@ -30,7 +30,7 @@
 
     <name>BEAM Help</name>
     <artifactId>beam-help</artifactId>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.1</version>
 
     <description>Provides the software user manual.</description>
 
