@@ -176,6 +176,7 @@ try:
     File = jpy.get_type('java.io.File')
     Rectangle = jpy.get_type('java.awt.Rectangle')
 
+    SystemUtils = jpy.get_type('org.esa.beam.util.SystemUtils')
     ProductIO = jpy.get_type('org.esa.beam.framework.dataio.ProductIO')
 
     Product = jpy.get_type('org.esa.beam.framework.datamodel.Product')
@@ -199,3 +200,9 @@ try:
 except Exception:
     jpy.destroy_jvm()
     raise
+
+
+# Note: use the following code to initialise BEAM's 3rd party libraries, JAI and GeoTools.
+# This is only needed, if you use the BEAM API from Python.
+# Don use it, if you are extending BEAM by writing your own GPF Operator.
+#  SystemUtils.init3rdPartyLibs(None)

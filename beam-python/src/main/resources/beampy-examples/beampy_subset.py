@@ -15,6 +15,9 @@ if len(sys.argv) != 3:
 file = sys.argv[1]
 wkt = sys.argv[2]
 
+# Initialise BEAM's third party Java libraries JAI and GeoTools
+beampy.SystemUtils.init3rdPartyLibs(None)
+
 geom = WKTReader().read(wkt)
 
 print("Reading...")

@@ -12,6 +12,9 @@ if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0]);
     sys.exit(1)
 
+# Initialise BEAM's third party Java libraries JAI and GeoTools
+beampy.SystemUtils.init3rdPartyLibs(None)
+
 print("Reading...")
 product = ProductIO.readProduct(sys.argv[1])
 width = product.getSceneRasterWidth()
