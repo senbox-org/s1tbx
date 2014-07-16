@@ -12,7 +12,7 @@
 
     <artifactId>beam-binning</artifactId>
     <name>BEAM Level-3 Binning</name>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.1</version>
 
     <dependencies>
 
