@@ -15,8 +15,9 @@ if len(sys.argv) != 3:
 file = sys.argv[1]
 wkt = sys.argv[2]
 
-# Initialise BEAM's third party Java libraries JAI and GeoTools
-beampy.SystemUtils.init3rdPartyLibs(None)
+# Uncomment if you receive errors of type com.sun.media.jai.util.ServiceConfigurationError, see
+# http://www.brockmann-consult.de/beam-jira/browse/BEAM-1699
+#beampy.SystemUtils.init3rdPartyLibs(None)  # Initialise BEAM's third party Java libraries JAI and GeoTools.
 
 geom = WKTReader().read(wkt)
 
