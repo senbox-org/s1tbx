@@ -36,7 +36,7 @@
     <changelog>
         <![CDATA[
                 <p>Changes in 5.0.3<br/>
-                [BEAM-1699] Add call to SystemUtils.init3rdPartyLibs(None) when beampy starts<br/>
+                [BEAM-1699] JAI not always initialised propertly in beampy clients<br/>
                 <p>Changes in 5.0.2<br/>
                 [BEAM-1691] BEAM Python tests require specific test product<br/>
                 [BEAM-1690] BEAM Python examples often generate zero-valued output<br/>
