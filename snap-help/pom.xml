@@ -9,13 +9,13 @@
     </properties>
 
     <parent>
-        <artifactId>senbox</artifactId>
-        <groupId>org.esa.senbox</groupId>
+        <artifactId>snap</artifactId>
+        <groupId>org.esa.snap</groupId>
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>Senbox Context Help</name>
-    <artifactId>senbox-help</artifactId>
+    <name>SNAP Context Help</name>
+    <artifactId>snap-help</artifactId>
     <version>0.5-SNAPSHOT</version>
 
     <dependencies>

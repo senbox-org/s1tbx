@@ -1,4 +1,4 @@
-package org.esa.senbox.help;
+package org.esa.snap.help;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.util.CharTokenizer;
