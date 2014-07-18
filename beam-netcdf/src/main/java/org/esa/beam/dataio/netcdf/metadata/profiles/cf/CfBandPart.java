@@ -71,12 +71,17 @@ public class CfBandPart extends ProfilePartIO {
                             final Dimension zDim = dimensions.get(i + startIndexToCopy);
                             String zName = zDim.getShortName();
                             final String skipPrefix = "n_";
-                            if (zName.toLowerCase().startsWith(skipPrefix)
+                            if (zName != null
+                                && zName.toLowerCase().startsWith(skipPrefix)
                                 && zName.length() > skipPrefix.length()) {
                                 zName = zName.substring(skipPrefix.length());
                             }
                             if (zDim.getLength() > 1) {
-                                bandNameBuilder.append(String.format("_%s%d", zName, (indexes[i] + 1)));
+                                if (zName != null) {
+                                    bandNameBuilder.append(String.format("_%s%d", zName, (indexes[i] + 1)));
+                                } else {
+                                    bandNameBuilder.append(String.format("_%d", (indexes[i] + 1)));
+                                }
                             }
 
                         }

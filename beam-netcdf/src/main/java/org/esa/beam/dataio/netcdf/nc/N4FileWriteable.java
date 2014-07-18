@@ -17,16 +17,11 @@
 package org.esa.beam.dataio.netcdf.nc;
 
 import com.bc.ceres.core.Assert;
-import edu.ucar.ral.nujan.netcdf.NhDimension;
-import edu.ucar.ral.nujan.netcdf.NhException;
-import edu.ucar.ral.nujan.netcdf.NhFileWriter;
-import edu.ucar.ral.nujan.netcdf.NhGroup;
-import edu.ucar.ral.nujan.netcdf.NhVariable;
-import org.esa.beam.util.Debug;
+import edu.ucar.ral.nujan.netcdf.*;
 import org.esa.beam.util.StringUtils;
 import ucar.ma2.DataType;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +48,7 @@ public class N4FileWriteable implements NFileWriteable {
 
     private N4FileWriteable(NhFileWriter nhFileWriter) {
         this.nhFileWriter = nhFileWriter;
-        this.variables = new HashMap<String, NVariable>();
+        this.variables = new HashMap<>();
     }
 
     @Override
@@ -105,9 +100,15 @@ public class N4FileWriteable implements NFileWriteable {
         return addVariable(name, dataType, false, tileSize, dims);
     }
 
+
     @Override
-    public NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dimensions) throws
-                                                                                                                          IOException {
+    public NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dims) throws IOException {
+        return addVariable(name, dataType, unsigned, tileSize, dims, DEFAULT_COMPRESSION);
+    }
+
+    @Override
+    public NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dimensions, int compressionLevel) throws
+            IOException {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         int nhType = N4DataType.convert(dataType, unsigned);
         String[] dims = dimensions.split(" ");
@@ -141,7 +142,7 @@ public class N4FileWriteable implements NFileWriteable {
         Object fillValue = null; // TODO
         try {
             NhVariable variable = rootGroup.addVariable(name, nhType, nhDims, chunkLens, fillValue,
-                                                        DEFAULT_COMPRESSION);
+                    compressionLevel);
             NVariable nVariable = new N4Variable(variable, tileSize);
             variables.put(name, nVariable);
             return nVariable;

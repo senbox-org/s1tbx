@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf</symbolicName>
-    <version>5.0.1</version>
+    <version>5.0.2</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -31,6 +31,8 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.2</b><br/>
+        [BEAM-1700] NetCDF reader cannot read AMSR2 L1R<br/>
         <b>Changes in 5.0.1</b><br/>
         [BEAM-1695] Add configuration of metadata values limitation for NetCDF reader<br/>
         [BEAM-1681] Modis MOD09 product used wrong semi_major and semi_minor values<br/>

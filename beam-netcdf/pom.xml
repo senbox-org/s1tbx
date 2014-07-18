@@ -27,7 +27,7 @@
 
     <artifactId>beam-netcdf</artifactId>
     <name>BEAM NetCDF Product Reader and Writer</name>
-    <version>5.0.1</version>
+    <version>5.0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
