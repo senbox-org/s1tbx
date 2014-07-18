@@ -70,6 +70,12 @@ public class N3FileWriteable implements NFileWriteable {
         return new N3Variable(variable, netcdfFileWriteable);
     }
 
+
+    @Override
+    public NVariable addVariable(String name, DataType dataType, boolean unsigned, java.awt.Dimension tileSize, String dims, int compressionLevel) throws IOException {
+        return addVariable(name, dataType, tileSize, dims);
+    }
+
     @Override
     public NVariable addVariable(String name, DataType dataType, boolean unsigned, java.awt.Dimension tileSize, String dims) throws IOException {
         return addVariable(name, dataType, tileSize, dims);

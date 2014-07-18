@@ -40,6 +40,8 @@ public interface NFileWriteable {
 
     NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dims) throws IOException;
 
+    NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dims, int compressionLevel) throws IOException;
+
     NVariable findVariable(String variableName);
 
     boolean isNameValid(String name);
