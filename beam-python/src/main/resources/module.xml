@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-python</symbolicName>
-    <version>5.0.3</version>
+    <version>5.0.4</version>
     <name>BEAM Python Interface</name>
     <packaging>dir</packaging>
 
@@ -35,6 +35,9 @@
 
     <changelog>
         <![CDATA[
+                <p>Changes in 5.0.4<br/>
+                Added new example how to write a PNG image from a product's band<br/>
+                Updated to use jpy 0.7.5 (https://github.com/bcdev/jpy/issues/43)<br/>
                 <p>Changes in 5.0.3<br/>
                 [BEAM-1699] JAI not always initialised propertly in beampy clients<br/>
                 <p>Changes in 5.0.2<br/>
