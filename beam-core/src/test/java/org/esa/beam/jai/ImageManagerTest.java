@@ -16,8 +16,7 @@
 
 package org.esa.beam.jai;
 
-import static org.junit.Assert.*;
-
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.beam.framework.datamodel.Band;
@@ -26,7 +25,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.junit.*;
+import org.junit.Test;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
@@ -37,6 +36,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.awt.image.RenderedImage;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Norman Fomferra
@@ -46,6 +50,59 @@ public class ImageManagerTest {
 
     private static final double EPS_L = 1.0e-3;
     private static final double EPS_H = 1.0e-6;
+
+    @Test
+    public void testCreateColoredBandImage() throws Exception {
+        int[] pixel00 = new int[3];
+        int[] pixel10 = new int[3];
+        int[] pixel01 = new int[3];
+        int[] pixel11 = new int[3];
+
+        Product product = new Product("A", "B", 2, 2);
+        Band band1 = product.addBand("b1", "X + Y");
+        Band band2 = product.addBand("b2", "X + Y");
+        Band band3 = product.addBand("b3", "X + Y");
+        ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
+                new ColorPaletteDef.Point(1.0, Color.YELLOW),
+                new ColorPaletteDef.Point(2.0, Color.RED),
+                new ColorPaletteDef.Point(3.0, Color.BLUE),
+        }));
+
+        RenderedImage image;
+
+        band1.getStx(true, ProgressMonitor.NULL);
+        band1.getImageInfo(ProgressMonitor.NULL);
+        image = ImageManager.getInstance().createColoredBandImage(new RasterDataNode[]{band1}, null, 0);
+        image.getData().getPixel(0, 0, pixel00);
+        image.getData().getPixel(1, 0, pixel10);
+        image.getData().getPixel(0, 1, pixel01);
+        image.getData().getPixel(1, 1, pixel11);
+        assertArrayEquals(new int[]{0, 0, 0}, pixel00);
+        assertArrayEquals(new int[]{0, 0, 0}, pixel10);
+        assertArrayEquals(new int[]{0, 0, 0}, pixel01);
+        assertArrayEquals(new int[]{255, 255, 255}, pixel11);
+
+        band2.setImageInfo(imageInfo);
+        image = ImageManager.getInstance().createColoredBandImage(new RasterDataNode[]{band2}, null, 0);
+        image.getData().getPixel(0, 0, pixel00);
+        image.getData().getPixel(1, 0, pixel10);
+        image.getData().getPixel(0, 1, pixel01);
+        image.getData().getPixel(1, 1, pixel11);
+        assertArrayEquals(new int[]{255, 255, 0}, pixel00);
+        assertArrayEquals(new int[]{255, 1, 0}, pixel10);
+        assertArrayEquals(new int[]{255, 1, 0}, pixel01);
+        assertArrayEquals(new int[]{0, 0, 255}, pixel11);
+
+        image = ImageManager.getInstance().createColoredBandImage(new RasterDataNode[]{band3}, imageInfo, 0);
+        image.getData().getPixel(0, 0, pixel00);
+        image.getData().getPixel(1, 0, pixel10);
+        image.getData().getPixel(0, 1, pixel01);
+        image.getData().getPixel(1, 1, pixel11);
+        assertArrayEquals(new int[]{255, 255, 0}, pixel00);
+        assertArrayEquals(new int[]{255, 1, 0}, pixel10);
+        assertArrayEquals(new int[]{255, 1, 0}, pixel01);
+        assertArrayEquals(new int[]{0, 0, 255}, pixel11);
+    }
 
     @Test
     public void testSentinel2L1CTileResolutions() throws Exception {

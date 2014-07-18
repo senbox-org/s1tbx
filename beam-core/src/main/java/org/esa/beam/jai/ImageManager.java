@@ -341,6 +341,9 @@ public class ImageManager {
 
     private RenderedImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {
         Assert.notNull(raster, "raster");
+        if (imageInfo == null) {
+            imageInfo = raster.getImageInfo(ProgressMonitor.NULL);
+        }
         Assert.notNull(imageInfo, "imageInfo");
         RenderedImage sourceImage = getSourceImage(raster, level);
         RenderedImage validMaskImage = getValidMaskImage(raster, level);
@@ -589,7 +592,7 @@ public class ImageManager {
             palette = Arrays.copyOf(origPalette, origPalette.length + 1);
             palette[palette.length - 1] = imageInfo.getNoDataColor();
         } else {
-            palette = createColorPalette(rasterDataNode.getImageInfo());
+            palette = createColorPalette(imageInfo);
         }
 
         final byte[][] lutData = new byte[3][palette.length];
@@ -767,13 +770,14 @@ public class ImageManager {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
         if (rasters.length == 1) {
-            Assert.state(rasters[0].getImageInfo() != null, "rasters[0].getImageInfo()");
-            return rasters[0].getImageInfo();
+            RasterDataNode raster = rasters[0];
+            Assert.state(raster.getImageInfo() != null, "raster.getImageInfo() != null");
+            return raster.getImageInfo();
         } else {
             final RGBChannelDef rgbChannelDef = new RGBChannelDef();
             for (int i = 0; i < rasters.length; i++) {
                 RasterDataNode raster = rasters[i];
-                Assert.state(rasters[i].getImageInfo() != null, "rasters[i].getImageInfo()");
+                Assert.state(rasters[i].getImageInfo() != null, "rasters[i].getImageInfo() != null");
                 ImageInfo imageInfo = raster.getImageInfo();
                 rgbChannelDef.setSourceName(i, raster.getName());
                 rgbChannelDef.setMinDisplaySample(i, imageInfo.getColorPaletteDef().getMinDisplaySample());

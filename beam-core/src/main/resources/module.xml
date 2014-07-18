@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>5.0.2</version>
+    <version>5.0.3</version>
     <name>BEAM Core Library</name>
 
 
@@ -41,6 +41,8 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.3</b><br/>
+        [BEAM-1702] Method ImageManager.createColoredBandImage() may ignore imageInfo parameter<br/>
         <b>Changes in 5.0.2</b><br/>
         [BEAM-1698] Export of colour palette as image does not work properly when log colours are switched on<br/>
         [BEAM-1685] Product saved with attached PixelGeoCoding can not be loaded when using the alternate PixelGeoCoding<br/>
