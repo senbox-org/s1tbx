@@ -81,7 +81,7 @@
     </licenses>
 
     <modules>
-        <module>senbox-help</module>
+        <module>snap-help</module>
     </modules>
 
     <build>
