@@ -37,6 +37,8 @@
         <netcdf.version>4.3.21</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.5.3</jide.version>
+		
+		<outputdir>../../output</outputdir>
     </properties>
 
     <modules>
@@ -658,7 +660,7 @@
     </distributionManagement>
 
     <build>
-        <outputDirectory>../modules/${project.artifactId}-${project.version}</outputDirectory>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
 
         <!-- Maven plugin configurations common to all BEAM modules -->
         <pluginManagement>
