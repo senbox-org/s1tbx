@@ -17,6 +17,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <senboxVersionRange>[0.5,1.0-SNAPSHOT)</senboxVersionRange>
+		
+		<beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
+        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
+        <nest.version>6.0-SNAPSHOT</nest.version>
+		
+		<outputdir>../../output</outputdir>
+		<pacakgedir>../package</pacakgedir>
     </properties>
 
     <organization>
@@ -31,31 +38,43 @@
         <url>https://senbox.atlassian.net/</url>
     </issueManagement>
 
+	<prerequisites>
+       <maven>3.0.1</maven>
+    </prerequisites>
+	
     <!-- TODO - clarify which public maven repo will will deploy to -->
 
-    <!--
-
-        <scm>
-            <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres/trunk</connection>
-            <url>https://www.brockmann-consult.de/svn/os/ceres/trunk</url>
-        </scm>
-
-        <repositories>
-            <repository>
-                <id>bc-mvn-repo-http</id>
-                <name>Public Maven Repository at Brockmann Consult</name>
-                <url>http://www.brockmann-consult.de/mvn/os</url>
-                <releases>
-                    <enabled>true</enabled>
-                    <checksumPolicy>warn</checksumPolicy>
-                </releases>
-                <snapshots>
-                    <enabled>true</enabled>
-                    <checksumPolicy>warn</checksumPolicy>
-                </snapshots>
-            </repository>
-        </repositories>
-
+	<repositories>
+        <repository>
+            <id>bc-mvn-repo</id>
+            <name>Public Maven Repository at Brockmann-Consult</name>
+            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+		<repository>
+            <id>array-mvn-repo</id>
+            <name>Public Maven Repository at Array Systems Computing Inc</name>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+          <id>repo1.maven.org</id>
+          <name>maven repository</name>
+          <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+	
+<!--
         <distributionManagement>
             <repository>
                 <id>bc-mvn-repo-public</id>
@@ -81,22 +100,73 @@
     </licenses>
 
     <modules>
-        <module>snap-help</module>
+		<module>../ceres</module>
+		<module>../beam</module>
+		
+        <module>snap-app</module>
+		<module>snap-bootstrap</module>
+		<module>snap-config</module>
+		<module>snap-help</module>
     </modules>
 
     <build>
+		<outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <debug>true</debug>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+			
+			<plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+                <configuration>
+					<outputDirectory>${pacakgedir}</outputDirectory>
+                    <descriptors>
+						<descriptor>snap-config/main/assembly/bin-windows64.xml</descriptor>
+						<descriptor>snap-config/main/assembly/bin-windows.xml</descriptor>						
+						<descriptor>snap-config/main/assembly/bin-linux.xml</descriptor>
+						<descriptor>snap-config/main/assembly/bin-linux64.xml</descriptor>
+						<descriptor>snap-config/main/assembly/bin-mac.xml</descriptor>
+						<descriptor>snap-config/main/assembly/repository.xml</descriptor>
+						<descriptor>snap-config/main/assembly/web-help.xml</descriptor>
+                        <!--descriptor>snap-config/main/assembly/src.xml</descriptor-->
+                    </descriptors>
+                </configuration>
+            </plugin>
+			<plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${outputdir}</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </fileset>
+						<fileset>
+                            <directory>${pacakgedir}</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </fileset>
+						<fileset>
+                            <directory>target</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
     <!--
@@ -334,4 +404,33 @@
             </developer>
         </developers>
     -->
+	
+	<profiles>
+		<profile>
+            <id>s1tbx</id>
+			<modules>
+				<module>..\s1tbx</module>
+			</modules>
+		</profile>
+		<profile>
+            <id>s2tbx</id>
+			<modules>
+				<module>..\s2tbx</module>
+			</modules>
+		</profile>
+		<profile>
+            <id>s3tbx</id>
+			<modules>
+				<module>..\s3tbx</module>
+			</modules>
+		</profile>
+		<profile>
+            <id>all</id>
+			<modules>
+				<module>..\s1tbx</module>
+				<module>..\s2tbx</module>
+				<module>..\s3tbx</module>
+			</modules>
+		</profile>
+	</profiles>	
 </project>
