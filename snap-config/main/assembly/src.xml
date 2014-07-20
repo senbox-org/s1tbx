@@ -1,0 +1,26 @@
+<!-- source distribution -->
+<assembly>
+    <id>src</id>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+			<directory>../s1tbx</directory>
+            <excludes>
+				<exclude>**/.gitignore</exclude>
+                <exclude>**/*.ipr</exclude>
+                <exclude>**/*.iml</exclude>
+                <exclude>**/*.iws</exclude>
+                <exclude>**/.project</exclude>
+                <exclude>**/.classpath</exclude>
+                <exclude>**/.settings</exclude>
+				<exclude>**/.idea/**</exclude>
+                <exclude>**/target/**</exclude>
+				<exclude>**/output/**</exclude>
+				<exclude>**/.git/**</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

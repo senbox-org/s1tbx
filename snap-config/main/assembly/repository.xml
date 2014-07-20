@@ -1,0 +1,45 @@
+<assembly>
+    <id>repository</id>
+
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+	
+    <moduleSets>
+        <moduleSet>
+			<excludes>
+				<exclude>org.esa.beam:beam-bootstrap</exclude>
+				<exclude>org.esa.nest:nest-bootstrap</exclude>
+				<exclude>org.esa.nest:nest-benchmark</exclude>
+				<exclude>org.esa.nest:nest-src</exclude>
+				<exclude>org.esa.s2tbx:s2tbx-bootstrap</exclude>
+				<exclude>org.esa.s3tbx:s3tbx-bootstrap</exclude>
+				<exclude>org.esa.snap:snap-bootstrap</exclude>
+				<exclude>org.esa.snap:snap-config</exclude>
+                <exclude>com.bc.ceres:ceres-*</exclude>
+            </excludes>
+			<sources>
+		        <includeModuleDirectory>false</includeModuleDirectory>
+		        <fileSets>
+		          <fileSet>
+					<directory>src/main/resources</directory>
+		            <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>
+		            <includes>
+		              <include>module.xml</include>
+		            </includes>
+		          </fileSet>
+		        </fileSets>
+		    </sources>
+
+            <binaries>
+                <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+            </binaries>
+        </moduleSet>
+
+    </moduleSets>
+
+</assembly>
