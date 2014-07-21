@@ -64,6 +64,7 @@
 
         <module>beam-aatsr-sst</module>
         <module>beam-alos-reader</module>
+		<module>beam-arcbingrid-reader</module>
         <module>beam-atsr-reader</module>
         <module>beam-avhrr-reader</module>
         <module>beam-binning</module>
@@ -598,6 +599,17 @@
             <snapshots>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
+		<repository>
+            <id>array-mvn-repo</id>
+            <name>Public Maven Repository at Array Systems Computing Inc</name>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
         <repository>
