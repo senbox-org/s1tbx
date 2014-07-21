@@ -31,7 +31,7 @@
 		<hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.21</netcdf.version>	
 		
-		<outputdir>../../${context}/output</outputdir>
+		<outputdir>../../output</outputdir>
 	</properties>
 	
 	<prerequisites>
@@ -1006,7 +1006,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-					<outputDirectory>../${context}/target</outputDirectory>
+					<outputDirectory>../target</outputDirectory>
                     <descriptors>
 						<descriptor>nest-src/main/assembly/bin-windows64.xml</descriptor>
 						<descriptor>nest-src/main/assembly/bin-windows.xml</descriptor>						
