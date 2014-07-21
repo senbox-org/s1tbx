@@ -34,6 +34,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -214,14 +215,12 @@ public class TabbedDesktopPane extends JPanel {
         initTabbedPaneMaxHeight();
         updateTabbedPaneVisibility();
 
+        desktopPane.setBackground(new Color(51, 102, 153).darker());
+
         tabbedPane.addChangeListener(new TabbedPaneChangeHandler());
         tabbedPane.addMouseListener(new PopupMenuHandler());
-// <old-UI>
-//        desktopPane.setBackground(BACKGROUND_COLOR);
-// </old-UI>
         tabbedPane.setBackground(desktopPane.getBackground());
         tabbedPane.setShowCloseButtonOnTab(true);
-// <JIDE>
         tabbedPane.setCloseAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -236,10 +235,10 @@ public class TabbedDesktopPane extends JPanel {
                 }
             }
         });
-//        tabbedPane.setShowCloseButton(true);
-//        tabbedPane.setTabShape(JideTabbedPane.SHAPE_BOX);
-//        tabbedPane.setTabResizeMode(JideTabbedPane.RESIZE_MODE_FIXED);
-// </JIDE>
+        tabbedPane.setShowCloseButton(true);
+        tabbedPane.setTabShape(JideTabbedPane.SHAPE_ECLIPSE);
+        tabbedPane.setTabResizeMode(JideTabbedPane.RESIZE_MODE_FIXED);
+
 
         add(tabbedPane, BorderLayout.NORTH);
         add(desktopPane, BorderLayout.CENTER);
