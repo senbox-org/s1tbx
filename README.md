@@ -34,20 +34,32 @@ spectrum of EO user communities, including science, applications and services de
 # Building toolboxes from the source
 
 1. Clone the source code and related repositories into a folder SNAP/
+
 	git clone https://github.com/senbox-org/snap.git
+	
 	git clone https://github.com/senbox-org/beam.git
+	
 	git clone https://github.com/senbox-org/ceres.git
+	
 	git clone https://github.com/arraydev/s1tbx.git
+	
 	git clone https://github.com/CS-SI/s2tbx.git
+	
 	git clone https://github.com/bcdev/s3tbx.git
 	
 	Note: the snap, beam and ceres repositories are mandetory. The toolboxes are each optional.
 2. CD into SNAP/snap and build the source: 
+
 	mvn compile or mvn package
+	
 	Use maven profiles to build the desired toolbox components
+	
 	mvn compile -P s2tbx,s3tbx
+	
 	or all components
+	
 	mvn compile -P all
+	
 3. Open the pom.xml file from within IntelliJ IDEA to import.
 4. Use the following configuration to run DAT:
 
