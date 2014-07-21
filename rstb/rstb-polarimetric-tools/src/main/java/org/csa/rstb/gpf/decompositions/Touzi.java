@@ -22,8 +22,8 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.nest.gpf.PolBandUtils;
-import org.esa.nest.gpf.PolBandUtils.MATRIX;
+import org.esa.nest.dataio.PolBandUtils;
+import org.esa.nest.dataio.PolBandUtils.MATRIX;
 import org.esa.nest.gpf.TileIndex;
 
 import java.awt.*;

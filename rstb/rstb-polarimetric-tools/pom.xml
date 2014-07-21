@@ -27,6 +27,10 @@
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-dat</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-io</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
