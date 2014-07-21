@@ -102,8 +102,18 @@ public class EnviProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
 
-    private DecodeQualification checkDecodeQualificationOnFile(File inputFile) {
+    private static DecodeQualification checkDecodeQualificationOnFile(File inputFile) {
         try {
+            final String fileName = inputFile.getName().toLowerCase();
+            boolean validExt = false;
+            for(String ext : EnviConstants.VALID_EXTENSIONS) {
+                if(fileName.endsWith(ext)) {
+                    validExt = true;
+                    break;
+                }
+            }
+            if(!validExt) return DecodeQualification.UNABLE;
+
             if (isCompressedFile(inputFile)) {
                 final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
 

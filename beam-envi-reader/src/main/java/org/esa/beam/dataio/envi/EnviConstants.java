@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.envi;
 
-class EnviConstants {
+public class EnviConstants {
 
     public static final String HEADER_KEY_SAMPLES = "samples";
     public static final String HEADER_KEY_LINES = "lines";
@@ -37,11 +37,16 @@ class EnviConstants {
     public static final String BSQ_EXTENSION = ".bsq";
     public static final String ZIP_EXTENSION = ".zip";
 
+static final String[] VALID_EXTENSIONS = {HDR_EXTENSION, ZIP_EXTENSION};
+    static final String[] IMAGE_EXTENSIONS = {".img", ".dat", ".bin", ".bip", ".bil", ".bsq"};
+
     public static final int TYPE_ID_BYTE = 1;
     public static final int TYPE_ID_INT16 = 2;
     public static final int TYPE_ID_INT32 = 3;
     public static final int TYPE_ID_FLOAT32 = 4;
     public static final int TYPE_ID_FLOAT64 = 5;
+    public static final int TYPE_ID_COMPLEXFLOAT32 = 6;
+    public static final int TYPE_ID_COMPLEXFLOAT64 = 9;
     public static final int TYPE_ID_UINT16 = 12;
     public static final int TYPE_ID_UINT32 = 13;
 

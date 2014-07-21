@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.*;
 
-class Header {
+public class Header {
 
     static final String UNKNOWN_SENSOR_TYPE = "Unknown Sensor Type";
     static final String SENSING_START = "sensingStart";
@@ -16,7 +16,7 @@ class Header {
     static final String BEAM_PROPERTIES = "beamProperties";
     private final HeaderParser headerParser;
 
-    Header(final BufferedReader reader) throws IOException {
+    public Header(final BufferedReader reader) throws IOException {
         headerParser = HeaderParser.parse(reader);
     }
 

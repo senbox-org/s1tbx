@@ -44,6 +44,7 @@
             <formatName>ENVI</formatName>
             <useAllFileFilter>false</useAllFileFilter>
             <shortDescr>Import an ENVI data product.</shortDescr>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>importHicoProduct</id>
@@ -52,6 +53,16 @@
             <text>HICO (ENVI format)</text>
             <useAllFileFilter>false</useAllFileFilter>
             <shortDescr>Import a HICO data product.</shortDescr>
+            <parent>importFileFormats</parent>
+        </action>
+
+		 <action>
+            <id>exportENVI</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>ENVI</formatName>
+            <text>ENVI</text>
+            <shortDescr>Export ENVI product</shortDescr>
+            <helpId>exportENVI</helpId>
         </action>
     </extension>
 
