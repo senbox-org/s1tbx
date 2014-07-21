@@ -395,8 +395,12 @@ public class RGBImageProfile implements ConfigurableExtension {
     }
 
     public static void storeRgbaExpressions(final Product product, final String[] rgbaExpressions) {
-        for (int i = 0; i < RGBImageProfile.RGBA_BAND_NAMES.length; i++) {
-            final String rgbBandName = RGBImageProfile.RGBA_BAND_NAMES[i];
+        storeRgbaExpressions(product, rgbaExpressions, RGBImageProfile.RGBA_BAND_NAMES);    
+    }
+
+    public static void storeRgbaExpressions(final Product product, final String[] rgbaExpressions, final String[] bandNames) {
+        for (int i = 0; i < bandNames.length; i++) {
+            final String rgbBandName = bandNames[i];
             final String rgbaExpression = rgbaExpressions[i];
             final Band rgbBand = product.getBand(rgbBandName);
             final boolean expressionIsEmpty = rgbaExpression.equals("");

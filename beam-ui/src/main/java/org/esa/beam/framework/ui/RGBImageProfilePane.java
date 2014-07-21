@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -74,6 +75,8 @@ public class RGBImageProfilePane extends JPanel {
 
     private PropertyMap preferences;
     private Product product;
+    private final Product[] openedProducts;
+    private final int[] defaultBandIndices;
     private JComboBox<ProfileItem> profileBox;
 
     private JComboBox[] rgbaExprBoxes;
@@ -82,15 +85,18 @@ public class RGBImageProfilePane extends JPanel {
     private AbstractAction deleteAction;
     private boolean settingRgbaExpressions;
     private File lastDir;
-    private JCheckBox storeInProductCheck;
+    protected JCheckBox storeInProductCheck;
 
     public RGBImageProfilePane(PropertyMap preferences) {
-        this(preferences, null);
+        this(preferences, null, null, null);
     }
 
-    public RGBImageProfilePane(PropertyMap preferences, Product product) {
+    public RGBImageProfilePane(PropertyMap preferences, Product product,
+                               final Product[] openedProducts, final int[] defaultBandIndices) {
         this.preferences = preferences;
         this.product = product;
+        this.openedProducts = openedProducts;
+        this.defaultBandIndices = defaultBandIndices;
 
         AbstractAction openAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
@@ -193,6 +199,15 @@ public class RGBImageProfilePane extends JPanel {
             }
         }
         setRgbaExpressionsFromSelectedProfile();
+
+        if(rgbaExprBoxes[0].getSelectedIndex() < 0) {
+            // default
+            if(defaultBandIndices != null && defaultBandIndices.length > 0) {
+                for(int i=0; i < defaultBandIndices.length; ++i) {
+                    rgbaExprBoxes[i].setSelectedIndex(defaultBandIndices[i]);
+                }
+            }
+        }
     }
 
     public Product getProduct() {
@@ -467,7 +482,7 @@ public class RGBImageProfilePane extends JPanel {
 
         constraints.gridx = 0;
         constraints.weightx = 0;
-        p3.add(new JLabel(COLOR_COMP_NAMES[index] + ": "), constraints);
+        p3.add(new JLabel(getComponentName(index) + ": "), constraints);
 
         constraints.gridx = 1;
         constraints.weightx = 1;
@@ -478,12 +493,17 @@ public class RGBImageProfilePane extends JPanel {
         p3.add(editorButton, constraints);
     }
 
+    protected String getComponentName(final int index) {
+        return COLOR_COMP_NAMES[index];
+    }
+
     private void invokeExpressionEditor(final int colorIndex) {
         final Window window = SwingUtilities.getWindowAncestor(this);
-        final String title = "Edit " + COLOR_COMP_NAMES[colorIndex] + " Expression";
+        final String title = "Edit " + getComponentName(colorIndex) + " Expression";
         if (product != null) {
             final ExpressionPane pane;
-            pane = ProductExpressionPane.createGeneralExpressionPane(new Product[]{product}, product, preferences);
+            final Product[] products = getCompatibleProducts(product, openedProducts);
+            pane = ProductExpressionPane.createGeneralExpressionPane(products, product, preferences);
             pane.setCode(getExpression(colorIndex));
             int status = pane.showModalDialog(window, title);
             if (status == ModalDialog.ID_OK) {
@@ -505,6 +525,28 @@ public class RGBImageProfilePane extends JPanel {
                 setExpression(colorIndex, textArea.getText());
             }
         }
+    }
+
+    private static Product[] getCompatibleProducts(final Product targetProduct, final Product[] productsList) {
+        final List<Product> compatibleProducts = new ArrayList<Product>(1);
+        compatibleProducts.add(targetProduct);
+        final float geolocationEps = 180;
+        Debug.trace("BandMathsDialog.geolocationEps = " + geolocationEps);
+        Debug.trace("BandMathsDialog.getCompatibleProducts:");
+        Debug.trace("  comparing: " + targetProduct.getName());
+        if(productsList != null) {
+            for (final Product product : productsList) {
+                if (targetProduct != product) {
+                    Debug.trace("  with:      " + product.getDisplayName());
+                    final boolean isCompatibleProduct = targetProduct.isCompatibleProduct(product, geolocationEps);
+                    Debug.trace("  result:    " + isCompatibleProduct);
+                    if (isCompatibleProduct) {
+                        compatibleProducts.add(product);
+                    }
+                }
+            }
+        }
+        return compatibleProducts.toArray(new Product[compatibleProducts.size()]);
     }
 
     private JComboBox createRgbaBox(String[] suggestions) {

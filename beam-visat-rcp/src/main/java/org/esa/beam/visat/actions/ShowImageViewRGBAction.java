@@ -18,26 +18,21 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.RGBImageProfilePane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.Icon;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingWorker;
 import java.awt.Cursor;
-import java.util.logging.Level;
 
 /**
  * This action opens an RGB image view on the currently selected Product.
@@ -64,8 +59,13 @@ public class ShowImageViewRGBAction extends ExecCommand {
 
     public void openProductSceneViewRGB(final Product product, final String helpId) {
         final VisatApp visatApp = VisatApp.getApp();
-        final RGBImageProfilePane profilePane = new RGBImageProfilePane(visatApp.getPreferences(), product);
-        final String title = visatApp.getAppName() + " - Select RGB-Image Channels";
+        final Product[] openedProducts = visatApp.getProductManager().getProducts();
+        final int[] defaultBandIndices = getDefaultBandIndices(product);
+
+        final RGBImageProfilePane profilePane = new RGBImageProfilePane(visatApp.getPreferences(), product,
+                openedProducts, defaultBandIndices);
+
+        final String title = "Select RGB-Image Channels";
         final boolean ok = profilePane.showDialog(visatApp.getMainFrame(), title, helpId);
         if (!ok) {
             return;
@@ -79,14 +79,48 @@ public class ShowImageViewRGBAction extends ExecCommand {
         openProductSceneViewRGB(sceneName, product, rgbaExpressions);
     }
 
+    public static int[] getDefaultBandIndices(final Product product) {
+
+        int[] bandIndices = null;
+        final Band[] bands = product.getBands();
+        if(bands.length == 1) {
+            return new int[]{0};
+        } else if(bands.length == 2) {
+            return new int[] {0, 1};
+        } else if(bands.length > 2) {
+            bandIndices = new int[3];
+            int cnt = 0, i = 0;
+            for(Band band : product.getBands()) {
+                final String unit = band.getUnit();
+                if(unit != null && unit.contains("intensity")) {
+                    bandIndices[i++] = cnt;
+                }
+                if(i >= bandIndices.length)
+                    break;
+                ++cnt;
+            }
+            if(i ==  0) {
+                while (i < 3) {
+                    bandIndices[i] = i++;
+                }
+            }
+            if(i == 1) {
+                return new int[] {bandIndices[0]};
+            } else if(i == 2) {
+                return new int[] {bandIndices[0], bandIndices[1]};
+            }
+        }
+        return bandIndices;
+    }
+
     /**
      * Creates product scene view using the given RGBA expressions.
      */
     public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions) {
         final VisatApp visatApp = VisatApp.getApp();
         final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(
-                    visatApp.getMainFrame(),
-                    visatApp.getAppName() + " - Creating image for '" + name + "'") {
+                visatApp.getMainFrame(),
+                visatApp.getAppName() + " - Creating image for '" + name + "'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -129,7 +163,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
 
         final String title = createUniqueInternalFrameTitle(view.getSceneName());
         final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(), true);
+        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(),true);
         visatApp.addPropertyMapChangeListener(view);
         updateState();
 
@@ -137,9 +171,9 @@ public class ShowImageViewRGBAction extends ExecCommand {
     }
 
 
-    private static class RGBBand {
+    public static class RGBBand {
 
-        private Band band;
+        public Band band;
         private boolean dataLoaded;
     }
 
@@ -171,7 +205,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         return productSceneImage;
     }
 
-    private RGBBand[] allocateRgbBands(final Product product, final String[] rgbaExpressions) {
+    public static RGBBand[] allocateRgbBands(final Product product, final String[] rgbaExpressions) {
         final RGBBand[] rgbBands = new RGBBand[3]; // todo - set to [4] as soon as we support alpha
         final boolean productModificationState = product.isModified();
         for (int i = 0; i < rgbBands.length; i++) {
@@ -179,35 +213,9 @@ public class ShowImageViewRGBAction extends ExecCommand {
             String expression = rgbaExpressions[i].isEmpty() ? "0" : rgbaExpressions[i];
             rgbBand.band = product.getBand(expression);
             if (rgbBand.band == null) {
-                final ProductSceneView.RGBChannel channel = new ProductSceneView.RGBChannel(product,
-                                                                                            RGBImageProfile.RGB_BAND_NAMES[i],
-                                                                                            expression);
-                try {
-                    final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(expression, product);
-                    String validExpression = null;
-                    for (RasterDataNode refRaster : refRasters) {
-                        if (validExpression == null) {
-                            validExpression = refRaster.getValidMaskExpression();
-                            if (validExpression != null) {
-                                validExpression = validExpression.trim();
-                            }
-                        } else {
-                            String exp = refRaster.getValidMaskExpression();
-                            if (exp != null) {
-                                exp = exp.trim();
-                                if (validExpression == null || !validExpression.equals(exp)) {
-                                    validExpression = "(" + validExpression + ") && (" + exp + ")";
-                                }
-                            }
-                        }
-                    }
-                    if (validExpression != null) {
-                        channel.setValidPixelExpression(validExpression);
-                    }
-                } catch (ParseException e) {
-                    BeamLogManager.getSystemLogger().log(Level.WARNING, e.getMessage(), e);
-                }
-                rgbBand.band = channel;
+                rgbBand.band = new ProductSceneView.RGBChannel(product,
+                                                               RGBImageProfile.RGB_BAND_NAMES[i],
+                                                               expression);
             }
             rgbBands[i] = rgbBand;
         }
@@ -215,7 +223,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         return rgbBands;
     }
 
-    private static void releaseRgbBands(RGBBand[] rgbBands, boolean errorOccurred) {
+    public static void releaseRgbBands(RGBBand[] rgbBands, boolean errorOccurred) {
         for (int i = 0; i < rgbBands.length; i++) {
             final RGBBand rgbBand = rgbBands[i];
             if (rgbBand != null && rgbBand.band != null) {
@@ -233,7 +241,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         }
     }
 
-    private static String createUniqueInternalFrameTitle(String name) {
+    public static String createUniqueInternalFrameTitle(String name) {
         return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), name);
     }
 
