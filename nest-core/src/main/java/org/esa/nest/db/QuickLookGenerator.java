@@ -123,9 +123,9 @@ public class QuickLookGenerator {
         }
         final BufferedImage image = ProductUtils.createColorIndexedImage(productSubset.getBand(srcBandName),
                 ProgressMonitor.NULL);
-        if (productSubset.isCorrupt()) {
-            product.setCorrupt(true);
-        }
+        //if (productSubset.isCorrupt()) {
+        //    product.setCorrupt(true);
+        //}
         productSubset.dispose();
 
         return image;
@@ -209,7 +209,7 @@ public class QuickLookGenerator {
         final Product sourceProduct = ProductIO.readProduct(browseFile);
         if (sourceProduct != null) {
             createQuickLook(id, sourceProduct, preprocess);
-            isCorrupt = sourceProduct.isCorrupt();
+            //isCorrupt = sourceProduct.isCorrupt();
 
             sourceProduct.dispose();
         }
