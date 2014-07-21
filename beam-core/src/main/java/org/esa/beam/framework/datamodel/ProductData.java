@@ -2715,8 +2715,26 @@ public abstract class ProductData implements Cloneable {
          * @see #createDateFormat
          */
         public static UTC parse(String text, String pattern) throws ParseException {
+            return parse(text, createDateFormat(pattern));
+        }
+
+        /**
+         * Parses a UTC value given as text. The method also considers an optional
+         * mircoseconds fraction at the end of the text string. The mircoseconds fraction
+         * is a dot '.' followed by a maximum of 6 digits.
+         *
+         * @param text    a UTC value given as text
+         * @param dateFormat the date/time pattern
+         *
+         * @return the UTC value represented by the given text
+         *
+         * @throws ParseException
+         * @see #createCalendar
+         * @see #createDateFormat
+         */
+        public static UTC parse(String text, DateFormat dateFormat) throws ParseException {
             Guardian.assertNotNullOrEmpty("text", text);
-            Guardian.assertNotNullOrEmpty("pattern", pattern);
+            Guardian.assertNotNull("dateFormat", dateFormat);
 
             final int dotPos = text.lastIndexOf(".");
             String noFractionString = text;
@@ -2737,7 +2755,6 @@ public abstract class ProductData implements Cloneable {
                 }
             }
 
-            final DateFormat dateFormat = createDateFormat(pattern);
             final Date date = dateFormat.parse(noFractionString);
             return create(date, micros);
         }
