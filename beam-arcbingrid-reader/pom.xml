@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>5.0.1</version>
+    </parent>
+	
+    <artifactId>beam-arcbingrid-reader</artifactId>
+    <groupId>org.esa.beam</groupId>
+    <name>Arc/Info Binary Grid Reader</name>
+    <version>5.0</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-binio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+        </dependency>
+        <dependency> <!-- used to read Dbase files (*.dbf) -->
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jexcelapi</groupId>
+            <artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+			<exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+			</exclusions>
+        </dependency>
+		<dependency>
+            <groupId>uk.me.jstott</groupId>
+            <artifactId>jcoord</artifactId>
+			<version>1.0</version>
+        </dependency>
+    </dependencies>
+</project>
