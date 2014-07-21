@@ -20,7 +20,7 @@
     <version>5.0</version>
     <name>PGX Product Reader</name>
 
-    <description>Enables BEAM to read ENVISAT data products.</description>
+    <description>Enables BEAM to read PGX data products.</description>
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
@@ -53,6 +53,7 @@
             <formatName>PGX</formatName>
             <useAllFileFilter>false</useAllFileFilter>
             <shortDescr>Import a PGX image.</shortDescr>
+            <parent>importFileFormats</parent>
         </action>
     </extension>
 

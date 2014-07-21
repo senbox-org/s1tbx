@@ -57,6 +57,7 @@
             <text>ENVISAT ASAR</text>
             <shortDescr>Import an ENVISAT ASAR data product or product subset.</shortDescr>
             <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
         </action>
         <action>
             <id>importEnvisatProduct</id>
@@ -67,6 +68,7 @@
             <mnemonic>E</mnemonic>
             <shortDescr>Import an ENVISAT (MERIS,AATSR) data product or product subset.</shortDescr>
             <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importMultispectral</parent>
         </action>
 		 <action>
             <id>importErsSARProduct</id>
@@ -77,6 +79,7 @@
             <shortDescr>Import an ERS1/2 SAR data product or product subset.</shortDescr>
             <largeIcon>icons/Import24.gif</largeIcon>
             <placeAfter>importEnvisatASARProduct</placeAfter>
+            <parent>importSAR</parent>
         </action>
         <action>
             <id>importErsProduct</id>
@@ -87,6 +90,7 @@
             <mnemonic>E</mnemonic>
             <shortDescr>Import an ERS1/2 ATSR data product or product subset.</shortDescr>
             <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

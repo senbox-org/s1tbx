@@ -31,6 +31,7 @@
             <largeIcon>icons/Import24.gif</largeIcon>
             <shortDescr>Import a CSV data product.</shortDescr>
             <helpId>importCsvProduct</helpId>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>exportCsvProduct</id>

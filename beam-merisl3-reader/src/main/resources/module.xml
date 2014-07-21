@@ -41,7 +41,7 @@
             <mnemonic>B</mnemonic>
             <shortDescr>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</shortDescr>
             <helpId>importMerisBinnedL3Product</helpId>
-            <!--<placeAfter>importEnvisatProduct</placeAfter>-->
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

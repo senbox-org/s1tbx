@@ -70,6 +70,7 @@
             <useAllFileFilter>true</useAllFileFilter>
             <text>Binned SeaDAS data</text>
             <shortDescr>Import a SeaDAS-Level-3-alike NetCDF file.</shortDescr>
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

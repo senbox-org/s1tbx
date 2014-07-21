@@ -42,6 +42,7 @@
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>M</mnemonic>
             <shortDescr>Import a CHRIS/Proba data product or product subset.</shortDescr>
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

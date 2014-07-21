@@ -40,6 +40,7 @@
             <shortDescr>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</shortDescr>
             <helpId>importAvhrr3L1bProduct</helpId>
             <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

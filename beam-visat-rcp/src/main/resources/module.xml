@@ -669,6 +669,25 @@
         <!--####################-->
 
         <action>
+            <id>importFileFormats</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Common File Formats</text>
+            <parent>importRasterData</parent>
+        </action>
+        <action>
+            <id>importSAR</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>SAR</text>
+            <parent>importRasterData</parent>
+        </action>
+        <action>
+            <id>importMultispectral</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Multispectral</text>
+            <parent>importRasterData</parent>
+        </action>
+
+        <action>
             <id>importShapefile</id>
             <class>org.esa.beam.visat.actions.ImportVectorDataNodeFromShapefileAction</class>
             <parent>importVectorData</parent>

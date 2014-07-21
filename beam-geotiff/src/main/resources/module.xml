@@ -56,6 +56,7 @@
             <mnemonic>O</mnemonic>
             <shortDescr>Import a GeoTIFF data product or product subset.</shortDescr>
             <helpId>importGeoTIFFProduct</helpId>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>exportGeoTIFFProduct</id>

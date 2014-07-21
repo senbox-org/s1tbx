@@ -37,6 +37,7 @@
             <mnemonic>A</mnemonic>
             <shortDescr>Import a ATSR data product or product subset.</shortDescr>
             <helpId>importAtsrProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

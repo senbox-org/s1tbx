@@ -43,6 +43,7 @@
             <mnemonic>M</mnemonic>
             <shortDescr>Import a MODIS (MOD, MXD, MYD) data product data product or product subset.</shortDescr>
             <helpId>importModisProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
     </extension>
 

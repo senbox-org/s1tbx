@@ -39,6 +39,7 @@
             <text>SeaDAS L1 (OCTS, CZCS, SeaWiFS)</text>
             <shortDescr>Import a SeaDAS-supported Level 1 (OCTS, CZCS, SeaWiFS) data product.</shortDescr>
             <helpId>importSeadasL1Product</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importSeadasL2Product</id>
@@ -48,6 +49,7 @@
             <text>SeaDAS L2 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.)</text>
             <shortDescr>Import a SeaDAS-supported Level 2 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.) data product.</shortDescr>
             <helpId>importSeadasL2Product</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importSeadasL3Product</id>
@@ -57,6 +59,7 @@
             <text>SeaDAS L3 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.)</text>
             <shortDescr>Import a SeaDAS-supported Level 3 (CZCS, OCTS, SeaWiFS, MODIS, VIIRS, etc.) data product.</shortDescr>
             <helpId>importSeadasL3Product</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importAquariusProduct</id>
@@ -66,6 +69,7 @@
             <text>Aquarius (L1A, L2, L3)</text>
             <shortDescr>Import an Aquarius (L1A, L2, L3) data product.</shortDescr>
             <helpId>importAquariusProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importHICOL1BProduct</id>
@@ -75,6 +79,7 @@
             <text>HICO L1B</text>
             <shortDescr>Import an HICO L1B data product.</shortDescr>
             <helpId>importHICOL1BProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importModisL1BProduct</id>
@@ -84,6 +89,7 @@
             <text>MODIS L1B</text>
             <shortDescr>Import a MODIS Level 1B data product.</shortDescr>
             <helpId>importModisL1BProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importOCM2L1BProduct</id>
@@ -93,6 +99,7 @@
             <text>OCM2 L1B</text>
             <shortDescr>Import an OCM2 L1B data product.</shortDescr>
             <helpId>importOCM2L1BProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importViirsProduct</id>
@@ -102,6 +109,7 @@
             <text>VIIRS (SDR, EDR)</text>
             <shortDescr>Import a VIIRS (SDR, EDR) data product.</shortDescr>
             <helpId>importViirsProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
         <action>
             <id>importSeadasBrowseProduct</id>
@@ -111,6 +119,7 @@
             <text>SeaDAS Browse (L1, L2)</text>
             <shortDescr>Import a SeaDAS Browse (L1, L2) data product.</shortDescr>
             <helpId>importSeadasBrowseProduct</helpId>
+            <parent>importMultispectral</parent>
         </action>
 
         <action>

@@ -64,6 +64,7 @@
             <mnemonic>N</mnemonic>
             <shortDescr>Import a NetCDF data product or product subset.</shortDescr>
             <helpId>importNetCdfProduct</helpId>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>importNetCdfCFProduct</id>
@@ -73,6 +74,7 @@
             <mnemonic>H</mnemonic>
             <shortDescr>Import a NetCDF/CF data product or product subset.</shortDescr>
             <helpId>importNetCdfProduct</helpId>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>importNetCdfBEAMProduct</id>
@@ -82,6 +84,7 @@
             <mnemonic>H</mnemonic>
             <shortDescr>Import a NetCDF/BEAM data product or product subset.</shortDescr>
             <helpId>importNetCdfProduct</helpId>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>importHdfEosProduct</id>
@@ -92,6 +95,7 @@
             <mnemonic>H</mnemonic>
             <shortDescr>Import a gridded HDF-EOS data product or product subset.</shortDescr>
             <helpId>importNetCdfProduct</helpId>
+            <parent>importFileFormats</parent>
         </action>
         <action>
             <id>exportNetCdfCFProduct</id>
