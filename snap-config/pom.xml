@@ -14,7 +14,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-config</artifactId>
-    <name>SNAP configuration</name>
+    <name>SNAP Configuration</name>
     <description>Adds the resources for the runtime environment.</description>
     <version>0.5-SNAPSHOT</version>
 
