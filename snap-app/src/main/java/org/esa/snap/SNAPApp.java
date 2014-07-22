@@ -34,19 +34,6 @@ public final class SNAPApp extends VisatApp {
         super(applicationDescriptor);
     }
 
-    protected TabbedDesktopPane createDesktop() {
-        final JDesktopPane desktopPane = new JDesktopPane() {
-            final URL imgPath = SNAPApp.class.getClassLoader().getResource("org/esa/snap/images/azure3.png");
-            private final Image image = Toolkit.getDefaultToolkit().getImage(imgPath);
-
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-            }
-        };
-
-        return new TabbedDesktopPane(new JideTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT), desktopPane);
-    }
 
     @Override
     protected boolean initLookAndFeel() {
@@ -97,19 +84,11 @@ public final class SNAPApp extends VisatApp {
     }
 
     protected void loadJideExtension() {
-        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
+        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.EXTENSION_STYLE_ECLIPSE);
 
         UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
         UIManager.getDefaults().put("SidePane.alwaysShowTabText", Boolean.TRUE);
         UIManager.getDefaults().put("SidePane.orientation", 1);
-
-        //UIManager.getDefaults().put("DockableFrame.background", new Color(200, 220, 230));
-
-        //UIManager.getDefaults().put("DockableFrame.activeTitleBackground", new Color(200, 220, 220));
-        //UIManager.getDefaults().put("DockableFrame.activeTitleBackground2", new Color(100, 200, 255));
-
-        // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
-        //UIManager.getDefaults().put("JideTabbedPane.showIconOnTab", Boolean.TRUE);
     }
 
     @Override

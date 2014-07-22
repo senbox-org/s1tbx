@@ -21,6 +21,9 @@
         <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
         <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>
+        <s1tbx.version>0.1-SNAPSHOT</s1tbx.version>
+        <s2tbx.version>0.6.0</s2tbx.version>
+        <s3tbx.version>0.6.0</s3tbx.version>
 
         <outputdir>../../output</outputdir>
         <pacakgedir>../package</pacakgedir>

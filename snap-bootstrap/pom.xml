@@ -27,8 +27,60 @@
         <dependency>
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
-			<version>1.27</version>
+            <version>1.27</version>
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>s1tbx</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.nest</groupId>
+                    <artifactId>nest-bootstrap</artifactId>
+                    <version>${nest.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>s2tbx</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.s2tbx</groupId>
+                    <artifactId>s2tbx-bootstrap</artifactId>
+                    <version>${s2tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>s3tbx</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.s3tbx</groupId>
+                    <artifactId>s3tbx-bootstrap</artifactId>
+                    <version>${s3tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>all</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.nest</groupId>
+                    <artifactId>nest-bootstrap</artifactId>
+                    <version>${nest.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.esa.s2tbx</groupId>
+                    <artifactId>s2tbx-bootstrap</artifactId>
+                    <version>${s2tbx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.esa.s3tbx</groupId>
+                    <artifactId>s3tbx-bootstrap</artifactId>
+                    <version>${s3tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
