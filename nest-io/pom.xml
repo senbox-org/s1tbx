@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-arcbingrid-reader</artifactId>
-            <version>5.0</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
-            <version>5.0.1-SNAPSHOT</version>
+            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

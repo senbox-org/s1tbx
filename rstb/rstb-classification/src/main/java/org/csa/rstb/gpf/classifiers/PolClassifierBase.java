@@ -18,7 +18,7 @@ package org.csa.rstb.gpf.classifiers;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.nest.gpf.PolBandUtils;
+import org.esa.nest.dataio.PolBandUtils;
 
 import java.awt.*;
 import java.util.Map;

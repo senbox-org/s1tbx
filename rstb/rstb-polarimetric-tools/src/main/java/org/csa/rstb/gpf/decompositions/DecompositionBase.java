@@ -21,7 +21,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.PolBandUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.nest.gpf.StatusProgressMonitor;
 import org.esa.nest.gpf.ThreadManager;
 

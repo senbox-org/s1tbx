@@ -24,7 +24,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.FileImageOutputStreamExtImpl;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
-import org.esa.nest.gpf.PolBandUtils;
+import org.esa.nest.dataio.PolBandUtils;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.File;

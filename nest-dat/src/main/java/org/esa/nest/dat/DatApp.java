@@ -22,7 +22,6 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import com.jidesoft.status.LabelStatusBarItem;
 import org.esa.beam.BeamUiActivator;
-import org.esa.beam.framework.dataio.ProductCache;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
@@ -202,10 +201,10 @@ public class DatApp extends VisatApp {
 
     protected void removeReaderPlugIn(final String name) {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        ProductReaderPlugIn rp = registry.getReaderPlugIn(name);
-        if (rp != null) {
-            registry.removeReaderPlugIn(rp);
-        }
+     //   ProductReaderPlugIn rp = registry.getReaderPlugIn(name);
+     //   if (rp != null) {
+     //       registry.removeReaderPlugIn(rp);
+     //   }
     }
 
     private static void validateAuxDataFolder() throws IOException {
@@ -254,7 +253,7 @@ public class DatApp extends VisatApp {
             closeProduct(product);
         }
 
-        ProductCache.instance().clearCache();
+        //ProductCache.instance().clearCache();
         MemUtils.freeAllMemory();
     }
 

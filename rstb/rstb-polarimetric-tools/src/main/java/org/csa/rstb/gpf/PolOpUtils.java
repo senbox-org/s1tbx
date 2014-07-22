@@ -22,7 +22,7 @@ import org.csa.rstb.gpf.decompositions.hAAlpha;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.nest.eo.Constants;
-import org.esa.nest.gpf.PolBandUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.nest.gpf.TileIndex;
 
 /*

@@ -129,9 +129,6 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
-
-                        SARReader.createVirtualIntensityBand(product, band,
-                                '_' + polarizationMap.get(imgName));
                     }
                 }
             }

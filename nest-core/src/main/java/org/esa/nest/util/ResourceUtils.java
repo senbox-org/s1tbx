@@ -16,8 +16,6 @@
 package org.esa.nest.util;
 
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
-import org.esa.beam.framework.dataio.ProductCache;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.SystemUtils;
 
 import javax.imageio.ImageIO;
@@ -57,11 +55,11 @@ public final class ResourceUtils {
                 deleteFile(new File(file, aChild));
             }
         }
-        final Product prod = ProductCache.instance().getProduct(file);
-        if (prod != null) {
-            ProductCache.instance().removeProduct(file);
-            prod.dispose();
-        }
+        //final Product prod = ProductCache.instance().getProduct(file);
+        //if (prod != null) {
+        //    ProductCache.instance().removeProduct(file);
+        //    prod.dispose();
+        //}
         if (!file.delete())
             System.out.println("Could not delete " + file.getName());
     }
