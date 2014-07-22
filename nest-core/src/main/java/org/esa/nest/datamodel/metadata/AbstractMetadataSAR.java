@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
+import java.io.IOException;
 import java.text.DateFormat;
 
 /**
@@ -56,11 +57,9 @@ public final class AbstractMetadataSAR extends AbstractMetadataBase implements A
     public static final String azimuth_spacing = "azimuth_spacing";
     public static final String pulse_repetition_frequency = "pulse_repetition_frequency";
     public static final String radar_frequency = "radar_frequency";
-    public static final String line_time_interval = "line_time_interval";
 
     // SRGR
     public static final String srgr_flag = "srgr_flag";
-    public static final String map_projection = "map_projection";
 
     // calibration and flags
     public static final String ant_elev_corr_flag = "ant_elev_corr_flag";
@@ -122,8 +121,12 @@ public final class AbstractMetadataSAR extends AbstractMetadataBase implements A
      * @param sourceProduct the product
      * @return AbstractMetadata object
      */
-    public static AbstractMetadataSAR getSARAbstractedMetadata(final Product sourceProduct) {
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct).getAbsRoot();
+    public static AbstractMetadataSAR getSARAbstractedMetadata(final Product sourceProduct) throws IOException {
+        AbstractMetadata abstractMetadata = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        if(abstractMetadata == null) {
+            throw new IOException("no metadata found in product");
+        }
+        MetadataElement absRoot = abstractMetadata.getAbsRoot();
         return new AbstractMetadataSAR(absRoot, absRoot.getElement(AbstractMetadataSAR.SAR_METADATA_ROOT));
     }
 
@@ -151,84 +154,82 @@ public final class AbstractMetadataSAR extends AbstractMetadataBase implements A
      * @return abstracted metadata root
      */
     protected MetadataElement addAbstractedMetadataHeader(MetadataElement root) {
-        MetadataElement absRoot;
+        MetadataElement sarRoot;
         if (root == null) {
-            absRoot = new MetadataElement(SAR_METADATA_ROOT);
+            sarRoot = new MetadataElement(SAR_METADATA_ROOT);
         } else {
-            absRoot = root.getElement(SAR_METADATA_ROOT);
-            if (absRoot == null) {
-                absRoot = new MetadataElement(SAR_METADATA_ROOT);
-                root.addElementAt(absRoot, 0);
+            sarRoot = root.getElement(SAR_METADATA_ROOT);
+            if (sarRoot == null) {
+                sarRoot = new MetadataElement(SAR_METADATA_ROOT);
+                root.addElementAt(sarRoot, 0);
             }
         }
 
-        addAbstractedAttribute(absRoot, antenna_pointing, ProductData.TYPE_ASCII, "", "Right or left facing");
-        addAbstractedAttribute(absRoot, incidence_near, ProductData.TYPE_FLOAT64, "deg", "");
-        addAbstractedAttribute(absRoot, incidence_far, ProductData.TYPE_FLOAT64, "deg", "");
+        addAbstractedAttribute(sarRoot, antenna_pointing, ProductData.TYPE_ASCII, "", "Right or left facing");
+        addAbstractedAttribute(sarRoot, incidence_near, ProductData.TYPE_FLOAT64, "deg", "");
+        addAbstractedAttribute(sarRoot, incidence_far, ProductData.TYPE_FLOAT64, "deg", "");
 
-        addAbstractedAttribute(absRoot, mds1_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
-        addAbstractedAttribute(absRoot, mds2_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
-        addAbstractedAttribute(absRoot, mds3_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
-        addAbstractedAttribute(absRoot, mds4_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
-        addAbstractedAttribute(absRoot, azimuth_looks, ProductData.TYPE_FLOAT64, "", "");
-        addAbstractedAttribute(absRoot, range_looks, ProductData.TYPE_FLOAT64, "", "");
-        addAbstractedAttribute(absRoot, range_spacing, ProductData.TYPE_FLOAT64, "m", "Range sample spacing");
-        addAbstractedAttribute(absRoot, azimuth_spacing, ProductData.TYPE_FLOAT64, "m", "Azimuth sample spacing");
-        addAbstractedAttribute(absRoot, pulse_repetition_frequency, ProductData.TYPE_FLOAT64, "Hz", "PRF");
-        addAbstractedAttribute(absRoot, radar_frequency, ProductData.TYPE_FLOAT64, "MHz", "Radar frequency");
-        addAbstractedAttribute(absRoot, line_time_interval, ProductData.TYPE_FLOAT64, "s", "");
+        addAbstractedAttribute(sarRoot, mds1_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
+        addAbstractedAttribute(sarRoot, mds2_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
+        addAbstractedAttribute(sarRoot, mds3_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
+        addAbstractedAttribute(sarRoot, mds4_tx_rx_polar, ProductData.TYPE_ASCII, "", "Polarization");
+        addAbstractedAttribute(sarRoot, azimuth_looks, ProductData.TYPE_FLOAT64, "", "");
+        addAbstractedAttribute(sarRoot, range_looks, ProductData.TYPE_FLOAT64, "", "");
+        addAbstractedAttribute(sarRoot, range_spacing, ProductData.TYPE_FLOAT64, "m", "Range sample spacing");
+        addAbstractedAttribute(sarRoot, azimuth_spacing, ProductData.TYPE_FLOAT64, "m", "Azimuth sample spacing");
+        addAbstractedAttribute(sarRoot, pulse_repetition_frequency, ProductData.TYPE_FLOAT64, "Hz", "PRF");
+        addAbstractedAttribute(sarRoot, radar_frequency, ProductData.TYPE_FLOAT64, "MHz", "Radar frequency");
 
         // range and azimuth bandwidths for InSAR
-        addAbstractedAttribute(absRoot, range_bandwidth, ProductData.TYPE_FLOAT64, "MHz", "Bandwidth total in range");
-        addAbstractedAttribute(absRoot, azimuth_bandwidth, ProductData.TYPE_FLOAT64, "Hz", "Bandwidth total in azimuth");
+        addAbstractedAttribute(sarRoot, range_bandwidth, ProductData.TYPE_FLOAT64, "MHz", "Bandwidth total in range");
+        addAbstractedAttribute(sarRoot, azimuth_bandwidth, ProductData.TYPE_FLOAT64, "Hz", "Bandwidth total in azimuth");
 
         // SRGR
-        addAbstractedAttribute(absRoot, srgr_flag, ProductData.TYPE_UINT8, "flag", "SRGR applied");
-        MetadataAttribute att = addAbstractedAttribute(absRoot, avg_scene_height, ProductData.TYPE_FLOAT64, "m", "Average scene height ellipsoid");
+        addAbstractedAttribute(sarRoot, srgr_flag, ProductData.TYPE_UINT8, "flag", "SRGR applied");
+        MetadataAttribute att = addAbstractedAttribute(sarRoot, avg_scene_height, ProductData.TYPE_FLOAT64, "m", "Average scene height ellipsoid");
         att.getData().setElemInt(0);
-        addAbstractedAttribute(absRoot, map_projection, ProductData.TYPE_ASCII, "", "Map projection applied");
 
         // orthorectification
-        addAbstractedAttribute(absRoot, is_terrain_corrected, ProductData.TYPE_UINT8, "flag", "orthorectification applied");
-        addAbstractedAttribute(absRoot, DEM, ProductData.TYPE_ASCII, "", "Digital Elevation Model used");
-        addAbstractedAttribute(absRoot, geo_ref_system, ProductData.TYPE_ASCII, "", "geographic reference system");
-        addAbstractedAttribute(absRoot, lat_pixel_res, ProductData.TYPE_FLOAT64, "deg", "pixel resolution in geocoded image");
-        addAbstractedAttribute(absRoot, lon_pixel_res, ProductData.TYPE_FLOAT64, "deg", "pixel resolution in geocoded image");
-        addAbstractedAttribute(absRoot, slant_range_to_first_pixel, ProductData.TYPE_FLOAT64, "m", "Slant range to 1st data sample");
+        addAbstractedAttribute(sarRoot, is_terrain_corrected, ProductData.TYPE_UINT8, "flag", "orthorectification applied");
+        addAbstractedAttribute(sarRoot, DEM, ProductData.TYPE_ASCII, "", "Digital Elevation Model used");
+        addAbstractedAttribute(sarRoot, geo_ref_system, ProductData.TYPE_ASCII, "", "geographic reference system");
+        addAbstractedAttribute(sarRoot, lat_pixel_res, ProductData.TYPE_FLOAT64, "deg", "pixel resolution in geocoded image");
+        addAbstractedAttribute(sarRoot, lon_pixel_res, ProductData.TYPE_FLOAT64, "deg", "pixel resolution in geocoded image");
+        addAbstractedAttribute(sarRoot, slant_range_to_first_pixel, ProductData.TYPE_FLOAT64, "m", "Slant range to 1st data sample");
 
         // calibration
-        addAbstractedAttribute(absRoot, ant_elev_corr_flag, ProductData.TYPE_UINT8, "flag", "Antenna elevation applied");
-        addAbstractedAttribute(absRoot, range_spread_comp_flag, ProductData.TYPE_UINT8, "flag", "range spread compensation applied");
-        addAbstractedAttribute(absRoot, replica_power_corr_flag, ProductData.TYPE_UINT8, "flag", "Replica pulse power correction applied");
-        addAbstractedAttribute(absRoot, abs_calibration_flag, ProductData.TYPE_UINT8, "flag", "Product calibrated");
-        addAbstractedAttribute(absRoot, calibration_factor, ProductData.TYPE_FLOAT64, "", "Calibration constant");
-        addAbstractedAttribute(absRoot, inc_angle_comp_flag, ProductData.TYPE_UINT8, "flag", "incidence angle compensation applied");
-        addAbstractedAttribute(absRoot, ref_inc_angle, ProductData.TYPE_FLOAT64, "", "Reference incidence angle");
-        addAbstractedAttribute(absRoot, ref_slant_range, ProductData.TYPE_FLOAT64, "", "Reference slant range");
-        addAbstractedAttribute(absRoot, ref_slant_range_exp, ProductData.TYPE_FLOAT64, "", "Reference slant range exponent");
-        addAbstractedAttribute(absRoot, rescaling_factor, ProductData.TYPE_FLOAT64, "", "Rescaling factor");
+        addAbstractedAttribute(sarRoot, ant_elev_corr_flag, ProductData.TYPE_UINT8, "flag", "Antenna elevation applied");
+        addAbstractedAttribute(sarRoot, range_spread_comp_flag, ProductData.TYPE_UINT8, "flag", "range spread compensation applied");
+        addAbstractedAttribute(sarRoot, replica_power_corr_flag, ProductData.TYPE_UINT8, "flag", "Replica pulse power correction applied");
+        addAbstractedAttribute(sarRoot, abs_calibration_flag, ProductData.TYPE_UINT8, "flag", "Product calibrated");
+        addAbstractedAttribute(sarRoot, calibration_factor, ProductData.TYPE_FLOAT64, "", "Calibration constant");
+        addAbstractedAttribute(sarRoot, inc_angle_comp_flag, ProductData.TYPE_UINT8, "flag", "incidence angle compensation applied");
+        addAbstractedAttribute(sarRoot, ref_inc_angle, ProductData.TYPE_FLOAT64, "", "Reference incidence angle");
+        addAbstractedAttribute(sarRoot, ref_slant_range, ProductData.TYPE_FLOAT64, "", "Reference slant range");
+        addAbstractedAttribute(sarRoot, ref_slant_range_exp, ProductData.TYPE_FLOAT64, "", "Reference slant range exponent");
+        addAbstractedAttribute(sarRoot, rescaling_factor, ProductData.TYPE_FLOAT64, "", "Rescaling factor");
 
-        addAbstractedAttribute(absRoot, range_sampling_rate, ProductData.TYPE_FLOAT64, "MHz", "Range Sampling Rate");
+        addAbstractedAttribute(sarRoot, range_sampling_rate, ProductData.TYPE_FLOAT64, "MHz", "Range Sampling Rate");
 
         // flags
-        addAbstractedAttribute(absRoot, polsarData, ProductData.TYPE_UINT8, "flag", "Polarimetric Matrix");
+        addAbstractedAttribute(sarRoot, polsarData, ProductData.TYPE_UINT8, "flag", "Polarimetric Matrix");
 
         // Multilook
-        addAbstractedAttribute(absRoot, multilook_flag, ProductData.TYPE_UINT8, "flag", "Multilook applied");
+        addAbstractedAttribute(sarRoot, multilook_flag, ProductData.TYPE_UINT8, "flag", "Multilook applied");
 
         // coregistration
-        addAbstractedAttribute(absRoot, coregistered_stack, ProductData.TYPE_UINT8, "flag", "Coregistration applied");
+        addAbstractedAttribute(sarRoot, coregistered_stack, ProductData.TYPE_UINT8, "flag", "Coregistration applied");
 
-        addAbstractedAttribute(absRoot, external_calibration_file, ProductData.TYPE_ASCII, "", "External calibration file used");
-        addAbstractedAttribute(absRoot, orbit_state_vector_file, ProductData.TYPE_ASCII, "", "Orbit file used");
+        addAbstractedAttribute(sarRoot, external_calibration_file, ProductData.TYPE_ASCII, "", "External calibration file used");
+        addAbstractedAttribute(sarRoot, orbit_state_vector_file, ProductData.TYPE_ASCII, "", "Orbit file used");
 
-        absRoot.addElement(new MetadataElement(srgr_coefficients));
-        absRoot.addElement(new MetadataElement(dop_coefficients));
+        sarRoot.addElement(new MetadataElement(srgr_coefficients));
+        sarRoot.addElement(new MetadataElement(dop_coefficients));
 
-        att = addAbstractedAttribute(absRoot, abstracted_metadata_version, ProductData.TYPE_ASCII, "", "AbsMetadata version");
+        att = addAbstractedAttribute(sarRoot, abstracted_metadata_version, ProductData.TYPE_ASCII, "", "AbsMetadata version");
         att.getData().setElems(METADATA_VERSION);
 
-        return absRoot;
+        return sarRoot;
     }
 
     /**

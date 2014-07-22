@@ -24,7 +24,7 @@ public class TestAbstractMetadata {
         assertEquals(dem, "dem");
 
         AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
-        String productName = absMeta.getAttributeString(AbstractMetadata.PRODUCT);
+        String productName = absMeta.getAttributeString(AbstractMetadata.product_name);
         assertEquals(productName, "name");
     }
 
@@ -51,6 +51,6 @@ public class TestAbstractMetadata {
         sarMeta.setAttribute(AbstractMetadataSAR.DEM, "dem");
 
         final AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
-        absMeta.setAttribute(AbstractMetadata.PRODUCT, "name");
+        absMeta.setAttribute(AbstractMetadata.product_name, "name");
     }
 }
