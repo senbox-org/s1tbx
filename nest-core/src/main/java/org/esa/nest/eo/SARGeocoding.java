@@ -28,6 +28,75 @@ public class SARGeocoding {
         return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);
     }
 
+    /**
+     * Compute zero Doppler time for given earth point using bisection method.
+     *
+     * @param firstLineUTC     The zero Doppler time for the first range line.
+     * @param lineTimeInterval The line time interval.
+     * @param wavelength       The radar wavelength.
+     * @param earthPoint       The earth point in xyz coordinate.
+     * @param sensorPosition   Array of sensor positions for all range lines.
+     * @param sensorVelocity   Array of sensor velocities for all range lines.
+     * @return The zero Doppler time in days if it is found, -1 otherwise.
+     * @throws OperatorException The operator exception.
+     */
+    public static double getEarthPointZeroDopplerTime(final double firstLineUTC,
+                                                      final double lineTimeInterval, final double wavelength,
+                                                      final double[] earthPoint, final double[][] sensorPosition,
+                                                      final double[][] sensorVelocity) throws OperatorException {
+
+        // binary search is used in finding the zero doppler time
+        int lowerBound = 0;
+        int upperBound = sensorPosition.length - 1;
+        double lowerBoundFreq = getDopplerFrequency(
+                earthPoint, sensorPosition[lowerBound], sensorVelocity[lowerBound], wavelength);
+        double upperBoundFreq = getDopplerFrequency(
+                earthPoint, sensorPosition[upperBound], sensorVelocity[upperBound], wavelength);
+
+        if (Double.compare(lowerBoundFreq, 0.0) == 0) {
+            return firstLineUTC + lowerBound * lineTimeInterval;
+        } else if (Double.compare(upperBoundFreq, 0.0) == 0) {
+            return firstLineUTC + upperBound * lineTimeInterval;
+        } else if (lowerBoundFreq * upperBoundFreq > 0.0) {
+            return NonValidZeroDopplerTime;
+        }
+
+        // start binary search
+        double midFreq;
+        while (upperBound - lowerBound > 1) {
+
+            final int mid = (int) ((lowerBound + upperBound) / 2.0);
+            midFreq = sensorVelocity[mid][0] * (earthPoint[0] - sensorPosition[mid][0]) +
+                    sensorVelocity[mid][1] * (earthPoint[1] - sensorPosition[mid][1]) +
+                    sensorVelocity[mid][2] * (earthPoint[2] - sensorPosition[mid][2]);
+
+            if (midFreq * lowerBoundFreq > 0.0) {
+                lowerBound = mid;
+                lowerBoundFreq = midFreq;
+            } else if (midFreq * upperBoundFreq > 0.0) {
+                upperBound = mid;
+                upperBoundFreq = midFreq;
+            } else if (Double.compare(midFreq, 0.0) == 0) {
+                return firstLineUTC + mid * lineTimeInterval;
+            }
+        }
+
+        final double y0 = lowerBound - lowerBoundFreq * (upperBound - lowerBound) / (upperBoundFreq - lowerBoundFreq);
+        return firstLineUTC + y0 * lineTimeInterval;
+    }
+
+    /**
+     * Compute zero Doppler time for given earth point using Newton's method.
+     *
+     * @param firstLineUTC     The zero Doppler time for the first range line.
+     * @param lineTimeInterval The line time interval.
+     * @param wavelength       The radar wavelength.
+     * @param earthPoint       The earth point in xyz coordinate.
+     * @param sensorPosition   Array of sensor positions for all range lines.
+     * @param sensorVelocity   Array of sensor velocities for all range lines.
+     * @return The zero Doppler time in days if it is found, NonValidZeroDopplerTime otherwise.
+     * @throws OperatorException The operator exception.
+     */
     public static double getEarthPointZeroDopplerTimeNewton(final double firstLineUTC,
                                                             final double lineTimeInterval, final double wavelength,
                                                             final double[] earthPoint, final double[][] sensorPosition,
@@ -77,60 +146,74 @@ public class SARGeocoding {
     }
 
     /**
-     * Compute zero Doppler time for given erath point.
+     * Compute zero Doppler time for given point with the product orbit state vectors using Newton's method.
      *
      * @param firstLineUTC     The zero Doppler time for the first range line.
      * @param lineTimeInterval The line time interval.
-     * @param wavelength       The ragar wavelength.
-     * @param earthPoint       The earth point in xyz cooordinate.
-     * @param sensorPosition   Array of sensor positions for all range lines.
-     * @param sensorVelocity   Array of sensor velocities for all range lines.
-     * @return The zero Doppler time in days if it is found, -1 otherwise.
+     * @param wavelength       The radar wavelength.
+     * @param earthPoint       The earth point in xyz coordinate.
+     * @param orbit            The object holding orbit state vectors.
+     * @return The zero Doppler time in days if it is found, NonValidZeroDopplerTime otherwise.
      * @throws OperatorException The operator exception.
      */
-    public static double getEarthPointZeroDopplerTime(final double firstLineUTC,
-                                                      final double lineTimeInterval, final double wavelength,
-                                                      final double[] earthPoint, final double[][] sensorPosition,
-                                                      final double[][] sensorVelocity) throws OperatorException {
+    public static double getZeroDopplerTime(final double firstLineUTC, final double lineTimeInterval,
+                                            final double wavelength, final double[] earthPoint,
+                                            final SARGeocoding.Orbit orbit) throws OperatorException {
 
-        // binary search is used in finding the zero doppler time
-        int lowerBound = 0;
-        int upperBound = sensorPosition.length - 1;
-        double lowerBoundFreq = getDopplerFrequency(
-                earthPoint, sensorPosition[lowerBound], sensorVelocity[lowerBound], wavelength);
-        double upperBoundFreq = getDopplerFrequency(
-                earthPoint, sensorPosition[upperBound], sensorVelocity[upperBound], wavelength);
+        // loop through all orbit state vectors to find the adjacent two vectors
+        final int numOrbitVec = orbit.orbitStateVectors.length;
+        double[] sensorPosition = new double[3];
+        double[] sensorVelocity =new double[3];
+        double firstVecTime = 0.0;
+        double secondVecTime = 0.0;
+        double firstVecFreq = 0.0;
+        double secondVecFreq = 0.0;
 
-        if (Double.compare(lowerBoundFreq, 0.0) == 0) {
-            return firstLineUTC + lowerBound * lineTimeInterval;
-        } else if (Double.compare(upperBoundFreq, 0.0) == 0) {
-            return firstLineUTC + upperBound * lineTimeInterval;
-        } else if (lowerBoundFreq * upperBoundFreq > 0.0) {
-            return NonValidZeroDopplerTime;
-        }
+        for (int i = 0; i < numOrbitVec; i++) {
+            sensorPosition[0] = orbit.orbitStateVectors[i].x_pos;
+            sensorPosition[1] = orbit.orbitStateVectors[i].y_pos;
+            sensorPosition[2] = orbit.orbitStateVectors[i].z_pos;
 
-        // start binary search
-        double midFreq;
-        while (upperBound - lowerBound > 1) {
+            sensorVelocity[0] = orbit.orbitStateVectors[i].x_vel;
+            sensorVelocity[1] = orbit.orbitStateVectors[i].y_vel;
+            sensorVelocity[2] = orbit.orbitStateVectors[i].z_vel;
 
-            final int mid = (int) ((lowerBound + upperBound) / 2.0);
-            midFreq = sensorVelocity[mid][0] * (earthPoint[0] - sensorPosition[mid][0]) +
-                    sensorVelocity[mid][1] * (earthPoint[1] - sensorPosition[mid][1]) +
-                    sensorVelocity[mid][2] * (earthPoint[2] - sensorPosition[mid][2]);
-
-            if (midFreq * lowerBoundFreq > 0.0) {
-                lowerBound = mid;
-                lowerBoundFreq = midFreq;
-            } else if (midFreq * upperBoundFreq > 0.0) {
-                upperBound = mid;
-                upperBoundFreq = midFreq;
-            } else if (Double.compare(midFreq, 0.0) == 0) {
-                return firstLineUTC + mid * lineTimeInterval;
+            final double currentFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            if (i == 0 || firstVecFreq*currentFreq > 0) {
+                firstVecTime = orbit.orbitStateVectors[i].time_mjd;
+                firstVecFreq = currentFreq;
+            } else {
+                secondVecTime = orbit.orbitStateVectors[i].time_mjd;
+                secondVecFreq = currentFreq;
+                break;
             }
         }
 
-        final double y0 = lowerBound - lowerBoundFreq * (upperBound - lowerBound) / (upperBoundFreq - lowerBoundFreq);
-        return firstLineUTC + y0 * lineTimeInterval;
+        if (firstVecFreq*secondVecFreq >= 0.0) {
+            return NonValidZeroDopplerTime;
+        }
+
+        // find the exact time using Doppler frequency and Newton's method
+        double diffTime = Math.abs(secondVecTime - firstVecTime);
+        while (diffTime > Math.abs(lineTimeInterval)) {
+
+            final double d = (secondVecFreq - firstVecFreq) / (secondVecTime - firstVecTime);
+            final double t0 = firstVecTime - firstVecFreq / d;
+            orbit.getPositionVelocity(t0 - firstLineUTC, sensorPosition, sensorVelocity);
+            final double f0 = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            if (f0 < 0.001) {
+                return t0;
+            } else if (f0*firstVecFreq > 0) {
+                firstVecFreq = f0;
+                firstVecTime = t0;
+            } else {
+                secondVecFreq = f0;
+                secondVecTime = t0;
+            }
+            diffTime = Math.abs(secondVecTime - firstVecTime);
+        }
+
+        return firstVecTime - firstVecFreq * (secondVecTime - firstVecTime) / (secondVecFreq - firstVecFreq);
     }
 
     /**
@@ -713,6 +796,7 @@ public class SARGeocoding {
             double[] xVelArray = new double[orbitStateVectors.length];
             double[] yVelArray = new double[orbitStateVectors.length];
             double[] zVelArray = new double[orbitStateVectors.length];
+            this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
 
             sensorPosition = new double[sourceImageHeight][3];
             sensorVelocity = new double[sourceImageHeight][3];
@@ -725,6 +809,8 @@ public class SARGeocoding {
                 xVelArray[i] = orbitStateVectors[i].x_vel; // m/s
                 yVelArray[i] = orbitStateVectors[i].y_vel; // m/s
                 zVelArray[i] = orbitStateVectors[i].z_vel; // m/s
+
+                this.orbitStateVectors[i] = orbitStateVectors[i];
             }
 
             this.xPosCoeff = MathUtils.polyFit(timeArray, xPosArray, polyDegree);
@@ -745,6 +831,17 @@ public class SARGeocoding {
                 this.sensorVelocity[i][1] = MathUtils.polyVal(time, yVelCoeff);
                 this.sensorVelocity[i][2] = MathUtils.polyVal(time, zVelCoeff);
             }
+        }
+
+        public void getPositionVelocity(final double time, double[] position, double[] velocity) {
+
+            position[0] = MathUtils.polyVal(time, xPosCoeff);
+            position[1] = MathUtils.polyVal(time, yPosCoeff);
+            position[2] = MathUtils.polyVal(time, zPosCoeff);
+
+            velocity[0] = MathUtils.polyVal(time, xVelCoeff);
+            velocity[1] = MathUtils.polyVal(time, yVelCoeff);
+            velocity[2] = MathUtils.polyVal(time, zVelCoeff);
         }
     }
 
