@@ -47,6 +47,11 @@
             <class>org.esa.nest.gpf.WarpOpUI</class>
             <operatorName>Warp</operatorName>
         </OperatorUI>
+		        <OperatorUI>
+            <id>org.esa.nest.gpf.DEMBasedCoregistrationOpUI</id>
+            <class>org.esa.nest.gpf.DEMBasedCoregistrationOpUI</class>
+            <operatorName>DEM-Based-Coregistration</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="beam-ui:layerSources">
@@ -118,6 +123,19 @@
             <parent>stack-utilities</parent>
             <helpId>StackAveraging</helpId>
         </action>
+		
+        <action>
+            <id>DEMBasedCoregistrationOp</id>
+            <helpId>DEMBasedCoregistrationOp</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+            <text>DEM Based Coregistration</text>
+            <dialogTitle>DEM Based Coregistration</dialogTitle>
+            <shortDescr>DEM Based Coregistration</shortDescr>
+            <graphFile>DEMBasedCoregistrationGraph.xml</graphFile>
+        </action>
+
     </extension>
 
     <extension point="beam-ui:helpSets">
