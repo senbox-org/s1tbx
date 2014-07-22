@@ -184,17 +184,6 @@
             <parent>importFileFormats</parent>
         </action>
         <action>
-            <id>importNestEnvi</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <readerPlugin>org.esa.nest.dataio.envi.NestEnviProductReaderPlugIn</readerPlugin>
-            <formatName>ENVI</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Import an ENVI data product.</shortDescr>
-            <placeAfter>importImageIO</placeAfter>
-            <helpId>importEnvi</helpId>
-            <parent>importFileFormats</parent>
-        </action>
-        <action>
             <id>importGeoTIFFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <readerPlugin>org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn</readerPlugin>

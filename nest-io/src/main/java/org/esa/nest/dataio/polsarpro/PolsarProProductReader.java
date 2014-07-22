@@ -15,11 +15,11 @@
  */
 package org.esa.nest.dataio.polsarpro;
 
+import org.esa.beam.dataio.envi.EnviProductReader;
 import org.esa.beam.dataio.envi.Header;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.dataio.envi.NestEnviProductReader;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.ResourceUtils;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PolsarProProductReader extends NestEnviProductReader {
+public class PolsarProProductReader extends EnviProductReader {
 
     PolsarProProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
