@@ -1,4 +1,3 @@
-org.esa.nest.dataio.arcgrid.NestArcGridReaderPlugIn
 org.esa.nest.dataio.ceos.ers.ERSProductReaderPlugIn
 org.esa.nest.dataio.ceos.jers.JERSProductReaderPlugIn
 org.esa.nest.dataio.ceos.radarsat.RadarsatProductReaderPlugIn
