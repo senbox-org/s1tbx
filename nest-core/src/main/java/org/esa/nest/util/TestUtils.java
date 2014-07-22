@@ -31,6 +31,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.RecursiveProcessor;
 
@@ -122,6 +123,17 @@ public class TestUtils {
         AbstractMetadata.addAbstractedMetadataHeader(product.getMetadataRoot());
 
         return product;
+    }
+
+    public static Band createBand(final Product testProduct, final String bandName, final int w, final int h) {
+        final Band band = testProduct.addBand(bandName, ProductData.TYPE_INT32);
+        band.setUnit(Unit.AMPLITUDE);
+        final int[] intValues = new int[w * h];
+        for (int i = 0; i < w * h; i++) {
+            intValues[i] = i + 1;
+        }
+        band.setData(ProductData.createInstance(intValues));
+        return band;
     }
 
     private static void addGeoCoding(final Product product) {
