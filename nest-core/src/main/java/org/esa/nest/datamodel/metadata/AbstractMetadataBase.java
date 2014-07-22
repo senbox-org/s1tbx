@@ -73,7 +73,7 @@ public abstract class AbstractMetadataBase {
      * @param desc     The description
      * @return the newly created attribute
      */
-    public static MetadataAttribute addAbstractedAttribute(final MetadataElement dest, final String tag, final int dataType,
+    public MetadataAttribute addAbstractedAttribute(final MetadataElement dest, final String tag, final int dataType,
                                                            final String unit, final String desc) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, dataType, 1);
         if (dataType == ProductData.TYPE_ASCII) {
@@ -107,7 +107,7 @@ public abstract class AbstractMetadataBase {
      * @param tag   the name of the attribute
      * @param value the string value
      */
-    public static void setAttribute(final MetadataElement dest, final String tag, final String value) {
+    private static void setAttribute(final MetadataElement dest, final String tag, final String value) {
         if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
@@ -141,7 +141,7 @@ public abstract class AbstractMetadataBase {
      * @param tag   the name of the attribute
      * @param value the UTC value
      */
-    public static void setAttribute(final MetadataElement dest, final String tag, final ProductData.UTC value) {
+    private static void setAttribute(final MetadataElement dest, final String tag, final ProductData.UTC value) {
         if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
@@ -172,7 +172,7 @@ public abstract class AbstractMetadataBase {
      * @param tag   the name of the attribute
      * @param value the int value
      */
-    public static void setAttribute(final MetadataElement dest, final String tag, final int value) {
+    private static void setAttribute(final MetadataElement dest, final String tag, final int value) {
         if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
@@ -199,7 +199,7 @@ public abstract class AbstractMetadataBase {
      * @param tag   the name of the attribute
      * @param value the Double value
      */
-    public static void setAttribute(final MetadataElement dest, final String tag, final Double value) {
+    public void setAttribute(final MetadataElement dest, final String tag, final Double value) {
         if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
@@ -219,7 +219,7 @@ public abstract class AbstractMetadataBase {
         }
     }
 
-    public static ProductData.UTC parseUTC(final String timeStr, final DateFormat format) {
+    private static ProductData.UTC parseUTC(final String timeStr, final DateFormat format) {
         try {
             final int dotPos = timeStr.lastIndexOf('.');
             if (dotPos > 0) {

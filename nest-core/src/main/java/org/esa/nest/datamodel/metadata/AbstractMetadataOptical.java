@@ -5,6 +5,8 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
+import java.io.IOException;
+
 /**
  * Creates a generic interface to optical metadata
  */
@@ -22,8 +24,12 @@ public class AbstractMetadataOptical extends AbstractMetadataBase implements Abs
      * @param sourceProduct the product
      * @return AbstractMetadata object
      */
-    public static AbstractMetadataOptical getOpticalAbstractedMetadata(final Product sourceProduct) {
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct).getAbsRoot();
+    public static AbstractMetadataOptical getOpticalAbstractedMetadata(final Product sourceProduct) throws IOException {
+        AbstractMetadata abstractMetadata = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        if(abstractMetadata == null) {
+            throw new IOException("no metadata found in product");
+        }
+        MetadataElement absRoot = abstractMetadata.getAbsRoot();
         return new AbstractMetadataOptical(absRoot, absRoot.getElement(AbstractMetadataOptical.OPTICAL_METADATA_ROOT));
     }
 

@@ -42,28 +42,29 @@ public final class AbstractMetadata extends AbstractMetadataBase implements Abst
     public static final String MASTER_BANDS = "Master_bands";
     public static final String SLAVE_BANDS = "Slave_bands";
 
-    public static final String PRODUCT = "PRODUCT";
-    public static final String PRODUCT_TYPE = "PRODUCT_TYPE";
-    public static final String SPH_DESCRIPTOR = "SPH_DESCRIPTOR";
-    public static final String PATH = "PATH";
-    public static final String MISSION = "MISSION";
-    public static final String ACQUISITION_MODE = "ACQUISITION_MODE";
-    public static final String BEAMS = "BEAMS";
+    public static final String product_name = "PRODUCT";
+    public static final String product_type = "PRODUCT_TYPE";
+    public static final String descriptor = "SPH_DESCRIPTOR";
+    public static final String path = "PATH";
+    public static final String mission = "MISSION";
+    public static final String acquisition_mode = "ACQUISITION_MODE";
+    public static final String beams = "BEAMS";
     public static final String annotation = "annotation";
     public static final String band_names = "band_names";
-    public static final String SWATH = "SWATH";
     public static final String swath = "swath";
-    public static final String PROC_TIME = "PROC_TIME";
-    public static final String ProcessingSystemIdentifier = "Processing_system_identifier";
-    public static final String CYCLE = "orbit_cycle";
-    public static final String REL_ORBIT = "REL_ORBIT";
-    public static final String ABS_ORBIT = "ABS_ORBIT";
-    public static final String STATE_VECTOR_TIME = "STATE_VECTOR_TIME";
+    public static final String processing_time = "PROC_TIME";
+    public static final String processing_system = "Processing_system_identifier";
+    public static final String cycle = "orbit_cycle";
+    public static final String rel_orbit = "REL_ORBIT";
+    public static final String abs_orbit = "ABS_ORBIT";
+    public static final String state_vector_time = "STATE_VECTOR_TIME";
 
     // SPH
-    private static final String num_slices = "num_slices";
+    public static final String num_slices = "num_slices";
     public static final String first_line_time = "first_line_time";
     public static final String last_line_time = "last_line_time";
+    public static final String line_time_interval = "line_time_interval";
+
     public static final String first_near_lat = "first_near_lat";
     public static final String first_near_long = "first_near_long";
     public static final String first_far_lat = "first_far_lat";
@@ -82,6 +83,7 @@ public final class AbstractMetadata extends AbstractMetadataBase implements Abst
 
     public static final String subset_offset_x = "subset_offset_x";
     public static final String subset_offset_y = "subset_offset_y";
+    public static final String map_projection = "map_projection";
 
     // orbit state vectors
     public static final String orbit_state_vectors = "Orbit_State_Vectors";
@@ -144,24 +146,25 @@ public final class AbstractMetadata extends AbstractMetadataBase implements Abst
         }
 
         // MPH
-        addAbstractedAttribute(absRoot, PRODUCT, ProductData.TYPE_ASCII, "", "Product name");
-        addAbstractedAttribute(absRoot, PRODUCT_TYPE, ProductData.TYPE_ASCII, "", "Product type");
-        addAbstractedAttribute(absRoot, SPH_DESCRIPTOR, ProductData.TYPE_ASCII, "", "Description");
-        addAbstractedAttribute(absRoot, MISSION, ProductData.TYPE_ASCII, "", "Satellite mission");
-        addAbstractedAttribute(absRoot, ACQUISITION_MODE, ProductData.TYPE_ASCII, "", "Acquisition mode");
-        addAbstractedAttribute(absRoot, BEAMS, ProductData.TYPE_ASCII, "", "Beams used");
-        addAbstractedAttribute(absRoot, SWATH, ProductData.TYPE_ASCII, "", "Swath name");
-        addAbstractedAttribute(absRoot, PROC_TIME, ProductData.TYPE_UTC, "utc", "Processed time");
-        addAbstractedAttribute(absRoot, ProcessingSystemIdentifier, ProductData.TYPE_ASCII, "", "Processing system identifier");
-        addAbstractedAttribute(absRoot, CYCLE, ProductData.TYPE_INT32, "", "Cycle");
-        addAbstractedAttribute(absRoot, REL_ORBIT, ProductData.TYPE_INT32, "", "Track");
-        addAbstractedAttribute(absRoot, ABS_ORBIT, ProductData.TYPE_INT32, "", "Orbit");
-        addAbstractedAttribute(absRoot, STATE_VECTOR_TIME, ProductData.TYPE_UTC, "utc", "Time of orbit state vector");
+        addAbstractedAttribute(absRoot, product_name, ProductData.TYPE_ASCII, "", "Product name");
+        addAbstractedAttribute(absRoot, product_type, ProductData.TYPE_ASCII, "", "Product type");
+        addAbstractedAttribute(absRoot, descriptor, ProductData.TYPE_ASCII, "", "Description");
+        addAbstractedAttribute(absRoot, mission, ProductData.TYPE_ASCII, "", "Satellite mission");
+        addAbstractedAttribute(absRoot, acquisition_mode, ProductData.TYPE_ASCII, "", "Acquisition mode");
+        addAbstractedAttribute(absRoot, beams, ProductData.TYPE_ASCII, "", "Beams used");
+        addAbstractedAttribute(absRoot, swath, ProductData.TYPE_ASCII, "", "Swath name");
+        addAbstractedAttribute(absRoot, processing_time, ProductData.TYPE_UTC, "utc", "Processed time");
+        addAbstractedAttribute(absRoot, processing_system, ProductData.TYPE_ASCII, "", "Processing system identifier");
+        addAbstractedAttribute(absRoot, cycle, ProductData.TYPE_INT32, "", "Cycle");
+        addAbstractedAttribute(absRoot, rel_orbit, ProductData.TYPE_INT32, "", "Track");
+        addAbstractedAttribute(absRoot, abs_orbit, ProductData.TYPE_INT32, "", "Orbit");
+        addAbstractedAttribute(absRoot, state_vector_time, ProductData.TYPE_UTC, "utc", "Time of orbit state vector");
 
         // SPH
         addAbstractedAttribute(absRoot, num_slices, ProductData.TYPE_INT32, "", "Number of slices");
         addAbstractedAttribute(absRoot, first_line_time, ProductData.TYPE_UTC, "utc", "First zero doppler azimuth time");
         addAbstractedAttribute(absRoot, last_line_time, ProductData.TYPE_UTC, "utc", "Last zero doppler azimuth time");
+        addAbstractedAttribute(absRoot, line_time_interval, ProductData.TYPE_FLOAT64, "s", "");
         addAbstractedAttribute(absRoot, first_near_lat, ProductData.TYPE_FLOAT64, "deg", "");
         addAbstractedAttribute(absRoot, first_near_long, ProductData.TYPE_FLOAT64, "deg", "");
         addAbstractedAttribute(absRoot, first_far_lat, ProductData.TYPE_FLOAT64, "deg", "");
@@ -180,8 +183,9 @@ public final class AbstractMetadata extends AbstractMetadataBase implements Abst
 
         addAbstractedAttribute(absRoot, subset_offset_x, ProductData.TYPE_UINT32, "samples", "X coordinate of UL corner of subset in original image");
         addAbstractedAttribute(absRoot, subset_offset_y, ProductData.TYPE_UINT32, "samples", "Y coordinate of UL corner of subset in original image");
-        setAttribute(absRoot, subset_offset_x, 0);
-        setAttribute(absRoot, subset_offset_y, 0);
+        setAttribute(subset_offset_x, 0);
+        setAttribute(subset_offset_y, 0);
+        addAbstractedAttribute(absRoot, map_projection, ProductData.TYPE_ASCII, "", "Map projection applied");
 
         absRoot.addElement(new MetadataElement(orbit_state_vectors));
 
@@ -349,12 +353,5 @@ public final class AbstractMetadata extends AbstractMetadataBase implements Abst
             subElemRoot.setAttributeDouble(orbit_vector_y_vel, vector.y_vel);
             subElemRoot.setAttributeDouble(orbit_vector_z_vel, vector.z_vel);
         }
-    }
-
-    public static class SRGRCoefficientList {
-        public ProductData.UTC time = null;
-        public double timeMJD = 0;
-        public double ground_range_origin = 0.0;
-        public double[] coefficients = null;
     }
 }
