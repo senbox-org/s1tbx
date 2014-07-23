@@ -1,8 +1,8 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>senbox-app</symbolicName>
+    <symbolicName>snap-app</symbolicName>
     <version>0.5-SNAPSHOT</version>
-    <name>Senbox Application</name>
+    <name>SNAP Application</name>
 
     <description>Sentinel Toolbox Display and Analysis Tool</description>
 
