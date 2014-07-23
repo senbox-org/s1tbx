@@ -59,7 +59,7 @@ print("Done.")
 
 
 """
-   Please note: the next version of beampy/jpy will be more pythonic in the sense that implicite data type
+   Please note: the next major version of beampy/jpy will be more pythonic in the sense that implicit data type
    conversions are performed. The 'parameters' from above variable could then be given as a Python dict object:
 
     parameters = {

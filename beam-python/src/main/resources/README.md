@@ -128,6 +128,37 @@ As the BEAM API can be used from Python in a similar way as from Java, all of th
 Please check:
 
 * [BEAM API Documentation](http://www.brockmann-consult.de/beam/doc/apidocs/index.html)
+
+beampy imports the most frequently used Java API classes by default
+ 
+* `org.esa.beam.framework.dataio.ProductIO`
+* `org.esa.beam.framework.datamodel.Product`
+* `org.esa.beam.framework.datamodel.RasterDataNode`
+* `org.esa.beam.framework.datamodel.AbstractBand`
+* `org.esa.beam.framework.datamodel.Band`
+* `org.esa.beam.framework.datamodel.VirtualBand`
+* `org.esa.beam.framework.datamodel.GeoCoding`
+* `org.esa.beam.framework.datamodel.PixelPos`
+* `org.esa.beam.framework.datamodel.PixelPos`
+* `org.esa.beam.util.ProductUtils`
+* `org.esa.beam.framework.gpf.GPF`
+* `org.esa.beam.framework.gpf.Operator`
+* `org.esa.beam.framework.gpf.Tile`
+
+To import other Java API classes, get the fully qualified type name from the API reference and import it using jpy. 
+For example:
+
+    jpy = beampy.jpy
+    Color = jpy.get_type('java.awt.Color')
+    ColorPoint = jpy.get_type('org.esa.beam.framework.datamodel.ColorPaletteDef$Point')
+    ColorPaletteDef = jpy.get_type('org.esa.beam.framework.datamodel.ColorPaletteDef')
+    ImageInfo = jpy.get_type('org.esa.beam.framework.datamodel.ImageInfo')
+    ImageManager = jpy.get_type('org.esa.beam.jai.ImageManager')
+    JAI = jpy.get_type('javax.media.jai.JAI')
+    
+Due to the 1:1 translation of Java to Python, a lot of code in the Java programming tutorial applies to 
+Python as well:
+
 * [BEAM Programming Tutorial](http://www.brockmann-consult.de/beam-wiki/display/BEAM/BEAM+4+Programming+Tutorial)
 
 ### BEAM Operator Plugin

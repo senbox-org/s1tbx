@@ -94,7 +94,7 @@ def _get_jvm_options():
 
     if config.has_option('DEFAULT', 'extra_classpath'):
         extra_classpath = config.get('DEFAULT', 'extra_classpath')
-        classpath += extra_classpath.split(sep=os.pathsep)
+        classpath += extra_classpath.split(os.pathsep)
 
     #pprint.pprint(classpath)
 
@@ -108,7 +108,7 @@ def _get_jvm_options():
 
     if config.has_option('DEFAULT', 'extra_options'):
         extra_options = config.get('DEFAULT', 'extra_options')
-        options += extra_options.split(sep='|')
+        options += extra_options.split('|')
 
     return options
 

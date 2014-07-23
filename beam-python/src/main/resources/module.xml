@@ -36,6 +36,9 @@
     <changelog>
         <![CDATA[
                 <p>Changes in 5.0.4<br/>
+                [BEAM-1704] Import of beampy fails on Python 2.7 if beampy.ini is used<br/>
+                [BEAM-1703] BEAM Python operators might fail in case of multiple tiles<br/>
+                Extended README.md on how to use the Java API<br/>
                 Added new example how to write a PNG image from a product's band<br/>
                 Updated to use jpy 0.7.5 (https://github.com/bcdev/jpy/issues/43)<br/>
                 <p>Changes in 5.0.3<br/>
