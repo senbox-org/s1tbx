@@ -49,7 +49,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-class ButtonOverlayControl extends JComponent {
+public class ButtonOverlayControl extends JComponent {
 
     private static final int BUTTON_SPACING = 3;
     private static final int BUTTON_AREA_INSET = 5;
@@ -61,11 +61,11 @@ class ButtonOverlayControl extends JComponent {
     private List<ButtonDef> buttonDefList;
     private int numCols;
 
-    ButtonOverlayControl(Action... actions) {
+    public ButtonOverlayControl(Action... actions) {
         this(2, actions);
     }
 
-    ButtonOverlayControl(int numCols, Action... actions) {
+    public ButtonOverlayControl(int numCols, Action... actions) {
         this.numCols = numCols;
         buttonDimension = new Dimension(24, 24);
         buttonDefList = new ArrayList<ButtonDef>();

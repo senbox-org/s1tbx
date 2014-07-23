@@ -80,6 +80,7 @@ public abstract class AbstractDialog {
     private Component content;
     private boolean shown;
     private Map<Integer, AbstractButton> buttonMap;
+    private JPanel buttonRow;
 
     // Java help support
     private String helpId;
@@ -389,7 +390,7 @@ public abstract class AbstractDialog {
 
     private void initUI(Object[] otherItems) {
 
-        JPanel buttonRow = new JPanel();
+        buttonRow = new JPanel();
         buttonRow.setLayout(new BoxLayout(buttonRow, BoxLayout.X_AXIS));
 
         int insetSize = UIDefaults.INSET_SIZE;
@@ -643,6 +644,10 @@ public abstract class AbstractDialog {
 
     private void showMessageDialog(String message, int messageType) {
         JOptionPane.showMessageDialog(getJDialog(), message, getJDialog().getTitle(), messageType);
+    }
+
+    public JPanel getButtonPanel() {
+        return buttonRow;
     }
 
 }
