@@ -180,4 +180,11 @@ public abstract class AbstractProductWriter implements ProductWriter {
      */
     public void removeBand(Band band) {
     }
+
+    /**
+    * Sets selectable product format for writers which handle multiple formats.
+    *
+    * @param formatName The name of the file format.
+    */
+    public void setFormatName(final String formatName) {}
 }

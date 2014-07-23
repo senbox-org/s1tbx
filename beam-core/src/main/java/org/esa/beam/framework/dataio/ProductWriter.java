@@ -154,4 +154,11 @@ public interface ProductWriter {
      * @param band The band to delete.
      */
     void removeBand(Band band);
+
+    /**
+     * Sets selectable product format for writers which handle multiple formats.
+     *
+     * @param formatName The name of the file format.
+     */
+    void setFormatName(final String formatName);
 }
