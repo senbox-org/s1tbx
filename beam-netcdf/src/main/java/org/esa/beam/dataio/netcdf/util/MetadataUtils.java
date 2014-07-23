@@ -117,7 +117,7 @@ public class MetadataUtils {
         return Integer.parseInt(maxNumValuesRead);
     }
 
-    private static MetadataElement createMetadataElement(Variable variable, int maxNumValuesRead) {
+    public static MetadataElement createMetadataElement(Variable variable, int maxNumValuesRead) {
         final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getFullName());
         if (variable.getRank() == 1) {
             final MetadataElement valuesElem = new MetadataElement("Values");
@@ -138,7 +138,7 @@ public class MetadataUtils {
         return element;
     }
 
-    private static void addAttribute(Variable variable, MetadataElement valuesElem, int maxNumValuesRead) {
+    public static void addAttribute(Variable variable, MetadataElement valuesElem, int maxNumValuesRead) {
         final DataType ncDataType = variable.getDataType();
         final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
