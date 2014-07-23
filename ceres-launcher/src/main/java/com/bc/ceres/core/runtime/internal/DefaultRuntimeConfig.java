@@ -310,7 +310,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     }
 
     private static List<File> createPossibleHomeDirList() {
-        List<File> homeDirCheckList = new ArrayList<File>(4);
+        List<File> homeDirCheckList = new ArrayList<>(4);
 
         // include codeSource dir in check list
         CodeSource lib = DefaultRuntimeConfig.class.getProtectionDomain().getCodeSource();
@@ -337,7 +337,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     }
 
     private List<String> createHomeContentPathList() {
-        List<String> homeContentPathList = new ArrayList<String>(8);
+        List<String> homeContentPathList = new ArrayList<>(8);
         homeContentPathList.add(defaultRelConfigFilePath);
         homeContentPathList.add("bin");
         homeContentPathList.add(DEFAULT_LIB_DIR_NAME);
@@ -348,8 +348,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     private void loadConfiguration() throws RuntimeConfigException {
         trace(String.format("Loading configuration from [%s]", configFilePath));
         try {
-            InputStream stream = new FileInputStream(configFilePath);
-            try {
+            try (InputStream stream = new FileInputStream(configFilePath)) {
                 Properties fileProperties = new Properties();
                 fileProperties.load(stream);
                 // @todo check tests - code was not backward compatible with Java 5
@@ -383,12 +382,10 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
                         }
                     }
                 }
-            } finally {
-                stream.close();
             }
         } catch (IOException e) {
             throw new RuntimeConfigException(String.format("Failed to load configuration [%s]", configFilePath),
-                    e);
+                                             e);
         }
     }
 
@@ -426,18 +423,23 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     private void initModulesDir() throws RuntimeConfigException {
         this.modulesDirPath = null;
         String modulesDirPath = getProperty(modulesDirKey);
-        if (modulesDirPath != null) {
-            File modulesDir = new File(modulesDirPath);
-            if (!modulesDir.isDirectory()) {
-                throw createInvalidPropertyValueException(modulesDirKey, modulesDirPath);
+        try {
+            if (modulesDirPath != null) {
+                File modulesDir = new File(modulesDirPath);
+                if (!modulesDir.isDirectory()) {
+                    throw createInvalidPropertyValueException(modulesDirKey, modulesDirPath);
+                }
+                this.modulesDirPath = modulesDir.getCanonicalPath();
+            } else {
+                // try default
+                File modulesDir = new File(substitute(defaultHomeModulesDirPath));
+                if (modulesDir.isDirectory()) {
+                    this.modulesDirPath = modulesDir.getCanonicalPath();
+                }
             }
-            this.modulesDirPath = modulesDir.getPath();
-        } else {
-            // try default
-            File modulesDir = new File(substitute(defaultHomeModulesDirPath));
-            if (modulesDir.isDirectory()) {
-                this.modulesDirPath = modulesDir.getPath();
-            }
+        } catch (IOException e) {
+            String msg = String.format("Could not convert modules dir path [%s] into its canonical form.", modulesDirPath);
+            throw new RuntimeConfigException(msg, e);
         }
     }
 
@@ -515,7 +517,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
         if (!logLevel.equals(Level.OFF)) {
             // if any of the log handler has our LogFormatter we have already configured the logger
             for (Handler handler : logger.getHandlers()) {
-                if (handler.getFormatter() instanceof  LogFormatter)  {
+                if (handler.getFormatter() instanceof LogFormatter) {
                     return;
                 }
             }
@@ -562,7 +564,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     }
 
     private static String[] splitLibDirPaths(String libDirPathsString) {
-        List<String> libDirPathList = new ArrayList<String>(8);
+        List<String> libDirPathList = new ArrayList<>(8);
         StringTokenizer stringTokenizer = new StringTokenizer(libDirPathsString, File.pathSeparator);
         while (stringTokenizer.hasMoreElements()) {
             String libDirPath = (String) stringTokenizer.nextElement();
@@ -626,6 +628,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
      * with the value of <code><i>configKey</i></code>.
      *
      * @param value the string in which to perform the substitution.
+     *
      * @return the resulting string.
      */
     private String substitute(String value) {
