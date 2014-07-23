@@ -226,41 +226,47 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Returns the width in pixels of the scene represented by this product raster. By default, the method simply
-     * returns <code>getRasterWidth()</code>.
-     *
-     * @return the scene width in pixels
+     * @return The width of the product's scene raster in pixels. By default, the method simply
+     *         returns <code>getRasterWidth()</code>.
      */
     public int getSceneRasterWidth() {
         return getRasterWidth();
     }
 
     /**
-     * Returns the height in pixels of the scene represented by this product raster. By default, the method simply
-     * returns <code>getRasterHeight()</code>.
-     *
-     * @return the scene height in pixels
+     * @return The height of the product's scene raster in pixels. By default, the method simply
+     *         returns <code>getRasterHeight()</code>.
      */
     public int getSceneRasterHeight() {
         return getRasterHeight();
     }
 
     /**
-     * Returns the width of the raster used by this product raster.
-     *
-     * @return the width of the raster
+     * @return The size of the product's scene raster in pixels.
+     */
+    public Dimension getSceneRasterSize() {
+        return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
+    }
+
+    /**
+     * @return The native width of the raster in pixels.
      */
     public final int getRasterWidth() {
         return rasterWidth;
     }
 
     /**
-     * Returns the height of the raster used by this product raster.
-     *
-     * @return the height of the raster
+     * @return The native height of the raster in pixels.
      */
     public final int getRasterHeight() {
         return rasterHeight;
+    }
+
+    /**
+     * @return The native size of the raster in pixels.
+     */
+    public Dimension getRasterSize() {
+        return new Dimension(rasterWidth, rasterHeight);
     }
 
     @Override
