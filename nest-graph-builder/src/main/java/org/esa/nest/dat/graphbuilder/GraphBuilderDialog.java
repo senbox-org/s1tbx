@@ -267,7 +267,6 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     private void CancelProcessing() {
         if (progBarMonitor != null)
             progBarMonitor.setCanceled(true);
-        graphEx.cancel();
     }
 
     private boolean InitGraph() {

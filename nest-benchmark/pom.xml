@@ -6,9 +6,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.esa.nest</groupId>
+        <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
 
     <name>NEST Benchmark Test</name>
@@ -20,9 +20,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-bootstrap</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-bootstrap</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>

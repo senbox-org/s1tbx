@@ -239,10 +239,6 @@ public class GraphExecuter extends Observable {
         processor.executeGraph(graphContext, pm);
     }
 
-    public void cancel() {
-        graphContext.cancel();
-    }
-
     File saveGraph() throws GraphException {
 
         String filename = "myGraph";

@@ -5,18 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.esa.nest</groupId>
+        <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.nest</groupId>
-    <artifactId>nest-bootstrap</artifactId>
-    <name>NEST Bootstrap Classpath</name>
-    <description>Provides the bootstrap classpath to launch DAT from your favourite IDE.</description>
-    <version>6.0-SNAPSHOT</version>
+    <groupId>org.esa.s1tbx</groupId>
+    <artifactId>s1tbx-bootstrap</artifactId>
+    <name>S1TBX Bootstrap Classpath</name>
+    <description>Provides the bootstrap classpath to launch S1TBX from an IDE.</description>
+    <version>0.2.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

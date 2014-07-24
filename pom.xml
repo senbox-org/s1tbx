@@ -23,7 +23,7 @@
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
-		<s1tbx.version>0.1-SNAPSHOT</s1tbx.version>
+		<s1tbx.version>0.2.0-SNAPSHOT</s1tbx.version>
 		
 		<geotools.version>2.7.4</geotools.version>
 		<jide.version>3.5.3</jide.version>
@@ -34,14 +34,14 @@
 	</properties>
 	
 	<prerequisites>
-       <maven>3.0.1</maven>
+       <maven>3.1.0</maven>
     </prerequisites>
 	
     <name>SENTINEL-1 Toolbox</name>
     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
-    <groupId>org.esa.nest</groupId>
+    <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
   
@@ -49,7 +49,7 @@
 		<module>jlinda</module>
 		<module>rstb</module>
 		<module>nest-benchmark</module>
-		<module>nest-bootstrap</module>
+		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-cli</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
