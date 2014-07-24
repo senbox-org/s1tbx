@@ -13,7 +13,7 @@
 
     <name>BEAM Python Integration</name>
     <artifactId>beam-python</artifactId>
-    <version>5.0.4-SNAPSHOT</version>
+    <version>5.0.4</version>
 
     <dependencies>
         <dependency>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.jpy</groupId>
             <artifactId>jpy</artifactId>
-            <version>0.7.5-SNAPSHOT</version>
+            <version>0.7.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
