@@ -17,9 +17,12 @@ Building S1TBX from the source
 	CD into MY_PROJECTS/beam
 	git checkout nestmod
 5. CD into MY_PROJECTS/s1tbx and build S1TBX from source: 
-	mvn compile or mvn package
+	mvn compile -P withbeam
+	or 
+	mvn package -P withbeam
 6. Open the pom.xml file from within IntelliJ IDEA to import.
-7. Use the following configuration to run DAT:
+7. Activate the maven profile withbeam
+8. Use the following configuration to run DAT:
 
     * Main class: com.bc.ceres.launcher.Launcher
     * VM parameters: -Xmx4G -Dceres.context=s1tbx
