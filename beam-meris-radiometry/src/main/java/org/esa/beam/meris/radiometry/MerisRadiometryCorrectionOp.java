@@ -24,11 +24,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
-import org.esa.beam.framework.gpf.pointop.Sample;
-import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
-import org.esa.beam.framework.gpf.pointop.SampleOperator;
-import org.esa.beam.framework.gpf.pointop.WritableSample;
+import org.esa.beam.framework.gpf.pointop.*;
 import org.esa.beam.meris.radiometry.calibration.CalibrationAlgorithm;
 import org.esa.beam.meris.radiometry.calibration.Resolution;
 import org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm;
@@ -38,11 +34,9 @@ import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -147,6 +141,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int sunZenithAngleSampleIndex;
     private transient int flagBandIndex;
     private transient int currentPixel = 0;
+    private Map<Integer, Double> bandIndexToMaxValueMap;
 
     @Override
     protected void prepareInputs() throws OperatorException {
@@ -209,7 +204,10 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         }
         targetProduct.setDescription("MERIS L1b Radiometric Correction");
 
-        for (final Band sourceBand : sourceProduct.getBands()) {
+        bandIndexToMaxValueMap = new TreeMap<>();
+        Band[] bands = sourceProduct.getBands();
+        for (int i = 0; i < bands.length; i++) {
+            Band sourceBand = bands[i];
             if (sourceBand.getSpectralBandIndex() != -1) {
                 final String targetBandName;
                 final String targetBandDescription;
@@ -235,6 +233,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                 final Band targetBand = targetProduct.addBand(targetBandName, dataType);
                 targetBand.setScalingFactor(scalingFactor);
                 targetBand.setScalingOffset(scalingOffset);
+                bandIndexToMaxValueMap.put(i, targetBand.scale(0xFFFF));
                 targetBand.setDescription(targetBandDescription);
                 targetBand.setUnit(unit);
                 targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
@@ -257,6 +256,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Override
     protected void computeSample(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
         checkCancellation();
+
         final int bandIndex = targetSample.getIndex();
         final Sample sourceRadiance = sourceSamples[bandIndex];
         int detectorIndex = -1;
@@ -288,7 +288,10 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         if (doEqualization && isValidDetectorIndex) {
             value = equalizationAlgorithm.performEqualization(value, bandIndex, detectorIndex);
         }
-        targetSample.set(value);
+
+        final double croppedValue = Math.min(bandIndexToMaxValueMap.get(bandIndex), value);
+        targetSample.set(croppedValue);
+
     }
 
     private void initAlgorithms() {

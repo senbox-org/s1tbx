@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-radiometry</symbolicName>
-    <version>5.0.1</version>
+    <version>5.0.2</version>
     <name>MERIS L1b Radiometric Correction</name>
 
     <description>
@@ -26,6 +26,8 @@
 
     <changelog>
         <![CDATA[
+        <b>Changes in 5.0.2</b><br/>
+        [BEAM-1708] Fixed saturation issue in MERIS Radiometric Correction Operator<br/>
         <b>Changes in 5.0.1</b><br/>
         [BEAM-1692] Option radiance-to-reflectance conversion is disabled<br/>
         [BEAM-1688] Detection of reprocessing version fails<br/>
