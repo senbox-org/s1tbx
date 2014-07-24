@@ -1,7 +1,6 @@
 org.esa.nest.gpf.geometric.RangeDopplerGeocodingOp$Spi
 org.esa.nest.gpf.geometric.GeolocationGridGeocodingOp$Spi
 org.esa.nest.gpf.geometric.EllipsoidCorrectionRDOp$Spi
-org.esa.nest.gpf.geometric.MapReProjectionOp$Spi
 org.esa.nest.gpf.geometric.SARSimulationOp$Spi
 org.esa.nest.gpf.geometric.SARSimTerrainCorrectionOp$Spi
 org.esa.nest.gpf.geometric.MosaicOp$Spi

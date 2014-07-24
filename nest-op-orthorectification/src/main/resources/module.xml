@@ -58,11 +58,6 @@
             <operatorName>Ellipsoid-Correction-GG</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.esa.nest.gpf.geometric.MapReProjectionOpUI</id>
-            <class>org.esa.nest.gpf.geometric.MapReProjectionOpUI</class>
-            <operatorName>Reprojection</operatorName>
-        </OperatorUI>
-        <OperatorUI>
             <id>org.esa.nest.gpf.geometric.RangeDopplerGeocodingOpUI</id>
             <class>org.esa.nest.gpf.geometric.RangeDopplerGeocodingOpUI</class>
             <operatorName>Terrain-Correction</operatorName>
