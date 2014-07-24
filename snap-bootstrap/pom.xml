@@ -36,9 +36,9 @@
             <id>s1tbx</id>
             <dependencies>
                 <dependency>
-                    <groupId>org.esa.nest</groupId>
-                    <artifactId>nest-bootstrap</artifactId>
-                    <version>${nest.version}</version>
+                    <groupId>org.esa.s1tbx</groupId>
+                    <artifactId>s1tbx-bootstrap</artifactId>
+                    <version>${s1tbx.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -66,9 +66,9 @@
             <id>all</id>
             <dependencies>
                 <dependency>
-                    <groupId>org.esa.nest</groupId>
-                    <artifactId>nest-bootstrap</artifactId>
-                    <version>${nest.version}</version>
+                    <groupId>org.esa.s1tbx</groupId>
+                    <artifactId>s1tbx-bootstrap</artifactId>
+                    <version>${s1tbx.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.esa.s2tbx</groupId>
