@@ -43,7 +43,7 @@ public final class DimapProductConstants {
      * <p/>
      * Important note: If you change this number, update the BEAM-DIMAP version history given at {@link DimapProductWriterPlugIn}.
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.11.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.12.0";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -273,6 +273,8 @@ public final class DimapProductConstants {
     public static final String TAG_PHYSICAL_BIAS = "PHYSICAL_BIAS";
     public static final String TAG_PHYSICAL_UNIT = "PHYSICAL_UNIT";
     public static final String TAG_BAND_NAME = "BAND_NAME";
+    public static final String TAG_BAND_RASTER_WIDTH = "BAND_RASTER_WIDTH";
+    public static final String TAG_BAND_RASTER_HEIGHT = "BAND_RASTER_HEIGHT";
     public static final String TAG_DATA_TYPE = "DATA_TYPE";
     public static final String TAG_SOLAR_FLUX = "SOLAR_FLUX";
     public static final String TAG_SPECTRAL_BAND_INDEX = "SPECTRAL_BAND_INDEX";

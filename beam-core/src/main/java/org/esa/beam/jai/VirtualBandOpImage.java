@@ -62,13 +62,41 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     public static VirtualBandOpImage createMask(String expression,
                                                 Product product,
                                                 ResolutionLevel level) {
+        return createMask(expression,
+                          product,
+                          product.getSceneRasterWidth(),
+                          product.getSceneRasterHeight(),
+                          level);
+    }
+
+    public static VirtualBandOpImage createMask(String expression,
+                                                Product product,
+                                                int width, int height,
+                                                ResolutionLevel level) {
         return create(expression,
                       ProductData.TYPE_UINT8,
                       null,
                       true,
                       product,
+                      width, height,
                       level);
     }
+
+    public static VirtualBandOpImage createMask(String expression,
+                                                Product[] products,
+                                                int defaultProductIndex,
+                                                int width, int height,
+                                                ResolutionLevel level) {
+        return create(expression,
+                      ProductData.TYPE_UINT8,
+                      null,
+                      true,
+                      products,
+                      defaultProductIndex,
+                      width, height,
+                      level);
+    }
+
 
     public static VirtualBandOpImage create(String expression,
                                             int dataType,
@@ -80,6 +108,23 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       fillValue,
                       false,
                       product,
+                      product.getSceneRasterWidth(),
+                      product.getSceneRasterHeight(),
+                      level);
+    }
+
+    public static VirtualBandOpImage create(String expression,
+                                            int dataType,
+                                            Number fillValue,
+                                            Product product,
+                                            int width, int height,
+                                            ResolutionLevel level) {
+        return create(expression,
+                      dataType,
+                      fillValue,
+                      false,
+                      product,
+                      width, height,
                       level);
     }
 
@@ -95,6 +140,24 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       false,
                       products,
                       defaultProductIndex,
+                      products[defaultProductIndex].getSceneRasterWidth(),
+                      products[defaultProductIndex].getSceneRasterHeight(),
+                      level);
+    }
+
+    public static VirtualBandOpImage create(String expression,
+                                            int dataType,
+                                            Number fillValue,
+                                            Product[] products,
+                                            int defaultProductIndex,
+                                            int width, int height,
+                                            ResolutionLevel level) {
+        return create(expression,
+                      dataType,
+                      fillValue,
+                      false,
+                      products,
+                      defaultProductIndex, width, height,
                       level);
     }
 
@@ -103,6 +166,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                              Number fillValue,
                                              boolean mask,
                                              Product product,
+                                             int width, int height,
                                              ResolutionLevel level) {
         Assert.notNull(product, "product");
         Assert.notNull(level, "level");
@@ -125,6 +189,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       mask,
                       products,
                       defaultProductIndex,
+                      width, height,
                       level);
     }
 
@@ -134,6 +199,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                              boolean mask,
                                              Product[] products,
                                              int defaultProductIndex,
+                                             int width, int height,
                                              ResolutionLevel level) {
         Assert.notNull(expression, "expression");
         Assert.notNull(products, "products");
@@ -147,6 +213,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                       fillValue,
                                       mask,
                                       products,
+                                      width, height,
                                       defaultProductIndex,
                                       level);
     }
@@ -156,11 +223,13 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                Number fillValue,
                                boolean mask,
                                Product[] products,
+                               int width, int height,
                                int defaultProductIndex,
                                ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
-              products[defaultProductIndex].getSceneRasterWidth(),
-              products[defaultProductIndex].getSceneRasterHeight(),
+              width,
+              height,
+              // todo - [multisize_products] tile size shall fit to width / height
               products[defaultProductIndex].getPreferredTileSize(),
               null,
               level);

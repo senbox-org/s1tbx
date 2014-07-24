@@ -20,7 +20,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.geometry.VectorDataNodeIO;
 import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FilterBand;
@@ -81,8 +80,6 @@ public class DimapProductReader extends AbstractProductReader {
     private File inputFile;
     private Map<Band, ImageInputStream> bandInputStreams;
 
-    private int sourceRasterWidth;
-    private int sourceRasterHeight;
     private Map<Band, File> bandDataFiles;
     private Set<ReaderExtender> readerExtenders;
 
@@ -105,14 +102,6 @@ public class DimapProductReader extends AbstractProductReader {
 
     public File getInputFile() {
         return inputFile;
-    }
-
-    public int getSourceRasterWidth() {
-        return sourceRasterWidth;
-    }
-
-    public int getSourceRasterHeight() {
-        return sourceRasterHeight;
     }
 
     /**
@@ -154,9 +143,6 @@ public class DimapProductReader extends AbstractProductReader {
         if (existingProduct == null) {
             readTiePointGrids(dom);
         }
-
-        sourceRasterWidth = this.product.getSceneRasterWidth();
-        sourceRasterHeight = this.product.getSceneRasterHeight();
 
         bindBandsToFiles(dom);
         if (existingProduct == null) {
@@ -340,7 +326,7 @@ public class DimapProductReader extends AbstractProductReader {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final long sourcePosY = (long) sourceY * sourceRasterWidth;
+                    final long sourcePosY = (long) sourceY * destBand.getRasterWidth();
                     if (sourceStepX == 1) {
                         long inputPos = sourcePosY + sourceMinX;
                         destBuffer.readFrom(destPos, destWidth, inputStream, inputPos);

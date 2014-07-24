@@ -1585,16 +1585,27 @@ public class DimapProductHelpers {
         private static Band addBand(final Element element, Product product) {
             Band band = null;
             final String bandName = element.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
+
+            final String bandRasterWidthStr = element.getChildTextTrim(DimapProductConstants.TAG_BAND_RASTER_WIDTH);
+            final String bandRasterHeightStr = element.getChildTextTrim(DimapProductConstants.TAG_BAND_RASTER_HEIGHT);
+
+            final int rasterWidth;
+            final int rasterHeight;
+            if (bandRasterWidthStr != null && bandRasterHeightStr != null) {
+                rasterWidth = Integer.parseInt(bandRasterWidthStr);
+                rasterHeight = Integer.parseInt(bandRasterHeightStr);
+            } else {
+                rasterWidth = product.getSceneRasterWidth();
+                rasterHeight = product.getSceneRasterHeight();
+            }
+
             final String description = element.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION);
             final int type = ProductData.getType(element.getChildTextTrim(DimapProductConstants.TAG_DATA_TYPE));
             if (type == ProductData.TYPE_UNDEFINED) {
                 return null;
             }
             if (isVirtualBand(element)) {
-                final int width = product.getSceneRasterWidth();
-                final int height = product.getSceneRasterHeight();
-                final VirtualBand virtualBand = new VirtualBand(bandName, type, width, height, getExpression(element));
-                product.addBand(virtualBand);
+                final VirtualBand virtualBand = new VirtualBand(bandName, type, rasterWidth, rasterHeight, getExpression(element));                product.addBand(virtualBand);
                 virtualBand.setNoDataValue(getInvalidValue(element));
                 virtualBand.setNoDataValueUsed(getUseInvalidValue(element));
                 band = virtualBand;
@@ -1609,8 +1620,8 @@ public class DimapProductHelpers {
                     }
                 }
             } else {
-                product.addBand(bandName, type);
-                band = product.getBand(bandName);
+                band = new Band(bandName, type, rasterWidth, rasterHeight);
+                product.addBand(band);
             }
             if (band != null) {
                 band.setDescription(description);

@@ -23,6 +23,12 @@ import org.junit.Test;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -76,11 +82,34 @@ public class ProductSceneRasterSizeTest {
         assertEquals(new Dimension(110, 200), product.getSceneRasterSize());
 
         File file = new File("multisize_product.dim");
-        ProductIO.writeProduct(product, file, "BEAM-DIMAP", false);
-        Product product2 = ProductIO.readProduct(file);
-        assertEquals(new Dimension(110, 200), product2.getSceneRasterSize());
-        assertEquals(new Dimension(100, 200), product2.getBand("B1").getRasterSize());
-        assertEquals(new Dimension(110, 190), product2.getBand("B2").getRasterSize());
+        try {
+            ProductIO.writeProduct(product, file, "BEAM-DIMAP", false);
+            Product product2 = ProductIO.readProduct(file);
+            assertEquals(new Dimension(110, 200), product2.getSceneRasterSize());
+            assertEquals(new Dimension(100, 200), product2.getBand("B1").getRasterSize());
+            assertEquals(new Dimension(110, 190), product2.getBand("B2").getRasterSize());
+        } finally {
+            if(file.exists()) {
+                Files.delete(file.toPath());
+                File dataDir = new File(file.getAbsolutePath().replaceAll("dim", "data"));
+                Files.walkFileTree(dataDir.toPath(), new PathTreeDeleter());
+            }
+        }
+    }
+
+    private static class PathTreeDeleter extends SimpleFileVisitor<Path> {
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+        }
     }
 }
 
