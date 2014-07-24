@@ -20,25 +20,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-bootstrap</artifactId>
-            <version>${beam.versionRange}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envi-reader</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-arcbingrid-reader</artifactId>
-            <version>${beam.versionRange}</version>
-        </dependency>
-        <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-reader-dem</artifactId>
         </dependency>
@@ -242,4 +223,17 @@
         </dependency>
     </dependencies>
 
+	<profiles>
+		<profile>
+            <id>withbeam</id>
+            <dependencies>
+			<dependency>
+				<groupId>org.esa.beam</groupId>
+				<artifactId>beam-bootstrap</artifactId>
+				<version>${beam.versionRange}</version>
+			</dependency>
+            </dependencies>
+		</profile>
+
+    </profiles>
 </project>
