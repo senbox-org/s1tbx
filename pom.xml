@@ -48,7 +48,7 @@
 	    <modules>
 		<module>jlinda</module>
 		<module>rstb</module>
-		<module>nest-benchmark</module>
+		<module>s1tbx-benchmark</module>
 		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-cli</module>
 		<module>nest-core</module>
@@ -1200,7 +1200,7 @@
 		<profile>
             <id>benchmark</id>
             <modules>
-				<module>nest-benchmark</module>
+				<module>s1tbx-benchmark</module>
             </modules>
 		</profile>
     </profiles>
