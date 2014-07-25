@@ -22,10 +22,9 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.*;
-import org.esa.nest.datamodel.metadata.AbstractMetadata;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.datamodel.metadata.AbstractMetadataSAR;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
@@ -234,8 +233,7 @@ public class CosmoSkymedReader extends SARReader {
 
     private void addAbstractedMetadataHeader(Product product, MetadataElement root) throws IOException {
 
-        final AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
-        AbstractMetadataSAR sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(product);
+        final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
@@ -243,134 +241,145 @@ public class CosmoSkymedReader extends SARReader {
         final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product).
                 getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
-        absMeta.setAttribute(AbstractMetadata.product_name, globalElem.getAttributeString("Product_Filename", defStr));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));
         final String productType = globalElem.getAttributeString("Product_Type", defStr);
-        absMeta.setAttribute(AbstractMetadata.product_type, productType);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
         final String mode = globalElem.getAttributeString("Acquisition_Mode", defStr);
-        absMeta.setAttribute(AbstractMetadata.descriptor, mode);
-        absMeta.setAttribute(AbstractMetadata.acquisition_mode, mode);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, mode);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
 
         if (mode.contains("HUGE") && productType.contains("SCS")) {
             throw new IOException("Complex " + mode + " products are not supported for Cosmo-Skymed");
         }
 
-        absMeta.setAttribute(AbstractMetadata.mission, globalElem.getAttributeString("Satellite_Id", "CSK"));
-        absMeta.setAttribute(AbstractMetadata.processing_time,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, globalElem.getAttributeString("Satellite_Id", "CSK"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 ReaderUtils.getTime(globalElem, "Product_Generation_UTC", AbstractMetadata.dateFormat));
 
-        absMeta.setAttribute(AbstractMetadata.processing_system,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
                 globalElem.getAttributeString("Processing_Centre", defStr));
 
-        absMeta.setAttribute(AbstractMetadata.abs_orbit, globalElem.getAttributeInt("Orbit_Number", defInt));
-        absMeta.setAttribute(AbstractMetadata.pass, globalElem.getAttributeString("Orbit_Direction", defStr));
-        absMeta.setAttribute(AbstractMetadata.sample_type, getSampleType(globalElem));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,
+                globalElem.getAttributeString("Look_Side", defStr).toLowerCase());
 
-        absMeta.setAttribute(AbstractMetadata.num_output_lines,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction", defStr));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
+        /*
+        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", timeFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", timeFormat);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+        product.setStartTime(startTime);
+        product.setEndTime(stopTime);
+        */
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                 product.getSceneRasterHeight());
-        absMeta.setAttribute(AbstractMetadata.num_samples_per_line,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
                 product.getSceneRasterWidth());
-        absMeta.setAttribute(AbstractMetadata.total_size, ReaderUtils.getTotalSize(product));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
+                globalElem.getAttributeDouble("Radar_Frequency", defInt) / Constants.oneMillion);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+//                ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
+                globalElem.getAttributeString("Focusing_Algorithm_ID", defStr));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
+                globalElem.getAttributeString("Ellipsoid_Designator", defStr));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                globalElem.getAttributeDouble("Range_Processing_Number_of_Looks", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                globalElem.getAttributeDouble("Azimuth_Processing_Number_of_Looks", defInt));
 
         if (productType.contains("GEC")) {
-            absMeta.setAttribute(AbstractMetadata.map_projection,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection,
                     globalElem.getAttributeString("Projection_ID", defStr));
         }
 
-        sarMeta.setAttribute(AbstractMetadataSAR.radar_frequency,
-                globalElem.getAttributeDouble("Radar_Frequency", defInt) / Constants.oneMillion);
-
-        sarMeta.setAttribute(AbstractMetadataSAR.geo_ref_system,
-                globalElem.getAttributeString("Ellipsoid_Designator", defStr));
-
-        sarMeta.setAttribute(AbstractMetadataSAR.antenna_pointing,
-                globalElem.getAttributeString("Look_Side", defStr).toLowerCase());
-        sarMeta.setAttribute(AbstractMetadataSAR.range_looks,
-                globalElem.getAttributeDouble("Range_Processing_Number_of_Looks", defInt));
-        sarMeta.setAttribute(AbstractMetadataSAR.azimuth_looks,
-                globalElem.getAttributeDouble("Azimuth_Processing_Number_of_Looks", defInt));
-
         // Global calibration attributes
         /*
-        sarMeta.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag,
         		globalElem.getAttributeInt("Calibration_Constant_Compensation_Flag"));
         */
-        sarMeta.setAttribute(AbstractMetadataSAR.coregistered_stack, 0);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
 
         final String rngSpreadComp = globalElem.getAttributeString(
                 "Range_Spreading_Loss_Compensation_Geometry", defStr);
         if (rngSpreadComp.equals("NONE"))
-            sarMeta.setAttribute(AbstractMetadataSAR.range_spread_comp_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 0);
         else
-            sarMeta.setAttribute(AbstractMetadataSAR.range_spread_comp_flag, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 1);
 
         final String incAngComp = globalElem.getAttributeString(
                 "Incidence_Angle_Compensation_Geometry", defStr);
         if (incAngComp.equals("NONE"))
-            sarMeta.setAttribute(AbstractMetadataSAR.inc_angle_comp_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 0);
         else
-            sarMeta.setAttribute(AbstractMetadataSAR.inc_angle_comp_flag, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 1);
 
         final String antElevComp = globalElem.getAttributeString(
                 "Range_Antenna_Pattern_Compensation_Geometry", defStr);
-        if (antElevComp.equals("NONE")) {
-            sarMeta.setAttribute(AbstractMetadataSAR.ant_elev_corr_flag, 0);
-        } else {
-            sarMeta.setAttribute(AbstractMetadataSAR.ant_elev_corr_flag, 1);
-        }
+        if (antElevComp.equals("NONE"))
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 0);
+        else
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 1);
 
-        sarMeta.setAttribute(AbstractMetadataSAR.ref_inc_angle,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_inc_angle,
                 globalElem.getAttributeDouble("Reference_Incidence_Angle", defInt));
-        sarMeta.setAttribute(AbstractMetadataSAR.ref_slant_range,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_slant_range,
                 globalElem.getAttributeDouble("Reference_Slant_Range", defInt));
-        sarMeta.setAttribute(AbstractMetadataSAR.ref_slant_range_exp,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_slant_range_exp,
                 globalElem.getAttributeDouble("Reference_Slant_Range_Exponent", defInt));
-        sarMeta.setAttribute(AbstractMetadataSAR.rescaling_factor,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.rescaling_factor,
                 globalElem.getAttributeDouble("Rescaling_Factor", defInt));
 
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if (s01Elem != null) {
-            sarMeta.setAttribute(AbstractMetadataSAR.pulse_repetition_frequency,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
                     s01Elem.getAttributeDouble("PRF", defInt));
-            sarMeta.setAttribute(AbstractMetadataSAR.range_sampling_rate,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
                     s01Elem.getAttributeDouble("Sampling_Rate", defInt) / Constants.oneMillion);
-            sarMeta.setAttribute(AbstractMetadataSAR.mds1_tx_rx_polar,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
                     s01Elem.getAttributeString("Polarisation", defStr));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = s01Elem.getAttributeDouble("Range_Focusing_Bandwidth"); // Hz
             final double azimuthBW = s01Elem.getAttributeDouble("Azimuth_Focusing_Bandwidth"); // Hz
 
-            sarMeta.setAttribute(AbstractMetadataSAR.range_bandwidth, rangeBW / Constants.oneMillion);
-            sarMeta.setAttribute(AbstractMetadataSAR.azimuth_bandwidth, azimuthBW);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth, rangeBW / Constants.oneMillion);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
 
             // Calibration constant read from Global_Metadata during calibration initialization
         }
         final MetadataElement s02Elem = globalElem.getElement("S02");
         if (s02Elem != null) {
-            sarMeta.setAttribute(AbstractMetadataSAR.mds2_tx_rx_polar,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
                     s02Elem.getAttributeString("Polarisation", defStr));
         }
 
         if (isComplex) {
-            sarMeta.setAttribute(AbstractMetadataSAR.srgr_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 0);
         } else {
-            sarMeta.setAttribute(AbstractMetadataSAR.srgr_flag, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
         }
 
-        addOrbitStateVectors(absMeta, globalElem);
+        addOrbitStateVectors(absRoot, globalElem);
     }
 
-    private void addSlantRangeToFirstPixel() throws IOException {
-        final AbstractMetadataSAR sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(product);
+    private void addSlantRangeToFirstPixel() {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
         if (bandElem != null) {
             final double slantRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0); //s
-            sarMeta.setAttribute(AbstractMetadataSAR.slant_range_to_first_pixel,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                     slantRangeTime * Constants.halfLightSpeed);
         }
     }
 
-    private static void addOrbitStateVectors(final AbstractMetadata absRoot, final MetadataElement globalElem) {
+    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement globalElem) {
 
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", AbstractMetadata.dateFormat);
@@ -405,37 +414,36 @@ public class CosmoSkymedReader extends SARReader {
         }
     }
 
-    private void addDopplerCentroidCoefficients() throws IOException {
+    private void addDopplerCentroidCoefficients() {
 
-        final AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
-        final AbstractMetadataSAR sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(product);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
-        final MetadataElement dopplerCentroidCoefficientsElem = sarMeta.getElement(AbstractMetadataSAR.dop_coefficients);
-        final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadataSAR.dop_coef_list + ".1");
+        final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
+        final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + ".1");
         dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
 
-        final ProductData.UTC utcTime = absMeta.getAttributeUTC(AbstractMetadata.first_line_time);
-        dopplerListElem.setAttributeUTC(AbstractMetadataSAR.dop_coef_time, utcTime);
+        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
+        dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
-        sarMeta.addAbstractedAttribute(dopplerListElem, AbstractMetadataSAR.slant_range_time,
+        AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
                 ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
-        sarMeta.setAttribute(dopplerListElem, AbstractMetadataSAR.slant_range_time, 0.0);
+        AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, 0.0);
 
         for (int i = 0; i < 6; i++) {
             final double coefValue =
                     globalElem.getAttribute("Centroid_vs_Range_Time_Polynomial").getData().getElemDoubleAt(i);
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadataSAR.coefficient + '.' + (i + 1));
+            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             dopplerListElem.addElement(coefElem);
-            sarMeta.addAbstractedAttribute(coefElem, AbstractMetadataSAR.dop_coef,
+            AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
                     ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
-            sarMeta.setAttribute(coefElem, AbstractMetadataSAR.dop_coef, coefValue);
+            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
         }
     }
 
     private void addFirstLastLineTimes(final int rasterHeight) {
-        final AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
@@ -453,21 +461,20 @@ public class CosmoSkymedReader extends SARReader {
         final ProductData.UTC startTime = new ProductData.UTC(referenceUTC + firstLineTime);
         final ProductData.UTC stopTime = new ProductData.UTC(referenceUTC + lastLineTime);
 
-        absMeta.setAttribute(AbstractMetadata.first_line_time, startTime);
-        absMeta.setAttribute(AbstractMetadata.last_line_time, stopTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
         product.setStartTime(startTime);
         product.setEndTime(stopTime);
         if (lineTimeInterval == 0) {
             lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
         }
-        absMeta.setAttribute(AbstractMetadata.line_time_interval, lineTimeInterval);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
     }
 
-    private void addSRGRCoefficients() throws IOException {
+    private void addSRGRCoefficients() {
 
         // For detail of ground range to slant range conversion, please see P80 in COSMO-SkyMed SAR Products Handbook.
-        final AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
-        final AbstractMetadataSAR sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(product);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
@@ -481,15 +488,15 @@ public class CosmoSkymedReader extends SARReader {
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
         final double rangeSpacing = bandElem.getAttributeDouble("Column_Spacing", AbstractMetadata.NO_METADATA);
 
-        final MetadataElement srgrCoefficientsElem = sarMeta.getElement(AbstractMetadataSAR.srgr_coefficients);
-        final MetadataElement srgrListElem = new MetadataElement(AbstractMetadataSAR.srgr_coef_list);
+        final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
+        final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
 
-        final ProductData.UTC utcTime = absMeta.getAttributeUTC(AbstractMetadata.first_line_time);
-        srgrListElem.setAttributeUTC(AbstractMetadataSAR.srgr_coef_time, utcTime);
-        sarMeta.addAbstractedAttribute(srgrListElem, AbstractMetadataSAR.ground_range_origin,
+        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
+        srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
+        AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                 ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
-        sarMeta.setAttribute(srgrListElem, AbstractMetadataSAR.ground_range_origin, 0.0);
+        AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
         final int numCoeffs = 6;
         for (int i = 0; i < numCoeffs; i++) {
@@ -500,13 +507,13 @@ public class CosmoSkymedReader extends SARReader {
                 srgrCoeff /= Math.pow(rangeSpacing, i);
             }
 
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadataSAR.coefficient + '.' + (i + 1));
+            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             srgrListElem.addElement(coefElem);
 
-            sarMeta.addAbstractedAttribute(coefElem, AbstractMetadataSAR.srgr_coef,
+            AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
                     ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
 
-            sarMeta.setAttribute(coefElem, AbstractMetadataSAR.srgr_coef, srgrCoeff);
+            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, srgrCoeff);
         }
     }
 
@@ -651,39 +658,38 @@ public class CosmoSkymedReader extends SARReader {
     private static void addGeocodingFromMetadata(final Product product, final MetadataElement bandElem) {
         if (bandElem == null) return;
 
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+
         try {
-            final AbstractMetadata absMeta = AbstractMetadata.getAbstractedMetadata(product);
-            final AbstractMetadataSAR sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(product);
-
             String str = bandElem.getAttributeString("Top_Left_Geodetic_Coordinates");
-            final double latUL = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final double lonUL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            final float latUL = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonUL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
             str = bandElem.getAttributeString("Top_Right_Geodetic_Coordinates");
-            final double latUR = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final double lonUR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            final float latUR = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonUR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
             str = bandElem.getAttributeString("Bottom_Left_Geodetic_Coordinates");
-            final double latLL = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final double lonLL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            final float latLL = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonLL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
             str = bandElem.getAttributeString("Bottom_Right_Geodetic_Coordinates");
-            final double latLR = Float.parseFloat(str.substring(0, str.indexOf(',')));
-            final double lonLR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            final float latLR = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonLR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
 
-            absMeta.setAttribute(AbstractMetadata.first_near_lat, latUL);
-            absMeta.setAttribute(AbstractMetadata.first_near_long, lonUL);
-            absMeta.setAttribute(AbstractMetadata.first_far_lat, latUR);
-            absMeta.setAttribute(AbstractMetadata.first_far_long, lonUR);
-            absMeta.setAttribute(AbstractMetadata.last_near_lat, latLL);
-            absMeta.setAttribute(AbstractMetadata.last_near_long, lonLL);
-            absMeta.setAttribute(AbstractMetadata.last_far_lat, latLR);
-            absMeta.setAttribute(AbstractMetadata.last_far_long, lonLR);
+            absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
+            absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
+            absRoot.setAttributeDouble(AbstractMetadata.first_far_lat, latUR);
+            absRoot.setAttributeDouble(AbstractMetadata.first_far_long, lonUR);
+            absRoot.setAttributeDouble(AbstractMetadata.last_near_lat, latLL);
+            absRoot.setAttributeDouble(AbstractMetadata.last_near_long, lonLL);
+            absRoot.setAttributeDouble(AbstractMetadata.last_far_lat, latLR);
+            absRoot.setAttributeDouble(AbstractMetadata.last_far_long, lonLR);
 
-            sarMeta.setAttribute(AbstractMetadataSAR.range_spacing,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
                     bandElem.getAttributeDouble("Column_Spacing", AbstractMetadata.NO_METADATA));
-            sarMeta.setAttribute(AbstractMetadataSAR.azimuth_spacing,
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                     bandElem.getAttributeDouble("Line_Spacing", AbstractMetadata.NO_METADATA));
 
-            final float[] latCorners = new float[]{(float)latUL, (float)latUR, (float)latLL, (float)latLR};
-            final float[] lonCorners = new float[]{(float)lonUL, (float)lonUR, (float)lonLL, (float)lonLR};
+            final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+            final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
         } catch (Exception e) {

@@ -27,13 +27,11 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.datamodel.metadata.AbstractMetadata;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.datamodel.metadata.AbstractMetadataSAR;
 import org.esa.nest.eo.Constants;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -86,8 +84,7 @@ public final class MultilookOp extends Operator {
     @Parameter(defaultValue = "Currently, detection for complex data is performed without any resampling", label = "Note")
     String note;
 
-    private AbstractMetadata absRoot = null;
-    private AbstractMetadataSAR sarMeta;
+    private MetadataElement absRoot = null;
 
     private double azimuthLooks; // original azimuth_looks from metadata
     private double rangeLooks;   // original range_looks from metadata
@@ -118,12 +115,18 @@ public final class MultilookOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            final GeoCoding sourceGeoCoding = sourceProduct.getGeoCoding();
+            GeoCoding sourceGeoCoding = sourceProduct.getGeoCoding();
             if (sourceGeoCoding instanceof CrsGeoCoding) {
                 throw new OperatorException("Multilook is not intended for map projected products");
             }
 
-            getMetadata();
+            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
+            isPolsar = absRoot.getAttributeInt(AbstractMetadata.polsarData, 0) == 1;
+
+            getRangeAzimuthSpacing();
+
+            getRangeAzimuthLooks();
 
             getSourceImageDimension();
 
@@ -132,23 +135,6 @@ public final class MultilookOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    /**
-     * Get the source product metadata
-     */
-    private void getMetadata() throws IOException {
-
-        absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(sourceProduct);
-
-        isPolsar = sarMeta.getAttributeInt(AbstractMetadataSAR.polsarData) == 1;
-
-        rangeSpacing = sarMeta.getAttributeDouble(AbstractMetadataSAR.range_spacing);
-        azimuthSpacing = sarMeta.getAttributeDouble(AbstractMetadataSAR.azimuth_spacing);
-
-        azimuthLooks = sarMeta.getAttributeDouble(AbstractMetadataSAR.azimuth_looks);
-        rangeLooks = sarMeta.getAttributeDouble(AbstractMetadataSAR.range_looks);
     }
 
     /**
@@ -252,6 +238,28 @@ public final class MultilookOp extends Operator {
     }
 
     /**
+     * Get the range and azimuth spacings (in meter).
+     */
+    private void getRangeAzimuthSpacing() {
+
+        rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 1);
+        azimuthSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
+        //System.out.println("Range spacing is " + rangeSpacing);
+        //System.out.println("Azimuth spacing is " + azimuthSpacing);
+    }
+
+    /**
+     * Get azimuth and range looks.
+     */
+    private void getRangeAzimuthLooks() {
+
+        azimuthLooks = absRoot.getAttributeDouble(AbstractMetadata.azimuth_looks, 1);
+        rangeLooks = absRoot.getAttributeDouble(AbstractMetadata.range_looks, 1);
+        //System.out.println("Azimuth looks is " + azimuthLooks);
+        //System.out.println("Range looks is " + rangeLooks);
+    }
+
+    /**
      * Get source image dimension.
      */
     private void getSourceImageDimension() {
@@ -264,7 +272,7 @@ public final class MultilookOp extends Operator {
     /**
      * Create target product.
      */
-    private void createTargetProduct() throws IOException {
+    private void createTargetProduct() {
 
         targetImageWidth = sourceImageWidth / nRgLooks;
         targetImageHeight = sourceImageHeight / nAzLooks;
@@ -336,29 +344,27 @@ public final class MultilookOp extends Operator {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() throws IOException {
+    private void updateTargetProductMetadata() {
 
-        absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(targetProduct);
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.multilook_flag, 1);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_looks, azimuthLooks * nAzLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_looks, rangeLooks * nRgLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, azimuthSpacing * nAzLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, rangeSpacing * nRgLooks);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
 
-        sarMeta.setAttribute(AbstractMetadataSAR.multilook_flag, 1);
-        sarMeta.setAttribute(AbstractMetadataSAR.azimuth_looks, azimuthLooks * nAzLooks);
-        sarMeta.setAttribute(AbstractMetadataSAR.range_looks, rangeLooks * nRgLooks);
-        sarMeta.setAttribute(AbstractMetadataSAR.azimuth_spacing, azimuthSpacing * nAzLooks);
-        sarMeta.setAttribute(AbstractMetadataSAR.range_spacing, rangeSpacing * nRgLooks);
-        absRoot.setAttribute(AbstractMetadata.num_output_lines, targetImageHeight);
-        absRoot.setAttribute(AbstractMetadata.num_samples_per_line, targetImageWidth);
+        final float oldLineTimeInterval = (float) absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.line_time_interval, oldLineTimeInterval * nAzLooks);
 
-        final double oldLineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval);
-        absRoot.setAttribute(AbstractMetadata.line_time_interval, oldLineTimeInterval * nAzLooks);
-
-        final double oldNearEdgeSlantRange = sarMeta.getAttributeDouble(AbstractMetadataSAR.slant_range_to_first_pixel);
+        final double oldNearEdgeSlantRange = absTgt.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
         final double newNearEdgeSlantRange = oldNearEdgeSlantRange + rangeSpacing * (nRgLooks - 1) / 2.0;
-        sarMeta.setAttribute(AbstractMetadataSAR.slant_range_to_first_pixel, newNearEdgeSlantRange);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.slant_range_to_first_pixel, newNearEdgeSlantRange);
 
         double oldFirstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
         double newFirstLineUTC = oldFirstLineUTC + oldLineTimeInterval * ((nAzLooks - 1) / 2.0) / Constants.secondsInDay;
-        absRoot.setAttribute(AbstractMetadata.first_line_time, new ProductData.UTC(newFirstLineUTC));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time, new ProductData.UTC(newFirstLineUTC));
     }
 
     /**
@@ -422,26 +428,25 @@ public final class MultilookOp extends Operator {
     /**
      * Compute number of azimuth looks and the mean ground pixel spacings for given number of range looks.
      *
-     * @param sourceProduct The source product.
+     * @param srcProduct The source product.
      * @param param      The computed parameters.
      * @throws Exception The exception.
      */
-    public static void getDerivedParameters(final Product sourceProduct, final DerivedParams param) throws Exception {
+    public static void getDerivedParameters(Product srcProduct, DerivedParams param) throws Exception {
 
-        final AbstractMetadataSAR sarMeta = AbstractMetadataSAR.getSARAbstractedMetadata(sourceProduct);
-
-        final boolean srgrFlag = sarMeta.getAttributeBoolean(AbstractMetadataSAR.srgr_flag);
-        double rangeSpacing = sarMeta.getAttributeDouble(AbstractMetadataSAR.range_spacing);
-        double azimuthSpacing = sarMeta.getAttributeDouble(AbstractMetadataSAR.azimuth_spacing);
+        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(srcProduct);
+        final boolean srgrFlag = AbstractMetadata.getAttributeBoolean(abs, AbstractMetadata.srgr_flag);
+        double rangeSpacing = abs.getAttributeDouble(AbstractMetadata.range_spacing, 1);
+        double azimuthSpacing = abs.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
 
         double groundRangeSpacing = rangeSpacing;
         if (rangeSpacing == AbstractMetadata.NO_METADATA) {
             azimuthSpacing = 1;
             groundRangeSpacing = 1;
         } else if (!srgrFlag) {
-            final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+            final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(srcProduct);
             if (incidenceAngle != null) {
-                final double incidenceAngleAtCentreRangePixel = getIncidenceAngleAtCentreRangePixel(sourceProduct,
+                final double incidenceAngleAtCentreRangePixel = getIncidenceAngleAtCentreRangePixel(srcProduct,
                         incidenceAngle);
                 groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
             }

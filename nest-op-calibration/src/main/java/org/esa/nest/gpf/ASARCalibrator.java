@@ -918,10 +918,10 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
 
-          //  incidenceAngle.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointGrid.InterpMode.QUADRATIC);
+            incidenceAngle.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointGrid.InterpMode.QUADRATIC);
 
             if (applyRangeSpreadingCorr) {
-              //  slantRangeTime.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointGrid.InterpMode.QUADRATIC);
+                slantRangeTime.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointGrid.InterpMode.QUADRATIC);
             }
 
             for (int x = x0, xx = 0; x < maxX; ++x, ++xx) {
@@ -1210,10 +1210,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         } else { // for slant range product, compute slant range from slant range time
 
-           // final double time = slantRangeTime.getPixelFloat((float) x, (float) y, TiePointGrid.InterpMode.QUADRATIC) /
-           //         Constants.oneBillion; //convert ns to s
-           // return time * Constants.halfLightSpeed; // in m
-            return  99999;
+            final double time = slantRangeTime.getPixelFloat((float) x, (float) y, TiePointGrid.InterpMode.QUADRATIC) /
+                    Constants.oneBillion; //convert ns to s
+            return time * Constants.halfLightSpeed; // in m
         }
     }
 
