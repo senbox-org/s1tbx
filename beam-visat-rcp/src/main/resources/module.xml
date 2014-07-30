@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>5.0.1</version>
+    <version>5.0.2</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -27,6 +27,8 @@
 
     <changelog>
         <![CDATA[
+          <b>Changes in 5.0.2</b><br/>
+          [SBOX-69] Review the distance module
           <b>Changes in 5.0.1</b><br/>
           Fixed NPE with missing histogram matching in Colour Manipulation tool window<br/>
           Harmonisation with NEST: Convert computed band: only clone image info, if it exists<br/>
@@ -667,25 +669,6 @@
         <!--####################-->
         <!-- Import Menu Group  -->
         <!--####################-->
-
-        <action>
-            <id>importFileFormats</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Common File Formats</text>
-            <parent>importRasterData</parent>
-        </action>
-        <action>
-            <id>importSAR</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>SAR</text>
-            <parent>importRasterData</parent>
-        </action>
-        <action>
-            <id>importMultispectral</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Multispectral</text>
-            <parent>importRasterData</parent>
-        </action>
 
         <action>
             <id>importShapefile</id>

@@ -18,8 +18,8 @@ package org.esa.beam.visat.actions.rangefinder;
 
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.ViewportInteractor;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -38,7 +38,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Stroke;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -51,21 +62,41 @@ import java.util.List;
  * A tool representing the range finder.
  *
  * @author Sabine Embacher
+ * @author Ralf Quast
  * @author Marco Zuehlke
  */
 public class RangeFinderInteractor extends ViewportInteractor {
 
     public static final String TITLE = "Range Finder Tool";
 
-    private final List<Point> pointList;
-    private final Point currPoint;
+    private static class ModelPoint extends Point2D.Double {
+
+        private static ModelPoint create(Viewport viewport, Point point) {
+            return new ModelPoint(viewport.getViewToModelTransform().transform(point, new Point2D.Double()));
+        }
+
+        private ModelPoint() {
+            super();
+        }
+
+        private ModelPoint(Point2D p) {
+            super(p.getX(), p.getY());
+        }
+
+        private Point toViewPoint(Viewport viewport) {
+            return (Point) viewport.getModelToViewTransform().transform(this, new Point());
+        }
+    }
+
+    private final List<ModelPoint> modelPointList;
+    private final ModelPoint currentModelPoint;
     private final Cursor cursor;
-    
+
     private RangeFinderOverlay overlay;
 
     public RangeFinderInteractor() {
-        pointList = new ArrayList<Point>();
-        currPoint = new Point();
+        modelPointList = new ArrayList<>();
+        currentModelPoint = new ModelPoint();
         ImageIcon cursorIcon = UIUtils.loadImageIcon("cursors/RangeFinder.gif");
         cursor = createRangeFinderCursor(cursorIcon);
     }
@@ -74,7 +105,7 @@ public class RangeFinderInteractor extends ViewportInteractor {
     public Cursor getCursor() {
         return cursor;
     }
-    
+
     @Override
     public void mouseDragged(MouseEvent e) {
         handleDragAndMove(e);
@@ -87,7 +118,7 @@ public class RangeFinderInteractor extends ViewportInteractor {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        ProductSceneView view = getProductSceneView(e);
+        final ProductSceneView view = getProductSceneView(e);
         if (view == null) {
             return;
         }
@@ -98,33 +129,41 @@ public class RangeFinderInteractor extends ViewportInteractor {
             createOverlay(view);
         }
         if (e.getClickCount() == 1) {
-            pointList.add(e.getPoint());
-            currPoint.setLocation(e.getPoint());
+            final Point viewPoint = e.getPoint();
+            final ModelPoint modelPoint = ModelPoint.create(view.getViewport(), viewPoint);
+            modelPointList.add(modelPoint);
+            currentModelPoint.setLocation(modelPoint);
             overlay.repaint();
         }
-        if (e.getClickCount() == 2 && pointList.size() > 0) {
+        if (e.getClickCount() == 2 && modelPointList.size() > 0) {
             showDetailsDialog(view);
-            pointList.clear();
+            modelPointList.clear();
             removeOverlay();
         }
     }
 
     private void handleDragAndMove(MouseEvent e) {
-        if (pointList.size() > 0 && overlay != null) {
-            currPoint.setLocation(e.getPoint());
-            overlay.repaint();
+        if (modelPointList.size() > 0 && overlay != null) {
+            final ProductSceneView view = getProductSceneView(e);
+            if (view != null) {
+                final Point viewPoint = e.getPoint();
+                final ModelPoint modelPoint = ModelPoint.create(view.getViewport(), viewPoint);
+                currentModelPoint.setLocation(modelPoint);
+                overlay.repaint();
+            }
         }
     }
-    
+
     private void createOverlay(ProductSceneView view) {
         overlay = new RangeFinderOverlay(view);
         view.getLayerCanvas().addOverlay(overlay);
     }
-    
+
     private void removeOverlay() {
         overlay.view.getLayerCanvas().removeOverlay(overlay);
         overlay = null;
     }
+
     private ProductSceneView getProductSceneView(MouseEvent event) {
         final Component eventComponent = event.getComponent();
         if (eventComponent instanceof ProductSceneView) {
@@ -140,35 +179,34 @@ public class RangeFinderInteractor extends ViewportInteractor {
         }
         return null;
     }
-    
+
     private void showDetailsDialog(ProductSceneView view) {
         GeoCoding geoCoding = view.getProduct().getGeoCoding();
 
         float distance = 0;
         float distanceError = 0;
+        final AffineTransform m2i = view.getBaseImageLayer().getModelToImageTransform();
 
-        final AffineTransform v2i = view.getLayerCanvas().getViewport().getViewToModelTransform();
-        v2i.concatenate(view.getBaseImageLayer().getModelToImageTransform());
+        final Point imagePoint1 = new Point();
+        final Point imagePoint2 = new Point();
+        final DistanceData[] distanceData = new DistanceData[modelPointList.size() - 1];
+        for (int i = 0; i < distanceData.length; i++) {
+            m2i.transform(modelPointList.get(i), imagePoint1);
+            m2i.transform(modelPointList.get(i + 1), imagePoint2);
 
-        final Point p1 = new Point();
-        final Point p2 = new Point();
-        final DistanceData[] distanceDatas = new DistanceData[pointList.size() - 1];
-        for (int i = 0; i < distanceDatas.length; i++) {
-            v2i.transform(pointList.get(i), p1);
-            v2i.transform(pointList.get(i + 1), p2);
-
-            final DistanceData distanceData = new DistanceData(geoCoding, p1, p2);
-            distance += distanceData.distance;
-            distanceError += distanceData.distanceError;
-            distanceDatas[i] = distanceData;
+            final DistanceData segmentData = new DistanceData(geoCoding, imagePoint1, imagePoint2);
+            distance += segmentData.distance;
+            distanceError += segmentData.distanceError;
+            distanceData[i] = segmentData;
         }
 
 
         final JButton detailsButton = new JButton("Details...");
         detailsButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final Window parentWindow = SwingUtilities.getWindowAncestor(detailsButton);
-                createDetailsDialog(parentWindow, distanceDatas).show();
+                createDetailsDialog(parentWindow, distanceData).show();
             }
         });
 
@@ -188,26 +226,26 @@ public class RangeFinderInteractor extends ViewportInteractor {
         float distance = 0;
         float distanceError = 0;
 
-        final StringBuffer message = new StringBuffer();
+        final StringBuilder message = new StringBuilder();
         for (int i = 0; i < dds.length; i++) {
             final DistanceData dd = dds[i];
             distance += dd.distance;
             distanceError += dd.distanceError;
             message.append(
-                        "Distance between points " + i + " to " + (i + 1) + " in pixels:\n" +
-                        "XH[" + dd.xH + "] to XN[" + dd.xN + "]: " + Math.abs(dd.xH - dd.xN) + "\n" +
-                        "YH[" + dd.yH + "] to YN[" + dd.yN + "]: " + Math.abs(dd.yH - dd.yN) + "\n" +
-                        "\n" +
-                        "LonH: " + dd.lonH + "   LatH: " + dd.latH + "\n" +
-                        "LonN: " + dd.lonN + "   LatN: " + dd.latN + "\n" +
-                        "\n" +
-                        "LamH: " + dd.lamH + "   PhiH: " + dd.phiH + "\n" +
-                        "LamN: " + dd.lamN + "   PhiN: " + dd.phiN + "\n" +
-                        "\n" +
-                        "Mean earth radius used: " + DistanceData.MEAN_EARTH_RADIUS_KM + " km" + "\n" +
-                        "\n" +
-                        "Distance: " + dd.distance + " +/- " + dd.distanceError + " km\n" +
-                        "\n\n"           /*I18N*/
+                    "Distance between points " + i + " to " + (i + 1) + " in pixels:\n" +
+                    "XH[" + dd.xH + "] to XN[" + dd.xN + "]: " + Math.abs(dd.xH - dd.xN) + "\n" +
+                    "YH[" + dd.yH + "] to YN[" + dd.yN + "]: " + Math.abs(dd.yH - dd.yN) + "\n" +
+                    "\n" +
+                    "LonH: " + dd.lonH + "   LatH: " + dd.latH + "\n" +
+                    "LonN: " + dd.lonN + "   LatN: " + dd.latN + "\n" +
+                    "\n" +
+                    "LamH: " + dd.lamH + "   PhiH: " + dd.phiH + "\n" +
+                    "LamN: " + dd.lamN + "   PhiN: " + dd.phiN + "\n" +
+                    "\n" +
+                    "Mean earth radius used: " + DistanceData.MEAN_EARTH_RADIUS_KM + " km" + "\n" +
+                    "\n" +
+                    "Distance: " + dd.distance + " +/- " + dd.distanceError + " km\n" +
+                    "\n\n"           /*I18N*/
             );
         }
         message.insert(0, "Total distance: " + distance + " +/- " + distanceError + " km\n" +
@@ -225,7 +263,7 @@ public class RangeFinderInteractor extends ViewportInteractor {
         detailsWindow.setContent(content);
         return detailsWindow;
     }
-    
+
     private static Cursor createRangeFinderCursor(ImageIcon cursorIcon) {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         final String cursorName = "rangeFinder";
@@ -238,7 +276,7 @@ public class RangeFinderInteractor extends ViewportInteractor {
 
         return defaultToolkit.createCustomCursor(cursorIcon.getImage(), hotSpot, cursorName);
     }
-    
+
     private class RangeFinderOverlay implements LayerCanvas.Overlay {
 
         private final ProductSceneView view;
@@ -246,14 +284,14 @@ public class RangeFinderInteractor extends ViewportInteractor {
         RangeFinderOverlay(ProductSceneView view) {
             this.view = view;
         }
-        
+
         void repaint() {
             view.getLayerCanvas().repaint();
         }
 
         @Override
         public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
-            if (pointList.size() == 0) {
+            if (modelPointList.size() == 0) {
                 return;
             }
             Graphics2D g2d = rendering.getGraphics();
@@ -266,26 +304,28 @@ public class RangeFinderInteractor extends ViewportInteractor {
             final int r = 3;
             final int r2 = r * 2;
 
-            Point p1 = null;
-            Point p2 = null;
-            for (int i = 0; i < pointList.size(); i++) {
-                p1 = pointList.get(i);
+            Point viewPoint1 = null;
+            Point viewPoint2 = null;
+            final Viewport viewport = canvas.getViewport();
+            for (final ModelPoint modelPoint : modelPointList) {
+                viewPoint1 = modelPoint.toViewPoint(viewport);
 
-                g2d.drawOval(p1.x - r, p1.y - r, r2, r2);
-                g2d.drawLine(p1.x, p1.y - r2, p1.x, p1.y - r);
-                g2d.drawLine(p1.x, p1.y + r2, p1.x, p1.y + r);
-                g2d.drawLine(p1.x - r2, p1.y, p1.x - r, p1.y);
-                g2d.drawLine(p1.x + r2, p1.y, p1.x + r, p1.y);
+                g2d.drawOval(viewPoint1.x - r, viewPoint1.y - r, r2, r2);
+                g2d.drawLine(viewPoint1.x, viewPoint1.y - r2, viewPoint1.x, viewPoint1.y - r);
+                g2d.drawLine(viewPoint1.x, viewPoint1.y + r2, viewPoint1.x, viewPoint1.y + r);
+                g2d.drawLine(viewPoint1.x - r2, viewPoint1.y, viewPoint1.x - r, viewPoint1.y);
+                g2d.drawLine(viewPoint1.x + r2, viewPoint1.y, viewPoint1.x + r, viewPoint1.y);
 
-                if (p2 != null) {
-                    g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+                if (viewPoint2 != null) {
+                    g2d.drawLine(viewPoint1.x, viewPoint1.y, viewPoint2.x, viewPoint2.y);
                 }
 
-                p2 = p1;
+                viewPoint2 = viewPoint1;
             }
-
-            p2 = currPoint;
-            g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+            if (viewPoint1 != null) {
+                viewPoint2 = currentModelPoint.toViewPoint(canvas.getViewport());
+                g2d.drawLine(viewPoint1.x, viewPoint1.y, viewPoint2.x, viewPoint2.y);
+            }
 
             g2d.translate(-0.5, -0.5);
             g2d.setStroke(strokeOld);
