@@ -49,7 +49,9 @@ class SpectraExportAction extends AbstractAction {
         final List<SpectrumGraph> spectrumGraphList = new ArrayList<SpectrumGraph>();
         for (Placemark pin : pins) {
             for (DisplayableSpectrum spectrumInDisplay : selectedSpectra) {
-                spectrumGraphList.add(new SpectrumGraph(pin, spectrumInDisplay.getSelectedBands()));
+                final SpectrumGraph spectrumGraph = new SpectrumGraph(pin, spectrumInDisplay.getSelectedBands());
+                spectrumGraph.readValues();
+                spectrumGraphList.add(spectrumGraph);
             }
         }
         DiagramGraph[] pinGraphs = spectrumGraphList.toArray(new DiagramGraph[0]);

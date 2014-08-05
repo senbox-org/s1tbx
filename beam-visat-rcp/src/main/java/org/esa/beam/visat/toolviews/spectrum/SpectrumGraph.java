@@ -131,7 +131,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
         Range.computeRangeDouble(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
     }
 
-    public void readValues(int pixelX, int pixelY, int level) {
+    public void readValues() {
         Debug.assertNotNull(bands);
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
@@ -140,13 +140,13 @@ class SpectrumGraph extends AbstractDiagramGraph {
                 // we have to transform them to the current level
                 final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
                 final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
-                final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
+                final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(0);
                 final Point2D modelPixel = i2mTransform.transform(placemark.getPixelPos(), null);
                 final Point2D imagePixel = m2iTransform.transform(modelPixel, null);
-                pixelX = (int) Math.floor(imagePixel.getX());
-                pixelY = (int) Math.floor(imagePixel.getY());
+                int pixelX = (int) Math.floor(imagePixel.getX());
+                int pixelY = (int) Math.floor(imagePixel.getY());
+                energies[i] = getSample(band, pixelX, pixelY, 0);
             }
-            energies[i] = getSample(band, pixelX, pixelY, level);
         }
         IndexValidator validator = new IndexValidator() {
             @Override
