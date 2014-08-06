@@ -914,18 +914,16 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
 
         final TiePointInterpolator incidenceTPGInterp = new TiePointInterpolator(incidenceAngle);
-        final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(incidenceAngle);
+        final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
 
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
 
-            //incidenceAngle.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointGrid.InterpMode.QUADRATIC);
             incidenceTPGInterp.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointInterpolator.InterpMode.QUADRATIC);
 
             if (applyRangeSpreadingCorr) {
-                //slantRangeTime.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointGrid.InterpMode.QUADRATIC);
                 slantRangeTPGInterp.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointInterpolator.InterpMode.QUADRATIC);
             }
 
@@ -1092,16 +1090,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @return The earth radius.
      */
     private double getEarthRadius(final int x, final int y) {
-        /*
         // use linear rather than quadratic interpolation for subset because quadratic interpolation
         // does not give accurate result in this case
-        int i = 0;
-        if (latitude.getRasterWidth() < 10) { // subset case
-            i = (int)((latMax - latitude.getPixelFloat((float)x, (float)y))/delLat + 0.5);
-        } else {
-            i = (int)((latMax - latitude.getPixelFloat((float)x, (float)y, TiePointGrid.InterpMode.QUADRATIC))/delLat + 0.5);
-        }
-        */
         int i = (int) ((latMax - latitude.getPixelFloat((float) x, (float) y)) / delLat + 0.5);
 
         if (i < 0) {
@@ -1215,7 +1205,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         } else { // for slant range product, compute slant range from slant range time
 
-            final double time = slantRangeTime.getPixelFloat((float) x, (float) y, TiePointGrid.InterpMode.QUADRATIC) /
+            final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
+            final double time = slantRangeTPGInterp.getPixelFloat((float) x, (float) y, TiePointInterpolator.InterpMode.QUADRATIC) /
                     Constants.oneBillion; //convert ns to s
             return time * Constants.halfLightSpeed; // in m
         }
