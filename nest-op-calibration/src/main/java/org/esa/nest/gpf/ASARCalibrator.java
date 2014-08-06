@@ -913,15 +913,20 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         double sigma, dn = 0, i, q;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
 
+        final TiePointInterpolator incidenceTPGInterp = new TiePointInterpolator(incidenceAngle);
+        final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(incidenceAngle);
+
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
 
-            incidenceAngle.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointGrid.InterpMode.QUADRATIC);
+            //incidenceAngle.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointGrid.InterpMode.QUADRATIC);
+            incidenceTPGInterp.getPixels(x0, y, w, 1, incidenceAnglesArray, pm, TiePointInterpolator.InterpMode.QUADRATIC);
 
             if (applyRangeSpreadingCorr) {
-                slantRangeTime.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointGrid.InterpMode.QUADRATIC);
+                //slantRangeTime.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointGrid.InterpMode.QUADRATIC);
+                slantRangeTPGInterp.getPixels(x0, y, w, 1, slantRangeTimeArray, pm, TiePointInterpolator.InterpMode.QUADRATIC);
             }
 
             for (int x = x0, xx = 0; x < maxX; ++x, ++xx) {
