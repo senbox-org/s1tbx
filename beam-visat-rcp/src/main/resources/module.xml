@@ -30,6 +30,7 @@
           <b>Changes in 5.0.2</b><br/>
           [BEAM-1712] Range Finder tool show wrong results<br/>
           [BEAM-1711] Export of spectra does not work<br/>
+          [BEAM-1710] Range Finder does not work reliably for Landsat products<br/>
           <b>Changes in 5.0.1</b><br/>
           Fixed NPE with missing histogram matching in Colour Manipulation tool window<br/>
           Harmonisation with NEST: Convert computed band: only clone image info, if it exists<br/>

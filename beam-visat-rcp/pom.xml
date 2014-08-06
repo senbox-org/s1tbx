@@ -26,7 +26,7 @@
 
     <name>BEAM VISAT Rich Client Platform</name>
     <artifactId>beam-visat-rcp</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.0.2</version>
     <packaging>jar</packaging>
 
     <dependencies>
