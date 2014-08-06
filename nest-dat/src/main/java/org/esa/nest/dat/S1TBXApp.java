@@ -42,7 +42,7 @@ public final class S1TBXApp extends DatApp {
         return (S1TBXApp) VisatApp.getApp();
     }
 
-    protected TabbedDesktopPane createDesktop() {
+  /*  protected TabbedDesktopPane createDesktop() {
         final JDesktopPane desktopPane = new JDesktopPane() {
             //final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/desktop-pane.jpg");
             final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/azure3.png");
@@ -55,7 +55,7 @@ public final class S1TBXApp extends DatApp {
         };
 
         return new TabbedDesktopPane(new JideTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT), desktopPane);
-    }
+    }*/
 
     @Override
     protected boolean initLookAndFeel() {
