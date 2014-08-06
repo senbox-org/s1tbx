@@ -16,16 +16,14 @@
 
 package org.esa.beam.dataio.netcdf.nc;
 
-import com.bc.ceres.core.Assert;
 import edu.ucar.ral.nujan.netcdf.*;
-import org.esa.beam.util.StringUtils;
+import org.esa.beam.dataio.netcdf.util.VariableNameHelper;
 import ucar.ma2.DataType;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhFileWriter}.
@@ -158,14 +156,12 @@ public class N4FileWriteable implements NFileWriteable {
 
     @Override
     public boolean isNameValid(String name) {
-        Assert.argument(StringUtils.isNotNullAndNotEmpty(name), "name");
-        // copied from nujan sources edu.ucar.ral.nujan.netcdf.NhGroup.checkName()
-        return Pattern.matches("^[_a-zA-Z][-_: a-zA-Z0-9]*$", name);
+        return VariableNameHelper.isVariableNameValid(name);
     }
 
     @Override
     public String makeNameValid(String name) {
-        return convertToValidName(name);
+        return VariableNameHelper.convertToValidName(name);
     }
 
     @Override
@@ -186,23 +182,4 @@ public class N4FileWriteable implements NFileWriteable {
         }
     }
 
-    static String convertToValidName(String name) {
-        Assert.argument(StringUtils.isNotNullAndNotEmpty(name), "name");
-        String firstCharExpr = "[_a-zA-Z]";
-        char replacementChar = '_';
-        StringBuilder sb = new StringBuilder(name);
-        if (!Pattern.matches(firstCharExpr, name.substring(0, 1))) {
-            sb.setCharAt(0, replacementChar);
-        }
-        char[] chars = name.toCharArray();
-        String subsequentCharExpr = "[-_: a-zA-Z0-9]";
-        for (int i = 1; i < chars.length; i++) {
-            char aChar = chars[i];
-            if (!Pattern.matches(subsequentCharExpr, String.valueOf(aChar))) {
-                aChar = '_';
-            }
-            sb.setCharAt(i, aChar);
-        }
-        return sb.toString();
-    }
 }

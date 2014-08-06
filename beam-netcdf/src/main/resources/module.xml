@@ -32,6 +32,7 @@
     <changelog>
         <![CDATA[
         <b>Changes in 5.0.2</b><br/>
+        [BEAM-1713] Variables are not written to NetCDF4 if they contain illegal character<br/>
         [BEAM-1700] NetCDF reader cannot read AMSR2 L1R<br/>
         <b>Changes in 5.0.1</b><br/>
         [BEAM-1695] Add configuration of metadata values limitation for NetCDF reader<br/>

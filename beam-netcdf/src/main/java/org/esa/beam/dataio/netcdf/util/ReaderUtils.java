@@ -73,11 +73,6 @@ public class ReaderUtils {
         return result;
     }
 
-    public static String getVariableName(RasterDataNode rasterDataNode) {
-        String name = N3iosp.makeValidNetcdfObjectName(rasterDataNode.getName());
-        return name.replace( '.', '_' );
-    }
-
     public static String getRasterName(Variable variable) {
         Attribute attribute = variable.findAttribute(Constants.ORIG_NAME_ATT_NAME);
         if (attribute != null) {
@@ -86,5 +81,15 @@ public class ReaderUtils {
             return variable.getFullName();
         }
     }
+
+    public static String getVariableName(RasterDataNode rasterDataNode) {
+        String name = N3iosp.makeValidNetcdfObjectName(rasterDataNode.getName());
+        name = name.replace( '.', '_' );
+        if (!VariableNameHelper.isVariableNameValid(name)) {
+            name = VariableNameHelper.convertToValidName(name);
+        }
+        return name;
+    }
+
 }
 
