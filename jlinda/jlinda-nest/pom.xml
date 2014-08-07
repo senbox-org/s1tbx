@@ -96,7 +96,7 @@
                         <configuration>
                             <overwrite>true</overwrite>
                             <!-- <outputDirectory>${outputdir}/graphs/internal</outputDirectory> -->
-                            <outputDirectory>../../nest-src/main/bin/common/graphs/internal</outputDirectory>
+                            <outputDirectory>../../s1tbx-config/main/bin/common/graphs/internal</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/graphs</directory>
@@ -116,7 +116,7 @@
                         </goals>
                         <configuration>
                             <overwrite>true</overwrite>
-                            <outputDirectory>../../nest-src/main/bin/common/graphs/InSAR Graphs</outputDirectory>
+                            <outputDirectory>../../s1tbx-config/main/bin/common/graphs/InSAR Graphs</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/graphs</directory>

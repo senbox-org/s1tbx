@@ -51,6 +51,7 @@
 		<module>s1tbx-benchmark</module>
 		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-cli</module>
+		<module>s1tbx-config</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
 		<module>nest-graph-builder</module>
@@ -62,7 +63,6 @@
 		<module>nest-op-orthorectification</module>
 		<module>nest-op-sar-tools</module>
 		<module>nest-reader-dem</module>
-		<module>nest-src</module>
 		<module>nest-world-wind-view</module>
 		
 		<module>nest-op-sentinel1</module>
@@ -1005,14 +1005,14 @@
                 <configuration>
 					<outputDirectory>../target</outputDirectory>
                     <descriptors>
-						<descriptor>nest-src/main/assembly/bin-windows64.xml</descriptor>
-						<descriptor>nest-src/main/assembly/bin-windows.xml</descriptor>						
-						<descriptor>nest-src/main/assembly/bin-linux.xml</descriptor>
-						<descriptor>nest-src/main/assembly/bin-linux64.xml</descriptor>
-						<descriptor>nest-src/main/assembly/bin-mac.xml</descriptor>
-						<descriptor>nest-src/main/assembly/repository.xml</descriptor>
-						<descriptor>nest-src/main/assembly/web-help.xml</descriptor>
-                        <!--descriptor>nest-src/main/assembly/src.xml</descriptor-->
+						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
+						<descriptor>s1tbx-config/main/assembly/bin-windows.xml</descriptor>						
+						<descriptor>s1tbx-config/main/assembly/bin-linux.xml</descriptor>
+						<descriptor>s1tbx-config/main/assembly/bin-linux64.xml</descriptor>
+						<descriptor>s1tbx-config/main/assembly/bin-mac.xml</descriptor>
+						<descriptor>s1tbx-config/main/assembly/repository.xml</descriptor>
+						<descriptor>s1tbx-config/main/assembly/web-help.xml</descriptor>
+                        <!--descriptor>s1tbx-config/main/assembly/src.xml</descriptor-->
                     </descriptors>
                 </configuration>
             </plugin>
@@ -1028,18 +1028,6 @@
                         </fileset>
 						<fileset>
                             <directory>target</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                        </fileset>
-						<fileset>
-                            <directory>nest-src/dist/build</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                        </fileset>
-						<fileset>
-                            <directory>nest-src/dist/output</directory>
                             <includes>
                                 <include>**/*</include>
                             </includes>

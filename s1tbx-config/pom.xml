@@ -12,11 +12,11 @@
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.nest</groupId>
-    <artifactId>nest-src</artifactId>
-    <name>NEST src</name>
+    <groupId>org.esa.s1tbx</groupId>
+    <artifactId>s1tbx-config</artifactId>
+    <name>S1TBX config</name>
     <description>Adds the resources for the runtime environment.</description>
-    <version>6.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
 	<profiles>
 	  <profile>
