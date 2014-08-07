@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SourceList {
 
-    private List<NodeSource> sourceList = new ArrayList<NodeSource>();
+    private List<NodeSource> sourceList = new ArrayList<>();
 
     /**
      * Gets all {@link NodeSource}s.
@@ -58,15 +58,24 @@ public class SourceList {
      * @param source the {@link NodeSource}
      */
     public void addSource(NodeSource source) {
-        final String sourceName = source.getName();
+        final String sourceId = source.getSourceNodeId();  //check by source id, not name
         for (NodeSource nodeSource : sourceList) {
-            if (nodeSource.getName().equals(sourceName)) {
-                throw new IllegalArgumentException("duplicated source node name");
+            if (nodeSource.getSourceNodeId().equals(sourceId)) {
+                throw new IllegalArgumentException("duplicated source node id");
             }
         }
         sourceList.add(source);
     }
 
+    /**
+     * Removes a {@link NodeSource} from this list.
+     *
+     * @param source the {@link NodeSource}
+    */
+    public void removeSource(NodeSource source) {
+        sourceList.remove(source);
+    }
+    
     public static class Converter implements com.thoughtworks.xstream.converters.Converter {
 
         @Override

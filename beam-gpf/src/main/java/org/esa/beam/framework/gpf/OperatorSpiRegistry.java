@@ -97,4 +97,11 @@ public interface OperatorSpiRegistry {
      */
     @Deprecated
     void setAlias(String aliasName, String spiClassName);
+
+    /**
+     *  Gets a set of all aliases
+     *
+     * @return the Set<string> of keys
+     */
+    public Set getAliases();
 }

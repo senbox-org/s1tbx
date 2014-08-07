@@ -53,23 +53,28 @@ import java.util.List;
  */
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 
-    private final String operatorName;
-    private final OperatorDescriptor operatorDescriptor;
-    private DefaultIOParametersPanel ioParametersPanel;
-    private final OperatorParameterSupport parameterSupport;
-    private final BindingContext bindingContext;
+    protected final String operatorName;
+    protected final OperatorDescriptor operatorDescriptor;
+    protected DefaultIOParametersPanel ioParametersPanel;
+    protected final OperatorParameterSupport parameterSupport;
+    protected final BindingContext bindingContext;
 
-    private JTabbedPane form;
-    private PropertyDescriptor[] rasterDataNodeTypeProperties;
-    private String targetProductNameSuffix;
-    private ProductChangedHandler productChangedHandler;
+    protected JTabbedPane form;
+    protected PropertyDescriptor[] rasterDataNodeTypeProperties;
+    protected String targetProductNameSuffix;
+    protected ProductChangedHandler productChangedHandler;
 
     public static SingleTargetProductDialog createDefaultDialog(String operatorName, AppContext appContext) {
-        return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null);
+        return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null, ID_APPLY_CLOSE);
     }
 
     public DefaultSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
-        super(appContext, title, ID_APPLY_CLOSE, helpID);
+        this(operatorName, appContext, title, helpID, ID_APPLY_CLOSE);
+    }
+
+    public DefaultSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID,
+                                            int dialogType) {
+        super(appContext, title, dialogType, helpID);
         this.operatorName = operatorName;
         targetProductNameSuffix = "";
 
@@ -145,7 +150,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         return bindingContext;
     }
 
-    private void initForm() {
+    protected void initForm() {
         form = new JTabbedPane();
         form.add("I/O Parameters", ioParametersPanel);
 

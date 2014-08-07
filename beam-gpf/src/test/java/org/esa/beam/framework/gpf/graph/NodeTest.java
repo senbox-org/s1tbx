@@ -18,7 +18,8 @@ package org.esa.beam.framework.gpf.graph;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
+
 
 public class NodeTest {
 
@@ -26,6 +27,10 @@ public class NodeTest {
     public void testAddSource() throws Exception {
         final Node node = new Node("myId", "opName");
         node.addSource(new NodeSource("nodeName", "source1"));
+
+        assertEquals(1, node.getSources().length);
+        assertEquals("nodeName", node.getSources()[0].getName());
+
         node.addSource(new NodeSource("anotherName", "source2"));
         node.addSource(new NodeSource("thirdName", "source3"));
 
@@ -36,10 +41,34 @@ public class NodeTest {
 
     }
 
+    @Test
+    public void testRemoveSource() throws Exception {
+        final Node baseNode = new Node("myId", "opName");
+        NodeSource node1 = new NodeSource("nodeName", "source1");
+        NodeSource node2 = new NodeSource("anotherName", "source2");
+        NodeSource node3 = new NodeSource("thirdName", "source3");
+        baseNode.addSource(node1);
+        baseNode.addSource(node2);
+        baseNode.addSource(node3);
+
+        assertEquals(3, baseNode.getSources().length);
+
+        baseNode.removeSource(node2);
+
+        assertEquals(2, baseNode.getSources().length);
+        assertEquals("nodeName", baseNode.getSources()[0].getName());
+        assertEquals("thirdName", baseNode.getSources()[1].getName());
+
+        baseNode.removeSource(node1);
+        baseNode.removeSource(node3);
+
+        assertEquals(0, baseNode.getSources().length);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testDuplicatedSourceNodeNameNotAllowed() throws Exception {
         final Node node = new Node("myId", "opName");
         node.addSource(new NodeSource("duplicated", "sourceNode1"));
-        node.addSource(new NodeSource("duplicated", "sourceNode2"));
+        node.addSource(new NodeSource("sameId", "sourceNode1"));
     }
 }
