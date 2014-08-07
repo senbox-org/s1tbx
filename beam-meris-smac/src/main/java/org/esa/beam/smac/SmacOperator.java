@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 
 @SuppressWarnings({"UnusedDeclaration", "MismatchedReadAndWriteOfArray, FieldCanBeLocal"})
 @OperatorMetadata(alias = "SmacOp",
+                  category = "Optical Processing/Thematic Land Processing",
                   version = "1.5.205",
                   authors = "H. Rahman, G. Dedieu (Algorithm); T. Block, T. Storm (Implementation)",
                   copyright = "Copyright (C) 2002-2014 by Brockmann Consult (info@brockmann-consult.de)",

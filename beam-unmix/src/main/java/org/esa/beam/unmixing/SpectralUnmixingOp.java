@@ -47,6 +47,7 @@ import java.util.Map;
  * Implements a spectral unmixing algorithm.
  */
 @OperatorMetadata(alias = "Unmix",
+        category = "Classification",
         version = "1.0",
         authors = "Norman Fomferra, Helmut Schiller",
         copyright = "(c) 2007 by Brockmann Consult",

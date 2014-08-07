@@ -109,6 +109,7 @@ import static java.lang.Math.min;
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
         alias = "PixEx",
+        category = "Utilities",
         version = "1.3",
         authors = "Marco Peters, Thomas Storm, Norman Fomferra",
         copyright = "(c) 2011 by Brockmann Consult",

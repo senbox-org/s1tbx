@@ -15,6 +15,7 @@ import org.esa.beam.framework.gpf.pointop.SampleOperator;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
 
 @OperatorMetadata(alias = "Simple",
+                  category = "Optical Processing",
                   version = "1.0",
                   description = "An simple operator which does nothing meaningful. " +
                           "It is just a coding example.")

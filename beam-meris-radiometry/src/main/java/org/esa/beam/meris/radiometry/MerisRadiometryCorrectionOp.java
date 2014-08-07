@@ -62,6 +62,7 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
  * @since BEAM 4.9
  */
 @OperatorMetadata(alias = "Meris.CorrectRadiometry",
+                  category = "Optical Processing/Pre-Processing",
                   description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC); Marco Peters, Ralf Quast, Thomas Storm, Marco Zuehlke (Brockmann Consult)",
                   copyright = "(c) 2014 by Brockmann Consult",

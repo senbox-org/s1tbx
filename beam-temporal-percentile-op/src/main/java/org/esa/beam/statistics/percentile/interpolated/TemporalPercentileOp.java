@@ -98,6 +98,7 @@ import java.util.logging.Level;
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "TemporalPercentile",
+                  category = "Utilities",
                   version = "1.0",
                   authors = "Sabine Embacher, Marco Peters, Tonio Fincke",
                   copyright = "(c) 2013 by Brockmann Consult GmbH",

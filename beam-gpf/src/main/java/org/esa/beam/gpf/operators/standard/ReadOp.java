@@ -53,6 +53,7 @@ import java.io.IOException;
  * @since BEAM 4.2
  */
 @OperatorMetadata(alias = "Read",
+                  category = "Input-Output",
                   version = "1.1",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
