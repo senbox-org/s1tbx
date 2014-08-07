@@ -155,7 +155,7 @@
         <associateWindowsFileExtension>
             <extensions>N1 E1 E2 SAFE</extensions>
             <friendlyName>Envisat</friendlyName>
-            <icon>C:\build\5.0\nest\nest\nest-src\main\assembly\dat.ico</icon>
+            <icon>C:\build\5.0\nest\nest\s1tbx-config\main\assembly\dat.ico</icon>
             <mimeType></mimeType>
             <progID>NEST</progID>
             <scope>user</scope>

@@ -27,7 +27,7 @@
 	
 	<fileSets>
 		<fileSet>
-            <directory>nest-src/main/help</directory>
+            <directory>s1tbx-config/main/help</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
 	</fileSets>

@@ -20,33 +20,32 @@
     <fileSets>
 
 		<fileSet>
-            <directory>nest-src/main/bin/macosx/__MACOSX</directory>
+            <directory>s1tbx-config/main/bin/macosx/__MACOSX</directory>
             <outputDirectory>__MACOSX</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>nest-src/main/bin/macosx/NEST.app</directory>
+            <directs1tbx-config-src/main/bin/macosx/NEST.app</directory>
             <outputDirectory>NEST.app</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>nest-src/main/bin/macosx/autoupdate-osx.app</directory>
+            <dis1tbx-confignest-src/main/bin/macosx/autoupdate-osx.app</directory>
             <outputDirectory>autoupdate-osx.app</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>nest-src/main/bin/common/</directory>
+           s1tbx-configory>nest-src/main/bin/common/</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>nest-src/main/licenses</directory>
+       s1tbx-configrectory>nest-src/main/licenses</directory>
             <outputDirectory>licenses</outputDirectory>
         </fileSet>
 		
 		<fileSet>
-            <directory>nest-src/main/commandline</directory>
+   s1tbx-config <directory>nest-src/main/commandline</directory>
             <outputDirectory>commandline</outputDirectory>
         </fileSet>
 
-		<fileSet>
-            <directory>nest-src/main/bin/macosx</directory>
+		<fileSet>s1tbx-config     <directory>nest-src/main/bin/macosx</directory>
             <outputDirectory></outputDirectory>
 			<includes>
 				<include>**/*.jnilib</include>
@@ -54,8 +53,7 @@
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>		
-		<fileSet>
-            <directory>nest-src/main/bin/macosx</directory>
+		<files1tbx-config         <directory>nest-src/main/bin/macosx</directory>
             <outputDirectory></outputDirectory>
 			<includes>
 				<include>**/*.command</include>
@@ -80,8 +78,7 @@
             <excludes>
 				<exclude>org.esa.beam:beam-bootstrap</exclude>
 				<exclude>org.esa.nest:nest-bootstrap</exclude>
-				<exclude>org.esa.nest:nest-benchmark</exclude>
-				<exclude>org.esa.nest:nest-src</exclude>
+				<exclude>org.esa.nest:nest-benchmark</excs1tbx-config		<exclude>org.esa.nest:nest-src</exclude>
                 <exclude>com.bc.ceres:ceres-*</exclude>
             </excludes>
 

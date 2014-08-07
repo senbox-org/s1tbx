@@ -985,7 +985,7 @@
 					<version>1.0-alpha-2</version>
 					<configuration>
 						<mainClass>com.example.Main</mainClass>
-						<javaApplicationStub>c:\Build\5.0\NEST\nest\nest-src\main\bin\macosx\NEST.app\Contents\MacOS\JavaApplicationStub</javaApplicationStub>
+						<javaApplicationStub>c:\Build\5.0\NEST\nest\s1tbx-config\main\bin\macosx\NEST.app\Contents\MacOS\JavaApplicationStub</javaApplicationStub>
 					</configuration>
 					<executions>
 						<execution>

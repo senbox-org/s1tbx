@@ -42,8 +42,8 @@
             <title>H-a Alpha Plane</title>
             <tabTitle>H-a Alpha Plane</tabTitle>
             <description>H-a Alpha Plane Plot</description>
-            <smallIcon>/org/esa/nest/icons/h-a-alpha16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/h-a-alpha22.png</largeIcon>
+            <smallIcon>/org/csa/rstb/icons/h-a-alpha16.png</smallIcon>
+            <largeIcon>/org/csa/rstb/icons/h-a-alpha22.png</largeIcon>
             <helpId></helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
