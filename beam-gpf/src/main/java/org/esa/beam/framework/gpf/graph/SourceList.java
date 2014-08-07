@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SourceList {
 
-    private List<NodeSource> sourceList = new ArrayList<NodeSource>();
+    private List<NodeSource> sourceList = new ArrayList<>();
 
     /**
      * Gets all {@link NodeSource}s.
@@ -58,10 +58,10 @@ public class SourceList {
      * @param source the {@link NodeSource}
      */
     public void addSource(NodeSource source) {
-        final String sourceName = source.getSourceNodeId();  //check by source id, not name
+        final String sourceId = source.getSourceNodeId();  //check by source id, not name
         for (NodeSource nodeSource : sourceList) {
-            if (nodeSource.getSourceNodeId().equals(sourceName)) {
-                throw new IllegalArgumentException("duplicated source node name");
+            if (nodeSource.getSourceNodeId().equals(sourceId)) {
+                throw new IllegalArgumentException("duplicated source node id");
             }
         }
         sourceList.add(source);
