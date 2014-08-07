@@ -49,8 +49,8 @@ import java.util.concurrent.ExecutionException;
  */
 public abstract class SingleTargetProductDialog extends ModelessDialog {
 
-    private TargetProductSelector targetProductSelector;
-    private AppContext appContext;
+    protected TargetProductSelector targetProductSelector;
+    protected AppContext appContext;
 
     protected SingleTargetProductDialog(AppContext appContext, String title, String helpID) {
         this(appContext, title, ID_APPLY_CLOSE_HELP, helpID);
@@ -185,7 +185,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                                     t.getMessage());
     }
 
-    private boolean canApply() {
+    protected boolean canApply() {
         final String productName = targetProductSelector.getModel().getProductName();
         if (productName == null || productName.isEmpty()) {
             showErrorDialog("Please specify a target product name.");
@@ -237,7 +237,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         showSuppressibleInformationDialog(message, "saveInfo");
     }
 
-    private void showOpenInAppInfo() {
+    protected void showOpenInAppInfo() {
         final String message = MessageFormat.format(
                 "The target product has successfully been created and opened in {0}.\n\n" +
                 "Actual processing of source to target data will be performed only on demand,\n" +
@@ -332,11 +332,16 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
                 saveTime = System.currentTimeMillis() - t0;
                 if (model.isOpenInAppSelected()) {
-                    product = ProductIO.readProduct(model.getProductFile());
-                    if (product == null) {
-                        product = targetProduct; // todo - check - this cannot be ok!!! (nf)
+                    File targetFile = model.getProductFile();
+                    if(!targetFile.exists())
+                        targetFile = targetProduct.getFileLocation();
+                    if(targetFile.exists()) {
+                        product = ProductIO.readProduct(targetFile);
+                        if (product == null) {
+                            product = targetProduct; // todo - check - this cannot be ok!!! (nf)
+                        }
+                        pm.worked(5);
                     }
-                    pm.worked(5);
                 }
             } finally {
                 pm.done();

@@ -83,6 +83,15 @@ public class Node {
     }
 
     /**
+     * Removes a <code>NodeSource</code> from the <code>Node</code>.
+     *
+     * @param source the <code>NodeSource</code> to be removed
+     */
+    public void removeSource(NodeSource source) {
+        sourceList.removeSource(source);
+    }
+
+    /**
      * Returns the <code>NodeSource</code> at the given index position
      *
      * @param index the index of the <code>NodeSource</code> to return

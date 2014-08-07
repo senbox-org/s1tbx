@@ -117,7 +117,7 @@ public class JaiHelper {
         return bands;
     }
 
-    private static RenderedOp createTargetImage(RasterDataNode sourceBand,
+    public static RenderedOp createTargetImage(RasterDataNode sourceBand,
                                                 String operationName,
                                                 HashMap<String, Object> operationParameters,
                                                 RenderingHints renderingHints) {
