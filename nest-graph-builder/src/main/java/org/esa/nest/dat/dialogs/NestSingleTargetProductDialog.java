@@ -15,28 +15,30 @@
  */
 package org.esa.nest.dat.dialogs;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
-import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
-import org.esa.beam.framework.gpf.ui.OperatorMenu;
-import org.esa.beam.framework.gpf.ui.SourceProductSelector;
-import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
+import org.esa.beam.framework.gpf.ui.*;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.graphbuilder.GraphExecuter;
@@ -56,14 +58,59 @@ import java.util.concurrent.ExecutionException;
 
 /**
  */
-public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDialog {
+public class NestSingleTargetProductDialog extends SingleTargetProductDialog {
 
     private final OperatorUI opUI;
     private JLabel statusLabel;
     private JComponent parametersPanel;
 
+    private final String operatorName;
+    private final OperatorDescriptor operatorDescriptor;
+    private DefaultIOParametersPanel ioParametersPanel;
+    private final OperatorParameterSupport parameterSupport;
+    private final BindingContext bindingContext;
+
+    private JTabbedPane form;
+    private PropertyDescriptor[] rasterDataNodeTypeProperties;
+    private String targetProductNameSuffix;
+    private ProductChangedHandler productChangedHandler;
+
     public NestSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
-        super(operatorName, appContext, title, helpID, ID_APPLY_CLOSE_HELP);
+        super(appContext, title, ID_APPLY_CLOSE, helpID);
+        this.operatorName = operatorName;
+        targetProductNameSuffix = "";
+
+        OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new IllegalArgumentException("No SPI found for operator name '" + operatorName + "'");
+        }
+
+        operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        ioParametersPanel = new DefaultIOParametersPanel(getAppContext(), operatorDescriptor, getTargetProductSelector());
+
+        parameterSupport = new OperatorParameterSupport(operatorDescriptor);
+        final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
+        final PropertySet propertySet = parameterSupport.getPropertySet();
+        bindingContext = new BindingContext(propertySet);
+
+        if (propertySet.getProperties().length > 0) {
+            if (!sourceProductSelectorList.isEmpty()) {
+                Property[] properties = propertySet.getProperties();
+                List<PropertyDescriptor> rdnTypeProperties = new ArrayList<>(properties.length);
+                for (Property property : properties) {
+                    PropertyDescriptor parameterDescriptor = property.getDescriptor();
+                    if (parameterDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
+                        rdnTypeProperties.add(parameterDescriptor);
+                    }
+                }
+                rasterDataNodeTypeProperties = rdnTypeProperties.toArray(
+                        new PropertyDescriptor[rdnTypeProperties.size()]);
+            }
+        }
+        productChangedHandler = new ProductChangedHandler();
+        if (!sourceProductSelectorList.isEmpty()) {
+            sourceProductSelectorList.get(0).addSelectionChangeListener(productChangedHandler);
+        }
 
         opUI = GraphExecuter.CreateOperatorUI(operatorName);
 
@@ -75,6 +122,85 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         statusLabel = new JLabel("");
         statusLabel.setForeground(new Color(255, 0, 0));
         this.getJDialog().getContentPane().add(statusLabel, BorderLayout.NORTH);
+    }
+
+    @Override
+    public int show() {
+        ioParametersPanel.initSourceProductSelectors();
+        if (form == null) {
+            initForm();
+            if (getJDialog().getJMenuBar() == null) {
+                final OperatorMenu operatorMenu = createDefaultMenuBar();
+                getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+            }
+        }
+        setContent(form);
+        return super.show();
+    }
+
+    @Override
+    public void hide() {
+        productChangedHandler.releaseProduct();
+        ioParametersPanel.releaseSourceProductSelectors();
+        super.hide();
+    }
+
+    @Override
+    protected Product createTargetProduct() throws Exception {
+        if (validateUI()) {
+            opUI.updateParameters();
+
+            final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
+            return GPF.createProduct(operatorName, parameterSupport.getParameterMap(), sourceProducts);
+        }
+        return null;
+    }
+
+    public String getTargetProductNameSuffix() {
+        return targetProductNameSuffix;
+    }
+
+    public void setTargetProductNameSuffix(String suffix) {
+        targetProductNameSuffix = suffix;
+    }
+
+    public BindingContext getBindingContext() {
+        return bindingContext;
+    }
+
+    private void initForm() {
+        form = new JTabbedPane();
+        form.add("I/O Parameters", ioParametersPanel);
+
+        //if (bindingContext.getPropertySet().getProperties().length > 0) {
+        //    final PropertyPane parametersPane = new PropertyPane(bindingContext);
+        //    final JPanel parametersPanel = parametersPane.createPanel();
+        //    parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        //    form.add("Processing Parameters", new JScrollPane(parametersPanel));
+        //    updateSourceProduct();
+        //}
+        parametersPanel = opUI.CreateOpTab(operatorName, parameterSupport.getParameterMap(), appContext);
+        parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        form.add("Processing Parameters", new JScrollPane(parametersPanel));
+    }
+
+    private OperatorMenu createDefaultMenuBar() {
+        return new OperatorMenu(getJDialog(),
+                operatorDescriptor,
+                parameterSupport,
+                getAppContext(),
+                getHelpID());
+    }
+
+    private void updateSourceProduct() {
+        try {
+            Property property = bindingContext.getPropertySet().getProperty(UIUtils.PROPERTY_SOURCE_PRODUCT);
+            if (property != null) {
+                property.setValue(productChangedHandler.currentProduct);
+            }
+        } catch (ValidationException e) {
+            throw new IllegalStateException("Property '" + UIUtils.PROPERTY_SOURCE_PRODUCT + "' must be of type " + Product.class + ".", e);
+        }
     }
 
     private void addParameters() {
@@ -113,37 +239,6 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                         new PropertyDescriptor[rdnTypeProperties.size()]);
             }
         }
-    }
-
-    @Override
-    public int show() {
-        ioParametersPanel.initSourceProductSelectors();
-        if (form == null) {
-            initForm();
-            // do not include menu
-        }
-        setContent(form);
-        return super.show();
-    }
-
-    protected void initForm() {
-        form = new JTabbedPane();
-        form.add("I/O Parameters", ioParametersPanel);
-
-        parametersPanel = opUI.CreateOpTab(operatorName, parameterSupport.getParameterMap(), appContext);
-        parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        form.add("Processing Parameters", new JScrollPane(parametersPanel));
-    }
-
-    @Override
-    protected Product createTargetProduct() throws Exception {
-        if (validateUI()) {
-            opUI.updateParameters();
-
-            final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
-            return GPF.createProduct(operatorName, parameterSupport.getParameterMap(), sourceProducts);
-        }
-        return null;
     }
 
     private boolean validateUI() {
@@ -194,7 +289,6 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         }
     }
 
-
     private class ProductWriterWorker extends ProgressMonitorSwingWorker<Product, Object> {
 
         private final Product targetProduct;
@@ -210,7 +304,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         protected Product doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
             final TargetProductSelectorModel model = getTargetProductSelector().getModel();
             pm.beginTask("Writing...", model.isOpenInAppSelected() ? 100 : 95);
-            ProgressMonitorList.instance().add(pm);       //NESTMOD
+            ProgressMonitorList.instance().add(pm);
             saveTime = 0L;
             Product product = null;
             try {
@@ -252,7 +346,7 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                 System.gc();
 
                 pm.done();
-                ProgressMonitorList.instance().remove(pm); //NESTMOD
+                ProgressMonitorList.instance().remove(pm);
                 if (product != targetProduct) {
                     targetProduct.dispose();
                 }
@@ -288,5 +382,94 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
                 handleProcessingError(t);
             }
         }
+    }
+
+    private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
+
+        private Product currentProduct;
+
+        public void releaseProduct() {
+            if (currentProduct != null) {
+                currentProduct.removeProductNodeListener(this);
+                currentProduct = null;
+                updateSourceProduct();
+            }
+        }
+
+        @Override
+        public void selectionChanged(SelectionChangeEvent event) {
+            Selection selection = event.getSelection();
+            if (selection != null) {
+                final Product selectedProduct = (Product) selection.getSelectedValue();
+                if (selectedProduct != currentProduct) {
+                    if (currentProduct != null) {
+                        currentProduct.removeProductNodeListener(this);
+                    }
+                    currentProduct = selectedProduct;
+                    if (currentProduct != null) {
+                        currentProduct.addProductNodeListener(this);
+                    }
+                    updateTargetProductName();
+                    updateValueSets(currentProduct);
+                    updateSourceProduct();
+                }
+            }
+        }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            handleProductNodeEvent();
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            handleProductNodeEvent();
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            handleProductNodeEvent();
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            handleProductNodeEvent();
+        }
+
+        private void updateTargetProductName() {
+            String productName = "";
+            if (currentProduct != null) {
+                productName = currentProduct.getName();
+            }
+            final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
+            targetProductSelectorModel.setProductName(productName + getTargetProductNameSuffix());
+        }
+
+        private void handleProductNodeEvent() {
+            updateValueSets(currentProduct);
+        }
+
+        private void updateValueSets(Product product) {
+            if (rasterDataNodeTypeProperties != null) {
+                for (PropertyDescriptor propertyDescriptor : rasterDataNodeTypeProperties) {
+                    updateValueSet(propertyDescriptor, product);
+                }
+            }
+        }
+    }
+
+    private static void updateValueSet(PropertyDescriptor propertyDescriptor, Product product) {
+        String[] values = new String[0];
+        if (product != null) {
+            Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+            if (object != null) {
+                @SuppressWarnings("unchecked")
+                Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
+                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() &&
+                        !propertyDescriptor.getType().isArray();
+                values = RasterDataNodeValues.getNames(product, rasterDataNodeType, includeEmptyValue);
+            }
+        }
+        propertyDescriptor.setValueSet(new ValueSet(values));
     }
 }
