@@ -47,7 +47,10 @@ import java.net.URL;
  * @author Tom Block
  * @author Ralf Quast
  */
-@OperatorMetadata(alias = "Aatsr.SST", authors = "Tom Block, Ralf Quast", copyright = "Brockmann Consult GmbH",
+@OperatorMetadata(alias = "Aatsr.SST",
+                  category = "Optical Processing/Thematic Water Processing",
+                  authors = "Tom Block, Ralf Quast",
+                  copyright = "Brockmann Consult GmbH",
                   version = "2.0",
                   description = "Computes sea surface temperature (SST) from (A)ATSR products.")
 public class AatsrSstOp extends PixelOperator {

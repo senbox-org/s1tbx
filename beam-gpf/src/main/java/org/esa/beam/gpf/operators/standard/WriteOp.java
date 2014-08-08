@@ -86,6 +86,7 @@ import java.util.Map;
  * @since BEAM 4.2
  */
 @OperatorMetadata(alias = "Write",
+                  category = "Input-Output",
                   version = "1.3",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",

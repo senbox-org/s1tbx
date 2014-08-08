@@ -128,6 +128,7 @@ import java.util.Map;
  * @since BEAM 4.7
  */
 @OperatorMetadata(alias = "BandMaths",
+                  category = "Utilities",
                   version = "1.1",
                   copyright = "(c) 2013 by Brockmann Consult",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",

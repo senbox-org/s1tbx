@@ -48,6 +48,7 @@ import java.awt.image.Raster;
  * @author Ralf Quast
  */
 @OperatorMetadata(alias = "FlhMci", authors = "Tom Block, Ralf Quast", copyright = "Brockmann Consult GmbH",
+                  category = "Optical Processing/Thematic Water Processing",
                   version = "2.0",
                   description = "Computes fluorescence line height (FLH) or maximum chlorophyll index (MCI).")
 public class FlhMciOp extends PixelOperator {

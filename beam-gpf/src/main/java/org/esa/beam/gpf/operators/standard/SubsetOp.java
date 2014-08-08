@@ -71,6 +71,7 @@ import static java.lang.Math.*;
  * @since BEAM 4.9
  */
 @OperatorMetadata(alias = "Subset",
+                  category = "Geometric Operations",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
                   version = "1.1",
                   copyright = "(c) 2011 by Brockmann Consult",

@@ -129,6 +129,7 @@ import java.text.MessageFormat;
  * @since BEAM 4.7
  */
 @OperatorMetadata(alias = "Reproject",
+                  category = "Geometric Operations",
                   version = "1.0",
                   authors = "Marco Zühlke, Marco Peters, Ralf Quast, Norman Fomferra",
                   copyright = "(c) 2009 by Brockmann Consult",

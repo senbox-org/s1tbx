@@ -27,6 +27,7 @@ See http://www.brockmann-consult.de/cms/web/beam/tutorials
  */
 @OperatorMetadata(
         alias = "FLH",
+        category = "Optical Processing/Thematic Water Processing",
         description = "FLH Operator developed during the MERIS/AATSR Workshop, Esrin, Oct 2012")
 public class FluorescenceLineHeightOp extends Operator {
 

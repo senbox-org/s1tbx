@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "WriteRGB",
+                  category = "Input-Output",
                   description = "Creates an RGB image from three source bands.",
                   internal = true)
 public class WriteRGBOp extends Operator {

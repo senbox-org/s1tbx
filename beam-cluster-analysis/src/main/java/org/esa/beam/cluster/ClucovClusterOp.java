@@ -39,6 +39,7 @@ import java.util.Set;
  * Implements a cluster analysis using the CLUCOV algorithm.
  */
 @OperatorMetadata(alias = "ClucovClusterAnalysis",
+                  category = "Classification/Clustering",
                   version = "1.0",
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
