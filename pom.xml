@@ -22,7 +22,7 @@
         <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
-		<rstb.version>6.0-SNAPSHOT</rstb.version>
+		<rstb.version>6.2-SNAPSHOT</rstb.version>
 		<s1tbx.version>0.2.0-SNAPSHOT</s1tbx.version>
 		<snap.version>0.5-SNAPSHOT</snap.version>
 		
