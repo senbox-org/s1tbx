@@ -1,0 +1,28 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="Read">
+        <operator>Read</operator>
+        <sources/>
+        <parameters>
+            <file></file>
+        </parameters>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+        </sources>
+        <parameters>
+            <formatName>BEAM-DIMAP</formatName>
+            <file></file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="Read">
+            <displayPosition y="134.0" x="37.0"/>
+        </node>
+        <node id="Write">
+            <displayPosition y="135.0" x="455.0"/>
+        </node>
+    </applicationData>
+</graph>

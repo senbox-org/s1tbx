@@ -1,0 +1,65 @@
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>5.0.1</version>
+    </parent>
+
+    <name>SNAP Engine Utilities</name>
+    <groupId>org.esa.snap</groupId>
+    <artifactId>snap-engine-utilities</artifactId>
+    <version>0.5-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.10.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding</artifactId>
+            <version>4.65-1.04</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>native-libs</artifactId>
+            <version>4.65-1.04</version>
+        </dependency>
+    </dependencies>
+
+</project>

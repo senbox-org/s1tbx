@@ -1,0 +1,52 @@
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>5.0.1</version>
+    </parent>
+
+    <name>SNAP Graph Builder</name>
+    <groupId>org.esa.snap</groupId>
+    <artifactId>snap-graph-builder</artifactId>
+    <version>0.5-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-engine-utilities</artifactId>
+            <version>0.5-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.bc.maven.plugins</groupId>
+                <artifactId>maven-javahelp-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

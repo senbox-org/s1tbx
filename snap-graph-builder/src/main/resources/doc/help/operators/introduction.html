@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Introduction</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp;Graph Processing</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Graphs</h3>
+
+<p>Graph Processing is used to apply operations to the data to
+    allow&nbsp;you to create your own processing chains.</p>
+
+<p class="Paranum" style="">A graph is a set
+    of nodes connected by edges. &nbsp;In this
+    case, the nodes will be the processing steps. &nbsp;The edges will
+    show the direction in which the
+    data is being passed between nodes; therefore it will be a directed
+    graph.
+    &nbsp;The
+    graph will have no loops or cycles, so it will be a Directed Acyclic
+    Graph (DAG).</p>
+
+<p class="Paranum" style="">The sources of the
+    graph will be the data
+    product readers, and the sinks can be either a
+    product writer or an image displayed on the DAT.<br>
+</p>
+
+<p class="Paranum" style="">The GPF uses a
+    Pull Model,
+    wherein a request is made from the sink backwards to the source to
+    process the
+    graph. This
+    request could be to create a new product file or to update a displayed
+    image. &nbsp;Once the request reaches a
+    source, the image is pulled through the nodes to the sink.
+    &nbsp;Each time an image passes
+    through an operator, the operator transforms the image, and it is
+    passed
+    down to the next node until it reaches the sink.</p>
+
+<p class="Paranum" style="">The graph processor
+    will not introduce any intermediate
+    files unless a writer is optionally added anywhere in the sequence</p>
+
+<h3 style="margin-left: 0in;"><a name="_Toc191202382">Tiling</a></h3>
+
+<p class="Paranum" style="">The memory
+    management&nbsp;allows&nbsp;very large data products
+    that can
+    not be all stored in available memory, to be handled by the processing
+    tools and visualization. &nbsp;To
+    do so, a tiled approach is used. </p>
+
+<p class="Paranum" style="">The
+    dataset is divided into workable areas called tiles consisting of a
+    subset
+    of the data read from disk in one piece. &nbsp;Only the data for
+    tiles being visualized is read in, and in some cases the data
+    could be down-sampled to view the desired area at the expense of
+    resolution. </p>
+
+<p class="Paranum" style="">Depending
+    on the tool, data is ingested for a tile or a set of tiles, and
+    processing is applied only to the current set of tiles. &nbsp;The
+    data
+    is then&nbsp;written to a file and
+    released from memory. &nbsp;The process is
+    then&nbsp;repeated on a new set of tiled data from the large data
+    product.</p>
+
+<p class="Paranum" style="">From the
+    DAT, in order to allow zooming out and viewing of the entire image, a
+    pyramid
+    of tiled images at different resolutions is used. Tiling is generally
+    transparent to the user.</p>
+
+<h3 style="margin-left: 0in;"><a name="_Toc191202383">Operators</a></h3>
+
+<p class="Paranum" style="">In order to provide the
+    greatest flexibility to the end user, processing algorithms such as
+    orthorectification and co-registration are broken down into unit
+    processing
+    steps called Operators. These operators may
+    be
+    reused to create new processing graphs
+    for other purposes.</p>
+<br>
+
+<p>The Toolbox includes various processing modules that could be
+    run either from
+    the DAT GUI or from the command line such as:</p>
+<ul>
+    <li>&nbsp;&nbsp;&nbsp; Data Conversion</li>
+    <li>&nbsp; &nbsp; Band Arithmetic</li>
+    <li>&nbsp;&nbsp;&nbsp;&nbsp;Image Filtering</li>
+    <li>&nbsp;&nbsp;&nbsp;&nbsp;Statistics
+        &amp; Data Analysis
+    </li>
+    <li>&nbsp;&nbsp;&nbsp; Ellipsoid Correction</li>
+    <li>&nbsp; &nbsp; Terrain Correction</li>
+    <li>&nbsp; &nbsp; Co-Registration</li>
+    <li>&nbsp;&nbsp;&nbsp;&nbsp;Reprojection</li>
+    <li>&nbsp; &nbsp; Subset</li>
+    <li>&nbsp;&nbsp;&nbsp;&nbsp;Calibration</li>
+    <li>&nbsp; &nbsp; Multilooking</li>
+    <li>&nbsp;&nbsp;&nbsp; Apply Orbit Correction</li>
+    <li>&nbsp; &nbsp; Create Stack</li>
+    <li>&nbsp;&nbsp; &nbsp;Create Elevation</li>
+    <li>&nbsp; &nbsp; Resampling</li>
+    <li>&nbsp; &nbsp; Interferometry</li>
+    <li>&nbsp; &nbsp; Plus many more</li>
+</ul>
+<br>
+<hr>
+</body>
+</html>

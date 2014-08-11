@@ -1,0 +1,26 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>snap-engine-utilities</symbolicName>
+    <version>0.5-SNAPSHOT</version>
+    <name>SNAP Engine Utilities</name>
+
+    <description>SNAP Engine Utilities</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+    <categories>System</categories>
+
+
+</module>

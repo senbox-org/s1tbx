@@ -1,0 +1,107 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>snap-graph-builder</symbolicName>
+    <version>0.5-SNAPSHOT</version>
+    <name>SNAP Graph Builder</name>
+
+    <description>SNAP Graph Builder</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>snap-engine-utilities</module>
+    </dependency>
+
+    <categories>System, GPF</categories>
+
+    <activator>org.esa.snap.gpf.ui.OperatorUIRegistry</activator>
+
+    <!--
+       Extension point 'operatorUI': Adds new user interfaces for operators.
+       Extensions are instances of OperatorUI specified by the 'class' element.
+    -->
+    <extensionPoint id="OperatorUIs">
+        <OperatorUI type="org.esa.snap.gpf.ui.OperatorUIDescriptor"
+                    class="@descriptorClass"
+                    autoConfig="true">
+            <descriptorClass type="java.lang.Class">
+                org.esa.snap.gpf.ui.DefaultOperatorUIDescriptor
+            </descriptorClass>
+            <class field="operatorUIClass" type="java.lang.Class"/>
+        </OperatorUI>
+    </extensionPoint>
+
+    <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.snap.gpf.ui.DefaultUI</id>
+            <class>org.esa.snap.gpf.ui.DefaultUI</class>
+            <operatorName>DefaultUI</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.snap.gpf.ui.SourceUI</id>
+            <class>org.esa.snap.gpf.ui.SourceUI</class>
+            <operatorName>Read</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.snap.gpf.ui.TargetUI</id>
+            <class>org.esa.snap.gpf.ui.TargetUI</class>
+            <operatorName>Write</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.snap.gpf.ProductSetReaderOpUI</id>
+            <class>org.esa.snap.gpf.ProductSetReaderOpUI</class>
+            <operatorName>ProductSet-Reader</operatorName>
+        </OperatorUI>
+    </extension>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>openGraphBuilderDialog</id>
+            <class>org.esa.snap.dat.actions.OpenGraphBuilderAction</class>
+            <parent>Graphs</parent>
+            <text>Graph Builder</text>
+            <mnemonic>G</mnemonic>
+            <shortDescr>Open Graph Builder dialog.</shortDescr>
+            <description>Open Graph Builder dialog.</description>
+            <smallIcon>/org/esa/snap/icons/cog16.png</smallIcon>
+            <largeIcon>/org/esa/snap/icons/cog.png</largeIcon>
+            <helpId>GraphBuilderDialog</helpId>
+        </action>
+
+        <action>
+            <id>batchProcessing</id>
+            <class>org.esa.snap.dat.actions.BatchProcessingAction</class>
+            <parent>Graphs</parent>
+            <placeAfter>openGraphBuilderDialog</placeAfter>
+            <text>Batch Processing</text>
+            <shortDescr>Batch Process a Graph</shortDescr>
+            <description>Batch Process a Graph On Multiple Products</description>
+            <smallIcon>/org/esa/snap/icons/icon_cogs24.png</smallIcon>
+            <largeIcon>/org/esa/snap/icons/icon_cogs.png</largeIcon>
+            <helpId>batchProcessing</helpId>
+            <separatorAfter>true</separatorAfter>
+        </action>
+
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <id>graphHelp</id>
+            <path>doc/help/graph.hs</path>
+        </helpSet>
+    </extension>
+</module>

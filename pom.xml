@@ -60,6 +60,9 @@
         <module>beam-reader-tests</module>
         <module>beam-python</module>
 
+		<module>snap-engine-utilities</module>
+		<module>snap-graph-builder</module>
+		
         <!-- BEAM Plugin Modules -->
 
         <module>beam-aatsr-sst</module>

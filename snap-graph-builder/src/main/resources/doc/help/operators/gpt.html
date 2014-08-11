@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+
+    <title>Help - Graph Processing Tool</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+
+<table class="header">
+
+
+    <tbody>
+
+
+    <tr class="header">
+
+
+        <td class="header">&nbsp;Graph Processing Tool</td>
+
+
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
+
+
+    </tr>
+
+
+    </tbody>
+</table>
+
+
+<h3>GPT</h3>
+
+
+<p>The Graph Processing Tool (GPT) is the command line interface for
+    executing graphs created using the Graph Builder. Data sources and
+    parameters found in the graph file can be replaced at the command line
+    using arguments passed to the GPT.</p>
+
+<p>The GPT could also be used to read a product, execute a single
+    operator and produce output in the specified format without the use of
+    a graph.</p>
+
+
+<pre><br>Usage:</pre>
+<pre>&nbsp; {0} &lt;op&gt;|&lt;graph-file&gt; [options] [&lt;source-file-1&gt; &lt;source-file-2&gt; ...]</pre>
+<pre><br>Description:</pre>
+<pre>&nbsp; This tool is used to execute raster data operators in batch-mode.</pre>
+<pre>&nbsp; The operators can be used stand-alone or combined as a directed acyclic</pre>
+<pre>&nbsp; graph (DAG). Processing graphs are represented using XML. More info</pre>
+<pre>&nbsp; about processing graphs, the operator API, and the graph XML format can</pre>
+<pre>&nbsp; be found in the documentation.</pre>
+<pre><br>Arguments:</pre>
+<pre>&nbsp; &lt;op&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of an operator. See below for the list of &lt;op&gt;s.</pre>
+<pre>&nbsp; &lt;graph-file&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Operator graph file (XML format).</pre>
+<pre>&nbsp; &lt;source-file-i&gt;&nbsp;&nbsp;&nbsp; The &lt;i&gt;th source product file. The actual number of source</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; file arguments is specified by &lt;op&gt;. May be optional for</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; operators which use the '-S' option.</pre>
+<pre><br>Options:</pre>
+<pre>&nbsp; -h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Displays command usage. If &lt;op&gt; is given, the specific</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; operator usage is displayed.</pre>
+<pre>&nbsp; -e&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Displays more detailed error messages. Displays a stack</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; trace, if an exception occurs.</pre>
+<pre>&nbsp; -t &lt;file&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The target file. Default value is ''{1}''.</pre>
+<pre>&nbsp; -f &lt;format&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Output file format, e.g. ''GeoTIFF'', ''HDF5'',</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ''BEAM-DIMAP''. If not specified, format will be derived</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from the target filename extension, if any, otherwise the</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; default format is ''{2}''. Ony used, if the graph</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in &lt;graph-file&gt; does not specify its own ''Write'' operator.</pre>
+<pre>&nbsp; -p &lt;file&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A (Java Properties) file containing processing</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parameters in the form &lt;name&gt;=&lt;value&gt;. Entries in this</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; file are overwritten by the -P&lt;name&gt;=&lt;value&gt; command-line</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; option (see below).</pre>
+<pre>&nbsp; -c &lt;cache-size&gt;&nbsp;&nbsp;&nbsp; Sets the tile cache size in bytes. Value can be suffixed</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with ''K'', ''M'' and ''G''. Must be less than maximum</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; available heap space. If equal to or less than zero, tile</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; caching will be completely disabled. The default tile</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cache size is ''{3}M''.</pre>
+<pre>&nbsp; -q &lt;parallelism&gt;&nbsp;&nbsp; Sets the maximum parallelism used for the computation, i.e.</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the maximum number of parallel (native) threads.</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The default parallelism is ''{4}''.</pre>
+<pre>&nbsp; -x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Clears the internal tile cache after writing a complete</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; row of tiles to the target product file. This option may</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; be useful if you run into memory problems.</pre>
+<pre>&nbsp; -T&lt;target&gt;=&lt;file&gt;&nbsp; Defines a target product. Valid for graphs only. &lt;target&gt;</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; must be the identifier of a node in the graph. The node''s</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; output will be written to &lt;file&gt;.</pre>
+<pre>&nbsp; -S&lt;source&gt;=&lt;file&gt;&nbsp; Defines a source product. &lt;source&gt; is specified by the</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; operator or the graph. In an XML graph, all occurrences of</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $'{&lt;source&gt;'} will be replaced with references to a source</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; product located at &lt;file&gt;.</pre>
+<pre>&nbsp; -P&lt;name&gt;=&lt;value&gt;&nbsp;&nbsp; Defines a processing parameter, &lt;name&gt; is specific for the</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; used operator or graph. In an XML graph, all occurrences of</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $'{&lt;name&gt;'} will be replaced with &lt;value&gt;. Overwrites</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parameter values specified by the ''-p'' option.</pre>
+<pre>&nbsp; -inFolder&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For graphs with ProductSetReaders such as coregistration,</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; all products found in the specified folder and subfolders</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; will be used as input to the ProductSetReader</pre>
+<pre>&nbsp; -printHelp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Prints the usuage help for all operators </pre>
+
+
+<br><h4>Running from the Command Line</h4>
+
+<p>To be able to properly run
+    the GPT from the command line, make sure the environment variable
+    NEST_HOME is set to the installation folder. Also, add the
+    installation folder to the PATH so you may call the GPT from any folder.</p>
+
+<p>Some example graphs can be found in $NEST_HOME/commandline.</p>
+<ul>
+    <li>asar-caibrate.bat - a windows batch file as an example how to calibrate all ASAR products in a given folder</li>
+    <li>ers-cailbrate.bat - &nbsp;a windows batch file as an example how to calibrate all ERS products in a given
+        folder
+    </li>
+    <li>coregister.bat
+        - a windows batch file as an example how to run multiple graphs
+        together, in this case, GCPSelectionGraph and WarpGraph
+    </li>
+    <li>MapProjGraph.xml - a graph for applying a map projection on a product</li>
+    <li>TC_Graph.xml - a graph for applying Terrain Correction on a product</li>
+    <li>write.xml - a graph to write products in another format, in this case, it will write to GeoTIFF</li>
+</ul>
+<br>
+
+<p></p>
+
+
+<hr>
+</body>
+</html>
