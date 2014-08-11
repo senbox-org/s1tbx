@@ -1,0 +1,103 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>s1tbx-op-sentinel1</symbolicName>
+    <version>6.0-SNAPSHOT</version>
+    <name>S1TBX Sentinel-1 Tools</name>
+
+    <description>Tools for Sentinel-1 products</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>snap-engine-utilities</module>
+    </dependency>
+    <dependency>
+        <module>snap-graph-builder</module>
+    </dependency>
+
+    <categories>Processor</categories>
+
+    <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARDeburstOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARDeburstOpUI</class>
+            <operatorName>TOPSAR-Deburst</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARSplitOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARSplitOpUI</class>
+            <operatorName>TOPSAR-Split</operatorName>
+        </OperatorUI>
+    </extension>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>Sentinel1</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>SENTINEL-1</text>
+            <parent>sar-processing</parent>
+            <placeAfter>ASARWSS</placeAfter>
+        </action>
+
+        <action>
+            <id>TOPSARDeburstOp</id>
+            <helpId>TOPSARDeburstOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Sentinel-1 TOPSAR Deburst</text>
+            <operatorName>TOPSAR-Deburst</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
+            <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TOPSARSplitOp</id>
+            <helpId>TOPSARSplitOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Sentinel-1 TOPSAR Split</text>
+            <operatorName>TOPSAR-Split</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
+            <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
+        </action>
+
+        <action>
+            <id>Sentinel1SLCtoPRI</id>
+            <helpId>Sentinel1SLCtoPRI</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Sentinel-1 SLC to GRD</text>
+            <shortDescr>Convert a Sentinel1 SLC product to a detected ground range product</shortDescr>
+            <dialogTitle>Sentinel1 SLC to GRD</dialogTitle>
+            <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>MergeSlices</id>
+            <helpId>MergeSlices</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Merge Slices</text>
+            <operatorName>MergeSlices</operatorName>
+            <shortDescr>Merge slice products together</shortDescr>
+            <dialogTitle>Merge Slices</dialogTitle>
+        </action>
+
+    </extension>
+
+</module>

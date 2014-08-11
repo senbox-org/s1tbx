@@ -101,7 +101,7 @@
 							<exclude>org.esa.nest:nest-op-feature-extraction</exclude>
 							<exclude>org.esa.nest:nest-op-orthorectification</exclude>
 							<exclude>org.esa.nest:nest-op-sar-tools</exclude>
-							<exclude>org.esa.nest:nest-op-sentinel1</exclude>
+							<exclude>org.esa.nest:s1tbx-op-sentinel1</exclude>
 							<exclude>org.esa.nest:nest-reader-dem</exclude>
 							<exclude>org.esa.nest:nest-io</exclude>
 							<exclude>org.esa.nest:nest-dat</exclude>

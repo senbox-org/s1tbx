@@ -42,7 +42,7 @@ import java.util.Map;
  * De-Burst a Sentinel-1 TOPSAR product
  */
 @OperatorMetadata(alias = "TOPSAR-Deburst",
-        category = "SAR Tools\\SENTINEL-1",
+        category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts a Sentinel-1 TOPSAR product")

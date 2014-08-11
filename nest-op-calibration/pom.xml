@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-sentinel1</artifactId>
+            <artifactId>s1tbx-op-sentinel1</artifactId>
             <version>${nest.version}</version>
         </dependency>
     </dependencies>
