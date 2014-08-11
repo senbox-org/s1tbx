@@ -53,7 +53,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Terrain-Flattening",
-        category = "Geometric",
+        category = "SAR Processing/Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Terrain Flattening")

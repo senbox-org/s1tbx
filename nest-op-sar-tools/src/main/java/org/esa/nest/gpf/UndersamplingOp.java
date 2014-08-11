@@ -79,7 +79,7 @@ import java.util.StringTokenizer;
  */
 
 @OperatorMetadata(alias = "Undersample",
-        category = "Utilities\\Resampling",
+        category = "Utilities/Resampling",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Undersample the datset")

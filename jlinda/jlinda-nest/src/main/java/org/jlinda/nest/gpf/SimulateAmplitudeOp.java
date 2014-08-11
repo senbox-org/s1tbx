@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "SimulateAmplitude",
-        category = "InSAR\\Products",
+        category = "SAR Processing/InSAR/Products",
         description = "Simulate amplitude based on DEM", internal = false)
 public final class SimulateAmplitudeOp extends Operator {
 

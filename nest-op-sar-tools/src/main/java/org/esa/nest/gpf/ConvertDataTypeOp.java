@@ -38,7 +38,7 @@ import org.esa.snap.gpf.OperatorUtils;
  */
 
 @OperatorMetadata(alias = "Convert-Datatype",
-        category = "Utilities\\Data Conversion",
+        category = "Utilities/Data Conversion",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Convert product data type")

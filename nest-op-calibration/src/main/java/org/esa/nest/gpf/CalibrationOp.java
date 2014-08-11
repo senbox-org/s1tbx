@@ -38,7 +38,7 @@ import java.io.File;
  * @todo automatically search aux file in local repository using time period
  */
 @OperatorMetadata(alias = "Calibration",
-        category = "SAR Tools\\Radiometric Correction",
+        category = "SAR Processing/Radiometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Calibration of products")

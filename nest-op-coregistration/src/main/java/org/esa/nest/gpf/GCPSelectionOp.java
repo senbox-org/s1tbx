@@ -68,7 +68,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "GCP-Selection",
-        category = "SAR Tools\\Coregistration",
+        category = "SAR Processing/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Automatic Selection of Ground Control Points")

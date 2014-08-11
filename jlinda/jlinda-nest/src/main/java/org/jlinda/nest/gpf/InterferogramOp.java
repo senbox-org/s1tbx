@@ -39,7 +39,7 @@ import java.util.Map;
 
 
 @OperatorMetadata(alias = "Interferogram",
-        category = "InSAR\\Products",
+        category = "SAR Processing/InSAR/Products",
         description = "Compute interferograms from stack of coregistered images : JBLAS implementation", internal = false)
 public class InterferogramOp extends Operator {
     @SourceProduct

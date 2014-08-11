@@ -45,7 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "SubtRefDem",
-        category = "InSAR\\Products",
+        category = "SAR Processing/InSAR/Products",
         description = "Compute and subtract TOPO phase", internal = false)
 public final class SubtRefDemOp extends Operator {
 

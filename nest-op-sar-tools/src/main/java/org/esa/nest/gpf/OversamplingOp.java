@@ -42,7 +42,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Oversample",
-        category = "Utilities\\Resampling",
+        category = "Utilities/Resampling",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Oversample the datset")

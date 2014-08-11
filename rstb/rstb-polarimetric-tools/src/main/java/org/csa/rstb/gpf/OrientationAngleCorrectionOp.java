@@ -43,7 +43,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Orientation-Angle-Correction",
-        category = "Polarimetric",
+        category = "SAR Processing/Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform polarization orientation angle correction for given coherency matrix")

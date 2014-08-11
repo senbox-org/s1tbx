@@ -63,7 +63,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "DEM-Based-Coregistration",
-        category = "SAR Tools\\Coregistration",
+        category = "SAR Processing/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Create DEM Based Co-registrated Images")

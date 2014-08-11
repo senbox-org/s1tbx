@@ -31,7 +31,7 @@ import java.awt.*;
 import java.util.HashMap;
 
 @OperatorMetadata(alias = "Phase2Height",//"Slant2Height",
-        category = "InSAR\\Products",
+        category = "SAR Processing/InSAR/Products",
         description = "Phase to Height conversion",
         internal = false)
 public class Slant2HeightOp extends Operator {

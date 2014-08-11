@@ -42,7 +42,7 @@ import java.util.List;
  * RemoveAntennaPattern for ASAR & ERS products.
  */
 @OperatorMetadata(alias = "RemoveAntennaPattern",
-        category = "SAR Tools\\Radiometric Correction",
+        category = "SAR Processing/Radiometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Remove Antenna Pattern")

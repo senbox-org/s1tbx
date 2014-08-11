@@ -53,7 +53,7 @@ import java.util.HashMap;
  */
 
 @OperatorMetadata(alias = "Multilook",
-        category = "SAR Tools",
+        category = "SAR Processing",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Averages the power across a number of lines in both the azimuth and range directions")

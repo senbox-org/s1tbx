@@ -42,7 +42,7 @@ import java.util.Map;
  * Applies a Speckle Filter to the data
  */
 @OperatorMetadata(alias = "Speckle-Filter",
-        category = "SAR Tools\\Speckle Filtering",
+        category = "SAR Processing/Speckle Filtering",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Speckle Reduction")

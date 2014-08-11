@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "Unwrap",
-        category = "InSAR\\Unwrapping",
+        category = "SAR Processing/InSAR/Unwrapping",
         description = "Unwrap input complex data",
         internal = false)
 public class UnwrapOp extends Operator {

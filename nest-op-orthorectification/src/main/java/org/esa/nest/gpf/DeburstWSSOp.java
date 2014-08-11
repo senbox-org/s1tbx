@@ -42,7 +42,7 @@ import java.util.List;
  * De-Burst a WSS product
  */
 @OperatorMetadata(alias = "DeburstWSS",
-        category = "SAR Tools",
+        category = "SAR Processing",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts an ASAR WSS product")

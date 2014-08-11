@@ -34,7 +34,7 @@ import java.util.Map;
 import static org.jlinda.core.utils.MathUtils.isPower2;
 
 @OperatorMetadata(alias = "PhaseFilter",
-        category = "InSAR\\Tools",
+        category = "SAR Processing/InSAR/Tools",
         description = "Interferometric phase filtering",
         internal = false)
 public class PhaseFilterOp extends Operator {

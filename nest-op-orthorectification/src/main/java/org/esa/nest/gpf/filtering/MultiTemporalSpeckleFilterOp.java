@@ -71,7 +71,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Multi-Temporal-Speckle-Filter",
-        category = "SAR Tools\\Speckle Filtering",
+        category = "SAR Processing/Speckle Filtering",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Speckle Reduction using Multitemporal Filtering")

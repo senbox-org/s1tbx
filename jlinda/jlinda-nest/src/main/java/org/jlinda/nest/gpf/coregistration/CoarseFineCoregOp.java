@@ -52,7 +52,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "CoarseFine-Coregistration",
-        category = "InSAR\\InSAR Coregistration",
+        category = "SAR Processing/InSAR/InSAR Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
         description = "Performs coarse and found coregistration with correlation optimization method")

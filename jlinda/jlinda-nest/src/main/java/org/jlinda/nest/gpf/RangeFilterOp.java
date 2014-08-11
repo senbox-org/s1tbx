@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "RangeFilter",
-        category = "InSAR\\Tools",
+        category = "SAR Processing/InSAR/Tools",
         description = "Range Filter", internal = false)
 public class RangeFilterOp extends Operator {
 

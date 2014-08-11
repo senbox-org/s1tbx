@@ -53,6 +53,8 @@
 		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-cli</module>
 		<module>s1tbx-config</module>
+		<module>s1tbx-op-sentinel1</module>
+		
 		<module>nest-dat</module>
 		<module>nest-help</module>
 		<module>nest-io</module>
@@ -64,7 +66,6 @@
 		<module>nest-reader-dem</module>
 		<module>nest-world-wind-view</module>
 		
-		<module>nest-op-sentinel1</module>
 		<!--module>../esa-pfa</module-->
 	</modules>
 	

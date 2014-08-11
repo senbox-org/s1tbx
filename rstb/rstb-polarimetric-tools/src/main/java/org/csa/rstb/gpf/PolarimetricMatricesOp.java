@@ -43,7 +43,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Polarimetric-Matrices",
-        category = "Polarimetric",
+        category = "SAR Processing/Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Generates covariance or coherency matrix for given product")

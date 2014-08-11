@@ -40,7 +40,7 @@ import java.awt.*;
  */
 
 @OperatorMetadata(alias = "SRGR",
-        category = "Geometric",
+        category = "SAR Processing/Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Converts Slant Range to Ground Range")
