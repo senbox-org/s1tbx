@@ -490,9 +490,15 @@ public class Band extends AbstractBand {
         for (int i = 0; i < sampleCount; i++) {
             String name = indexCoding.getSampleName(i);
             int value = indexCoding.getSampleValue(i);
-            final Color color = new Color(random.nextFloat(),
-                                          random.nextFloat(),
-                                          random.nextFloat());
+            //final Color color = new Color(random.nextFloat(),
+            //                              random.nextFloat(),
+            //                              random.nextFloat());
+            final Color color;
+            if(i==0)
+                color = new Color(0,0,0);
+            else
+                color = Color.getHSBColor((float) (i-1) / (float) sampleCount, 0.85f, 1.0f);
+
             points[i] = new ColorPaletteDef.Point(value, color, name);
         }
         return new ImageInfo(new ColorPaletteDef(points, points.length));

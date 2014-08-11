@@ -86,13 +86,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -117,6 +114,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (input instanceof File) {
             inputFile = (File) input;
+            if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+                final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
+                final Enumeration<? extends ZipEntry> entries = productZip.entries();
+                final ZipEntry zipEntry = entries.nextElement();
+                input = productZip.getInputStream(zipEntry);
+            }
         }
         inputStream = ImageIO.createImageInputStream(input);
         return readGeoTIFFProduct(inputStream, inputFile);
@@ -176,6 +179,10 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     }
                 }
                 pm.worked(1);
+            } catch(Throwable e) {
+                for (int i=0; i<destSize; ++i) {
+                    destBuffer.setElemDoubleAt(i, 0);
+                }
             } finally {
                 pm.done();
             }
@@ -445,7 +452,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private boolean isGlobal(Product product, TiffFileInfo info) {
+    private static boolean isGlobal(Product product, TiffFileInfo info) {
         boolean isGlobal = false;
         final TIFFField pixelScaleField = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
         if (pixelScaleField != null) {
@@ -460,7 +467,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return isGlobal;
     }
 
-    private boolean isPixelScaleValid(double[] pixelScales) {
+    private static boolean isPixelScaleValid(double[] pixelScales) {
         return pixelScales != null &&
                !Double.isNaN(pixelScales[0]) && !Double.isInfinite(pixelScales[0]) &&
                !Double.isNaN(pixelScales[1]) && !Double.isInfinite(pixelScales[1]);

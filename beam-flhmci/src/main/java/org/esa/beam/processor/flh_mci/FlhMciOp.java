@@ -201,7 +201,8 @@ public class FlhMciOp extends PixelOperator {
         algorithm.setCloudCorrectionFactor(cloudCorrectionFactor);
 
         if (maskExpression != null && !maskExpression.isEmpty()) {
-            maskOpImage = VirtualBandOpImage.createMask(maskExpression, sourceProduct, ResolutionLevel.MAXRES);
+            maskOpImage = VirtualBandOpImage.createMask(maskExpression, sourceProduct,
+                    sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight(), ResolutionLevel.MAXRES);
         }
     }
 

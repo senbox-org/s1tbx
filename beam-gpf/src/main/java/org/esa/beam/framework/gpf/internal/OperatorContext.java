@@ -60,6 +60,7 @@ import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
 import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
 import org.esa.beam.gpf.operators.standard.WriteOp;
+import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -555,7 +556,6 @@ public class OperatorContext {
                 nodeElementCount++;
             }
         }
-
         if (contains) {
             return;
         }
@@ -602,8 +602,10 @@ public class OperatorContext {
 
 
         List<MetadataAttribute> sourceAttributeList = new ArrayList<>(context.sourceProductList.size() * 2);
-        for (Product sourceProduct : context.sourceProductList) {
-            final String sourceId = context.getSourceProductId(sourceProduct);
+        //for (Product sourceProduct : context.sourceProductList) {
+        //    final String sourceId = context.getSourceProductId(sourceProduct);
+	    for (String sourceId : context.sourceProductMap.keySet()) {
+            final Product sourceProduct = context.sourceProductMap.get(sourceId);
             final String sourceNodeId;
             if (sourceProduct.getFileLocation() != null) {
                 sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
@@ -956,7 +958,7 @@ public class OperatorContext {
             }
             sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
-                setSourceProductsFieldValue(declaredField, getUnnamedProducts());
+                setSourceProductsFieldValue(declaredField, sourceProducts);//getUnnamedProducts()); // NESTMOD
             }
             if (sourceProductsAnnotation.count() < 0) {
                 if (sourceProducts.length == 0) {
@@ -1175,7 +1177,7 @@ public class OperatorContext {
             RenderedImage sourceImage = band.getSourceImage().getImage(0);
             OperatorImage targetImage = getTargetImage(band);
             //noinspection ObjectEquality
-            return targetImage == sourceImage;
+            return targetImage == sourceImage || (operator instanceof ReadOp && targetImage == null);  // NESTMOD
         } else {
             return false;
         }

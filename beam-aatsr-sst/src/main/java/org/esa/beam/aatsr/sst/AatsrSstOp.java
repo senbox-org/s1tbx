@@ -303,14 +303,14 @@ public class AatsrSstOp extends PixelOperator {
             initNadirCoefficients(auxdataDir);
             if (nadirMaskExpression != null && !nadirMaskExpression.isEmpty()) {
                 nadirMaskOpImage = VirtualBandOpImage.createMask(nadirMaskExpression, sourceProduct,
-                                                                 ResolutionLevel.MAXRES);
+                        sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight(), ResolutionLevel.MAXRES);
             }
         }
         if (dual) {
             initDualCoefficients(auxdataDir);
             if (dualMaskExpression != null && !dualMaskExpression.isEmpty()) {
                 dualMaskOpImage = VirtualBandOpImage.createMask(dualMaskExpression, sourceProduct,
-                                                                ResolutionLevel.MAXRES);
+                        sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight(), ResolutionLevel.MAXRES);
             }
         }
     }

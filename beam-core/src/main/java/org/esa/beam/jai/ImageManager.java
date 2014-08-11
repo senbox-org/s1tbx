@@ -341,9 +341,6 @@ public class ImageManager {
 
     private RenderedImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {
         Assert.notNull(raster, "raster");
-        if (imageInfo == null) {
-            imageInfo = raster.getImageInfo(ProgressMonitor.NULL);
-        }
         Assert.notNull(imageInfo, "imageInfo");
         RenderedImage sourceImage = getSourceImage(raster, level);
         RenderedImage validMaskImage = getValidMaskImage(raster, level);
@@ -592,7 +589,7 @@ public class ImageManager {
             palette = Arrays.copyOf(origPalette, origPalette.length + 1);
             palette[palette.length - 1] = imageInfo.getNoDataColor();
         } else {
-            palette = createColorPalette(imageInfo);
+            palette = createColorPalette(rasterDataNode.getImageInfo());
         }
 
         final byte[][] lutData = new byte[3][palette.length];
@@ -727,12 +724,16 @@ public class ImageManager {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public RenderedImage getMaskImage(final Product product, final String expression, int level) {
-        MultiLevelImage mli = getMaskImage(expression, product);
+    public RenderedImage getMaskImage(final Product product, final RasterDataNode rasterDataNode, final String expression, int level) {
+        MultiLevelImage mli = getMaskImage(expression, product, rasterDataNode);
         return mli.getImage(level);
     }
 
     public MultiLevelImage getMaskImage(final String expression, final Product product) {
+        return getMaskImage(expression, product, null);
+    }
+
+    public MultiLevelImage getMaskImage(final String expression, final Product product, final RasterDataNode rasterDataNode) {
         synchronized (maskImageMap) {
             final MaskKey key = new MaskKey(product, expression);
             MultiLevelImage mli = maskImageMap.get(key);
@@ -741,8 +742,15 @@ public class ImageManager {
 
                     @Override
                     public RenderedImage createImage(int level) {
+                        int width = product.getSceneRasterWidth();
+                        int height = product.getSceneRasterHeight();
+                        if(rasterDataNode != null) {
+                            width = rasterDataNode.getRasterWidth();
+                            height = rasterDataNode.getRasterHeight();
+                        }
                         return VirtualBandOpImage.createMask(expression,
                                                              product,
+                                                             width, height,
                                                              ResolutionLevel.create(getModel(), level));
                     }
                 };
@@ -770,14 +778,13 @@ public class ImageManager {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
         if (rasters.length == 1) {
-            RasterDataNode raster = rasters[0];
-            Assert.state(raster.getImageInfo() != null, "raster.getImageInfo() != null");
-            return raster.getImageInfo();
+            Assert.state(rasters[0].getImageInfo() != null, "rasters[0].getImageInfo()");
+            return rasters[0].getImageInfo();
         } else {
             final RGBChannelDef rgbChannelDef = new RGBChannelDef();
             for (int i = 0; i < rasters.length; i++) {
                 RasterDataNode raster = rasters[i];
-                Assert.state(rasters[i].getImageInfo() != null, "rasters[i].getImageInfo() != null");
+                Assert.state(rasters[i].getImageInfo() != null, "rasters[i].getImageInfo()");
                 ImageInfo imageInfo = raster.getImageInfo();
                 rgbChannelDef.setSourceName(i, raster.getName());
                 rgbChannelDef.setMinDisplaySample(i, imageInfo.getColorPaletteDef().getMinDisplaySample());
@@ -826,7 +833,7 @@ public class ImageManager {
 
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask,
                                               int level) {
-        RenderedImage image = getMaskImage(product, expression, level);
+        RenderedImage image = getMaskImage(product, null, expression, level);
         return createColoredMaskImage(color, image, invertMask);
     }
 

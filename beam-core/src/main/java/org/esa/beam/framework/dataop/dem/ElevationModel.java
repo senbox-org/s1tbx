@@ -16,6 +16,7 @@
 package org.esa.beam.framework.dataop.dem;
 
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 
 /**
@@ -23,7 +24,7 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
  * specified geographical datum for a given geographical position.
  *
  * @author Norman Fomferra
- * @version $Revision$
+
  */
 public interface ElevationModel {
 
@@ -39,7 +40,35 @@ public interface ElevationModel {
      * @return  an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
      * @exception Exception if a non-runtime error occurs, e.g I/O error
      */
-    float getElevation(GeoPos geoPos) throws Exception;
+    double getElevation(GeoPos geoPos) throws Exception;
+
+    /**
+     * Gets the pixel index in the DEM reference system at the geographical coordinate in meters.
+     *
+     * @param geoPos  the geographical coordinate
+     * @return  (x,y) coordinates in the reference system of a given DEM
+     * @throws Exception if a non-runtime error occurs, e.g I/O error
+     */
+    PixelPos getIndex(GeoPos geoPos) throws Exception;
+
+    /**
+     * Gets the geographical coordinates for the input pixel coordinates in the DEM reference system.
+     *
+     * @param pixelPos  the pixel (x,y) coordinate
+     * @return  (lat,lon) geographical coordinates in the reference system of a given DEM
+     * @throws Exception if a non-runtime error occurs, e.g I/O error
+     */
+    GeoPos getGeoPos(PixelPos pixelPos) throws Exception;
+
+    /**
+     * Gets the elevation at the point defined by (x,y) coordinates in DEM reference system. This method does not interpolated the elevation map!
+     *
+     * @param x  coordinate
+     * @param y  coordinate
+     * @return  an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
+     * @throws Exception if a non-runtime error occurs, e.g I/O error
+     */
+    float getSample(double x, double y) throws Exception;
 
     /**
      * @return The resampling method used.
@@ -58,4 +87,6 @@ public interface ElevationModel {
      * <p/>
      */
     void dispose();
+
+    boolean getSamples(int[] x, int[] y, double[][] samples) throws Exception;
 }

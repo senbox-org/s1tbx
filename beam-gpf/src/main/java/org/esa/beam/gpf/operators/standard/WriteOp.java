@@ -122,14 +122,12 @@ public class WriteOp extends Operator {
                description = "If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.")
     private boolean clearCacheAfterRowWrite;
 
-    private boolean[][][] tilesWritten;
     private final Map<Row, Tile[]> writeCache = new HashMap<>();
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
     private Dimension tileSize;
-    private int tileCountX;
-    private int tileCountY;
+    private final Map<Band, TileInfo> tileInfoMap = new HashMap<>();
 
     private boolean outputFileExists = false;
     private boolean incremental = false;
@@ -241,21 +239,22 @@ public class WriteOp extends Operator {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
         }
         productWriter.setIncrementalMode(incremental);
+        productWriter.setFormatName(formatName);
         targetProduct.setProductWriter(productWriter);
+
+        tileSize = ImageManager.getPreferredTileSize(targetProduct);
+        targetProduct.setPreferredTileSize(tileSize);
+
         final Band[] bands = targetProduct.getBands();
         writableBands = new ArrayList<>(bands.length);
         for (final Band band : bands) {
             band.getSourceImage(); // trigger source image creation
             if (productWriter.shouldWrite(band)) {
                 writableBands.add(band);
+                tileInfoMap.put(band, new TileInfo(band, tileSize));
             }
         }
 
-        tileSize = ImageManager.getPreferredTileSize(targetProduct);
-        targetProduct.setPreferredTileSize(tileSize);
-        tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
-        tileCountY = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
-        tilesWritten = new boolean[writableBands.size()][tileCountY][tileCountX];
         try {
             productWriter.writeProductNodes(targetProduct, file);
         } catch (IOException e) {
@@ -269,16 +268,17 @@ public class WriteOp extends Operator {
             return;
         }
         try {
+            final TileInfo tileInfo = tileInfoMap.get(targetBand);
             final Rectangle rect = targetTile.getRectangle();
             int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
             int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
             if (writeEntireTileRows) {
                 Row row = new Row(targetBand, tileY);
-                Tile[] tileRowToWrite = updateTileRow(row, tileX, targetTile);
+                Tile[] tileRowToWrite = updateTileRow(row, tileX, targetTile, tileInfo);
                 if (tileRowToWrite != null) {
                     writeTileRow(targetBand, tileRowToWrite);
                 }
-                markTileAsHandled(targetBand, tileX, tileY);
+                markTileAsHandled(tileInfo, tileX, tileY);
                 if (clearCacheAfterRowWrite && tileRowToWrite != null && isRowWrittenCompletely(tileY)) {
                     TileCache tileCache = JAI.getDefaultInstance().getTileCache();
                     if (tileCache != null) {
@@ -291,7 +291,7 @@ public class WriteOp extends Operator {
                     productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples,
                                                       pm);
                 }
-                markTileAsHandled(targetBand, tileX, tileY);
+                markTileAsHandled(tileInfo, tileX, tileY);
             }
             if (productWriter instanceof DimapProductWriter && isProductWrittenCompletely()) {
                 // If we get here all tiles are written
@@ -315,13 +315,13 @@ public class WriteOp extends Operator {
         }
     }
 
-    private Tile[] updateTileRow(Row key, int tileX, Tile currentTile) {
+    private Tile[] updateTileRow(Row key, int tileX, Tile currentTile, TileInfo tileInfo) {
         synchronized (writeCache) {
             Tile[] tileRow;
             if (writeCache.containsKey(key)) {
                 tileRow = writeCache.get(key);
             } else {
-                tileRow = new Tile[tileCountX];
+                tileRow = new Tile[tileInfo.tileCountX];
                 writeCache.put(key, tileRow);
             }
             tileRow[tileX] = currentTile;
@@ -337,7 +337,7 @@ public class WriteOp extends Operator {
 
     private void writeTileRow(Band band, Tile[] cacheLine) throws IOException {
         Tile firstTile = cacheLine[0];
-        int sceneWidth = targetProduct.getSceneRasterWidth();
+        int sceneWidth = band.getSceneRasterWidth();
         Rectangle lineBounds = new Rectangle(0, firstTile.getMinY(), sceneWidth, firstTile.getHeight());
         ProductData[] rawSampleOFLine = new ProductData[cacheLine.length];
         int[] tileWidth = new int[cacheLine.length];
@@ -363,14 +363,14 @@ public class WriteOp extends Operator {
         }
     }
 
-    private void markTileAsHandled(Band targetBand, int tileX, int tileY) {
-        int bandIndex = writableBands.indexOf(targetBand);
-        tilesWritten[bandIndex][tileY][tileX] = true;
+    private void markTileAsHandled(final TileInfo tileInfo, int tileX, int tileY) {
+        tileInfo.tilesWritten[tileY][tileX] = true;
     }
 
     private boolean isRowWrittenCompletely(int rowNumber) {
-        for (int bandIndex = 0; bandIndex < writableBands.size(); bandIndex++) {
-            for (boolean aYTileWritten : tilesWritten[bandIndex][rowNumber]) {
+        for (Band targetBand : tileInfoMap.keySet()) {
+            final TileInfo tileInfo = tileInfoMap.get(targetBand);
+            for (boolean aYTileWritten : tileInfo.tilesWritten[rowNumber]) {
                 if (!aYTileWritten) {
                     return false;
                 }
@@ -380,10 +380,17 @@ public class WriteOp extends Operator {
     }
 
     private boolean isProductWrittenCompletely() {
-        for (int rowNumber = 0; rowNumber < tileCountY; rowNumber++) {
-            if (!isRowWrittenCompletely(rowNumber)) {
-                return false;
+        for (Band targetBand : tileInfoMap.keySet()) {
+            final TileInfo tileInfo = tileInfoMap.get(targetBand);
+            for (int rowNumber = 0; rowNumber < tileInfo.tileCountY; rowNumber++) {
+
+                for (boolean aYTileWritten : tileInfo.tilesWritten[rowNumber]) {
+                    if (!aYTileWritten) {
+                        return false;
+                    }
+                }
             }
+
         }
         return true;
     }
@@ -436,8 +443,21 @@ public class WriteOp extends Operator {
             }
             return tileY == other.tileY;
         }
+    }
 
+    private static class TileInfo {
+        public final Band band;
+        public final boolean[][] tilesWritten;
+        public final int tileCountX;
+        public final int tileCountY;
 
+        TileInfo(final Band band, final Dimension tileSize) {
+            this.band = band;
+
+            tileCountX = MathUtils.ceilInt(band.getSceneRasterWidth() / (double) tileSize.width);
+            tileCountY = MathUtils.ceilInt(band.getSceneRasterHeight() / (double) tileSize.height);
+            tilesWritten = new boolean[tileCountY][tileCountX];
+        }
     }
 
 }

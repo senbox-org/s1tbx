@@ -518,8 +518,16 @@
             <helpId>open</helpId>
         </action>
 
-        <action>
+		 <action>
+            <id>Session</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Session</text>
+            <placeAfter>reopen</placeAfter>
             <parent>file</parent>
+        </action>
+
+        <action>
+            <parent>Session</parent>
             <id>openSession</id>
             <placeAfter>open</placeAfter>
             <class>org.esa.beam.visat.actions.session.OpenSessionAction</class>
@@ -570,7 +578,7 @@
         </action>
 
         <action>
-            <parent>file</parent>
+            <parent>Session</parent>
             <id>closeSession</id>
             <placeAfter>close</placeAfter>
             <class>org.esa.beam.visat.actions.session.CloseSessionAction</class>
@@ -583,7 +591,7 @@
         <action>
             <parent>file</parent>
             <id>save</id>
-            <placeAfter>closeSession</placeAfter>
+            <placeAfter>Session</placeAfter>
             <class>org.esa.beam.visat.actions.SaveAction</class>
             <text>Save Product</text>
             <mnemonic>S</mnemonic>
@@ -610,7 +618,7 @@
         </action>
 
         <action>
-            <parent>file</parent>
+            <parent>Session</parent>
             <id>saveSession</id>
             <placeAfter>saveAs</placeAfter>
             <class>org.esa.beam.visat.actions.session.SaveSessionAction</class>
@@ -621,7 +629,7 @@
         </action>
 
         <action>
-            <parent>file</parent>
+            <parent>Session</parent>
             <id>saveSessionAs</id>
             <placeAfter>saveSession</placeAfter>
             <separatorAfter>true</separatorAfter>
@@ -634,7 +642,8 @@
         <action>
             <parent>file</parent>
             <id>importRasterData</id>
-            <placeAfter>saveSessionAs</placeAfter>
+            <placeAfter>Session</placeAfter>
+            <separatorBefore>true</separatorBefore>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Import Raster Data</text>
             <shortDescr>Import raster data</shortDescr>

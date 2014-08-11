@@ -171,6 +171,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                     printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
                     printLine(indent + 2, DimapProductConstants.TAG_BAND_DESCRIPTION, band.getDescription());
                     printLine(indent + 2, DimapProductConstants.TAG_BAND_NAME, band.getName());
+                    printLine(indent + 2, DimapProductConstants.TAG_BAND_RASTER_WIDTH, band.getRasterWidth());
+                    printLine(indent + 2, DimapProductConstants.TAG_BAND_RASTER_HEIGHT, band.getRasterHeight());
                     printLine(indent + 2, DimapProductConstants.TAG_DATA_TYPE,
                               ProductData.getTypeString(band.getDataType()));
                     final String unit = band.getUnit();

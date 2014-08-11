@@ -348,7 +348,7 @@ public class BasicApp {
 
             pm.setSubTaskName("Applying UI preferences...");
             applyPreferences();
-            getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
+            loadLayout();
             clearStatusBarMessage();
             pm.worked(1);
 
@@ -359,10 +359,14 @@ public class BasicApp {
         try {
             getMainFrame().setVisible(true);
             updateState();
-        } finally {
+ 		} finally {
             startedUp = true;
             startingUp = false;
         }
+    }
+
+    protected void loadLayout() {
+        getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
     }
 
     private void logStartUpInfo() {
@@ -924,7 +928,9 @@ public class BasicApp {
             return findMenu("tools");
         final JMenuBar menuBar = getMainFrame().getJMenuBar();
         final JMenu newMenu = createJMenu(parent, parent, parent.charAt(0));
-        menuBar.add(newMenu);
+
+        int index = UIUtils.findMenuPosition(menuBar, "window");
+        menuBar.add(newMenu, index);
         return newMenu;
     }
 

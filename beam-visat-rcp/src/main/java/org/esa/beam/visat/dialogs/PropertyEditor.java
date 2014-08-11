@@ -223,7 +223,7 @@ public class PropertyEditor {
                 public void visit(final Band band) {
                     if (!ignoreVisit()) {
                         initRasterDataNodeUI();
-                        initBandUI();
+                        //initBandUI(); //NESTMOD
                     }
                 }
 
@@ -243,7 +243,7 @@ public class PropertyEditor {
                 public void visit(final VirtualBand virtualBand) {
                     if (!ignoreVisit()) {
                         initRasterDataNodeUI();
-                        initBandUI();
+                        //initBandUI();  //NESTMOD
                         initVirtualBandUI();
                     }
                 }

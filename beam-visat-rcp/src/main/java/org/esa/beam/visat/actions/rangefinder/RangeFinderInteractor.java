@@ -182,6 +182,11 @@ public class RangeFinderInteractor extends ViewportInteractor {
 
     private void showDetailsDialog(ProductSceneView view) {
         GeoCoding geoCoding = view.getProduct().getGeoCoding();
+        if(geoCoding == null) {  
+            JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(), "Product does not have a geocoding",
+                    TITLE, JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
         float distance = 0;
         float distanceError = 0;
@@ -296,7 +301,7 @@ public class RangeFinderInteractor extends ViewportInteractor {
             }
             Graphics2D g2d = rendering.getGraphics();
             final Stroke strokeOld = g2d.getStroke();
-            g2d.setStroke(new BasicStroke(0.1f));
+            g2d.setStroke(new BasicStroke(0.8f));
             final Color colorOld = g2d.getColor();
             g2d.setColor(Color.red);
             g2d.translate(0.5, 0.5);

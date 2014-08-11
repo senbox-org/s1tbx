@@ -74,7 +74,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         tree.setShowsRootHandles(true);
         tree.setRootVisible(false);
         tree.setCellRenderer(new ProductNodeTreeCellRenderer());
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         tree.getSelectionModel().addTreeSelectionListener(new ProductNodeSelectionListener());
 
         List<CompatibleNodeList> nodeLists = model.compatibleNodeLists;
@@ -107,7 +107,10 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
+	// NESTMOD multiple selections
+      final TreePath[] selectionPaths = tree.getSelectionPaths();
+      for(TreePath treePath : selectionPaths) {
+	    final RasterDataNode rasterDataNode = (RasterDataNode) treePath.getLastPathComponent();
 
         LayerType type = LayerTypeRegistry.getLayerType(RasterImageLayerType.class.getName());
         PropertySet configuration = type.createLayerConfig(getContext().getLayerContext());
@@ -127,7 +130,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         final LayerDataHandler layerDataHandler = new LayerDataHandler(rasterDataNode, imageLayer);
         rasterDataNode.getProduct().addProductNodeListener(layerDataHandler);
         rootLayer.addListener(layerDataHandler);
-
+	  }
         return true;
     }
 
@@ -156,18 +159,20 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         RasterDataNode raster = ctx.getSelectedProductSceneView().getRaster();
         GeoCoding geoCoding = raster.getGeoCoding();
         CoordinateReferenceSystem modelCRS = ImageManager.getModelCrs(geoCoding);
-        final ProductManager productManager = ctx.getProductManager();
-        final Product[] products = productManager.getProducts();
-        for (Product product : products) {
-            if (product == selectedProduct) {
-                continue;
-            }
-            compatibleNodes = new ArrayList<RasterDataNode>();
-            collectCompatibleRasterDataNodes(modelCRS, product.getBands(), compatibleNodes);
-            collectCompatibleRasterDataNodes(modelCRS, product.getTiePointGrids(), compatibleNodes);
-            if (!compatibleNodes.isEmpty()) {
-                compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
-            }
+		if (modelCRS != null) {
+        	final ProductManager productManager = ctx.getProductManager();
+        	final Product[] products = productManager.getProducts();
+        	for (Product product : products) {
+            	if (product == selectedProduct) {
+                	continue;
+            	}
+            	compatibleNodes = new ArrayList<RasterDataNode>();
+            	collectCompatibleRasterDataNodes(modelCRS, product.getBands(), compatibleNodes);
+            	collectCompatibleRasterDataNodes(modelCRS, product.getTiePointGrids(), compatibleNodes);
+            	if (!compatibleNodes.isEmpty()) {
+                	compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
+            	}
+			}
         }
         return new ProductTreeModel(compatibleNodeLists);
     }

@@ -26,7 +26,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JButton;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -34,22 +34,20 @@ import java.net.URL;
  * This action shows the update module manager
  *
  * @author Marco Peters
- * @version $Revision$ $Date$
+
  */
 public class ShowModuleManagerAction extends ExecCommand {
 
+    private static final String contextID = SystemUtils.getApplicationContextId();
     // System keys
-    private static final String SYS_KEY_BEAM_REPOSITORY_URL = SystemUtils.getApplicationContextId() + ".repository.url";
-
+    private static final String SYS_KEY_BEAM_REPOSITORY_URL = contextID+".repository.url";
     // Preferences keys
-    private static final String KEY_BEAM_REPOSITORY_PROXY_USED = "beam.repository.proxyUsed";
-    private static final String KEY_BEAM_REPOSITORY_PROXY_HOST = "beam.repository.proxy.host";
-    private static final String KEY_BEAM_REPOSITORY_PROXY_PORT = "beam.repository.proxy.port";
-    private static final String KEY_BEAM_REPOSITORY_PROXY_AUTH_USED = "beam.repository.proxy.authUsed";
-    private static final String KEY_BEAM_REPOSITORY_PROXY_USERNAME = "beam.repository.proxy.username";
-    private static final String KEY_BEAM_REPOSITORY_PROXY_PASSWORD = "beam.repository.proxy.password";
-
-
+    private static final String KEY_BEAM_REPOSITORY_PROXY_USED = contextID+".repository.proxyUsed";
+    private static final String KEY_BEAM_REPOSITORY_PROXY_HOST = contextID+".repository.proxy.host";
+    private static final String KEY_BEAM_REPOSITORY_PROXY_PORT = contextID+".repository.proxy.port";
+    private static final String KEY_BEAM_REPOSITORY_PROXY_AUTH_USED = contextID+".repository.proxy.authUsed";
+    private static final String KEY_BEAM_REPOSITORY_PROXY_USERNAME = contextID+".repository.proxy.username";
+    private static final String KEY_BEAM_REPOSITORY_PROXY_PASSWORD = contextID+".repository.proxy.password";
     private static final String RTSM = "Please check the module repository settings in the preferences dialog.";
 
     @Override

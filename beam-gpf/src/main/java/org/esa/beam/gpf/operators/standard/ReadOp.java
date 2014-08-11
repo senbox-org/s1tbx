@@ -19,9 +19,7 @@ package org.esa.beam.gpf.operators.standard;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -71,18 +69,59 @@ public class ReadOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            final ProductReader productReader = ProductIO.getProductReaderForInput(file);
-            if (productReader == null) {
-                throw new OperatorException("No product reader found for file " + file);
-            }
-            targetProduct = productReader.readProductNodes(file, null);
-            this.productReader = productReader;
+            targetProduct = ProductIO.readProduct(file);
+            this.productReader = targetProduct.getProductReader();
+            targetProduct.setFileLocation(file);
+
+            updateMetadata();
         } catch (IOException e) {
             throw new OperatorException(e);
         }
     }
 
-    @Override
+    private void updateMetadata() {
+        final MetadataElement root = targetProduct.getMetadataRoot();
+        if (root == null) {
+            return;
+        }
+        MetadataElement abstractedMetadata = root.getElement("Abstracted_Metadata");
+        if(abstractedMetadata == null) {
+            return;
+        }
+        MetadataElement productElem =  abstractedMetadata.getElement("Product_Information");
+        if(productElem == null) {
+            productElem = new MetadataElement("Product_Information");
+            abstractedMetadata.addElement(productElem);
+        }
+        MetadataElement inputElem =  productElem.getElement("InputProducts");
+        if(inputElem == null) {
+            inputElem = new MetadataElement("InputProducts");
+            productElem.addElement(inputElem);
+        }
+
+        final MetadataAttribute[] inputProductAttrbList = inputElem.getAttributes();
+        boolean found = false;
+        for(MetadataAttribute attrib : inputProductAttrbList) {
+            if(attrib.getData().getElemString().equals(targetProduct.getName()))
+                found = true;
+        }
+        if(!found) {
+            final MetadataAttribute inputAttrb = addAttribute(inputElem, "InputProduct", ProductData.TYPE_ASCII, "", "");
+            inputAttrb.getData().setElems(targetProduct.getName());
+        }
+    }
+
+    public static MetadataAttribute addAttribute(final MetadataElement dest, final String tag, final int dataType,
+                                                 final String unit, final String desc) {
+        final MetadataAttribute attribute = new MetadataAttribute(tag, dataType, 1);
+        attribute.setUnit(unit);
+        attribute.setDescription(desc);
+        attribute.setReadOnly(true);
+        dest.addAttribute(attribute);
+        return attribute;
+    }
+
+        @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         ProductData dataBuffer = targetTile.getRawSamples();

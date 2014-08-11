@@ -53,6 +53,7 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     private JRadioButton buttonFullScene;
     private SizeComponent sizeComponent;
+    private JCheckBox buttonLegend;
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -87,10 +88,16 @@ public class ExportImageAction extends AbstractExportImageAction {
         sizeComponent = new SizeComponent(view);
         JComponent sizePanel = sizeComponent.createComponent();
         sizePanel.setBorder(BorderFactory.createTitledBorder("Image Dimension")); /*I18N*/
+        buttonLegend = new JCheckBox("Legend", true);
+        final JPanel includePanel = new JPanel(new GridLayout(2, 1));
+        includePanel.add(buttonLegend);
+        includePanel.setBorder(BorderFactory.createTitledBorder("Include")); /*I18N*/
+
         final JPanel accessory = new JPanel();
         accessory.setLayout(new BoxLayout(accessory, BoxLayout.Y_AXIS));
         accessory.add(regionPanel);
         accessory.add(sizePanel);
+        accessory.add(includePanel);
         fileChooser.setAccessory(accessory);
 
         buttonFullScene.addActionListener(new ActionListener() {
@@ -114,11 +121,11 @@ public class ExportImageAction extends AbstractExportImageAction {
         final boolean entireImage = isEntireImageSelected();
 
         return createImage(view, entireImage, sizeComponent.getDimension(), useAlpha,
-                           GEOTIFF_FORMAT_DESCRIPTION[0].equals(imageFormat));
+                           GEOTIFF_FORMAT_DESCRIPTION[0].equals(imageFormat), buttonLegend.isSelected());
     }
 
     static RenderedImage createImage(ProductSceneView view, boolean fullScene, Dimension dimension,
-                                     boolean alphaChannel, boolean geoReferenced) {
+                                     boolean alphaChannel, boolean geoReferenced, boolean includeLegend) {
         final int imageType = alphaChannel ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
         final BufferedImage bufferedImage = new BufferedImage(dimension.width, dimension.height, imageType);
 
@@ -130,6 +137,13 @@ public class ExportImageAction extends AbstractExportImageAction {
             graphics.fillRect(0, 0, dimension.width, dimension.height);
         }
         view.getRootLayer().render(imageRendering);
+
+        if(includeLegend && !view.isRGB()) {
+            final Graphics2D graphics = imageRendering.getGraphics();
+            final RenderedImage legend = ExportKmzFileAction.createImageLegend(view.getRaster());
+            final AffineTransform at = AffineTransform.getTranslateInstance(0, 0);              
+            graphics.drawRenderedImage(legend, at);
+        }
 
         return bufferedImage;
     }

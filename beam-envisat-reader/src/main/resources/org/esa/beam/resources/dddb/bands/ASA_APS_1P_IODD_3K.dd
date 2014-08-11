@@ -27,8 +27,6 @@ longitude         |GEOLOCATION_GRID_ADS.10       |*   |Float |*|Linear_Scale|0.0
 i_1               |MDS1.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |real  	 |Alternating Polarization SLC Image (i)
 q_1               |MDS1.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |imaginary  |Alternating Polarization SLC Image (q)
 Intensity_1	      |=pow(i_1,2) + pow(q_1,2)      |*   |Float |*|Linear_Scale|0.0|1.0	|*|* 							     |intensity  |Intensity Image
-Phase_1		      |=atan2(q_1,i_1) 				 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |phase  	 |Phase Image
 i_2               |MDS2.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |real  	 |Alternating Polarization SLC Image (i)
 q_2               |MDS2.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |imaginary  |Alternating Polarization SLC Image (q)
 Intensity_2	      |=pow(i_2,2) + pow(q_2,2)      |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |intensity  |Intensity Image
-Phase_2		      |=atan2(q_2,i_2) 				 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |phase		 |Phase Image

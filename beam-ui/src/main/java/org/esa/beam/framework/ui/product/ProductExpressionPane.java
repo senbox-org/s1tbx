@@ -247,7 +247,7 @@ public class ProductExpressionPane extends ExpressionPane {
 
     private String getNodeNamePrefix() {
         final String namePrefix;
-        if (currentProduct != targetProduct) {
+        if (products.length > 1 || currentProduct != targetProduct) {
             namePrefix = BandArithmetic.getProductNodeNamePrefix(currentProduct);
         } else {
             namePrefix = "";

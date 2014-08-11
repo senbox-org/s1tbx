@@ -264,6 +264,7 @@ public class Mask extends Band {
                 public RenderedImage createImage(int level) {
                     return VirtualBandOpImage.createMask(getExpression(mask),
                                                          mask.getProduct(),
+                                                         mask.getRasterWidth(), mask.getRasterHeight(),
                                                          ResolutionLevel.create(getModel(), level));
                 }
             };
@@ -502,6 +503,7 @@ public class Mask extends Band {
                 public RenderedImage createImage(int level) {
                     return VirtualBandOpImage.createMask(getExpression(mask),
                                                          mask.getProduct(),
+                                                         mask.getRasterWidth(), mask.getRasterHeight(),
                                                          ResolutionLevel.create(getModel(), level));
                 }
             };

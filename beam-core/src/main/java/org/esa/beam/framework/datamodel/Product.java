@@ -23,11 +23,7 @@ import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.dataio.ProductFlipper;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductSubsetBuilder;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.dataio.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
@@ -130,12 +126,12 @@ public class Product extends ProductNode {
     /**
      * The scene width of the product
      */
-    private final int sceneRasterWidth;
+    private int sceneRasterWidth;
 
     /**
      * The scene height of the product
      */
-    private final int sceneRasterHeight;
+    private int sceneRasterHeight;
 
     /**
      * The start time of the first raster line.
@@ -154,7 +150,7 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
     private final ProductNodeGroup<Mask> maskGroup;
-
+    private final Map<Band, ProductNodeGroup<Placemark>> bandGCPGroup = new HashMap<Band, ProductNodeGroup<Placemark>>();
     /**
      * The internal reference number of this product
      */
@@ -177,9 +173,10 @@ public class Product extends ProductNode {
     private final PlacemarkGroup pinGroup;
     private final PlacemarkGroup gcpGroup;
 
-    /**
-     * The group which contains all other product node groups.
-     *
+    // if product is incomplete or corrupt
+    private boolean corruptFlag = false;
+
+     /**
      * @since BEAM 5.0
      */
     private final ProductNodeGroup<ProductNodeGroup> groups;
@@ -621,6 +618,7 @@ public class Product extends ProductNode {
             // ignore
         }
 
+        ProductCache.instance().removeProduct(getFileLocation());
         reader = null;
         writer = null;
 
@@ -767,6 +765,11 @@ public class Product extends ProductNode {
      */
     public int getSceneRasterHeight() {
         return sceneRasterHeight;
+    }
+
+    public void setSceneDimensions(final int w, final int h) {
+        sceneRasterWidth = w;
+        sceneRasterHeight = h;
     }
 
     /**
@@ -1000,15 +1003,32 @@ public class Product extends ProductNode {
      */
     public void addBand(final Band band) {
         Guardian.assertNotNull("band", band);
-        if (band.getSceneRasterWidth() != getSceneRasterWidth()
-            || band.getSceneRasterHeight() != getSceneRasterHeight()) {
-            throw new IllegalArgumentException("illegal raster dimensions");
-        }
+        //if (band.getSceneRasterWidth() != getSceneRasterWidth()
+        //    || band.getSceneRasterHeight() != getSceneRasterHeight()) {
+           //NESTMOD throw new IllegalArgumentException("illegal raster dimensions");
+        //}
         if (containsRasterDataNode(band.getName())) {
-            throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                               "a band with the name '" + band.getName() + "'.");
+            String name = band.getName();
+            int i = name.lastIndexOf("__");
+            int cnt = 2;
+            if(i > 0) {
+                String numStr = name.substring(i+2, name.length());
+                cnt = Integer.parseInt(numStr);
+                ++cnt;
+                name = name.substring(0, i);
+            }
+            name += "__"+cnt;
+            band.setName(name);
+            addBand(band);
+            return;
+            //throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
+            //                                           "a band with the name '" + band.getName() + "'.");
         }
         bandGroup.add(band);
+        // add gcpGroup for this band // NESTMOD
+        final ProductNodeGroup<Placemark> thisBandgcpGroup = new ProductNodeGroup<Placemark>(this,
+                "ground_control_points", true);
+        bandGCPGroup.put(band, thisBandgcpGroup);
     }
 
     /**
@@ -1070,6 +1090,7 @@ public class Product extends ProductNode {
      * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
+	bandGCPGroup.remove(band); // NESTMOD
         return bandGroup.remove(band);
     }
 
@@ -1271,6 +1292,11 @@ public class Product extends ProductNode {
         return gcpGroup;
     }
 
+    // NESTMOD
+    public ProductNodeGroup<Placemark> getGcpGroup(Band band) {
+        return bandGCPGroup.get(band);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // Pin support
 
@@ -1328,12 +1354,12 @@ public class Product extends ProductNode {
         if (this == product) {
             return true;
         }
-        if (getSceneRasterWidth() != product.getSceneRasterWidth()) {
+   /*     if (getSceneRasterWidth() != product.getSceneRasterWidth()) {
             return false;
         }
         if (getSceneRasterHeight() != product.getSceneRasterHeight()) {
             return false;
-        }
+        }     */
         if (getGeoCoding() == null && product.getGeoCoding() != null) {
             return false;
         }
@@ -1717,6 +1743,11 @@ public class Product extends ProductNode {
                 flagCodingGroup.setModified(false);
                 indexCodingGroup.setModified(false);
                 getMetadataRoot().setModified(false);
+            }
+
+	    // NESTMOD
+            for(Object key : bandGCPGroup.keySet()) {
+                bandGCPGroup.get(key).clearRemovedList();
             }
         }
     }
@@ -2397,6 +2428,14 @@ public class Product extends ProductNode {
                 this.index = index;
             }
         }
+    }
+
+    public void setCorrupt(final boolean flag) {
+        corruptFlag = flag;
+    }
+
+    public boolean isCorrupt() {
+        return corruptFlag;
     }
 
     /////////////////////////////////////////////////////////////////////////

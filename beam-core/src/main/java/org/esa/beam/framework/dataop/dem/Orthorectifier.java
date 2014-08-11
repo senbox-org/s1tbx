@@ -337,7 +337,7 @@ public class Orthorectifier implements GeoCoding {
         float h = 0.0f;
         if (elevationModel != null) {
             try {
-                h = elevationModel.getElevation(geoPos);
+                h = (float)elevationModel.getElevation(geoPos);
             } catch (Exception ignored) {
                 // ignored
             }

@@ -67,6 +67,7 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
                                                  associatedNode.getDataType(),
                                                  associatedNode.isNoDataValueUsed() ? associatedNode.getGeophysicalNoDataValue() : null,
                                                  associatedNode.getProduct(),
+                                                 associatedNode.getRasterWidth(), associatedNode.getRasterHeight(),
                                                  ResolutionLevel.create(getModel(), level));
             }
         };

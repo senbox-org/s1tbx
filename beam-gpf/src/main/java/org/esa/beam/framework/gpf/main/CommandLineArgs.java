@@ -55,6 +55,8 @@ public class CommandLineArgs {
     private String velocityTemplateDirPath;
     private TreeMap<String, String> targetFilePathMap;
     private boolean helpRequested;
+	private String inFolderPath = null;
+    private boolean printAllHelp = false;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
 
@@ -107,6 +109,8 @@ public class CommandLineArgs {
                     targetFilePathMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
+                } else if (arg.equals("-printHelp")) {
+                    printAllHelp = true;
                 } else if (arg.equals("-x")) {
                     clearCacheAfterRowWrite = true;
                 } else if (arg.equals("-e")) {
@@ -131,6 +135,9 @@ public class CommandLineArgs {
                     i++;
                 } else if (arg.equals("-c")) {
                     tileCacheCapacity = parseOptionArgumentBytes(arg, i);
+                    i++;
+                } else if (arg.equals("-inFolder")) {
+                    inFolderPath = parseOptionArgument(arg, i);
                     i++;
                 } else {
                     throw error("Unknown option '" + arg + "'");
@@ -215,6 +222,10 @@ public class CommandLineArgs {
         return velocityTemplateDirPath;
     }
 
+	public String getInFolderPath() {
+        return inFolderPath;
+    }
+
     public String getParameterFilePath() {
         return parameterFilePath;
     }
@@ -245,6 +256,10 @@ public class CommandLineArgs {
 
     public boolean isHelpRequested() {
         return helpRequested;
+    }
+
+    public boolean isPrintAllHelpRequested() {
+        return printAllHelp;
     }
 
     public boolean isStackTraceDump() {

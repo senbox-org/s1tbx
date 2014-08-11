@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 /**
  * @author Marco Peters
@@ -40,6 +41,7 @@ import java.beans.PropertyChangeListener;
 public class PredefinedCrsForm extends CrsForm {
 
     private CrsInfo selectedCrsInfo;
+    private final static List<CrsInfo> crsList = CrsInfo.generateCRSList();
 
     public PredefinedCrsForm(AppContext appContext) {
         super(appContext);
@@ -81,7 +83,7 @@ public class PredefinedCrsForm extends CrsForm {
         crsCodeField.setEditable(false);
         final JButton crsButton = new JButton("Select...");
         final PredefinedCrsPanel predefinedCrsForm = new PredefinedCrsPanel(
-                new CrsInfoListModel(CrsInfo.generateCRSList()));
+                new CrsInfoListModel(crsList));
         crsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

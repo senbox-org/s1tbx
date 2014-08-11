@@ -174,17 +174,24 @@ public class OperatorExecutor {
     }
 
     private void scheduleRowBandColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
+        final StdOutProgressMonitor stdOutPM = new StdOutProgressMonitor(tileCountY);
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (final PlanarImage image : images) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
             }
+            if(pm == ProgressMonitor.NULL) {
+                stdOutPM.worked(tileY);
+            }
             if (scheduleRowsSeparate) {
                 // wait until all threads / tiles are finished
                 acquirePermits(semaphore, parallelism);
                 semaphore.release(parallelism);
             }
+        }
+        if(pm == ProgressMonitor.NULL) {
+            stdOutPM.done();
         }
     }
 
@@ -193,15 +200,22 @@ public class OperatorExecutor {
         if (images.length >= 1) {
             final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images, pm);
             final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
+            final StdOutProgressMonitor stdOutPM = new StdOutProgressMonitor(tileCountY);
             for (int tileY = 0; tileY < tileCountY; tileY++) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
+                }
+                if(pm == ProgressMonitor.NULL) {
+                    stdOutPM.worked(tileY);
                 }
                 if (scheduleRowsSeparate) {
                     // wait until all threads / tiles are finished
                     acquirePermits(semaphore, parallelism);
                     semaphore.release(parallelism);
                 }
+            }
+            if(pm == ProgressMonitor.NULL) {
+                stdOutPM.done();
             }
         }
     }

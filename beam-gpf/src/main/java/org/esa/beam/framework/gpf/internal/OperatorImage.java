@@ -18,9 +18,9 @@ package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.jai.ImageManager;
 
 import javax.media.jai.ImageLayout;
@@ -86,7 +86,9 @@ public class OperatorImage extends SourcelessOpImage {
 
     @Override
     public synchronized void dispose() {
-        targetBand = null;
+        if(!(operatorContext.getOperator() instanceof ReadOp)) {      //NESTMOD
+            targetBand = null;
+        }
         super.dispose();
     }
 

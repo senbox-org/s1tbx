@@ -2295,7 +2295,6 @@ public class VisatApp extends BasicApp implements AppContext {
         menu.insertSeparator(8);
     }
 
-
     /**
      * Creates an internal frame and adds it to VISAT's desktop.
      *

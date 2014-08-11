@@ -160,7 +160,7 @@ public class ExportKmzFileAction extends ExecCommand {
         worker.executeWithBlocking();
     }
 
-    private static RenderedImage createImageLegend(RasterDataNode raster) {
+    public static RenderedImage createImageLegend(RasterDataNode raster) {
         ImageLegend imageLegend = initImageLegend(raster);
         return imageLegend.createImage();
     }
@@ -169,9 +169,9 @@ public class ExportKmzFileAction extends ExecCommand {
         final RasterDataNode raster = view.getRaster();
         final Product product = raster.getProduct();
         final GeoCoding geoCoding = raster.getGeoCoding();
-        final PixelPos upperLeftPP = new PixelPos(0, 0);
-        final PixelPos lowerRightPP = new PixelPos(product.getSceneRasterWidth(),
-                                                   product.getSceneRasterHeight());
+        final PixelPos upperLeftPP = new PixelPos(0.5f, 0.5f);
+        final PixelPos lowerRightPP = new PixelPos(product.getSceneRasterWidth() - 0.5f,
+                                                   product.getSceneRasterHeight() - 0.5f);
         final GeoPos upperLeftGP = geoCoding.getGeoPos(upperLeftPP, null);
         final GeoPos lowerRightGP = geoCoding.getGeoPos(lowerRightPP, null);
         float eastLon = lowerRightGP.getLon();
@@ -281,7 +281,7 @@ public class ExportKmzFileAction extends ExecCommand {
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 final Dimension dimension = new Dimension(view.getProduct().getSceneRasterWidth(),
                                                           view.getProduct().getSceneRasterHeight());
-                RenderedImage image = ExportImageAction.createImage(view, true, dimension, true, true);
+                RenderedImage image = ExportImageAction.createImage(view, true, dimension, true, true, false);
                 pm.worked(1);
                 ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
                 try {

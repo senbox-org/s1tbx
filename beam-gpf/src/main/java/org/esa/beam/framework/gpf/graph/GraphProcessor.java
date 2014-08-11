@@ -24,6 +24,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.framework.gpf.internal.StdOutProgressMonitor;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -176,6 +177,7 @@ public class GraphProcessor {
                 List<NodeContext> nodeContextList = tileDimMap.get(dimension);
                 final int numXTiles = dimension.width;
                 final int numYTiles = dimension.height;
+                final StdOutProgressMonitor stdOutPM = new StdOutProgressMonitor(numYTiles);
                 Dimension tileSize = nodeContextList.get(0).getTargetProduct().getPreferredTileSize();
                 for (int tileY = 0; tileY < numYTiles; tileY++) {
                     for (int tileX = 0; tileX < numXTiles; tileX++) {
@@ -231,10 +233,18 @@ public class GraphProcessor {
                                 }
                             }
 
+                            //System.out.println("Tile "+(cnt++)+" of "+ numYTiles*numXTiles);
                             pm.worked(1);
                         }
                         fireTileStopped(graphContext, tileRectangle);
                     }
+
+                    if(pm == ProgressMonitor.NULL) {
+                        stdOutPM.worked(tileY);
+                    }
+                }
+                if(pm == ProgressMonitor.NULL) {
+                    stdOutPM.done();   
                 }
             }
             acquirePermits(semaphore, parallelism);

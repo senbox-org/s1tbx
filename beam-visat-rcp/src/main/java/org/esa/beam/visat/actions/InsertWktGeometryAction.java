@@ -53,7 +53,8 @@ public class InsertWktGeometryAction extends AbstractVisatAction {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getSelectedProductSceneView() != null);
+        boolean hasProduct = VisatApp.getApp().getProductManager().getProductCount() > 0;
+        setEnabled(hasProduct);
     }
 
     @Override

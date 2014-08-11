@@ -19,19 +19,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.ImageGeometry;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -140,48 +128,48 @@ public class ReprojectionOp extends Operator {
 
 
     @SourceProduct(alias = "source", description = "The product which will be reprojected.")
-    private Product sourceProduct;
+    protected Product sourceProduct;
     @SourceProduct(alias = "collocateWith", optional = true, label = "Collocation product",
                    description = "The source product will be collocated with this product.")
-    private Product collocationProduct;
+    protected Product collocationProduct;
     @TargetProduct
-    private Product targetProduct;
+    protected Product targetProduct;
 
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
-    private File wktFile;
+    protected File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
                              "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
                              "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
                              "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
-    private String crs;
+    protected String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
                description = "The method used for resampling of floating-point raster data.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
-    private String resamplingName;
+    protected String resamplingName;
 
     @Parameter(description = "The X-position of the reference pixel.")
-    private Double referencePixelX;
+    protected Double referencePixelX;
     @Parameter(description = "The Y-position of the reference pixel.")
-    private Double referencePixelY;
+    protected Double referencePixelY;
     @Parameter(description = "The easting of the reference pixel.")
-    private Double easting;
+    protected Double easting;
     @Parameter(description = "The northing of the reference pixel.")
-    private Double northing;
+    protected Double northing;
     @Parameter(description = "The orientation of the output product (in degree).",
                defaultValue = "0", interval = "[-360,360]")
-    private Double orientation;
+    protected Double orientation;
     @Parameter(description = "The pixel size in X direction given in CRS units.")
-    private Double pixelSizeX;
+    protected Double pixelSizeX;
     @Parameter(description = "The pixel size in Y direction given in CRS units.")
-    private Double pixelSizeY;
+    protected Double pixelSizeY;
     @Parameter(description = "The width of the target product.")
-    private Integer width;
+    protected Integer width;
     @Parameter(description = "The height of the target product.")
-    private Integer height;
+    protected Integer height;
     @Parameter(description = "The tile size in X direction.")
     private Integer tileSizeX;
     @Parameter(description = "The tile size in Y direction.")
@@ -189,27 +177,27 @@ public class ReprojectionOp extends Operator {
 
     @Parameter(description = "Whether the source product should be orthorectified. (Not applicable to all products)",
                defaultValue = "false")
-    private boolean orthorectify;
+    protected boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
                              "If not given tie-point data is used.")
-    private String elevationModelName;
+    protected String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
-    private Double noDataValue;
+    protected Double noDataValue;
 
     @Parameter(description = "Whether tie-point grids should be included in the output product.",
                defaultValue = "true")
-    private boolean includeTiePointGrids;
+    protected boolean includeTiePointGrids;
 
     @Parameter(description = "Whether to add delta longitude and latitude bands.",
                defaultValue = "false")
-    private boolean addDeltaBands;
+    protected boolean addDeltaBands;
 
-    private ElevationModel elevationModel;
-    private MultiLevelModel srcModel;
-    private MultiLevelModel targetModel;
-    private Reproject reprojection;
+    protected ElevationModel elevationModel;
+    protected MultiLevelModel srcModel;
+    protected MultiLevelModel targetModel;
+    protected Reproject reprojection;
 
     @Override
     public void initialize() throws OperatorException {
@@ -282,7 +270,11 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+
+        //NESTMOD
+        updateMetadata();
 
         if (addDeltaBands) {
             addDeltaBands();
@@ -295,6 +287,36 @@ public class ReprojectionOp extends Operator {
             elevationModel.dispose();
         }
         super.dispose();
+    }
+
+    private void updateMetadata() {
+        final MetadataElement root = targetProduct.getMetadataRoot();
+        if(root == null)
+            return;
+
+        final MetadataElement absRoot = root.getElement("Abstracted_Metadata");
+        if(absRoot == null)
+            return;
+
+        final MetadataAttribute height = absRoot.getAttribute("num_output_lines");
+        if(height != null)
+            height.getData().setElemUInt(targetProduct.getSceneRasterHeight());
+
+        final MetadataAttribute width = absRoot.getAttribute("num_samples_per_line");
+        if(width != null)
+            width.getData().setElemUInt(targetProduct.getSceneRasterWidth());
+
+
+        String map = targetProduct.getGeoCoding().getMapCRS().getName().toString();
+        String datum = targetProduct.getGeoCoding().getDatum().getName();
+
+        final MetadataAttribute mapProjection = absRoot.getAttribute("map_projection");
+        if(mapProjection != null)
+            mapProjection.getData().setElems(map);
+
+        final MetadataAttribute geo_ref_system = absRoot.getAttribute("geo_ref_system");
+        if(geo_ref_system != null)
+            geo_ref_system.getData().setElems(datum);
     }
 
     private ElevationModel createElevationModel() throws OperatorException {
@@ -325,7 +347,7 @@ public class ReprojectionOp extends Operator {
     }
 
 
-    private void reprojectRasterDataNodes(RasterDataNode[] rasterDataNodes) {
+    protected void reprojectRasterDataNodes(RasterDataNode[] rasterDataNodes) {
         for (RasterDataNode raster : rasterDataNodes) {
             reprojectSourceRaster(raster);
         }
@@ -341,10 +363,10 @@ public class ReprojectionOp extends Operator {
             targetDataType = sourceRaster.getDataType();
             sourceImage = sourceRaster.getSourceImage();
         }
-        final Number targetNoDataValue = getTargetNoDataValue(sourceRaster, targetDataType);
+        final double targetNoDataValue = getTargetNoDataValue(sourceRaster);
         final Band targetBand = targetProduct.addBand(sourceRaster.getName(), targetDataType);
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
-        targetBand.setNoDataValue(targetNoDataValue.doubleValue());
+        targetBand.setNoDataValue(targetNoDataValue);
         targetBand.setNoDataValueUsed(true);
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
@@ -357,8 +379,8 @@ public class ReprojectionOp extends Operator {
 
         final Interpolation resampling = getResampling(targetBand);
         MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, targetBand, resampling);
-        if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue.doubleValue())) {
-            projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue.doubleValue());
+        if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue)) {
+            projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue);
         }
         if (targetBand.isLog10Scaled()) {
             projectedImage = createLog10ScaledImage(projectedImage);
@@ -401,28 +423,14 @@ public class ReprojectionOp extends Operator {
         return isFloat && isNoDataGiven && !isNoDataNaN;
     }
 
-    private Number getTargetNoDataValue(RasterDataNode sourceRaster, int targetDataType) {
+    private double getTargetNoDataValue(RasterDataNode sourceRaster) {
         double targetNoDataValue = Double.NaN;
         if (noDataValue != null) {
             targetNoDataValue = noDataValue;
         } else if (sourceRaster.isNoDataValueUsed()) {
             targetNoDataValue = sourceRaster.getNoDataValue();
         }
-        Number targetNoDataNumber;
-        if (targetDataType == ProductData.TYPE_INT8) {
-            targetNoDataNumber = (byte) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_INT16 ||
-                   targetDataType == ProductData.TYPE_UINT8) {
-            targetNoDataNumber = (short) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_INT32 ||
-                   targetDataType == ProductData.TYPE_UINT16) {
-            targetNoDataNumber = (int) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_FLOAT32) {
-            targetNoDataNumber = (float) targetNoDataValue;
-        } else {
-            targetNoDataNumber = targetNoDataValue;
-        }
-        return targetNoDataNumber;
+        return targetNoDataValue;
     }
 
     private MultiLevelImage createNaNReplacedImage(final MultiLevelImage projectedImage, final double value) {
@@ -436,7 +444,7 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createNoDataReplacedImage(final RasterDataNode rasterDataNode, final Number noData) {
+    private MultiLevelImage createNoDataReplacedImage(final RasterDataNode rasterDataNode, final double noData) {
         return ImageManager.createMaskedGeophysicalImage(rasterDataNode, noData);
     }
 
@@ -493,7 +501,10 @@ public class ReprojectionOp extends Operator {
                     return reprojection.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
                                                   targetBand.getNoDataValue(), resampling, hints, targetLevel,
                                                   tileSize);
-                } catch (FactoryException | TransformException e) {
+                } catch (FactoryException e) {
+                    Debug.trace(e);
+                    throw new RuntimeException(e);
+                } catch (TransformException e) {
                     Debug.trace(e);
                     throw new RuntimeException(e);
                 }
@@ -522,7 +533,7 @@ public class ReprojectionOp extends Operator {
         return meanTime;
     }
 
-    private void copyIndexCoding() {
+    protected void copyIndexCoding() {
         final ProductNodeGroup<IndexCoding> indexCodingGroup = sourceProduct.getIndexCodingGroup();
         for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
             IndexCoding sourceIndexCoding = indexCodingGroup.get(i);
@@ -537,7 +548,7 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
+    protected CoordinateReferenceSystem createTargetCRS() throws OperatorException {
         try {
             if (wktFile != null) {
                 return CRS.parseWKT(FileUtils.readText(wktFile));
@@ -562,7 +573,9 @@ public class ReprojectionOp extends Operator {
             if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
                 return collocationProduct.getGeoCoding().getMapCRS();
             }
-        } catch (FactoryException | IOException e) {
+        } catch (FactoryException e) {
+            throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
+        } catch (IOException e) {
             throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
         }
 
@@ -617,13 +630,13 @@ public class ReprojectionOp extends Operator {
         return resamplingType;
     }
 
-    void validateResamplingParameter() {
+    protected void validateResamplingParameter() {
         if (getResampleType() == -1) {
             throw new OperatorException("Invalid resampling method: " + resamplingName);
         }
     }
 
-    void validateReferencingParameters() {
+    protected void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
               || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
@@ -631,14 +644,14 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    void validateTargetGridParameters() {
+    protected void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
             (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
         }
     }
 
-    private ImageGeometry createImageGeometry(CoordinateReferenceSystem targetCrs) {
+    protected ImageGeometry createImageGeometry(CoordinateReferenceSystem targetCrs) {
         ImageGeometry imageGeometry;
         if (collocationProduct != null) {
             imageGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);

@@ -25,6 +25,7 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.metadata.MetadataResourceEngine;
 import com.bc.ceres.resource.Resource;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
@@ -63,13 +64,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,6 +114,8 @@ class CommandLineTool implements GraphProcessingObserver {
             if (commandLineArgs.isHelpRequested()) {
                 printHelp();
                 return;
+            } else if(commandLineArgs.isPrintAllHelpRequested()) {
+                printAllHelp();
             }
             run();
         } catch (Error | RuntimeException e) {
@@ -139,6 +137,28 @@ class CommandLineTool implements GraphProcessingObserver {
                                                                            commandLineContext));
         } else {
             commandLineContext.print(CommandLineUsage.getUsageText());
+        }
+    }
+
+	private void printAllHelp() {
+        commandLineContext.print(CommandLineUsage.getUsageText());
+
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        final ServiceRegistry<OperatorSpi> serviceRegistry = registry.getServiceRegistry();
+        final Set<OperatorSpi> spiSet = serviceRegistry.getServices();
+        for (OperatorSpi operatorSpi : spiSet) {
+            final String opAlias = operatorSpi.getOperatorAlias();
+            final int n = opAlias.length()+6;
+            String title = "\n\n";
+            for(int i=0; i < n; ++i)
+                title += "-";
+            title += "\n   "+opAlias+"\n";
+            for(int i=0; i < n; ++i)
+                title += "-";
+            title += "\n\n";
+            commandLineContext.print(title);
+
+            commandLineContext.print(CommandLineUsage.getUsageTextForOperator(opAlias));
         }
     }
 
@@ -370,7 +390,7 @@ class CommandLineTool implements GraphProcessingObserver {
             if (parametersResource.isXml()) {
                 OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
                 OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
-                Class<? extends Operator> operatorClass = operatorSpi.getOperatorDescriptor().getOperatorClass();
+                Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
                 DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass, new ParameterDescriptorFactory());
 
                 DomElement parametersElement = createDomElement(parametersResource.getContent());

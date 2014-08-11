@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.dataop.dem;
 
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 
@@ -26,7 +27,7 @@ import java.net.URL;
  * specified geographical datum for a given geographical position.
  *
  * @author Norman Fomferra
- * @version $Revision$
+
  */
 public interface ElevationModelDescriptor {
 
@@ -57,12 +58,67 @@ public interface ElevationModelDescriptor {
     float getNoDataValue();
 
     /**
+     * Gets the (raster) width of this elevation map.
+     *
+     * @return the  width value, e.g. 15000
+     */
+    int getRasterWidth();
+
+    /**
+     * Gets the (raster) height of this elevation map.
+     *
+     * @return the (raster) height value, e.g. 30000
+     */
+    int getRasterHeight();
+
+    /**
+     * Gets the geo-origin of this elevation map (upper-left-corner).
+     *
+     * @return the  (lat,lon) value, e.g.
+     */
+    GeoPos getRasterOrigin();
+
+    /**
+     * Gets the resolution (in degrees) of this elevation map.
+     *
+     * @return the  (degree) value, e.g.
+     */
+    int getDegreeRes();
+
+    /**
+     * Gets the resolution (in pixels) of this elevation map.
+     *
+     * @return the  (pixels) value, e.g.
+     */
+    int getPixelRes();
+
+    /**
+     * Gets the number of tiles in x direction
+     * @return number of rows
+     */
+    int getNumXTiles();
+
+    /**
+     * Gets the number of tiles in y direction
+     * @return number of columns
+     */
+    int getNumYTiles();
+
+    /**
+     * Creates the elevation model instance.
+     *
+     * @return a DEM instance, can be null e.g. if related DEM files are not installed
+     * @since BEAM 4.6 (resampling parameter)
+     * @deprecated since BEAM 4.6, use {@link #createDem(org.esa.beam.framework.dataop.resamp.Resampling)} instead
+     */
+    @Deprecated
+    ElevationModel createDem();
+
+    /**
      * Creates the elevation model instance.
      *
      * @param resampling The resampling method to be used.
-     *
      * @return a DEM instance, can be null e.g. if related DEM files are not installed
-     *
      * @since BEAM 4.6
      */
     ElevationModel createDem(Resampling resampling);
@@ -99,8 +155,7 @@ public interface ElevationModelDescriptor {
      * Asynchronously installs the files required to use the DEM if not already done or in progress.
      *
      * @param uiComponent an optional UI component which serves as parent for progress monitoring
-     *
-     * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occurred
+     * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occured
      *         or the user canceled the installation
      */
     boolean installDemFiles(Object uiComponent);
@@ -109,4 +164,12 @@ public interface ElevationModelDescriptor {
      * Currently not used.
      */
     int getInstallationStatus();
+
+    /**
+     * create the file name of a tile based on the position
+     * @param tileX x position
+     * @param tileY y position
+     * @return tile name
+     */
+    public String createTileFilename(final int tileX, final int tileY);
 }

@@ -524,7 +524,7 @@ public class PixExOp extends Operator {
     PlanarImage createValidMaskImage(Product product) {
         if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
             return VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
-                                             product, ResolutionLevel.MAXRES);
+                                             product, product.getSceneRasterWidth(), product.getSceneRasterHeight(), ResolutionLevel.MAXRES);
         } else {
             return ConstantDescriptor.create((float) product.getSceneRasterWidth(),
                                              (float) product.getSceneRasterHeight(),

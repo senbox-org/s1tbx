@@ -41,6 +41,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.dem.Orthorectifier;
 import org.esa.beam.framework.dataop.dem.Orthorectifier2;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -49,14 +50,7 @@ import org.esa.beam.jai.RasterDataNodeSampleOpImage;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Insets;
@@ -64,10 +58,13 @@ import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 public class CreateDemRelatedBandsAction extends ExecCommand {
 
-    public static final String DIALOG_TITLE = "Create DEM-related Bands";
+    public static final String DIALOG_TITLE = "Create Elevation Band";
     public static final String DEFAULT_ELEVATION_BAND_NAME = "elevation";
     public static final String DEFAULT_LATITUDE_BAND_NAME = "corr_latitude";
     public static final String DEFAULT_LONGITUDE_BAND_NAME = "corr_longitude";
@@ -96,9 +93,15 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
             return;
         }
 
+        Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
+        if(dialogData.resamplingMethod != null) {
+            resampling = ResamplingFactory.createResampling(dialogData.resamplingMethod);
+        }
+
         computeBands(product,
                      demDescriptor,
                      dialogData.outputElevationBand ? dialogData.elevationBandName : null,
+                     resampling,
                      dialogData.outputDemCorrectedBands ? dialogData.latitudeBandName : null,
                      dialogData.outputDemCorrectedBands ? dialogData.longitudeBandName : null);
     }
@@ -112,10 +115,11 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
     private void computeBands(final Product product,
                               final ElevationModelDescriptor demDescriptor,
                               final String elevationBandName,
+                              final Resampling resampling,
                               final String latitudeBandName,
                               final String longitudeBandName) {
 
-        final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
+        final ElevationModel dem = demDescriptor.createDem(resampling);
         if (elevationBandName != null) {
             addElevationBand(product, dem, elevationBandName);
         }
@@ -148,7 +152,7 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
         final GeoCoding geoCoding = product.getGeoCoding();
         ElevationModelDescriptor demDescriptor = dem.getDescriptor();
         final float noDataValue = dem.getDescriptor().getNoDataValue();
-        final Band elevationBand = product.addBand(elevationBandName, ProductData.TYPE_INT16);
+        final Band elevationBand = product.addBand(elevationBandName, ProductData.TYPE_FLOAT32);
         elevationBand.setSynthetic(true);
         elevationBand.setNoDataValue(noDataValue);
         elevationBand.setUnit("m");
@@ -192,24 +196,31 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
         boolean ortorectifiable = isOrtorectifiable(product);
 
         final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
-        final String[] demNames = new String[descriptors.length];
+        String[] demNames = new String[descriptors.length];
         for (int i = 0; i < descriptors.length; i++) {
             demNames[i] = descriptors[i].getName();
         }
+        // sort the list
+        final List<String> sortedDEMNames = Arrays.asList(demNames);
+        java.util.Collections.sort(sortedDEMNames);
+        demNames = sortedDEMNames.toArray(new String[sortedDEMNames.size()]);
 
-        final DialogData dialogData = new DialogData(demNames[0], ortorectifiable);
+        final DialogData dialogData = new DialogData("SRTM 3sec", ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ortorectifiable);
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
-        configureDemNameProperty(propertySet, "demName", demNames);
+        configureDemNameProperty(propertySet, "demName", demNames, "SRTM 3sec");
+        configureDemNameProperty(propertySet, "resamplingMethod", ResamplingFactory.resamplingNames,
+                                 ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
         configureBandNameProperty(propertySet, "elevationBandName", product);
         configureBandNameProperty(propertySet, "latitudeBandName", product);
         configureBandNameProperty(propertySet, "longitudeBandName", product);
         final BindingContext ctx = new BindingContext(propertySet);
 
         JList demList = new JList();
-        demList.setVisibleRowCount(3);
+        demList.setVisibleRowCount(7);
         ctx.bind("demName", new SingleSelectionListComponentAdapter(demList));
 
         JTextField elevationBandNameField = new JTextField();
+        elevationBandNameField.setColumns(10);
         ctx.bind("elevationBandName", elevationBandNameField);
 
         JCheckBox outputDemCorrectedBandsChecker = new JCheckBox("Output DEM-corrected bands");
@@ -233,33 +244,40 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
         tableLayout.setTablePadding(4, 4);
         tableLayout.setCellColspan(0, 0, 2);
         tableLayout.setCellColspan(1, 0, 2);
-        tableLayout.setCellColspan(3, 0, 2);
+      /*  tableLayout.setCellColspan(3, 0, 2);
         tableLayout.setCellWeightX(0, 0, 1.0);
         tableLayout.setRowWeightX(1, 1.0);
         tableLayout.setCellWeightX(2, 1, 1.0);
         tableLayout.setCellWeightX(4, 1, 1.0);
         tableLayout.setCellWeightX(5, 1, 1.0);
         tableLayout.setCellPadding(4, 0, new Insets(0, 24, 0, 4));
-        tableLayout.setCellPadding(5, 0, new Insets(0, 24, 0, 4));
+        tableLayout.setCellPadding(5, 0, new Insets(0, 24, 0, 4));   */
 
         JPanel parameterPanel = new JPanel(tableLayout);
         /*row 0*/
         parameterPanel.add(new JLabel("Digital elevation model (DEM):"));
         parameterPanel.add(new JScrollPane(demList));
         /*row 1*/
+        parameterPanel.add(new JLabel("Resampling method:"));
+        final JComboBox resamplingCombo = new JComboBox(ResamplingFactory.resamplingNames);
+        parameterPanel.add(resamplingCombo);
+        ctx.bind("resamplingMethod", resamplingCombo);
+
         parameterPanel.add(new JLabel("Elevation band name:"));
         parameterPanel.add(elevationBandNameField);
-        /*row 2*/
-        parameterPanel.add(outputDemCorrectedBandsChecker);
-        /*row 3*/
-        parameterPanel.add(latitudeBandNameLabel);
-        parameterPanel.add(latitudeBandNameField);
-        /*row 4*/
-        parameterPanel.add(longitudeBandNameLabel);
-        parameterPanel.add(longitudeBandNameField);
+        if(ortorectifiable) {
+            /*row 2*/
+            parameterPanel.add(outputDemCorrectedBandsChecker);
+            /*row 3*/
+            parameterPanel.add(latitudeBandNameLabel);
+            parameterPanel.add(latitudeBandNameField);
+            /*row 4*/
+            parameterPanel.add(longitudeBandNameLabel);
+            parameterPanel.add(longitudeBandNameField);
 
-        outputDemCorrectedBandsChecker.setSelected(ortorectifiable);
-        outputDemCorrectedBandsChecker.setEnabled(ortorectifiable);
+            outputDemCorrectedBandsChecker.setSelected(ortorectifiable);
+            outputDemCorrectedBandsChecker.setEnabled(ortorectifiable);
+        }
 
         final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, ModalDialog.ID_OK_CANCEL, getHelpId());
         dialog.setContent(parameterPanel);
@@ -270,10 +288,10 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
         return null;
     }
 
-    private static void configureDemNameProperty(PropertySet propertySet, String propertyName, String[] demNames) {
+    private static void configureDemNameProperty(PropertySet propertySet, String propertyName, String[] demNames, String defaultValue) {
         PropertyDescriptor descriptor = propertySet.getProperty(propertyName).getDescriptor();
         descriptor.setValueSet(new ValueSet(demNames));
-        descriptor.setDefaultValue(demNames[0]);
+        descriptor.setDefaultValue(defaultValue);
         descriptor.setNotNull(true);
         descriptor.setNotEmpty(true);
     }
@@ -413,9 +431,8 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
 
         @Override
         protected double computeSample(int sourceX, int sourceY) {
-            GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(sourceX + 0.5f, sourceY + 0.5f), null);
             try {
-                return dem.getElevation(geoPos);
+                return dem.getElevation(geoCoding.getGeoPos(new PixelPos(sourceX + 0.5f, sourceY + 0.5f), null));
             } catch (Exception e) {
                 return noDataValue;
             }
@@ -432,7 +449,7 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
 
         @Override
         protected double computeSample(int sourceX, int sourceY) {
-            GeoPos geoPos = orthorectifier.getGeoPos(new PixelPos(sourceX + 0.5f, sourceY + 0.5f), null);
+            GeoPos geoPos = orthorectifier.getGeoPos(new PixelPos(sourceX, sourceY), null);
             return geoPos.lon;
         }
     }
@@ -447,7 +464,7 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
 
         @Override
         protected double computeSample(int sourceX, int sourceY) {
-            GeoPos geoPos = orthorectifier.getGeoPos(new PixelPos(sourceX + 0.5f, sourceY + 0.5f), null);
+            GeoPos geoPos = orthorectifier.getGeoPos(new PixelPos(sourceX, sourceY), null);
             return geoPos.lat;
         }
     }
@@ -455,14 +472,16 @@ public class CreateDemRelatedBandsAction extends ExecCommand {
 
     class DialogData {
         String demName;
+        String resamplingMethod;
         boolean outputElevationBand;
         boolean outputDemCorrectedBands;
         String elevationBandName = DEFAULT_ELEVATION_BAND_NAME;
         String latitudeBandName = DEFAULT_LATITUDE_BAND_NAME;
         String longitudeBandName = DEFAULT_LONGITUDE_BAND_NAME;
 
-        public DialogData(String demName, boolean ortorectifiable) {
+        public DialogData(String demName, String resamplingMethod, boolean ortorectifiable) {
             this.demName = demName;
+            this.resamplingMethod = resamplingMethod;
             outputElevationBand = true;
             outputDemCorrectedBands = ortorectifiable;
         }

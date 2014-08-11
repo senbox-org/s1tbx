@@ -85,9 +85,10 @@ public class GeoTiffProductReaderPlugInTest {
 
         assertNotNull(fileExtensions);
         final List<String> extensionList = Arrays.asList(fileExtensions);
-        assertEquals(2, extensionList.size());
+        assertEquals(3, extensionList.size());
         assertEquals(true, extensionList.contains(".tif"));
         assertEquals(true, extensionList.contains(".tiff"));
+        assertEquals(true, extensionList.contains(".zip"));
     }
 
     @Test

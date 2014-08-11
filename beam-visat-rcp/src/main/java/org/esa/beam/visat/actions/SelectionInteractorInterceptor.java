@@ -28,6 +28,7 @@ import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.VectorDataFigureEditor;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
+import org.esa.beam.visat.VisatApp;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -88,6 +89,8 @@ public class SelectionInteractorInterceptor extends AbstractInteractorIntercepto
         final ProductSceneView sceneView = figureEditor.getProductSceneView();
         final Layer rootLayer = sceneView.getRootLayer();
         selectLayer(rootLayer, figureFilter);
+
+        VisatApp.getApp().updateState();
     }
 
     private void selectLayer(Layer rootLayer, LayerWithNearFigureFilter figureFilter) {

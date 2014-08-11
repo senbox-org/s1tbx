@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -206,13 +206,79 @@ public class ProductIO {
     }
 
     private static Product readProductImpl(File file, ProductSubsetDef subsetDef) throws IOException {
+        return readandCacheProduct(file, subsetDef);
+    }
+    
+	private synchronized static Product readandCacheProduct(final File file, final ProductSubsetDef subsetDef) throws IOException {
+
+        final Product cachedProduct = ProductCache.instance().getProduct(file);
+        if(cachedProduct != null) {
+            ProductCache.instance().addProduct(file, cachedProduct);
+            return cachedProduct;
+        }
         Guardian.assertNotNull("file", file);
         if (!file.exists()) {
             throw new FileNotFoundException("File not found: " + file.getPath());
         }
-        final ProductReader productReader = getProductReaderForInput(file);
-        if (productReader != null) {
-            return productReader.readProductNodes(file, subsetDef);
+        //System.out.println("Reading "+file.getName());
+        Product product = readCommonProductReader(file);
+        if (product == null) {
+            final ProductReader productReader = getProductReaderForInput(file);
+            if (productReader != null) {
+                product = productReader.readProductNodes(file, subsetDef);
+            }
+        }
+        if (product != null) {
+            ProductCache.instance().addProduct(file, product);
+        }
+        return product;
+    }
+
+    /**
+     * Quickly return the product read by the right reader without testing many readers
+     * @param file input file
+     * @return the product
+     * @throws IOException if can't be read
+     */
+    public static Product readCommonProductReader(final File file) throws IOException {
+        final String filename = file.getName().toLowerCase();
+        if(filename.endsWith("dim")) {
+            return ProductIO.readProduct(file, "BEAM-DIMAP");
+        } else if(filename.endsWith("n1") || filename.endsWith("e1") || filename.endsWith("e2")) {
+            return ProductIO.readProduct(file, "ENVISAT");
+        } else if((filename.startsWith("TSX") || filename.startsWith("TDX")) && filename.endsWith("xml")) {
+            return ProductIO.readProduct(file, "TerraSarX");
+        } else if(filename.equals("product.xml")) {
+            try {
+                return ProductIO.readProduct(file, "RADARSAT-2");
+            } catch(IOException e) {
+                return ProductIO.readProduct(file, "RADARSAT-2 NITF");
+            }
+        } else if(filename.endsWith("tif")) {
+            return ProductIO.readProduct(file, "GeoTIFF");
+        } else if(filename.endsWith("dbl")) {
+            return ProductIO.readProduct(file, "SMOS-DBL");
+        }
+        return null;
+    }
+
+    /**
+     * Quickly return the product reader without testing many readers
+     * @param file input file
+     * @return the product reader or null
+     */
+    public static ProductReader findCommonProductReader(final File file) {
+        final String filename = file.getName().toLowerCase();
+        if(filename.endsWith("n1") || filename.endsWith("e1") || filename.endsWith("e2")) {
+            return ProductIO.getProductReader("ENVISAT");
+        } else if(filename.endsWith("dim")) {
+            return ProductIO.getProductReader("BEAM-DIMAP");
+        } else if((filename.startsWith("TSX") || filename.startsWith("TDX")) && filename.endsWith("xml")) {
+            return ProductIO.getProductReader("TerraSarX");
+        } else if(filename.endsWith("tif")) {
+            return ProductIO.getProductReader("GeoTIFF");
+        } else if(filename.endsWith("dbl")) {
+            return ProductIO.getProductReader("SMOS-DBL");
         }
         return null;
     }
@@ -248,9 +314,13 @@ public class ProductIO {
      * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
      */
     public static ProductReader getProductReaderForInput(Object input) {
-        final long startTimeTotal = System.currentTimeMillis();
         Logger logger = BeamLogManager.getSystemLogger();
         logger.fine("Searching reader plugin for '" + input + "'");
+        if(input instanceof File) {        //NESTMOD
+            final ProductReader reader = findCommonProductReader((File)input);
+            if(reader != null)
+                return reader;
+        }
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;
@@ -268,8 +338,6 @@ public class ProductIO {
                 selectedPlugIn = plugIn;
             }
         }
-        final long endTimeTotal = System.currentTimeMillis();
-        logger.fine(String.format("Searching reader plugin took %d ms", (endTimeTotal - startTimeTotal)));
         if (selectedPlugIn != null) {
             logger.fine("Selected " + selectedPlugIn.getClass().getName());
             return selectedPlugIn.createReaderInstance();
@@ -378,7 +446,7 @@ public class ProductIO {
             throw new ProductIOException("no product writer for the '" + formatName + "' format available");
         }
         productWriter.setIncrementalMode(incremental);
-
+        productWriter.setFormatName(formatName);
         ProductWriter productWriterOld = product.getProductWriter();
         product.setProductWriter(productWriter);
 
