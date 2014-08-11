@@ -34,9 +34,10 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.util.MemUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.*;
+import org.esa.snap.util.MemUtils;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.DFTDescriptor;

@@ -13,19 +13,19 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>nest-dat</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>jlinda-core</module>
     </dependency>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.CreateStackOpUI</id>
@@ -68,7 +68,7 @@
         <action>
             <id>CreateStack</id>
             <helpId>CreateStack</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>Create Stack</text>
@@ -80,7 +80,7 @@
         <action>
             <id>CoregistrationGraph</id>
             <helpId>Coregistration</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>sar-processing</parent>
             <text>Automatic Coregistration</text>
@@ -92,7 +92,7 @@
 
         <action>
             <id>PCAStatistic</id>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Principal Component Analysis</text>
             <operatorName>PCA</operatorName>
@@ -113,7 +113,7 @@
 
         <action>
             <id>StackAveraging</id>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Stack Averaging</text>
             <operatorName>Stack-Averaging</operatorName>
@@ -127,7 +127,7 @@
         <action>
             <id>DEMBasedCoregistrationOp</id>
             <helpId>DEMBasedCoregistrationOp</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>DEM Based Coregistration</text>

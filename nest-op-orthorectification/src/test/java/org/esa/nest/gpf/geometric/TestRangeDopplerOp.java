@@ -28,7 +28,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.io.File;
 

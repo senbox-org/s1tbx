@@ -1,7 +1,7 @@
 package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.nest.datamodel.Orbits;
+import org.esa.snap.datamodel.Orbits;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -15,7 +15,7 @@
  */
 package org.esa.nest.db;
 
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.io.File;
 import java.sql.*;

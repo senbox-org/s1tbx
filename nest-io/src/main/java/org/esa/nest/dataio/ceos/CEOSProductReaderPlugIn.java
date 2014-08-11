@@ -20,7 +20,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.nest.dataio.ceos.ers.ERSProductReader;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.gpf.ReaderUtils;
 
 import java.io.File;
 import java.util.Locale;

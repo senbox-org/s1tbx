@@ -22,7 +22,7 @@
         <module>beam-ui</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
 
     <extension point="beam-ui:toolViews">
@@ -34,8 +34,8 @@
             <mnemonic>3</mnemonic>
             <accelerator>ctrl alt 3</accelerator>
             <description>Display product in a 3D view.</description>
-            <smallIcon>/org/esa/nest/icons/earth24.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/earth24.png</largeIcon>
+            <smallIcon>/org/esa/snap/icons/earth24.png</smallIcon>
+            <largeIcon>/org/esa/snap/icons/earth24.png</largeIcon>
             <helpId>show3DMapWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -48,8 +48,8 @@
             <title>World Map</title>
             <tabTitle>World Map</tabTitle>
             <description>Display WorldWind view.</description>
-            <smallIcon>/org/esa/nest/icons/WorldMap16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/WorldMap24.png</largeIcon>
+            <smallIcon>/org/esa/snap/icons/WorldMap16.png</smallIcon>
+            <largeIcon>/org/esa/snap/icons/WorldMap24.png</largeIcon>
             <helpId>show3DMapWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>

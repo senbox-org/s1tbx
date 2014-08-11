@@ -24,7 +24,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.Settings;
+import org.esa.snap.util.Settings;
 
 import java.awt.*;
 import java.io.File;

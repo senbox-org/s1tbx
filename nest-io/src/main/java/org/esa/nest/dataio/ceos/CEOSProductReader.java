@@ -22,8 +22,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;

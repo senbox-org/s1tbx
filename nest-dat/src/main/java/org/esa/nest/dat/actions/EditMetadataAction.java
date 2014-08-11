@@ -22,7 +22,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 /**
  * This action to edit Metadata

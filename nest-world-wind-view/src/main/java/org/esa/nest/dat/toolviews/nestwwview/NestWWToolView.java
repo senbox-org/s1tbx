@@ -72,7 +72,7 @@ import java.net.URISyntaxException;
 public class NestWWToolView extends AbstractToolView implements WWView {
 
     //private static final String loadDEMCommand = "loadDEM";
-    //private static final ImageIcon loadDEMIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/dem24.gif");
+    //private static final ImageIcon loadDEMIcon = ResourceUtils.LoadIcon("org/esa/snap/icons/dem24.gif");
 
     private final VisatApp datApp = VisatApp.getApp();
     private final Dimension canvasSize = new Dimension(800, 600);

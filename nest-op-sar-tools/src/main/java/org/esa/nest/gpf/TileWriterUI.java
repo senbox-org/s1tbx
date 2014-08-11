@@ -16,13 +16,13 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.nest.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.util.SystemUtils;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

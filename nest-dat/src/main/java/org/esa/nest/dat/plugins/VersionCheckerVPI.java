@@ -25,8 +25,8 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.VersionChecker;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.VersionUtil;
+import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.VersionUtil;
 
 import javax.swing.*;
 import java.awt.*;

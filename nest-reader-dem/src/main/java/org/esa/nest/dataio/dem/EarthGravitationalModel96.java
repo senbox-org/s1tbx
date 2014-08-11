@@ -17,8 +17,8 @@ package org.esa.nest.dataio.dem;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.util.MathUtils;
-import org.esa.nest.util.Settings;
+import org.esa.snap.util.Maths;
+import org.esa.snap.util.Settings;
 
 import java.io.*;
 import java.util.StringTokenizer;
@@ -165,6 +165,6 @@ public final class EarthGravitationalModel96 {
             v[i][3] = egm[ri][ci3];
         }
 
-        return (float) MathUtils.interpolationBiCubic(v, c - (c0 + 1), r - (r0 + 1));
+        return (float) Maths.interpolationBiCubic(v, c - (c0 + 1), r - (r0 + 1));
     }
 }

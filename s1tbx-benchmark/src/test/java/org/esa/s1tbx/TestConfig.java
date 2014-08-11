@@ -16,7 +16,7 @@
 package org.esa.s1tbx;
 
 import org.esa.beam.util.PropertyMap;
-import org.esa.nest.util.Config;
+import org.esa.snap.util.Config;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -19,10 +19,10 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.StackUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.StackUtils;
 
 import java.util.ArrayList;
 import java.util.List;

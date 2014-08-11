@@ -34,11 +34,14 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.eo.*;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.eo.*;
 import org.esa.nest.gpf.CalibrationOp;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.gpf.TileGeoreferencing;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.TileGeoreferencing;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;

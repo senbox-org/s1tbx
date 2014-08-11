@@ -20,7 +20,7 @@ import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.DataProvider
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.IDProvider;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.PropertiesProvider;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.QuicklookProvider;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;

@@ -29,8 +29,11 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -624,7 +627,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             muX = (double) (x - vec0Pixels[pixelIdx]) / (double) (vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
-            lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(
+            lut[x - x0] = Maths.interpolationBiLinear(
                     vec0LUT[pixelIdx], vec0LUT[pixelIdx + 1], vec1LUT[pixelIdx], vec1LUT[pixelIdx + 1], muX, muY);
         }
     }
@@ -666,7 +669,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             v10 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx];
             v11 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx + 1];
 
-            lut[x - x0] = org.esa.nest.util.MathUtils.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+            lut[x - x0] = Maths.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
         }
     }
 

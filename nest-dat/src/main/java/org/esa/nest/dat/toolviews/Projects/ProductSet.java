@@ -17,8 +17,8 @@ package org.esa.nest.dat.toolviews.Projects;
 
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
-import org.esa.nest.util.ProductFunctions;
-import org.esa.nest.util.XMLSupport;
+import org.esa.snap.util.ProductFunctions;
+import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

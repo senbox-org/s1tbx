@@ -19,6 +19,8 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.Projects.ProductSet;
+import org.esa.snap.dat.dialogs.FileTable;
+import org.esa.snap.dat.dialogs.ProductSetPanel;
 
 import javax.swing.*;
 import java.awt.*;

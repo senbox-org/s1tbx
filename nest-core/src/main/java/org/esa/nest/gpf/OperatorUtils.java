@@ -22,11 +22,11 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.nest.util.ExceptionLog;
-import org.esa.nest.util.Settings;
+import org.esa.snap.util.Settings;
 
 import java.awt.*;
 import java.text.DateFormat;

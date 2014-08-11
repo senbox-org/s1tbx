@@ -18,7 +18,7 @@ package org.esa.nest.dataio.radarsat2;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

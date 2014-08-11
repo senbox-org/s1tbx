@@ -13,16 +13,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.gpf;
+package org.esa.nest.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.geometric.SRGROp;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.util.Arrays;
 

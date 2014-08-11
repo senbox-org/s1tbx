@@ -17,7 +17,7 @@ package org.esa.nest.datamodel;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 
 import java.io.File;
 import java.io.IOException;

@@ -26,10 +26,10 @@ import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
 import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;

@@ -14,7 +14,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>nest-io</module>
@@ -52,7 +52,7 @@
         <action>
             <id>FillHoleOp</id>
             <helpId>FillHoleOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>DEMTools</parent>
             <text>Fill DEM Hole</text>

@@ -19,7 +19,7 @@ import com.jidesoft.swing.LayoutPersistence;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import java.io.File;
 

@@ -20,7 +20,7 @@ import org.esa.beam.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.nest.util.Settings;
+import org.esa.snap.util.Settings;
 
 import java.io.File;
 import java.net.URL;

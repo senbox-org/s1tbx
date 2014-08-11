@@ -15,9 +15,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-core</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-engine-utilities</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>

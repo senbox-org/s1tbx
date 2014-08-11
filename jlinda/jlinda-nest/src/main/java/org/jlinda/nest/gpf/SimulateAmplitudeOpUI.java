@@ -2,12 +2,12 @@ package org.jlinda.nest.gpf;
 
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.gpf.OperatorUIUtils;
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

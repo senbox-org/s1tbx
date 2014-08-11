@@ -21,10 +21,12 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.io.File;

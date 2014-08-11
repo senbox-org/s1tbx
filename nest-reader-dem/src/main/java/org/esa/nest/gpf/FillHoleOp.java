@@ -29,7 +29,8 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.util.MathUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 
@@ -220,13 +221,13 @@ public final class FillHoleOp extends Operator {
         double v1 = NoDataValue;
         if (vUp != NoDataValue && vDown != NoDataValue) {
             final double mu = (y - pixelUp.y) / (pixelDown.y - pixelUp.y);
-            v1 = MathUtils.interpolationLinear(vUp, vDown, mu);
+            v1 = Maths.interpolationLinear(vUp, vDown, mu);
         }
 
         double v2 = NoDataValue;
         if (vLeft != NoDataValue && vRight != NoDataValue) {
             final double mu = (x - pixelLeft.x) / (pixelRight.x - pixelLeft.x);
-            v2 = MathUtils.interpolationLinear(vLeft, vRight, mu);
+            v2 = Maths.interpolationLinear(vLeft, vRight, mu);
         }
 
         if (v1 != NoDataValue && v2 != NoDataValue) {

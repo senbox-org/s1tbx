@@ -18,7 +18,7 @@ package org.esa.nest.db;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.sql.*;
 import java.util.ArrayList;

@@ -20,7 +20,7 @@
         <optional>true</optional>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>beam-geotiff</module>

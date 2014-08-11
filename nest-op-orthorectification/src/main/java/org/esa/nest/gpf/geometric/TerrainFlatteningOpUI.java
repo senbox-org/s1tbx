@@ -16,13 +16,13 @@
 package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.nest.gpf.OperatorUIUtils;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

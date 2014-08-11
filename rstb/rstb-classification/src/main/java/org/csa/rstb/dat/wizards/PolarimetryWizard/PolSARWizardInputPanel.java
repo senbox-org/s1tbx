@@ -18,7 +18,7 @@ package org.csa.rstb.dat.wizards.PolarimetryWizard;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dat.wizards.AbstractInputPanel;
 import org.esa.nest.dat.wizards.WizardPanel;
-import org.esa.nest.gpf.OperatorUtils;
+import org.esa.snap.gpf.OperatorUtils;
 
 /**
  * Input Panel

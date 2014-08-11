@@ -24,7 +24,7 @@ import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.utils.FileFolderUtils;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 
 import java.io.File;
 

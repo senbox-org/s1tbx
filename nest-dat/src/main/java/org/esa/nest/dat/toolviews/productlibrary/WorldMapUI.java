@@ -19,8 +19,8 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
 import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPaneDataModel;
-import org.esa.nest.db.GeoPosList;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.GeoPosList;
+import org.esa.snap.db.ProductEntry;
 
 import javax.swing.event.MouseInputAdapter;
 import java.awt.event.MouseEvent;

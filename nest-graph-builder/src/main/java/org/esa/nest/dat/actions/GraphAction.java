@@ -20,7 +20,7 @@ import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
-import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 
 import java.io.File;
 

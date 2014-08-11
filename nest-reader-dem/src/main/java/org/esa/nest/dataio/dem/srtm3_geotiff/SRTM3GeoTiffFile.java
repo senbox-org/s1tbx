@@ -19,8 +19,8 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.dem.ElevationFile;
 import org.esa.nest.dataio.dem.ElevationTile;
-import org.esa.nest.util.Settings;
-import org.esa.nest.util.ftpUtils;
+import org.esa.snap.util.Settings;
+import org.esa.snap.util.ftpUtils;
 
 import java.io.File;
 import java.io.IOException;

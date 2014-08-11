@@ -30,10 +30,10 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.PromptDialog;
 import org.esa.nest.gpf.ProductSetReaderOp;
 import org.esa.nest.gpf.ProductSetReaderOpUI;
-import org.esa.nest.gpf.ui.UIValidation;
-import org.esa.nest.util.DialogUtils;
-import org.esa.nest.util.MemUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.MemUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

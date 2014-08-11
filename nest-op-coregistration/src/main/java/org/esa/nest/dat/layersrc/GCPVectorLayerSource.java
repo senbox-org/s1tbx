@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.layer.LayerSource;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 /**
  * A source for {@link org.esa.nest.dat.layersrc.GCPVectorLayer}s.

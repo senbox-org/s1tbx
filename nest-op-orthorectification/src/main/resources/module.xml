@@ -13,7 +13,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>nest-op-calibration</module>
@@ -30,7 +30,7 @@
 
     <categories>Processing</categories>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.MultilookOpUI</id>
@@ -114,7 +114,7 @@
         <action>
             <id>RangeDopplerGeocodingOp</id>
             <helpId>RangeDopplerGeocodingOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TerrainCorrection</parent>
             <text>Range-Doppler Terrain Correction</text>
@@ -128,7 +128,7 @@
         <action>
             <id>SARSimGeocodingOp</id>
             <helpId>SARSimGeocodingOp</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>TerrainCorrection</parent>
             <text>SAR-Simulation Terrain Correction</text>
@@ -141,7 +141,7 @@
         <action>
             <id>SARSimulationOp</id>
             <helpId>SARSimOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TerrainCorrection</parent>
             <text>SAR Simulation</text>
@@ -163,7 +163,7 @@
         <action>
             <id>GeolocationGridGeocodingOp</id>
             <helpId>GeolocationGridGeocodingOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>EllipsoidCorrection</parent>
             <text>Geolocation-Grid</text>
@@ -176,7 +176,7 @@
         <action>
             <id>EllipsoidCorrectionRDOp</id>
             <helpId>EllipsoidCorrectionRDOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>EllipsoidCorrection</parent>
             <text>Average Height Range-Doppler</text>
@@ -189,7 +189,7 @@
         <action>
             <id>MosaicOp</id>
             <helpId>MosaicOp</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
             <text>Mosaic</text>
@@ -201,7 +201,7 @@
         <action>
             <id>ALOSDeskewingOp</id>
             <helpId>ALOSDeskewingOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>geoAusIcon</icon>
             <parent>geometry</parent>
             <text>ALOS Deskewing</text>
@@ -223,7 +223,7 @@
         <action>
             <id>TerrainFlatteningOp</id>
             <helpId>TerrainFlatteningOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>TerrainFlattening</parent>
             <text>Radiometric Terrain Flattening</text>
@@ -245,7 +245,7 @@
         <action>
             <id>SlantRangeGroundRangeOp</id>
             <helpId>SRGROp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
             <text>Slant Range to Ground Range</text>
@@ -258,7 +258,7 @@
         <action>
             <id>UpdateGeoRefOp</id>
             <helpId>UpdateGeoRefOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>geometry</parent>
             <text>Update Geo Reference</text>
@@ -282,7 +282,7 @@
         <action>
             <id>SpeckleFilterOp</id>
             <helpId>SpeckleFilterOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>SpeckleFiltering</parent>
             <text>Single Product Speckle Filter</text>
@@ -295,7 +295,7 @@
         <action>
             <id>MultiTemporalSpeckleFilterOp</id>
             <helpId>MultiTemporalSpeckleFilterOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>SpeckleFiltering</parent>
             <text>Multi-temporal Product Speckle Filter</text>
@@ -310,7 +310,7 @@
         <action>
             <id>MultilookOp</id>
             <helpId>MultilookOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>sar-processing</parent>
             <placeAfter>CoregistrationGraph</placeAfter>
@@ -324,7 +324,7 @@
         <action>
             <id>SLCtoPRI</id>
             <helpId>SLCtoPRI</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>sar-processing</parent>
             <placeAfter>CoregistrationGraph</placeAfter>
@@ -345,7 +345,7 @@
         <action>
             <id>WSSDeburstOp</id>
             <helpId>WSSDeburstOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>ASARWSS</parent>
             <text>ASAR WSS Deburst</text>
@@ -358,7 +358,7 @@
         <action>
             <id>WSSMosaicOp</id>
             <helpId>WSSMosaicOp</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>ASARWSS</parent>
             <text>WSS Deburst, Calibrate and Detect</text>

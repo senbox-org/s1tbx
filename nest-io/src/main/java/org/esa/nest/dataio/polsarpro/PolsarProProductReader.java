@@ -20,9 +20,9 @@ import org.esa.beam.dataio.envi.Header;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.File;

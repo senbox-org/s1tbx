@@ -28,10 +28,10 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.graphbuilder.GraphExecuter;
 import org.esa.nest.dat.graphbuilder.GraphNode;
 import org.esa.nest.dat.graphbuilder.ProgressBarProgressMonitor;
-import org.esa.nest.db.ProductEntry;
-import org.esa.nest.util.MemUtils;
+import org.esa.snap.db.ProductEntry;
+import org.esa.snap.util.MemUtils;
 import org.esa.nest.gpf.ProcessTimeMonitor;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

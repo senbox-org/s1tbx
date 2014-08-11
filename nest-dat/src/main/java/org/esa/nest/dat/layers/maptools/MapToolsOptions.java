@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dat.layers.maptools;
 
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

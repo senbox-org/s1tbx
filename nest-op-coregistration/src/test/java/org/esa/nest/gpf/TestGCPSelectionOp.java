@@ -20,8 +20,9 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.TestUtils;
 
 /**
  * Unit test for GCPSelectionOp.

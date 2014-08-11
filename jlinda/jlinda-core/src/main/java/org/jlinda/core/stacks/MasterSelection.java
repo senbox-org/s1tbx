@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.jlinda.core.*;
 import org.jlinda.core.Point;
 

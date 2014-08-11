@@ -22,7 +22,7 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

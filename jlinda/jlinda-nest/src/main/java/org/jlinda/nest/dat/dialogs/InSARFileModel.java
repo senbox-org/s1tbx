@@ -1,8 +1,8 @@
 package org.jlinda.nest.dat.dialogs;
 
-import org.esa.nest.dat.dialogs.BaseFileModel;
-import org.esa.nest.dat.dialogs.FileTableModel;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.dat.dialogs.BaseFileModel;
+import org.esa.snap.dat.dialogs.FileTableModel;
+import org.esa.snap.db.ProductEntry;
 
 import java.io.File;
 

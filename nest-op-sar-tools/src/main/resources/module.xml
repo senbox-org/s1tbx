@@ -13,10 +13,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>nest-dat</module>
@@ -27,7 +27,7 @@
 
     <categories>Processing</categories>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.BandMathsOpUI</id>
@@ -74,7 +74,7 @@
         <action>
             <id>OverSampleOp</id>
             <helpId>OverSampleOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Resampling</parent>
             <text>Oversample</text>
@@ -86,7 +86,7 @@
         <action>
             <id>UnderSampleOp</id>
             <helpId>UnderSampleOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Resampling</parent>
             <text>Undersample</text>
@@ -106,7 +106,7 @@
         <action>
             <id>ConvertDatatypeOp</id>
             <helpId>ConvertDatatypeOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>DatasetConversion</parent>
             <text>Convert Datatype</text>
@@ -148,7 +148,7 @@
         <action>
             <id>applyOrbitFile</id>
             <helpId>ApplyOrbitFileOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>Apply Orbit File</text>
@@ -171,7 +171,7 @@
         <action>
             <id>ImageFilterOp</id>
             <helpId>FilterOperator</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>Image Filtering</text>

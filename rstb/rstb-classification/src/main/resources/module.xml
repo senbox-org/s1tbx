@@ -19,13 +19,13 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>nest-dat</module>
     </dependency>
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>rstb-polarimetric-tools</module>
@@ -33,7 +33,7 @@
 
     <categories>processor</categories>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.csa.rstb.gpf.PolarimetricClassificationOpUI</id>
@@ -52,7 +52,7 @@
         <action>
             <id>PolarimetricClassificationOp</id>
             <helpId>PolarimetricClassificationOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Unsupervised Polarimetric Classification</text>
@@ -77,7 +77,7 @@
         <action>
             <id>SupervisedWishartClassificationOp</id>
             <helpId>SupervisedWishartClassificationOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Supervised Wishart Classification</text>

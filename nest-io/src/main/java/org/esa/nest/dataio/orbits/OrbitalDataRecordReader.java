@@ -17,10 +17,10 @@ package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.util.MathUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.util.Maths;
+import org.esa.snap.util.ResourceUtils;
 
 import java.io.*;
 import java.text.ParseException;
@@ -350,9 +350,9 @@ public final class OrbitalDataRecordReader {
         double[] xyz = new double[3];
         double[] phiLamHeight = new double[3];
 
-        xyz[0] = MathUtils.lagrangeEightOrderInterpolation(xPosArray, ref);
-        xyz[1] = MathUtils.lagrangeEightOrderInterpolation(yPosArray, ref);
-        xyz[2] = MathUtils.lagrangeEightOrderInterpolation(zPosArray, ref);
+        xyz[0] = Maths.lagrangeEightOrderInterpolation(xPosArray, ref);
+        xyz[1] = Maths.lagrangeEightOrderInterpolation(yPosArray, ref);
+        xyz[2] = Maths.lagrangeEightOrderInterpolation(zPosArray, ref);
 
         GeoUtils.cartesian2polar(xyz, phiLamHeight);
         GeoUtils.geo2xyz(phiLamHeight[0] * RTOD, phiLamHeight[1] * RTOD, phiLamHeight[2], xyz, GeoUtils.EarthModel.GRS80);

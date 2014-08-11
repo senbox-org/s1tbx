@@ -20,13 +20,13 @@
         <module>beam-gpf</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>nest-dat</module>
     </dependency>
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>nest-reader-dem</module>
@@ -37,7 +37,7 @@
 
     <categories>Processor</categories>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.oceantools.CreateLandMaskOpUI</id>
@@ -74,7 +74,7 @@
         <action>
             <id>TerrainMaskGeneration</id>
             <helpId>TerrainMaskGeneration</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Masks</parent>
             <text>Terrain Mask</text>
@@ -87,7 +87,7 @@
         <action>
             <id>createLandMaskOp</id>
             <helpId>CreateLandMask</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Masks</parent>
             <text>Land/Sea Mask</text>
@@ -116,7 +116,7 @@
         <action>
             <id>SpeckleDivergence</id>
             <helpId>SpeckleDivergence</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
             <text>Speckle Divergence</text>
@@ -129,7 +129,7 @@
         <!--action>
 	        <id>ForestAreaDetection</id>
 	        <helpId>ForestAreaDetection</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+	        <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
 	        <text>Forest Area Detection</text>
@@ -142,7 +142,7 @@
         <!--action>
 	        <id>ForestAreaClassification</id>
 	        <helpId>ForestAreaClassification</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+	        <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
 	        <text>Forest Area Classification</text>
@@ -155,7 +155,7 @@
         <action>
             <id>FloodDetection</id>
             <helpId>FloodDetection</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
             <text>Flood Detection</text>
@@ -168,7 +168,7 @@
         <action>
             <id>GLCMOp</id>
             <helpId>GLCMOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
             <text>GLCM</text>
@@ -181,7 +181,7 @@
         <action>
             <id>GaborFilterOp</id>
             <helpId>GaborFilterOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
             <text>Gabor Filter</text>
@@ -194,7 +194,7 @@
         <action>
             <id>UrbanAreaDetectionGraph</id>
             <helpId>UrbanAreaDetectionGraph</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>FeatureExtractionGroup</parent>
             <text>Urban Area Detection</text>
@@ -207,7 +207,7 @@
         <action>
             <id>FloodDetectionGraph</id>
             <helpId>FloodDetectionGraph</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>FeatureExtractionGroup</parent>
             <text>Flood Detection</text>
@@ -221,7 +221,7 @@
         <action>
             <id>ChangeDetection</id>
             <helpId>ChangeDetectionOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>PrimitiveFeatureGroup</parent>
             <text>Change Detection</text>
@@ -241,7 +241,7 @@
         <action>
             <id>ObjectDetection</id>
             <helpId>ObjectDetection</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>oceanTools</parent>
             <text>Object Detection</text>
@@ -254,7 +254,7 @@
         <action>
             <id>OilSpillDetectionOp</id>
             <helpId>OilSpillDetection</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>oceanTools</parent>
             <text>Oil Spill Detection</text>
@@ -268,7 +268,7 @@
         <action>
             <id>WindFieldEstimation</id>
             <helpId>WindFieldEstimation</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>oceanTools</parent>
             <text>Wind Field Estimation</text>

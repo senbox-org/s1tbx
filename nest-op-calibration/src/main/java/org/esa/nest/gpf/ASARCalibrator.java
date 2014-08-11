@@ -24,9 +24,15 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.util.Settings;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.Maths;
+import org.esa.snap.util.Settings;
 
 import java.awt.*;
 import java.io.File;
@@ -1149,7 +1155,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         final double gain1 = Math.pow(10, (double) antPatArray[k0 + 1] / 10.0);
         final double mu = (elevAngle - theta0) / (theta1 - theta0);
 
-        return org.esa.nest.util.MathUtils.interpolationLinear(gain0, gain1, mu);
+        return Maths.interpolationLinear(gain0, gain1, mu);
     }
 
     //============================================================================================================
@@ -1183,7 +1189,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 (srgrConvParams[idx + 1].timeMJD - srgrConvParams[idx].timeMJD);
 
         for (int i = 0; i < srgrConvParam.coefficients.length; i++) {
-            srgrConvParam.coefficients[i] = org.esa.nest.util.MathUtils.interpolationLinear(
+            srgrConvParam.coefficients[i] = Maths.interpolationLinear(
                     srgrConvParams[idx].coefficients[i], srgrConvParams[idx + 1].coefficients[i], mu);
         }
         return srgrConvParam;
@@ -1200,7 +1206,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private double computeSlantRange(int x, int y, AbstractMetadata.SRGRCoefficientList srgrConvParam) {
 
         if (srgrFlag) { // for ground detected product, compute slant range from SRGR coefficients
-            return org.esa.nest.util.MathUtils.computePolynomialValue(
+            return Maths.computePolynomialValue(
                     x * rangeSpacing + srgrConvParam.ground_range_origin, srgrConvParam.coefficients);
 
         } else { // for slant range product, compute slant range from slant range time

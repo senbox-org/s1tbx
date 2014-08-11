@@ -18,7 +18,7 @@ package org.esa.nest.dat.layers.maptools.components;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dat.graphics.GraphicShape;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.awt.*;
 import java.util.ArrayList;

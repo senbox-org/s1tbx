@@ -19,7 +19,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.esa.nest.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.StatusProgressMonitor;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

@@ -18,7 +18,7 @@ package org.esa.nest.db;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>nest-graph-builder</symbolicName>
+    <symbolicName>snap-graph-builder</symbolicName>
     <version>6.0-SNAPSHOT</version>
     <name>NEST Graph Builder</name>
 
@@ -44,7 +44,7 @@
         </OperatorUI>
     </extensionPoint>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.ui.DefaultUI</id>

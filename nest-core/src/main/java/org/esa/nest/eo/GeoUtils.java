@@ -19,7 +19,7 @@ import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.datamodel.Orbits;
+import org.esa.snap.datamodel.Orbits;
 
 import static org.esa.beam.util.math.MathUtils.DTOR;
 

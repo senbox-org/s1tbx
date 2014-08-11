@@ -22,8 +22,8 @@ import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.DialogUtils;
-import org.esa.nest.util.Settings;
+import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.Settings;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 

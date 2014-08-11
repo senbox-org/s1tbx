@@ -30,7 +30,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.nest.db.DBSearch;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 
 import java.awt.*;
 import java.io.File;

@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.snap.gpf.TileIndex;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.DFTDescriptor;

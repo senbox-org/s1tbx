@@ -22,8 +22,8 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.FileImageOutputStreamExtImpl;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.dataio.PolBandUtils;
 
 import javax.imageio.stream.ImageOutputStream;

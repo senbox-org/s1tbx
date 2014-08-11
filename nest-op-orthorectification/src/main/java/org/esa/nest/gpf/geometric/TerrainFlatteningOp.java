@@ -33,15 +33,13 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.OrbitStateVector;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.eo.SARUtils;
-import org.esa.nest.eo.SARGeocoding;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.TileIndex;
-import org.esa.nest.util.MathUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 import java.io.File;
@@ -745,13 +743,13 @@ public final class TerrainFlatteningOp extends Operator {
                 lg.sensorPos[1] - lg.centerPoint[1],
                 lg.sensorPos[2] - lg.centerPoint[2]};
 
-        MathUtils.normalizeVector(s);
+        Maths.normalizeVector(s);
 
         // project points t00, t01, t10 and t11 to the plane that perpendicular to slant range
-        final double t00s = MathUtils.innerProduct(t00, s);
-        final double t01s = MathUtils.innerProduct(t01, s);
-        final double t10s = MathUtils.innerProduct(t10, s);
-        final double t11s = MathUtils.innerProduct(t11, s);
+        final double t00s = Maths.innerProduct(t00, s);
+        final double t01s = Maths.innerProduct(t01, s);
+        final double t10s = Maths.innerProduct(t10, s);
+        final double t11s = Maths.innerProduct(t11, s);
 
         final double[] p00 = {t00[0] - t00s * s[0], t00[1] - t00s * s[1], t00[2] - t00s * s[2]};
         final double[] p01 = {t01[0] - t01s * s[0], t01[1] - t01s * s[1], t01[2] - t01s * s[2]};

@@ -15,7 +15,7 @@
  */
 package org.esa.nest.db;
 
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;

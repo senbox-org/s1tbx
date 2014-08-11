@@ -34,9 +34,12 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.ProductInformation;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.ProductInformation;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.StackUtils;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.text.MessageFormat;

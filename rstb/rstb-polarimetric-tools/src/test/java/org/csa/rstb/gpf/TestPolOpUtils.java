@@ -16,7 +16,7 @@
 package org.csa.rstb.gpf;
 
 import junit.framework.TestCase;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 
 /**

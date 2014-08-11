@@ -32,7 +32,10 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.ResourceUtils;
 
 import java.awt.*;
 import java.io.File;

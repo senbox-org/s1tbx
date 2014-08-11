@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dat.dialogs;
 
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 
 import javax.swing.*;
 import java.awt.*;

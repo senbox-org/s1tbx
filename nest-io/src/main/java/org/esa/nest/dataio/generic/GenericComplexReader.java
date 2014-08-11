@@ -12,10 +12,10 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ComplexBinaryDialog;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.binary.BinaryFileReader;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.gpf.ReaderUtils;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;

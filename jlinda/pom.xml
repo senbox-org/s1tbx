@@ -18,6 +18,7 @@
         <nest.version>6.0-SNAPSHOT</nest.version>
         <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
         <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
+		<snap.version>0.5-SNAPSHOT</snap.version>
         <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
 		

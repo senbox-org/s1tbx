@@ -18,7 +18,7 @@ package org.esa.nest.gpf.geometric;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 /**
  * Unit test for EllipsoidCorrectionRDOp.

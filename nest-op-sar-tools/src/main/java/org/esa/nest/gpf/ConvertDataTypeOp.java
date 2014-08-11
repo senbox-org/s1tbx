@@ -31,6 +31,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.Range;
+import org.esa.snap.gpf.OperatorUtils;
 
 /**
  * Format-Change

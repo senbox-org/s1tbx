@@ -20,9 +20,9 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.util.Arrays;
 

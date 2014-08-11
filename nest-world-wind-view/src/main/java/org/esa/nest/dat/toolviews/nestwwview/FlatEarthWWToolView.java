@@ -37,7 +37,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;

@@ -27,11 +27,11 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.util.MathUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 
@@ -242,26 +242,26 @@ public class SRGROp extends Operator {
                     } else if (interpMethod.equals(Interpolation.LINEAR)) {
                         v0 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p0, y));
                         v1 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p1, y));
-                        v = MathUtils.interpolationLinear(v0, v1, mu);
+                        v = Maths.interpolationLinear(v0, v1, mu);
                     } else if (interpMethod.equals(Interpolation.CUBIC)) {
                         v0 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p0, y));
                         v1 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p1, y));
                         v2 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p2, y));
                         v3 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p3, y));
-                        v = MathUtils.interpolationCubic(v0, v1, v2, v3, mu);
+                        v = Maths.interpolationCubic(v0, v1, v2, v3, mu);
                     } else if (interpMethod.equals(Interpolation.CUBIC2)) {
                         v0 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p0, y));
                         v1 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p1, y));
                         v2 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p2, y));
                         v3 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p3, y));
-                        v = MathUtils.interpolationCubic2(v0, v1, v2, v3, mu);
+                        v = Maths.interpolationCubic2(v0, v1, v2, v3, mu);
                     } else if (interpMethod.equals(Interpolation.SINC)) {
                         v0 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p0, y));
                         v1 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p1, y));
                         v2 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p2, y));
                         v3 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p3, y));
                         v4 = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p4, y));
-                        v = MathUtils.interpolationSinc(v0, v1, v2, v3, v4, mu);
+                        v = Maths.interpolationSinc(v0, v1, v2, v3, v4, mu);
                     }
                     if (bandUnit == Unit.UnitType.INTENSITY) {
                         v = Math.max(v, 0.0);
@@ -528,7 +528,7 @@ public class SRGROp extends Operator {
 
         final int y = sourceImageHeight / 2;
         computeGroundRangeDistanceArray(y);
-        final Matrix A = MathUtils.createVandermondeMatrix(groundRangeDistanceArray, warpPolynomialOrder);
+        final Matrix A = Maths.createVandermondeMatrix(groundRangeDistanceArray, warpPolynomialOrder);
         final Matrix b = new Matrix(slantRangeDistanceArray, numRangePoints - 1);
         final Matrix x = A.solve(b);
         warpPolynomialCoef = x.getColumnPackedCopy();

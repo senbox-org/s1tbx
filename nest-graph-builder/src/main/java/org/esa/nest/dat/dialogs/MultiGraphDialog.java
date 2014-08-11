@@ -25,7 +25,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.nest.dat.graphbuilder.GraphExecuter;
 import org.esa.nest.dat.graphbuilder.ProgressBarProgressMonitor;
-import org.esa.nest.util.MemUtils;
+import org.esa.snap.util.MemUtils;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

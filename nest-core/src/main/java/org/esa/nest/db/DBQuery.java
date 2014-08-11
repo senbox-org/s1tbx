@@ -18,8 +18,8 @@ package org.esa.nest.db;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.util.XMLSupport;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 

@@ -16,9 +16,9 @@
 package org.esa.nest.datamodel;
 
 import org.esa.beam.util.io.FileUtils;
-import org.esa.nest.gpf.StatusProgressMonitor;
-import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.ftpUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ftpUtils;
 
 import java.io.*;
 import java.net.SocketException;

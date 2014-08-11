@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.util.ProductFunctions;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.ProductFunctions;
+import org.esa.snap.util.TestUtils;
 
 import java.awt.*;
 import java.io.File;

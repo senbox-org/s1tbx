@@ -17,14 +17,14 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.gpf.OperatorUIUtils;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.util.DialogUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;

@@ -35,7 +35,7 @@ import org.esa.beam.jai.RasterDataNodeSampleOpImage;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.Unit;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

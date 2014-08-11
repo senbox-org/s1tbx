@@ -17,7 +17,7 @@ package org.esa.nest.dat.dialogs;
 
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.db.ProductDB;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;

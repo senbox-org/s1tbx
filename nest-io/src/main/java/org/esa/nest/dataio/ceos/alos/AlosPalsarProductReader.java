@@ -22,7 +22,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CEOSProductReader;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.Unit;
 
 import java.io.File;
 import java.io.IOException;

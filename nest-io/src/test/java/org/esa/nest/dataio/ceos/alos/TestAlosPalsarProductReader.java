@@ -17,7 +17,7 @@ package org.esa.nest.dataio.ceos.alos;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.io.File;
 

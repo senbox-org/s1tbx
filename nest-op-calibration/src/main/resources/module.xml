@@ -13,7 +13,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>beam-envisat-reader</module>
@@ -27,7 +27,7 @@
 
     <categories>VISAT,Processing</categories>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.CalibrationOpUI</id>
@@ -57,7 +57,7 @@
         <action>
             <id>CalibrationOp</id>
             <helpId>CalibrationOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
             <text>Calibrate</text>
@@ -70,7 +70,7 @@
         <action>
             <id>RemoveAntennaPatternOp</id>
             <helpId>RemoveAntennaPatternOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
             <text>Remove Antenna Pattern</text>
@@ -84,7 +84,7 @@
         <action>
             <id>Sentinel1RemoveThermalNoiseOp</id>
             <helpId>Sentinel1RemoveThermalNoiseOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
             <text>Sentinel-1 Remove Thermal Noise</text>

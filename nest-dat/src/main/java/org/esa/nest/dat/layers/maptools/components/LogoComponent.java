@@ -17,7 +17,7 @@ package org.esa.nest.dat.layers.maptools.components;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,18 +37,24 @@ public class LogoComponent implements MapToolsComponent {
 
     public LogoComponent(final RasterDataNode raster) {
 
-        image = new BufferedImage(procNestIcon.getIconWidth(), procNestIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-        final Graphics2D g = image.createGraphics();
-        g.drawImage(procNestIcon.getImage(), null, null);
+        if(procNestIcon != null) {
+            image = new BufferedImage(procNestIcon.getIconWidth(), procNestIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            final Graphics2D g = image.createGraphics();
+            g.drawImage(procNestIcon.getImage(), null, null);
 
-        final int rasterWidth = raster.getRasterWidth();
-        final int rasterHeight = raster.getRasterHeight();
-        final int size = Math.min(rasterWidth, rasterHeight);
-        final int margin = (int) (size * marginPct);
+            final int rasterWidth = raster.getRasterWidth();
+            final int rasterHeight = raster.getRasterHeight();
+            final int size = Math.min(rasterWidth, rasterHeight);
+            final int margin = (int) (size * marginPct);
 
-        scale = (marginPct * 2 * size) / (double) image.getWidth();
-        point = new Point((int) (rasterWidth - (image.getWidth() * scale) - margin),
-                (int) (rasterHeight - (image.getHeight() * scale) - margin));
+            scale = (marginPct * 2 * size) / (double) image.getWidth();
+            point = new Point((int) (rasterWidth - (image.getWidth() * scale) - margin),
+                    (int) (rasterHeight - (image.getHeight() * scale) - margin));
+        }  else {
+            image = null;
+            scale = 0;
+            point = new Point(0,0);
+        }
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {

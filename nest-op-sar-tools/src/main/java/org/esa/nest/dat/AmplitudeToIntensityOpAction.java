@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.Unit;
 
 /**
  * AmplitudeToIntensityOp action.

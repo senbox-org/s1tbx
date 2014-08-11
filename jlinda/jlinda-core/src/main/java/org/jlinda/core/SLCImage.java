@@ -1,7 +1,7 @@
 package org.jlinda.core;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;
 

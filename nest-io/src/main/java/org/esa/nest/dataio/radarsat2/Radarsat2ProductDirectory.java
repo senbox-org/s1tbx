@@ -21,11 +21,11 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;

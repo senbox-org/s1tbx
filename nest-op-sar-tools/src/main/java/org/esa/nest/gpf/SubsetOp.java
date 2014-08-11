@@ -33,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.converters.JtsGeometryConverter;
+import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.util.HashMap;

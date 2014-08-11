@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.datamodel.Unit;
 
 import java.io.File;
 

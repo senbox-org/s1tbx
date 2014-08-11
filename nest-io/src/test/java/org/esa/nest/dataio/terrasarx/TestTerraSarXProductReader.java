@@ -16,7 +16,7 @@
 package org.esa.nest.dataio.terrasarx;
 
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.MemUtils;
+import org.esa.snap.util.MemUtils;
 
 /**
  * This action closes all opened products other than the one selected.

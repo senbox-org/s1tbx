@@ -17,17 +17,16 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.SARGeocoding;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.eo.Constants;
 import org.esa.nest.gpf.CalibrationOp;
-import org.esa.nest.gpf.OperatorUIUtils;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.util.DialogUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.*;

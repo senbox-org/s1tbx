@@ -22,8 +22,10 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 
 import java.util.HashMap;
 

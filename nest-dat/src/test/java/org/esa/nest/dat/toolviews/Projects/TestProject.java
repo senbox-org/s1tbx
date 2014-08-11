@@ -17,7 +17,7 @@ package org.esa.nest.dat.toolviews.Projects;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import java.io.File;
 

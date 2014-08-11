@@ -17,7 +17,7 @@ package org.esa.nest.dataio.imageio;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.datamodel.Unit;
+import org.esa.snap.datamodel.Unit;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;

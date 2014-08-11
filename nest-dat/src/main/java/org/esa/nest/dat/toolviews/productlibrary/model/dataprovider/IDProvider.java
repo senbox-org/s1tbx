@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary.model.dataprovider;
 
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

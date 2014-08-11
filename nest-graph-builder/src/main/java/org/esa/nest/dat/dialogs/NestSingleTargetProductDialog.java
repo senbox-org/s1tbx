@@ -44,8 +44,8 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.graphbuilder.GraphExecuter;
 import org.esa.nest.gpf.ProgressMonitorList;
 import org.esa.nest.gpf.ui.OperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.media.jai.JAI;
 import javax.swing.*;

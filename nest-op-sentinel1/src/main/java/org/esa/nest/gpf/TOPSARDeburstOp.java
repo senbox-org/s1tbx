@@ -26,10 +26,13 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.util.MathUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -1327,7 +1330,7 @@ public final class TOPSARDeburstOp extends Operator {
             dy = (sy - l0) / (l1 - l0);
         }
 
-        return MathUtils.interpolationBiLinear(noiseLUT0[pixelIdx0], noiseLUT0[pixelIdx0 + pixelIdxInc],
+        return Maths.interpolationBiLinear(noiseLUT0[pixelIdx0], noiseLUT0[pixelIdx0 + pixelIdxInc],
                 noiseLUT1[pixelIdx0], noiseLUT1[pixelIdx0 + pixelIdxInc],
                 dx, dy);
     }

@@ -16,8 +16,8 @@
 package org.esa.s1tbx;
 
 import org.esa.beam.util.PropertyMap;
-import org.esa.nest.util.Config;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.Config;
+import org.esa.snap.util.ResourceUtils;
 
 /**
  * Constants for benchmarking

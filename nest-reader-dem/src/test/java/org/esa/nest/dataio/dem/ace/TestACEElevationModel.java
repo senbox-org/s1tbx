@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 /**
  * Created by IntelliJ IDEA.

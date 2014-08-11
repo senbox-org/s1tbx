@@ -24,12 +24,13 @@ import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.XMLSupport;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.Maths;
+import org.esa.snap.util.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -893,7 +894,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         double[] groundRange = new double[m + 1];
         for (int i = 0; i <= m; i++) {
             sltRgTime[i] = firstPixelTime + (lastPixelTime - firstPixelTime) * i / m;
-            groundRange[i] = org.esa.nest.util.MathUtils.computePolynomialValue(sltRgTime[i] - referencePoint, s2gCoef);
+            groundRange[i] = Maths.computePolynomialValue(sltRgTime[i] - referencePoint, s2gCoef);
         }
 
         // final double groundRangeRef = (groundRange[0] + groundRange[m]) / 2;
@@ -905,7 +906,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             deltaGroundRange[i] = (groundRange[i] - groundRangeRef) / deltaMax;
         }
 
-        final Matrix G = org.esa.nest.util.MathUtils.createVandermondeMatrix(deltaGroundRange, m);
+        final Matrix G = Maths.createVandermondeMatrix(deltaGroundRange, m);
         final Matrix tau = new Matrix(sltRgTime, m + 1);
         final Matrix s = G.solve(tau);
         final double[] g2sCoef = s.getColumnPackedCopy();

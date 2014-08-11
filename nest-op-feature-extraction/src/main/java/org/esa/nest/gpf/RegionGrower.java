@@ -3,6 +3,7 @@ package org.esa.nest.gpf;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.gpf.TileIndex;
 
 import java.util.ArrayList;
 import java.util.List;

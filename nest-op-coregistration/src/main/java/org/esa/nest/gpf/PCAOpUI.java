@@ -15,11 +15,12 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

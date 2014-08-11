@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dataio.orbits;
 
-import org.esa.nest.datamodel.Orbits;
+import org.esa.snap.datamodel.Orbits;
 
 import java.io.File;
 

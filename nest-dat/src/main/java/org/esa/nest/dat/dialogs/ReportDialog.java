@@ -18,7 +18,7 @@ package org.esa.nest.dat.dialogs;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.nest.dat.DatApp;
 import org.esa.nest.dat.reports.Report;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

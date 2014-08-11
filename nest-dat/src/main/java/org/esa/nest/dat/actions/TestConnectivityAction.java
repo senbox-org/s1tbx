@@ -18,8 +18,8 @@ package org.esa.nest.dat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.Settings;
-import org.esa.nest.util.ftpUtils;
+import org.esa.snap.util.Settings;
+import org.esa.snap.util.ftpUtils;
 
 /**
  * This action test if FTP is working

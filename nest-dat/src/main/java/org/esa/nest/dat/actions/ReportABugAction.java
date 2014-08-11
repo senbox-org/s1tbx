@@ -18,7 +18,7 @@ package org.esa.nest.dat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.StringUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import java.awt.*;
 import java.io.IOException;

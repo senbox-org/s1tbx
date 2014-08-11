@@ -18,7 +18,7 @@ package org.esa.nest.dataio.imageio;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 import javax.imageio.ImageIO;
 import java.io.File;

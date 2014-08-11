@@ -18,9 +18,9 @@ package org.esa.nest.dataio.orbits;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.nest.util.MathUtils;
-import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.ZipUtils;
+import org.esa.snap.util.Maths;
+import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ZipUtils;
 
 import java.io.*;
 import java.util.Date;
@@ -541,12 +541,12 @@ public final class PrareOrbitReader {
         double ref = tRel - itRel;
 
         orb.utcTime = utc;
-        orb.xPos = MathUtils.lagrangeEightOrderInterpolation(xPosArray, ref);
-        orb.yPos = MathUtils.lagrangeEightOrderInterpolation(yPosArray, ref);
-        orb.zPos = MathUtils.lagrangeEightOrderInterpolation(zPosArray, ref);
-        orb.xVel = MathUtils.lagrangeEightOrderInterpolation(xVelArray, ref);
-        orb.yVel = MathUtils.lagrangeEightOrderInterpolation(yVelArray, ref);
-        orb.zVel = MathUtils.lagrangeEightOrderInterpolation(zVelArray, ref);
+        orb.xPos = Maths.lagrangeEightOrderInterpolation(xPosArray, ref);
+        orb.yPos = Maths.lagrangeEightOrderInterpolation(yPosArray, ref);
+        orb.zPos = Maths.lagrangeEightOrderInterpolation(zPosArray, ref);
+        orb.xVel = Maths.lagrangeEightOrderInterpolation(xVelArray, ref);
+        orb.yVel = Maths.lagrangeEightOrderInterpolation(yVelArray, ref);
+        orb.zVel = Maths.lagrangeEightOrderInterpolation(zVelArray, ref);
 
         return orb;
         /*

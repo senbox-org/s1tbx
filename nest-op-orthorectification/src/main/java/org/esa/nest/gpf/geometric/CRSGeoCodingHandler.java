@@ -17,7 +17,7 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.gpf.OperatorUtils;
+import org.esa.snap.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;

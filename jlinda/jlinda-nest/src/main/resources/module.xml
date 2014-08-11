@@ -23,7 +23,7 @@
         <module>beam-gpf</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>nest-io</module>
@@ -35,7 +35,7 @@
         <module>nest-dat</module>
     </dependency>
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
 	<dependency>
         <module>jlinda-core</module>
@@ -204,7 +204,7 @@
         <!--/// snaphu unwrapping ///-->
         <action>
             <id>SnaphuExportOp</id>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <helpId>Unwrap</helpId>
             <text>Snaphu data export</text>
             <dialogTitle>Export data for SNAPHU unwrapping</dialogTitle>
@@ -240,7 +240,7 @@
         <action>
             <id>CreateInSARStackOp</id>
             <helpId>CreateInSARStack</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>insar_coregistration</parent>
             <text>Create InSAR Stack</text>
@@ -252,7 +252,7 @@
         <action>
 	        <id>InSARCoregistrationGraph</id>
 	        <helpId>InSARCoregistration</helpId>
-	        <class>org.esa.nest.dat.actions.GraphAction</class>
+	        <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>insar_coregistration</parent>
 	        <text>InSAR Coregistration</text>

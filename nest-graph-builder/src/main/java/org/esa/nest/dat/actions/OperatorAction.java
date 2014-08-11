@@ -22,7 +22,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.beam.visat.actions.DefaultOperatorAction;
 import org.esa.nest.dat.dialogs.NestSingleTargetProductDialog;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 

@@ -17,7 +17,7 @@ package org.esa.nest.dat.graphbuilder;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.util.List;
 import java.util.Observer;

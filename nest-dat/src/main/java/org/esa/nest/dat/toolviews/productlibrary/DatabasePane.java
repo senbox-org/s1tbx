@@ -23,12 +23,12 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.db.DBQuery;
-import org.esa.nest.db.ProductDB;
-import org.esa.nest.db.ProductEntry;
-import org.esa.nest.util.DialogUtils;
-import org.esa.nest.db.SQLUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.db.DBQuery;
+import org.esa.snap.db.ProductDB;
+import org.esa.snap.db.ProductEntry;
+import org.esa.snap.util.DialogUtils;
+import org.esa.snap.db.SQLUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

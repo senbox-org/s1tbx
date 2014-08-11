@@ -1,10 +1,10 @@
 package org.jlinda.nest.dat.coregistration;
 
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 import org.jlinda.nest.gpf.coregistration.ResampleOp;
 
 import javax.swing.*;

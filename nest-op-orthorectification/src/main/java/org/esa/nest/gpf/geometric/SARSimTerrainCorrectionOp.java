@@ -36,9 +36,15 @@ import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.eo.*;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.*;
 import org.esa.nest.gpf.*;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.TileGeoreferencing;
+import org.esa.snap.util.ResourceUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;

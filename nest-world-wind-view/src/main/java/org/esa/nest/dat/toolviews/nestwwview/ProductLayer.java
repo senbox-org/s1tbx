@@ -25,9 +25,9 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
 
 import javax.swing.*;
 import java.awt.*;

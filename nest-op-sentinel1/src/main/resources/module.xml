@@ -17,15 +17,15 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
 
     <categories>Processor</categories>
 
-    <extension point="nest-graph-builder:OperatorUIs">
+    <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
             <id>org.esa.nest.gpf.TOPSARDeburstOpUI</id>
@@ -52,7 +52,7 @@
         <action>
             <id>TOPSARDeburstOp</id>
             <helpId>TOPSARDeburstOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>Sentinel-1 TOPSAR Deburst</text>
@@ -65,7 +65,7 @@
         <action>
             <id>TOPSARSplitOp</id>
             <helpId>TOPSARSplitOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>Sentinel-1 TOPSAR Split</text>
@@ -77,7 +77,7 @@
         <action>
             <id>Sentinel1SLCtoPRI</id>
             <helpId>Sentinel1SLCtoPRI</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>Sentinel-1 SLC to GRD</text>
@@ -89,7 +89,7 @@
         <!--action>
             <id>MergeSlices</id>
             <helpId>MergeSlices</helpId>
-            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>Merge Slices</text>

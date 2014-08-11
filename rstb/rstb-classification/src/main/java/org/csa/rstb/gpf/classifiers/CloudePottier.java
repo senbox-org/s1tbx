@@ -24,7 +24,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.PolBandUtils;
-import org.esa.nest.gpf.TileIndex;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.Map;

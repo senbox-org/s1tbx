@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.dem.BaseElevationTile;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
-import org.esa.nest.gpf.TileGeoreferencing;
+import org.esa.snap.gpf.TileGeoreferencing;
 
 public final class SRTM1GridElevationTile extends BaseElevationTile {
 

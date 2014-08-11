@@ -18,9 +18,9 @@ package org.esa.nest.dat.dialogs;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.db.ProductEntry;
-import org.esa.nest.gpf.OperatorUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.db.ProductEntry;
+import org.esa.snap.gpf.OperatorUtils;
 
 import java.io.File;
 import java.io.IOException;

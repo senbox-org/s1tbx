@@ -20,9 +20,9 @@ import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.gpf.ReaderUtils;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;

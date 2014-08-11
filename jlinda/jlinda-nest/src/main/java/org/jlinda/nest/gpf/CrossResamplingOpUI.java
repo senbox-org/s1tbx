@@ -1,10 +1,10 @@
 package org.jlinda.nest.gpf;
 
-import org.esa.nest.gpf.ui.BaseOperatorUI;
-import org.esa.nest.gpf.ui.UIValidation;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.DialogUtils;
 import org.jlinda.core.coregistration.LUT;
 
 import javax.swing.*;

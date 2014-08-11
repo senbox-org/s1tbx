@@ -1,7 +1,7 @@
 package org.esa.nest.eo;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.nest.gpf.TileGeoreferencing;
+import org.esa.snap.gpf.TileGeoreferencing;
 
 /**
  * Created with IntelliJ IDEA.

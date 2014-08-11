@@ -43,8 +43,8 @@
 package org.esa.nest.dat.wizards;
 
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.BatchGraphDialog;
-import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.dat.dialogs.BatchGraphDialog;
+import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 
 import javax.swing.*;
 import java.awt.*;

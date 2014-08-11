@@ -18,7 +18,7 @@ package org.esa.nest.gpf;
 import junit.framework.TestCase;
 import org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.io.File;
 

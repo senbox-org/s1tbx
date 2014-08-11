@@ -21,10 +21,10 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.StringSelectorDialog;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.ReplaceMetadataOp;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import java.io.File;
 import java.util.ArrayList;

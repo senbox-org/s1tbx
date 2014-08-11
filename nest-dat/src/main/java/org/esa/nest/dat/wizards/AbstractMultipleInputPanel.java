@@ -16,8 +16,8 @@
 package org.esa.nest.dat.wizards;
 
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.FileTable;
-import org.esa.nest.dat.dialogs.ProductSetPanel;
+import org.esa.snap.dat.dialogs.FileTable;
+import org.esa.snap.dat.dialogs.ProductSetPanel;
 
 import javax.swing.*;
 import java.awt.*;

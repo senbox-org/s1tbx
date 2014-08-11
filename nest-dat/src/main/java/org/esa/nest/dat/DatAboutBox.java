@@ -16,7 +16,7 @@
 package org.esa.nest.dat;
 
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;

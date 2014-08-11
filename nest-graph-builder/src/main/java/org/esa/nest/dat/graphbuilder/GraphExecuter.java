@@ -30,7 +30,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.GPFProcessor;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.esa.nest.gpf.ui.DefaultUI;
 import org.esa.nest.gpf.ui.OperatorUI;
 import org.esa.nest.gpf.ui.OperatorUIDescriptor;

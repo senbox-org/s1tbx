@@ -22,11 +22,15 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 import java.io.File;
@@ -262,7 +266,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 for (int j = 0; j < sourceImageWidth; ++j) {
                     final double slantRgTime = slantRangeTime.getPixelDouble(j, index[i]) / 1.0e9; // ns to s
                     if (slantRgTime >= record[i].validityRangeMin && slantRgTime <= record[i].validityRangeMax) {
-                        noise[i][j] = org.esa.nest.util.MathUtils.computePolynomialValue(
+                        noise[i][j] = Maths.computePolynomialValue(
                                 slantRgTime - record[i].referencePoint, record[i].coefficient);
                     } else {
                         noise[i][j] = 0.0;
@@ -483,7 +487,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 if (y1 != y2) {
                     mu = (double) (y - y1) / (double) (y2 - y1);
                 }
-                tileNoise[y - y0][x - x0] = org.esa.nest.util.MathUtils.interpolationLinear(n1, n2, mu);
+                tileNoise[y - y0][x - x0] = Maths.interpolationLinear(n1, n2, mu);
             }
         }
     }

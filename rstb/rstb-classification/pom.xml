@@ -28,8 +28,8 @@
             <artifactId>beam-visat-rcp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
@@ -40,8 +40,8 @@
             <artifactId>nest-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-graph-builder</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-graph-builder</artifactId>
         </dependency>
         <dependency>
             <groupId>org.csa.rstb</groupId>

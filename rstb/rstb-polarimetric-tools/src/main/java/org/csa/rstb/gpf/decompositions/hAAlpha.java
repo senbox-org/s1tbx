@@ -23,10 +23,10 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.nest.dataio.PolBandUtils;
-import org.esa.nest.gpf.TileIndex;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.ArrayList;

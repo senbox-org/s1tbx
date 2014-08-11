@@ -23,9 +23,9 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.XMLSupport;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 

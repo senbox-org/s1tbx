@@ -19,7 +19,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.dat.wizards.WizardDialog;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 public class PolSARWizardAction extends AbstractVisatAction {
 

@@ -18,7 +18,7 @@ package org.csa.rstb.dat.wizards.TerrainFlattenedClassification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.wizards.WizardPanel;
 
 import javax.swing.*;

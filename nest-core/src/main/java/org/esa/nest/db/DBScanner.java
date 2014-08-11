@@ -17,8 +17,8 @@ package org.esa.nest.db;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.gpf.ThreadManager;
-import org.esa.nest.util.ProductFunctions;
+import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.util.ProductFunctions;
 
 import javax.swing.*;
 import java.io.File;

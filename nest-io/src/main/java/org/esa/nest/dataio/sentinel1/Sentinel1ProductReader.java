@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;

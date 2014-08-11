@@ -23,10 +23,10 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>nest-core</module>
+        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
-        <module>nest-graph-builder</module>
+        <module>snap-graph-builder</module>
     </dependency>
 
     <categories>Application,DAT</categories>
@@ -481,7 +481,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Wizards</text>
             <parent>help</parent>
-            <smallIcon>/org/esa/nest/icons/wizard-16.png</smallIcon>
+            <smallIcon>/org/esa/snap/icons/wizard-16.png</smallIcon>
             <placeAfter>helpTopics</placeAfter>
         </action>
 
@@ -503,7 +503,7 @@
             <parent>MetadataTools</parent>
             <placeBefore>searchMetadata</placeBefore>
             <context>metadataNode</context>
-            <largeIcon>/org/esa/nest/icons/metadata_edit.png</largeIcon>
+            <largeIcon>/org/esa/snap/icons/metadata_edit.png</largeIcon>
         </action>
 
         <action>

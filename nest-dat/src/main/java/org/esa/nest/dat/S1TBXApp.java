@@ -23,7 +23,7 @@ import com.jidesoft.swing.JideTabbedPane;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -131,7 +131,7 @@ public final class S1TBXApp extends DatApp {
     protected void initClientUI(ProgressMonitor pm) {
         super.initClientUI(pm);
         try {
-            getMainFrame().setIconImage(ResourceUtils.s1Icon.getImage());
+            getMainFrame().setIconImage(ResourceUtils.esaPlanetIcon.getImage());
         } catch (Exception e) {
             e.printStackTrace();
         }

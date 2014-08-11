@@ -23,9 +23,9 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.db.DBSearch;
-import org.esa.nest.db.ProductEntry;
-import org.esa.nest.util.DialogUtils;
-import org.esa.nest.util.ProductFunctions;
+import org.esa.snap.db.ProductEntry;
+import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.ProductFunctions;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;

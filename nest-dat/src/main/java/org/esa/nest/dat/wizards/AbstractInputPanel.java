@@ -17,7 +17,7 @@ package org.esa.nest.dat.wizards;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.SourceProductPanel;
+import org.esa.snap.dat.dialogs.SourceProductPanel;
 
 import javax.swing.*;
 import java.awt.*;

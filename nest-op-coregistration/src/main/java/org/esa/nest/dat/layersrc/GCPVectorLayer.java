@@ -26,7 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.nest.dat.graphics.GraphicShape;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.awt.*;
 import java.util.ArrayList;

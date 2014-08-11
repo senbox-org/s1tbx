@@ -16,8 +16,8 @@
 package org.esa.nest.gpf.oceantools;
 
 import junit.framework.TestCase;
-import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.io.File;
 

@@ -19,8 +19,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.datamodel.Orbits;
-import org.esa.nest.util.ftpUtils;
+import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.util.ftpUtils;
 
 import java.io.File;
 import java.util.Map;

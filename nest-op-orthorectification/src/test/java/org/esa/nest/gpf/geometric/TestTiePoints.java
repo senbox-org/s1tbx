@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 
 import java.io.File;
 

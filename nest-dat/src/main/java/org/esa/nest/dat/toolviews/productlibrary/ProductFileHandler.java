@@ -17,8 +17,8 @@ package org.esa.nest.dat.toolviews.productlibrary;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.nest.db.ProductEntry;
-import org.esa.nest.util.FileIOUtils;
+import org.esa.snap.db.ProductEntry;
+import org.esa.snap.util.FileIOUtils;
 
 import java.io.File;
 import java.nio.file.Files;

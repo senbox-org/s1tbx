@@ -4,7 +4,7 @@ import com.alee.laf.panel.WebPanel;
 import org.esa.nest.dat.toolviews.productlibrary.DatabasePane;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseStatistics;
-import org.esa.nest.util.DialogUtils;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;

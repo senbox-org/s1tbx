@@ -17,7 +17,7 @@ package org.esa.nest.dat.graphbuilder;
 
 import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.util.StringUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;

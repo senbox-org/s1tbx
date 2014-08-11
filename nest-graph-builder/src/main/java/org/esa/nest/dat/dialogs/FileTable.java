@@ -16,9 +16,9 @@
 package org.esa.nest.dat.dialogs;
 
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 import org.esa.nest.util.ClipboardUtils;
-import org.esa.nest.util.ProductFunctions;
+import org.esa.snap.util.ProductFunctions;
 
 import javax.swing.*;
 import java.awt.*;

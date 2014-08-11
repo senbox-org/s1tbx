@@ -17,8 +17,8 @@ package org.esa.nest.dat.toolviews.productlibrary.model.dataprovider;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.db.ProductEntry;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

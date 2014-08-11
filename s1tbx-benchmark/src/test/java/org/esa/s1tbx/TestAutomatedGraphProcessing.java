@@ -20,10 +20,10 @@ import org.apache.commons.io.FileUtils;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.nest.gpf.GPFProcessor;
-import org.esa.nest.util.MemUtils;
-import org.esa.nest.gpf.ProcessTimeMonitor;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.gpf.GPFProcessor;
+import org.esa.snap.util.MemUtils;
+import org.esa.snap.gpf.ProcessTimeMonitor;
+import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 

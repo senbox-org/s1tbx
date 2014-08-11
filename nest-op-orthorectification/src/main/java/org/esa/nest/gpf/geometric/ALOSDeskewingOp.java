@@ -30,16 +30,14 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.OrbitStateVector;
-import org.esa.nest.datamodel.PosVector;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.eo.SARUtils;
-import org.esa.nest.eo.SARGeocoding;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.TileIndex;
-import org.esa.nest.util.MathUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.PosVector;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.Maths;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -426,12 +424,12 @@ public class ALOSDeskewingOp extends Operator {
         final PosVector pos = new PosVector();
         final PosVector vel = new PosVector();
 
-        pos.x = MathUtils.polyVal(time - firstLineTime, orbit.xPosCoeff);
-        pos.y = MathUtils.polyVal(time - firstLineTime, orbit.yPosCoeff);
-        pos.z = MathUtils.polyVal(time - firstLineTime, orbit.zPosCoeff);
-        vel.x = MathUtils.polyVal(time - firstLineTime, orbit.xVelCoeff);
-        vel.y = MathUtils.polyVal(time - firstLineTime, orbit.yVelCoeff);
-        vel.z = MathUtils.polyVal(time - firstLineTime, orbit.zVelCoeff);
+        pos.x = Maths.polyVal(time - firstLineTime, orbit.xPosCoeff);
+        pos.y = Maths.polyVal(time - firstLineTime, orbit.yPosCoeff);
+        pos.z = Maths.polyVal(time - firstLineTime, orbit.zPosCoeff);
+        vel.x = Maths.polyVal(time - firstLineTime, orbit.xVelCoeff);
+        vel.y = Maths.polyVal(time - firstLineTime, orbit.yVelCoeff);
+        vel.z = Maths.polyVal(time - firstLineTime, orbit.zVelCoeff);
 
         return new stateVector(time, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
@@ -598,8 +596,8 @@ public class ALOSDeskewingOp extends Operator {
         final double[] az = {v.xPos, v.yPos, v.zPos};
         final double[] vl = {v.xVel, v.yVel, v.zVel};
 
-        MathUtils.normalizeVector(az);
-        MathUtils.normalizeVector(vl);
+        Maths.normalizeVector(az);
+        Maths.normalizeVector(vl);
 
         crossProduct(az, vl, ay);
         crossProduct(ay, az, ax);

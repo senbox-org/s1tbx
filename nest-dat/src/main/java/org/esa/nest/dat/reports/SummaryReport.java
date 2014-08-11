@@ -16,7 +16,7 @@
 package org.esa.nest.dat.reports;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 /**
  * Report to show metadata

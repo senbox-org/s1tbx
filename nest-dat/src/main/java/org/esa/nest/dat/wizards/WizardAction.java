@@ -19,8 +19,8 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.actions.OperatorAction;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.dat.actions.OperatorAction;
+import org.esa.snap.util.ResourceUtils;
 
 /**
  * <p>An action which creates a default dialog for an operator given by the

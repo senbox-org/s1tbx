@@ -24,7 +24,10 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.PolBandUtils;
-import org.esa.nest.gpf.*;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -152,7 +155,6 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
             clusterCenters = new ClusterInfo[numTargetBands][9];
         }
 
-        //final Dimension tileSize = ImageManager.getPreferredTileSize(sourceProduct);
         final Dimension tileSize = new Dimension(256, 256);
         final Rectangle[] tileRectangles = OperatorUtils.getAllTileRectangles(op.getSourceProduct(), tileSize, 0);
 

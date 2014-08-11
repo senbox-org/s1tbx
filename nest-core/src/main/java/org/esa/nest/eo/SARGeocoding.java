@@ -4,12 +4,12 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.OrbitStateVector;
-import org.esa.nest.datamodel.PosVector;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.TileGeoreferencing;
-import org.esa.nest.util.MathUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.PosVector;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileGeoreferencing;
+import org.esa.snap.util.MathUtils;
 
 /**
  * Common SAR utilities for Geocoding

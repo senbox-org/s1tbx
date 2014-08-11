@@ -18,7 +18,7 @@ package org.esa.nest.dat.dialogs;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.nest.util.Settings;
+import org.esa.snap.util.Settings;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 

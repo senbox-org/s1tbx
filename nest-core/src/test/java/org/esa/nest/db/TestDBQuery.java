@@ -16,7 +16,7 @@
 package org.esa.nest.db;
 
 import junit.framework.TestCase;
-import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.sql.SQLException;
 

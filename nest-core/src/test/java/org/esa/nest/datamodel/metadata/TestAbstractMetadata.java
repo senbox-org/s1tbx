@@ -1,7 +1,7 @@
 package org.esa.nest.datamodel.metadata;
 
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.util.TestUtils;
+import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -28,14 +28,15 @@ import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
 import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.OrbitStateVector;
-import org.esa.nest.datamodel.Orbits;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.Maths;
 
 import java.io.File;
 import java.io.IOException;
@@ -651,7 +652,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final int lastPixel = imageWidth - 1;
         final double[] idxArray = {firstPixel, midPixel, lastPixel};
         final double[] rangeArray = {slantRangeToFirstPixel, slantRangeToMidPixel, slantRangeToLastPixel};
-        final Matrix A = org.esa.nest.util.MathUtils.createVandermondeMatrix(idxArray, 2);
+        final Matrix A = Maths.createVandermondeMatrix(idxArray, 2);
         final Matrix b = new Matrix(rangeArray, 3);
         final Matrix x = A.solve(b);
         return x.getColumnPackedCopy();
@@ -879,12 +880,12 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
         // Lagrange polynomial interpolation
         final Orbits.OrbitData orbitData = new Orbits.OrbitData();
-        orbitData.xPos = org.esa.nest.util.MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc);
-        orbitData.yPos = org.esa.nest.util.MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc);
-        orbitData.zPos = org.esa.nest.util.MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc);
-        orbitData.xVel = org.esa.nest.util.MathUtils.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc);
-        orbitData.yVel = org.esa.nest.util.MathUtils.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc);
-        orbitData.zVel = org.esa.nest.util.MathUtils.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc);
+        orbitData.xPos = Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc);
+        orbitData.yPos = Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc);
+        orbitData.zPos = Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc);
+        orbitData.xVel = Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc);
+        orbitData.yVel = Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc);
+        orbitData.zVel = Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc);
 
         return orbitData;
     }

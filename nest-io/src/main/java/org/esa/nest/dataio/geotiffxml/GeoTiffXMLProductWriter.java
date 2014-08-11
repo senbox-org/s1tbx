@@ -19,9 +19,9 @@ import org.esa.beam.dataio.geotiff.GeoTiffProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.metadata.AbstractMetadataIO;
-import org.esa.nest.gpf.ReaderUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;

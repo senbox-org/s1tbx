@@ -17,9 +17,9 @@ package org.esa.nest.datamodel.metadata;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.gpf.ReaderUtils;
-import org.esa.nest.util.XMLSupport;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

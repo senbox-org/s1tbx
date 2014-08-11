@@ -16,7 +16,7 @@
 package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.nest.datamodel.Orbits;
+import org.esa.snap.datamodel.Orbits;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;

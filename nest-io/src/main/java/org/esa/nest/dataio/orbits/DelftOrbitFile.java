@@ -17,9 +17,9 @@ package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Orbits;
-import org.esa.nest.util.Settings;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.util.Settings;
 
 import java.io.File;
 import java.io.IOException;

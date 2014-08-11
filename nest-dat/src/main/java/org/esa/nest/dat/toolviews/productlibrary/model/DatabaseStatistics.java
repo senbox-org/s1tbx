@@ -2,7 +2,7 @@ package org.esa.nest.dat.toolviews.productlibrary.model;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.dat.toolviews.productlibrary.DatabasePane;
-import org.esa.nest.db.ProductEntry;
+import org.esa.snap.db.ProductEntry;
 
 import java.util.*;
 

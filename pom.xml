@@ -24,6 +24,7 @@
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.0-SNAPSHOT</rstb.version>
 		<s1tbx.version>0.2.0-SNAPSHOT</s1tbx.version>
+		<snap.version>0.5-SNAPSHOT</snap.version>
 		
 		<geotools.version>2.7.4</geotools.version>
 		<jide.version>3.5.3</jide.version>
@@ -52,9 +53,7 @@
 		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-cli</module>
 		<module>s1tbx-config</module>
-		<module>nest-core</module>
 		<module>nest-dat</module>
-		<module>nest-graph-builder</module>
 		<module>nest-help</module>
 		<module>nest-io</module>
 		<module>nest-op-calibration</module>
@@ -323,21 +322,21 @@
             <!-- NEST Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-core</artifactId>
-                <version>${nest.version}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-engine-utilities</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-graph-builder</artifactId>
+			    <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>org.esa.nest</groupId>
                 <artifactId>nest-dat</artifactId>
                 <version>${nest.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-graph-builder</artifactId>
-			    <version>${nest.version}</version>
             </dependency>
 
             <dependency>

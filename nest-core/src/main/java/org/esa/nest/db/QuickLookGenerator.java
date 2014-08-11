@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.snap.util.ResourceUtils;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
