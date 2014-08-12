@@ -27,7 +27,7 @@ Building S1TBX from the source
     * Main class: com.bc.ceres.launcher.Launcher
     * VM parameters: -Xmx4G -Dceres.context=s1tbx
     * Program parameters: none
-    * Working directory: MY_PROJECTS/s1tbx/output
+    * Working directory: MY_PROJECTS\output
     * Use classpath of module: s1tbx-bootstrap
 
 

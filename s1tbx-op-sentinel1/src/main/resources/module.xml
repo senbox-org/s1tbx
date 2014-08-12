@@ -22,6 +22,9 @@
     <dependency>
         <module>snap-graph-builder</module>
     </dependency>
+    <dependency>
+        <module>nest-op-coregistration</module>
+    </dependency>
 
     <categories>Processor</categories>
 
@@ -37,6 +40,12 @@
             <class>org.esa.nest.gpf.TOPSARSplitOpUI</class>
             <operatorName>TOPSAR-Split</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.BackGeocodingOpUI</id>
+            <class>org.esa.nest.gpf.BackGeocodingOpUI</class>
+            <operatorName>Back-Geocoding</operatorName>
+        </OperatorUI>
+
     </extension>
 
     <extension point="beam-ui:actions">
@@ -96,6 +105,18 @@
             <operatorName>MergeSlices</operatorName>
             <shortDescr>Merge slice products together</shortDescr>
             <dialogTitle>Merge Slices</dialogTitle>
+        </action>
+
+        <action>
+            <id>BackGeocodingOp</id>
+            <helpId>BackGeocodingOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Back Geocoding</text>
+            <dialogTitle>Back Geocoding</dialogTitle>
+            <shortDescr>Back Geocoding</shortDescr>
+            <graphFile>BackGeocodingGraph.xml</graphFile>
         </action>
 
     </extension>
