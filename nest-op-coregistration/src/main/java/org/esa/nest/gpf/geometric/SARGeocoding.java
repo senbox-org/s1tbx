@@ -148,7 +148,7 @@ public class SARGeocoding {
     }
 
     /**
-     * Compute zero Doppler time for given point with the product orbit state vectors using Newton's method.
+     * Compute zero Doppler time for given point with the product orbit state vectors using bisection method.
      *
      * @param firstLineUTC     The zero Doppler time for the first range line.
      * @param lineTimeInterval The line time interval.
@@ -160,7 +160,7 @@ public class SARGeocoding {
      */
     public static double getZeroDopplerTime(final double firstLineUTC, final double lineTimeInterval,
                                             final double wavelength, final double[] earthPoint,
-                                            final Orbit orbit) throws OperatorException {
+                                            final SARGeocoding.Orbit orbit) throws OperatorException {
 
         // loop through all orbit state vectors to find the adjacent two vectors
         final int numOrbitVec = orbit.orbitStateVectors.length;
@@ -195,27 +195,32 @@ public class SARGeocoding {
             return NonValidZeroDopplerTime;
         }
 
-        // find the exact time using Doppler frequency and Newton's method
-        double diffTime = Math.abs(secondVecTime - firstVecTime);
+        // find the exact time using Doppler frequency and bisection method
+        double lowerBoundTime = firstVecTime;
+        double upperBoundTime = secondVecTime;
+        double lowerBoundFreq = firstVecTime;
+        double upperBoundFreq = secondVecFreq;
+        double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         while (diffTime > Math.abs(lineTimeInterval)) {
 
-            final double d = (secondVecFreq - firstVecFreq) / (secondVecTime - firstVecTime);
-            final double t0 = firstVecTime - firstVecFreq / d;
-            orbit.getPositionVelocity(t0 - firstLineUTC, sensorPosition, sensorVelocity);
-            final double f0 = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
-            if (f0 < 0.001) {
-                return t0;
-            } else if (f0 * firstVecFreq > 0) {
-                firstVecFreq = f0;
-                firstVecTime = t0;
-            } else {
-                secondVecFreq = f0;
-                secondVecTime = t0;
+            final double midTime = (upperBoundTime + lowerBoundTime) / 2.0;
+            orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
+            final double midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+
+            if (midFreq * lowerBoundFreq > 0.0) {
+                lowerBoundTime = midTime;
+                lowerBoundFreq = midFreq;
+            } else if (midFreq * upperBoundFreq > 0.0) {
+                upperBoundTime = midTime;
+                upperBoundFreq = midFreq;
+            } else if (Double.compare(midFreq, 0.0) == 0) {
+                return midTime;
             }
-            diffTime = Math.abs(secondVecTime - firstVecTime);
+
+            diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         }
 
-        return firstVecTime - firstVecFreq * (secondVecTime - firstVecTime) / (secondVecFreq - firstVecFreq);
+        return lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
     }
 
     /**
@@ -773,6 +778,7 @@ public class SARGeocoding {
 
         public OrbitStateVector[] orbitStateVectors = null;
         public int polyDegree;            // degree of fitting polynomial
+        public double firstLineUTC;
         public double[] xPosCoeff = null; // polynomial fitting coefficient for X coordinate of sensor position
         public double[] yPosCoeff = null; // polynomial fitting coefficient for Y coordinate of sensor position
         public double[] zPosCoeff = null; // polynomial fitting coefficient for Z coordinate of sensor position
@@ -786,6 +792,7 @@ public class SARGeocoding {
                      final int polyDegree, double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
 
             this.polyDegree = polyDegree;
+            this.firstLineUTC = firstLineUTC;
 
             if (orbitStateVectors.length < polyDegree + 1) {
                 throw new OperatorException("Not enough orbit state vectors for polynomial fitting");
@@ -823,27 +830,75 @@ public class SARGeocoding {
             this.zVelCoeff = Maths.polyFit(timeArray, zVelArray, polyDegree);
 
             for (int i = 0; i < sourceImageHeight; i++) {
-                final double time = i * lineTimeInterval;
+                final double normalizedTime = i * lineTimeInterval;
 
-                this.sensorPosition[i][0] = Maths.polyVal(time, xPosCoeff);
-                this.sensorPosition[i][1] = Maths.polyVal(time, yPosCoeff);
-                this.sensorPosition[i][2] = Maths.polyVal(time, zPosCoeff);
+                this.sensorPosition[i][0] = Maths.polyVal(normalizedTime, xPosCoeff);
+                this.sensorPosition[i][1] = Maths.polyVal(normalizedTime, yPosCoeff);
+                this.sensorPosition[i][2] = Maths.polyVal(normalizedTime, zPosCoeff);
 
-                this.sensorVelocity[i][0] = Maths.polyVal(time, xVelCoeff);
-                this.sensorVelocity[i][1] = Maths.polyVal(time, yVelCoeff);
-                this.sensorVelocity[i][2] = Maths.polyVal(time, zVelCoeff);
+                this.sensorVelocity[i][0] = Maths.polyVal(normalizedTime, xVelCoeff);
+                this.sensorVelocity[i][1] = Maths.polyVal(normalizedTime, yVelCoeff);
+                this.sensorVelocity[i][2] = Maths.polyVal(normalizedTime, zVelCoeff);
             }
+        }
+
+        public Orbit(OrbitStateVector[] orbitStateVectors, final int polyDegree, double firstLineUTC) {
+
+            this.polyDegree = polyDegree;
+            this.firstLineUTC = firstLineUTC;
+
+            if (orbitStateVectors.length < polyDegree + 1) {
+                throw new OperatorException("Not enough orbit state vectors for polynomial fitting");
+            }
+
+            double[] timeArray = new double[orbitStateVectors.length];
+            double[] xPosArray = new double[orbitStateVectors.length];
+            double[] yPosArray = new double[orbitStateVectors.length];
+            double[] zPosArray = new double[orbitStateVectors.length];
+            double[] xVelArray = new double[orbitStateVectors.length];
+            double[] yVelArray = new double[orbitStateVectors.length];
+            double[] zVelArray = new double[orbitStateVectors.length];
+            this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
+
+            for (int i = 0; i < orbitStateVectors.length; i++) {
+                timeArray[i] = orbitStateVectors[i].time_mjd - firstLineUTC;
+                xPosArray[i] = orbitStateVectors[i].x_pos; // m
+                yPosArray[i] = orbitStateVectors[i].y_pos; // m
+                zPosArray[i] = orbitStateVectors[i].z_pos; // m
+                xVelArray[i] = orbitStateVectors[i].x_vel; // m/s
+                yVelArray[i] = orbitStateVectors[i].y_vel; // m/s
+                zVelArray[i] = orbitStateVectors[i].z_vel; // m/s
+
+                this.orbitStateVectors[i] = orbitStateVectors[i];
+            }
+
+            this.xPosCoeff = Maths.polyFit(timeArray, xPosArray, polyDegree);
+            this.yPosCoeff = Maths.polyFit(timeArray, yPosArray, polyDegree);
+            this.zPosCoeff = Maths.polyFit(timeArray, zPosArray, polyDegree);
+            this.xVelCoeff = Maths.polyFit(timeArray, xVelArray, polyDegree);
+            this.yVelCoeff = Maths.polyFit(timeArray, yVelArray, polyDegree);
+            this.zVelCoeff = Maths.polyFit(timeArray, zVelArray, polyDegree);
         }
 
         public void getPositionVelocity(final double time, double[] position, double[] velocity) {
 
-            position[0] = Maths.polyVal(time, xPosCoeff);
-            position[1] = Maths.polyVal(time, yPosCoeff);
-            position[2] = Maths.polyVal(time, zPosCoeff);
+            final double normalizedTime = time - firstLineUTC;
+            position[0] = Maths.polyVal(normalizedTime, xPosCoeff);
+            position[1] = Maths.polyVal(normalizedTime, yPosCoeff);
+            position[2] = Maths.polyVal(normalizedTime, zPosCoeff);
 
-            velocity[0] = Maths.polyVal(time, xVelCoeff);
-            velocity[1] = Maths.polyVal(time, yVelCoeff);
-            velocity[2] = Maths.polyVal(time, zVelCoeff);
+            velocity[0] = Maths.polyVal(normalizedTime, xVelCoeff);
+            velocity[1] = Maths.polyVal(normalizedTime, yVelCoeff);
+            velocity[2] = Maths.polyVal(normalizedTime, zVelCoeff);
+        }
+
+        public double getVelocity(final double time) {
+
+            final double normalizedTime = time - firstLineUTC;
+            final double vX = Maths.polyVal(normalizedTime, xVelCoeff);
+            final double vY = Maths.polyVal(normalizedTime, yVelCoeff);
+            final double vZ = Maths.polyVal(normalizedTime, zVelCoeff);
+            return Math.sqrt(vX*vX + vY*vY + vZ*vZ);
         }
     }
 
