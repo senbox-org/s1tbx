@@ -57,7 +57,6 @@ public final class TOPSARDeburstOp extends Operator {
     private String[] selectedPolarisations;
 
     private MetadataElement absRoot = null;
-    private MetadataElement origProdRoot = null;
     private String acquisitionMode = null;
 
     private int numOfSubSwath = 0;
@@ -71,7 +70,8 @@ public final class TOPSARDeburstOp extends Operator {
     private double targetSlantRangeTimeToLastPixel = 0;
     private double targetDeltaSlantRangeTime = 0;
 
-    private SubSwathInfo[] subSwath = null;
+    private Sentinel1Utils su = null;
+    private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private boolean absoluteCalibrationPerformed = false;
     private boolean inputSigmaBand = false;
     private boolean inputBetaBand = false;
@@ -102,7 +102,6 @@ public final class TOPSARDeburstOp extends Operator {
 
         try {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
             getMission();
 
@@ -112,14 +111,10 @@ public final class TOPSARDeburstOp extends Operator {
 
             getCalibrationFlag();
 
+            su = new Sentinel1Utils(sourceProduct);
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
+                selectedPolarisations = su.getPolarizations();
             }
-
-            getSubSwathParameters();
-
-            // commented out because swaths are merged at the middle of the swath overlap
-            //getSubSwathNoiseVectors();
 
             computeTargetStartEndTime();
 
@@ -197,193 +192,6 @@ public final class TOPSARDeburstOp extends Operator {
                 }
             }
         }
-    }
-
-    /**
-     * Get source product polarizations.
-     *
-     * @param absRoot Root element of the abstracted metadata of the source product.
-     * @return The polarization array.
-     */
-    /*public static String[] getProductPolarizations(final MetadataElement absRoot) {
-
-        String swath = absRoot.getAttributeString(AbstractMetadata.SWATH);
-        if (swath.length() <= 1) {
-            swath = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-        }
-
-        final MetadataElement[] elems = absRoot.getElements();
-        final List<String> polarizations = new ArrayList<String>(4);
-        for (MetadataElement elem : elems) {
-            if (elem.getName().contains(swath)) {
-                final String pol = elem.getAttributeString("polarization");
-                if (!polarizations.contains(pol)) {
-                    polarizations.add(pol);
-                }
-            }
-        }
-        return polarizations.toArray(new String[polarizations.size()]);
-    }*/
-
-    /**
-     * Get parameters needed for deburst for each sub-swath.
-     */
-    private void getSubSwathParameters() {
-
-        subSwath = new SubSwathInfo[numOfSubSwath];
-        for (int i = 0; i < numOfSubSwath; i++) {
-            subSwath[i] = new SubSwathInfo();
-            subSwath[i].subSwathName = acquisitionMode + (i + 1);
-            final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwath[i].subSwathName);
-            setParameters(subSwathMetadata, subSwath[i]);
-        }
-    }
-
-    /**
-     * Get root metadata element of given sub-swath.
-     *
-     * @param subSwathName Sub-swath name string.
-     * @return The root metadata element.
-     */
-    private MetadataElement getSubSwathMetadata(final String subSwathName) {
-
-        final MetadataElement root = sourceProduct.getMetadataRoot();
-        if (root == null) {
-            throw new OperatorException("Root Metadata not found");
-        }
-
-        MetadataElement annotation = origProdRoot.getElement("annotation");
-        if (annotation == null) {
-            throw new OperatorException("Annotation Metadata not found");
-        }
-
-        final MetadataElement[] elems = annotation.getElements();
-        for (MetadataElement elem : elems) {
-            if (elem.getName().contains(subSwathName.toLowerCase())) {
-                return elem;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get sub-swath parameters and save them in SubSwathInfo object.
-     *
-     * @param subSwathMetadata The root metadata element of a given sub-swath.
-     * @param subSwath         The SubSwathInfo object.
-     */
-    private static void setParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
-
-        final MetadataElement product = subSwathMetadata.getElement("product");
-        final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
-        final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
-        final MetadataElement swathTiming = product.getElement("swathTiming");
-        final MetadataElement burstList = swathTiming.getElement("burstList");
-        final MetadataElement[] burstListElem = burstList.getElements();
-
-        subSwath.firstLineTime = Sentinel1Utils.getTime(imageInformation, "productFirstLineUtcTime").getMJD();
-        subSwath.lastLineTime = Sentinel1Utils.getTime(imageInformation, "productLastLineUtcTime").getMJD();
-        subSwath.numOfSamples = Integer.parseInt(imageInformation.getAttributeString("numberOfSamples"));
-        subSwath.numOfLines = Integer.parseInt(imageInformation.getAttributeString("numberOfLines"));
-        subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval")) /
-                Constants.secondsInDay; // s to day
-        subSwath.rangePixelSpacing = Double.parseDouble(imageInformation.getAttributeString("rangePixelSpacing"));
-        subSwath.slrTimeToFirstPixel = Double.parseDouble(imageInformation.getAttributeString("slantRangeTime")) / 2.0; // 2-way to 1-way
-        subSwath.slrTimeToLastPixel = subSwath.slrTimeToFirstPixel +
-                (subSwath.numOfSamples - 1) * subSwath.rangePixelSpacing / Constants.lightSpeed;
-
-        subSwath.numOfBursts = Integer.parseInt(burstList.getAttributeString("count"));
-        subSwath.linesPerBurst = Integer.parseInt(swathTiming.getAttributeString("linesPerBurst"));
-        subSwath.samplesPerBurst = Integer.parseInt(swathTiming.getAttributeString("samplesPerBurst"));
-        subSwath.burstFirstLineTime = new double[subSwath.numOfBursts];
-        subSwath.burstLastLineTime = new double[subSwath.numOfBursts];
-        subSwath.firstValidSample = new int[subSwath.numOfBursts][];
-        subSwath.lastValidSample = new int[subSwath.numOfBursts][];
-
-        int k = 0;
-        for (MetadataElement listElem : burstListElem) {
-            subSwath.burstFirstLineTime[k] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
-            subSwath.burstLastLineTime[k] = subSwath.burstFirstLineTime[k] +
-                    (subSwath.linesPerBurst - 1) * subSwath.azimuthTimeInterval;
-            final MetadataElement firstValidSampleElem = listElem.getElement("firstValidSample");
-            final MetadataElement lastValidSampleElem = listElem.getElement("lastValidSample");
-            subSwath.firstValidSample[k] = Sentinel1Utils.getIntArray(firstValidSampleElem, "firstValidSample");
-            subSwath.lastValidSample[k] = Sentinel1Utils.getIntArray(lastValidSampleElem, "lastValidSample");
-            k++;
-        }
-
-        // get geolocation grid points
-        final MetadataElement geolocationGrid = product.getElement("geolocationGrid");
-        final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");
-        final int numOfGeoLocationGridPoints = Integer.parseInt(geolocationGridPointList.getAttributeString("count"));
-        final MetadataElement[] geolocationGridPointListElem = geolocationGridPointList.getElements();
-        int numOfGeoPointsPerLine = 0;
-        int line = 0;
-        for (MetadataElement listElem : geolocationGridPointListElem) {
-            if (numOfGeoPointsPerLine == 0) {
-                line = Integer.parseInt(listElem.getAttributeString("line"));
-                numOfGeoPointsPerLine++;
-            } else if (line == Integer.parseInt(listElem.getAttributeString("line"))) {
-                numOfGeoPointsPerLine++;
-            } else {
-                break;
-            }
-        }
-
-        final int numOfGeoLines = numOfGeoLocationGridPoints / numOfGeoPointsPerLine;
-        subSwath.numOfGeoLines = numOfGeoLines;
-        subSwath.numOfGeoPointsPerLine = numOfGeoPointsPerLine;
-        subSwath.azimuthTime = new double[numOfGeoLines][numOfGeoPointsPerLine];
-        subSwath.slantRangeTime = new double[numOfGeoLines][numOfGeoPointsPerLine];
-        subSwath.latitude = new double[numOfGeoLines][numOfGeoPointsPerLine];
-        subSwath.longitude = new double[numOfGeoLines][numOfGeoPointsPerLine];
-        subSwath.incidenceAngle = new double[numOfGeoLines][numOfGeoPointsPerLine];
-        k = 0;
-        for (MetadataElement listElem : geolocationGridPointListElem) {
-            final int i = k / numOfGeoPointsPerLine;
-            final int j = k - i * numOfGeoPointsPerLine;
-            subSwath.azimuthTime[i][j] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
-            subSwath.slantRangeTime[i][j] = Double.parseDouble(listElem.getAttributeString("slantRangeTime")) / 2.0;
-            subSwath.latitude[i][j] = Double.parseDouble(listElem.getAttributeString("latitude"));
-            subSwath.longitude[i][j] = Double.parseDouble(listElem.getAttributeString("longitude"));
-            subSwath.incidenceAngle[i][j] = Double.parseDouble(listElem.getAttributeString("incidenceAngle"));
-            k++;
-        }
-    }
-
-    /**
-     * Get noise vectors for all sub-swathes.
-     */
-    private void getSubSwathNoiseVectors() {
-
-        for (int i = 0; i < numOfSubSwath; i++) {
-            for (String pol : selectedPolarisations) {
-                if (pol != null) {
-                    final Band srcBand = getSourceBand(subSwath[i].subSwathName, pol);
-                    final Sentinel1Utils.NoiseVector[] noiseVectors = Sentinel1Utils.getNoiseVector(srcBand);
-                    subSwath[i].noise.put(pol, noiseVectors);
-                }
-            }
-        }
-    }
-
-    /**
-     * Get source band for given sub-swath and polarization.
-     *
-     * @param subSwathName Sub-swath name string.
-     * @param polarization Polarization string.
-     * @return The band.
-     */
-    private Band getSourceBand(final String subSwathName, final String polarization) {
-
-        final Band[] sourceBands = sourceProduct.getBands();
-        for (Band band : sourceBands) {
-            if (band.getName().contains(subSwathName + '_' + polarization)) {
-                return band;
-            }
-        }
-        return null;
     }
 
     /**
@@ -531,8 +339,6 @@ public final class TOPSARDeburstOp extends Operator {
         final float[] slrtList = new float[gridWidth * gridHeight];
         final float[] incList = new float[gridWidth * gridHeight];
 
-        final Index index = new Index();
-
         int k = 0;
         for (int i = 0; i < gridHeight; i++) {
             final int y = i * subSamplingY;
@@ -540,12 +346,10 @@ public final class TOPSARDeburstOp extends Operator {
             for (int j = 0; j < gridWidth; j++) {
                 final int x = j * subSamplingX;
                 final double slrTime = targetSlantRangeTimeToFirstPixel + x * targetDeltaSlantRangeTime;
-                final int subSwathIndex = getSubSwathIndex(slrTime);
-                computeIndex(azTime, slrTime, subSwathIndex, index);
-                latList[k] = getLatitudeValue(index, subSwathIndex);
-                lonList[k] = getLongitudeValue(index, subSwathIndex);
-                slrtList[k] = (float) (getSlantRangeTimeValue(index, subSwathIndex) * 2 * Constants.oneBillion); // 2-way ns
-                incList[k] = getIncidenceAngleValue(index, subSwathIndex);
+                latList[k] = (float) su.getLatitude(azTime, slrTime);
+                lonList[k] = (float) su.getLongitude(azTime, slrTime);
+                slrtList[k] = (float) (su.getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion); // 2-way ns
+                incList[k] = (float) su.getIncidenceAngle(azTime, slrTime);
                 k++;
             }
         }
@@ -597,116 +401,6 @@ public final class TOPSARDeburstOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
-    }
-
-    private int getSubSwathIndex(final double slrTime) {
-        double startTime, endTime;
-        for (int i = 0; i < numOfSubSwath; i++) {
-
-            if (i == 0) {
-                startTime = subSwath[i].slrTimeToFirstPixel;
-            } else {
-                startTime = 0.5 * (subSwath[i].slrTimeToFirstPixel + subSwath[i - 1].slrTimeToLastPixel);
-            }
-
-            if (i == numOfSubSwath - 1) {
-                endTime = subSwath[i].slrTimeToLastPixel;
-            } else {
-                endTime = 0.5 * (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel);
-            }
-
-            if (slrTime >= startTime && slrTime < endTime) {
-                return i + 1; // subswath index start from 0
-            }
-        }
-
-        return 0;
-    }
-
-    private void computeIndex(final double azTime, final double slrTime, final int subSwathIndex, Index index) {
-
-        int j0 = -1, j1 = -1;
-        double muX = 0;
-        for (int j = 0; j < subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 1; j++) {
-            if (subSwath[subSwathIndex - 1].slantRangeTime[0][j] <= slrTime &&
-                    subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] > slrTime) {
-                j0 = j;
-                j1 = j + 1;
-                muX = (slrTime - subSwath[subSwathIndex - 1].slantRangeTime[0][j]) /
-                        (subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] - subSwath[subSwathIndex - 1].slantRangeTime[0][j]);
-            }
-        }
-
-        if (j0 == -1 || j1 == -1) {
-            throw new OperatorException("Invalid subswath index");
-        }
-
-        int i0 = -1, i1 = -1;
-        double muY = 0;
-        for (int i = 0; i < subSwath[subSwathIndex - 1].numOfGeoLines - 1; i++) {
-            final double i0AzTime = (1 - muX) * subSwath[subSwathIndex - 1].azimuthTime[i][j0] +
-                    muX * subSwath[subSwathIndex - 1].azimuthTime[i][j1];
-
-            final double i1AzTime = (1 - muX) * subSwath[subSwathIndex - 1].azimuthTime[i + 1][j0] +
-                    muX * subSwath[subSwathIndex - 1].azimuthTime[i + 1][j1];
-
-            if (i == 0 && azTime < i0AzTime ||
-                    i == subSwath[subSwathIndex - 1].numOfGeoLines - 2 && azTime >= i1AzTime ||
-                    i0AzTime <= azTime && i1AzTime > azTime) {
-
-                i0 = i;
-                i1 = i + 1;
-                muY = (azTime - i0AzTime) / (i1AzTime - i0AzTime);
-                break;
-            }
-        }
-
-        index.i0 = i0;
-        index.i1 = i1;
-        index.j0 = j0;
-        index.j1 = j1;
-        index.muX = muX;
-        index.muY = muY;
-    }
-
-    private float getLatitudeValue(final Index index, final int subSwathIndex) {
-        final double lat00 = subSwath[subSwathIndex - 1].latitude[index.i0][index.j0];
-        final double lat01 = subSwath[subSwathIndex - 1].latitude[index.i0][index.j1];
-        final double lat10 = subSwath[subSwathIndex - 1].latitude[index.i1][index.j0];
-        final double lat11 = subSwath[subSwathIndex - 1].latitude[index.i1][index.j1];
-
-        return (float) ((1 - index.muY) * ((1 - index.muX) * lat00 + index.muX * lat01) +
-                index.muY * ((1 - index.muX) * lat10 + index.muX * lat11));
-    }
-
-    private float getLongitudeValue(final Index index, final int subSwathIndex) {
-        final double lon00 = subSwath[subSwathIndex - 1].longitude[index.i0][index.j0];
-        final double lon01 = subSwath[subSwathIndex - 1].longitude[index.i0][index.j1];
-        final double lon10 = subSwath[subSwathIndex - 1].longitude[index.i1][index.j0];
-        final double lon11 = subSwath[subSwathIndex - 1].longitude[index.i1][index.j1];
-
-        return (float) ((1 - index.muY) * ((1 - index.muX) * lon00 + index.muX * lon01) +
-                index.muY * ((1 - index.muX) * lon10 + index.muX * lon11));
-    }
-
-    private float getSlantRangeTimeValue(final Index index, final int subSwathIndex) {
-        final double slrt00 = subSwath[subSwathIndex - 1].slantRangeTime[index.i0][index.j0];
-        final double slrt01 = subSwath[subSwathIndex - 1].slantRangeTime[index.i0][index.j1];
-        final double slrt10 = subSwath[subSwathIndex - 1].slantRangeTime[index.i1][index.j0];
-        final double slrt11 = subSwath[subSwathIndex - 1].slantRangeTime[index.i1][index.j1];
-
-        return (float) ((1 - index.muY) * ((1 - index.muX) * slrt00 + index.muX * slrt01) +
-                index.muY * ((1 - index.muX) * slrt10 + index.muX * slrt11));
-    }
-
-    private float getIncidenceAngleValue(final Index index, final int subSwathIndex) {
-        final double inc00 = subSwath[subSwathIndex - 1].incidenceAngle[index.i0][index.j0];
-        final double inc01 = subSwath[subSwathIndex - 1].incidenceAngle[index.i0][index.j1];
-        final double inc10 = subSwath[subSwathIndex - 1].incidenceAngle[index.i1][index.j0];
-        final double inc11 = subSwath[subSwathIndex - 1].incidenceAngle[index.i1][index.j1];
-
-        return (float) ((1 - index.muY) * ((1 - index.muX) * inc00 + index.muX * inc01) +
-                index.muY * ((1 - index.muX) * inc10 + index.muX * inc11));
     }
 
 
@@ -879,7 +573,7 @@ public final class TOPSARDeburstOp extends Operator {
             }
 
             final int tgtOffset = tgtIndex.calculateStride(y);
-            final SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex - 1];
+            final Sentinel1Utils.SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex - 1];
             int offset;
             if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
                 offset = srcTileIndex.calculateStride(burstInfo.sy1);
@@ -1016,7 +710,7 @@ public final class TOPSARDeburstOp extends Operator {
             }
 
             final int tgtOffset = tgtIndex.calculateStride(y);
-            final SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex - 1];
+            final Sentinel1Utils.SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex - 1];
             int offset;
             if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
                 offset = srcTileIndex.calculateStride(burstInfo.sy1);
@@ -1127,7 +821,7 @@ public final class TOPSARDeburstOp extends Operator {
     private Rectangle getSourceRectangle(
             final int tx0, final int ty0, final int tw, final int th, final int subSwathIndex) {
 
-        final SubSwathInfo sw = subSwath[subSwathIndex - 1];
+        final Sentinel1Utils.SubSwathInfo sw = subSwath[subSwathIndex - 1];
         final int x0 = getSampleIndexInSourceProduct(tx0, sw);
         final int xMax = getSampleIndexInSourceProduct(tx0 + tw - 1, sw);
 
@@ -1154,13 +848,14 @@ public final class TOPSARDeburstOp extends Operator {
         return new Rectangle(x0, y0, w, h);
     }
 
-    private int getSampleIndexInSourceProduct(final int tx, final SubSwathInfo subSwath) {
+    private int getSampleIndexInSourceProduct(final int tx, final Sentinel1Utils.SubSwathInfo subSwath) {
         final int sx = (int)((((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
                 - subSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime)+0.5);
         return sx < 0 ? 0 : sx > subSwath.numOfSamples - 1 ? subSwath.numOfSamples - 1 : sx;
     }
 
-    private boolean getLineIndicesInSourceProduct(final int ty, final SubSwathInfo subSwath, final BurstInfo burstTimes) {
+    private boolean getLineIndicesInSourceProduct(
+            final int ty, final Sentinel1Utils.SubSwathInfo subSwath, final BurstInfo burstTimes) {
 
         final double targetLineTime = targetFirstLineTime + ty * targetLineTimeInterval;
         burstTimes.targetTime = targetLineTime;
@@ -1192,12 +887,12 @@ public final class TOPSARDeburstOp extends Operator {
         return burstTimes.sy0 != -1 || burstTimes.sy1 != -1;
     }
 
-    private int computeYMin(final SubSwathInfo subSwath) {
+    private int computeYMin(final Sentinel1Utils.SubSwathInfo subSwath) {
 
         return (int) ((subSwath.firstLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
-    private int computeYMax(final SubSwathInfo subSwath) {
+    private int computeYMax(final Sentinel1Utils.SubSwathInfo subSwath) {
 
         return (int) ((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
@@ -1211,7 +906,7 @@ public final class TOPSARDeburstOp extends Operator {
         burstInfo.swath0 = -1;
         burstInfo.swath1 = -1;
         int cnt = 0;
-        SubSwathInfo info;
+        Sentinel1Utils.SubSwathInfo info;
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
             int i_1 = i - 1;
             info = subSwath[i_1];
@@ -1251,7 +946,7 @@ public final class TOPSARDeburstOp extends Operator {
     }
 
     private double getSubSwathNoise(final int tx, final double targetLineTime,
-                                    final SubSwathInfo sw, final String pol) {
+                                    final Sentinel1Utils.SubSwathInfo sw, final String pol) {
 
         final Sentinel1Utils.NoiseVector[] vectorList = sw.noise.get(pol);
 
@@ -1347,51 +1042,6 @@ public final class TOPSARDeburstOp extends Operator {
         public double midTime;
 
         public BurstInfo() {
-        }
-    }
-
-    private static class SubSwathInfo {
-
-        // subswath info
-        public String subSwathName;
-        public int numOfLines;
-        public int numOfSamples;
-        public double firstLineTime;
-        public double lastLineTime;
-        public double slrTimeToFirstPixel;
-        public double slrTimeToLastPixel;
-        public double azimuthTimeInterval;
-        public double rangePixelSpacing;
-
-        // bursts info
-        public int numOfBursts;
-        public int linesPerBurst;
-        public int samplesPerBurst;
-        public double[] burstFirstLineTime;
-        public double[] burstLastLineTime;
-        public int[][] firstValidSample;
-        public int[][] lastValidSample;
-        public Map<String, Sentinel1Utils.NoiseVector[]> noise = new HashMap<String, Sentinel1Utils.NoiseVector[]>();
-
-        // GeoLocationGridPoint
-        public int numOfGeoLines;
-        public int numOfGeoPointsPerLine;
-        public double[][] azimuthTime;
-        public double[][] slantRangeTime;
-        public double[][] latitude;
-        public double[][] longitude;
-        public double[][] incidenceAngle;
-    }
-
-    private static class Index {
-        public int i0;
-        public int i1;
-        public int j0;
-        public int j1;
-        public double muX;
-        public double muY;
-
-        public Index() {
         }
     }
 
