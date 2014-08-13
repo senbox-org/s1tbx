@@ -19,11 +19,7 @@ package org.esa.beam.util.jai;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.ComponentSampleModelJAI;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferDouble;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferInt;
-import java.awt.image.SampleModel;
+import java.awt.image.*;
 
 /**
  * This class represents image data which is composed of a single band so that
@@ -245,6 +241,13 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
         }
         if (dataType == DataBuffer.TYPE_INT) {
             getSamplesFast(x, y, w, h, array, ((DataBufferInt) data).getData(), data.getOffset());
+        } else if (dataType == DataBuffer.TYPE_SHORT) {
+            final short[] dataArray = new short[w * h];
+            getSamplesFast(x, y, w, h, dataArray, ((DataBufferShort) data).getData(), data.getOffset());
+            int i =0;
+            for(short v : dataArray) {
+                array[i++] = v;
+            }
         } else {
             super.getSamples(x, y, w, h, b, array, data);
         }
@@ -262,8 +265,28 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
         }
         if (dataType == DataBuffer.TYPE_FLOAT) {
             getSamplesFast(x, y, w, h, array, ((DataBufferFloat) data).getData(), data.getOffset());
+        } else if (dataType == DataBuffer.TYPE_SHORT) {
+            final short[] dataArray = new short[w * h];
+            getSamplesFast(x, y, w, h, dataArray, ((DataBufferShort) data).getData(), data.getOffset());
+            int i =0;
+            for(short v : dataArray) {
+                array[i++] = v;
+            }
+        } else if (dataType == DataBuffer.TYPE_INT) {
+            final int[] dataArray = new int[w * h];
+            getSamplesFast(x, y, w, h, dataArray, ((DataBufferInt) data).getData(), data.getOffset());
+            int i =0;
+            for(int v : dataArray) {
+                array[i++] = v;
+            }
         } else {
-            super.getSamples(x, y, w, h, b, array, data);
+            //super.getSamples(x, y, w, h, b, array, data);
+            int   Offset=0;
+            for (int i=y; i<(h+y); i++) {
+                for (int j=x; j<(w+x); j++) {
+                array[Offset++] = getSampleFloat(j, i, b, data);
+                }
+            }
         }
         return array;
     }
@@ -279,6 +302,27 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
         }
         if (dataType == DataBuffer.TYPE_DOUBLE) {
             getSamplesFast(x, y, w, h, array, ((DataBufferDouble) data).getData(), data.getOffset());
+        } else if (dataType == DataBuffer.TYPE_SHORT) {
+            final short[] dataArray = new short[w * h];
+            getSamplesFast(x, y, w, h, dataArray, ((DataBufferShort) data).getData(), data.getOffset());
+            int i =0;
+            for(short v : dataArray) {
+                array[i++] = v;
+            }
+        } else if (dataType == DataBuffer.TYPE_INT) {
+            final int[] dataArray = new int[w * h];
+            getSamplesFast(x, y, w, h, dataArray, ((DataBufferInt) data).getData(), data.getOffset());
+            int i =0;
+            for(int v : dataArray) {
+                array[i++] = v;
+            }
+        } else if (dataType == DataBuffer.TYPE_FLOAT) {
+            final float[] dataArray = new float[w * h];
+            getSamplesFast(x, y, w, h, dataArray, ((DataBufferFloat) data).getData(), data.getOffset());
+            int i =0;
+            for(float v : dataArray) {
+                array[i++] = v;
+            }
         } else {
             super.getSamples(x, y, w, h, b, array, data);
         }
