@@ -16,6 +16,7 @@
 package org.esa.nest.dat;
 
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.visat.VisatApp;
 import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
@@ -39,7 +40,7 @@ class DatAboutBox extends ModalDialog {
     }
 
     private DatAboutBox(JButton[] others) {
-        super(DatApp.getApp().getMainFrame(), "About " + DatApp.getApp().getAppName(),
+        super(VisatApp.getApp().getMainFrame(), "About " + VisatApp.getApp().getAppName(),
                 ModalDialog.ID_OK, others, null);    /*I18N*/
 
         final JButton creditsButton = others[0];

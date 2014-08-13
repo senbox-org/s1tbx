@@ -16,6 +16,7 @@
 package org.esa.nest.dat.dialogs;
 
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.DatApp;
 import org.esa.nest.dat.reports.Report;
 import org.esa.snap.util.DialogUtils;
@@ -31,7 +32,7 @@ import java.awt.event.ActionListener;
 public class ReportDialog extends ModalDialog {
 
     public ReportDialog(final Report report) {
-        super(DatApp.getApp().getMainFrame(), DatApp.getApp().getAppName() + " Report Preview",
+        super(VisatApp.getApp().getMainFrame(), VisatApp.getApp().getAppName() + " Report Preview",
                 ModalDialog.ID_CANCEL, null);    /*I18N*/
 
         getJDialog().setPreferredSize(new Dimension(800, 800));

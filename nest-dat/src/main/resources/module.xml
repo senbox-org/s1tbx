@@ -39,8 +39,8 @@
         <applicationDescriptor>
             <applicationId>S1TBXMain</applicationId>
             <displayName>SENTINEL-1 TOOLBOX</displayName>
-            <frameIcon>/org/esa/nest/icons/dat.png</frameIcon>
-            <image>/org/esa/nest/icons/dat.png</image>
+            <frameIcon>/org/esa/snap/icons/esa-planet.png</frameIcon>
+            <image>/org/esa/snap/icons/esa-planet.png</image>
             <excludedActions>
                 <id>showDataSources</id>
                 <id>new</id>
@@ -106,22 +106,6 @@
             <smallIcon>/org/esa/beam/resources/images/icons/Statistics16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Statistics24.gif</largeIcon>
             <helpId>statisticsToolView</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
-            <id>org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView</id>
-            <class>org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView</class>
-            <title>Beam World Map</title>
-            <tabTitle>Beam World Map</tabTitle>
-            <mnemonic>W</mnemonic>
-            <accelerator>ctrl alt W</accelerator>
-            <description>Display product boundaries in a world map.</description>
-            <smallIcon>/org/esa/nest/icons/WorldMap16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/WorldMap24.png</largeIcon>
-            <helpId>showWorldMapWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
@@ -287,21 +271,6 @@
             <context>product</context>
             <placeAfter>showProductLibrary</placeAfter>
         </action>
-
-        <!--action>
-              <id>openVector</id>
-              <class>org.esa.nest.dat.actions.OpenVectorAction</class>
-              <parent>file</parent>
-              <placeAfter>openRaster</placeAfter>
-              <text>Open Vector Dataset</text>
-              <mnemonic>V</mnemonic>
-              <accelerator>control V</accelerator>
-              <shortDescr>Open a vector product.</shortDescr>
-              <description>Open a vector product.</description>
-              <smallIcon>icons/Open16.gif</smallIcon>
-              <largeIcon>icons/Open24.gif</largeIcon>
-              <helpId>open</helpId>
-        </action-->
 
         <action>
             <id>reopen</id>
