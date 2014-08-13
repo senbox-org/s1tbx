@@ -112,6 +112,7 @@ public final class TOPSARDeburstOp extends Operator {
             getCalibrationFlag();
 
             su = new Sentinel1Utils(sourceProduct);
+            subSwath = su.getSubSwath();
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
                 selectedPolarisations = su.getPolarizations();
             }
