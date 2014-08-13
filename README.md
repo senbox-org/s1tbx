@@ -4,7 +4,7 @@ The SENTINEL-1 Toolbox
 Building S1TBX from the source
 
 1. Download and install the required build tools
-	* Install J2SE 1.7 JDK and set JAVA_HOME accordingly. 
+	* Install J2SE 1.8 JDK and set JAVA_HOME accordingly. 
 	* Install Maven and set MAVEN_HOME accordingly. 
 	* Install git
 2. Add $JAVA_HOME/bin, $MAVEN_HOME/bin to your PATH.
