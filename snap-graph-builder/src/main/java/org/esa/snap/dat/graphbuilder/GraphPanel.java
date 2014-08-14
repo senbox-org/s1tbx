@@ -82,40 +82,15 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         gpfOperatorSet.toArray(gpfOperatorList);
         Arrays.sort(gpfOperatorList);
 
-        final List<String> aliasList = new ArrayList<>(gpfOperatorList.length);
-        // place categories with folders first
-        for (String alias : gpfOperatorList) {
-            final String category = graphEx.getOperatorCategory(alias);
-            if (category.contains("/")) {
-                aliasList.add(alias);
-            }
-        }
-        // add remaining non empty categories
-        for (String alias : gpfOperatorList) {
-            if (!aliasList.contains(alias)) {
-                final String category = graphEx.getOperatorCategory(alias);
-                if (!category.isEmpty()) {
-                    aliasList.add(alias);
-                }
-            }
-        }
-        // add the rest
-        for (String alias : gpfOperatorList) {
-            if (!aliasList.contains(alias)) {
-                aliasList.add(alias);
-            }
-        }
-
-        final List<JMenu> subMenuList = new ArrayList<>(20);
         // add operators
-        for (String anAlias : aliasList) {
+        for (String anAlias : gpfOperatorList) {
             if (!graphEx.isOperatorInternal(anAlias)) {
                 final String category = graphEx.getOperatorCategory(anAlias);
                 JMenu menu = addMenu;
                 if (!category.isEmpty()) {
                     final String[] categoryPath = StringUtils.split(category, folderDelim, true);
                     for (String folder : categoryPath) {
-                        menu = getMenuFolder(subMenuList, folder, menu);
+                        menu = getMenuFolder(folder, menu);
                     }
                 }
 
@@ -127,24 +102,24 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         }
     }
 
-    private static JMenu getMenuFolder(final List<JMenu> subMenuList, final String folderName,
-                                       JMenu currentMenu) {
-        boolean menuExists = false;
-        for (JMenu sub : subMenuList) {
-            if (sub.getText().equals(folderName)) {
-                currentMenu = sub;
-                menuExists = true;
-                break;
+    private static JMenu getMenuFolder(final String folderName, final JMenu currentMenu) {
+        int insertPnt = 0;
+        for (int i = 0; i < currentMenu.getItemCount(); ++i) {
+            JMenuItem item = currentMenu.getItem(i);
+            if (item instanceof JMenu) {
+                int comp = item.getText().compareToIgnoreCase(folderName);
+                if (comp == 0) {
+                    return (JMenu) item;
+                } else if (comp < 0) {
+                    insertPnt++;
+                }
             }
         }
-        if (!menuExists) {
-            final JMenu newMenu = new JMenu(folderName);
-            newMenu.setIcon(folderIcon);
-            subMenuList.add(newMenu);
-            currentMenu.add(newMenu);
-            currentMenu = newMenu;
-        }
-        return currentMenu;
+
+        final JMenu newMenu = new JMenu(folderName);
+        newMenu.setIcon(folderIcon);
+        currentMenu.insert(newMenu, insertPnt);
+        return newMenu;
     }
 
     void AddOperatorAction(String name) {
