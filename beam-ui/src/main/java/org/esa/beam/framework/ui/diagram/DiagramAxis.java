@@ -94,10 +94,18 @@ public class DiagramAxis implements Serializable {
         }
     }
 
+    /**
+     * Sets if Axis increases from min to max or decreases max to min
+     * isMinToMax true if increases min to max
+     */
     public void setMinToMax(final boolean isMinToMax) {
         this.isMinToMax = isMinToMax;
     }
 
+    /**
+     * Does Axis increase from min to max or decrease max to min
+     * @return true if increases min to max
+     */
     public boolean isMinToMax() {
         return isMinToMax;
     }
