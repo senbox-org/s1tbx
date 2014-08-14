@@ -35,8 +35,8 @@ import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 /**
  * De-Burst a Sentinel-1 TOPSAR product
@@ -58,7 +58,7 @@ public final class TOPSARDeburstOp extends Operator {
 
     private MetadataElement absRoot = null;
     private String acquisitionMode = null;
-
+    private String productType = null;
     private int numOfSubSwath = 0;
     private int targetWidth = 0;
     private int targetHeight = 0;
@@ -69,6 +69,7 @@ public final class TOPSARDeburstOp extends Operator {
     private double targetSlantRangeTimeToFirstPixel = 0;
     private double targetSlantRangeTimeToLastPixel = 0;
     private double targetDeltaSlantRangeTime = 0;
+    private SubSwathEffectStartEndPixels[] subSwathEffectStartEndPixels = null;
 
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
@@ -125,6 +126,8 @@ public final class TOPSARDeburstOp extends Operator {
 
             createTargetProduct();
 
+            computeSubSwathEffectStartEndPixels();
+
             updateTargetProductMetadata();
 
         } catch (Throwable e) {
@@ -146,7 +149,7 @@ public final class TOPSARDeburstOp extends Operator {
      * Get product type from abstracted metadata.
      */
     private void getProductType() {
-        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
         if (!productType.equals("SLC")) {
             throw new OperatorException(productType + " is not a SLC product");
         }
@@ -229,10 +232,38 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetWidthAndHeight() {
 
-        targetHeight = (int) Math.round((targetLastLineTime - targetFirstLineTime) / subSwath[0].azimuthTimeInterval);
+        targetHeight = (int) Math.round((targetLastLineTime - targetFirstLineTime) /
+                subSwath[0].azimuthTimeInterval) + 1;
 
         targetWidth = (int) Math.round((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
-                targetDeltaSlantRangeTime);
+                targetDeltaSlantRangeTime) + 1;
+    }
+
+    private void computeSubSwathEffectStartEndPixels() {
+
+        subSwathEffectStartEndPixels = new SubSwathEffectStartEndPixels[numOfSubSwath];
+        for (int i = 0; i < numOfSubSwath; i++) {
+            subSwathEffectStartEndPixels[i] = new SubSwathEffectStartEndPixels();
+
+            if (i == 0) {
+                subSwathEffectStartEndPixels[i].xMin = 0;
+            } else {
+                final double midTime = (subSwath[i - 1].slrTimeToLastPixel + subSwath[i].slrTimeToFirstPixel) / 2.0;
+
+                subSwathEffectStartEndPixels[i].xMin = (int)Math.round((midTime - subSwath[i].slrTimeToFirstPixel) /
+                        targetDeltaSlantRangeTime);
+            }
+
+            if (i < numOfSubSwath - 1) {
+                final double midTime = (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel) / 2.0;
+
+                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((midTime - subSwath[i].slrTimeToFirstPixel) /
+                        targetDeltaSlantRangeTime);
+            } else {
+                subSwathEffectStartEndPixels[i].xMax = (int)Math.round(
+                        (subSwath[i].slrTimeToLastPixel - subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
+            }
+        }
     }
 
     /**
@@ -383,6 +414,12 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void updateTargetProductMetadata() {
 
+        updateAbstractMetadata();
+        updateOriginalMetadata();
+    }
+
+    private void updateAbstractMetadata() {
+
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetWidth);
@@ -404,6 +441,101 @@ public final class TOPSARDeburstOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
     }
 
+    private void updateOriginalMetadata() {
+
+        updateCalibrationVector();
+        //updateNoiseVector(); //todo: not implemented yet
+    }
+
+    private void updateCalibrationVector() {
+
+        final String[] selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
+        final MetadataElement srcCalibration = AbstractMetadata.getOriginalProductMetadata(sourceProduct).
+                getElement("calibration");
+        final MetadataElement bandCalibration = srcCalibration.getElementAt(0).getElement("calibration");
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        origProdRoot.removeElement(origProdRoot.getElement("calibration"));
+        final MetadataElement calibration = new MetadataElement("calibration");
+        for (String pol : selectedPols) {
+            final String elemName = "s1a-" + acquisitionMode + "-" + productType + "-" + pol;
+            final MetadataElement elem = new MetadataElement(elemName);
+            final MetadataElement calElem = bandCalibration.createDeepClone();
+            final MetadataElement calibrationVectorListElem = calElem.getElement("calibrationVectorList");
+            final MetadataElement[] list = calibrationVectorListElem.getElements();
+            int vectorIndex = 0;
+            final String mergedPixelStr = getMergedPixels(pol);
+            final StringTokenizer tokenizer = new StringTokenizer(mergedPixelStr, " ");
+            final int count = tokenizer.countTokens();
+            for (MetadataElement calibrationVectorElem : list) {
+
+                final MetadataElement pixelElem = calibrationVectorElem.getElement("pixel");
+                pixelElem.setAttributeString("pixel", mergedPixelStr);
+                pixelElem.setAttributeString("count", Integer.toString(count));
+
+                final MetadataElement sigmaNoughtElem = calibrationVectorElem.getElement("sigmaNought");
+                final String mergedSigmaNoughtStr = getMergedVector("SigmaNought", pol, vectorIndex);
+                sigmaNoughtElem.setAttributeString("sigmaNought", mergedSigmaNoughtStr);
+                sigmaNoughtElem.setAttributeString("count", Integer.toString(count));
+
+
+                final MetadataElement betaNoughtElem = calibrationVectorElem.getElement("betaNought");
+                final String mergedBetaNoughtStr = getMergedVector("betaNought", pol, vectorIndex);
+                betaNoughtElem.setAttributeString("betaNought", mergedBetaNoughtStr);
+                betaNoughtElem.setAttributeString("count", Integer.toString(count));
+
+                final MetadataElement gammaNoughtElem = calibrationVectorElem.getElement("gamma");
+                final String mergedGammaNoughtStr = getMergedVector("gamma", pol, vectorIndex);
+                gammaNoughtElem.setAttributeString("gamma", mergedGammaNoughtStr);
+                gammaNoughtElem.setAttributeString("count", Integer.toString(count));
+
+                final MetadataElement dnElem = calibrationVectorElem.getElement("dn");
+                final String mergedDNStr = getMergedVector("dn", pol, vectorIndex);
+                dnElem.setAttributeString("dn", mergedDNStr);
+                dnElem.setAttributeString("count", Integer.toString(count));
+                vectorIndex++;
+            }
+            elem.addElement(calElem);
+            calibration.addElement(elem);
+        }
+        origProdRoot.addElement(calibration);
+    }
+
+    private String getMergedPixels(final String pol) {
+
+        String mergedPixelStr = "";
+        for (int s = 0; s < numOfSubSwath; s++) {
+            final int[] pixelArray = su.getCalibrationPixel(s+1, pol, 0);
+            for (int p:pixelArray) {
+                if (p >= subSwathEffectStartEndPixels[s].xMin && p < subSwathEffectStartEndPixels[s].xMax) {
+                    final double slrt = subSwath[s].slrTimeToFirstPixel + p * targetDeltaSlantRangeTime;
+
+                    final int targetPixelIdx = (int)((slrt - targetSlantRangeTimeToFirstPixel) /
+                            targetDeltaSlantRangeTime);
+
+                    mergedPixelStr += targetPixelIdx + " ";
+                }
+            }
+        }
+        return mergedPixelStr;
+    }
+
+    private String getMergedVector(final String vectorName, final String pol, final int vectorIndex) {
+
+        String mergedVectorStr = "";
+        for (int s = 0; s < numOfSubSwath; s++) {
+            final int[] pixelArray = su.getCalibrationPixel(s+1, pol, vectorIndex);
+            final float[] vectorArray = su.getCalibrationVector(s+1, pol, vectorIndex, vectorName);
+            for (int i = 0; i < pixelArray.length; i++) {
+                if (pixelArray[i] >= subSwathEffectStartEndPixels[s].xMin &&
+                        pixelArray[i] < subSwathEffectStartEndPixels[s].xMax) {
+
+                    mergedVectorStr += vectorArray[i] + " ";
+                }
+            }
+        }
+        return mergedVectorStr;
+    }
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
@@ -416,7 +548,7 @@ public final class TOPSARDeburstOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
-
+/*
         try {
             final int tx0 = targetRectangle.x;
             final int ty0 = targetRectangle.y;
@@ -536,7 +668,7 @@ public final class TOPSARDeburstOp extends Operator {
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
-        }
+        }*/
     }
 
     // For original SLC product
@@ -1043,6 +1175,14 @@ public final class TOPSARDeburstOp extends Operator {
         public double midTime;
 
         public BurstInfo() {
+        }
+    }
+
+    private static class SubSwathEffectStartEndPixels {
+        public int xMin;
+        public int xMax;
+
+        public SubSwathEffectStartEndPixels() {
         }
     }
 
