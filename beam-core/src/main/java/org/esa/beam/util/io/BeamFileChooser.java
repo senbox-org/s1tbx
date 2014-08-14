@@ -16,20 +16,13 @@
 package org.esa.beam.util.io;
 
 import org.esa.beam.util.Debug;
+import sun.swing.FilePane;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Graphics;
-import java.awt.HeadlessException;
-import java.awt.Rectangle;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
@@ -234,6 +227,27 @@ public class BeamFileChooser extends JFileChooser {
             w = w.getParent();
         }
         return (Window) w;
+    }
+
+    /**
+     * Ensure the system laf gets used for the FileChooser
+     */
+    public void updateUI(){
+        LookAndFeel old = UIManager.getLookAndFeel();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Throwable ex) {
+            old = null;
+        }
+        super.updateUI();
+
+        if (old != null){
+            try {
+                UIManager.setLookAndFeel(old);
+            }
+            catch (UnsupportedLookAndFeelException ignored) {} // shouldn't get here
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
