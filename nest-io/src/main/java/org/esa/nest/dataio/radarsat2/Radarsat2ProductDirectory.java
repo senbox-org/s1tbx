@@ -57,7 +57,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         return Radarsat2Constants.PRODUCT_HEADER_NAME;
     }
 
-    protected void addImageFile(final Product product, final String imgPath) throws IOException {
+    protected void addImageFile(final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf("/") + 1, imgPath.length()).toLowerCase();
         if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
             final InputStream inStream = getInputStream(imgPath);
@@ -87,7 +87,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
         final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-        setSceneWidthHeight(product, width, height);
+        setSceneWidthHeight(width, height);
 
         final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : keys) {
@@ -112,9 +112,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        if (real)
+                        if (real) {
                             lastRealBand = band;
-                        else {
+                        } else {
                             ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band,
                                     '_' + polarizationMap.get(imgName));
                         }
@@ -129,6 +129,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
+
+                        SARReader.createVirtualIntensityBand(product, band, '_' + polarizationMap.get(imgName));
                     }
                 }
             }

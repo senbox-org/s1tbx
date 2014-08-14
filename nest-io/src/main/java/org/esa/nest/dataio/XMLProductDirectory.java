@@ -105,12 +105,11 @@ public abstract class XMLProductDirectory {
 
     protected abstract String getHeaderFileName();
 
-    protected abstract void addImageFile(final Product product, final String imgPath) throws IOException;
+    protected abstract void addImageFile(final String imgPath) throws IOException;
 
-    public void setSceneWidthHeight(final Product product, final int width, final int height) {
+    public void setSceneWidthHeight(final int width, final int height) {
         sceneWidth = width;
         sceneHeight = height;
-        product.setSceneDimensions(width, height);
     }
 
     public boolean isSLC() {
@@ -125,12 +124,12 @@ public abstract class XMLProductDirectory {
         return productDir.isCompressed();
     }
 
-    protected void findImages(final Product product) throws IOException {
+    protected void findImages() throws IOException {
         final String parentPath = getRelativePathToImageFolder();
         final String[] listing = productDir.list(parentPath);
         if (listing != null) {
             for (String imgPath : listing) {
-                addImageFile(product, parentPath + imgPath);
+                addImageFile(parentPath + imgPath);
             }
         }
     }
@@ -141,8 +140,9 @@ public abstract class XMLProductDirectory {
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
-        findImages(product);
+        findImages();
         addBands(product);
+        product.setSceneDimensions(sceneWidth, sceneHeight);
 
         addGeoCoding(product);
         addTiePointGrids(product);
@@ -191,10 +191,6 @@ public abstract class XMLProductDirectory {
         AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.addOriginalProductMetadata(product));
 
         addAbstractedMetadataHeader(product, root);
-    }
-
-    protected Element getXMLRootElement() {
-        return xmlDoc.getRootElement();
     }
 
     protected String[] listFiles(final String path) throws IOException {

@@ -562,6 +562,8 @@ public class CosmoSkymedReader extends SARReader {
                 band.setUnit(Unit.AMPLITUDE);
                 product.addBand(band);
                 bandMap.put(band, variable);
+
+                createVirtualIntensityBand(product, band, cntStr);
             }
         }
     }
