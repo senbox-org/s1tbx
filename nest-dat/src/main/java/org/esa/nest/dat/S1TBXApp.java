@@ -42,21 +42,6 @@ public final class S1TBXApp extends DatApp {
         return (S1TBXApp) VisatApp.getApp();
     }
 
-  /*  protected TabbedDesktopPane createDesktop() {
-        final JDesktopPane desktopPane = new JDesktopPane() {
-            //final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/desktop-pane.jpg");
-            final URL imgPath = S1TBXApp.class.getClassLoader().getResource("images/azure3.png");
-            private final Image image = Toolkit.getDefaultToolkit().getImage(imgPath);
-
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-            }
-        };
-
-        return new TabbedDesktopPane(new JideTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT), desktopPane);
-    }*/
-
     @Override
     protected boolean initLookAndFeel() {
 
@@ -92,9 +77,6 @@ public final class S1TBXApp extends DatApp {
                 // ignore
             }
 
-
-            //printUIProps();
-
             uiDefaultsInitialized = true;
 
             return true;
@@ -102,60 +84,19 @@ public final class S1TBXApp extends DatApp {
         return false;
     }
 
-    private void printUIProps() {
-
-        try {
-            String laf = UIManager.getLookAndFeel().getClass().getName();
-            System.out.println(laf);
-            System.out.println();
-
-            javax.swing.UIDefaults defaults = UIManager.getDefaults();
-            Enumeration newKeys = defaults.keys();
-
-            List<String> list = new ArrayList();
-            while (newKeys.hasMoreElements()) {
-                Object obj = newKeys.nextElement();
-                list.add(obj + " = " + UIManager.get(obj));
-            }
-            Collections.sort(list);
-            for (String s : list) {
-                System.out.println(s);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Override
-    protected void initClientUI(ProgressMonitor pm) {
-        super.initClientUI(pm);
-        try {
-            getMainFrame().setIconImage(ResourceUtils.esaPlanetIcon.getImage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     protected void loadJideExtension() {
         LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
-        // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
+
         UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
         UIManager.getDefaults().put("SidePane.alwaysShowTabText", Boolean.TRUE);
         UIManager.getDefaults().put("SidePane.orientation", 1);
 
         UIManager.getDefaults().put("DockableFrame.background", new Color(200, 220, 230));
+        UIManager.getDefaults().put("DockableFrame.activeTitleBackground", new Color(200, 220, 220));
+        UIManager.getDefaults().put("DockableFrame.activeTitleBackground2", new Color(100, 200, 255));
 
-        UIManager.getDefaults().put("DockableFrame.activeTitleBackground", new Color(200, 220, 220));//new Color(0,127,190));
-        UIManager.getDefaults().put("DockableFrame.activeTitleBackground2", new Color(100, 200, 255));//new Color(100,200,200));
-
+        // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
         //UIManager.getDefaults().put("JideTabbedPane.showIconOnTab", Boolean.TRUE);
-    }
-
-    @Override
-    protected String getMainFrameTitle() {
-        final String ver = System.getProperty("s1tbx.version");
-        return getAppName() + ' ' + ver;
     }
 
     @Override

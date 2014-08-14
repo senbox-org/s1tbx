@@ -53,7 +53,7 @@ import java.util.*;
  * Burst co-registration is performed using orbits and DEM.
  */
 @OperatorMetadata(alias = "Back-Geocoding",
-        category = "SAR Tools\\SENTINEL-1",
+        category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Bursts co-registration using orbit and DEM")

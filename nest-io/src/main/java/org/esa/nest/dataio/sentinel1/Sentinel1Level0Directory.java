@@ -50,7 +50,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return Sentinel1Constants.PRODUCT_HEADER_NAME;
     }
 
-    protected void addImageFile(final Product product, final String imgPath) throws IOException {
+    protected void addImageFile(final String imgPath) throws IOException {
 
     }
 
@@ -690,7 +690,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         addMetaData(product);
         addBinaryDataToProduct(product);
-        findImages(product);
+        findImages();
         addTiePointGrids(product); // empty
 
 

@@ -61,7 +61,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         return getRootFolder() + "measurement" + '/';
     }
 
-    protected void addImageFile(final Product product, final String imgPath) throws IOException {
+    protected void addImageFile(final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
         if ((name.endsWith("tiff"))) {
             final InputStream inStream = getInputStream(imgPath);
@@ -151,6 +151,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
+
+                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
 
                         // add tiepointgrids and geocoding for band
                         addTiePointGrids(band, imgName, tpgPrefix);
@@ -279,10 +281,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    private void determineProductDimensions(final Product product) throws IOException {
-        int width = 0, height = 0;
+    private void determineProductDimensions(final MetadataElement absRoot) throws IOException {
         int totalWidth = 0, maxHeight = 0;
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
@@ -292,17 +292,15 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 throw new IOException("Metadata for measurement dataset " + imgName + " not found");
             final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
 
-            width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
-            height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
+            int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
+            int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
             totalWidth += width;
             if (height > maxHeight) {
                 maxHeight = height;
             }
         }
         if (isSLC() && isTOPSAR()) {  // approximate does not account for overlap
-            product.setSceneDimensions(totalWidth, maxHeight);
-        } else {
-            product.setSceneDimensions(width, height);
+            setSceneWidthHeight(totalWidth, maxHeight);
         }
     }
 
@@ -930,8 +928,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 sceneWidth, sceneHeight);
 
         addMetaData(product);
-        findImages(product);
-        determineProductDimensions(product);
+        findImages();
+        determineProductDimensions(AbstractMetadata.getAbstractedMetadata(product));
 
         addBands(product);
         addGeoCoding(product);

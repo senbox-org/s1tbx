@@ -235,7 +235,8 @@
             <id>oceanTools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Ocean Tools</text>
-            <parent>classification</parent>
+            <parent>sar-processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 
         <action>

@@ -67,23 +67,13 @@ public class DatApp extends VisatApp {
     public DatApp(ApplicationDescriptor applicationDescriptor) {
         super(applicationDescriptor);
 
-        DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS = true;
+        //DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS = true;
 
         // enable anti-aliased text:
 
         System.setProperty("sun.java2d.opengl", "true");
         System.setProperty("awt.useSystemAAFontSettings", "on");
         System.setProperty("swing.aatext", "true");
-    }
-
-    public static DatApp getApp() {
-        return (DatApp) VisatApp.getApp();
-    }
-
-    @Override
-    protected String getMainFrameTitle() {
-        final String ver = System.getProperty(ResourceUtils.getContextID() + ".version");
-        return getAppName() + ' ' + ver;
     }
 
     // You can now override numerous createXXX() methods
@@ -107,8 +97,6 @@ public class DatApp extends VisatApp {
         labelToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_EAST);
         labelToolBar.getContext().setInitIndex(4);
         getMainFrame().getDockableBarManager().addDockableBar(labelToolBar);
-
-        getMainFrame().setIconImage(ResourceUtils.nestIcon.getImage());
 
         updateGraphMenu();
 
@@ -313,40 +301,6 @@ public class DatApp extends VisatApp {
         } else {
             return "Satellite coordinates";
         }
-    }
-
-    /**
-     * Creates a default frame icon for this application.
-     * <p/> Override this method if you want another behaviour.
-     *
-     * @return the frame icon, or <code>null</code> if no icon is used
-     */
-    protected ImageIcon createFrameIcon() {
-        return ResourceUtils.nestIcon;
-    }
-
-    /**
-     * Creates a standard status bar for this application.
-     */
-    @Override
-    protected com.jidesoft.status.StatusBar createStatusBar() {
-        final com.jidesoft.status.StatusBar statusBar = super.createStatusBar();
-
-        final LabelStatusBarItem valueItem = new LabelStatusBarItem("STATUS_BAR_VALUE_ITEM");
-        valueItem.setText("");
-        valueItem.setPreferredWidth(50);
-        valueItem.setAlignment(JLabel.CENTER);
-        valueItem.setToolTipText("Displays pixel value");
-        statusBar.add(valueItem, 3);
-
-        final LabelStatusBarItem dimensions = new LabelStatusBarItem("STATUS_BAR_DIMENSIONS_ITEM");
-        dimensions.setText("");
-        dimensions.setPreferredWidth(70);
-        dimensions.setAlignment(JLabel.CENTER);
-        dimensions.setToolTipText("Displays image dimensions");
-        statusBar.add(dimensions, 4);
-
-        return statusBar;
     }
 
     @Override

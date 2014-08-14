@@ -401,7 +401,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    protected void addImageFile(final Product product, final String imgPath) throws IOException {
+    protected void addImageFile(final String imgPath) throws IOException {
         if (imgPath.toUpperCase().endsWith("COS")) {
            throw new IOException("not supported yet");
         } else {
@@ -753,6 +753,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     band.setUnit(Unit.AMPLITUDE);
                     product.addBand(band);
 
+                    SARReader.createVirtualIntensityBand(product, band, '_' + pol);
+
                     bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
                 }
             }
@@ -791,7 +793,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
         }
 
-        setSceneWidthHeight(product, width, height);
+        setSceneWidthHeight(width, height);
     }
 
     private boolean arePolarizationsUnique() {
