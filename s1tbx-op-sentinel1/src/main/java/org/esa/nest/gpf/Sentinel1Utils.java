@@ -405,10 +405,8 @@ public final class Sentinel1Utils {
         for (int i = 0; i < numOfSubSwath; i++) {
             for (String pol:polarizations) {
                 if (pol != null) {
-                    final Band srcBand = getSourceBand(subSwath[i].subSwathName, pol);
-
                     final CalibrationVector[] calibrationVectors = getCalibrationVector(
-                            srcBand, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
+                            i+1, pol, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
 
                     subSwath[i].calibration.put(pol, calibrationVectors);
                 }
@@ -416,18 +414,14 @@ public final class Sentinel1Utils {
         }
     }
 
-    private CalibrationVector[] getCalibrationVector(final Band band,
+    private CalibrationVector[] getCalibrationVector(final int subSwathIndex,
+                                                     final String polarization,
                                                      final boolean outputSigmaBand,
                                                      final boolean outputBetaBand,
                                                      final boolean outputGammaBand,
                                                      final boolean outputDNBand) {
 
-        final MetadataElement bandAbsMetadata = AbstractMetadata.getBandAbsMetadata(absRoot, band);
-        final String annotation = bandAbsMetadata.getAttributeString(AbstractMetadata.annotation);
-        final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
-        final MetadataElement bandCalibration = calibrationElem.getElement(annotation);
-        final MetadataElement calibration = bandCalibration.getElement("calibration");
-        final MetadataElement calibrationVectorListElem = calibration.getElement("calibrationVectorList");
+        final MetadataElement calibrationVectorListElem = getCalibrationVectorList(subSwathIndex, polarization);
         final MetadataElement[] list = calibrationVectorListElem.getElements();
 
         final List<CalibrationVector> calibrationVectorList = new ArrayList<CalibrationVector>(5);
@@ -617,6 +611,44 @@ public final class Sentinel1Utils {
     }
 
     // =================================================================================
+    private MetadataElement getCalibrationVectorList(final int subSwathIndex, final String polarization) {
+
+        final Band srcBand = getSourceBand(subSwath[subSwathIndex - 1].subSwathName, polarization);
+        final MetadataElement bandAbsMetadata = AbstractMetadata.getBandAbsMetadata(absRoot, srcBand);
+        final String annotation = bandAbsMetadata.getAttributeString(AbstractMetadata.annotation);
+        final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
+        final MetadataElement bandCalibration = calibrationElem.getElement(annotation);
+        final MetadataElement calibration = bandCalibration.getElement("calibration");
+        return calibration.getElement("calibrationVectorList");
+    }
+
+    public float[] getCalibrationVector(
+            final int subSwathIndex, final String polarization, final int vectorIndex, final String vectorName) {
+
+        final MetadataElement calibrationVectorListElem = getCalibrationVectorList(subSwathIndex, polarization);
+        final MetadataElement[] list = calibrationVectorListElem.getElements();
+        final MetadataElement vectorElem = list[vectorIndex].getElement(vectorName);
+        final String vectorStr = vectorElem.getAttributeString(vectorName);
+        final int count = Integer.parseInt(vectorElem.getAttributeString("count"));
+        float[] vectorArray = new float[count];
+        addToArray(vectorArray, 0, vectorStr, " ");
+
+        return vectorArray;
+    }
+
+    public int[] getCalibrationPixel(
+            final int subSwathIndex, final String polarization, final int vectorIndex) {
+
+        final MetadataElement calibrationVectorListElem = getCalibrationVectorList(subSwathIndex, polarization);
+        final MetadataElement[] list = calibrationVectorListElem.getElements();
+        final MetadataElement pixelElem = list[vectorIndex].getElement("pixel");
+        final String pixel = pixelElem.getAttributeString("pixel");
+        final int count = Integer.parseInt(pixelElem.getAttributeString("count"));
+        final int[] pixelArray = new int[count];
+        addToArray(pixelArray, 0, pixel, " ");
+
+        return pixelArray;
+    }
 
     //todo: This function is currently used by Sentinel1RemoveThermalNoiseOp and should be replaced later by the function above.
     public static NoiseVector[] getNoiseVector(final MetadataElement noiseVectorListElem) {
