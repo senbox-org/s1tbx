@@ -25,3 +25,4 @@ incident_angle    |GEOLOCATION_GRID_ADS.8        |*   |Float |*|Linear_Scale|0.0
 latitude          |GEOLOCATION_GRID_ADS.9        |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Latitude of the tie points (WGS-84), positive N
 longitude         |GEOLOCATION_GRID_ADS.10       |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Longitude of the tie points (WGS-84), Greenwich origin, positive E
 Amplitude         |MDS1.4                        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |amplitude  |Alternating Polarization Mode Browse Product
+Intensity	  	  |=pow(Amplitude,2)			 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |intensity  |Intensity
