@@ -160,6 +160,7 @@ public class Diagram {
             if (this.yAxis != null) {
                 this.yAxis.setDiagram(null);
             }
+            yAxis.setMinToMax(true);
             this.yAxis = yAxis;
             this.yAxis.setDiagram(this);
             invalidate();
@@ -453,7 +454,10 @@ public class Diagram {
         n2 = yAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
-            y0 = yMin + (i * (yMax - yMin)) / (n - 1);
+            if(yAxis.isMinToMax())
+                y0 = yMin + (i * (yMax - yMin)) / (n - 1);
+            else
+                y0 = yMax - (i * (yMax - yMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
                 x2 = x1 - majorTickLength;
                 text = yTickTexts[n1 - 1 - (i / (n2 + 1))];
