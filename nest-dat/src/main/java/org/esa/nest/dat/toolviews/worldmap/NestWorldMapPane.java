@@ -170,9 +170,9 @@ public class NestWorldMapPane extends JPanel {
         if (oldValue != navControlShown) {
             if (navControlShown) {
                 final ButtonOverlayControl navControl = new ButtonOverlayControl(new ZoomAllAction(),
-                        new ZoomToSelectedAction());
+                        new ZoomToSelectedAction(), new ZoomToLocationAction());
                 navControlWrapper = new WakefulComponent(navControl);
-                navControlWrapper.setMinAlpha(0.3f);
+                navControlWrapper.setMinAlpha(0.5f);
                 layerCanvas.add(navControlWrapper);
             } else {
                 layerCanvas.remove(navControlWrapper);
@@ -501,5 +501,15 @@ public class NestWorldMapPane extends JPanel {
         }
     }
 
+    private class ZoomToLocationAction extends AbstractAction {
 
+        private ZoomToLocationAction() {
+            putValue(LARGE_ICON_KEY, UIUtils.loadImageIcon("/org/esa/nest/icons/define-location-24.png", this.getClass()));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            zoomToProduct(getSelectedProduct());
+        }
+    }
 }
