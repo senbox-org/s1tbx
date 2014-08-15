@@ -23,14 +23,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
 
     <name>BEAM Help</name>
-    <artifactId>snap-help</artifactId>
-    <version>5.0.1</version>
+    <artifactId>snap-beam-help</artifactId>
 
     <description>Provides the software user manual.</description>
 

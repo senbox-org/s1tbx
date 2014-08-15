@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-python</symbolicName>
-    <version>5.0.4</version>
+    <version>0.5</version>
     <name>BEAM Python Interface</name>
     <packaging>dir</packaging>
 

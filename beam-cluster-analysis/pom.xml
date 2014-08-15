@@ -24,12 +24,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Cluster Analysis</name>
     <artifactId>snap-cluster-analysis</artifactId>
-    <version>5.0</version>
+    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -7,12 +7,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Statistics Operator</name>
     <artifactId>snap-statistics-op</artifactId>
-    <version>5.0</version>
+    <version>0.5-SNAPSHOT</version>
 
     <description>A statistics operator for BEAM</description>
     <packaging>jar</packaging>

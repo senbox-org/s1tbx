@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-temporal-percentile-op</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>BEAM Temporal Percentile Operator</name>
     <funding>EU</funding>
 

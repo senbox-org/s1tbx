@@ -23,13 +23,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM AVHRR Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-avhrr-reader</artifactId>
-    <version>5.0.1</version>
+    <version>0.5-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

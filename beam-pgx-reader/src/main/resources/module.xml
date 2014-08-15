@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-pgx-reader</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>PGX Product Reader</name>
 
     <description>Enables BEAM to read PGX data products.</description>

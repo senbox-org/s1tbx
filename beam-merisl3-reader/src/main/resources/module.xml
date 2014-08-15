@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s3tbx-merisl3-reader</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>MERIS Level-3 Product Reader</name>
 
     <description>A reader for MERIS Binned Level-3 (netCDF) data products.</description>
