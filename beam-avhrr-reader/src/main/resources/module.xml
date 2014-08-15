@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-avhrr-reader</symbolicName>
+    <symbolicName>s3tbx-avhrr-reader</symbolicName>
     <version>5.0.1</version>
     <name>AVHRR Product Reader</name>
 

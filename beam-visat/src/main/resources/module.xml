@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-visat</symbolicName>
+    <symbolicName>snap-visat</symbolicName>
     <version>5.0</version>
     <name>BEAM VISAT Application</name>
 

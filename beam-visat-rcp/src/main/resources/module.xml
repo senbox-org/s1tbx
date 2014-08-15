@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-visat-rcp</symbolicName>
+    <symbolicName>snap-visat-rcp</symbolicName>
     <version>5.0.2</version>
     <name>VISAT Rich Client Platform</name>
 

@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-gpf</symbolicName>
+    <symbolicName>snap-gpf</symbolicName>
     <version>5.0.1</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
 

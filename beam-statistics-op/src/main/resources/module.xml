@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>beam-statistics-op</symbolicName>
+    <symbolicName>snap-statistics-op</symbolicName>
     <version>5.0</version>
     <name>BEAM Statistics Operator</name>
     <funding>EU</funding>

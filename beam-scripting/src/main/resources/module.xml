@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-scripting</symbolicName>
+    <symbolicName>snap-scripting</symbolicName>
     <version>5.0</version>
     <name>BEAM Scripting Interface</name>
 

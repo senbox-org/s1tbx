@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-pgx-reader</symbolicName>
+    <symbolicName>snap-pgx-reader</symbolicName>
     <version>5.0</version>
     <name>PGX Product Reader</name>
 

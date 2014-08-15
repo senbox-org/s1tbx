@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-hdf5-writer</symbolicName>
+    <symbolicName>snap-hdf5-writer</symbolicName>
     <version>5.0</version>
     <name>HDF5 Product Writer</name>
 

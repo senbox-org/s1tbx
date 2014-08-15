@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-examples</symbolicName>
+    <symbolicName>snap-examples</symbolicName>
     <version>5.0</version>
     <name>BEAM Examples</name>
 
