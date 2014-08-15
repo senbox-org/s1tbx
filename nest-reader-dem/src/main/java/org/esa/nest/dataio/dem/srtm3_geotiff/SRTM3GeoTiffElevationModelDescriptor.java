@@ -16,8 +16,8 @@
 package org.esa.nest.dataio.dem.srtm3_geotiff;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.dataop.dem.AbstractElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.SystemUtils;

@@ -17,7 +17,7 @@ package org.esa.nest.dataio.dem.ace;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.snap.util.TestUtils;
 

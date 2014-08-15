@@ -16,8 +16,6 @@
 package org.esa.nest.dataio.dem;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 
 /**
 

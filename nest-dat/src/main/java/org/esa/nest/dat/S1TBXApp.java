@@ -64,9 +64,9 @@ public final class S1TBXApp extends DatApp {
                 UIManager.setLookAndFeel(newLafClassName);
                 getPreferences().setPropertyString(PROPERTY_KEY_APP_UI_LAF, newLafClassName);
 
-                if ("WebLookAndFeel".equals(newLafClassName)) {
+                if ("com.alee.laf.WebLookAndFeel".equals(newLafClassName)) {
                     // Enabling dialog decoration
-                    WebLookAndFeel.setDecorateAllWindows(true);
+                    //WebLookAndFeel.setDecorateAllWindows(true);
                 }
             } catch (Throwable ignored) {
                 // ignore

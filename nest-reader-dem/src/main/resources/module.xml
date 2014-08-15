@@ -28,6 +28,10 @@
 
     <categories>Reader,DEM</categories>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.nest.dataio.dem.ElevationModelDescriptor</serviceProvider>
+    </extension>
+
     <extension point="beam-ui:actions">
 
         <action>
