@@ -22,7 +22,7 @@
 
     <name>BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
-    <groupId>org.esa.beam</groupId>
+    <groupId>org.esa.snap</groupId>
     <artifactId>beam</artifactId>
     <version>5.0.1</version>
     <packaging>pom</packaging>
@@ -181,37 +181,37 @@
             <!-- BEAM System Level Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-core</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-gpf</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-ui</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-csv-dataio</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-visat</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>beam-netcdf</artifactId>
                 <version>${beam.versionRange}</version>
             </dependency>

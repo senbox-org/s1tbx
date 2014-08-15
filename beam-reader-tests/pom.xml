@@ -6,7 +6,7 @@
 
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 
@@ -31,31 +31,31 @@
         <!-- beam reader dependencies -->
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-landsat-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-landsat-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-binning</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-binning</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
@@ -72,133 +72,133 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-envisat-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-envisat-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-alos-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-alos-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-atsr-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-atsr-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-avhrr-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-avhrr-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-chris-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-chris-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-merisl3-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-merisl3-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-geotiff</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-geotiff</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-getasse30-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-getasse30-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-csv-dataio</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-csv-dataio</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-modis-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-modis-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-netcdf</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-netcdf</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-spot-vgt-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.s3tbx</groupId>
             <artifactId>beam-spot-vgt-reader</artifactId>
             <version>${beam.versionRange}</version>
             <type>test-jar</type>

@@ -20,7 +20,7 @@
 
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 
@@ -31,21 +31,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-csv-dataio</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-ui</artifactId>
         </dependency>
         <!-- TODO: remove this dependency as soon as beam-statistics-op has been moved to beam-core
                   (prerequisite: beam-gpf needs to be moved to beam-core before) -->
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-statistics-op</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
@@ -54,7 +54,7 @@
             <artifactId>ceres-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
         <dependency>

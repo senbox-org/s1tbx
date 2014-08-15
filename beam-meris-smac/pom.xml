@@ -23,25 +23,26 @@
 
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 
     <name>BEAM MERIS SMAC Atmospheric Correction</name>
+    <groupId>org.esa.s3tbx</groupId>
     <artifactId>beam-meris-smac</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-envisat-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>

@@ -22,7 +22,7 @@
 
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 
@@ -32,15 +32,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-csv-dataio</artifactId>
         </dependency>
     </dependencies>

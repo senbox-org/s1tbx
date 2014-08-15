@@ -21,7 +21,7 @@
 
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 
@@ -36,11 +36,11 @@
             <version>1.5.5</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
+                    <groupId>org.esa.snap</groupId>
                     <artifactId>beam-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
+                    <groupId>org.esa.snap</groupId>
                     <artifactId>beam-netcdf</artifactId>
                 </exclusion>
                 <exclusion>
@@ -48,15 +48,15 @@
                     <artifactId>netcdf</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
+                    <groupId>org.esa.s3tbx</groupId>
                     <artifactId>beam-merisl3-reader</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
+                    <groupId>org.esa.snap</groupId>
                     <artifactId>beam-ui</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
+                    <groupId>org.esa.snap</groupId>
                     <artifactId>beam-visat-rcp</artifactId>
                 </exclusion>
             </exclusions>

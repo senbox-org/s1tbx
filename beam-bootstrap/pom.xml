@@ -22,7 +22,7 @@
 
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 
@@ -235,27 +235,27 @@
 
 <!--
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-meris-case2-regional</artifactId>
             <version>1.6</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-meris-l2auxdata</artifactId>
             <version>1.2.5</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-meris-sdr</artifactId>
             <version>2.4</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-meris-brr</artifactId>
             <version>2.4</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-meris-glint</artifactId>
             <version>1.2.3</version>
         </dependency>
