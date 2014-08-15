@@ -45,7 +45,7 @@
     <categories>System,Help</categories>
 
     <dependency>
-        <module>beam-ui</module>
+        <module>snap-ui</module>
     </dependency>
 
     <extension point="beam-ui:helpSets">

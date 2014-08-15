@@ -20,7 +20,7 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
 
     <categories>Application</categories>

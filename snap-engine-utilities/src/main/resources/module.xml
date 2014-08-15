@@ -14,10 +14,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
     <categories>System</categories>

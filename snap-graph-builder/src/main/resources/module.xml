@@ -14,10 +14,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>

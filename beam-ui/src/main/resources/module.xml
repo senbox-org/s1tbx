@@ -48,7 +48,7 @@
 
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
         <module>ceres-ui</module>

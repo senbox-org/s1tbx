@@ -30,10 +30,10 @@
     <categories>ui</categories>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-pixel-extraction</module>
+        <module>snap-pixel-extraction</module>
     </dependency>
 
     <extension point="beam-ui:actions">

@@ -71,13 +71,13 @@
     <activator>org.esa.beam.visat.VisatActivator</activator>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-ui</module>
+        <module>snap-ui</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
         <module>ceres-binding</module>
@@ -87,7 +87,7 @@
     </dependency>
     <!-- TODO: replace this dependency! -->
     <dependency>
-        <module>beam-statistics-op</module>
+        <module>snap-statistics-op</module>
     </dependency>
 
     <categories>System,Application,VISAT</categories>

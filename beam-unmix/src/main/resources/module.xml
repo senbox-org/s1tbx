@@ -20,11 +20,11 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
     <categories>VISAT,Processing,Image Analysis</categories>

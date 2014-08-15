@@ -33,13 +33,13 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-envisat-reader</module>
+        <module>snap-envisat-reader</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
