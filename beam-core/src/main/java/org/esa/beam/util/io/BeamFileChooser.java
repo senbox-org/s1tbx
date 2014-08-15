@@ -234,19 +234,23 @@ public class BeamFileChooser extends JFileChooser {
      */
     public void updateUI(){
         LookAndFeel old = UIManager.getLookAndFeel();
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (Throwable ex) {
-            old = null;
-        }
-        super.updateUI();
-
-        if (old != null){
+        String systemName = UIManager.getSystemLookAndFeelClassName();
+        if(old.toString().contains(systemName)) {
+            super.updateUI();
+        } else {
             try {
-                UIManager.setLookAndFeel(old);
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Throwable ex) {
+                old = null;
             }
-            catch (UnsupportedLookAndFeelException ignored) {} // shouldn't get here
+            super.updateUI();
+
+            if (old != null) {
+                try {
+                    UIManager.setLookAndFeel(old);
+                } catch (UnsupportedLookAndFeelException ignored) {
+                } // shouldn't get here
+            }
         }
     }
 
