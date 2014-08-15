@@ -10,10 +10,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
 
     <categories>Application</categories>
