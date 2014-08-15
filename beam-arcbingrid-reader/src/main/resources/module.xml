@@ -28,10 +28,10 @@
         <module>ceres-binio</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat</module>
+        <module>snap-visat</module>
         <optional>true</optional>
     </dependency>
 

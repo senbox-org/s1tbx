@@ -22,7 +22,7 @@
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
 </module>

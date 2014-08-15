@@ -42,14 +42,14 @@
 
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-csv-dataio</module>
+        <module>snap-csv-dataio</module>
     </dependency>
 
     <categories>VISAT,Processing</categories>

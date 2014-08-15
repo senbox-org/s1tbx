@@ -63,10 +63,10 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-help</module>
+        <module>snap-help</module>
         <optional>true</optional>
     </dependency>
 

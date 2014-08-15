@@ -31,7 +31,7 @@
 
 
     <dependency>
-        <module>beam-python</module>
+        <module>snap-python</module>
     </dependency>
 
 
