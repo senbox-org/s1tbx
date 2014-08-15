@@ -43,12 +43,12 @@
             <artifactId>snap-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-metadata</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
