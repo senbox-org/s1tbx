@@ -16,10 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <senboxVersionRange>[0.5-SNAPSHOT,1.0-SNAPSHOT)</senboxVersionRange>
-
-        <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
-        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
+        <snapVersionRange>[0.5-SNAPSHOT,1.0-SNAPSHOT)</snapVersionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>
         <s1tbx.version>0.2.0-SNAPSHOT</s1tbx.version>
         <s2tbx.version>0.6.0</s2tbx.version>

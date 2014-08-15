@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-beam-bootstrap</artifactId>
-            <version>${senboxVersionRange}</version>
+            <version>${snapVersionRange}</version>
         </dependency>
         <dependency>
             <groupId>com.alee</groupId>

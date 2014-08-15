@@ -21,12 +21,12 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-			<version>${senboxVersionRange}</version>
+			<version>${snapVersionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
-			<version>${senboxVersionRange}</version>
+			<version>${snapVersionRange}</version>
         </dependency>   
         <dependency>
             <groupId>com.alee</groupId>
