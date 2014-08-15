@@ -21,12 +21,11 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-geotiff</artifactId>
     <name>BEAM GeoTIFF Product Reader/Writer</name>
-    <version>5.0.1</version>
 
     <dependencies>
         <dependency>

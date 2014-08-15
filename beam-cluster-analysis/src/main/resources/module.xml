@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-cluster-analysis</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>BEAM Cluster Analysis</name>
 
     <description>

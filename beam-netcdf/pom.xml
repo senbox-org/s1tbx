@@ -22,12 +22,11 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-netcdf</artifactId>
     <name>BEAM NetCDF Product Reader and Writer</name>
-    <version>5.0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

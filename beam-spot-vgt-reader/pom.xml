@@ -22,12 +22,12 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>s3tbx-spot-vgt-reader</artifactId>
     <name>BEAM SPOT VGT Product Reader</name>
-    <version>5.0</version>
+    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

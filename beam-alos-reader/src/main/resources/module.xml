@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s3tbx-alos-reader</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>AVNIR-2/PRISM Product Reader</name>
 
     <description>

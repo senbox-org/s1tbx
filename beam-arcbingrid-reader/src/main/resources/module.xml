@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-arcbingrid-reader</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>Arc/Info Binary Grid Reader</name>
 
     <description>

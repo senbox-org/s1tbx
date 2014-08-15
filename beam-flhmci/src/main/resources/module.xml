@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-flhmci</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>MERIS FLH/MCI Processor</name>
 
     <description>

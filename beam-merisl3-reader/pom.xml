@@ -24,13 +24,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM MERIS Level-3 Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-merisl3-reader</artifactId>
-    <version>5.0</version>
+    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

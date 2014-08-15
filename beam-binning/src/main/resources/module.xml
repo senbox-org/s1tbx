@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-binning</symbolicName>
-    <version>5.0.1</version>
+    <version>0.5</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>

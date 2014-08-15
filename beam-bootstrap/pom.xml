@@ -23,14 +23,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
 
     <name>BEAM Bootstrap Classpath</name>
-    <artifactId>snap-bootstrap</artifactId>
-    <version>5.0</version>
+    <artifactId>snap-beam-bootstrap</artifactId>
 
     <description>Provides the bootstrap classpath to launch VISAT from your favourite IDE.</description>
 
