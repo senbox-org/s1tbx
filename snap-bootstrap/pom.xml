@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-bootstrap</artifactId>
+            <artifactId>snap-bootstrap</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
