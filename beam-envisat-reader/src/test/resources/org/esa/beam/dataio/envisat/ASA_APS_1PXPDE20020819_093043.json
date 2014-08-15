@@ -170,27 +170,6 @@
                 ]
             },
             {
-                "name": "Phase_HV",
-                "description": "Phase Image",
-                "geophysicalUnit": "phase",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "true",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 5003,
-                        "y": 7290,
-                        "value": -0.30092025
-                    },
-                    {
-                        "x": 2947,
-                        "y": 8641,
-                        "value": -1.4219064
-                    }
-                ]
-            },
-            {
                 "name": "i_HH",
                 "description": "Alternating Polarization SLC Image (i)",
                 "geophysicalUnit": "real",
@@ -250,27 +229,6 @@
                         "x": 3323,
                         "y": 190,
                         "value": 1765.0
-                    }
-                ]
-            },
-            {
-                "name": "Phase_HH",
-                "description": "Phase Image",
-                "geophysicalUnit": "phase",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "true",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 5022,
-                        "y": 4428,
-                        "value": -1.4977558
-                    },
-                    {
-                        "x": 4893,
-                        "y": 11409,
-                        "value": -2.8273609
                     }
                 ]
             }
