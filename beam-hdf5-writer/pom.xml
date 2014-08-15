@@ -25,14 +25,14 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-hdf5-writer</artifactId>
+    <artifactId>snap-hdf5-writer</artifactId>
     <name>BEAM HDF5 Product Writer</name>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
             <groupId>ncsa.hdf</groupId>

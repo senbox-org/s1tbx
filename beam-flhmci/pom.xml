@@ -28,7 +28,7 @@
     </parent>
 
     <name>BEAM MERIS FLH/MCI Processor</name>
-    <artifactId>beam-flhmci</artifactId>
+    <artifactId>snap-flhmci</artifactId>
     <version>5.0</version>
 
     <packaging>jar</packaging>
@@ -36,7 +36,7 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
     </dependencies>
 

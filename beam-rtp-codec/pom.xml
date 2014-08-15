@@ -25,14 +25,14 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-rtp-codec</artifactId>
+    <artifactId>snap-rtp-codec</artifactId>
     <name>BEAM Raw, tiled pyramid codec (experimental)</name>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

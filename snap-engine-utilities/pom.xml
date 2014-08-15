@@ -24,11 +24,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>

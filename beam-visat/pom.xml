@@ -28,7 +28,7 @@
     </parent>
 
     <name>BEAM VISAT Application</name>
-    <artifactId>beam-visat</artifactId>
+    <artifactId>snap-visat</artifactId>
     <version>5.0</version>
 
     <packaging>jar</packaging>
@@ -36,7 +36,7 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jython</groupId>

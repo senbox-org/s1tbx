@@ -27,17 +27,17 @@
 
     <name>BEAM CHRIS/Proba Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
-    <artifactId>beam-chris-reader</artifactId>
+    <artifactId>s3tbx-chris-reader</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
     </dependencies>
 

@@ -8,7 +8,7 @@
         <version>5.0.1</version>
     </parent>
 	
-    <artifactId>beam-arcbingrid-reader</artifactId>
+    <artifactId>snap-arcbingrid-reader</artifactId>
     <groupId>org.esa.snap</groupId>
     <name>Arc/Info Binary Grid Reader</name>
     <version>5.0</version>
@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency> <!-- used to read Dbase files (*.dbf) -->
             <groupId>org.geotools</groupId>

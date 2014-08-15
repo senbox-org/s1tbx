@@ -27,17 +27,17 @@
     </parent>
 
     <name>BEAM Examples</name>
-    <artifactId>beam-examples</artifactId>
+    <artifactId>snap-examples</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
     </dependencies>
 </project>

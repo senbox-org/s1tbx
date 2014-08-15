@@ -25,18 +25,18 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-spot-vgt-reader</artifactId>
+    <artifactId>s3tbx-spot-vgt-reader</artifactId>
     <name>BEAM SPOT VGT Product Reader</name>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
     </dependencies>
 

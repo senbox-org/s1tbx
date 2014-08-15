@@ -25,14 +25,14 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-modis-reader</artifactId>
+    <artifactId>snap-modis-reader</artifactId>
     <name>BEAM MODIS (MOD,MXD,MYD) Product Reader</name>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>

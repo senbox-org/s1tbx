@@ -28,7 +28,7 @@
     </parent>
 
     <name>BEAM Scripting Interface</name>
-    <artifactId>beam-scripting</artifactId>
+    <artifactId>snap-scripting</artifactId>
     <version>5.0</version>
 
     <packaging>jar</packaging>
@@ -36,11 +36,11 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
     </dependencies>
 

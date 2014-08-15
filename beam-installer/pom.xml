@@ -28,7 +28,7 @@
     </parent>
 
     <name>BEAM Installer Resources</name>
-    <artifactId>beam-installer</artifactId>
+    <artifactId>snap-installer</artifactId>
     <version>5.0</version>
 
     <dependencies>

@@ -25,14 +25,14 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-netcdf</artifactId>
+    <artifactId>snap-netcdf</artifactId>
     <name>BEAM NetCDF Product Reader and Writer</name>
     <version>5.0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>

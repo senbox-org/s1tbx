@@ -28,13 +28,13 @@
 
     <name>BEAM AVNIR-2/PRISM Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
-    <artifactId>beam-alos-reader</artifactId>
+    <artifactId>s3tbx-alos-reader</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

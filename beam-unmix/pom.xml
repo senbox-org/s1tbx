@@ -28,7 +28,7 @@
     </parent>
 
     <name>BEAM Spectral Unmixing</name>
-    <artifactId>beam-unmix</artifactId>
+    <artifactId>snap-unmix</artifactId>
     <version>5.0</version>
 
     <dependencies>
@@ -42,11 +42,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
     </dependencies>
 
