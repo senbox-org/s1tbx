@@ -188,27 +188,6 @@
                         "value": 1544.0
                     }
                 ]
-            },
-            {
-                "name": "Phase",
-                "description": "Phase",
-                "geophysicalUnit": "phase",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "true",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 1184,
-                        "y": 14819,
-                        "value": 1.4747076
-                    },
-                    {
-                        "x": 1639,
-                        "y": 21521,
-                        "value": 0.43984258
-                    }
-                ]
             }
         ],
         "metadata": [

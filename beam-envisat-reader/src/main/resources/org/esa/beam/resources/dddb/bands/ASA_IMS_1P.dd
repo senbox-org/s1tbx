@@ -27,4 +27,3 @@ longitude         |GEOLOCATION_GRID_ADS.10       |*   |Float |*|Linear_Scale|0.0
 i                 |MDS1.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |real       |Image Mode SLC Image (i)
 q                 |MDS1.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |imaginary  |Image Mode SLC Image (q)
 Intensity	      |=i*i + q*q	    			 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |intensity  |Intensity
-Phase		      |=atan2(q,i) 	  				 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |phase	     |Phase
