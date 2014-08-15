@@ -11,7 +11,7 @@
     </parent>
 
     <name>BEAM Statistics Operator</name>
-    <artifactId>beam-statistics-op</artifactId>
+    <artifactId>snap-statistics-op</artifactId>
     <version>5.0</version>
 
     <description>A statistics operator for BEAM</description>
@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

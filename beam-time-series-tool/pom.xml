@@ -11,14 +11,14 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-time-series-tool</artifactId>
+    <artifactId>snap-time-series-tool</artifactId>
     <name>BEAM Time Series Tool</name>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
     </dependencies>
 

@@ -27,13 +27,13 @@
 
     <name>BEAM ATSR Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
-    <artifactId>beam-atsr-reader</artifactId>
+    <artifactId>s3tbx-atsr-reader</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

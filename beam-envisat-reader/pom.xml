@@ -25,14 +25,14 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-envisat-reader</artifactId>
+    <artifactId>snap-envisat-reader</artifactId>
     <name>BEAM Envisat Product Reader</name>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

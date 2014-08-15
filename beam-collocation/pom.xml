@@ -27,7 +27,7 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-collocation</artifactId>
+    <artifactId>snap-collocation</artifactId>
     <name>BEAM Geographic Collocation Tool</name>
     <version>5.0.1</version>
 
@@ -42,15 +42,15 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
+            <artifactId>snap-envisat-reader</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
     </dependencies>

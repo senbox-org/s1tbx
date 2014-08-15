@@ -25,28 +25,28 @@
     </parent>
 
     <name>BEAM VISAT Rich Client Platform</name>
-    <artifactId>beam-visat-rcp</artifactId>
+    <artifactId>snap-visat-rcp</artifactId>
     <version>5.0.2</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-csv-dataio</artifactId>
+            <artifactId>snap-csv-dataio</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-ui</artifactId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
         <!-- TODO: remove this dependency as soon as beam-statistics-op has been moved to beam-core
                   (prerequisite: beam-gpf needs to be moved to beam-core before) -->
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-statistics-op</artifactId>
+            <artifactId>snap-statistics-op</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>

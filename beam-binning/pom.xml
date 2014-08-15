@@ -10,7 +10,7 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-binning</artifactId>
+    <artifactId>snap-binning</artifactId>
     <name>BEAM Level-3 Binning</name>
     <version>5.0.1</version>
 
@@ -18,27 +18,27 @@
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-ui</artifactId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
 
         <dependency>
@@ -54,7 +54,7 @@
         <!-- Not a real dependency, but used for tests -->
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
+            <artifactId>snap-envisat-reader</artifactId>
             <version>${beam.versionRange}</version>
             <scope>test</scope>
         </dependency>

@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <name>BEAM Help</name>
-    <artifactId>beam-help</artifactId>
+    <artifactId>snap-help</artifactId>
     <version>5.0.1</version>
 
     <description>Provides the software user manual.</description>

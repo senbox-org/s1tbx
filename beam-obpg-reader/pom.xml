@@ -25,7 +25,7 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-obpg-reader</artifactId>
+    <artifactId>snap-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
     <version>5.0</version>
 
@@ -37,11 +37,11 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.esa.snap</groupId>
-                    <artifactId>beam-core</artifactId>
+                    <artifactId>snap-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.esa.snap</groupId>
-                    <artifactId>beam-netcdf</artifactId>
+                    <artifactId>snap-netcdf</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>edu.ucar</groupId>
@@ -49,15 +49,15 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.esa.s3tbx</groupId>
-                    <artifactId>beam-merisl3-reader</artifactId>
+                    <artifactId>s3tbx-merisl3-reader</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.esa.snap</groupId>
-                    <artifactId>beam-ui</artifactId>
+                    <artifactId>snap-ui</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.esa.snap</groupId>
-                    <artifactId>beam-visat-rcp</artifactId>
+                    <artifactId>snap-visat-rcp</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

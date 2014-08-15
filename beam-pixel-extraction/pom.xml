@@ -27,21 +27,21 @@
     </parent>
 
     <name>BEAM Pixel Extraction Tool</name>
-    <artifactId>beam-pixel-extraction</artifactId>
+    <artifactId>snap-pixel-extraction</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-csv-dataio</artifactId>
+            <artifactId>snap-csv-dataio</artifactId>
         </dependency>
     </dependencies>
 

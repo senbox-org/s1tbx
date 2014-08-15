@@ -28,17 +28,17 @@
 
     <name>BEAM Landsat Reader</name>
     <groupId>org.esa.s3tbx</groupId>
-    <artifactId>beam-landsat-reader</artifactId>
+    <artifactId>s3tbx-landsat-reader</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-geotiff</artifactId>
+            <artifactId>snap-geotiff</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>
         <dependency>

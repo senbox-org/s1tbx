@@ -24,18 +24,18 @@
         <version>5.0.1</version>
     </parent>
 
-    <artifactId>beam-geotiff</artifactId>
+    <artifactId>snap-geotiff</artifactId>
     <name>BEAM GeoTIFF Product Reader/Writer</name>
     <version>5.0.1</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-visat</artifactId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>

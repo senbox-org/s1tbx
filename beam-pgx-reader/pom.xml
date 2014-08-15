@@ -26,13 +26,13 @@
     </parent>
 
     <name>BEAM PGX Product Reader</name>
-    <artifactId>beam-pgx-reader</artifactId>
+    <artifactId>snap-pgx-reader</artifactId>
     <version>5.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>beam-core</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 
