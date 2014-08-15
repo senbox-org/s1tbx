@@ -20,7 +20,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-bootstrap</artifactId>
             <version>${beam.versionRange}</version>
         </dependency>

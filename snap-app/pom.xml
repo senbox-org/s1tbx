@@ -20,12 +20,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-core</artifactId>
 			<version>${beam.versionRange}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-visat-rcp</artifactId>
 			<version>${beam.versionRange}</version>
         </dependency>   
