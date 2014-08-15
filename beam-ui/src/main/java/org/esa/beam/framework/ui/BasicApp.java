@@ -929,6 +929,7 @@ public class BasicApp {
         final JMenuBar menuBar = getMainFrame().getJMenuBar();
         final JMenu newMenu = createJMenu(parent, parent, parent.charAt(0));
 
+        // insert new menus before the 'window' and 'help' menus
         int index = UIUtils.findMenuPosition(menuBar, "window");
         menuBar.add(newMenu, index);
         return newMenu;

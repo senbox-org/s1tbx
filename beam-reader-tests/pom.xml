@@ -63,12 +63,12 @@
         <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>1.5.5</version>
+            <version>1.5.6</version>
         </dependency>
         <dependency>
             <groupId>gov.nasa.gsfc.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
-            <version>1.5.5</version>
+            <version>1.5.6</version>
             <type>test-jar</type>
         </dependency>
         <dependency>
