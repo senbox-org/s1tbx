@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-envi-reader</symbolicName>
+    <symbolicName>snap-envi-reader</symbolicName>
     <version>5.0</version>
     <name>ENVI Product Reader</name>
     <funding>ESA</funding>

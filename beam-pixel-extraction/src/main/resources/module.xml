@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-pixel-extraction</symbolicName>
+    <symbolicName>snap-pixel-extraction</symbolicName>
     <version>5.0</version>
     <name>BEAM Pixel Extraction Tool</name>
 

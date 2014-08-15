@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-unmix</symbolicName>
+    <symbolicName>snap-unmix</symbolicName>
     <version>5.0</version>
     <name>Spectral Unmixing</name>
 

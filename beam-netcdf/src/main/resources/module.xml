@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-netcdf</symbolicName>
+    <symbolicName>snap-netcdf</symbolicName>
     <version>5.0.2</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>

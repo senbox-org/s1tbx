@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>beam-help</symbolicName>
+    <symbolicName>snap-help</symbolicName>
     <name>BEAM Help</name>
     <version>5.0.1</version>
     <packaging>dir</packaging>

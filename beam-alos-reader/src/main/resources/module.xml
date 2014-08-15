@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-alos-reader</symbolicName>
+    <symbolicName>s3tbx-alos-reader</symbolicName>
     <version>5.0</version>
     <name>AVNIR-2/PRISM Product Reader</name>
 

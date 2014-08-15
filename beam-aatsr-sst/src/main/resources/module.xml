@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-aatsr-sst</symbolicName>
+    <symbolicName>snap-aatsr-sst</symbolicName>
     <version>5.0</version>
     <name>AATSR SST Processor</name>
 

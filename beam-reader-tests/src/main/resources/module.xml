@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-reader-tests</symbolicName>
+    <symbolicName>snap-reader-tests</symbolicName>
     <version>5.0</version>
     <name>BEAM Product Reader Integration Tests</name>
 

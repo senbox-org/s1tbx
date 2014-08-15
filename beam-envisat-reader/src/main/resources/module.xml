@@ -16,7 +16,7 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-envisat-reader</symbolicName>
+    <symbolicName>snap-envisat-reader</symbolicName>
     <version>5.0</version>
     <name>Envisat Product Reader</name>
 
