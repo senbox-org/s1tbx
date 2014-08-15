@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
+        <groupId>org.esa.snap</groupId>
         <version>5.0.1</version>
     </parent>
 	
     <artifactId>beam-arcbingrid-reader</artifactId>
-    <groupId>org.esa.beam</groupId>
+    <groupId>org.esa.snap</groupId>
     <name>Arc/Info Binary Grid Reader</name>
     <version>5.0</version>
 
@@ -19,7 +19,7 @@
             <artifactId>ceres-binio</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency> <!-- used to read Dbase files (*.dbf) -->
