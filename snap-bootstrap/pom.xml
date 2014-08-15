@@ -12,17 +12,15 @@
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.snap</groupId>
     <artifactId>snap-bootstrap</artifactId>
     <name>SNAP Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch SNAP from your favourite IDE.</description>
-    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-bootstrap</artifactId>
-            <version>${beam.versionRange}</version>
+            <artifactId>snap-beam-bootstrap</artifactId>
+            <version>${senboxVersionRange}</version>
         </dependency>
         <dependency>
             <groupId>com.alee</groupId>

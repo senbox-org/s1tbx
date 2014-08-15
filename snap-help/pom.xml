@@ -16,7 +16,6 @@
 
     <name>SNAP Context Help</name>
     <artifactId>snap-help</artifactId>
-    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

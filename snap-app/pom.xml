@@ -12,7 +12,6 @@
     </parent>
 
     <name>SNAP Application</name>
-    <groupId>org.esa.snap</groupId>
     <artifactId>snap-app</artifactId>
     <version>0.5-SNAPSHOT</version>
 
@@ -22,12 +21,12 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-			<version>${beam.versionRange}</version>
+			<version>${senboxVersionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
-			<version>${beam.versionRange}</version>
+			<version>${senboxVersionRange}</version>
         </dependency>   
         <dependency>
             <groupId>com.alee</groupId>

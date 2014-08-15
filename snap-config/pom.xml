@@ -12,11 +12,9 @@
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.snap</groupId>
-    <artifactId>snap-config</artifactId>
     <name>SNAP Configuration</name>
+    <artifactId>snap-config</artifactId>
     <description>Adds the resources for the runtime environment.</description>
-    <version>0.5-SNAPSHOT</version>
 
 	<profiles>
 	  <profile>
