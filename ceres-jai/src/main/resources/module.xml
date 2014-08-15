@@ -1,8 +1,8 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>ceres-jai</symbolicName>
-    <version>0.14</version>
+    <symbolicName>snap-jai</symbolicName>
+    <version>0.5</version>
     <name>Ceres JAI Library</name>
 
     <categories>System,Library</categories>

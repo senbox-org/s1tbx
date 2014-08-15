@@ -4,21 +4,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.bc.ceres</groupId>
+        <groupId>org.esa.snap</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.14.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>Ceres Runtime</name>
-    <artifactId>ceres-core</artifactId>
-    <version>0.14</version>
+    <artifactId>snap-ceres-core</artifactId>
 
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-launcher</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-launcher</artifactId>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>

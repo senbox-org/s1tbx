@@ -4,9 +4,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.bc.ceres</groupId>
+    <groupId>org.esa.snap</groupId>
     <artifactId>ceres</artifactId>
-    <version>0.14.1</version>
+    <version>0.5-SNAPSHOT</version>
     <name>Ceres</name>
     <url>http://www.brockmann-consult.de/</url>
 
@@ -19,7 +19,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
     </properties>
 
     <organization>
@@ -115,49 +114,49 @@
                 <version>2.0.4</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-launcher</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-core</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-core</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binding</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binding</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-ui</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-ui</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-deploy</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-deploy</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-glayer</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-jai</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-jai</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binio</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binio</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-site</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-site</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

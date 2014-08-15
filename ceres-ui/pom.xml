@@ -4,29 +4,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.bc.ceres</groupId>
+        <groupId>org.esa.snap</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.14.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>Ceres UI</name>
-    <artifactId>ceres-ui</artifactId>
-    <version>0.14</version>
+    <artifactId>snap-ceres-ui</artifactId>
 
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-glayer</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>

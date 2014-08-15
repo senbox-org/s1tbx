@@ -1,8 +1,8 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>ceres-glayer</symbolicName>
-    <version>0.14.1</version>
+    <symbolicName>snap-glayer</symbolicName>
+    <version>0.5</version>
     <name>Ceres GLayer Library</name>
 
     <categories>System,Library</categories>

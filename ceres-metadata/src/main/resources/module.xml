@@ -1,8 +1,8 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>ceres-metadata</symbolicName>
-    <version>0.14</version>
+    <symbolicName>snap-metadata</symbolicName>
+    <version>0.5</version>
     <name>Ceres Metadata handling Library</name>
 
     <categories>System,Library</categories>

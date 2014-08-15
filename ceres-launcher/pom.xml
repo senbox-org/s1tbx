@@ -3,14 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.bc.ceres</groupId>
+        <groupId>org.esa.snap</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.14.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>Ceres Launcher</name>
-    <artifactId>ceres-launcher</artifactId>
-    <version>0.14.1-SNAPSHOT</version>
+    <artifactId>snap-launcher</artifactId>
 
     <packaging>jar</packaging>
 
