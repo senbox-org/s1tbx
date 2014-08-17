@@ -303,7 +303,7 @@
 			<dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>${beam.versionRange}</version>
+                <version>5.0.2-SNAPSHOT</version>
             </dependency>
 			
 			<dependency>
