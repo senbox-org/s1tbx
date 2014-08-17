@@ -15,16 +15,10 @@
  */
 package org.esa.snap.util;
 
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
-import org.jdom2.Attribute;
-import org.jdom2.Document;
-import org.jdom2.Element;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,14 +29,7 @@ import java.util.Map;
 public final class Settings {
 
     private static Settings _instance = null;
-    private final String settingsFile;
-    private final Map<String, String> settingMap = new HashMap<String, String>(100);
-
-    private Element rootXML = null;
-    private Document doc = null;
-
-    public static final String VALUE = "value";
-    public static final String LABEL = "label";
+    private final PropertyMap auxdataConfig = new PropertyMap();
 
     /**
      * @return The unique instance of this class.
@@ -55,8 +42,8 @@ public final class Settings {
     }
 
     private Settings() {
-        settingsFile = Settings.getSettingsFileName();
-        Load();
+        Config.load(auxdataConfig, new File(SystemUtils.getApplicationHomeDir(), "config" +
+                File.separator + SystemUtils.getApplicationContextId() + ".auxdata.config"));
     }
 
     public static boolean isWindowsOS() {
@@ -64,119 +51,50 @@ public final class Settings {
         return (osName.toLowerCase().contains("win"));
     }
 
-    private static String getSettingsFileName() {
-        if (isWindowsOS()) {
-            return "settings_win.xml";
-        } else {
-            return "settings_unix.xml";
-        }
-    }
-
-    public Element getSettingsRootXML() {
-        return rootXML;
-    }
-
-    public void Save() {
-
-        final File userHomePath = SystemUtils.getUserHomeDir();
-        final String filePath = userHomePath.getAbsolutePath() + File.separator + "."
-                + System.getProperty("ceres.context", "nest")
-                + File.separator + settingsFile;
-
-        XMLSupport.SaveXML(doc, filePath);
-    }
-
-    public void Load() {
-
-        final File filePath = ResourceUtils.findUserAppFile(settingsFile);
-
-        try {
-            doc = XMLSupport.LoadXML(filePath.getAbsolutePath());
-        } catch (IOException e) {
-            return;
-        }
-
-        settingMap.clear();
-
-        rootXML = doc.getRootElement();
-        recurseElements(rootXML.getContent(), "");
-    }
-
-    private void recurseElements(final List children, final String id) {
-        for (Object aChild : children) {
-            String newId = "";
-            if (aChild instanceof Element) {
-                final Element child = (Element) aChild;
-                try {
-                    if (!id.isEmpty())
-                        newId = id + '/';
-                    newId += child.getName();
-                    final Attribute attrib = child.getAttribute(VALUE);
-                    if (attrib != null) {
-
-                        String value = attrib.getValue();
-                        if (value.contains("${"))
-                            value = resolve(value);
-                        settingMap.put(newId, value);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Settings error: " + e.getMessage() + " " + newId);
-                }
-
-                final List grandChildren = child.getChildren();
-                if (!grandChildren.isEmpty()) {
-                    recurseElements(grandChildren, newId);
-                }
-            }
-        }
-    }
-
-    private String resolve(String value) {
-        String out;
+    private static String resolve(final PropertyMap prop, final String value) {
         final int idx1 = value.indexOf("${");
         final int idx2 = value.indexOf('}') + 1;
         final String keyWord = value.substring(idx1 + 2, idx2 - 1);
         final String fullKey = value.substring(idx1, idx2);
 
+        String out;
         final String property = System.getProperty(keyWord);
         if (property != null && property.length() > 0) {
             out = value.replace(fullKey, property);
         } else {
-
-            final String env = System.getenv(keyWord);
+            final String env = null; //System.getenv(keyWord);
             if (env != null && env.length() > 0) {
                 out = value.replace(fullKey, env);
             } else {
-
-                final String settingStr = get(keyWord);
-                if (settingStr != null) {
+                final String settingStr = prop.getPropertyString(keyWord);
+                if (settingStr != null && settingStr.length() > 0) {
                     out = value.replace(fullKey, settingStr);
                 } else {
-                    out = value.substring(0, idx1) + value.substring(idx2, value.length());
+                    if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")) {
+                        out = value.replace(fullKey, ResourceUtils.findHomeFolder().getAbsolutePath());
+                    } else {
+                        out = value.replace(fullKey, keyWord);
+                    }
                 }
             }
         }
 
-        if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")) {
-            final String valStr = value.substring(0, idx1) + value.substring(idx2, value.length());
-            final File file = ResourceUtils.findInHomeFolder(valStr);
-            if (file != null)
-                return file.getAbsolutePath();
-        }
-
         if (out.contains("${"))
-            out = resolve(out);
+            out = resolve(prop, out);
 
         return out;
     }
 
-    public String get(String key) {
-        return settingMap.get(key);
+    public String get(final String key) {
+        String val = auxdataConfig.getPropertyString(key);
+        if (val != null && val.contains("${")) {
+            val = resolve(auxdataConfig, val);
+        }
+        return val;
     }
 
-    public boolean isTrue(String key) {
-        final String val = settingMap.get(key);
-        return val != null && val.equals("true");
+    public PropertyMap getAuxdataProperty() {
+        return auxdataConfig;
     }
 
     public static File getAuxDataFolder() {

@@ -26,7 +26,6 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.util.ExceptionLog;
-import org.esa.snap.util.Settings;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -407,7 +406,7 @@ public final class OperatorUtils {
         else
             message += e.toString();
 
-        if (Settings.instance().isTrue("sendErrorOnException")) {
+        if (Boolean.getBoolean("sendErrorOnException")) {
             ExceptionLog.log(message);
         }
 

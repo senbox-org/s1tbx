@@ -47,7 +47,7 @@ public class TestFTPUtils extends TestCase {
         final ftpUtils ftp = new ftpUtils(server);
         final Map<String, Long> fileSizeMap = ftpUtils.readRemoteFileList(ftp, server, remotePath);
 
-        final String localPath = Settings.instance().get("DEM/srtm3GeoTiffDEMDataPath");
+        final String localPath = Settings.instance().get("DEM.srtm3GeoTiffDEMDataPath");
         final File localFile = new File(localPath, "srtm_35_03.zip");
         final String remoteFileName = localFile.getName();
         final Long fileSize = fileSizeMap.get(remoteFileName);

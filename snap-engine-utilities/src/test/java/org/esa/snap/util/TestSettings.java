@@ -15,40 +15,46 @@
  */
 package org.esa.snap.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Settings Tester.
  *
  * @author lveci
  */
-public class TestSettings extends TestCase {
+public class TestSettings {
 
-    public TestSettings(String name) {
-        super(name);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testLoadSettings() {
         final Settings settings = Settings.instance();
 
-        String value1 = settings.get("AuxData/envisatAuxDataPath");
+        String value1 = settings.get("AuxData.envisatAuxDataPath");
 
-        String value2 = settings.get("DEM/srtm3GeoTiffDEM_FTP");
+        String value2 = settings.get("DEM.srtm3GeoTiffDEM_FTP");
     }
 
+    @Test
     public void testGet() {
         final Settings settings = Settings.instance();
 
-        String value = settings.get("DEM/srtm3GeoTiffDEM_FTP");
+        String value1 = settings.get("DEM.srtm3GeoTiffDEM_FTP");
+        String value2 = settings.get("AuxDataPath");
+        String value3 = settings.get("demPath");
+    }
+
+    @Test
+    public void testGetAuxDataProperty() {
+        final Settings settings = Settings.instance();
+
+        String value = settings.getAuxdataProperty().getPropertyString("DEM.srtm3GeoTiffDEM_FTP");
+        assert(!value.isEmpty());
+    }
+
+    @Test
+    public void testNotFound() {
+        final Settings settings = Settings.instance();
+
+        String value = settings.getAuxdataProperty().getPropertyString("string not found");
+        assert(value.isEmpty());
     }
 }
