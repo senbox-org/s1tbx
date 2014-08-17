@@ -150,7 +150,7 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
     private final ProductNodeGroup<Mask> maskGroup;
-    private final Map<Band, ProductNodeGroup<Placemark>> bandGCPGroup = new HashMap<Band, ProductNodeGroup<Placemark>>();
+
     /**
      * The internal reference number of this product
      */
@@ -1025,10 +1025,6 @@ public class Product extends ProductNode {
             //                                           "a band with the name '" + band.getName() + "'.");
         }
         bandGroup.add(band);
-        // add gcpGroup for this band // NESTMOD
-        final ProductNodeGroup<Placemark> thisBandgcpGroup = new ProductNodeGroup<Placemark>(this,
-                "ground_control_points", true);
-        bandGCPGroup.put(band, thisBandgcpGroup);
     }
 
     /**
@@ -1090,7 +1086,6 @@ public class Product extends ProductNode {
      * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
-	bandGCPGroup.remove(band); // NESTMOD
         return bandGroup.remove(band);
     }
 
@@ -1290,11 +1285,6 @@ public class Product extends ProductNode {
      */
     public PlacemarkGroup getGcpGroup() {
         return gcpGroup;
-    }
-
-    // NESTMOD
-    public ProductNodeGroup<Placemark> getGcpGroup(Band band) {
-        return bandGCPGroup.get(band);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1743,11 +1733,6 @@ public class Product extends ProductNode {
                 flagCodingGroup.setModified(false);
                 indexCodingGroup.setModified(false);
                 getMetadataRoot().setModified(false);
-            }
-
-	    // NESTMOD
-            for(Object key : bandGCPGroup.keySet()) {
-                bandGCPGroup.get(key).clearRemovedList();
             }
         }
     }
