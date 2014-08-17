@@ -32,6 +32,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
+import org.esa.nest.gpf.GCPManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
@@ -198,13 +199,13 @@ public class CoarseFineCoregOp extends Operator {
             getCollocatedStackFlag();
             createTargetProduct();
 
-            masterGcpGroup = sourceProduct.getGcpGroup(masterBand1);
+            masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numWindows, masterGcpGroup,
                         targetProduct.getGeoCoding());
             }
 
-            OperatorUtils.copyGCPsToTarget(masterGcpGroup, targetProduct.getGcpGroup(targetProduct.getBandAt(0)),
+            OperatorUtils.copyGCPsToTarget(masterGcpGroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
                     targetProduct.getGeoCoding());
 
         } catch (Throwable e) {
@@ -427,7 +428,7 @@ public class CoarseFineCoregOp extends Operator {
             return;
         try {
 
-            final ProductNodeGroup<Placemark> targetGCPGroup = targetProduct.getGcpGroup(targetBand);
+            final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
             final GeoCoding tgtGeoCoding = targetProduct.getGeoCoding();
 
             final ThreadManager threadManager = new ThreadManager();
@@ -512,8 +513,8 @@ public class CoarseFineCoregOp extends Operator {
      */
     private void copyFirstTargetBandGCPs(final Band firstTargetBand, final Band targetBand) {
 
-        final ProductNodeGroup<Placemark> firstTargetBandGcpGroup = targetProduct.getGcpGroup(firstTargetBand);
-        final ProductNodeGroup<Placemark> currentTargetBandGCPGroup = targetProduct.getGcpGroup(targetBand);
+        final ProductNodeGroup<Placemark> firstTargetBandGcpGroup = GCPManager.instance().getGcpGroup(firstTargetBand);
+        final ProductNodeGroup<Placemark> currentTargetBandGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
         final int numberOfGCPs = firstTargetBandGcpGroup.getNodeCount();
         for (int i = 0; i < numberOfGCPs; ++i) {
             currentTargetBandGCPGroup.add(firstTargetBandGcpGroup.get(i));

@@ -28,6 +28,9 @@
     <dependency>
         <module>nest-io</module>
     </dependency>
+    <dependency>
+        <module>nest-op-coregistration</module>
+    </dependency>
 	<dependency>
         <module>nest-reader-dem</module>
     </dependency>

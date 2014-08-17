@@ -713,7 +713,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         // for all slave bands or band pairs compute a warp
         final Band masterBand = sourceProduct.getBandAt(0);
-        masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
+        masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
         final int numSrcBands = sourceProduct.getNumBands();
         boolean appendFlag = false;
         for (int i = 1; i < numSrcBands; ++i) { // loop through all slave bands
@@ -723,12 +723,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
             if (unit != null && unit.contains(Unit.BIT)) // skip layover_shadow_mask band
                 continue;
 
-            ProductNodeGroup<Placemark> slaveGCPGroup = sourceProduct.getGcpGroup(srcBand);
+            ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 for (Band band : sourceProduct.getBands()) {
                     if (band != srcBand && band != masterBand) {
-                        slaveGCPGroup = sourceProduct.getGcpGroup(band);
+                        slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
                         if (slaveGCPGroup.getNodeCount() >= 3)        // only one band should have GCPs
                             break;
                     }

@@ -265,7 +265,7 @@ public class CreateStackOp extends Operator {
             // copy GCPs if found to master band
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
             if (masterGCPgroup.getNodeCount() > 0) {
-                OperatorUtils.copyGCPsToTarget(masterGCPgroup, targetProduct.getGcpGroup(targetProduct.getBandAt(0)),
+                OperatorUtils.copyGCPsToTarget(masterGCPgroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
                         targetProduct.getGeoCoding());
             }
 

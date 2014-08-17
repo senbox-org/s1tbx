@@ -19,6 +19,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
+import org.esa.nest.gpf.GCPManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
@@ -397,7 +398,7 @@ public class ResampleOp extends Operator {
         int inc = 2;
 
         boolean appendFlag = false;
-        final ProductNodeGroup<Placemark> masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
+        final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
         final Window masterWindow = new Window(0, sourceProduct.getSceneRasterHeight(), 0, sourceProduct.getSceneRasterWidth());
 
         // setup master metadata
@@ -418,7 +419,7 @@ public class ResampleOp extends Operator {
                     StringUtils.contains(masterBandNames, srcBand.getName()))
                 continue;
 
-            ProductNodeGroup<Placemark> slaveGCPGroup = sourceProduct.getGcpGroup(srcBand);
+            ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
             final int nodeCount = slaveGCPGroup.getNodeCount();
             if (nodeCount < 3) {
                 // find others for same slave product
@@ -427,7 +428,7 @@ public class ResampleOp extends Operator {
                     if(band != srcBand) {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if(slvProductName != null && slvProductName.equals(productName)) {
-                            slaveGCPGroup = sourceProduct.getGcpGroup(band);
+                            slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
                             if (nodeCount >= 3)
                                 break;
                         }
@@ -545,7 +546,7 @@ public class ResampleOp extends Operator {
     private void addSurvivedSlaveGCPs(final CPM cpmData, final String bandName) {
 
         final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
-        final ProductNodeGroup<Placemark> targetGCPGroup = targetProduct.getGcpGroup(targetProduct.getBand(bandName));
+        final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetProduct.getBand(bandName));
         targetGCPGroup.removeAll();
 
         for (int i = 0; i < cpmData.slaveGCPList.size(); ++i) {

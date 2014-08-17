@@ -48,7 +48,7 @@ public class TestGCPSelectionOp extends TestCase {
 
         final Product product = createTestMasterProduct(40, 40);
 
-        final ProductNodeGroup<Placemark> masterGcpGroup = product.getGcpGroup(product.getBandAt(0));
+        final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(product.getBandAt(0));
         assertTrue(masterGcpGroup.getNodeCount() == 1);
 
         final GCPSelectionOp op = (GCPSelectionOp) spi.createOperator();
@@ -68,7 +68,7 @@ public class TestGCPSelectionOp extends TestCase {
         float[] floatValues = new float[1600];
         band.readPixels(0, 0, 40, 40, floatValues, ProgressMonitor.NULL);
 
-        final ProductNodeGroup<Placemark> targetGcpGroup = targetProduct.getGcpGroup(targetProduct.getBandAt(1));
+        final ProductNodeGroup<Placemark> targetGcpGroup = GCPManager.instance().getGcpGroup(targetProduct.getBandAt(1));
         //assertTrue(targetGcpGroup.getNodeCount() == 1);
 
         final Placemark pin = targetGcpGroup.get(0);
@@ -116,7 +116,7 @@ public class TestGCPSelectionOp extends TestCase {
         product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         // create GCP
-        final ProductNodeGroup<Placemark> masterGcpGroup = product.getGcpGroup(band);
+        final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(band);
         final Placemark pin1 = Placemark.createPointPlacemark(
                 GcpDescriptor.getInstance(),
                 "gcp_1",

@@ -230,7 +230,7 @@ public class WarpOp extends Operator {
     private void addSlaveGCPs(final WarpData warpData, final String bandName) {
 
         final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
-        final ProductNodeGroup<Placemark> targetGCPGroup = targetProduct.getGcpGroup(targetProduct.getBand(bandName));
+        final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetProduct.getBand(bandName));
         targetGCPGroup.removeAll();
 
         for (int i = 0; i < warpData.slaveGCPList.size(); ++i) {
@@ -333,7 +333,7 @@ public class WarpOp extends Operator {
                     StringUtils.contains(masterBandNames, srcBand.getName()))
                 continue;
 
-            ProductNodeGroup<Placemark> slaveGCPGroup = sourceProduct.getGcpGroup(srcBand);
+            ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
@@ -341,7 +341,7 @@ public class WarpOp extends Operator {
                     if (band != srcBand) {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if (slvProductName != null && slvProductName.equals(productName)) {
-                            slaveGCPGroup = sourceProduct.getGcpGroup(band);
+                            slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
                             if (slaveGCPGroup.getNodeCount() >= 3)
                                 break;
                         }
@@ -356,7 +356,7 @@ public class WarpOp extends Operator {
                 continue;
             }
 
-            final ProductNodeGroup<Placemark> masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
+            final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
 
             computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup, maxIterations,
                     rmsThreshold, appendFlag, warpData);

@@ -216,13 +216,14 @@ public class GCPSelectionOp extends Operator {
 
             createTargetProduct();
 
-            masterGcpGroup = sourceProduct.getGcpGroup(masterBand1);
+            //masterGcpGroup = sourceProduct.getGcpGroup(masterBand1);
+            masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
                         targetProduct.getGeoCoding());
             }
 
-            OperatorUtils.copyGCPsToTarget(masterGcpGroup, targetProduct.getGcpGroup(targetProduct.getBandAt(0)),
+            OperatorUtils.copyGCPsToTarget(masterGcpGroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
                     targetProduct.getGeoCoding());
 
             if (complexCoregistration && applyFineRegistration) {
@@ -443,7 +444,7 @@ public class GCPSelectionOp extends Operator {
         gcpsComputedMap.put(slaveBand, true);
         try {
 
-            final ProductNodeGroup<Placemark> targetGCPGroup = targetProduct.getGcpGroup(targetBand);
+            final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
             final GeoCoding tgtGeoCoding = targetProduct.getGeoCoding();
 
             final int[] offset = new int[2]; // 0-x, 1-y
@@ -730,8 +731,8 @@ public class GCPSelectionOp extends Operator {
      */
     private void copyFirstTargetBandGCPs(final Band firstTargetBand, final Band targetBand) {
 
-        final ProductNodeGroup<Placemark> firstTargetBandGcpGroup = targetProduct.getGcpGroup(firstTargetBand);
-        final ProductNodeGroup<Placemark> currentTargetBandGCPGroup = targetProduct.getGcpGroup(targetBand);
+        final ProductNodeGroup<Placemark> firstTargetBandGcpGroup = GCPManager.instance().getGcpGroup(firstTargetBand);
+        final ProductNodeGroup<Placemark> currentTargetBandGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
         final int numberOfGCPs = firstTargetBandGcpGroup.getNodeCount();
         for (int i = 0; i < numberOfGCPs; ++i) {
             currentTargetBandGCPGroup.add(firstTargetBandGcpGroup.get(i));

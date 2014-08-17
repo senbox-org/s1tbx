@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.gpf.GCPManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
@@ -246,7 +247,7 @@ public class CreateInSARStackOp extends Operator {
             // copy GCPs if found to master band
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
             if (masterGCPgroup.getNodeCount() > 0) {
-                OperatorUtils.copyGCPsToTarget(masterGCPgroup, targetProduct.getGcpGroup(targetProduct.getBandAt(0)),
+                OperatorUtils.copyGCPsToTarget(masterGCPgroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
                         targetProduct.getGeoCoding());
             }
 
