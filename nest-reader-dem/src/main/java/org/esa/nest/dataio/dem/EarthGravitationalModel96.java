@@ -76,7 +76,7 @@ public final class EarthGravitationalModel96 {
     private EarthGravitationalModel96() {
 
         // get absolute file path
-        final String filePath = Settings.instance().get("AuxData/egm96AuxDataPath");
+        final String filePath = Settings.instance().get("AuxData.egm96AuxDataPath");
         final String fileName = filePath + File.separator + NAME;
 
         // get reader

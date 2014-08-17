@@ -28,10 +28,10 @@ public class TestConnectivityAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final String remoteFTPSRTM = Settings.instance().get("DEM/srtm3GeoTiffDEM_FTP");
-        final String remotePathSRTM = ftpUtils.getPathFromSettings("DEM/srtm3GeoTiffDEM_remotePath");
-        final String delftFTP = Settings.instance().get("OrbitFiles/delftFTP");
-        final String delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ERS2_precise_remotePath");
+        final String remoteFTPSRTM = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP");
+        final String remotePathSRTM = ftpUtils.getPathFromSettings("DEM.srtm3GeoTiffDEM_remotePath");
+        final String delftFTP = Settings.instance().get("OrbitFiles.delftFTP");
+        final String delftFTPPath = Settings.instance().get("OrbitFiles.delftFTP_ERS2_precise_remotePath");
 
         boolean failed = false;
         boolean result;

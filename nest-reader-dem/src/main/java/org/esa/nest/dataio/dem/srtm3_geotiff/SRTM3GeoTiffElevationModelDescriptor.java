@@ -94,7 +94,7 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
     @Override
     public File getDemInstallDir() {
         if (demInstallDir == null) {
-            final String path = Settings.instance().get("DEM/srtm3GeoTiffDEMDataPath");
+            final String path = Settings.instance().get("DEM.srtm3GeoTiffDEMDataPath");
             demInstallDir = new File(path);
             if (!demInstallDir.exists())
                 demInstallDir.mkdirs();

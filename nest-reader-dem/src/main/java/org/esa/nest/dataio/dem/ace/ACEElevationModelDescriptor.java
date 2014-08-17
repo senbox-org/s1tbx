@@ -94,7 +94,7 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
     @Override
     public File getDemInstallDir() {
         if (aceDemInstallDir == null) {
-            final String path = Settings.instance().get("DEM/aceDEMDataPath");
+            final String path = Settings.instance().get("DEM.aceDEMDataPath");
             aceDemInstallDir = new File(path);
             if (!aceDemInstallDir.exists())
                 aceDemInstallDir.mkdirs();

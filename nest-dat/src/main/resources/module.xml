@@ -573,18 +573,6 @@
         </action>
 
         <action>
-            <id>openSettingsDialog</id>
-            <parent>edit</parent>
-            <class>org.esa.nest.dat.actions.OpenSettingsDialogAction</class>
-            <text>Settings...</text>
-            <shortDescr>Edit Settings</shortDescr>
-            <description>Edit Settings and Preferences</description>
-            <smallIcon>icons/Preferences16.gif</smallIcon>
-            <largeIcon>icons/Preferences24.gif</largeIcon>
-            <helpId>settings</helpId>
-        </action>
-
-        <action>
             <parent>exportOther</parent>
             <id>exportKmzProduct</id>
             <class>org.esa.nest.dat.actions.ExportKmzProductAction</class>

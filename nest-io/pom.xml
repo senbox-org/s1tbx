@@ -44,7 +44,6 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
-            <version>${beam.versionRange}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

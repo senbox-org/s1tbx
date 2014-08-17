@@ -99,7 +99,7 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
     @Override
     public File getDemInstallDir() {
         if (aceDemInstallDir == null) {
-            final String path = Settings.instance().get("DEM/ace2_5MinDEMDataPath");
+            final String path = Settings.instance().get("DEM.ace2_5MinDEMDataPath");
             aceDemInstallDir = new File(path);
             if (!aceDemInstallDir.exists())
                 aceDemInstallDir.mkdirs();

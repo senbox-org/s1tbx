@@ -95,7 +95,7 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     @Override
     public File getDemInstallDir() {
         if (demInstallDir == null) {
-            final String path = Settings.instance().get("DEM/Getasse30DEMDataPath");
+            final String path = Settings.instance().get("DEM.Getasse30DEMDataPath");
             demInstallDir = new File(path);
             if (!demInstallDir.exists())
                 demInstallDir.mkdirs();

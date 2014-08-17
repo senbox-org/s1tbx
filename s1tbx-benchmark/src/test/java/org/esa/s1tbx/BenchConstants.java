@@ -26,7 +26,7 @@ public class BenchConstants {
     public static int numIterations = 1;
     public static int maxDimensions = 3000;
 
-    private static final PropertyMap testPreferences = Config.getConfigPropertyMap();
+    private static final PropertyMap testPreferences = Config.getAppConfigPropertyMap();
     private final static String contextID = ResourceUtils.getContextID();
 
     private static final String testBenchmarks = testPreferences.getPropertyString(contextID + ".test.RunBenchmarks");

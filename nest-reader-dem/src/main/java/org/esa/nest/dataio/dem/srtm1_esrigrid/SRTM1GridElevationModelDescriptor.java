@@ -89,7 +89,7 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
     @Override
     public File getDemInstallDir() {
         if (demInstallDir == null) {
-            final String path = Settings.instance().get("DEM/srtm1GridDEMDataPath");
+            final String path = Settings.instance().get("DEM.srtm1GridDEMDataPath");
             demInstallDir = new File(path);
             if (!demInstallDir.exists())
                 demInstallDir.mkdirs();

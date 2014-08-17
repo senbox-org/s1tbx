@@ -301,7 +301,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     private String getOldXCAFile() {
         oldXCAFileName = absRoot.getAttributeString(AbstractMetadata.external_calibration_file);
-        return Settings.instance().get("AuxData/envisatAuxDataPath") + File.separator + oldXCAFileName;
+        return Settings.instance().get("AuxData.envisatAuxDataPath") + File.separator + oldXCAFileName;
     }
 
     /**
@@ -309,7 +309,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getOldAntennaPattern() {
 
-        final String xcaFilePath = Settings.instance().get("AuxData/envisatAuxDataPath") + File.separator + oldXCAFileName;
+        final String xcaFilePath = Settings.instance().get("AuxData.envisatAuxDataPath") + File.separator + oldXCAFileName;
 
         if (wideSwathProductFlag) {
 
@@ -438,7 +438,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
             final Date startDate = sourceProduct.getStartTime().getAsDate();
             final Date endDate = sourceProduct.getEndTime().getAsDate();
-            final File xcaFileDir = new File(Settings.instance().get("AuxData/envisatAuxDataPath"));
+            final File xcaFileDir = new File(Settings.instance().get("AuxData.envisatAuxDataPath"));
             newXCAFileName = findXCAFile(xcaFileDir, startDate, endDate);
             newXCAFilePath = xcaFileDir.toString() + File.separator + newXCAFileName;
         }
@@ -1303,7 +1303,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     public void setExternalAntennaPatternFile(String xcaFileName) {
 
-        String path = Settings.instance().get("AuxData/envisatAuxDataPath") + File.separator + xcaFileName;
+        String path = Settings.instance().get("AuxData.envisatAuxDataPath") + File.separator + xcaFileName;
         externalAuxFile = new File(path);
         if (!externalAuxFile.exists()) {
             throw new OperatorException("External antenna pattern file for unit test does not exist");

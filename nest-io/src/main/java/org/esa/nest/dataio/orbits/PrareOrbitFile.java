@@ -82,11 +82,11 @@ public class PrareOrbitFile extends BaseOrbitFile {
         String orbitPath = "";
         String remoteBaseFolder = "";
         if (mission.equals("ERS1")) {
-            orbitPath = Settings.instance().get("OrbitFiles/prareERS1OrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles/prareFTP_ERS1_remotePath");
+            orbitPath = Settings.instance().get("OrbitFiles.prareERS1OrbitPath");
+            remoteBaseFolder = Settings.instance().get("OrbitFiles.prareFTP_ERS1_remotePath");
         } else if (mission.equals("ERS2")) {
-            orbitPath = Settings.instance().get("OrbitFiles/prareERS2OrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles/prareFTP_ERS2_remotePath");
+            orbitPath = Settings.instance().get("OrbitFiles.prareERS2OrbitPath");
+            remoteBaseFolder = Settings.instance().get("OrbitFiles.prareFTP_ERS2_remotePath");
         }
 
         // get product start time
@@ -131,11 +131,11 @@ public class PrareOrbitFile extends BaseOrbitFile {
     }
 
     private void getRemotePrareFiles(final String remotePath, final File localPath, final String prefix) {
-        final String prareFTP = Settings.instance().get("OrbitFiles/prareFTP");
+        final String prareFTP = Settings.instance().get("OrbitFiles.prareFTP");
         try {
             if (ftp == null) {
-                final String user = Settings.instance().get("OrbitFiles/prareFTP_user");
-                final String pass = Settings.instance().get("OrbitFiles/prareFTP_pass");
+                final String user = Settings.instance().get("OrbitFiles.prareFTP_user");
+                final String pass = Settings.instance().get("OrbitFiles.prareFTP_pass");
                 ftp = new ftpUtils(prareFTP, user, pass);
                 final Map<String, Long> allfileSizeMap = ftpUtils.readRemoteFileList(ftp, prareFTP, remotePath);
                 fileSizeMap = new HashMap<String, Long>(10);

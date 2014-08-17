@@ -95,7 +95,7 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
     @Override
     public File getDemInstallDir() {
         if (demInstallDir == null) {
-            final String path = Settings.instance().get("DEM/AsterDEMDataPath");
+            final String path = Settings.instance().get("DEM.AsterDEMDataPath");
             demInstallDir = new File(path);
             if (!demInstallDir.exists())
                 demInstallDir.mkdirs();

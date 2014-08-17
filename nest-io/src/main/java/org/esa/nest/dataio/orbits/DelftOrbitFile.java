@@ -102,17 +102,17 @@ public class DelftOrbitFile extends BaseOrbitFile {
         String orbitPathStr = "";
         String delftFTPPath = "";
         if (mission.equals("ENVISAT")) {
-            orbitPathStr = Settings.instance().get("OrbitFiles/delftEnvisatOrbitPath");
-            delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ENVISAT_precise_remotePath");
+            orbitPathStr = Settings.instance().get("OrbitFiles.delftEnvisatOrbitPath");
+            delftFTPPath = Settings.instance().get("OrbitFiles.delftFTP_ENVISAT_precise_remotePath");
         } else if (mission.equals("ERS1")) {
-            orbitPathStr = Settings.instance().get("OrbitFiles/delftERS1OrbitPath");
-            delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ERS1_precise_remotePath");
+            orbitPathStr = Settings.instance().get("OrbitFiles.delftERS1OrbitPath");
+            delftFTPPath = Settings.instance().get("OrbitFiles.delftFTP_ERS1_precise_remotePath");
         } else if (mission.equals("ERS2")) {
-            orbitPathStr = Settings.instance().get("OrbitFiles/delftERS2OrbitPath");
-            delftFTPPath = Settings.instance().get("OrbitFiles/delftFTP_ERS2_precise_remotePath");
+            orbitPathStr = Settings.instance().get("OrbitFiles.delftERS2OrbitPath");
+            delftFTPPath = Settings.instance().get("OrbitFiles.delftFTP_ERS2_precise_remotePath");
         }
         final File orbitPath = new File(orbitPathStr);
-        final String delftFTP = Settings.instance().get("OrbitFiles/delftFTP");
+        final String delftFTP = Settings.instance().get("OrbitFiles.delftFTP");
 
         if (!orbitPath.exists())
             orbitPath.mkdirs();

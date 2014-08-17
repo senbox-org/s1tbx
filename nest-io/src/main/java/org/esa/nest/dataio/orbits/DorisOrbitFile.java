@@ -83,11 +83,11 @@ public class DorisOrbitFile extends BaseOrbitFile {
         String orbitPath = "";
         String remoteBaseFolder = "";
         if (orbitType.contains(DORIS_VOR)) {
-            orbitPath = Settings.instance().get("OrbitFiles/dorisVOROrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles/dorisFTP_vor_remotePath");
+            orbitPath = Settings.instance().get("OrbitFiles.dorisVOROrbitPath");
+            remoteBaseFolder = Settings.instance().get("OrbitFiles.dorisFTP_vor_remotePath");
         } else if (orbitType.contains(DORIS_POR)) {
-            orbitPath = Settings.instance().get("OrbitFiles/dorisPOROrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles/dorisFTP_por_remotePath");
+            orbitPath = Settings.instance().get("OrbitFiles.dorisPOROrbitPath");
+            remoteBaseFolder = Settings.instance().get("OrbitFiles.dorisFTP_por_remotePath");
         }
 
         final Date startDate = sourceProduct.getStartTime().getAsDate();
@@ -166,11 +166,11 @@ public class DorisOrbitFile extends BaseOrbitFile {
     }
 
     private void getRemoteDorisFiles(final String remotePath, final File localPath) {
-        final String dorisFTP = Settings.instance().get("OrbitFiles/dorisFTP");
+        final String dorisFTP = Settings.instance().get("OrbitFiles.dorisFTP");
         try {
             if (ftp == null) {
-                final String user = Settings.instance().get("OrbitFiles/dorisFTP_user");
-                final String pass = Settings.instance().get("OrbitFiles/dorisFTP_pass");
+                final String user = Settings.instance().get("OrbitFiles.dorisFTP_user");
+                final String pass = Settings.instance().get("OrbitFiles.dorisFTP_pass");
                 ftp = new ftpUtils(dorisFTP, user, pass);
                 fileSizeMap = ftpUtils.readRemoteFileList(ftp, dorisFTP, remotePath);
             }
