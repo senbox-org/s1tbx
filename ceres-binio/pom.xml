@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-core</artifactId>
+            <artifactId>snap-ceres-core</artifactId>
         </dependency>
 
         <dependency>
