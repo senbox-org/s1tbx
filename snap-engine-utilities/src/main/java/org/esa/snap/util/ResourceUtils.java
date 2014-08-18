@@ -130,7 +130,7 @@ public final class ResourceUtils {
                 && RuntimeActivator.getInstance().getModuleContext() != null) {
             return RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig().getContextId();
         }
-        return System.getProperty("ceres.context", "nest");
+        return System.getProperty("ceres.context", "unknown");
     }
 
     public static String getHomeUrl() {
