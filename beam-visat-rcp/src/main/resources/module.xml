@@ -80,10 +80,10 @@
         <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>ceres-binding</module>
+        <module>snap-binding</module>
     </dependency>
     <dependency>
-        <module>ceres-ui</module>
+        <module>snap-ceres-ui</module>
     </dependency>
     <!-- TODO: replace this dependency! -->
     <dependency>

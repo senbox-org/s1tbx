@@ -51,10 +51,10 @@
         <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>ceres-ui</module>
+        <module>snap-ceres-ui</module>
     </dependency>
     <dependency>
-        <module>ceres-binding</module>
+        <module>snap-binding</module>
     </dependency>
 
     <categories>System,Library</categories>

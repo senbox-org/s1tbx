@@ -52,7 +52,7 @@
     </changelog>
 
     <dependency>
-        <module>ceres-binding</module>
+        <module>snap-binding</module>
     </dependency>
     <dependency>
         <module>snap-core</module>

@@ -24,7 +24,7 @@
     <categories>System,World-Map</categories>
 
     <dependency>
-        <module>ceres-glayer</module>
+        <module>snap-glayer</module>
     </dependency>
     <dependency>
         <module>snap-core</module>
