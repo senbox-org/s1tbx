@@ -13,7 +13,7 @@
     </description>
 
     <dependency>
-        <module>ceres-binding</module>
+        <module>snap-binding</module>
     </dependency>
 
     <changelog>

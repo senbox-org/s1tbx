@@ -26,7 +26,7 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>ceres-core</module>
+        <module>snap-ceres-core</module>
     </dependency>
 
     <activator>com.bc.ceres.jai.ModuleActivator</activator>

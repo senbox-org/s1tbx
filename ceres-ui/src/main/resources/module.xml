@@ -14,10 +14,10 @@
     </description>
 
     <dependency>
-        <module>ceres-glayer</module>
+        <module>snap-glayer</module>
     </dependency>
     <dependency>
-        <module>ceres-binding</module>
+        <module>snap-binding</module>
     </dependency>
 
     <changelog>
