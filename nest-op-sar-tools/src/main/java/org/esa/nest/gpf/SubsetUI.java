@@ -92,8 +92,13 @@ public class SubsetUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        regionX.setText(String.valueOf(paramMap.get("regionX")));
-        regionY.setText(String.valueOf(paramMap.get("regionY")));
+        Integer x = (Integer)paramMap.get("regionX");
+        if(x == null) x = 0;
+        regionX.setText(String.valueOf(x));
+
+        Integer y = (Integer)paramMap.get("regionY");
+        if(y == null) y = 0;
+        regionY.setText(String.valueOf(y));
 
         Integer widthVal = (Integer) paramMap.get("width");
         Integer heightVal = (Integer) paramMap.get("height");
@@ -115,16 +120,16 @@ public class SubsetUI extends BaseOperatorUI {
 
         geoRegion = (Geometry) paramMap.get("geoRegion");
         if (geoRegion != null) {
-            geoCoordRadio.setSelected(true);
 
             final Coordinate coord[] = geoRegion.getCoordinates();
             worldMapUI.setSelectionStart((float) coord[0].y, (float) coord[0].x);
             worldMapUI.setSelectionEnd((float) coord[2].y, (float) coord[2].x);
 
+            getGeoRegion();
+
+            geoCoordRadio.setSelected(true);
             pixelPanel.setVisible(false);
             geoPanel.setVisible(true);
-
-            getGeoRegion();
         }
     }
 
@@ -234,6 +239,10 @@ public class SubsetUI extends BaseOperatorUI {
             if (e.getActionCommand().contains("pixelCoordRadio")) {
                 pixelPanel.setVisible(true);
                 geoPanel.setVisible(false);
+
+                //reset geoRegion
+                geoRegion = null;
+                paramMap.put("geoRegion", geoRegion);
             } else {
                 pixelPanel.setVisible(false);
                 geoPanel.setVisible(true);
@@ -279,7 +288,6 @@ public class SubsetUI extends BaseOperatorUI {
     private class MapListener implements DatabaseQueryListener {
 
         public void notifyNewEntryListAvailable() {
-
         }
 
         public void notifyNewMapSelectionAvailable() {

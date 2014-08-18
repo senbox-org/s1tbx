@@ -39,7 +39,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "Subset",
+@OperatorMetadata(alias = "SpatialSubset",
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
@@ -60,9 +60,9 @@ public class SubsetOp extends Operator {
     private int regionX = 0;
     @Parameter(label = "Y", defaultValue = "0")
     private int regionY = 0;
-    @Parameter(label = "Width")
+    @Parameter(label = "Width", defaultValue = "1000")
     private int width = 1000;
-    @Parameter(label = "Height")
+    @Parameter(label = "Height", defaultValue = "1000")
     private int height = 1000;
     @Parameter(defaultValue = "1")
     private int subSamplingX = 1;
@@ -103,7 +103,6 @@ public class SubsetOp extends Operator {
             if (region != null) {
                 if (region.isEmpty()) {
                     throw new OperatorException("Subset: No intersection with source product boundary " + sourceProduct.getName());
-                    //region.setSize(1,1);
                 }
                 subsetDef.setRegion(region);
             }

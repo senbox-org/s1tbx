@@ -47,7 +47,7 @@
         <OperatorUI>
             <id>org.esa.nest.gpf.SubsetUI</id>
             <class>org.esa.nest.gpf.SubsetUI</class>
-            <operatorName>Subset</operatorName>
+            <operatorName>SpatialSubset</operatorName>
         </OperatorUI>
         <OperatorUI>
             <id>org.esa.nest.gpf.TileWriterUI</id>
