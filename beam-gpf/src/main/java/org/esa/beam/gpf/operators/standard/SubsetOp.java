@@ -74,7 +74,8 @@ import static java.lang.Math.*;
                   category = "Geometric Operations",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
                   version = "1.1",
-                  copyright = "(c) 2011 by Brockmann Consult")
+                  copyright = "(c) 2011 by Brockmann Consult",
+                  description = "Create a spatial and/or spectral subset of a data product.")
 public class SubsetOp extends Operator {
 
     @SourceProduct(alias = "source", description = "The source product to create the subset from.")
@@ -82,14 +83,6 @@ public class SubsetOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-	@Parameter(label = "X", defaultValue="0")
-    private int regionX = 0;
-    @Parameter(label = "Y", defaultValue="0")
-    private int regionY = 0;
-    @Parameter(label = "Width", defaultValue="1000")
-    private int width = 1000;
-    @Parameter(label = "Height", defaultValue="1000")
-    private int height = 1000;
     @Parameter(description = "The subset region in pixel coordinates.\n" +
                              "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region;
@@ -124,7 +117,6 @@ public class SubsetOp extends Operator {
     public SubsetOp() {
         subSamplingX = 1;
         subSamplingY = 1;
-        region = new Rectangle(regionX, regionY, width, height);
     }
 
     public String[] getTiePointGridNames() {
@@ -363,7 +355,7 @@ public class SubsetOp extends Operator {
         }
 
         public Rectangle getPixelRegion() {
-            return new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            return new Rectangle(x1, y1, x2 - x1, y2 - y1);
         }
     }
 }
