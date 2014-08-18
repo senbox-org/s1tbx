@@ -28,5 +28,5 @@ public final class Constants {
     /**
      * The symbolic name of the system module.
      */
-    public static final String SYSTEM_MODULE_NAME = "ceres-core";
+    public static final String SYSTEM_MODULE_NAME = "snap-ceres-core";
 }

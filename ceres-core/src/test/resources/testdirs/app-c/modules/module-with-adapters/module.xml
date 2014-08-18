@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>module-with-adapters</symbolicName>
 
-    <extension point="ceres-core:adapters">
+    <extension point="snap-ceres-core:adapters">
 
         <adapter>
             <extensibleType>java.lang.String</extensibleType>
