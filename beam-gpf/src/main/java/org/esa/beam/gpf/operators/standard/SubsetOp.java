@@ -281,7 +281,7 @@ public class SubsetOp extends Operator {
                                                       product.getSceneRasterHeight()));
     }
 
-    public static Geometry computeProductGeometry(Product product) {
+    static Geometry computeProductGeometry(Product product) {
         final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product);
         final Polygon[] polygons = new Polygon[paths.length];
         final GeometryFactory factory = new GeometryFactory();
