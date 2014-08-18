@@ -34,7 +34,7 @@
         <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
         <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <hdf.version>2.7</hdf.version>
-        <netcdf.version>4.3.21</netcdf.version>
+        <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.5.3</jide.version>
 		
