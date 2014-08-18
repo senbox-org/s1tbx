@@ -15,12 +15,13 @@
  */
 package org.esa.snap.db;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.*;
 import java.io.File;
@@ -31,26 +32,16 @@ import java.sql.Statement;
 /**
 
  */
-public class TestProductDao extends TestCase {
+public class TestProductDao {
 
     private ProductDB db;
 
-    public TestProductDao(String name) {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         db = ProductDB.instance();
     }
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        ProductDB.deleteInstance();
-    }
-
+    @Test
     public void testAddAll() throws Exception {
 
         final File folder1 = new File(TestUtils.rootPathASAR);
@@ -92,6 +83,7 @@ public class TestProductDao extends TestCase {
         }
     }
 
+    @Test
     public void testListAll() throws SQLException {
 
         final ProductEntry[] list = db.getProductEntryList(false);
@@ -100,6 +92,7 @@ public class TestProductDao extends TestCase {
         }
     }
 
+    @Test
     public void testGetAllMissions() throws SQLException {
         TestUtils.log.info("Missions:");
         final String[] missions = db.getAllMissions();
@@ -108,6 +101,7 @@ public class TestProductDao extends TestCase {
         }
     }
 
+    @Test
     public void testGetENVISATProductTypes() throws SQLException {
         TestUtils.log.info("ENVISAT productTypes:");
         final String[] productTypes = db.getProductTypes(new String[]{"ENVISAT"});
@@ -116,6 +110,7 @@ public class TestProductDao extends TestCase {
         }
     }
 
+    @Test
     public void testGetAllProductTypes() throws SQLException {
         TestUtils.log.info("All productTypes:");
         final String[] productTypes = db.getAllProductTypes();
@@ -124,6 +119,7 @@ public class TestProductDao extends TestCase {
         }
     }
 
+    @Test
     public void testSelect() throws SQLException {
         final String strGetProductsWhere = "SELECT * FROM " + ProductTable.TABLE + " WHERE MISSION='ENVISAT'";
 
@@ -131,6 +127,7 @@ public class TestProductDao extends TestCase {
         final ResultSet results = queryStatement.executeQuery(strGetProductsWhere);
     }
 
+    @Test
     public void testRectIntersect() {
         Rectangle.Float a = new Rectangle.Float(-10, 10, 100, 100);
         Rectangle.Float b = new Rectangle.Float(-20, 20, 50, 50);

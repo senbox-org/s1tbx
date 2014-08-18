@@ -15,7 +15,6 @@
  */
 package org.esa.snap.gpf.ui;
 
-import junit.framework.TestCase;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
@@ -23,6 +22,8 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,12 +31,14 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Tests the SourceUI
  * User: lveci
  * Date: Feb 15, 2008
  */
-public class TargetUITest extends TestCase {
+public class TargetUITest {
 
     TargetUI targetUI;
     private Product[] defaultProducts;
@@ -43,8 +46,8 @@ public class TargetUITest extends TestCase {
     private final Map<String, Object> parameterMap = new HashMap<String, Object>();
     private final String FILE_PARAMETER = "file";
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         targetUI = new TargetUI();
         appContext = new MockAppContext();
 
@@ -59,18 +62,14 @@ public class TargetUITest extends TestCase {
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        targetUI = null;
-        appContext = null;
-    }
-
+    @Test
     public void testCreateOpTab() {
 
         JComponent component = targetUI.CreateOpTab("testOp", parameterMap, appContext);
         assertNotNull(component);
     }
 
+    @Test
     public void testUpdateParameters() {
 
         targetUI.CreateOpTab("testOp", parameterMap, appContext);

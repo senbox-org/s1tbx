@@ -15,7 +15,6 @@
  */
 package org.esa.snap.gpf.ui;
 
-import junit.framework.TestCase;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
@@ -23,6 +22,8 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,12 +31,14 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.*;
+
 /**
  * Tests the SourceUI
  * User: lveci
  * Date: Feb 15, 2008
  */
-public class SourceUITest extends TestCase {
+public class SourceUITest {
 
     SourceUI sourceUI;
     private Product[] defaultProducts;
@@ -43,8 +46,8 @@ public class SourceUITest extends TestCase {
     private final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
     private static final String FILE_PARAMETER = "file";
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         sourceUI = new SourceUI();
         appContext = new MockAppContext();
 
@@ -57,15 +60,9 @@ public class SourceUITest extends TestCase {
             appContext.getProductManager().addProduct(prod);
             defaultProducts[i] = prod;
         }
-
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        sourceUI = null;
-        appContext = null;
-    }
-
+    @Test
     public void testCreateOpTab() {
 
         JComponent component = sourceUI.CreateOpTab("testOp", parameterMap, appContext);
@@ -74,6 +71,7 @@ public class SourceUITest extends TestCase {
         assertEquals(sourceUI.sourceProductSelector.getProductNameComboBox().getModel().getSize(), 2);
     }
 
+    @Test
     public void testValidateParameters() {
 
         sourceUI.CreateOpTab("testOp", parameterMap, appContext);
@@ -81,6 +79,7 @@ public class SourceUITest extends TestCase {
         assertTrue(valid.getState() == UIValidation.State.OK);
     }
 
+    @Test
     public void testUpdateParameters() {
 
         sourceUI.CreateOpTab("testOp", parameterMap, appContext);
