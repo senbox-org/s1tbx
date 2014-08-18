@@ -30,13 +30,13 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>ceres-core</module>
+        <module>snap-ceres-core</module>
     </dependency>
     <dependency>
-        <module>ceres-glayer</module>
+        <module>snap-glayer</module>
     </dependency>
     <dependency>
-        <module>ceres-jai</module>
+        <module>snap-jai</module>
     </dependency>
 
     <changelog>
