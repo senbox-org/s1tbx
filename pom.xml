@@ -42,54 +42,53 @@
         <maven>3.0.1</maven>
     </prerequisites>
 
-    <!-- TODO - clarify which public maven repo will will deploy to -->
-
     <repositories>
         <repository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
             <releases>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </repository>
-        <repository>
-            <id>array-mvn-repo</id>
-            <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://corp.array.ca/nest-web/mavenrepo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>repo1.maven.org</id>
-            <name>maven repository</name>
-            <url>http://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
 
-    <!--
-            <distributionManagement>
-                <repository>
-                    <id>bc-mvn-repo-public</id>
-                    <name>Public Maven Repository at Brockmann Consult</name>
-                    <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
-                    <uniqueVersion>false</uniqueVersion>
-                </repository>
-                <snapshotRepository>
-                    <id>bc-mvn-repo-public</id>
-                    <name>Public Maven Snapshot Repository at Brockmann Consult</name>
-                    <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
-                    <uniqueVersion>false</uniqueVersion>
-                </snapshotRepository>
-            </distributionManagement>
-        -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/releases/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Snapshot Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <licenses>
         <license>
