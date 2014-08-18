@@ -132,7 +132,7 @@ public class OperatorContextTest {
         assertNotNull(node0Element.getAttribute("id"));
         assertNotNull(node0Element.getAttribute("operator"));
         assertNotNull(node0Element.getAttribute("moduleName"));
-        assertEquals("beam-gpf", node0Element.getAttributeString("moduleName"));
+        assertEquals("snap-gpf", node0Element.getAttributeString("moduleName"));
         assertNotNull(node0Element.getAttribute("moduleVersion"));
 
     }
