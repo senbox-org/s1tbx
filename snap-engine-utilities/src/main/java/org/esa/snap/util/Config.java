@@ -17,6 +17,7 @@ package org.esa.snap.util;
 
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,26 +27,49 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * loads the nest.config file
+ * loads the *.config files
  */
 public class Config {
 
-    private final PropertyMap configPrefs = new PropertyMap();
+    private final PropertyMap appConfig = new PropertyMap();
     private final Map<String, PropertyMap> testPrefs = new HashMap<String, PropertyMap>(10);
-    private static Config instance = null;
+    private static Config _instance = null;
+
+    public static Config instance() {
+        if (_instance == null) {
+            _instance = new Config();
+        }
+        return _instance;
+    }
 
     private Config() {
-        try {
-            configPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config" + File.separator + SystemUtils.getApplicationContextId() + ".config"));
+        load(appConfig, new File(SystemUtils.getApplicationHomeDir(), "config" + File.separator + SystemUtils.getApplicationContextId() + ".config"));
+    }
 
-            final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationHomeDir(), "config"));
-            for (File testFile : testFiles) {
+    public static void load(final PropertyMap propMap, final File file) {
+        if (!file.exists()) {
+            BeamLogManager.getSystemLogger().severe(file.getAbsolutePath() + " not found");
+        }
+        try {
+            propMap.load(file);
+
+        } catch (IOException e) {
+            BeamLogManager.getSystemLogger().severe("Unable to load application config " + e.getMessage());
+        }
+    }
+
+    private void loadTestConfigs() {
+
+        final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationHomeDir(), "config"));
+        for (File testFile : testFiles) {
+            try {
                 PropertyMap testPref = new PropertyMap();
                 testPref.load(testFile);
                 testPrefs.put(testFile.getName(), testPref);
+
+            } catch (IOException e) {
+                BeamLogManager.getSystemLogger().severe("Unable to load test config " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println("Unable to load config preferences " + e.getMessage());
         }
     }
 
@@ -62,17 +86,14 @@ public class Config {
         return testFiles.toArray(new File[testFiles.size()]);
     }
 
-    public static PropertyMap getConfigPropertyMap() {
-        if (instance == null) {
-            instance = new Config();
-        }
-        return instance.configPrefs;
+    public static PropertyMap getAppConfigPropertyMap() {
+        return instance().appConfig;
     }
 
     public static PropertyMap getAutomatedTestConfigPropertyMap(final String name) {
-        if (instance == null) {
-            instance = new Config();
+        if (instance().testPrefs.isEmpty()) {
+            instance().loadTestConfigs();
         }
-        return instance.testPrefs.get(name);
+        return instance().testPrefs.get(name);
     }
 }
