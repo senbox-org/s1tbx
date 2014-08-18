@@ -15,27 +15,18 @@
  */
 package org.esa.snap.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * MathUtils Tester.
  *
  * @author lveci
  */
-public class TestMathUtils extends TestCase {
+public class TestMathUtils {
 
-    public TestMathUtils(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testHanning() {
         int windowLength = 5;
         double w0 = Maths.hanning(-2.0, windowLength);
@@ -50,6 +41,7 @@ public class TestMathUtils extends TestCase {
         assertTrue(Double.compare(w4, 0.2500000000000001) == 0);
     }
 
+    @Test
     public void testInterpolationSinc() {
 
         double y0 = (-2.0 - 0.3) * (-2.0 - 0.3);

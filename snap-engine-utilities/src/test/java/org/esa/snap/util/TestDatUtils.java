@@ -15,32 +15,23 @@
  */
 package org.esa.snap.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * DatUtils Tester.
  *
  * @author lveci
  */
-public class TestDatUtils extends TestCase {
+public class TestDatUtils {
 
-    public TestDatUtils(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testFindHomeFolder() {
         final File homeFolder = ResourceUtils.findHomeFolder();
-        final File file = new File(homeFolder, "config" + File.separator + "settings_win.xml");
+        final File file = new File(homeFolder, "config" + File.separator + ResourceUtils.getContextID()+".config");
 
         assertTrue(file.exists());
     }
