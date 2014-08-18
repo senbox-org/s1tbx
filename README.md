@@ -41,11 +41,11 @@ spectrum of EO user communities, including science, applications and services de
 	
 	git clone https://github.com/senbox-org/ceres.git
 	
-	git clone https://github.com/arraydev/s1tbx.git
+	git clone https://github.com/senbox-org/s1tbx.git
 	
-	git clone https://github.com/CS-SI/s2tbx.git
+	git clone https://github.com/senbox-org/s2tbx.git
 	
-	git clone https://github.com/bcdev/s3tbx.git
+	git clone https://github.com/senbox-org/s3tbx.git
 	
 	Note: the snap, beam and ceres repositories are mandetory. The toolboxes are each optional.
 2. CD into SNAP/snap and build the source: 
